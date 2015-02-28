@@ -11,5 +11,6 @@ Depends: R (>= 3.0.0), methods
 Imports: igraph, Matrix, matlab, expm, stats4, parallel
 LazyLoad: yes
 ByteCompile: yes
-BugReports: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
+BugReports: http://github.com/spedygiorgio/markovchain/issues
+URL: http://github.com/spedygiorgio/markovchain/
 Suggests: testthat

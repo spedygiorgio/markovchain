@@ -1,0 +1,42 @@
+17-02-2015
+Version 0.1.1
+Fasten markovchain sequence thanks to Mildenberger Thoralf suggesti
+
+04-01-2015
+Version 0.1.0
+It is now possible to fit a markovchain and a markovchainList object from a matrix or data.frame
+Updated vignettes
+Added tests
+
+21-06-2014
+Version 0.0.9.5
+Updated vignettes
+Added a method to convert a square matrix into a markovchain object.
+
+20-04-2014
+Version 0.0.9
+Updated vignette
+Added parallel processing for bootstrap estimation
+
+09-02-2014
+Version 0.0.8
+Minor vignette enhancements
+Added function to find period of a DTMC
+
+12-01-2014
+Version 0.0.7
+Deeply improved vignettes
+Added predict and summary methods
+Added function to perform probabilistic analysis
+
+31-12-2013
+Version 0.0.5
+Improved vignettes
+Add predict methods
+Add methods for transitory states
+
+04-11-2013
+Version 0.0.3
+Added various method to easily handle markovchain and markovchainList objects
+Implemented rmarkovchain and bootstrap fit
+Improved vignettes

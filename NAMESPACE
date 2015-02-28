@@ -1,0 +1,38 @@
+exportPattern("^[[:alpha:]]+")
+import(igraph, Matrix,  methods)
+import(parallel)
+importFrom("stats4",  plot, summary)
+importFrom("matlab", zeros)
+importFrom("matlab", find)
+importFrom("matlab", eye)
+importFrom("matlab", size)
+importFrom("matlab", ones)
+importFrom("expm",'%^%')
+
+exportMethods(
+    "*",
+    "^",
+    "==",
+    "absorbingStates",
+    "transientStates",
+    "coerce",
+    "dim",
+    "initialize",
+    #"plotMc",
+    "plot",
+    "print",
+	"summary",
+    "show",
+    "states",
+    "steadyStates",
+    "canonicForm",
+    "t",
+	"[",
+    "transitionProbability",
+    "conditionalDistribution",
+	"canonicForm"
+)
+exportClasses(
+    "markovchain",
+     "markovchainList" 
+)

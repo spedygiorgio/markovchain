@@ -70,6 +70,7 @@ setMethod("initialize",
 #                                                  dimnames=list(stateNames,stateNames)
 #                                                  ))
 
+# dodajemy sobie jakas linie
 
 
 .isProb<-function(prob)

@@ -8,7 +8,8 @@ importFrom("matlab", eye)
 importFrom("matlab", size)
 importFrom("matlab", ones)
 importFrom("expm",'%^%')
-
+importFrom(Rcpp, sourceCpp)
+useDynLib("markovchain")
 exportMethods(
     "*",
     "^",

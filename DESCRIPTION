@@ -14,3 +14,5 @@ ByteCompile: yes
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
 Suggests: testthat
+LinkingTo: Rcpp
+Imports: Rcpp

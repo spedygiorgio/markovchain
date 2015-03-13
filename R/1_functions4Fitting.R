@@ -244,28 +244,8 @@ createSequenceMatrix<-function(stringchar, toRowProbs=FALSE,sanitize=TRUE)
 #function that return a Markov Chain from a given matrix of observations
 
 .matr2Mc<-function(matrData,laplacian=0) {
-  #find unique values scanning the matrix
-  nCols<-ncol(matrData)
-  uniqueVals<-character()
-  for(i in 1:nCols) uniqueVals<-union(uniqueVals,unique(as.character(matrData[,i])))
-  uniqueVals<-sort(uniqueVals)
-  #create a contingency matrix
-  contingencyMatrix<-matrix(rep(0,length(uniqueVals)^2),ncol=length(uniqueVals))
-  rownames(contingencyMatrix)<-colnames(contingencyMatrix)<-uniqueVals
-  #fill the contingency matrix
-  for(i in 1:nrow(matrData))
-  {
-    for( j in 2:nCols)
-    {
-      stateBegin<-as.character(matrData[i,j-1]);whichRow<-which(uniqueVals==stateBegin)
-      stateEnd<-as.character(matrData[i,j]);whichCols<-which(uniqueVals==stateEnd)
-      contingencyMatrix[whichRow,whichCols]<-contingencyMatrix[whichRow,whichCols]+1
-    }
-  }
-  #add laplacian correction if needed
-  contingencyMatrix<-contingencyMatrix+laplacian
-  #get a transition matrix and a DTMC
-  transitionMatrix<-contingencyMatrix/rowSums(contingencyMatrix)
+  Rcpp::sourceCpp("src/matr2Mc.cpp")
+  transitionMatrix <- matr2Mc(matrData, laplacian)
   outMc<-new("markovchain",transitionMatrix=transitionMatrix)
  
   return(outMc)

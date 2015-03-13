@@ -214,7 +214,7 @@ createSequenceMatrix<-function(stringchar, toRowProbs=FALSE,sanitize=TRUE)
 .mcFitBootStrap<-function(data, nboot=10,byrow=TRUE, parallel=FALSE)
 {
   #create the list of bootstrap sequence sample
-	theList<-.bootstrapCharacterSequences(stringchar=data, n=nboot)
+	theList<-bootstrapCharacterSequences(stringchar=data, n=nboot)
 	if(!parallel)
 		#convert the list in a probability matrix
 		pmsBootStrapped<-lapply(X=theList, FUN=createSequenceMatrix, toRowProbs=TRUE,sanitize=TRUE)
@@ -228,7 +228,7 @@ createSequenceMatrix<-function(stringchar, toRowProbs=FALSE,sanitize=TRUE)
 		stopCluster(cl)
 	}
  
-  estimateList<-.fromBoot2Estimate(listMatr=pmsBootStrapped)
+  estimateList<-fromBoot2Estimate(listMatr=pmsBootStrapped)
   #from raw to estimate
   temp<-estimateList$estMu
   transMatr<-sweep(temp, 1, rowSums(temp), FUN="/")
@@ -286,9 +286,9 @@ markovchainFit<-function(data,method="mle", byrow=TRUE,nboot=10,laplacian=0, nam
     out<-list(estimate=outMc)
   } else {
   #fits other methods
-  if(method=="mle") out<-.mcFitMle(stringchar=data,byrow=byrow)
+  if(method=="mle") out<-mcFitMle(stringchar=data,byrow=byrow)
   if(method=="bootstrap") out<-.mcFitBootStrap(data=data,byrow=byrow,nboot=nboot, parallel=parallel)
-  if(method=="laplace") out<-.mcFitLaplacianSmooth(stringchar=data,byrow=byrow,laplacian=laplacian)
+  if(method=="laplace") out<-mcFitLaplacianSmooth(stringchar=data,byrow=byrow,laplacian=laplacian)
   }
   if(!missing(name)) out$estimate@name<-name
   return(out)

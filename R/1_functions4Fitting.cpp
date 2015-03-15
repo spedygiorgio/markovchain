@@ -111,13 +111,31 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs =
 // [[Rcpp::export]]
 List mcFitMle(CharacterVector stringchar, bool byrow){
 	NumericMatrix initialMatrix = createSequenceMatrix(stringchar, 1, 1, 0.0);
+	// frequencyMatrix(i, j) stores the number of times the transition i -> j happens
+	NumericMatrix frequencyMatrix = createSequenceMatrix(stringchar, 0, 1, 0.0);
+	NumericMatrix lowerConfidenceBound = NumericMatrix(initialMatrix.nrow(), initialMatrix.nrow());
+	NumericMatrix upperConfidenceBound = NumericMatrix(initialMatrix.nrow(), initialMatrix.nrow());
 
 	if(!byrow) initialMatrix = transpose(initialMatrix);
+
 	S4 outMc("markovchain");
 	outMc.slot("transitionMatrix") = initialMatrix;
 	outMc.slot("name") = "MLE Fit";
 
-	List out = List::create(Named("estimate") = outMc);
+	// for 95 % confidence
+	double w = 1.96;
+
+	for(int i = 0; i < initialMatrix.nrow(); i++)
+		for(int j = 0; j < initialMatrix.nrow(); j++)
+			if(initialMatrix(i, j))
+				lowerConfidenceBound(i, j) = std::max(std::min(initialMatrix(i, j) * (1. - w / sqrt(frequencyMatrix(i, j))), 1.), 0.), 
+				upperConfidenceBound(i, j) = std::max(std::min(initialMatrix(i, j) * (1. + w / sqrt(frequencyMatrix(i, j))), 1.), 0.);
+			else
+				// avoid 0 / 0!
+				lowerConfidenceBound(i, j) = 0., upperConfidenceBound(i, j) = 0.;
+
+	List out = List::create(Named("estimate") = outMc, 
+		Named("confidenceInterval") = List::create(lowerConfidenceBound, upperConfidenceBound));
 	return out;
 }
 
@@ -159,6 +177,7 @@ List bootstrapCharacterSequences(CharacterVector stringchar, int n){
 	for(int i = 0; i < n; i++){
 		std::vector<std::string> charseq;
 		int idx = rand() % contingencyMatrix.ncol();
+		// pick a state at random
 		std::string item = std::string(rownames(idx));
 		charseq.push_back(item);
 
@@ -169,6 +188,7 @@ List bootstrapCharacterSequences(CharacterVector stringchar, int n){
 			for(int k = 1; k < contingencyMatrix.ncol(); k++)	
 				probs.push_back(probs[k-1] + probVector(k));
 
+			// pick the next state to transition to
 			double res = distribution(generator);
 			charseq.push_back(std::string(rownames(int(std::lower_bound(probs.begin(), probs.end(), res) - probs.begin()))));
 		}
@@ -183,6 +203,7 @@ List bootstrapCharacterSequences(CharacterVector stringchar, int n){
 
 // [[Rcpp::export]]
 List fromBoot2Estimate(List listMatr){
+	// function to estimate the mean and sd
 	int sampleSize = listMatr.size();
 	std::vector<NumericMatrix> arrayMatr;
 	for(int i = 0; i < sampleSize; i++)

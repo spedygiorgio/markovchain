@@ -190,7 +190,8 @@ List bootstrapCharacterSequences(CharacterVector stringchar, int n){
 
 			// pick the next state to transition to
 			double res = distribution(generator);
-			charseq.push_back(std::string(rownames(int(std::lower_bound(probs.begin(), probs.end(), res) - probs.begin()))));
+			idx = int(std::lower_bound(probs.begin(), probs.end(), res) - probs.begin());
+			charseq.push_back(std::string(rownames(idx)));
 		}
 		samples(i) = charseq;
 	}
@@ -212,6 +213,7 @@ List fromBoot2Estimate(List listMatr){
 	
 	NumericMatrix matrMean = NumericMatrix(matrDim, matrDim);
 	NumericMatrix matrSd = NumericMatrix(matrDim, matrDim);
+	matrMean.attr("rownames") = matrMean.attr("colnames") = arrayMatr[0].attr("rownames");
 
 	for(int i = 0; i < matrDim; i++){
 		for(int j = 0; j < matrDim; j++){

@@ -188,8 +188,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1
 			}
 		}
 		res = sample(itemset, 1, true, probsVector);
-		resvec = res[0];
-		ch = resvec[0];
+		resvec = res[0]; ch = resvec[0];
 		charseq.push_back(ch);
  	}
 	samples.push_back(charseq);

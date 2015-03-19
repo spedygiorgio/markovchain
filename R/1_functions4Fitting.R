@@ -286,9 +286,9 @@ markovchainFit<-function(data,method="mle", byrow=TRUE,nboot=10,laplacian=0, nam
     out<-list(estimate=outMc)
   } else {
   #fits other methods
-  if(method=="mle") out<-mcFitMle(stringchar=data,byrow=byrow)
+  if(method=="mle") out<-.mcFitMle(stringchar=data,byrow=byrow)
   if(method=="bootstrap") out<-.mcFitBootStrap(data=data,byrow=byrow,nboot=nboot, parallel=parallel)
-  if(method=="laplace") out<-mcFitLaplacianSmooth(stringchar=data,byrow=byrow,laplacian=laplacian)
+  if(method=="laplace") out<-.mcFitLaplacianSmooth(stringchar=data,byrow=byrow,laplacian=laplacian)
   }
   if(!missing(name)) out$estimate@name<-name
   return(out)

@@ -5,7 +5,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
+#include <tbb/tbb.h>
+
 using namespace Rcpp;
+
+std::vector<NumericMatrix> pmsBootStrapped;
 
 template <typename T>
 T transpose(const T & m){      
@@ -101,8 +105,26 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs =
 			for(int j = 0; j < sizeMatr; j++)
 				freqMatrix(i, j) /= rowSum(i);
 	
+	//if(push)	pmsBootStrapped.push_back(freqMatrix);
 	return freqMatrix;
 }
+
+/*
+* class to be used with Intel TBB's parallel_for
+*/
+class ApplyCSM{
+	List bootStrapList;
+
+public:
+	void operator()(const tbb::blocked_range<int>& r) const{
+	//void operator()(int begin, int end){
+		for(int i = r.begin(); i != r.end(); i++)
+		//for(int i = begin; i < end; i++)
+			pmsBootStrapped[i] = createSequenceMatrix(as<CharacterVector>(bootStrapList(i)), 1, 1, 0);
+	}
+
+	ApplyCSM(List _bootStrapList) : bootStrapList(_bootStrapList){}
+};
 
 /*
 * maximum likelihood mc fitter
@@ -229,6 +251,40 @@ List fromBoot2Estimate(List listMatr){
 }
 
 // [[Rcpp::export]]
+List mcFitBootStrap(CharacterVector data, int nboot = 10, bool byrow = 1, bool parallel = 0){
+	// generate bootstrap data
+	List theList = bootstrapCharacterSequences(data, nboot);
+	// clear data in bootstrap variable
+	pmsBootStrapped.resize(nboot, createSequenceMatrix(as<CharacterVector>(theList(0)), TRUE, TRUE));
+	
+	if(!parallel)
+		// serial computation
+		for(int i = 0; i < nboot; i++)	
+			pmsBootStrapped[i] = createSequenceMatrix(as<CharacterVector>(theList(i)), TRUE, TRUE);
+	else
+		// if parallel is set, use Intel TBB
+		tbb::parallel_for(tbb::blocked_range<int>(0, nboot), ApplyCSM(theList));
+
+	List estimateList = fromBoot2Estimate(List::create(pmsBootStrapped)(0));
+	NumericMatrix temp = estimateList["estMu"];
+	NumericMatrix transMatr = temp;
+	NumericVector rowsums = rowSumsC(temp);
+
+	// normalize the entries to get frequency
+	for(int i = 0; i < temp.nrow(); i++)
+		for(int j = 0; j < temp.ncol(); j++)
+			transMatr(i, j) /= rowsums(i);
+
+	S4 estimate("markovchain");
+	estimate.slot("transitionMatrix") = transMatr;
+	estimate.slot("byrow") = byrow;
+	estimate.slot("name") = "BootStrap Estimate";
+
+	List out = List::create(Rcpp::Named("estimate") = estimate, Rcpp::Named("standardError") = estimateList["estSigma"], Rcpp::Named("bootStrapSamples") = List::create(pmsBootStrapped)(0)); 
+	return out;
+}
+
+// [[Rcpp::export]]
 S4 matr2Mc(CharacterMatrix matrData, double laplacian = 0){
 	int nCols = matrData.ncol(), nRows = matrData.nrow();
 
@@ -273,4 +329,37 @@ S4 matr2Mc(CharacterMatrix matrData, double laplacian = 0){
 	outMc.slot("transitionMatrix") = transitionMatrix;
 
 	return outMc;
+}
+
+// [[Rcpp::export]]
+List markovchainFitC(SEXP data, String method = "mle", bool byrow = 1, int nboot = 10, double laplacian = 0, String name = "", bool parallel = 0){
+	List out;
+	if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")){ 
+		CharacterMatrix mat;
+		if(Rf_inherits(data, "data.frame")){
+			DataFrame dat(data);
+			mat = CharacterMatrix(dat.nrows(), dat.size());
+			for(int i = 0; i < dat.size(); i++)
+				mat(_,i) = CharacterVector(dat[i]);
+		} 
+		else mat = data;
+	
+		if(!byrow) mat = transpose(mat);
+		S4 outMc = matr2Mc(mat, laplacian);
+		out = List::create(Rcpp::Named("estimate") = outMc);
+	} 
+
+	else{
+		if(method == "mle") 		out = mcFitMle(data, byrow);
+		if(method == "bootstrap") 	out = mcFitBootStrap(data, nboot, byrow, parallel);
+		if(method == "laplace") 	out = mcFitLaplacianSmooth(data, byrow, laplacian);
+	}
+
+	if(name != ""){
+		S4 estimate = out["estimate"];
+		estimate.slot("name") = name;
+		out["estimate"] = estimate;
+	}
+
+	return out;
 }

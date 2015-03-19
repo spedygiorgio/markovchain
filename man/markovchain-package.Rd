@@ -12,8 +12,8 @@ The package contains classes and method to create and manage (plot, print, expor
 \tabular{ll}{
 Package: \tab markovchain\cr
 Type: \tab Package\cr
-Version: \tab 0.1.2\cr
-Date: \tab 2015-03-01\cr
+Version: \tab 0.1.3\cr
+Date: \tab 2015-03-20\cr
 License: \tab GPL-2\cr
 Depends: \tab R (>= 2.14), methods, expm, matlab, igraph, Matrix\cr
 }
@@ -24,7 +24,7 @@ Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 
 }
 \references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+Discrete-Time Markov Models, Bremaud, Springer 1999
 }
 \keyword{ package }
 

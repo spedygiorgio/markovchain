@@ -10,6 +10,7 @@
 using namespace Rcpp;
 
 std::vector<NumericMatrix> pmsBootStrapped;
+tbb::concurrent_vector<NumericMatrix> tbbBootStrapData;
 
 template <typename T>
 T transpose(const T & m){      
@@ -105,7 +106,6 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs =
 			for(int j = 0; j < sizeMatr; j++)
 				freqMatrix(i, j) /= rowSum(i);
 	
-	//if(push)	pmsBootStrapped.push_back(freqMatrix);
 	return freqMatrix;
 }
 
@@ -117,10 +117,8 @@ class ApplyCSM{
 
 public:
 	void operator()(const tbb::blocked_range<int>& r) const{
-	//void operator()(int begin, int end){
 		for(int i = r.begin(); i != r.end(); i++)
-		//for(int i = begin; i < end; i++)
-			pmsBootStrapped[i] = createSequenceMatrix(as<CharacterVector>(bootStrapList(i)), 1, 1, 0);
+			tbbBootStrapData.push_back(createSequenceMatrix(as<CharacterVector>(bootStrapList(i)), 1, 1, 0));
 	}
 
 	ApplyCSM(List _bootStrapList) : bootStrapList(_bootStrapList){}
@@ -261,9 +259,12 @@ List mcFitBootStrap(CharacterVector data, int nboot = 10, bool byrow = 1, bool p
 		// serial computation
 		for(int i = 0; i < nboot; i++)	
 			pmsBootStrapped[i] = createSequenceMatrix(as<CharacterVector>(theList(i)), TRUE, TRUE);
-	else
+	else{
 		// if parallel is set, use Intel TBB
 		tbb::parallel_for(tbb::blocked_range<int>(0, nboot), ApplyCSM(theList));
+		for(int i = 0; i < tbbBootStrapData.size(); i++)
+			pmsBootStrapped[i] = tbbBootStrapData[i];
+	}
 
 	List estimateList = fromBoot2Estimate(List::create(pmsBootStrapped)(0));
 	NumericMatrix temp = estimateList["estMu"];
@@ -280,7 +281,7 @@ List mcFitBootStrap(CharacterVector data, int nboot = 10, bool byrow = 1, bool p
 	estimate.slot("byrow") = byrow;
 	estimate.slot("name") = "BootStrap Estimate";
 
-	List out = List::create(Rcpp::Named("estimate") = estimate, Rcpp::Named("standardError") = estimateList["estSigma"], Rcpp::Named("bootStrapSamples") = List::create(pmsBootStrapped)(0)); 
+	List out = List::create(Rcpp::Named("estimate") = estimate, Rcpp::Named("standardError") = estimateList["estSigma"], Rcpp::Named("bootStrapSamples") = List::create(pmsBootStrapped)(0));
 	return out;
 }
 

@@ -1,4 +1,6 @@
+useDynLib(markovchain)
 exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
 import(igraph, Matrix,  methods)
 import(parallel)
 importFrom("stats4",  plot, summary)

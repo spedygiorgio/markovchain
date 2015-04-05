@@ -1,6 +1,7 @@
+// [[Rcpp::depends(RcppParallel)]]
+#include <RcppParallel.h>
 #include <Rcpp.h>
-#include <omp.h>
-#include <unistd.h>
+#include <time.h>
 
 using namespace Rcpp;
 
@@ -188,7 +189,8 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1
 			}
 		}
 		res = sample(itemset, 1, true, probsVector);
-		resvec = res[0]; ch = resvec[0];
+		resvec = res[0];
+		ch = resvec[0];
 		charseq.push_back(ch);
  	}
 	samples.push_back(charseq);
@@ -220,6 +222,20 @@ List _fromBoot2Estimate(List listMatr) {
   return List::create(_["estMu"]=matrMean, _["estSigma"]=matrSd);
 }
 
+// worker for parallel loop
+struct ForLoopWorker : public RcppParallel::Worker
+{
+   const List input;
+   List output;
+
+   ForLoopWorker(const List input, List output)
+      : input(input), output(output) {}
+
+   void operator()(std::size_t begin, std::size_t end) {
+	output[begin] = createSequenceMatrix_cpp(input[begin], true, true);
+   }
+};
+
 List _mcFitBootStrap(CharacterVector data, int nboot=10, bool byrow=true, bool parallel=false) {
   List theList = _bootstrapCharacterSequences(data, nboot);
   int n = theList.size();
@@ -229,11 +245,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot=10, bool byrow=true, bool p
 	for(int i = 0; i < n; i++) 
 		pmsBootStrapped[i] = createSequenceMatrix_cpp(theList[i], true, true);
   } else {
-	int cores = sysconf(_SC_NPROCESSORS_ONLN);
-	omp_set_num_threads(cores);
-	#pragma omp parallel for
-	for(int i = 0; i < n; i ++) 
-		pmsBootStrapped[i] = createSequenceMatrix_cpp(theList[i], true, true);
+  	ForLoopWorker forloop(theList, pmsBootStrapped);
+  	parallelFor(0, n, forloop);
   }
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
   NumericMatrix transMatr = _toRowProbs(estimateList["estMu"]);
@@ -324,4 +337,3 @@ List markovchainFit_cpp(SEXP data, String method="mle", bool byrow=true, int nbo
   }
   return out;
 }
-

@@ -1,9 +1,9 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.1.3
-Date: 2015-03-20
-Author: Giorgio Alfredo Spedicato
+Version: 0.1.4
+Date: 2015-04-04
+Author: Giorgio Alfredo Spedicato [aut,cre] and Tae Seung Kang [aut]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov chains (DTMC) more easily. In addition functions to perform statistical (fitting and drawing random variates) and probabilistic (analysis of DTMC proprieties) analysis are provided.
 License: GPL-2

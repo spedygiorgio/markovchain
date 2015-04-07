@@ -95,35 +95,8 @@ rmarkovchain<-function(n,object,...)
 
 #core function to get sequence matrix
 
-createSequenceMatrix<-function(stringchar, toRowProbs=FALSE,sanitize=TRUE)
-{
-  elements <- sort(unique(stringchar))
-  sizeMatr <- length(elements)
-  freqMatrix <- zeros(sizeMatr)
-  rownames(freqMatrix) <- elements
-  colnames(freqMatrix) <- elements
-  for(i in 1:(length(stringchar)-1))
-  {
-    posFrom <- which(rownames(freqMatrix)==stringchar[i])
-    posTo <- which(rownames(freqMatrix)==stringchar[i+1])
-    freqMatrix[posFrom,posTo]=freqMatrix[posFrom,posTo]+1
-  }
-  #sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
-  if(sanitize==TRUE)
-  {
-	  if(any(rowSums(freqMatrix)==0))
-	  {
-		  indexesToBeSanitized<-which(rowSums(freqMatrix)==0)
-		  for(i in indexesToBeSanitized) {
-			  for(j in 1:sizeMatr) freqMatrix[i,j]<-1/sizeMatr
-		  }
-	  }
-  }
-  if(toRowProbs==TRUE)
-  {
-    freqMatrix<-freqMatrix/rowSums(freqMatrix)
-  }
-  return(freqMatrix)
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
+    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
 
 #functon to fit a Markov chain by MLE
@@ -273,28 +246,9 @@ createSequenceMatrix<-function(stringchar, toRowProbs=FALSE,sanitize=TRUE)
 
 
 #fit
-
-markovchainFit<-function(data,method="mle", byrow=TRUE,nboot=10,laplacian=0, name, parallel=FALSE)
-{
-  if(class(data) %in% c("data.frame","matrix")) {
-    #if data is a data.frame forced to matrix
-    if(is.data.frame(data)) data<-as.matrix(data)
-    #byrow assumes distinct observations (trajectiories) are per row
-    #otherwise transpose
-    if(!byrow) data<-t(data)
-    outMc<-.matr2Mc(matrData = data,laplacian=laplacian)
-    out<-list(estimate=outMc)
-  } else {
-  #fits other methods
-  if(method=="mle") out<-.mcFitMle(stringchar=data,byrow=byrow)
-  if(method=="bootstrap") out<-.mcFitBootStrap(data=data,byrow=byrow,nboot=nboot, parallel=parallel)
-  if(method=="laplace") out<-.mcFitLaplacianSmooth(stringchar=data,byrow=byrow,laplacian=laplacian)
-  }
-  if(!missing(name)) out$estimate@name<-name
-  return(out)
+markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95) {
+    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel)
 }
-
-
 
 #' Fit a markovchainList
 #' 

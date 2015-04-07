@@ -35,7 +35,7 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
 }
 
 // [[Rcpp::export]]
-NumericMatrix createSequenceMatrix_cpp(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
   CharacterVector elements = unique(stringchar).sort();
   int sizeMatr = elements.size();
   
@@ -143,7 +143,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel=95
 }
 
 List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian=0.01) {
-  NumericMatrix origNum = createSequenceMatrix_cpp(stringchar, false);
+  NumericMatrix origNum = createSequenceMatrix(stringchar, false);
   int nRows = origNum.nrow(), nCols = origNum.ncol();
   for(int i = 0; i < nRows; i ++) {
 	double rowSum = 0;
@@ -167,7 +167,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 
 List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1) {
   if(size == -1) size = stringchar.size();
-  NumericMatrix contingencyMatrix = createSequenceMatrix_cpp(stringchar);
+  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar);
 
   List samples, res;
   CharacterVector itemset = rownames(contingencyMatrix);
@@ -232,7 +232,7 @@ struct ForLoopWorker : public RcppParallel::Worker
       : input(input), output(output) {}
 
    void operator()(std::size_t begin, std::size_t end) {
-	output[begin] = createSequenceMatrix_cpp(input[begin], true, true);
+	output[begin] = createSequenceMatrix(input[begin], true, true);
    }
 };
 
@@ -243,7 +243,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot=10, bool byrow=true, bool p
 
   if(!parallel) { 
 	for(int i = 0; i < n; i++) 
-		pmsBootStrapped[i] = createSequenceMatrix_cpp(theList[i], true, true);
+		pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
   } else {
   	ForLoopWorker forloop(theList, pmsBootStrapped);
   	parallelFor(0, n, forloop);
@@ -306,7 +306,7 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
 }
 
 // [[Rcpp::export]]
-List markovchainFit_cpp(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95) {
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
 	CharacterMatrix mat;

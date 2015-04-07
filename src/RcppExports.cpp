@@ -5,22 +5,22 @@
 
 using namespace Rcpp;
 
-// createSequenceMatrix_cpp
-NumericMatrix createSequenceMatrix_cpp(CharacterVector stringchar, bool toRowProbs, bool sanitize);
-RcppExport SEXP markovchain_createSequenceMatrix_cpp(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {
+// createSequenceMatrix
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
+RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< CharacterVector >::type stringchar(stringcharSEXP);
     Rcpp::traits::input_parameter< bool >::type toRowProbs(toRowProbsSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    __result = Rcpp::wrap(createSequenceMatrix_cpp(stringchar, toRowProbs, sanitize));
+    __result = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize));
     return __result;
 END_RCPP
 }
-// markovchainFit_cpp
-List markovchainFit_cpp(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel);
-RcppExport SEXP markovchain_markovchainFit_cpp(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP) {
+// markovchainFit
+List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel);
+RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -32,7 +32,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< String >::type name(nameSEXP);
     Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
     Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    __result = Rcpp::wrap(markovchainFit_cpp(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel));
+    __result = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel));
     return __result;
 END_RCPP
 }

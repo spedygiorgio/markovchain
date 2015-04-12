@@ -335,5 +335,10 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
     estimate.slot("name") = name;
     out["estimate"] = estimate;
   }
+  
+  S4 estimate = out["estimate"];
+  estimate.slot("states") = rownames(estimate.slot("transitionMatrix"));
+  out["estimate"] = estimate;
+  
   return out;
 }

@@ -1,7 +1,6 @@
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 #include <Rcpp.h>
-#include <time.h>
 
 using namespace Rcpp;
 
@@ -70,7 +69,7 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   return (freqMatrix);
 }
 
-List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel=95.0) {
+List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   // get initialMatr and freqMatr 
   CharacterVector elements = unique(stringchar).sort();
   int sizeMatr = elements.size();
@@ -105,14 +104,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel=95
   if(byrow==false) initialMatr = _transpose(initialMatr);
 
   // confidence interval
-  double zscore = 1.96;
-  if(confidencelevel == 99.9) zscore = 3.3;
-  else if(confidencelevel == 99.0) zscore = 2.577;
-  else if(confidencelevel == 98.5) zscore = 2.43;
-  else if(confidencelevel == 97.5) zscore = 2.243;
-  else if(confidencelevel == 90.0) zscore = 1.645;
-  else if(confidencelevel == 85.0) zscore = 1.439;
-  else if(confidencelevel == 75.0) zscore = 1.151;
+  double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
 
   int n = stringchar.size();
   NumericMatrix lowerEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
@@ -174,10 +166,9 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1
   int itemsetsize = itemset.size();
 
   Function sample("sample");
-  srand(time(NULL));
   for(int i = 0; i < n; i ++) {
 	CharacterVector charseq, resvec;	
-	int rnd = rand()%itemsetsize;
+  int rnd = (int)(runif(1)(0) * itemsetsize);
  	String ch = itemset[rnd];
 	charseq.push_back(ch);
 	for(int j = 1; j < size; j ++) {
@@ -325,7 +316,7 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
    	S4 outMc =_matr2Mc(mat,laplacian);
  	out = List::create(_["estimate"] = outMc);
   } else {
-    if(method == "mle") out = _mcFitMle(data, byrow);
+    if(method == "mle") out = _mcFitMle(data, byrow, confidencelevel);
     if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel);
     if(method == "laplace") out = _mcFitLaplacianSmooth(data, byrow, laplacian);
   }

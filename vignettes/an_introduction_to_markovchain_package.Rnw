@@ -37,13 +37,13 @@
 %% almost as usual
 
 
-\author{Giorgio Alfredo Spedicato, Mirko Signorelli}
+\author{Giorgio Alfredo Spedicato}
 
 \title{The \pkg{markovchain} Package: A Package for Easily Handling Discrete
 Markov Chains in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Giorgio Alfredo Spedicato, Mirko Signorelli} %% comma-separated
+\Plainauthor{Giorgio Alfredo Spedicato} %% comma-separated
 \Plaintitle{The markovchaing Package: A Package for Easily Handling Discrete
 Markov Chains in R} %% without formatting
 \Shorttitle{The markovchain package} %% a short title (if necessary)
@@ -73,17 +73,13 @@ Finally, some examples in which the package's functions are applied to Economics
 %% in the following format:
 \Address{
   Giorgio Alfredo Spedicato\\
-  StatisticalAdvisor\\
+  Ph.D C.Stat ACAS\\
+  UnipolSai R\&D\\
   Via Firenze 11, Paderno Dugnano
   20037 Italy\\
   Telephone: +39/334/6634384\\
   E-mail: \email{spedygiorgio@gmail.com}\\
-  URL: \url{www.statisticaladvisor.com}   \\
-  \\
-  Mirko Signorelli\\
-  Department of Statistical Sciences, University of Padua\\
-  Via Cesare Battisti 241, Padova 35121 Italy\\
-  E-mail: \email{signorelli@stat.unipd.it}
+  URL: \url{www.statisticaladvisor.com}\\
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
@@ -967,6 +963,8 @@ weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 @
 
+The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
+
 Is is also possible to fit a DTMC or a \code{markovchainList} object 
 from \code{matrix} or \code{data.frame} objects as shown in following code.
 
@@ -1409,12 +1407,12 @@ only the real part is taken.
 
 Such limitations are expected to be overcome in future releases. Similarly,
 future versions of the package are expected to improve the code in terms of numerical accuracy and rapidity.
-More deep internal function profiling and integration of \proglang{C++} code by means of \pkg{Rcpp} package \citep{RcppR} will be explored.
+An ititial rewriting of internal function in \proglang{C++} by means of \pkg{Rcpp} package \citep{RcppR} has been started.
 
 
 \section*{Aknowledgments}\label{sec:aknowledgements}
 
-The authors wish to thank Michael Cole and Tobi Gutman for their suggestions and bug check, as well as Dr. Simona C. Minotti for her suggestions and proofreading.   
+The author wishes to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A very special thanks also to Tae Seung for having rewritten the fitting functions into \pkg{Rcpp}. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.   
 
 \bibliography{markovchainBiblio}
 

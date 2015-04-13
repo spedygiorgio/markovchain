@@ -11,7 +11,7 @@ Laplacian smoother) or bootstrap.
 }
 \usage{
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10,laplacian=0,name, 
-parallel=FALSE)
+parallel=FALSE, confidencelevel=0.95)
 createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE)
 }
 
@@ -38,6 +38,9 @@ Optional character for name slot.
   \item{parallel}{
 Use parallel processing when performing Boostrap estimates.
 }
+  \item{confidencelevel}{
+\deqn{\alpha} level for conficence intervals width. Used only when \code{method} equal to "mle".
+}
   \item{stringchar}{
 Equivalent to data
 }
@@ -59,6 +62,7 @@ A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 Giorgio Spedicato
 }
 \note{
+This function has been rewritten in Rcpp in most parts.
 When MLE method is called, the lists contains one entry: estimate. 
 Bootstrap algorithm has been defined "euristically". In addition, parallel facility is not complete,involving only a part of the bootstrap process.
 When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is currently available.

@@ -1,3 +1,4 @@
-04-04-2015
-Version 0.1.4
-Added Rcpp version
+12-04-2015
+Version 0.2
+This is a milestone for markovchain package since thanks to Tae support now the fitting functions have been rewritten in Rcpp.
+Mirko moved to thanks

@@ -514,7 +514,8 @@ setAs(from="data.frame", to="markovchain", def=.df2Mc)
 	#checks
 	if(dim(from)[1]!=dim(from)[2]) stop("Error! Table is not squared")
 	if(!setequal(rownames(from),colnames(from))) stop("Error! Rows not equal to coulumns")
-	temp <- as.matrix(from)
+	#temp <- as.matrix(from) #compatibility issues raised by Kurt
+  temp <- unclass(as.matrix(from)) #following Kurt's suggestion
 	fromMatr <- temp[,order(rownames(temp))] #makes the same sequence of col / row
 	outMatr <- fromMatr/rowSums(fromMatr)
 	out <- new("markovchain",states=rownames(temp), transitionMatrix=outMatr, byrow=TRUE)

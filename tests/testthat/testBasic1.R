@@ -28,3 +28,13 @@ test_that("States are those that should be", {
   expect_equal(transientStates(mathematicaMc), c("a","b"))
 })
 
+
+###testing proper conversion of objeects
+context("Conversion of objects")
+provaMatr2Mc<-as(mathematicaMatr,"markovchain")
+
+test_that("Conversion of objects", 
+          {
+            expect_equal(class(provaMatr2Mc),"markovchain")
+          })
+

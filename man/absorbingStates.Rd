@@ -13,6 +13,7 @@ These functions return absorbing and transient states of the \code{markovchain} 
 absorbingStates(object)
 transientStates(object)
 canonicForm(object)
+period(object)
 }
 \arguments{
   \item{object}{A \code{markovchain} object.}
@@ -52,5 +53,14 @@ mcE <- new("markovchain", states = c("a", "b", "c", "d"),
 is.irreducible(mcE) #true
 period(mcE) #2
 
+myMatr<-matrix(c(0,0,1/2,1/4,1/4,0,0,
+0,0,1/3,0,2/3,0,0,
+0,0,0,0,0,1/3,2/3,
+0,0,0,0,0,1/2,1/2,
+0,0,0,0,0,3/4,1/4,
+1/2,1/2,0,0,0,0,0,
+1/4,3/4,0,0,0,0,0),byrow=TRUE,ncol=7)
+myMc<-new("markovchain",transitionMatrix=myMatr)
+period(myMc)
 }
 

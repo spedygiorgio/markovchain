@@ -5,7 +5,7 @@ citEntry(entry="Manual",
          author = person(given="Giorgio Alfredo", family="Spedicato"),
          month="04",
          year="2015",
-         note="R package version 0.1.9",
+         note="R package version 0.2",
          textVersion = "Giorgio Alfredo Spedicato. 
 		 markovchain: discrete time Markov chains made easy"
          )

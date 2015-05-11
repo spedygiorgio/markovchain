@@ -8,6 +8,7 @@ This is a milestone for markovchain package, since the package project has been
 selected within the funded GSOC 2015 projects.
 Thanks to Tae support now the fitting functions have been rewritten in Rcpp.
 
+
 20-03-2015
 Version 0.1.3
 Fastened the firstpassage time code thanks to Thoralf suggestion

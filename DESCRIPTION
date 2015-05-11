@@ -1,7 +1,11 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
+<<<<<<< HEAD
 Version: 0.2.1
+=======
+Version: 0.2
+>>>>>>> 46a4c5bd5537ad87713df1fef11b04749d191b71
 Date: 2015-04-29
 Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Mildenberger Thoralf [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>

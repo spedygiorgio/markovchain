@@ -35,6 +35,6 @@ provaMatr2Mc<-as(mathematicaMatr,"markovchain")
 
 test_that("Conversion of objects", 
           {
-            expect_equal(class(provaMatr2Mc),"markovchain")
+            expect_equal(class(provaMatr2Mc)=="markovchain",TRUE)
           })
 

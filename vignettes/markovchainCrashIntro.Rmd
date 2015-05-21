@@ -1,0 +1,48 @@
+---
+title: "Crash Introduction to markovchain R package"
+author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
+date: "19th April 2015"
+output:
+  beamer_presentation:
+    incremental: yes
+    keep_tex: yes
+    toc: yes
+  ioslides_presentation:
+    incremental: yes
+header-includes:
+- \usepackage{url}
+bibliography: markovchainBiblio.bib
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+```
+
+<!--
+%\VignetteEngine{knitr::rmarkdown }
+%\VignetteIndexEntry{Crash Intro to markovchain package}
+-->
+
+#Intro
+
+- The markovchain package [@markovchainR] will be introduced.
+- The package is intended to provide S4 classes to perform probabilistic and statistical analysis of Discrete Time Markov Chains (DTMC). See [@bremaud1999discrete] for a theoretical review of the mathematics underlying the DTMC models.
+- The vignette will show: how to load the package and create a DTMC, how to manage a DTMC, how to perform basic probabilistic analysis, how to fit a DTMC.
+
+---
+
+
+#First moves into the markovchain package
+
+##Loading the package
+- The package is loaded using 
+
+```{r load, echo=TRUE, warning=FALSE, message=FALSE}
+library(markovchain) #load the package
+```
+
+- It requires a recent version of R (>=3.0) and the markovchain package [@markovchainR]. The development version of the package requires also Rcpp package [@RcppR].
+
+---
+
+#Bibliography {.allowframebreaks}

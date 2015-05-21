@@ -3,7 +3,11 @@
 # Author: Giorgio
 ###############################################################################
 
+# loading the markovchain package
 
+.onLoad <- function(libname, pkgname) {
+  packageStartupMessage('This is markovchain package')
+}
 
 # for unloading dynamic libraries
 

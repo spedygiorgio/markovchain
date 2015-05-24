@@ -20,7 +20,7 @@ library(knitr)
 
 <!--
 %\VignetteEngine{knitr::rmarkdown }
-%\VignetteIndexEntry{Crash Intro to markovchain package}
+%\VignetteIndexEntry{Intro to the lifecontingencies R package}
 -->
 
 #Intro

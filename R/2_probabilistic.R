@@ -1,4 +1,4 @@
-
+#@ Tae: to be fully moved in Rcpp
 
 .commclassesKernel <- function(P){
 	m <- ncol(P)
@@ -35,6 +35,7 @@
 	return(out)
 }
 
+#@ Tae: to be fully moved in Rcpp
 #returns the underlying communicating classes
 .communicatingClasses<-function(adjMatr)
 {
@@ -58,6 +59,7 @@
   return(classesList)
 }
 
+#@ Tae: to be fully moved in Rcpp
 #communicating states
 .commStatesFinder<-function(matr)
 {
@@ -68,6 +70,8 @@
   R<-sign(temp)
   return(R)
 }
+
+#@ Tae: its upt to you to decide to move or to keep in R just calling the .commStatesFinder Rcpp version
 
 is.accessible<-function(object, from, to)
 {
@@ -80,6 +84,8 @@ is.accessible<-function(object, from, to)
   return(out)
 }
 
+#@ Tae: as above
+
 #a markov chain is irreducible if is composed by only one communicating class
 is.irreducible<-function(object)
 {
@@ -88,6 +94,8 @@ is.irreducible<-function(object)
   if(length(tocheck)==1) out<-TRUE
   return(out)
 }
+
+#@ Tae: fully move in Rcpp
 
 .summaryKernel<-function(object)
 {
@@ -107,8 +115,8 @@ is.irreducible<-function(object)
   return(summaryMc)
 }
 
-
-#here the function to compute the first passage
+#@ Tae: move in Rcpp
+#here the kernel function to compute the first passage
 .firstpassageKernel<-function(P,i,n){
   G<-P
   H <- matrix(NA, ncol=dim(P)[2], nrow=n) #here Thoralf suggestion
@@ -135,14 +143,14 @@ firstPassage<-function(object,state,n)
 #periodicity
 
 
-# massimo comun denominatore:
+# greatest common denominator: to be moved in Rcpp
 .gcd = function(f,s) {
   
   f <- abs(f)
   s <- abs(s)
   
-	n=min(f,s)
-	N=max(f,s)
+	n <- min(f,s)
+	N <- max(f,s)
   
 	if (n==0) {
 		g=N
@@ -161,7 +169,7 @@ firstPassage<-function(object,state,n)
 	return(g)
 }
 
-
+#@TAE: probably could be moved in Rcpp
 
 #function to  get the period of a DTMC
 period<-function(object) {

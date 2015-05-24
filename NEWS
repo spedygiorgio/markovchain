@@ -4,7 +4,6 @@ Added a CrashIntro vignette
 12-05-2015
 Version 0.2.1
 Fixed a compatibility issue with R 3 development
-=======
 24-04-2015
 Version 0.2
 This is a milestone for markovchain package, since the package project has been 

@@ -6,7 +6,8 @@
 # loading the markovchain package
 
 .onLoad <- function(libname, pkgname) {
-  packageStartupMessage('This is markovchain package')
+  packageStartupMessage('This is markovchain package \n',
+                        'Please report any bug at https://github.com/spedygiorgio/markovchain/issues')
 }
 
 # for unloading dynamic libraries

@@ -4,7 +4,7 @@ author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
 date: "19th April 2015"
 output:
   beamer_presentation:
-    incremental: yes
+    incremental: no
     keep_tex: yes
     toc: yes
   ioslides_presentation:
@@ -16,6 +16,7 @@ bibliography: markovchainBiblio.bib
 
 ```{r setup, include=FALSE}
 library(knitr)
+rm(list=ls())
 ```
 
 <!--
@@ -52,15 +53,20 @@ library(markovchain) #load the package
 
 - DTMC can be easily create following standard S4 classes syntax. The show method displays it.
 
-```{r create, echo=TRUE, tidy=FALSE, message=FALSE}
-tmA <- matrix(c(0,0.5,0.5,.5,0,.5,.5,.5,0),nrow = 3,byrow = TRUE) #define the transition matrix
-dtmcA <- new("markovchain",transitionMatrix=tmA, states=c("a","b","c"), name="MarkovChain A") #create the DTMC
+```{r create, echo=TRUE, tidy=FALSE, message=FALSE,tidy=FALSE}
+tmA <- matrix(c(0,0.5,0.5,.5,0,.5,.5,.5,0),nrow = 3,
+              byrow = TRUE) #define the transition matrix
+dtmcA <- new("markovchain",transitionMatrix=tmA, 
+             states=c("a","b","c"), 
+             name="MarkovChain A") #create the DTMC
 dtmcA
 ```
 
+---
+
 - Otherwise, it can also be created directly coercing a matrix.
 
-```{r create2, echo=TRUE}
+```{r create2, echo=TRUE, tidy=FALSE}
 dtmcA2<-as(tmA, "markovchain") #using coerce from matrix
 states(dtmcA2) #note default names assigned to states
 ```
@@ -84,7 +90,8 @@ plot(dtmcA)
 
 ```{r proprieties, echo=TRUE, tidy=FALSE}
 dtmcA[2,3] #using [ method
-transitionProbability(dtmcA, "b","c") #using specific S4 method
+transitionProbability(dtmcA, 
+                      "b","c") #using specific S4 method
 conditionalDistribution(dtmcA,"b")
 ```
 
@@ -129,4 +136,43 @@ summary(mcMathematica)
 ```
 
 
+---
+
+#Estimation and simulation
+
+- The package permits to fit a DTMC estimating the transition matrix from a sequence of data.
+
+- createSequenceMatrix returns a function showing previous vs actual states from the pairs in a given sequence.
+
+
+```{r fitIntro, echo=TRUE, tidy=FALSE}
+data(rain) #using Alofi rainfall dataset
+mysequence<-rain$rain
+createSequenceMatrix(mysequence)
+```
+
+
+---
+- markovchainFit function allows to obtain the estimated transition matric and the confidence levels (using elliptic MLE hyphotesis).
+
+
+```{r mlfFit, echo=TRUE, tidy=FALSE}
+myFit<-markovchainFit(data=mysequence,confidencelevel = .9,method = "mle")
+myFit
+alofiMc<-myFit$estimate
+```
+
+---
+
+- See the vignettes for further fitting methods as well as for functionalities targeted on non - homogeneous Markov chains.
+
+
+```{r mlfFit2, echo=TRUE, tidy=FALSE}
+alofiMc
+```
+
+
+
+
+---
 #Bibliography {.allowframebreaks}

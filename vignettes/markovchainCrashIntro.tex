@@ -1,0 +1,343 @@
+\documentclass[ignorenonframetext,]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{:}
+\setbeamercolor{caption name}{fg=normal text.fg}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\usepackage{lmodern}
+\ifxetex
+  \usepackage{fontspec,xltxtra,xunicode}
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\else
+  \ifluatex
+    \usepackage{fontspec}
+    \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+    \newcommand{\euro}{€}
+  \else
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+      \fi
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\usepackage{url}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight0.8\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+% Comment these out if you don't want a slide with just the
+% part/section/subsection/subsubsection title:
+\AtBeginPart{
+  \let\insertpartnumber\relax
+  \let\partname\relax
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \let\insertsectionnumber\relax
+  \let\sectionname\relax
+  \frame{\sectionpage}
+}
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{0}
+\usepackage{url}
+
+\title{Crash Introduction to markovchain R package}
+\author{Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS}
+\date{19th April 2015}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+\begin{frame}
+
+\end{frame}
+
+\begin{frame}{Intro}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  The markovchain package (Spedicato 2015) will be introduced.
+\item
+  The package is intended to provide S4 classes to perform probabilistic
+  and statistical analysis of Discrete Time Markov Chains (DTMC). See
+  (Br{é}maud 1999) for a theoretical review of the mathematics
+  underlying the DTMC models.
+\item
+  The vignette will show: how to load the package and create a DTMC, how
+  to manage a DTMC, how to perform basic probabilistic analysis, how to
+  fit a DTMC.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  The package is on Cran since Summer 2013.
+\item
+  It requires a recent version of R (\textgreater{}=3.0). Since version
+  0.2 parts of code have been moved to Rcpp (Eddelbuettel 2013).
+\item
+  The package won a slot in Google Summer of Code 2015 for optimizing
+  internals and expanding functionalities.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{First moves into the markovchain package}
+
+\begin{block}{Loading the package}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  The package is loaded using
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(markovchain) }\CommentTok{#load the package}
+\end{Highlighting}
+\end{Shaded}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\begin{block}{Creating a DTMC}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  DTMC can be easily create following standard S4 classes syntax. The
+  show method displays it.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tmA <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.5}\NormalTok{,.}\DecValTok{5}\NormalTok{,}\DecValTok{0}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{5}\NormalTok{,}\DecValTok{0}\NormalTok{),}\DataTypeTok{nrow =} \DecValTok{3}\NormalTok{,}\DataTypeTok{byrow =} \OtherTok{TRUE}\NormalTok{) }\CommentTok{#define the transition matrix}
+\NormalTok{dtmcA <-}\StringTok{ }\KeywordTok{new}\NormalTok{(}\StringTok{"markovchain"}\NormalTok{,}\DataTypeTok{transitionMatrix=}\NormalTok{tmA, }\DataTypeTok{states=}\KeywordTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"c"}\NormalTok{), }\DataTypeTok{name=}\StringTok{"MarkovChain A"}\NormalTok{) }\CommentTok{#create the DTMC}
+\NormalTok{dtmcA}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## MarkovChain A 
+##  A  3 - dimensional discrete Markov Chain with following states 
+##  a b c 
+##  The transition matrix   (by rows)  is defined as follows 
+##     a   b   c
+## a 0.0 0.5 0.5
+## b 0.5 0.0 0.5
+## c 0.5 0.5 0.0
+\end{verbatim}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  Otherwise, it can also be created directly coercing a matrix.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dtmcA2<-}\KeywordTok{as}\NormalTok{(tmA, }\StringTok{"markovchain"}\NormalTok{) }\CommentTok{#using coerce from matrix}
+\KeywordTok{states}\NormalTok{(dtmcA2) }\CommentTok{#note default names assigned to states}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "s1" "s2" "s3"
+\end{verbatim}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  It is also possible to display a DTMC, using (Csardi and Nepusz 2006)
+  capabilities
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(dtmcA)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{markovchainCrashIntro_files/figure-beamer/plot-1.pdf}
+
+\end{frame}
+
+\begin{frame}{Probabilistic analysis}
+
+\end{frame}
+
+\begin{frame}[fragile]{The basic}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  It is possible to access transition probabilities and to perform basic
+  operations.
+\item
+  Similarly, it is possible to access the conditional distribution of
+  states, \(Pr\left ( X_{t+1} | X_{t}=s \right )\)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dtmcA[}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{] }\CommentTok{#using [ method}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{transitionProbability}\NormalTok{(dtmcA, }\StringTok{"b"}\NormalTok{,}\StringTok{"c"}\NormalTok{) }\CommentTok{#using specific S4 method}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{conditionalDistribution}\NormalTok{(dtmcA,}\StringTok{"b"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   a   b   c 
+## 0.5 0.0 0.5
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  It is possible to simulate states distribution after n-steps
+\end{itemize}
+
+\begin{verbatim}
+##           a     b      c
+## [1,] 0.3125 0.375 0.3125
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  As well as steady states distribution
+\end{itemize}
+
+\begin{verbatim}
+##              a         b         c
+## [1,] 0.3333333 0.3333333 0.3333333
+\end{verbatim}
+
+\begin{itemize}[<+->]
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  The summary method shows the proprieties of the DTCM
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(mcMathematica)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Mathematica  Markov chain that is composed by: 
+## Closed classes: 
+## a b c d 
+## Transient classes: 
+## NONE 
+## The Markov chain is irreducible 
+## The absorbing states are: NONE
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Bibliography}
+
+Br{é}maud, Pierre. 1999. ``Discrete-Time Markov Models.'' In
+\emph{Markov Chains}, 53--93. Springer.
+
+Csardi, Gabor, and Tamas Nepusz. 2006. ``The Igraph Software Package for
+Complex Network Research.'' \emph{InterJournal} Complex Systems: 1695.
+\url{http://igraph.sf.net}.
+
+Eddelbuettel, Dirk. 2013. \emph{Seamless R and C++ Integration with
+Rcpp}. New York: Springer-Verlag.
+
+Spedicato, Giorgio Alfredo. 2015. \emph{Markovchain: An R Package to
+Easily Handle Discrete Markov Chains}.
+
+\end{frame}
+
+\end{document}

@@ -1,7 +1,7 @@
 ---
 title: "Crash Introduction to markovchain R package"
 author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
-date: "19th April 2015"
+date: \today
 output:
   beamer_presentation:
     incremental: no

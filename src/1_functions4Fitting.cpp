@@ -4,19 +4,9 @@
 
 using namespace Rcpp;
 
-template <typename T>
-T _transpose(T & m) {      
-  int k = m.rows(), n = m.cols();
-  T z(n, k);
-  z.attr("dimnames") = List::create(colnames(m), rownames(m)); 
-  int sz1 = n*k-1;
-  typename T::iterator mit, zit;
-  for (mit = m.begin(), zit = z.begin(); mit != m.end(); mit++, zit += n) {
-  	if (zit >= z.end()) zit -= sz1;
-        *zit = *mit;
-  }
-  return (z);
-}
+#include "mathHelperFunctions.h"
+#include "mapFitFunctionsSAI.h"
+#include <math.h>
 
 NumericMatrix _toRowProbs(NumericMatrix x) {
   int nrow = x.nrow(), ncol = x.ncol();
@@ -106,7 +96,6 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   // confidence interval
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
 
-  int n = stringchar.size();
   NumericMatrix lowerEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
   NumericMatrix upperEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
 
@@ -297,10 +286,10 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
 }
 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95) {
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1, 1), CharacterVector newData = CharacterVector()) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
-	CharacterMatrix mat;
+  CharacterMatrix mat;
     	//if data is a data.frame forced to matrix
   	if(Rf_inherits(data, "data.frame")) {
 		DataFrame df(data);
@@ -319,6 +308,7 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
     if(method == "mle") out = _mcFitMle(data, byrow, confidencelevel);
     if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel);
     if(method == "laplace") out = _mcFitLaplacianSmooth(data, byrow, laplacian);
+    if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam, newData);
   }
 
   if(name != "") {

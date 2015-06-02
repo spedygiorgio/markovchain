@@ -1,6 +1,10 @@
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 #include <Rcpp.h>
+
+using namespace Rcpp;
+
+#include "mathHelperFunctions.h"
 #include "mapFitFunctionsSAI.h"
 #include <math.h>
 
@@ -92,7 +96,6 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   // confidence interval
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
 
-  int n = stringchar.size();
   NumericMatrix lowerEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
   NumericMatrix upperEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
 
@@ -283,7 +286,7 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
 }
 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1, 1)) {
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1, 1), CharacterVector newData = CharacterVector()) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
   CharacterMatrix mat;
@@ -305,7 +308,7 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
     if(method == "mle") out = _mcFitMle(data, byrow, confidencelevel);
     if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel);
     if(method == "laplace") out = _mcFitLaplacianSmooth(data, byrow, laplacian);
-    if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam);
+    if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam, newData);
   }
 
   if(name != "") {

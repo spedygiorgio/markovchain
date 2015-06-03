@@ -286,7 +286,7 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
 }
 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1, 1), CharacterVector newData = CharacterVector()) {
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1), CharacterVector newData = CharacterVector()) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
   CharacterMatrix mat;

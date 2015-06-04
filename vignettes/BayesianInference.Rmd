@@ -2,10 +2,11 @@
 title: "Bayesian Inference of First Order Markov Chains"
 author: "Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
-vignette: >
-  %\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains}
-  %\VignetteEngine{knitr::rmarkdown}
+output: pdf_document
+bibliography: markovchainBiblio.bib
+vignette: |
+  %\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains} 
+  %\VignetteEngine{knitr::rmarkdown} 
   \usepackage[utf8]{inputenc}
 ---
 

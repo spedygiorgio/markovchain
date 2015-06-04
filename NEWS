@@ -1,6 +1,7 @@
 30-05-2015
-Version 0.2.2
+Version 0.2.5
 Added a CrashIntro vignette
+Added bayesian
 12-05-2015
 Version 0.2.1
 Fixed a compatibility issue with R 3 development

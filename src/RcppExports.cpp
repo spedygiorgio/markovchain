@@ -19,8 +19,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // markovchainFit
-List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel);
-RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP) {
+List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, NumericMatrix hyperparam, CharacterVector newData);
+RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP hyperparamSEXP, SEXP newDataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -32,7 +32,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< String >::type name(nameSEXP);
     Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
     Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    __result = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel));
+    Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type newData(newDataSEXP);
+    __result = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, newData));
     return __result;
 END_RCPP
 }

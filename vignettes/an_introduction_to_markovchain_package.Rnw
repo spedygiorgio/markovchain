@@ -37,13 +37,13 @@
 %% almost as usual
 
 
-\author{Giorgio Alfredo Spedicato}
+\author{Giorgio Alfredo Spedicato and Tae Seung Kang}
 
 \title{The \pkg{markovchain} Package: A Package for Easily Handling Discrete
 Markov Chains in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Giorgio Alfredo Spedicato} %% comma-separated
+\Plainauthor{Giorgio Alfredo Spedicato, Tae Seung Kang} %% comma-separated
 \Plaintitle{The markovchaing Package: A Package for Easily Handling Discrete
 Markov Chains in R} %% without formatting
 \Shorttitle{The markovchain package} %% a short title (if necessary)
@@ -80,6 +80,13 @@ Finally, some examples in which the package's functions are applied to Economics
   Telephone: +39/334/6634384\\
   E-mail: \email{spedygiorgio@gmail.com}\\
   URL: \url{www.statisticaladvisor.com}\\
+  
+  Tae Seung Kang\\
+  Ph.D student\\
+  Computer & Information Science & Engineering\\
+  University of Florida\\
+  Gainesville, FL, USA\\
+  E-mail: \email{tskang3@gmail.com}\\
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
@@ -88,6 +95,7 @@ Finally, some examples in which the package's functions are applied to Economics
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 <<setup,echo=FALSE, results=hide>>=
 	options(prompt = "R> ", continue = "+  ", 

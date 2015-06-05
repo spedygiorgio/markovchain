@@ -1,6 +1,5 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
-//#include <Rcpp.h>
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
@@ -8,46 +7,55 @@ using namespace Rcpp;
 extern "C" SEXP commclassesKernel(NumericMatrix P){
   unsigned int m = P.ncol(), n;
   CharacterVector stateNames = rownames(P);
-  arma::vec a, b, c, d;
-  arma::mat T = arma::zeros(m);
-  unsigned int oldSum, newSum, i = 0;
-  while(i <= m) {
-    a = i;
-    b = arma::vec(m);
+  std::vector<int> a;
+  arma::vec b, c, d;
+  arma::mat T = arma::zeros(m, m);
+  unsigned int i = 0;
+  int oldSum, newSum, ai;
+  while(i < m) {
+    a.resize(0);
+    a.push_back(i);
+    b = arma::zeros<arma::vec>(m);
     b[i] = 1;
     newSum = 0;
     oldSum = 1;
-    while(oldSum != newSum) {;
-      oldSum = sum(find(b > 0));
+    while(oldSum != newSum) {
+      oldSum = 0;
+      for(int j = 0; j < b.size(); j ++)
+        if(b[j] > 0) oldSum += (j + 1);
       n = a.size();
-      NumericVector r, temp; 
+      NumericVector temp; 
+      NumericMatrix matr(n, m);
       for(unsigned int j = 0; j < n; j ++) {
         temp = P.row(a[j]);
-        for(NumericVector::iterator it = temp.begin(); it != temp.end(); it ++)
-          r.push_back(*it);
+        for(int k = 0; k < temp.size(); k++) 
+          matr(j, k) = temp[k];
       }
-      NumericMatrix matr(n, m, r.begin());
-      c = sum(matr);
-      arma::vec d = c;
-  		n = d.size();
-      for(arma::vec::iterator it = d.begin(); it != d.end(); it++)
-        b[*it] = 1;
+      c = arma::zeros<arma::vec>(m);
+      for(int j = 0; j < m; j++) 
+        for(int k = 0; k < n; k++)
+          c[j] += matr(k, j);
       newSum = 0;
-      for(arma::vec::iterator it = b.begin(); it != b.end(); it ++)
-        if(*it > 0) newSum += *it;
-      newSum = sum(find(b > 0));
-	    a = d;
+      a.resize(0);
+      for(int j = 0; j < b.size(); j++) {
+        if(c[j] > 0) {
+          b[j] = 1; a.push_back(j);
+        }
+        if(b[j] > 0) newSum += (j + 1);
+      }
     }
-    T.insert_rows(i, b);
+    for(unsigned int j = 0; j < b.size(); j ++)
+      T(i, j) = b[j];
     i++;
   }
-
   arma::mat F = arma::trans(T);
-  NumericMatrix C;
+  LogicalMatrix C;
   arma::mat Ca(T.n_rows, T.n_cols);
-  for(i = 0; i < T.n_rows; i ++)
-    for(unsigned int j = 0; j < T.n_cols; j++)
+  for(i = 0; i < T.n_rows; i ++) {
+   for(unsigned int j = 0; j < T.n_cols; j++) {
       Ca(i, j) = (T(i, j) > 0 && F(i, j) > 0);
+   }
+  }
   LogicalVector v(T.n_cols);
   arma::mat tC = Ca.t();
   arma::mat tT = T.t();
@@ -58,12 +66,11 @@ extern "C" SEXP commclassesKernel(NumericMatrix P){
       if(tC(i, j) == tT(i, j)) sums[j] ++;
     v[j] = (sums[j] == m);
   }
-      
-  C.attr("dimnames") = List::create(stateNames, stateNames); 
+  C = as<LogicalMatrix>(wrap(Ca));
+  C.attr("dimnames") = List::create(stateNames, stateNames);
   v.names() = stateNames;
   return List::create(_["C"] = C, _["v"] = v);
 }
-
 
 //returns the underlying communicating classes
 // [[Rcpp::export(.communicatingClassesRcpp)]]
@@ -71,13 +78,17 @@ List communicatingClasses(LogicalMatrix adjMatr)
 {
   int len = adjMatr.nrow();
   List classesList;
+  CharacterVector rnames = rownames(adjMatr);
   for(int i = 0; i < len; i ++) {
+    bool isNull = false;
     LogicalVector row2Check = adjMatr(i, _);
-    CharacterVector rnames = row2Check.names();
-    CharacterVector proposedCommClass;// = names(which(row2Check == true));
-    for(int j = 0; j < row2Check.size(); j++) 
-      if(row2Check[j] == true) 
-          proposedCommClass.push_back(rnames(j));
+    CharacterVector proposedCommClass;
+    for(int j = 0; j < row2Check.size(); j++) {
+      if(row2Check[j] == true) {
+        String rname = rnames[j];
+        proposedCommClass.push_back(rname);
+      }
+    }
     if (i > 0) {
       for(int j = 0; j < classesList.size(); j ++) {
         bool check = false;        
@@ -85,20 +96,22 @@ List communicatingClasses(LogicalMatrix adjMatr)
         std::set<std::string> s1, s2;
         for(int k = 0; k < cv.size(); k ++) {
           s1.insert(as<std::string>(cv[k]));
-          s2.insert(as<std::string>(proposedCommClass[k]));
+          if(proposedCommClass.size() > k) {
+            s2.insert(as<std::string>(proposedCommClass[k]));
+          }
         }
         check = std::equal(s1.begin(), s1.end(), s2.begin());
         if(check) {
-          proposedCommClass = R_NilValue; break;
+          isNull = true;
+          break;
         }
       }
     }
-    if(!Rf_isNull(proposedCommClass) && proposedCommClass.size() > 0) 
-      classesList.push_back(proposedCommClass);    
+    if(!isNull) 
+      classesList.push_back(proposedCommClass);
   }
   return classesList;
 }
-
 
 arma::mat _pow(arma::mat A, int n) {
   arma::mat R = arma::eye(A.n_rows, A.n_rows);
@@ -117,10 +130,10 @@ NumericMatrix commStatesFinder(NumericMatrix matr)
   arma::mat temp = arma::eye(dimMatr, dimMatr) + arma::sign(X);
   temp = _pow(temp, dimMatr - 1);
   arma::mat m;
-  arma::mat R = arma::sign(temp);
-  return wrap(R);
+  NumericMatrix R = wrap(arma::sign(temp));
+  R.attr("dimnames") = List::create(rownames(matr), colnames(matr));
+  return R;
 }
-
 
 bool _intersected(CharacterVector v1, CharacterVector v2) {
   CharacterVector::iterator first1 = v1.begin();
@@ -143,7 +156,7 @@ List summaryKernel(S4 object)
   List communicatingClassList = communicatingClasses(temp["C"]);
   List v = temp["v"];
   CharacterVector ns = v.names();
-  CharacterVector transientStates; //<-names(which(temp$v==FALSE))
+  CharacterVector transientStates; 
   for(int i = 0; i < v.size(); i++) {
     if(v[i] == false)
       transientStates.push_back(ns[i]);
@@ -163,25 +176,28 @@ List summaryKernel(S4 object)
   return(summaryMc);
 }
 
-
 //here the kernel function to compute the first passage
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
-  arma::mat G(P.begin(), P.nrow(), P.ncol());
+  int r = P.nrow(), c = P.ncol();
+  arma::mat G(P.begin(), P.nrow(), P.ncol(), false);
   arma::mat Pa = G;
   arma::mat H(n, P.ncol()); //here Thoralf suggestion
-  H.insert_rows(0, G.row(0)); //initializing the first row  
+  //initializing the first row
+  for(int j = 0; j < G.n_cols; j++)
+    H(0, j) = G(i-1, j);
   arma::mat E = 1 - arma::eye(P.ncol(), P.ncol());
-  
+
   for (int m = 1; m < n; m++) {
-    G = Pa * (G*E);
-    //H<-rbind(H,G[i,]) //removed thanks to Thoralf 
-    H.insert_rows(m, G.row(i)); //here Thoralf suggestion
+    G = Pa * (G%E);
+    for(int j = 0; j < G.n_cols; j ++) 
+      H(m, j) = G(i-1, j);
   }
-  return wrap(H);
+  NumericMatrix R = wrap(H);
+  return R;
 }
 
-// greatest common denominator: to be moved in Rcpp
+// greatest common denominator
 // [[Rcpp::export(.gcdRcpp)]]
 double gcd (int f, int s) {
   int g, n, N, u;
@@ -207,4 +223,3 @@ double gcd (int f, int s) {
 	}
 	return g;
 }
-

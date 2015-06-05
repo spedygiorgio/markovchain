@@ -9,3 +9,27 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, newData)
 }
 
+.commclassesKernelRcpp <- function(P) {
+    .Call('markovchain_commclassesKernel', PACKAGE = 'markovchain', P)
+}
+
+.communicatingClassesRcpp <- function(adjMatr) {
+    .Call('markovchain_communicatingClasses', PACKAGE = 'markovchain', adjMatr)
+}
+
+.commStatesFinderRcpp <- function(matr) {
+    .Call('markovchain_commStatesFinder', PACKAGE = 'markovchain', matr)
+}
+
+.summaryKernelRcpp <- function(object) {
+    .Call('markovchain_summaryKernel', PACKAGE = 'markovchain', object)
+}
+
+.firstpassageKernelRcpp <- function(P, i, n) {
+    .Call('markovchain_firstpassageKernel', PACKAGE = 'markovchain', P, i, n)
+}
+
+.gcdRcpp <- function(f, s) {
+    .Call('markovchain_gcd', PACKAGE = 'markovchain', f, s)
+}
+

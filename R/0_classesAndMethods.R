@@ -1,3 +1,5 @@
+#@TAE: substitute calls to hidden functions written in 2_probabilistic with Rcpp ones.
+
 # define Markov Chain class
 
 setClass("markovchain", #class name
@@ -70,7 +72,7 @@ setMethod("initialize",
 #                                                  dimnames=list(stateNames,stateNames)
 #                                                  ))
 
-
+#@TAE: try to see if it can be moved to Rcpp efficiently
 
 .isProb<-function(prob)
 {
@@ -160,6 +162,8 @@ setValidity("markovchain",
   # subset the eigenvectors
   # normalize
   # take the real part: need to be sanitized
+	#@TAE: later we have to see and optimize this part. I am not sure taking
+	#the real part is the most appropriate.
   out <- Re(out)
   return(out)
 }
@@ -312,6 +316,8 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 )
 
 
+#@TAE: create an internal function that does this. Check also if the canonic form function 
+#is appropriate
 
  # method to convert into canonic form a markovchain object
  # TODO: check meaninsg of this function

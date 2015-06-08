@@ -141,36 +141,31 @@ summary(mcMathematica)
 #Estimation and simulation
 
 - The package permits to fit a DTMC estimating the transition matrix from a sequence of data.
-
 - createSequenceMatrix returns a function showing previous vs actual states from the pairs in a given sequence.
 
 
 ```{r fitIntro, echo=TRUE, tidy=FALSE}
-data(rain) #using Alofi rainfall dataset
+#using Alofi rainfall dataset
+data(rain) 
 mysequence<-rain$rain
 createSequenceMatrix(mysequence)
 ```
 
-
 ---
-- markovchainFit function allows to obtain the estimated transition matric and the confidence levels (using elliptic MLE hyphotesis).
 
+- markovchainFit function allows to obtain the estimated transition matric and the confidence levels (using elliptic MLE hyphotesis).
 
 ```{r mlfFit, echo=TRUE, tidy=FALSE}
 myFit<-markovchainFit(data=mysequence,
 confidencelevel = .9,method = "mle")
 myFit
-alofiMc<-myFit$estimate
 ```
-
 ---
 
 - See the vignettes for further fitting methods as well as for functionalities targeted on non - homogeneous Markov chains.
 
 ```{r mlfFit2, echo=TRUE, tidy=FALSE}
-alofiMc
+alofiMc<-myFit$estimate; alofiMc
 ```
 
-
----
 #Bibliography {.allowframebreaks}

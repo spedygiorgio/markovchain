@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// isProb
+bool isProb(double prob);
+RcppExport SEXP markovchain_isProb(SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type prob(probSEXP);
+    __result = Rcpp::wrap(isProb(prob));
+    return __result;
+END_RCPP
+}
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
 RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {

@@ -29,8 +29,8 @@ test_that("States are those that should be", {
   expect_equal(is.accessible(mathematicaMc, "a", "c"),TRUE)
   expect_equal(firstPassage(markov1, "b", 2), matrix(c(0,1,0,0,0,0), nrow=2, byrow=TRUE, 
                                                      dimnames=list(c("1","2"), c("a","b","c"))))
-  expect_equal(.summaryKernelRcpp(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")),
-                                                       transientClasses = list(c("a", "b"))))
+  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
+                                            transientClasses = list(c("a", "b"))))
 })
 
 ###testing proper conversion of objeects

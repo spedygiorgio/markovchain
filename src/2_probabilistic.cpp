@@ -158,7 +158,7 @@ List summaryKernel(S4 object)
   CharacterVector ns = v.names();
   CharacterVector transientStates; 
   for(int i = 0; i < v.size(); i++) {
-    if(v[i] == false)
+    if(bool(v[i]) == false)
       transientStates.push_back(ns[i]);
   }
   List closedClasses, transientClasses;
@@ -222,4 +222,63 @@ double gcd (int f, int s) {
 		}
 	}
 	return g;
+}
+
+// [[Rcpp::export]]
+double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix(1, 1)) {
+  // construct list of states
+  CharacterVector elements = stringchar;
+  for(int i = 0; i < newData.size(); i++)
+    elements.push_back(newData[i]);
+  
+  elements = unique(elements).sort();
+  int sizeMatr = elements.size();
+  
+  // if no hyperparam argument provided, use default value of 1 for all 
+  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
+    NumericMatrix temp(sizeMatr, sizeMatr);
+    for(int i = 0; i < sizeMatr; i++)
+      for(int j = 0; j < sizeMatr; j++)
+        temp(i, j) = 1;
+    hyperparam = temp;
+  }
+  
+  // validity check
+  if(hyperparam.nrow() != sizeMatr || hyperparam.ncol() != sizeMatr) 
+    stop("Dimensions of the hyperparameter matrix are inconsistent");
+  
+  NumericMatrix freqMatr(sizeMatr), newFreqMatr(sizeMatr);
+
+  double predictiveDist = 0.; // log of the predictive probability
+
+  // populate frequeny matrix for old data; this is used for inference 
+  int posFrom, posTo;
+  for(int i = 0; i < stringchar.size() - 1; i ++) {
+    for (int j = 0; j < sizeMatr; j ++) {
+      if(stringchar[i] == elements[j]) posFrom = j;
+      if(stringchar[i + 1] == elements[j]) posTo = j;
+    }
+    freqMatr(posFrom,posTo)++;
+  }
+  
+  // frequency matrix for new data
+  for(int i = 0; i < newData.size() - 1; i ++) {
+    for (int j = 0; j < sizeMatr; j ++) {
+      if(newData[i] == elements[j]) posFrom = j;
+      if(newData[i + 1] == elements[j]) posTo = j;
+    }
+    newFreqMatr(posFrom,posTo)++;
+  }
+ 
+  for (int i = 0; i < sizeMatr; i++) {
+    double rowSum = 0, newRowSum = 0, paramRowSum = 0;
+    for (int j = 0; j < sizeMatr; j++){ 
+      rowSum += freqMatr(i, j), newRowSum += newFreqMatr(i, j), paramRowSum += hyperparam(i, j);
+      predictiveDist += lgamma(freqMatr(i, j) + newFreqMatr(i, j) + hyperparam(i, j)) -
+                        lgamma(freqMatr(i, j) + hyperparam(i, j));
+    }
+    predictiveDist += lgamma(rowSum + paramRowSum) - lgamma(rowSum + newRowSum + paramRowSum);
+  }
+
+  return exp(predictiveDist);
 }

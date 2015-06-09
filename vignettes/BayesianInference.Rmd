@@ -1,13 +1,11 @@
 ---
 title: "Bayesian Inference of First Order Markov Chains"
 author: "Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato"
-date: "`r Sys.Date()`"
-output: pdf_document
+date: '`r Sys.Date()`'
+output: html_document
 bibliography: markovchainBiblio.bib
-vignette: |
-  %\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains} 
-  %\VignetteEngine{knitr::rmarkdown} 
-  \usepackage[utf8]{inputenc}
+vignette: "%\\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains}
+  \n%\\VignetteEngine{knitr::rmarkdown} \n\\usepackage[utf8]{inputenc}\n"
 ---
 
 The _markovchain_ package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters^[at the time of writing this document, only first order models are supported] by Bayesian inference. This vignette provides the mathematical description for the methods employed by the package. 
@@ -61,9 +59,9 @@ Since this is again a product of Dirichlet distributions, the marginalised distr
 $$ P(s|u) \sim Beta(n(u, s) + \alpha(u, s), n(u) + \alpha(u) - n(u, s) - \alpha(u, s))$$
 
 Thus, the MAP estimate $\hat{\theta}$ is given by
-$$ \hat{\theta} = \Big\{ \frac{n(u, s) + \alpha(u, s)}{n(u) + \alpha(u)}, s \in \mathcal{A}, u \in \mathcal{A} \Big\}  $$
+$$ \hat{\theta} = \Big\{ \frac{n(u, s) + \alpha(u, s) - 1}{n(u) + \alpha(u) - |\mathcal{A}|}, s \in \mathcal{A}, u \in \mathcal{A} \Big\}  $$
 
-It is noteworthy that $\text{E}_{\text{prior}} p(s|u)$ coincides with the MAP estimate. The variance is given by
+The variance is given by
 $$ \text{Var}_{\text{prior}} p(s|u) = \frac{n(u, s) + \alpha(u, s)}{(n(u) + \alpha(u))^2} \frac{n(u) + \alpha(u) - n(u, s) - \alpha(u, s)}{n(u) + \alpha(u) + 1} $$
 
 The confidence intervals are constructed by computing the inverse of the beta integral. 
@@ -94,10 +92,14 @@ For the purpose of this section, we shall continue to use the weather of days ex
 Let us invoke the fit function to estimate the MAP parameters with 92% confidence bounds and hyperparameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
 ```{r}
 markovchainFit(weathersOfDays[1:200], method = "map", confidencelevel = 0.92, 
-               hyperparam = matrix(c(1, 1, 2,
-                                     3, 2, 1,
-                                     2, 2, 3), nrow = 3),
-               newData = weathersOfDays[201:365])
+                         hyperparam = matrix(c(1, 1, 2,
+                                               3, 2, 1,
+                                               2, 2, 3), nrow = 3))
+
+predictiveDistribution(weathersOfDays[1:200], weathersOfDays[201:365], 
+                                   hyperparam = matrix(c(1, 1, 2,
+                                                         3, 2, 1,
+                                                         2, 2, 3), nrow = 3))
 ```
 
 Note that the predictive probability is very small. However, this can be useful when comparing model orders. 

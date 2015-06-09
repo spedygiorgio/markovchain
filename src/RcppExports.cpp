@@ -31,8 +31,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // markovchainFit
-List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, NumericMatrix hyperparam, CharacterVector newData);
-RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP hyperparamSEXP, SEXP newDataSEXP) {
+List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, NumericMatrix hyperparam);
+RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP hyperparamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -45,8 +45,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
     Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type newData(newDataSEXP);
-    __result = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, newData));
+    __result = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam));
     return __result;
 END_RCPP
 }
@@ -116,6 +115,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type f(fSEXP);
     Rcpp::traits::input_parameter< int >::type s(sSEXP);
     __result = Rcpp::wrap(gcd(f, s));
+    return __result;
+END_RCPP
+}
+// predictiveDistribution
+double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam);
+RcppExport SEXP markovchain_predictiveDistribution(SEXP stringcharSEXP, SEXP newDataSEXP, SEXP hyperparamSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterVector >::type stringchar(stringcharSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type newData(newDataSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
+    __result = Rcpp::wrap(predictiveDistribution(stringchar, newData, hyperparam));
     return __result;
 END_RCPP
 }

@@ -14,17 +14,20 @@ header-includes:
 bibliography: markovchainBiblio.bib
 ---
 
+
+<!--
+%\VignetteEngine{knitr::rmarkdown }
+%\VignetteIndexEntry{Crash Introduction to markovchain R package}
+-->
+
+
+#Intro
+
 ```{r setup, include=FALSE}
 library(knitr)
 rm(list=ls())
 ```
 
-<!--
-%\VignetteEngine{knitr::rmarkdown }
-%\VignetteIndexEntry{Intro to the lifecontingencies R package}
--->
-
-#Intro
 
 - The markovchain package [@markovchainR] will be introduced.
 - The package is intended to provide S4 classes to perform probabilistic and statistical analysis of Discrete Time Markov Chains (DTMC). See [@bremaud1999discrete] for a theoretical review of the mathematics underlying the DTMC models.
@@ -107,44 +110,44 @@ finalState
 ```
 
 ---
-
-- As well as steady states distribution
+  
+  - As well as steady states distribution
 
 ```{r steadystate, echo=TRUE, tidy=FALSE}
 steadyStates(dtmcA) #S4 method
 ```
 
 ---
-##Advanced 
-
-- We use an example found on Mathematica Web page, [@mathematica]
+  ##Advanced 
+  
+  - We use an example found on Mathematica Web page, [@mathematica]
 
 ```{r mathematicaMc, echo=TRUE, tidy=FALSE}
 E <- matrix(0, nrow = 4, ncol = 4)
 E[1, 2] <- 1;E[2, 1] <- 1/3; E[2, 3] <- 2/3
 E[3,2] <- 1/4; E[3, 4] <- 3/4; E[4, 3] <- 1
 mcMathematica <- new("markovchain", states = c("a", "b", "c", "d"),
-transitionMatrix = E,name = "Mathematica")
+                     transitionMatrix = E,name = "Mathematica")
 ```
 
 ---
-
-- The summary method shows the proprieties of the DTCM
+  
+  - The summary method shows the proprieties of the DTCM
 
 ```{r summary, echo=TRUE, tidy=FALSE}
 summary(mcMathematica)
 ```
 
-
 ---
-
-#Estimation and simulation
-
-- The package permits to fit a DTMC estimating the transition matrix from a sequence of data.
+  
+  #Estimation and simulation
+  
+  - The package permits to fit a DTMC estimating the transition matrix from a sequence of data.
 - createSequenceMatrix returns a function showing previous vs actual states from the pairs in a given sequence.
 
-
-```{r fitIntro, echo=TRUE, tidy=FALSE}
+---
+  
+  ```{r fitIntro, echo=TRUE, tidy=FALSE}
 #using Alofi rainfall dataset
 data(rain) 
 mysequence<-rain$rain
@@ -152,20 +155,21 @@ createSequenceMatrix(mysequence)
 ```
 
 ---
-
-- markovchainFit function allows to obtain the estimated transition matric and the confidence levels (using elliptic MLE hyphotesis).
+  
+  - markovchainFit function allows to obtain the estimated transition matric and the confidence levels (using elliptic MLE hyphotesis).
 
 ```{r mlfFit, echo=TRUE, tidy=FALSE}
-myFit<-markovchainFit(data=mysequence,
-confidencelevel = .9,method = "mle")
+myFit<-markovchainFit(data=mysequence,confidencelevel = .9,method = "mle")
 myFit
 ```
----
 
-- See the vignettes for further fitting methods as well as for functionalities targeted on non - homogeneous Markov chains.
+---
+  
+  - See the vignettes for further fitting methods as well as for functionalities targeted on non - homogeneous Markov chains.
 
 ```{r mlfFit2, echo=TRUE, tidy=FALSE}
-alofiMc<-myFit$estimate; alofiMc
+alofiMc<-myFit$estimate
+alofiMc
 ```
 
 #Bibliography {.allowframebreaks}

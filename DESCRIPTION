@@ -2,7 +2,7 @@ Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
 Version: 0.2.5
-Date: 2015-05-30
+Date: 2015-06-15
 Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Mildenberger Thoralf [ctb], Sai Bhargav Yalamanchi [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov chains (DTMC) more easily. In addition functions to perform statistical (fitting and drawing random variates) and probabilistic (analysis of DTMC proprieties) analysis are provided.
@@ -10,7 +10,7 @@ License: GPL-2
 Depends: R (>= 3.0.0), methods
 Imports: igraph, Matrix, matlab, expm, stats4, parallel, Rcpp (>= 0.11.5), RcppParallel, utils
 Suggests: knitr, testthat
-VignetteBuilder: knitr
+VignetteBuilder:  utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 LazyLoad: yes
 ByteCompile: yes

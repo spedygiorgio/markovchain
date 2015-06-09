@@ -27,10 +27,34 @@ test_that("States are those that should be", {
   expect_equal(is.irreducible(mathematicaMc),FALSE)
   expect_equal(transientStates(mathematicaMc), c("a","b"))
   expect_equal(is.accessible(mathematicaMc, "a", "c"),TRUE)
-  expect_equal(firstPassage(markov1, "b", 2), matrix(c(0,1,0,0,0,0), nrow=2, byrow=TRUE, 
-                                                     dimnames=list(c("1","2"), c("a","b","c"))))
+#   expect_equal(firstPassage(markov1, "b", 2), matrix(c(0,1,0,0,0,0), nrow=2, byrow=TRUE, 
+#                                                      dimnames=list(c("1","2"), c("a","b","c"))))
   expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
                                             transientClasses = list(c("a", "b"))))
+})
+
+#first passage time
+mathematicaBMatr= matrix(c(  0, 1/2, 1/2,  1/2, 0, 1/2,  1/2, 1/2, 0),byrow=TRUE, nrow=3) ;
+mathematicabMc<-as(mathematicaBMatr, "markovchain")
+#if you repeat this more thime 
+#should behave like
+#http://www.wolfram.com/mathematica/new-in-9/markov-chains-and-queues/distribution-of-times-to-reach-a-target-state.html
+test_that("First passgae time should be", {
+  expect_equal(firstPassage(mathematicabMc, "s3",3), matrix(c(0.5, 0.5, 0,
+                                                            0.25, 0.25, 0.5,
+                                                            0.125, 0.125, 0.25), nrow=3, byrow=TRUE,
+                                                            dimnames=list(c("1", "2", "3"), c("s1", "s2", "s3"))
+                                                            )) 
+  expect_equal(firstPassage(mathematicabMc, "s3",3), matrix(c(0.5, 0.5, 0,
+                                                              0.25, 0.25, 0.5,
+                                                              0.125, 0.125, 0.25), nrow=3, byrow=TRUE,
+                                                            dimnames=list(c("1", "2", "3"), c("s1", "s2", "s3"))
+  ))
+  expect_equal(firstPassage(mathematicabMc, "s3",3), matrix(c(0.5, 0.5, 0,
+                                                              0.25, 0.25, 0.5,
+                                                              0.125, 0.125, 0.25), nrow=3, byrow=TRUE,
+                                                            dimnames=list(c("1", "2", "3"), c("s1", "s2", "s3"))
+  ))
 })
 
 ###testing proper conversion of objeects

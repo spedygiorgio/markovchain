@@ -137,6 +137,7 @@ firstPassage<-function(object,state,n)
   P<-object@transitionMatrix
   stateNames<-states(object)
   i<-which(stateNames==state)
+#   outMatr<-.firstpassageKernel(P=P,i=i,n=n)
   outMatr<-.firstpassageKernelRcpp(P=P,i=i,n=n)
   colnames(outMatr)<-stateNames
   rownames(outMatr)<-1:n

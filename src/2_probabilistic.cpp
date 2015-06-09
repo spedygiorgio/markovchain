@@ -180,7 +180,7 @@ List summaryKernel(S4 object)
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
   int r = P.nrow(), c = P.ncol();
-  arma::mat G(P.begin(), P.nrow(), P.ncol(), false);
+  arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::mat H(n, P.ncol()); //here Thoralf suggestion
   //initializing the first row

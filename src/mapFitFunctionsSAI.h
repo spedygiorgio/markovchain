@@ -1,9 +1,6 @@
-List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam, CharacterVector newData) {
-  // get initialMatr and freqMatr 
+List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam) {
+  // get mapEstMatr and freqMatr 
   CharacterVector elements = stringchar;
-  for(int i = 0; i < newData.size(); i++)
-    elements.push_back(newData[i]);
-  
   elements = unique(elements).sort();
   int sizeMatr = elements.size();
   
@@ -20,15 +17,14 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   if(hyperparam.nrow() != sizeMatr || hyperparam.ncol() != sizeMatr) 
     stop("Dimensions of the hyperparameter matrix are inconsistent");
   
-  NumericMatrix initialMatr(sizeMatr);
-  NumericMatrix freqMatr(sizeMatr), newFreqMatr(sizeMatr);
-  initialMatr.attr("dimnames") = List::create(elements, elements); 
+  NumericMatrix mapEstMatr(sizeMatr), expMatr(sizeMatr);
+  NumericMatrix freqMatr(sizeMatr);
+  mapEstMatr.attr("dimnames") = List::create(elements, elements); 
+  expMatr.attr("dimnames") = List::create(elements, elements); 
 
-  NumericMatrix lowerEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
-  NumericMatrix upperEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
-  NumericMatrix varianceMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
-  
-  double predictiveDist = 0.; // log of the predictive probability
+  NumericMatrix lowerEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
+  NumericMatrix upperEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
+  NumericMatrix varianceMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
 
   // populate frequeny matrix for old data; this is used for inference 
   int posFrom, posTo;
@@ -39,38 +35,29 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
     }
     freqMatr(posFrom,posTo)++;
   }
-  
-  // frequency matrix for new data
-  for(int i = 0; i < newData.size() - 1; i ++) {
-    for (int j = 0; j < sizeMatr; j ++) {
-      if(newData[i] == elements[j]) posFrom = j;
-      if(newData[i + 1] == elements[j]) posTo = j;
-    }
-    newFreqMatr(posFrom,posTo)++;
-  }
  
   // sanitize and to row probs
   for (int i = 0; i < sizeMatr; i++) {
-    double rowSum = 0, newRowSum = 0, paramRowSum = 0;
-    for (int j = 0; j < sizeMatr; j++){ 
-      rowSum += freqMatr(i, j), newRowSum += newFreqMatr(i, j), paramRowSum += hyperparam(i, j);
-      predictiveDist += lgamma(freqMatr(i, j) + newFreqMatr(i, j) + hyperparam(i, j)) -
-                        lgamma(freqMatr(i, j) + hyperparam(i, j));
-    }
+    double rowSum = 0, paramRowSum = 0;
+    for (int j = 0; j < sizeMatr; j++)
+      rowSum += freqMatr(i, j), paramRowSum += hyperparam(i, j);
     
-    predictiveDist += lgamma(rowSum + paramRowSum) - lgamma(rowSum + newRowSum + paramRowSum);
     // toRowProbs
     for (int j = 0; j < sizeMatr; j++) {
-      if(rowSum == 0)
-              initialMatr(i, j) = 1 / sizeMatr;
-      else
-              // maximum a posteriori estimate
-              initialMatr(i, j) = (freqMatr(i, j) + hyperparam(i, j)) / (rowSum + paramRowSum);
-
       // confidence intervals and bounds
       double p = freqMatr(i, j) + hyperparam(i, j), q = rowSum + paramRowSum - freqMatr(i, j) - hyperparam(i, j);
+      
+      // expected value of the transition parameters
+      expMatr(i, j) = p / (p + q);
+      
+      if(p + q == sizeMatr)
+              mapEstMatr(i, j) = 1 / sizeMatr;
+      else
+              // maximum a posteriori estimate
+              mapEstMatr(i, j) = (p - 1) / (p + q - sizeMatr);
+              
       double beta = lbeta(p, q);
-      double cdf = betain(double(initialMatr(i, j)), p, q, beta);
+      double cdf = betain(double(mapEstMatr(i, j)), p, q, beta);
 
       if(cdf + confidencelevel / 2 > 1.){
         upperEndpointMatr(i, j) = 1.;
@@ -89,17 +76,17 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
     }
   }
 
-  if(byrow==false) initialMatr = _transpose(initialMatr);
+  if(byrow==false) mapEstMatr = _transpose(mapEstMatr);
 
   S4 outMc("markovchain");
-  outMc.slot("transitionMatrix") = initialMatr;
+  outMc.slot("transitionMatrix") = mapEstMatr;
   outMc.slot("name") = "Bayesian Fit";  
   
   return List::create(_["estimate"] = outMc
     , _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
               _["lowerEndpointMatrix"]=lowerEndpointMatr, 
               _["upperEndpointMatrix"]=upperEndpointMatr),
-              _["varianceMatrix"]=varianceMatr,
-              _["predictiveProbability"]=exp(predictiveDist)
+              _["expectedValue"]=expMatr,
+              _["varianceMatrix"]=varianceMatr
   );
 }

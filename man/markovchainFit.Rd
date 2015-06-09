@@ -7,13 +7,12 @@ Function to fit a discrete Markov chain
 \description{
 Given a sequence of states arising from a stationary state, 
 it fits the underlying Markov chain distribution using either MLE (also using a 
-Laplacian smoother), bootstrap or by MAP (Bayesian) inference. Also predicts probability of observing a new data set using the estimated MAP parameters.
+Laplacian smoother), bootstrap or by MAP (Bayesian) inference. 
 }
 \usage{
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
                laplacian = 0, name = "", parallel = FALSE,
-               confidencelevel = 0.95, hyperparam = matrix(1, 1),
-               newData = character())
+               confidencelevel = 0.95, hyperparam = matrix(1, 1))
 createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE)
 }
 
@@ -46,9 +45,6 @@ Use parallel processing when performing Boostrap estimates.
   \item{hyperparam}{
 Hyperparameter matrix for the a priori distribution. If none is provided, default value of 1 is assigned to each parameter. 
 }
-  \item{newData}{
-New data whose predictive probability can be computed using the MAP parameters.  
-}
   \item{stringchar}{
 Equivalent to data
 }
@@ -61,10 +57,11 @@ put 1 in all rows having rowSum equal to zero
 }
 \value{
 A list containing an estimate and, when "bootstrap" method is used, a matrix 
-of standards deviations and the bootstrap samples. When the "mle" or "map" method is used, the lower and upper confidence bounds are returned. With the "map" method, additionally, the variance and the predictive probability are returned (which is 1 if no new data is provided).
+of standards deviations and the bootstrap samples. When the "mle" or "map" method is used, the lower and upper confidence bounds are returned. With the "map" method, additionally, the variance is returned.
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, Alfred Hubler, Santa Fe Institute
 }
 \author{
 Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi

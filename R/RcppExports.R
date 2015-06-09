@@ -9,8 +9,8 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
 
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix(1, 1), newData = character()) {
-    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, newData)
+markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix(1, 1)) {
+    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam)
 }
 
 .commclassesKernelRcpp <- function(P) {
@@ -35,5 +35,9 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 
 .gcdRcpp <- function(f, s) {
     .Call('markovchain_gcd', PACKAGE = 'markovchain', f, s)
+}
+
+predictiveDistribution <- function(stringchar, newData, hyperparam = matrix(1, 1)) {
+    .Call('markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
 }
 

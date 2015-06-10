@@ -7,6 +7,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
     NumericMatrix temp(sizeMatr, sizeMatr);
+    temp.attr("dimnames") = List::create(elements, elements);
     for(int i = 0; i < sizeMatr; i++)
       for(int j = 0; j < sizeMatr; j++)
         temp(i, j) = 1;
@@ -16,6 +17,9 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   // validity check
   if(hyperparam.nrow() != sizeMatr || hyperparam.ncol() != sizeMatr) 
     stop("Dimensions of the hyperparameter matrix are inconsistent");
+    
+  // permute the elements of hyperparam such that the row, column names are sorted
+  hyperparam = sortByDimNames(hyperparam);
   
   NumericMatrix mapEstMatr(sizeMatr), expMatr(sizeMatr);
   NumericMatrix freqMatr(sizeMatr);

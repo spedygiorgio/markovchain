@@ -5,6 +5,10 @@
     .Call('markovchain_isProb', PACKAGE = 'markovchain', prob)
 }
 
+.canonicFormRcpp <- function(object) {
+    .Call('markovchain_canonicForm', PACKAGE = 'markovchain', object)
+}
+
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }

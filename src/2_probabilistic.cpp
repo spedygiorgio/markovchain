@@ -225,7 +225,7 @@ double gcd (int f, int s) {
 }
 
 // [[Rcpp::export]]
-double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix(1, 1)) {
+double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix()) {
   // construct list of states
   CharacterVector elements = stringchar;
   for(int i = 0; i < newData.size(); i++)

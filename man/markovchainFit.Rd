@@ -12,7 +12,7 @@ Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 \usage{
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
                laplacian = 0, name = "", parallel = FALSE,
-               confidencelevel = 0.95, hyperparam = matrix(1, 1))
+               confidencelevel = 0.95, hyperparam = matrix())
 createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE)
 }
 
@@ -43,7 +43,7 @@ Use parallel processing when performing Boostrap estimates.
 \deqn{\alpha} level for conficence intervals width. Used only when \code{method} equal to "mle".
 }
   \item{hyperparam}{
-Hyperparameter matrix for the a priori distribution. If none is provided, default value of 1 is assigned to each parameter. 
+Hyperparameter matrix for the a priori distribution. If none is provided, default value of 1 is assigned to each parameter. This must be of size kxk where k is the number of states in the chain and the values should typically be non-negative integers.
 }
   \item{stringchar}{
 Equivalent to data

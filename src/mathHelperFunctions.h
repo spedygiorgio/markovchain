@@ -1,3 +1,33 @@
+NumericMatrix sortByDimNames(const NumericMatrix m){
+  List dimNames = m.attr("dimnames");
+  CharacterVector colNames = dimNames[1];
+  CharacterVector rowNames = dimNames[0];
+  int sizeMatr = colNames.size();
+  CharacterVector sortedNames(sizeMatr);
+  for(int i = 0; i < sizeMatr; i++)
+    sortedNames(i) = rowNames(i);
+  std::sort(sortedNames.begin(), sortedNames.end());
+  
+  NumericVector colIdx(sizeMatr), rowIdx(sizeMatr);
+  for(int i = 0; i < sizeMatr; i++){
+    for(int j = 0; j < sizeMatr; j++){
+      if(colNames(j) == sortedNames(i))
+        colIdx(i) = j;
+      if(rowNames(j) == sortedNames(i))
+        rowIdx(i) = j;
+    }
+  }
+  
+  NumericMatrix sortedM(sizeMatr);
+  sortedM.attr("dimnames") = List::create(sortedNames, sortedNames);
+  
+  for(int i = 0; i < sizeMatr; i++)
+    for(int j = 0; j < sizeMatr; j++)
+      sortedM(i, j) = m(rowIdx(i), colIdx(j));
+      
+  return sortedM;
+}
+
 double lbeta(double p, double q){
   return lgamma(p) + lgamma(q) - lgamma(p + q);
 }

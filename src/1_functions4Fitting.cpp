@@ -286,7 +286,92 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
 }
 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix(1, 1)) {
+List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector scale = NumericVector(), CharacterVector data = CharacterVector()){
+  if(transMatr.nrow() * transMatr.ncol() == 1 && data.size() == 0)
+    stop("Provide the prior transition matrix or the data set in order to infer the hyperparameters");
+  
+  List out;
+  
+  if(transMatr.nrow() * transMatr.ncol() != 1){
+    if(scale.size() == 0)
+      stop("Provide a non-zero scaling factor vector to infer integer hyperparameters");
+      
+    // begin validity checks for the transition matrix
+    if(transMatr.nrow() != transMatr.ncol())
+      stop("Transition matrix dimensions are inconsistent");
+      
+    int sizeMatr = transMatr.nrow();
+    for(int i = 0; i < sizeMatr; i++){
+      double rowSum = 0.;
+      for(int j = 0; j < sizeMatr; j++)
+        rowSum += transMatr(i, j);
+      if(rowSum != 1.)
+        stop("The rows of the transition matrix must each sum to 1");
+    }
+    
+    List dimNames = transMatr.attr("dimnames");
+    CharacterVector colNames = dimNames[1];
+    CharacterVector rowNames = dimNames[0];
+    CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
+    for(int i = 0; i < sizeMatr; i++)
+      sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+    std::sort(sortedColNames.begin(), sortedColNames.end());
+    std::sort(sortedRowNames.begin(), sortedRowNames.end());
+    
+    for(int i = 0; i < sizeMatr; i++) 
+      if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+        stop("The states must all be unique");
+      else if(sortedColNames(i) != sortedRowNames(i))
+        stop("The set of row names must be the same as the set of column names");
+        
+    // validity check for the scaling factor vector
+    if(scale.size() != sizeMatr)
+      stop("The dimensions of the scale vector must match the number of states in the chain");
+      
+    for(int i = 0; i < sizeMatr; i++)
+      if(scale(i) == 0)
+        stop("The scaling factors must be non-zero!");
+    
+    transMatr = sortByDimNames(transMatr);
+    
+    NumericMatrix hpScaled(sizeMatr);
+    hpScaled.attr("dimnames") = List::create(sortedRowNames, sortedRowNames);
+    for(int i = 0; i < sizeMatr; i++)
+      for(int j = 0; j < sizeMatr; j++)
+        hpScaled(i, j) = scale(i) * transMatr(i, j);
+    
+    out = List::create(_["scaledInference"] = hpScaled);
+  }
+  
+  else if(data.size() != 0){
+    CharacterVector elements = data;
+    for(int i = 0; i < data.size(); i++)
+      elements.push_back(data[i]);
+    
+    elements = unique(elements).sort();
+    int sizeMatr = elements.size();
+    
+    NumericMatrix hpData(sizeMatr);
+    hpData.attr("dimnames") = List::create(elements, elements); 
+    std::fill(hpData.begin(), hpData.end(), 1);
+    
+    int posFrom, posTo;
+    for(int i = 0; i < data.size() - 1; i ++) {
+      for (int j = 0; j < sizeMatr; j ++) {
+        if(data[i] == elements[j]) posFrom = j;
+        if(data[i + 1] == elements[j]) posTo = j;
+      }
+      hpData(posFrom,posTo)++;
+    }
+    
+    out = List::create(_["dataInference"] = hpData);
+  }
+  
+  return out;
+}
+
+// [[Rcpp::export]]
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix()) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
   CharacterMatrix mat;

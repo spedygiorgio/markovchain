@@ -7,7 +7,7 @@ Function to compute the probability of observing a new data set, given a data se
 The function computes the probability of observing a new data set using information from a given data set. Additionally, hyperparameters can be provided.
 }
 \usage{
-predictiveDistribution(stringchar, newData, hyperparam = matrix(1, 1))
+predictiveDistribution(stringchar, newData, hyperparam = matrix())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,7 +18,7 @@ This is the data using which the Bayesian inference is performed.
 This is the data whose predictive probability is computed.  
 }
   \item{hyperparam}{
-This determines the shape of the prior distribution of the parameters.
+This determines the shape of the prior distribution of the parameters. If none is provided, default value of 1 is assigned to each parameter. This must be of size kxk where k is the number of states in the chain and the values should typically be non-negative integers.
 }
 }
 \details{
@@ -40,5 +40,5 @@ Sai Bhargav Yalamanchi
 \examples{
 sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
 "b", "b", "b", "a")
-predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam = matrix(1, 1))
+predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam = matrix(c(1, 2, 1, 4), nrow = 2))
 }

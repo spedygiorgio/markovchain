@@ -40,5 +40,9 @@ Sai Bhargav Yalamanchi
 \examples{
 sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
 "b", "b", "b", "a")
-predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam = matrix(c(1, 2, 1, 4), nrow = 2))
+hyperMatrix<-matrix(c(1, 2, 1, 4), nrow = 2,dimnames=list(c("a","b"),c("a","b")))
+predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix )
+hyperMatrix2<-hyperMatrix[c(2,1),c(2,1)]
+predProb2 <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix2 )
+predProb2==predProb
 }

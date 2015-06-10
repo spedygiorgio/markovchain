@@ -32,3 +32,14 @@ sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b"
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 
 
+#canonic form
+
+#from https://math.dartmouth.edu/archive/m20x06/public_html/Lecture14.pdf
+
+P<-zeros(5)
+P[1,1]<-P[5,5]<-1
+P[2,1]<-P[2,3]<-0.5
+P[3,2]<-P[3,4]<-0.5
+P[4,3]<-P[4,5]<-0.5
+mcP<-as(P,"markovchain")
+mcPCan<-canonicForm(mcP)

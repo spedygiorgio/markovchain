@@ -2,7 +2,7 @@
 title: "Bayesian Inference of First Order Markov Chains"
 author: "Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato"
 date: '`r Sys.Date()`'
-output: html_document
+output: pdf_document
 bibliography: markovchainBiblio.bib
 vignette: "%\\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains}
   \n%\\VignetteEngine{knitr::rmarkdown} \n\\usepackage[utf8]{inputenc}\n"
@@ -73,7 +73,7 @@ We already know the expressions for both quantities in the integral and it turns
 $$ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \frac{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + m(u, s) + \alpha(u, s))}{\Gamma(\alpha(u) + n(u) + m(u))} \Big\} $$
 
 ## Usage and examples
-```{r, echo = TRUE, results='hide', message=FALSE, warning=FALSE}
+```{r loadAndDoExample, echo = TRUE, message=FALSE, warning=FALSE, tidy=TRUE}
 library(markovchain)
 weatherStates <- c("sunny", "cloudy", "rain")
 byRow <- TRUE
@@ -90,17 +90,26 @@ weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 For the purpose of this section, we shall continue to use the weather of days example introduced in the main vignette of the package (reproduced above for convenience).
 
 Let us invoke the fit function to estimate the MAP parameters with 92% confidence bounds and hyperparameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
-```{r}
-markovchainFit(weathersOfDays[1:200], method = "map", confidencelevel = 0.92, 
-                         hyperparam = matrix(c(1, 1, 2,
-                                               3, 2, 1,
-                                               2, 2, 3), nrow = 3))
-
-predictiveDistribution(weathersOfDays[1:200], weathersOfDays[201:365], 
-                                   hyperparam = matrix(c(1, 1, 2,
-                                                         3, 2, 1,
-                                                         2, 2, 3), nrow = 3))
+```{r MAPFit}
+hyperMatrix<-matrix(c(1, 1, 2,3, 2, 1,2, 2, 3), nrow = 3,byrow=TRUE,
+                    dimnames = list(weatherStates,weatherStates))
+markovchainFit(weathersOfDays[1:200], method = "map", 
+               confidencelevel = 0.92, hyperparam = hyperMatrix)
+predictiveDistribution(weathersOfDays[1:200], 
+                       weathersOfDays[201:365],hyperparam = hyperMatrix)
 ```
+
+The results should not change changing us the order of the matrix.
+
+```{r MAPFit2}
+hyperMatrix2<- hyperMatrix[c(2,3,1),c(2,3,1)]
+markovchainFit(weathersOfDays[1:200], method = "map", 
+               confidencelevel = 0.92, hyperparam = hyperMatrix2)
+predictiveDistribution(weathersOfDays[1:200], 
+                       weathersOfDays[201:365],hyperparam = hyperMatrix2)
+```
+
+
 
 Note that the predictive probability is very small. However, this can be useful when comparing model orders. 
 

@@ -1,7 +1,11 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 #include <RcppArmadillo.h>
+
 using namespace Rcpp;
+
+template <typename T>
+T sortByDimNames(const T m);
 
 // [[Rcpp::export(.commclassesKernelRcpp)]]
 extern "C" SEXP commclassesKernel(NumericMatrix P){
@@ -11,7 +15,7 @@ extern "C" SEXP commclassesKernel(NumericMatrix P){
   arma::vec b, c, d;
   arma::mat T = arma::zeros(m, m);
   unsigned int i = 0;
-  int oldSum, newSum, ai;
+  int oldSum, newSum;
   while(i < m) {
     a.resize(0);
     a.push_back(i);
@@ -21,7 +25,7 @@ extern "C" SEXP commclassesKernel(NumericMatrix P){
     oldSum = 1;
     while(oldSum != newSum) {
       oldSum = 0;
-      for(int j = 0; j < b.size(); j ++)
+      for(unsigned int j = 0; j < b.size(); j ++)
         if(b[j] > 0) oldSum += (j + 1);
       n = a.size();
       NumericVector temp; 
@@ -32,12 +36,12 @@ extern "C" SEXP commclassesKernel(NumericMatrix P){
           matr(j, k) = temp[k];
       }
       c = arma::zeros<arma::vec>(m);
-      for(int j = 0; j < m; j++) 
-        for(int k = 0; k < n; k++)
+      for(unsigned int j = 0; j < m; j++) 
+        for(unsigned int k = 0; k < n; k++)
           c[j] += matr(k, j);
       newSum = 0;
       a.resize(0);
-      for(int j = 0; j < b.size(); j++) {
+      for(unsigned int j = 0; j < b.size(); j++) {
         if(c[j] > 0) {
           b[j] = 1; a.push_back(j);
         }
@@ -179,18 +183,17 @@ List summaryKernel(S4 object)
 //here the kernel function to compute the first passage
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
-  int r = P.nrow(), c = P.ncol();
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::mat H(n, P.ncol()); //here Thoralf suggestion
   //initializing the first row
-  for(int j = 0; j < G.n_cols; j++)
+  for(unsigned int j = 0; j < G.n_cols; j++)
     H(0, j) = G(i-1, j);
   arma::mat E = 1 - arma::eye(P.ncol(), P.ncol());
 
   for (int m = 1; m < n; m++) {
     G = Pa * (G%E);
-    for(int j = 0; j < G.n_cols; j ++) 
+    for(unsigned int j = 0; j < G.n_cols; j ++) 
       H(m, j) = G(i-1, j);
   }
   NumericMatrix R = wrap(H);
@@ -203,7 +206,7 @@ double gcd (int f, int s) {
   int g, n, N, u;
   f = abs(f);
   s = abs(s);
-    
+  
   n = std::min(f,s);
   N = std::max(f,s);
   
@@ -237,6 +240,7 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
     NumericMatrix temp(sizeMatr, sizeMatr);
+    temp.attr("dimnames") = List::create(elements, elements);
     for(int i = 0; i < sizeMatr; i++)
       for(int j = 0; j < sizeMatr; j++)
         temp(i, j) = 1;
@@ -244,15 +248,57 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   }
   
   // validity check
-  if(hyperparam.nrow() != sizeMatr || hyperparam.ncol() != sizeMatr) 
+  if(hyperparam.nrow() != hyperparam.ncol())
     stop("Dimensions of the hyperparameter matrix are inconsistent");
+    
+  if(hyperparam.nrow() < sizeMatr)
+    stop("Hyperparameters for all state transitions must be provided");
+    
+  List dimNames = hyperparam.attr("dimnames");
+  CharacterVector colNames = dimNames[1];
+  CharacterVector rowNames = dimNames[0];
+  int sizeHyperparam = hyperparam.ncol();
+  CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
+  for(int i = 0; i < sizeHyperparam; i++)
+    sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+  std::sort(sortedColNames.begin(), sortedColNames.end());
+  std::sort(sortedRowNames.begin(), sortedRowNames.end());
+  
+  for(int i = 0; i < sizeHyperparam; i++){
+    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+      stop("The states must all be unique");
+    else if(sortedColNames(i) != sortedRowNames(i))
+      stop("The set of row names must be the same as the set of column names");
+    bool found = false;
+    for(int j = 0; j < sizeMatr; j++)
+      if(elements(j) == sortedColNames(i))
+        found = true;
+    // hyperparam may contain states not in stringchar
+    if(!found)  elements.push_back(sortedColNames(i));
+  }
+  
+  // check for the case where hyperparam has missing data
+  for(int i = 0; i < sizeMatr; i++){
+    bool found = false;
+    for(int j = 0; j < sizeHyperparam; j++)
+      if(sortedColNames(j) == elements(i))
+        found = true;
+    if(!found)
+      stop("Hyperparameters for all state transitions must be provided");
+  }   
+      
+  elements = elements.sort();
+  sizeMatr = elements.size();
+  
+  // permute the elements of hyperparam such that the row, column names are sorted
+  hyperparam = sortByDimNames(hyperparam);
   
   NumericMatrix freqMatr(sizeMatr), newFreqMatr(sizeMatr);
 
   double predictiveDist = 0.; // log of the predictive probability
 
   // populate frequeny matrix for old data; this is used for inference 
-  int posFrom, posTo;
+  int posFrom = 0, posTo = 0;
   for(int i = 0; i < stringchar.size() - 1; i ++) {
     for (int j = 0; j < sizeMatr; j ++) {
       if(stringchar[i] == elements[j]) posFrom = j;

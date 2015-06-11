@@ -72,14 +72,27 @@ $$ P(D'|D) = \int P(D' | \theta) P(\theta | D) d\theta $$
 We already know the expressions for both quantities in the integral and it turns out to be similar to evaluating the evidence
 $$ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \frac{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + m(u, s) + \alpha(u, s))}{\Gamma(\alpha(u) + n(u) + m(u))} \Big\} $$
 
+### Choosing the hyperparameters
+The hyperparameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix in to the hyperparameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
+
+$$ \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)} $$
+
+holds, the function accepts as input the belief matrix as well as a scaling vector $\alpha(.)$ and proceeds to compute $\alpha(., .)$.
+
+Alternatively, the function accepts a data sample and infers the hyperparameters from it. Since the mode of a parameter (with respect to the prior distribution) is proportional to one less than the corresponding hyperparameter, we set 
+
+$$ \alpha(u, s) - 1 = m(u, s) $$
+
+where $m(u, s)$ is the $u->s$ transition count in the data sample. This is regarded as a 'fake count' which helps $\alpha(u, s)$ to reflect knowledge of the data sample.
+
 ## Usage and examples
-```{r loadAndDoExample, echo = TRUE, message=FALSE, warning=FALSE, tidy=TRUE}
+```{r loadAndDoExample, echo = TRUE, message=FALSE, warning=FALSE}
 library(markovchain)
 weatherStates <- c("sunny", "cloudy", "rain")
 byRow <- TRUE
-weatherMatrix <- matrix(data = c(0.70, 0.2, 0.1, 
+weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
                                  0.3, 0.4, 0.3, 
-                                 0.2, 0.45, 0.35), 
+                                 0.2, 0.4, 0.4), 
                         byrow = byRow, nrow = 3, 
                         dimnames = list(weatherStates, weatherStates))
 mcWeather <- new("markovchain", states = weatherStates, 
@@ -91,7 +104,10 @@ For the purpose of this section, we shall continue to use the weather of days ex
 
 Let us invoke the fit function to estimate the MAP parameters with 92% confidence bounds and hyperparameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
 ```{r MAPFit}
-hyperMatrix<-matrix(c(1, 1, 2,3, 2, 1,2, 2, 3), nrow = 3,byrow=TRUE,
+hyperMatrix<-matrix(c(1, 1, 2, 
+                      3, 2, 1,
+                      2, 2, 3), 
+                    nrow = 3, byrow = TRUE,
                     dimnames = list(weatherStates,weatherStates))
 markovchainFit(weathersOfDays[1:200], method = "map", 
                confidencelevel = 0.92, hyperparam = hyperMatrix)
@@ -99,10 +115,10 @@ predictiveDistribution(weathersOfDays[1:200],
                        weathersOfDays[201:365],hyperparam = hyperMatrix)
 ```
 
-The results should not change changing us the order of the matrix.
+The results should not change after permuting the dimensions of the matrix.
 
 ```{r MAPFit2}
-hyperMatrix2<- hyperMatrix[c(2,3,1),c(2,3,1)]
+hyperMatrix2<- hyperMatrix[c(2,3,1), c(2,3,1)]
 markovchainFit(weathersOfDays[1:200], method = "map", 
                confidencelevel = 0.92, hyperparam = hyperMatrix2)
 predictiveDistribution(weathersOfDays[1:200], 
@@ -110,6 +126,25 @@ predictiveDistribution(weathersOfDays[1:200],
 ```
 
 
-
 Note that the predictive probability is very small. However, this can be useful when comparing model orders. 
 
+We can infer the hyperparameters from the transition matrix itself, and use this to obtain our MAP estimates.
+
+```{r inferHyperparam}
+inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+```
+
+Alternatively, we can use a data sample to infer the hyperparameters.
+```{r inferHyperparam2}
+inferHyperparam(data = weathersOfDays[1:15])
+```
+
+Supposing we don't provide any hyperparameters, then the prior is uniform. This is the same as maximum likelihood. 
+```{r MAPandMLE}
+data(preproglucacon, package = "markovchain")
+preproglucacon <- preproglucacon[[2]]
+MLEest <- markovchainFit(preproglucacon, method = "mle")
+MAPest <- markovchainFit(preproglucacon, method = "map")
+MLEest$estimate
+MAPest$estimate
+```

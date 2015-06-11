@@ -26,14 +26,28 @@ A data set from which the hyperparameters are inferred.
 transMatr and scale need not be provided if data is provided.
 }
 \value{
-Returns the hyperparameter matrix in a list. The hyperparameter matrix is such that the row and column names are sorted alphanumerically. 
+Returns the hyperparameter matrix in a list. 
+}
+\note{
+The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, and the elements in the matrix are correspondingly permuted. 
 }
 
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato
 }
 
+\seealso{
+\code{\link{markovchainFit}}, \code{\link{predictiveDistribution}}
+}
+
 \examples{
 data(rain, package = "markovchain")
 inferHyperparam(data = rain$rain)
+
+weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
+                                 0.3, 0.4, 0.3, 
+                                 0.2, 0.4, 0.4), 
+                        byrow = byRow, nrow = 3, 
+                        dimnames = list(weatherStates, weatherStates))
+inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
 }

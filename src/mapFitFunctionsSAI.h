@@ -70,7 +70,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   NumericMatrix varianceMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
 
   // populate frequeny matrix for old data; this is used for inference 
-  int posFrom, posTo;
+  int posFrom = 0, posTo = 0;
   for(int i = 0; i < stringchar.size() - 1; i ++) {
     for (int j = 0; j < sizeMatr; j ++) {
       if(stringchar[i] == elements[j]) posFrom = j;

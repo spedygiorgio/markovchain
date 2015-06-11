@@ -1,4 +1,5 @@
-NumericMatrix sortByDimNames(const NumericMatrix m){
+template <typename T>
+T sortByDimNames(const T m){
   List dimNames = m.attr("dimnames");
   CharacterVector colNames = dimNames[1];
   CharacterVector rowNames = dimNames[0];
@@ -18,7 +19,7 @@ NumericMatrix sortByDimNames(const NumericMatrix m){
     }
   }
   
-  NumericMatrix sortedM(sizeMatr);
+  T sortedM(sizeMatr);
   sortedM.attr("dimnames") = List::create(sortedNames, sortedNames);
   
   for(int i = 0; i < sizeMatr; i++)

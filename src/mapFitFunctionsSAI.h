@@ -15,8 +15,47 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   }
   
   // validity check
-  if(hyperparam.nrow() != sizeMatr || hyperparam.ncol() != sizeMatr) 
+  if(hyperparam.nrow() != hyperparam.ncol())
     stop("Dimensions of the hyperparameter matrix are inconsistent");
+    
+  if(hyperparam.nrow() < sizeMatr)
+    stop("Hyperparameters for all state transitions must be provided");
+    
+  List dimNames = hyperparam.attr("dimnames");
+  CharacterVector colNames = dimNames[1];
+  CharacterVector rowNames = dimNames[0];
+  int sizeHyperparam = hyperparam.ncol();
+  CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
+  for(int i = 0; i < sizeHyperparam; i++)
+    sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+  std::sort(sortedColNames.begin(), sortedColNames.end());
+  std::sort(sortedRowNames.begin(), sortedRowNames.end());
+  
+  for(int i = 0; i < sizeHyperparam; i++){
+    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+      stop("The states must all be unique");
+    else if(sortedColNames(i) != sortedRowNames(i))
+      stop("The set of row names must be the same as the set of column names");
+    bool found = false;
+    for(int j = 0; j < sizeMatr; j++)
+      if(elements(j) == sortedColNames(i))
+        found = true;
+    // hyperparam may contain states not in stringchar
+    if(!found)  elements.push_back(sortedColNames(i));
+  }
+  
+  // check for the case where hyperparam has missing data
+  for(int i = 0; i < sizeMatr; i++){
+    bool found = false;
+    for(int j = 0; j < sizeHyperparam; j++)
+      if(sortedColNames(j) == elements(i))
+        found = true;
+    if(!found)
+      stop("Hyperparameters for all state transitions must be provided");
+  }   
+      
+  elements = elements.sort();
+  sizeMatr = elements.size();
     
   // permute the elements of hyperparam such that the row, column names are sorted
   hyperparam = sortByDimNames(hyperparam);

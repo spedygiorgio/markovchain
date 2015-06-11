@@ -95,14 +95,17 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
 
   // confidence interval
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
-
-  NumericMatrix lowerEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
-  NumericMatrix upperEndpointMatr = NumericMatrix(initialMatr.nrow(), initialMatr.ncol());
+  int nrows = initialMatr.nrow();
+  int ncols = initialMatr.ncol();
+  NumericMatrix lowerEndpointMatr(nrows, ncols);
+  NumericMatrix upperEndpointMatr(nrows, ncols);
+  NumericMatrix standardError(nrows, ncols);
 
   double marginOfError, lowerEndpoint, upperEndpoint;
-  for(int i = 0; i < initialMatr.nrow(); i ++) {
-    for(int j = 0; j < initialMatr.ncol(); j ++) {
+  for(int i = 0; i < nrows; i ++) {
+    for(int j = 0; j < ncols; j ++) {
       marginOfError = zscore * initialMatr(i, j) / sqrt(freqMatr(i, j));
+      standardError(i, j) = marginOfError;
       lowerEndpoint = initialMatr(i, j) - marginOfError;
       upperEndpoint = initialMatr(i, j) + marginOfError;
       lowerEndpointMatr(i,j) = (lowerEndpoint > 1.0) ? 1.0 : ((0.0 > lowerEndpoint) ? 0.0 : lowerEndpoint);
@@ -111,15 +114,17 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   }
   lowerEndpointMatr.attr("dimnames") = List::create(elements, elements); 
   upperEndpointMatr.attr("dimnames") = List::create(elements, elements); 
+  standardError.attr("dimnames") = List::create(elements, elements); 
 
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = initialMatr;
   outMc.slot("name") = "MLE Fit";  
   
   return List::create(_["estimate"] = outMc
-		, _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
-							_["lowerEndpointMatrix"]=lowerEndpointMatr, 
-							_["upperEndpointMatrix"]=upperEndpointMatr)
+		      , _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
+					                		          _["lowerEndpointMatrix"]=lowerEndpointMatr, 
+							                          _["upperEndpointMatrix"]=upperEndpointMatr)
+							, _["standardError"] = standardError
 	);
 }
 
@@ -405,6 +410,5 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
   S4 estimate = out["estimate"];
   estimate.slot("states") = rownames(estimate.slot("transitionMatrix"));
   out["estimate"] = estimate;
-  
   return out;
 }

@@ -79,9 +79,9 @@ $$ \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)} $$
 
 holds, the function accepts as input the belief matrix as well as a scaling vector $\alpha(.)$ and proceeds to compute $\alpha(., .)$.
 
-Alternatively, the function accepts a data sample and infers the hyperparameters from it. Since the expected value of a parameter is proportional to its hyperparameter, we set 
+Alternatively, the function accepts a data sample and infers the hyperparameters from it. Since the mode of a parameter (with respect to the prior distribution) is proportional to one less than the corresponding hyperparameter, we set 
 
-$$ \alpha(u, s) = 1 + m(u, s) $$
+$$ \alpha(u, s) - 1 = m(u, s) $$
 
 where $m(u, s)$ is the $u->s$ transition count in the data sample. This is regarded as a 'fake count' which helps $\alpha(u, s)$ to reflect knowledge of the data sample.
 
@@ -109,9 +109,8 @@ hyperMatrix<-matrix(c(1, 1, 2,
                       2, 2, 3), 
                     nrow = 3, byrow = TRUE,
                     dimnames = list(weatherStates,weatherStates))
-MAPest1 <- markovchainFit(weathersOfDays[1:200], method = "map", 
+markovchainFit(weathersOfDays[1:200], method = "map", 
                confidencelevel = 0.92, hyperparam = hyperMatrix)
-MAPest1$estimate
 predictiveDistribution(weathersOfDays[1:200], 
                        weathersOfDays[201:365],hyperparam = hyperMatrix)
 ```
@@ -120,9 +119,8 @@ The results should not change after permuting the dimensions of the matrix.
 
 ```{r MAPFit2}
 hyperMatrix2<- hyperMatrix[c(2,3,1), c(2,3,1)]
-MAPest2 <- markovchainFit(weathersOfDays[1:200], method = "map", 
+markovchainFit(weathersOfDays[1:200], method = "map", 
                confidencelevel = 0.92, hyperparam = hyperMatrix2)
-MAPest2$estimate
 predictiveDistribution(weathersOfDays[1:200], 
                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 ```
@@ -143,8 +141,10 @@ inferHyperparam(data = weathersOfDays[1:15])
 
 Supposing we don't provide any hyperparameters, then the prior is uniform. This is the same as maximum likelihood. 
 ```{r MAPandMLE}
-MLEest <- markovchainFit(weathersOfDays[1:200], method = "mle")
-MAPest <- markovchainFit(weathersOfDays[1:200], method = "map")
+data(preproglucacon, package = "markovchain")
+preproglucacon <- preproglucacon[[2]]
+MLEest <- markovchainFit(preproglucacon, method = "mle")
+MAPest <- markovchainFit(preproglucacon, method = "map")
 MLEest$estimate
 MAPest$estimate
 ```

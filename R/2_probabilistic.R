@@ -1,4 +1,4 @@
-#@ Tae: to be fully moved in Rcpp
+#moved in Rcpp
 
 # .commclassesKernel <- function(P){
 # 	m <- ncol(P)
@@ -71,7 +71,7 @@
 #   return(R)
 # }
 
-#@ Tae: its upt to you to decide to move or to keep in R just calling the .commStatesFinder Rcpp version
+#moved in Rcpp
 
 is.accessible<-function(object, from, to)
 {
@@ -85,7 +85,7 @@ is.accessible<-function(object, from, to)
   return(out)
 }
 
-#@ Tae: as above
+#moved in Rcpp
 
 #a markov chain is irreducible if is composed by only one communicating class
 is.irreducible<-function(object)
@@ -97,7 +97,7 @@ is.irreducible<-function(object)
   return(out)
 }
 
-#@ Tae: fully move in Rcpp
+#moved in Rcpp
 
 # .summaryKernel<-function(object)
 # {
@@ -117,7 +117,7 @@ is.irreducible<-function(object)
 #   return(summaryMc)
 # }
 
-#@ Tae: move in Rcpp
+#moved in Rcpp
 #here the kernel function to compute the first passage
 # .firstpassageKernel<-function(P,i,n){
 #   G<-P

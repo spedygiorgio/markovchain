@@ -28,8 +28,8 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
   for(int i = 0; i < sizeHyperparam; i++)
     sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
-  std::sort(sortedColNames.begin(), sortedColNames.end());
-  std::sort(sortedRowNames.begin(), sortedRowNames.end());
+  sortedColNames.sort();
+  sortedRowNames.sort();
   
   for(int i = 0; i < sizeHyperparam; i++){
     if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  

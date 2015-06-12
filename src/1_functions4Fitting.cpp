@@ -334,8 +334,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
     for(int i = 0; i < sizeMatr; i++)
       sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
-    std::sort(sortedColNames.begin(), sortedColNames.end());
-    std::sort(sortedRowNames.begin(), sortedRowNames.end());
+    sortedColNames.sort();
+    sortedRowNames.sort();
     
     for(int i = 0; i < sizeMatr; i++) 
       if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  

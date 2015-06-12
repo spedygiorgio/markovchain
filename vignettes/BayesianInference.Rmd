@@ -2,10 +2,13 @@
 title: "Bayesian Inference of First Order Markov Chains"
 author: "Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato"
 date: '`r Sys.Date()`'
-output: pdf_document
+output:
+  pdf_document: default
 bibliography: markovchainBiblio.bib
-vignette: "%\\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains}
-  \n%\\VignetteEngine{knitr::rmarkdown} \n\\usepackage[utf8]{inputenc}\n"
+vignette: |
+  %\VignetteIndexEntry{Bayesian Inference of First Order Markov Chains} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\usepackage[utf8]{inputenc}
 ---
 
 The _markovchain_ package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters^[at the time of writing this document, only first order models are supported] by Bayesian inference. This vignette provides the mathematical description for the methods employed by the package. 

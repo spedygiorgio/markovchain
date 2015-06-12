@@ -425,6 +425,7 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
   NumericMatrix transMatr = estimate.slot("transitionMatrix");
   estimate.slot("states") = rownames(transMatr);
   out["estimate"] = estimate;
-  out["logLikelihood"] = _loglikelihood(data, transMatr);
+  if(!Rf_inherits(data, "data.frame") && !Rf_inherits(data, "matrix")) 
+    out["logLikelihood"] = _loglikelihood(data, transMatr);
   return out;
 }

@@ -41,3 +41,11 @@ test_that("Conversion of objects",
             expect_equal(class(provaMatr2Mc)=="markovchain",TRUE)
           })
 
+###perform some fitting
+# sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+sequence<-c("a", "b", "a", "a")
+mcFit<-markovchainFit(data=sequence,byrow=FALSE)
+test_that("Fit should satisfy", {
+  expect_equal((mcFit["logLikelihood"])[[1]], log(0.5) * 2)
+})
+

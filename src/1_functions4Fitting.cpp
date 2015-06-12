@@ -59,6 +59,20 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   return (freqMatrix);
 }
 
+double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
+  double out = 0;
+  CharacterVector rnames = rownames(transMatr);
+  int from = 0, to = 0; 
+  for(int i = 0; i < seq.size() - 1; i ++) {
+    for(int r = 0; r < rnames.size(); r ++) {
+      if(rnames[r] == seq[i]) from = r; 
+      if(rnames[r] == seq[i + 1]) to = r; 
+    }    
+    out += log(transMatr(from, to));
+  }
+  return out;
+}
+
 List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   // get initialMatr and freqMatr 
   CharacterVector elements = unique(stringchar).sort();
@@ -379,21 +393,21 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix()) {
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
-  CharacterMatrix mat;
-    	//if data is a data.frame forced to matrix
+    CharacterMatrix mat;
+    //if data is a data.frame forced to matrix
   	if(Rf_inherits(data, "data.frame")) {
-		DataFrame df(data);
-		mat = CharacterMatrix(df.nrows(), df.size());
-		for(int i = 0; i < df.size(); i++)
-			mat(_,i) = CharacterVector(df[i]);
- 	} else {
-		mat = data;
-	}
-    	//byrow assumes distinct observations (trajectiories) are per row
-    	//otherwise transpose
+  	  DataFrame df(data);
+  	  mat = CharacterMatrix(df.nrows(), df.size());
+  	  for(int i = 0; i < df.size(); i++)
+    	  mat(_,i) = CharacterVector(df[i]);
+ 	  } else {
+		  mat = data;
+	  }
+  	//byrow assumes distinct observations (trajectiories) are per row
+  	//otherwise transpose
   	if(!byrow) mat = _transpose(mat);
    	S4 outMc =_matr2Mc(mat,laplacian);
- 	out = List::create(_["estimate"] = outMc);
+   	out = List::create(_["estimate"] = outMc);
   } else {
     if(method == "mle") out = _mcFitMle(data, byrow, confidencelevel);
     if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel);
@@ -408,7 +422,9 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
   }
   
   S4 estimate = out["estimate"];
-  estimate.slot("states") = rownames(estimate.slot("transitionMatrix"));
+  NumericMatrix transMatr = estimate.slot("transitionMatrix");
+  estimate.slot("states") = rownames(transMatr);
   out["estimate"] = estimate;
+  out["logLikelihood"] = _loglikelihood(data, transMatr);
   return out;
 }

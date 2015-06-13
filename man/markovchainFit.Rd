@@ -56,8 +56,8 @@ put 1 in all rows having rowSum equal to zero
 }
 }
 \value{
-A list containing an estimate and, when "bootstrap" method is used, a matrix 
-of standards deviations and the bootstrap samples. When the "mle" or "map" method is used, the lower and upper confidence bounds are returned. With the "map" method, additionally, the variance is returned.
+A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
+of standards deviations and the bootstrap samples. When the "mle" or "map" method is used, the lower and upper confidence bounds are returned. With the "mle" method, the standard error is also returned. With the "map" method, additionally, the variance is returned.
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010

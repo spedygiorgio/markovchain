@@ -64,6 +64,9 @@ $$ P(s|u) \sim Beta(n(u, s) + \alpha(u, s), n(u) + \alpha(u) - n(u, s) - \alpha(
 Thus, the MAP estimate $\hat{\theta}$ is given by
 $$ \hat{\theta} = \Big\{ \frac{n(u, s) + \alpha(u, s) - 1}{n(u) + \alpha(u) - |\mathcal{A}|}, s \in \mathcal{A}, u \in \mathcal{A} \Big\}  $$
 
+The function also returns the expected value, given by
+$$ \text{E}_{\text{prior}} p(s|u) = \Big\{ \frac{n(u, s) + \alpha(u, s)}{n(u) + \alpha(u)}, s \in \mathcal{A}, u \in \mathcal{A} \Big\}  $$
+
 The variance is given by
 $$ \text{Var}_{\text{prior}} p(s|u) = \frac{n(u, s) + \alpha(u, s)}{(n(u) + \alpha(u))^2} \frac{n(u) + \alpha(u) - n(u, s) - \alpha(u, s)}{n(u) + \alpha(u) + 1} $$
 

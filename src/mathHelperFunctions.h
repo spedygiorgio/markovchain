@@ -7,7 +7,7 @@ T sortByDimNames(const T m){
   CharacterVector sortedNames(sizeMatr);
   for(int i = 0; i < sizeMatr; i++)
     sortedNames(i) = rowNames(i);
-  std::sort(sortedNames.begin(), sortedNames.end());
+  sortedNames.sort();
   
   NumericVector colIdx(sizeMatr), rowIdx(sizeMatr);
   for(int i = 0; i < sizeMatr; i++){

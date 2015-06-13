@@ -118,8 +118,8 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   double marginOfError, lowerEndpoint, upperEndpoint;
   for(int i = 0; i < nrows; i ++) {
     for(int j = 0; j < ncols; j ++) {
-      marginOfError = zscore * initialMatr(i, j) / sqrt(freqMatr(i, j));
-      standardError(i, j) = marginOfError;
+      standardError(i, j) = initialMatr(i, j) / sqrt(freqMatr(i, j));
+      marginOfError = zscore * standardError(i, j);
       lowerEndpoint = initialMatr(i, j) - marginOfError;
       upperEndpoint = initialMatr(i, j) + marginOfError;
       lowerEndpointMatr(i,j) = (lowerEndpoint > 1.0) ? 1.0 : ((0.0 > lowerEndpoint) ? 0.0 : lowerEndpoint);

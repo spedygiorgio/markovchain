@@ -13,6 +13,10 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
 
+inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {
+    .Call('markovchain_inferHyperparam', PACKAGE = 'markovchain', transMatr, scale, data)
+}
+
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix()) {
     .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam)
 }

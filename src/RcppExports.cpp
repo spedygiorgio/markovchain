@@ -41,6 +41,19 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// inferHyperparam
+List inferHyperparam(NumericMatrix transMatr, NumericVector scale, CharacterVector data);
+RcppExport SEXP markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMatr(transMatrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type data(dataSEXP);
+    __result = Rcpp::wrap(inferHyperparam(transMatr, scale, data));
+    return __result;
+END_RCPP
+}
 // markovchainFit
 List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, NumericMatrix hyperparam);
 RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP hyperparamSEXP) {

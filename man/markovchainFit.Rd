@@ -57,11 +57,15 @@ put 1 in all rows having rowSum equal to zero
 }
 \value{
 A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
-of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method is used, the lower and upper confidence bounds are returned along with the standard error.
+of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method is used, the lower and upper confidence bounds are returned along with the standard error. The "map" method also returns the expected value of the parameters with respect to the posterior distribution.
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+
 Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, Alfred Hubler, Santa Fe Institute
+
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+package version 0.2.5
 }
 \author{
 Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi

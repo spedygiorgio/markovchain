@@ -32,6 +32,11 @@ Returns the hyperparameter matrix in a list.
 The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, and the elements in the matrix are correspondingly permuted. 
 }
 
+\references{
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+package version 0.2.5
+}
+
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato
 }

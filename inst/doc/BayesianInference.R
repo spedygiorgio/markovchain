@@ -36,6 +36,13 @@ inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
 ## ----inferHyperparam2----------------------------------------------------
 inferHyperparam(data = weathersOfDays[1:15])
 
+## ----inferHyperparam3----------------------------------------------------
+hyperMatrix3 <- inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+hyperMatrix3 <- hyperMatrix3$scaledInference
+
+hyperMatrix4 <- inferHyperparam(data = weathersOfDays[1:15])
+hyperMatrix4 <- hyperMatrix4$dataInference
+
 ## ----MAPandMLE-----------------------------------------------------------
 data(preproglucacon, package = "markovchain")
 preproglucacon <- preproglucacon[[2]]

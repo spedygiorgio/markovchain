@@ -37,7 +37,7 @@
 %% almost as usual
 
 
-\author{Giorgio Alfredo Spedicato, Tae Seung Kang and Sai Bhargav Yalamanchi}
+\author{Giorgio Alfredo Spedicato, Tae Seung Kang, and Sai Bhargav Yalamanchi}
 
 \title{The \pkg{markovchain} Package: A Package for Easily Handling Discrete
 Markov Chains in \proglang{R}}
@@ -902,7 +902,7 @@ patientStates[1:10,]
 
 A time homogeneous Markov chain can be fit from given data. Four methods have been implemented within current version of
 \pkg{markovchain} package: maximum likelihood, maximum likelihood with Laplace
-smoothing, Bootstrap approach, maximum a posteriori.
+smoothing, Bootstrap approach, maximum a posteriori. 
 
 Equation~\ref{eq:MLE} shows the maximum likelihood estimator (MLE) of the
 $p_{ij}$ entry, where the $n_{ij}$ element consists in the number sequences $\left( X_{t}=s_{i}, X_{t+1}=s_{j}\right)$
@@ -913,11 +913,18 @@ found in the sample, that is
 \label{eq:MLE}
 \end{equation}
 
+Equation~\ref{eq:SE} shows the \code{standardError} of the MLE.
+
+\begin{equation}
+SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
+\label{eq:SE}
+\end{equation}
 
 <<fitMcbyMLE, keep.source=TRUE>>=
 weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",
                                  name = "Weather MLE")
 weatherFittedMLE$estimate
+weatherFittedMLE$standardError
 @
 
 The Laplace smoothing approach is a variation of the MLE, where the $n_{ij}$
@@ -976,6 +983,20 @@ weatherFittedBOOT <- markovchainFit(data = weathersOfDays,
                                     method = "bootstrap", nboot = 100)
 weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
+@
+
+For all the methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
+
+\begin{equation}
+LLH = \sum_{i,j} n_{ij} * log (p_{ij})
+\label{eq:LLH}
+\end{equation}
+where $n_{ij}$ is the entry of the frequency matrix and $p_{ij}$ is the entry of the transition probability matrix.
+
+<<fitMcbyMLE, keep.source=TRUE>>=
+weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",
+                                 name = "Weather MLE")
+weatherFittedMLE$logLikelihood
 @
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\

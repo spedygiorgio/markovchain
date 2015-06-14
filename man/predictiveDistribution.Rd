@@ -29,6 +29,9 @@ The log of the probability is returned.
 }
 \references{
 Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, Alfred Hubler, Santa Fe Institute
+
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+package version 0.2.5
 }
 \author{
 Sai Bhargav Yalamanchi

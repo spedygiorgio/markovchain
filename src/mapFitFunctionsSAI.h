@@ -67,7 +67,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
 
   NumericMatrix lowerEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
   NumericMatrix upperEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
-  NumericMatrix varianceMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
+  NumericMatrix stdError = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
 
   // populate frequeny matrix for old data; this is used for inference 
   int posFrom = 0, posTo = 0;
@@ -115,7 +115,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
         upperEndpointMatr(i, j) = xinbta(p, q, beta, cdf + confidencelevel / 2);
       }
 
-      varianceMatr(i, j) = p * q / (p + q) / (p + q) / (1 + p + q);
+      stdError(i, j) = sqrt(p * q / (p + q) / (p + q) / (1 + p + q));
     }
   }
 
@@ -130,6 +130,6 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
               _["lowerEndpointMatrix"]=lowerEndpointMatr, 
               _["upperEndpointMatrix"]=upperEndpointMatr),
               _["expectedValue"]=expMatr,
-              _["varianceMatrix"]=varianceMatr
+              _["standardError"]=stdError
   );
 }

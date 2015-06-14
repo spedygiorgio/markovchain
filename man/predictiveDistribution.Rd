@@ -25,7 +25,7 @@ This determines the shape of the prior distribution of the parameters. If none i
 The underlying method is Bayesian inference. The probability is computed by averaging the likelihood of the new data with respect to the posterior. Since the method assumes conjugate priors, the result can be represented in a closed form (see the vignette for more details), which is what is returned.
 }
 \value{
-A single floating point number is returned which is the probability of observing the new data.
+The log of the probability is returned.
 }
 \references{
 Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, Alfred Hubler, Santa Fe Institute

@@ -326,5 +326,5 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
     predictiveDist += lgamma(rowSum + paramRowSum) - lgamma(rowSum + newRowSum + paramRowSum);
   }
 
-  return exp(predictiveDist);
+  return predictiveDist;
 }

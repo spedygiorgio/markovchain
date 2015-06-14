@@ -351,13 +351,13 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
       if(scale(i) == 0)
         stop("The scaling factors must be non-zero!");
     
-    transMatr = sortByDimNames(transMatr);
-    
     NumericMatrix hpScaled(sizeMatr);
-    hpScaled.attr("dimnames") = List::create(sortedRowNames, sortedRowNames);
+    hpScaled.attr("dimnames") = List::create(rowNames, colNames);
     for(int i = 0; i < sizeMatr; i++)
       for(int j = 0; j < sizeMatr; j++)
         hpScaled(i, j) = scale(i) * transMatr(i, j);
+        
+    hpScaled = sortByDimNames(hpScaled);
     
     out = List::create(_["scaledInference"] = hpScaled);
   }

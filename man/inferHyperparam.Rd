@@ -1,6 +1,6 @@
 \name{inferHyperparam}
 \alias{inferHyperparam}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
 Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set
 }
@@ -16,7 +16,7 @@ inferHyperparam(transMatr = matrix(), scale = numeric(), data = character())
 A valid transition matrix, with dimension names.
 }
   \item{scale}{
-A vector of scaling factors, each element corresponds to the sum of the hyperparameters in the corresponding row of the hyperparameter matrix. 
+A vector of scaling factors, each element corresponds to the row names of the provided transition matrix transMatr, in the same order. 
 }
   \item{data}{
 A data set from which the hyperparameters are inferred.  
@@ -26,7 +26,7 @@ A data set from which the hyperparameters are inferred.
 transMatr and scale need not be provided if data is provided.
 }
 \value{
-Returns the hyperparameter matrix in a list. 
+Returns the hyperparameter matrix in a list.
 }
 \note{
 The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, and the elements in the matrix are correspondingly permuted. 

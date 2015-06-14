@@ -11,7 +11,7 @@ vignette: |
   %\usepackage[utf8]{inputenc}
 ---
 
-The _markovchain_ package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters^[at the time of writing this document, only first order models are supported] by Bayesian inference. This vignette provides the mathematical description for the methods employed by the package. 
+The _markovchain_ package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters^[at the time of writing this document, only first order models are supported] by Bayesian inference. It also computes the probability of observing a new data set, given a (different) data set. This vignette provides the mathematical description for the methods employed by the package. 
 
 ## Notation and set-up
 
@@ -69,6 +69,8 @@ $$ \text{E}_{\text{prior}} p(s|u) = \Big\{ \frac{n(u, s) + \alpha(u, s)}{n(u) + 
 
 The variance is given by
 $$ \text{Var}_{\text{prior}} p(s|u) = \frac{n(u, s) + \alpha(u, s)}{(n(u) + \alpha(u))^2} \frac{n(u) + \alpha(u) - n(u, s) - \alpha(u, s)}{n(u) + \alpha(u) + 1} $$
+
+The square root of this quantity is the standard error, which is returned by the function.
 
 The confidence intervals are constructed by computing the inverse of the beta integral. 
 
@@ -134,7 +136,7 @@ predictiveDistribution(weathersOfDays[1:200],
 
 Note that the predictive probability is very small. However, this can be useful when comparing model orders. 
 
-We can infer the hyperparameters from the transition matrix itself, and use this to obtain our MAP estimates.
+Suppose we have an idea of the (prior) transition matrix corresponding to the expected value of the parameters, and have a data set from which we want to deduce the MAP estimates. We can infer the hyperparameters from this known transition matrix itself, and use this to obtain our MAP estimates.
 
 ```{r inferHyperparam}
 inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
@@ -144,6 +146,17 @@ Alternatively, we can use a data sample to infer the hyperparameters.
 ```{r inferHyperparam2}
 inferHyperparam(data = weathersOfDays[1:15])
 ```
+
+In order to use the inferred hyperparameter matrices, we do
+```{r inferHyperparam3}
+hyperMatrix3 <- inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+hyperMatrix3 <- hyperMatrix3$scaledInference
+
+hyperMatrix4 <- inferHyperparam(data = weathersOfDays[1:15])
+hyperMatrix4 <- hyperMatrix4$dataInference
+```
+
+Now we can safely use _hyperMatrix3_ and _hyperMatrix4_ with _markovchainFit_ (in the _hyperparam_ argument).
 
 Supposing we don't provide any hyperparameters, then the prior is uniform. This is the same as maximum likelihood. 
 ```{r MAPandMLE}

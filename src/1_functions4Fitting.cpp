@@ -439,17 +439,14 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
     if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam);
   }
 
-  if(name != "") {
-    S4 estimate = out["estimate"];
-    estimate.slot("name") = name;
-    out["estimate"] = estimate;
-  }
-  
   S4 estimate = out["estimate"];
+  if(name != "") estimate.slot("name") = name;
+  
   NumericMatrix transMatr = estimate.slot("transitionMatrix");
-  estimate.slot("states") = rownames(transMatr);
-  out["estimate"] = estimate;
   if(!Rf_inherits(data, "data.frame") && !Rf_inherits(data, "matrix")) 
     out["logLikelihood"] = _loglikelihood(data, transMatr);
+  estimate.slot("states") = rownames(transMatr);
+  out["estimate"] = estimate;
+  
   return out;
 }

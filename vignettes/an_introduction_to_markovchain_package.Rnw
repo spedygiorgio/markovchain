@@ -999,6 +999,14 @@ weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",
 weatherFittedMLE$logLikelihood
 @
 
+Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well.
+
+<<confint, keep.source=TRUE>>=
+weatherFittedMLE$confidenceInterval
+weatherFittedBOOT$confidenceInterval
+@
+
+
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
 
 Is is also possible to fit a DTMC or a \code{markovchainList} object 
@@ -1010,6 +1018,9 @@ singleMc<-markovchainFit(data=holson[,2:12],name="holson")
 mcListFit<-markovchainListFit(data=holson[,2:12],name="holson")
 mcListFit$estimate[[1]]
 @
+
+
+
 
 The maximum a posteriori method (MAP) has been implemented using Bayesian inference \citep{sch}. For details on usage, refer to the stand-alone vignette for MAP \citep{MAPmcR}.
 
@@ -1444,7 +1455,7 @@ only the real part is taken.
 
 Such limitations are expected to be overcome in future releases. Similarly,
 future versions of the package are expected to improve the code in terms of numerical accuracy and rapidity.
-An ititial rewriting of internal function in \proglang{C++} by means of \pkg{Rcpp} package \citep{RcppR} has been started.
+An intitial rewriting of internal function in \proglang{C++} by means of \pkg{Rcpp} package \citep{RcppR} has been started.
 
 
 \section*{Aknowledgments}\label{sec:aknowledgements}

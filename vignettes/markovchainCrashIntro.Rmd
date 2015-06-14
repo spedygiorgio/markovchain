@@ -9,17 +9,15 @@ output:
     toc: yes
   ioslides_presentation:
     incremental: yes
+font_adjustmen: -1
 header-includes:
 - \usepackage{url}
 bibliography: markovchainBiblio.bib
+vignette: |
+  %\VignetteIndexEntry{Crash Introduction to markovchain R package} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\usepackage[utf8]{inputenc}
 ---
-
-
-<!--
-%\VignetteEngine{knitr::rmarkdown }
-%\VignetteIndexEntry{Crash Introduction to markovchain R package}
--->
-
 
 #Intro
 
@@ -47,7 +45,8 @@ rm(list=ls())
 - The package is loaded using 
 
 ```{r load, echo=TRUE, warning=FALSE}
-library(markovchain) #load the package
+#load the package
+library(markovchain) 
 ```
 
 ---

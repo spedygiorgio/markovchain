@@ -126,9 +126,8 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
       upperEndpointMatr(i,j) = (upperEndpoint > 1.0) ? 1.0 : ((0.0 > upperEndpoint) ? 0.0 : upperEndpoint);
     }
   }
-  lowerEndpointMatr.attr("dimnames") = List::create(elements, elements); 
-  upperEndpointMatr.attr("dimnames") = List::create(elements, elements); 
-  standardError.attr("dimnames") = List::create(elements, elements); 
+  standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
+          = lowerEndpointMatr.attr("dimnames") = List::create(elements, elements); 
 
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = initialMatr;
@@ -168,7 +167,6 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1) {
   if(size == -1) size = stringchar.size();
   NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar);
-
   List samples, res;
   CharacterVector itemset = rownames(contingencyMatrix);
   int itemsetsize = itemset.size();
@@ -202,18 +200,17 @@ List _fromBoot2Estimate(List listMatr) {
   int sampleSize = listMatr.size();
   NumericMatrix firstMat = listMatr[0];
   int matrDim = firstMat.nrow();
-  NumericMatrix matrMean(matrDim);
-  NumericMatrix matrSd(matrDim);
+  NumericMatrix matrMean(matrDim), matrSd(matrDim);
 
   for(int i = 0; i < matrDim; i ++) { 
   	for(int j = 0; j < matrDim; j ++) { 
-		NumericVector probsEstimated;
-		for(int k = 0; k < sampleSize; k ++) {
-			NumericMatrix mat = listMatr[k];
-			probsEstimated.push_back(mat(i,j));
-		}
-		matrMean(i,j) = mean(probsEstimated);
-		matrSd(i,j) = sd(probsEstimated);
+  	  NumericVector probsEstimated;
+  	  for(int k = 0; k < sampleSize; k ++) {
+  	    NumericMatrix mat = listMatr[k];
+  	    probsEstimated.push_back(mat(i,j));
+  	  }
+  	  matrMean(i,j) = mean(probsEstimated);
+  	  matrSd(i,j) = sd(probsEstimated);
   	}
   }
   matrMean.attr("dimnames") = List::create(rownames(firstMat), colnames(firstMat)); 
@@ -235,14 +232,14 @@ struct ForLoopWorker : public RcppParallel::Worker
    }
 };
 
-List _mcFitBootStrap(CharacterVector data, int nboot=10, bool byrow=true, bool parallel=false) {
+List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel) {
   List theList = _bootstrapCharacterSequences(data, nboot);
   int n = theList.size();
   List pmsBootStrapped(n);
 
   if(!parallel) { 
-	for(int i = 0; i < n; i++) 
-		pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
+    for(int i = 0; i < n; i++) 
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
   } else {
   	ForLoopWorker forloop(theList, pmsBootStrapped);
   	parallelFor(0, n, forloop);
@@ -255,9 +252,33 @@ List _mcFitBootStrap(CharacterVector data, int nboot=10, bool byrow=true, bool p
   estimate.slot("byrow") = byrow;
   estimate.slot("name") = "BootStrap Estimate";  
 
+  // confidence interval
+  double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
+  int nrows = transMatr.nrow();
+  int ncols = transMatr.ncol();
+  NumericMatrix lowerEndpointMatr(nrows, ncols), upperEndpointMatr(nrows, ncols);
+  NumericMatrix sigma = estimateList["estSigma"], standardError(nrows, ncols);
+  
+  double marginOfError, lowerEndpoint, upperEndpoint;
+  for(int i = 0; i < nrows; i ++) {
+    for(int j = 0; j < ncols; j ++) {
+      standardError(i, j) = sigma(i, j) / sqrt(n); 
+      marginOfError = zscore * standardError(i, j);
+      lowerEndpoint = transMatr(i, j) - marginOfError;
+      upperEndpoint = transMatr(i, j) + marginOfError;
+      lowerEndpointMatr(i,j) = (lowerEndpoint > 1.0) ? 1.0 : ((0.0 > lowerEndpoint) ? 0.0 : lowerEndpoint);
+      upperEndpointMatr(i,j) = (upperEndpoint > 1.0) ? 1.0 : ((0.0 > upperEndpoint) ? 0.0 : upperEndpoint);
+    }
+  }
+  standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
+              = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames"); 
+  
   return List::create(_["estimate"] = estimate
-		, _["standardError"] = estimateList["estSigma"]
+		, _["standardError"] = standardError
 		, _["bootStrapSamples"] = pmsBootStrapped
+    , _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
+  				                		          _["lowerEndpointMatrix"]=lowerEndpointMatr, 
+							                          _["upperEndpointMatrix"]=upperEndpointMatr)
 		);
 }
 
@@ -390,7 +411,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 }
 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0, String name="", bool parallel=false, double confidencelevel=0.95, NumericMatrix hyperparam = NumericMatrix()) {
+List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0
+            , String name="", bool parallel=false, double confidencelevel=0.95
+            , NumericMatrix hyperparam = NumericMatrix()) 
+{
   List out;
   if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
     CharacterMatrix mat;
@@ -410,7 +434,7 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
    	out = List::create(_["estimate"] = outMc);
   } else {
     if(method == "mle") out = _mcFitMle(data, byrow, confidencelevel);
-    if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel);
+    if(method == "bootstrap") out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel);
     if(method == "laplace") out = _mcFitLaplacianSmooth(data, byrow, laplacian);
     if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam);
   }

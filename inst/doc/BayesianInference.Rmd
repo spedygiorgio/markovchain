@@ -79,11 +79,11 @@ We already know the expressions for both quantities in the integral and it turns
 $$ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \frac{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + m(u, s) + \alpha(u, s))}{\Gamma(\alpha(u) + n(u) + m(u))} \Big\} $$
 
 ### Choosing the hyperparameters
-The hyperparameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix in to the hyperparameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
+The hyperparameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyperparameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
 
 $$ \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)} $$
 
-holds, the function accepts as input the belief matrix as well as a scaling vector $\alpha(.)$ and proceeds to compute $\alpha(., .)$.
+holds, the function accepts as input the belief matrix as well as a scaling vector (serves as a proxy for $\alpha(.)$) and proceeds to compute $\alpha(., .)$.
 
 Alternatively, the function accepts a data sample and infers the hyperparameters from it. Since the mode of a parameter (with respect to the prior distribution) is proportional to one less than the corresponding hyperparameter, we set 
 

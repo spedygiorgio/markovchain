@@ -232,24 +232,6 @@ struct ForLoopWorker : public RcppParallel::Worker
    }
 };
 
-NumericMatrix toFrequencyMatrix(List sequenceList, CharacterVector names) {
-  Rf_PrintValue(names);
-  int n = names.size(), from = 0, to = 0;
-  NumericMatrix freqMatr(n);
-  freqMatr.attr("dimnames") = List::create(names, names);
-  for(int k = 0; k < sequenceList.size(); k ++) {
-    CharacterVector seq = sequenceList[k];
-    for(int i = 0; i < seq.size() - 1; i ++) {
-      for(int j = 0; j < n; j ++) {
-        if(seq[i] == names[j]) from = j;
-        if(seq[i + 1] == names[j]) to = j;
-      }
-      freqMatr(from, to) ++;
-    }
-  }
-  return freqMatr;  
-}
-
 List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel) {
   List theList = _bootstrapCharacterSequences(data, nboot);
   int n = theList.size();
@@ -276,7 +258,6 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   int ncols = transMatr.ncol();
   NumericMatrix lowerEndpointMatr(nrows, ncols), upperEndpointMatr(nrows, ncols);
   NumericMatrix sigma = estimateList["estSigma"], standardError(nrows, ncols);
-//  NumericMatrix freqMatr = toFrequencyMatrix(theList, rownames(transMatr)); 
   
   double marginOfError, lowerEndpoint, upperEndpoint;
   for(int i = 0; i < nrows; i ++) {

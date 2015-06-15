@@ -26,7 +26,7 @@ extern "C" SEXP commclassesKernel2(NumericMatrix P){
     oldSum = 1;
     while(oldSum != newSum) {
       oldSum = 0;
-      for(int j = 0; j < b.size(); j ++)
+      for(unsigned int j = 0; j < b.size(); j ++)
         if(b[j] > 0) oldSum += (j + 1);
       n = a.size();
       NumericVector temp; 
@@ -37,12 +37,12 @@ extern "C" SEXP commclassesKernel2(NumericMatrix P){
           matr(j, k) = temp[k];
       }
       c = arma::zeros<arma::vec>(m);
-      for(int j = 0; j < m; j++) 
-        for(int k = 0; k < n; k++)
+      for(unsigned int j = 0; j < m; j++) 
+        for(unsigned int k = 0; k < n; k++)
           c[j] += matr(k, j);
       newSum = 0;
       a.resize(0);
-      for(int j = 0; j < b.size(); j++) {
+      for(unsigned int j = 0; j < b.size(); j++) {
         if(c[j] > 0) {
           b[j] = 1; a.push_back(j);
         }
@@ -64,12 +64,12 @@ extern "C" SEXP commclassesKernel2(NumericMatrix P){
   LogicalVector v(T.n_cols);
   arma::mat tC = Ca.t();
   arma::mat tT = T.t();
-  unsigned int sums[tC.n_cols];
+  IntegerVector sums(tC.n_cols);
   for(unsigned int j = 0; j < T.n_cols; j++) {
     sums[j] = 0;
     for(i = 0; i < T.n_rows; i ++)
       if(tC(i, j) == tT(i, j)) sums[j] ++;
-    v[j] = (sums[j] == m);
+    v[j] = (sums[j] == (int)m);
   }
   C = as<LogicalMatrix>(wrap(Ca));
   C.attr("dimnames") = List::create(stateNames, stateNames);

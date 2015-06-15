@@ -10,3 +10,5 @@ install.packages('markovchain')
 ```r
 devtools::install_github('spedygiorgio/markovchain')
 ```
+
+![alt tag](https://travis-ci.org/spedygiorgio/markovchain.svg?branch=master)

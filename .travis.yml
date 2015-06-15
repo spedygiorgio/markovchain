@@ -1,0 +1,5 @@
+language: r
+sudo: required
+warnings_are_errors: true
+notifications:
+  email: false

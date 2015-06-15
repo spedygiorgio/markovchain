@@ -51,3 +51,11 @@ test_that("Fit should satisfy", {
                [[1]]["confidenceLevel"][[1]], 0.95)
 })
 
+data(rain)
+sequs<-rain$rain
+# mcBoot<-markovchainFit(data = sequs,nboot = 10,method="bootstrap") #ok
+# mcBoot2<-markovchainFit(data = sequs,nboot = 200,method="bootstrap") #ok but slower
+#parallel. Error: Error: not compatible with requested type
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 100,method="bootstrap",parallel=FALSE) 
+mcBoot<-markovchainFit(data = sequs[1:100],nboot = 100,method="bootstrap",parallel=TRUE) 
+

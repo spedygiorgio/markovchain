@@ -228,7 +228,7 @@ struct ForLoopWorker : public RcppParallel::Worker
       : input(input), output(output) {}
 
    void operator()(std::size_t begin, std::size_t end) {
-	output[begin] = createSequenceMatrix(input[begin], true, true);
+     output[begin] = createSequenceMatrix(input[begin], true, true);
    }
 };
 
@@ -241,8 +241,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
     for(int i = 0; i < n; i++) 
       pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
   } else {
-  	ForLoopWorker forloop(theList, pmsBootStrapped);
-  	parallelFor(0, n, forloop);
+  	ForLoopWorker worker(theList, pmsBootStrapped);
+  	parallelFor(0, n, worker);
   }
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
   NumericMatrix transMatr = _toRowProbs(estimateList["estMu"]);

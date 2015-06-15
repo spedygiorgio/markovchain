@@ -16,7 +16,7 @@ extern "C" SEXP commclassesKernel2(NumericMatrix P){
   arma::vec b, c, d;
   arma::mat T = arma::zeros(m, m);
   unsigned int i = 0;
-  int oldSum, newSum, ai;
+  int oldSum, newSum; // SAI fix
   while(i < m) {
     a.resize(0);
     a.push_back(i);

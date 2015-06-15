@@ -125,7 +125,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   outMc.slot("transitionMatrix") = mapEstMatr;
   outMc.slot("name") = "Bayesian Fit";  
   
-  warning("\n\'estimate\' is the MAP set of parameters where as \'expectedValue\' \nis the expectation of the parameters with respect to the posterior\n");
+  warning("\n\'estimate\' is the MAP set of parameters where as \'expectedValue\' \nis the expectation of the parameters with respect to the posterior.\nThe confidence intervals are given for \'estimate\'.");
   
   return List::create(_["estimate"] = outMc,
     _["expectedValue"]=expMatr,

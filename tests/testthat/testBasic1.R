@@ -51,3 +51,57 @@ test_that("Fit should satisfy", {
                [[1]]["confidenceLevel"][[1]], 0.95)
 })
 
+### MAP fit function tests
+data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")
+data2 <- c("c", "a", "b")
+
+test_that("MAP fits must satisfy", {
+  expect_identical(markovchainFit(data1, method = "map")$estimate@transitionMatrix, 
+                   markovchainFit(data1, method = "mle")$estimate@transitionMatrix)
+  
+  expect_identical(markovchainFit(data1, method = "map")$estimate@transitionMatrix, 
+                   matrix(c(0.0, 0.6, 0.5, 
+                           0.8, 0.2, 0.5, 
+                           0.2, 0.2, 0.0), nrow = 3, 
+                          dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_identical(markovchainFit(data1, method = "map", hyperparam = 
+                                    matrix(c(2, 1, 3, 
+                                             4, 5, 2, 
+                                             2, 2, 1), nrow = 3, 
+                                           dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))$estimate@transitionMatrix, 
+                   matrix(c(1/10, 3/10, 3/5, 
+                            7/10, 5/10, 2/5, 
+                            2/10, 2/10, 0), nrow = 3, 
+                          dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+})
+
+test_that("predictiveDistribution must satisfy", {
+  expect_equal(predictiveDistribution(data1, character()), 0)
+  
+  expect_equal(predictiveDistribution(data1, data2, hyperparam = 
+                                            matrix(c(2, 1, 3, 
+                                                     4, 5, 2, 
+                                                     2, 2, 1), nrow = 3, 
+                                                   dimnames = list(c("a", "b", "c"), c("a", "b", "c")))), 
+                   log(4 / 13))
+})
+
+test_that("inferHyperparam must satisfy", {
+  expect_identical(inferHyperparam(data = data1)$dataInference, 
+                   matrix(c(1, 4, 2, 
+                            5, 2, 2, 
+                            2, 2, 1), nrow = 3, 
+                          dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_identical(inferHyperparam(transMatr = 
+                                     matrix(c(0.0, 0.6, 0.5, 
+                                              0.8, 0.2, 0.5, 
+                                              0.2, 0.2, 0.0), nrow = 3, 
+                                            dimnames = list(c("a", "b", "c"), c("a", "b", "c"))),
+                                   scale = c(10, 10, 10))$scaledInference, 
+                   matrix(c(0, 6, 5, 
+                            8, 2, 5, 
+                            2, 2, 0), nrow = 3, 
+                          dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+})

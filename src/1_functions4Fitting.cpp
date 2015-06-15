@@ -134,10 +134,10 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   outMc.slot("name") = "MLE Fit";  
   
   return List::create(_["estimate"] = outMc
+          , _["standardError"] = standardError
 		      , _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
-					                		          _["lowerEndpointMatrix"]=lowerEndpointMatr, 
-							                          _["upperEndpointMatrix"]=upperEndpointMatr)
-							, _["standardError"] = standardError
+		        _["lowerEndpointMatrix"]=lowerEndpointMatr, 
+		        _["upperEndpointMatrix"]=upperEndpointMatr)							
 	);
 }
 
@@ -272,13 +272,13 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   }
   standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
               = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames"); 
-  
+              
   return List::create(_["estimate"] = estimate
-		, _["standardError"] = standardError
-		, _["bootStrapSamples"] = pmsBootStrapped
+    , _["standardError"] = standardError
     , _["confidenceInterval"] = List::create(_["confidenceLevel"]=confidencelevel, 
-  				                		          _["lowerEndpointMatrix"]=lowerEndpointMatr, 
-							                          _["upperEndpointMatrix"]=upperEndpointMatr)
+      _["lowerEndpointMatrix"]=lowerEndpointMatr
+      , _["upperEndpointMatrix"]=upperEndpointMatr)
+    , _["bootStrapSamples"] = pmsBootStrapped
 		);
 }
 
@@ -439,17 +439,14 @@ List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=1
     if(method == "map") out = _mcFitMap(data, byrow, confidencelevel, hyperparam);
   }
 
-  if(name != "") {
-    S4 estimate = out["estimate"];
-    estimate.slot("name") = name;
-    out["estimate"] = estimate;
-  }
-  
   S4 estimate = out["estimate"];
+  if(name != "") estimate.slot("name") = name;
+  
   NumericMatrix transMatr = estimate.slot("transitionMatrix");
-  estimate.slot("states") = rownames(transMatr);
-  out["estimate"] = estimate;
   if(!Rf_inherits(data, "data.frame") && !Rf_inherits(data, "matrix")) 
     out["logLikelihood"] = _loglikelihood(data, transMatr);
+  estimate.slot("states") = rownames(transMatr);
+  out["estimate"] = estimate;
+  
   return out;
 }

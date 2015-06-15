@@ -1,13 +1,6 @@
-30-05-2015
-Version 0.2.5
-Added a CrashIntro vignette
-Added bayesian
-12-05-2015
-Version 0.2.1
-Fixed a compatibility issue with R 3 development
-24-04-2015
-Version 0.2
-This is a milestone for markovchain package, since the package project has been 
-selected within the funded GSOC 2015 projects.
-Thanks to Tae support now the fitting functions have been rewritten in Rcpp.
-
+15-06-2015
+Version 0.3
+Most probability function rewritten in Rcpp
+Added standard errors and confidence intervals for MLE (thanks to Tae)
+Added confidence intervals for bootstap (thanks to Tae)
+Added bayesian Maximum A Posteriori estimation (thanks to Sai)

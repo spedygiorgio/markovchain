@@ -1,6 +1,12 @@
-30-05-2015
-Version 0.2.2
+15-06-2015
+15-06-2015
+Version 0.3
 Added a CrashIntro vignette
+Most probability function rewritten in Rcpp
+Added standard errors and confidence intervals for MLE (thanks to Tae)
+Added confidence intervals for bootstap (thanks to Tae)
+Added bayesian Maximum A Posteriori estimation (thanks to Sai)
+
 
 12-05-2015
 Version 0.2.1

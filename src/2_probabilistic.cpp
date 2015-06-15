@@ -63,12 +63,12 @@ extern "C" SEXP commclassesKernel(NumericMatrix P){
   LogicalVector v(T.n_cols);
   arma::mat tC = Ca.t();
   arma::mat tT = T.t();
-  unsigned int sums[tC.n_cols];
+  IntegerVector sums(tC.n_cols);
   for(unsigned int j = 0; j < T.n_cols; j++) {
     sums[j] = 0;
     for(i = 0; i < T.n_rows; i ++)
       if(tC(i, j) == tT(i, j)) sums[j] ++;
-    v[j] = (sums[j] == m);
+    v[j] = (sums[j] == (int)m);
   }
   C = as<LogicalMatrix>(wrap(Ca));
   C.attr("dimnames") = List::create(stateNames, stateNames);

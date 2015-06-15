@@ -51,6 +51,18 @@ test_that("Fit should satisfy", {
                [[1]]["confidenceLevel"][[1]], 0.95)
 })
 
+data(rain)
+sequs<-rain$rain
+# mcBoot<-markovchainFit(data = sequs,nboot = 10,method="bootstrap") #ok
+# mcBoot2<-markovchainFit(data = sequs,nboot = 200,method="bootstrap") #ok but slower
+#parallel. Error: Error: not compatible with requested type
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 100,method="bootstrap",parallel=FALSE) # ok
+mcBoot<-markovchainFit(data = sequs[1:100],nboot = 10,method="bootstrap",parallel=TRUE) # ok
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 20,method="bootstrap",parallel=TRUE) # ok or warning
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 30,method="bootstrap",parallel=TRUE) # Error: 'dimnames' applied to non-array
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 50,method="bootstrap",parallel=TRUE) # Error
+# mcBoot<-markovchainFit(data = sequs[1:100],nboot = 100,method="bootstrap",parallel=TRUE) # Error in setwd(old) : character argument expected
+
 ### MAP fit function tests
 data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")
 data2 <- c("c", "a", "b")

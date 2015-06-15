@@ -262,7 +262,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   double marginOfError, lowerEndpoint, upperEndpoint;
   for(int i = 0; i < nrows; i ++) {
     for(int j = 0; j < ncols; j ++) {
-      standardError(i, j) = sigma(i, j) / sqrt(n); 
+      standardError(i, j) = sigma(i, j) / sqrt(double(n)); // SAI fix
       marginOfError = zscore * standardError(i, j);
       lowerEndpoint = transMatr(i, j) - marginOfError;
       upperEndpoint = transMatr(i, j) + marginOfError;

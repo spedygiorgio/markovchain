@@ -985,6 +985,17 @@ weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 @
 
+The bootstrap sampling process can be done in \code{parallel}.
+
+<<fitMcbyBootStrap, keep.source=TRUE>>=
+weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
+                                    method = "bootstrap", nboot = 10, 
+                                    parallel = TRUE)
+weatherFittedBOOTParallel$estimate
+weatherFittedBOOTParallel$standardError
+@
+
+
 For all the methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
 
 \begin{equation}

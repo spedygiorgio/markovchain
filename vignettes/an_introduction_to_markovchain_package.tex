@@ -1393,7 +1393,7 @@ sunny  0.002853011 0.002808520 0.003823990
 \end{Soutput}
 \end{Schunk}
 
-The bootstrap sampling process can be done in \code{parallel}.
+The bootstrapping process can be done in \code{parallel}.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -1401,30 +1401,25 @@ R> weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays,
 +                                      method = "bootstrap", nboot = 10, 
 +                                      parallel = TRUE)
 R> weatherFittedBOOTParallel$estimate
-\end{Sinput}
-\begin{Soutput}
-BootStrap Estimate 
- A  3 - dimensional discrete Markov Chain with following states 
- cloudy rain sunny 
- The transition matrix   (by rows)  is defined as follows 
-          cloudy      rain     sunny
-cloudy 0.3384492 0.3556654 0.3058854
-rain   0.6002837 0.2798841 0.1198322
-sunny  0.1555571 0.1392075 0.7052354
-\end{Soutput}
-\begin{Sinput}
 R> weatherFittedBOOTParallel$standardError
 \end{Sinput}
-\begin{Soutput}
-            cloudy        rain       sunny
-cloudy 0.015510176 0.010734694 0.016132884
-rain   0.015087748 0.017849151 0.009842788
-sunny  0.009861709 0.007780893 0.011118283
-\end{Soutput}
 \end{Schunk}
 
+The parallel bootstrapping uses all the available cores on a machine by default.
+However, it is also possible to tune the number of threads used. 
+Note that this should be done in R before calling the \code{markovchainFit} function.
+For example, the following code will set the number of threads to 4.
 
-For all the methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
+\begin{Schunk}
+\begin{Sinput}
+R> RcppParallel::setNumThreads(4)
+\end{Sinput}
+\end{Schunk}
+
+For more details, please refer to \pkg{RcppParallel} (http://rcppcore.github.io/RcppParallel/).
+
+
+For all the fitting methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
 
 \begin{equation}
 LLH = \sum_{i,j} n_{ij} * log (p_{ij})

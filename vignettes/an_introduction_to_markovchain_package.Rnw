@@ -985,9 +985,9 @@ weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 @
 
-The bootstrap sampling process can be done in \code{parallel}.
+The bootstrapping process can be done in \code{parallel}.
 
-<<fitMcbyBootStrap, keep.source=TRUE>>=
+<<fitMcbyBootStrap, keep.source=TRUE, eval=FALSE>>=
 weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
                                     method = "bootstrap", nboot = 10, 
                                     parallel = TRUE)
@@ -995,8 +995,19 @@ weatherFittedBOOTParallel$estimate
 weatherFittedBOOTParallel$standardError
 @
 
+The parallel bootstrapping uses all the available cores on a machine by default.
+However, it is also possible to tune the number of threads used. 
+Note that this should be done in R before calling the \code{markovchainFit} function.
+For example, the following code will set the number of threads to 4.
 
-For all the methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
+<<fitMcbyBootStrap, keep.source=TRUE, eval=FALSE>>=
+RcppParallel::setNumThreads(4)
+@
+
+For more details, please refer to \pkg{RcppParallel} (http://rcppcore.github.io/RcppParallel/).
+
+
+For all the fitting methods, the \code{logLikelihood} denoted in Equation~\ref{eq:LLH} is provided. 
 
 \begin{equation}
 LLH = \sum_{i,j} n_{ij} * log (p_{ij})

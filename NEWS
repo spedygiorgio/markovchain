@@ -1,6 +1,4 @@
-15-06-2015
-Version 0.3
-Most probability function rewritten in Rcpp
-Added standard errors and confidence intervals for MLE (thanks to Tae)
-Added confidence intervals for bootstap (thanks to Tae)
-Added bayesian Maximum A Posteriori estimation (thanks to Sai)
+18-06-2015
+Version 0.3.0.1
+Fixed Rcpp warnings.
+Small amendments.

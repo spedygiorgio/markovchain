@@ -13,7 +13,7 @@ Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
                laplacian = 0, name = "", parallel = FALSE,
                confidencelevel = 0.95, hyperparam = matrix())
-createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE)
+createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE, parallel = FALSE)
 }
 
 \arguments{

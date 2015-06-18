@@ -8,7 +8,7 @@ template <typename T>
 T sortByDimNames(const T m);
 
 // [[Rcpp::export(.commclassesKernelRcpp)]]
-extern "C" SEXP commclassesKernel(NumericMatrix P){
+SEXP commclassesKernel(NumericMatrix P){
   unsigned int m = P.ncol(), n;
   CharacterVector stateNames = rownames(P);
   std::vector<int> a;

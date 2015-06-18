@@ -18,7 +18,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // canonicForm
-extern "C" SEXP canonicForm(S4 object);
+SEXP canonicForm(S4 object);
 RcppExport SEXP markovchain_canonicForm(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -75,7 +75,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // commclassesKernel
-extern "C" SEXP commclassesKernel(NumericMatrix P);
+SEXP commclassesKernel(NumericMatrix P);
 RcppExport SEXP markovchain_commclassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;

@@ -12,6 +12,7 @@ Imports: igraph, Matrix, matlab, expm, stats4, parallel, Rcpp (>= 0.11.5), RcppP
 Suggests: knitr, testthat
 VignetteBuilder:  utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
+SystemRequirements: GNU make
 LazyLoad: yes
 ByteCompile: yes
 BugReports: http://github.com/spedygiorgio/markovchain/issues

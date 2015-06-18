@@ -2,3 +2,4 @@
 Version 0.3.0.1
 Fixed Rcpp warnings.
 Small amendments.
+Revised parallel feature for bootstrap.

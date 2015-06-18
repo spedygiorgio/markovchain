@@ -9,8 +9,8 @@
     .Call('markovchain_canonicForm', PACKAGE = 'markovchain', object)
 }
 
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
-    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE, parallel = FALSE) {
+    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, parallel)
 }
 
 inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {

@@ -228,16 +228,17 @@ double gcd (int f, int s) {
 }
 
 //function to  get the period of a DTMC
+// [[Rcpp::export(periodRcpp)]]
 int period(S4 object) {
-  Function isIrreducible("markovchain::is.irreducible");
-  if(!isIrreducible(object)) {
+  Function isIrreducible("is.irreducible");
+  List res = isIrreducible(object);
+  if(!res[0]) {
     warning("The matrix is not irreducible");
     return 0;
   } else {
     NumericMatrix P = object.slot("transitionMatrix");
-    return 0;
+    return 1;
   }
-//	} else {
 //	P<-object@transitionMatrix
 //	n=size(P,2)
 //	v=zeros(1,n)

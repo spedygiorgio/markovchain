@@ -143,6 +143,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// period
+int period(S4 object);
+RcppExport SEXP markovchain_period(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    __result = Rcpp::wrap(period(object));
+    return __result;
+END_RCPP
+}
 // predictiveDistribution
 double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam);
 RcppExport SEXP markovchain_predictiveDistribution(SEXP stringcharSEXP, SEXP newDataSEXP, SEXP hyperparamSEXP) {

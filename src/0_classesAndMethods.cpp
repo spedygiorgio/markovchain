@@ -63,4 +63,3 @@ SEXP canonicForm (S4 object)
   out.slot("name") = object.slot("name");
   return out;
 }
-

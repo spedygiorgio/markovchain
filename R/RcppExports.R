@@ -45,6 +45,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('markovchain_gcd', PACKAGE = 'markovchain', f, s)
 }
 
+period <- function(object) {
+    .Call('markovchain_period', PACKAGE = 'markovchain', object)
+}
+
 predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
     .Call('markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
 }

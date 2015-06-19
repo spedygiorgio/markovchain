@@ -228,7 +228,7 @@ double gcd (int f, int s) {
 }
 
 //function to  get the period of a DTMC
-// [[Rcpp::export(periodRcpp)]]
+// [[Rcpp::export(period)]]
 int period(S4 object) {
   Function isIrreducible("is.irreducible");
   List res = isIrreducible(object);
@@ -237,84 +237,39 @@ int period(S4 object) {
     return 0;
   } else {
     NumericMatrix P = object.slot("transitionMatrix");
-    return 1;
+    int n = P.ncol();
+    arma::vec v(n);
+    std::vector<double> r, T(1), w;
+    v[0] = 1;
+    int d = 0, m = T.size(), i = 0, j = 0;
+    while(m>0 && d!=1) {
+      i = T[0];
+      T.erase(T.begin());
+      w.push_back(i);
+      j = 0;
+      while(j <= n) {
+        if(P(i,j) > 0) {
+          r.insert(r.end(), w.begin(), w.end());
+          r.insert(r.end(), T.begin(), T.end());
+          double k = 0;
+          for(std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
+            if(*it == j) k ++;
+          if(k > 0) {
+             int b = v[i] + 1 - v[j];
+             d = gcd(d, b);
+          } else {
+            T.push_back(j);
+            v[j] = v[i] + 1;
+          }
+        }
+        j ++;
+      }
+      m = T.size();
+    }
+    v = v - floor(v/d)*d;
+    return d;
   }
-//	P<-object@transitionMatrix
-//	n=size(P,2)
-//	v=zeros(1,n)
-//	v[1,1]=1
-//	w=numeric()
-//	d=0
-//	T=c(1)
-//	m=size(T,2)
-//	while (m>0 & d!=1) {
-//		i <- T[1]
-//		T <- T[-1]
-//		w <- c(w,i)
-//		j <- 1
-//		while (j<=n) {
-//			if (P[i,j]>0) {
-//				r=c(w,T)
-//				k=sum(r==j)
-//				if (k>0) {
-//					b=v[1,i]+1-v[1,j]
-//					d=.gcdRcpp(d,b)
-//				}
-//				else {
-//					T=c(T,j)
-//					v[1,j]=v[1,i]+1
-//				}
-//			}
-//			j=j+1
-//		}
-//		m=size(T,2)
-//	}
-//	v=v%%d
-//	return(d)
-//	}
 }
-/*
-period<-function(object) {
-  check<-is.irreducible(object)
-	if(check==FALSE){
-		warning("The matrix is not irreducible")
-		return(0)
-	} else {
-	P<-object@transitionMatrix
-	n=size(P,2)
-	v=zeros(1,n)
-	v[1,1]=1
-	w=numeric()
-	d=0
-	T=c(1)
-	m=size(T,2)
-	while (m>0 & d!=1) {
-		i <- T[1]
-		T <- T[-1]
-		w <- c(w,i)
-		j <- 1
-		while (j<=n) {
-			if (P[i,j]>0) {
-				r=c(w,T)
-				k=sum(r==j)
-				if (k>0) {
-					b=v[1,i]+1-v[1,j]
-					d=.gcdRcpp(d,b)
-				}
-				else {
-					T=c(T,j)
-					v[1,j]=v[1,i]+1
-				}
-			}
-			j=j+1
-		}
-		m=size(T,2)
-	}
-	v=v%%d
-	return(d)
-	}
-}
-*/
 
 // [[Rcpp::export]]
 double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix()) {

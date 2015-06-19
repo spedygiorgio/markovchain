@@ -175,44 +175,44 @@ firstPassage<-function(object,state,n)
 #@TAE: probably could be moved in Rcpp
 
 #function to  get the period of a DTMC
-period<-function(object) {
-	check<-is.irreducible(object)
-	if(check==FALSE){
-		warning("The matrix is not irreducible")
-		return(0)
-	} else {
-	P<-object@transitionMatrix
-	n=size(P,2)
-	v=zeros(1,n)
-	v[1,1]=1
-	w=numeric()
-	d=0
-	T=c(1)
-	m=size(T,2)
-	while (m>0 & d!=1) {
-		i <- T[1]
-		T <- T[-1]
-		w <- c(w,i)
-		j <- 1
-		while (j<=n) {
-			if (P[i,j]>0) {
-				r=c(w,T)
-				k=sum(r==j)
-				if (k>0) {
-					b=v[1,i]+1-v[1,j]
-					d=.gcdRcpp(d,b)
-				}
-				else {
-					T=c(T,j)
-					v[1,j]=v[1,i]+1
-				}
-			}
-			j=j+1
-		}
-		m=size(T,2)
-	}
-	v=v%%d
-	return(d)
-	}
-}
+# period<-function(object) {
+# 	check<-is.irreducible(object)
+# 	if(check==FALSE){
+# 		warning("The matrix is not irreducible")
+# 		return(0)
+# 	} else {
+# 	P<-object@transitionMatrix
+# 	n=size(P,2)
+# 	v=zeros(1,n)
+# 	v[1,1]=1
+# 	w=numeric()
+# 	d=0
+# 	T=c(1)
+# 	m=size(T,2)
+# 	while (m>0 & d!=1) {
+# 		i <- T[1]
+# 		T <- T[-1]
+# 		w <- c(w,i)
+# 		j <- 1
+# 		while (j<=n) {
+# 			if (P[i,j]>0) {
+# 				r=c(w,T)
+# 				k=sum(r==j)
+# 				if (k>0) {
+# 					b=v[1,i]+1-v[1,j]
+# 					d=.gcdRcpp(d,b)
+# 				}
+# 				else {
+# 					T=c(T,j)
+# 					v[1,j]=v[1,i]+1
+# 				}
+# 			}
+# 			j=j+1
+# 		}
+# 		m=size(T,2)
+# 	}
+# 	v=v%%d
+# 	return(d)
+# 	}
+# }
 

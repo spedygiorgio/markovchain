@@ -18,6 +18,7 @@ mathematicaMatr[5,] <- c(0, 0, 0, 0, 1)
 statesNames <- letters[1:5]
 mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
                      name = "Mathematica MC", states = statesNames)
+
 ####end creating DTMC
 context("Basic DTMC proprieties")
 
@@ -25,7 +26,6 @@ test_that("States are those that should be", {
   expect_equal(absorbingStates(markov1), "b")
   expect_equal(transientStates(markov1), c("a","c"))
   expect_equal(is.irreducible(mathematicaMc),FALSE)
-  expect_equal(period(markov1),0)
   expect_equal(transientStates(mathematicaMc), c("a","b"))
   expect_equal(is.accessible(mathematicaMc, "a", "c"),TRUE)
   expect_equal(.canonicForm(mathematicaMc)@transitionMatrix, .canonicFormRcpp(mathematicaMc)@transitionMatrix) 

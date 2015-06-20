@@ -247,7 +247,7 @@ int period(S4 object) {
       T.erase(T.begin());
       w.push_back(i);
       j = 0;
-      while(j <= n) {
+      while(j < n) {
         if(P(i,j) > 0) {
           r.insert(r.end(), w.begin(), w.end());
           r.insert(r.end(), T.begin(), T.end());

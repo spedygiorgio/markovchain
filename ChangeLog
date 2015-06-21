@@ -1,4 +1,9 @@
-15-06-2015
+18-06-2015
+Version 0.3.0.1
+Fixed Rcpp warnings.
+Small amendments.
+Revised parallel feature for bootstrap.
+
 15-06-2015
 Version 0.3
 Added a CrashIntro vignette

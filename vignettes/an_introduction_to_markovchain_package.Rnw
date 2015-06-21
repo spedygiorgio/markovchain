@@ -913,7 +913,7 @@ found in the sample, that is
 \label{eq:MLE}
 \end{equation}
 
-Equation~\ref{eq:SE} shows the \code{standardError} of the MLE.
+Equation~\ref{eq:SE} shows the \code{standardError} of the MLE~\citep{MSkuriat}.
 
 \begin{equation}
 SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
@@ -1020,7 +1020,15 @@ weatherFittedMLE$logLikelihood
 weatherFittedBOOT$logLikelihood
 @
 
-Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well.
+Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The \code{confidenceInterval} is provided with the two matrices: \code{lowerEndpointMatrix} and \code{upperEndpointMatrix}. The confidence level (CL) is 0.95 by default and can be given as an argument of the function \code{markovchainFit}. This is used to obtain the standard score (z-score).
+Equations~\ref{eq:CIL} and~\ref{eq:CIU}~\citep{MSkuriat} show the \code{confidenceInterval} of a fitting.
+Note that each entry of the matrices is bounded between 0 and 1.
+
+\begin{align}
+LowerEndpoint_{ij} = p_{ij} - zscore (CL) * SE_{ij} \label{eq:CIL} \\
+UpperEndpoint_{ij} = p_{ij} + zscore (CL) * SE_{ij}
+\label{eq:CIU}
+\end{align}
 
 <<confint, keep.source=TRUE>>=
 weatherFittedMLE$confidenceInterval

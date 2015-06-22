@@ -133,9 +133,8 @@ NumericMatrix commStatesFinder(NumericMatrix matr)
   arma::mat X(matr.begin(), dimMatr, dimMatr, false);
   arma::mat temp = arma::eye(dimMatr, dimMatr) + arma::sign(X);
   temp = _pow(temp, dimMatr - 1);
-  arma::mat m;
   NumericMatrix R = wrap(arma::sign(temp));
-  R.attr("dimnames") = List::create(rownames(matr), colnames(matr));
+  R.attr("dimnames") = matr.attr("dimnames");
   return R;
 }
 

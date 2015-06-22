@@ -41,8 +41,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('markovchain_firstpassageKernel', PACKAGE = 'markovchain', P, i, n)
 }
 
-.gcdRcpp <- function(f, s) {
-    .Call('markovchain_gcd', PACKAGE = 'markovchain', f, s)
+.gcdRcpp <- function(a, b) {
+    .Call('markovchain_gcd', PACKAGE = 'markovchain', a, b)
 }
 
 period <- function(object) {

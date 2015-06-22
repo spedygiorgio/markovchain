@@ -132,14 +132,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // gcd
-double gcd(int f, int s);
-RcppExport SEXP markovchain_gcd(SEXP fSEXP, SEXP sSEXP) {
+int gcd(int a, int b);
+RcppExport SEXP markovchain_gcd(SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< int >::type f(fSEXP);
-    Rcpp::traits::input_parameter< int >::type s(sSEXP);
-    __result = Rcpp::wrap(gcd(f, s));
+    Rcpp::traits::input_parameter< int >::type a(aSEXP);
+    Rcpp::traits::input_parameter< int >::type b(bSEXP);
+    __result = Rcpp::wrap(gcd(a, b));
     return __result;
 END_RCPP
 }

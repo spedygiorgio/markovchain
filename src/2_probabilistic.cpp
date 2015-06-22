@@ -202,29 +202,14 @@ NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
 
 // greatest common denominator
 // [[Rcpp::export(.gcdRcpp)]]
-double gcd (int f, int s) {
-  int g, n, N, u;
-  f = abs(f);
-  s = abs(s);
-  
-  n = std::min(f,s);
-  N = std::max(f,s);
-  
-  if (n==0) {
-		g=N;
-	}
-	else {
-		u=1;
-		while (u!=0) {
-			u=N%n;
-			if (u==0) {
-				g=n;
-			}
-			N=n;
-			n=u;
-		}
-	}
-	return g;
+int gcd (int a, int b) {
+  int c;
+  a = abs(a);
+  b = abs(b);
+  while ( a != 0 ) {
+    c = a; a = b%a;  b = c;
+  }
+  return b;
 }
 
 //function to  get the period of a DTMC

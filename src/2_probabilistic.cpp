@@ -30,15 +30,14 @@ SEXP commclassesKernel(NumericMatrix P){
       n = a.size();
       NumericVector temp; 
       NumericMatrix matr(n, m);
+      c = arma::zeros<arma::vec>(m);
       for(unsigned int j = 0; j < n; j ++) {
         temp = P.row(a[j]);
-        for(int k = 0; k < temp.size(); k++) 
+        for(int k = 0; k < temp.size(); k++)  {
           matr(j, k) = temp[k];
+          c[k] += matr(j, k);
+        }
       }
-      c = arma::zeros<arma::vec>(m);
-      for(unsigned int j = 0; j < m; j++) 
-        for(unsigned int k = 0; k < n; k++)
-          c[j] += matr(k, j);
       newSum = 0;
       a.resize(0);
       for(unsigned int j = 0; j < b.size(); j++) {

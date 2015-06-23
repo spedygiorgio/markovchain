@@ -72,7 +72,7 @@ setMethod("initialize",
 #                                                  dimnames=list(stateNames,stateNames)
 #                                                  ))
 
-#@TAE: try to see if it can be moved to Rcpp efficiently
+
 
 # .isProb<-function(prob)
 # {
@@ -285,9 +285,14 @@ setMethod("print","markovchain", #metodo print
 	#
 	# a graph adjacenty
 	if (object@byrow==FALSE) object <- t(object)
-	matr <- Matrix(data=object@transitionMatrix, sparse=TRUE)*100 #need to multiply by 100
+	#with this fails 
+	#matr <- Matrix(data=object@transitionMatrix, sparse = TRUE)*100 #need to multiply by 100
+	#with this works. 
+	matr<-object@transitionMatrix*100
 	if(round==TRUE) matr <- round(matr,2)
 	net <- graph.adjacency(adjmatrix=matr, weighted=TRUE, mode="directed")
+	#Investigate why plot does not work with Matrix sparse=TRUE 
+	#plot(net)
 	return(net)
 }
 
@@ -314,6 +319,8 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 			plot.igraph(x=netMc,edge.label=edgeLabel, ...)
 		}
 )
+
+
 
 
 #@TAE: create an internal function that does this. Check also if the canonic form function 

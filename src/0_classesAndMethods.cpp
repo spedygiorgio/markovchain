@@ -9,6 +9,30 @@ bool isProb(double prob)
 	return true;
 }
 
+// [[Rcpp::export]]
+NumericMatrix generatorToTransitionMatrix(NumericMatrix gen){
+  NumericMatrix transMatr(gen.nrow());
+  transMatr.attr("dimnames") = gen.attr("dimnames");
+  
+  for(int i = 0; i < gen.nrow(); i++){
+    for(int j = 0; j < gen.ncol(); j++){
+      if(i != j)
+        transMatr(i, j) = -gen(i, j) / gen(i, i);
+    }
+  }
+  
+  return transMatr;
+}
+
+// [[Rcpp::export(.isGenRcpp)]]
+bool isGen(NumericMatrix gen){
+  for(int i = 0; i < gen.nrow(); i++)
+    for(int j = 0; j < gen.ncol(); j++)
+      if((i == j && gen(i, j) > 0) || (i != j && gen(i, j) < 0))  
+        return false;
+  return true;
+}
+
 SEXP commclassesKernel(NumericMatrix P);
 
 // method to convert into canonic form a markovchain object

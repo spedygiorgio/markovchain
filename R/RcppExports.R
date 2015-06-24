@@ -5,6 +5,14 @@
     .Call('markovchain_isProb', PACKAGE = 'markovchain', prob)
 }
 
+generatorToTransitionMatrix <- function(gen) {
+    .Call('markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen)
+}
+
+.isGenRcpp <- function(gen) {
+    .Call('markovchain_isGen', PACKAGE = 'markovchain', gen)
+}
+
 .canonicFormRcpp <- function(object) {
     .Call('markovchain_canonicForm', PACKAGE = 'markovchain', object)
 }

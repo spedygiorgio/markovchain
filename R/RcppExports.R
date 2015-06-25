@@ -61,3 +61,7 @@ predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
     .Call('markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
 }
 
+priorDistribution <- function(transMatr, hyperparam = matrix()) {
+    .Call('markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
+}
+

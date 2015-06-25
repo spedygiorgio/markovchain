@@ -56,6 +56,11 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
       
   elements = elements.sort();
   sizeMatr = elements.size();
+  
+  for(int i = 0; i < sizeMatr; i++)
+    for(int j = 0; j < sizeMatr; j++)
+      if(hyperparam(i, j) < 1.)
+        stop("The hyperparameter elements must all be greater than or equal to 1");
     
   // permute the elements of hyperparam such that the row, column names are sorted
   hyperparam = sortByDimNames(hyperparam);

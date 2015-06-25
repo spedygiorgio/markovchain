@@ -388,7 +388,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     for(int i = 0; i < sizeMatr; i++){
       double rowSum = 0., eps = 1e-10;
       for(int j = 0; j < sizeMatr; j++)
-        rowSum += transMatr(i, j);
+        if(transMatr(i, j) < 0. || transMatr(i, j) > 1.)
+          stop("The entries in the transition matrix must each belong to the interval [0, 1]");
+        else
+          rowSum += transMatr(i, j);
       if(rowSum <= 1. - eps || rowSum >= 1. + eps)
         stop("The rows of the transition matrix must each sum to 1");
     }

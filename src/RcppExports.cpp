@@ -189,3 +189,15 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// priorDistribution
+NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam);
+RcppExport SEXP markovchain_priorDistribution(SEXP transMatrSEXP, SEXP hyperparamSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMatr(transMatrSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
+    __result = Rcpp::wrap(priorDistribution(transMatr, hyperparam));
+    return __result;
+END_RCPP
+}

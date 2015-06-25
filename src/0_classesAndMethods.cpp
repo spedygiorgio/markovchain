@@ -87,3 +87,89 @@ SEXP canonicForm (S4 object)
   out.slot("name") = object.slot("name");
   return out;
 }
+
+/*// [[Rcpp::export]]
+bool isValidTransitionMatrix(NumericMatrix transMatr){
+  if(transMatr.nrow() != transMatr.ncol())
+      stop("Transition matrix dimensions are inconsistent");
+      
+  int sizeMatr = transMatr.nrow();
+  for(int i = 0; i < sizeMatr; i++){
+    double rowSum = 0., eps = 1e-10;
+    for(int j = 0; j < sizeMatr; j++)
+      if(transMatr(i, j) < 0. || transMatr(i, j) > 1.)
+        stop("The entries in the transition matrix must each belong to the interval [0, 1]");
+      else
+        rowSum += transMatr(i, j);
+    if(rowSum <= 1. - eps || rowSum >= 1. + eps)
+      stop("The rows of the transition matrix must each sum to 1");
+  }
+  
+  List dimNames = transMatr.attr("dimnames");
+  if(dimNames.size() == 2){
+    CharacterVector colNames = dimNames[1];
+    CharacterVector rowNames = dimNames[0];
+    CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
+    for(int i = 0; i < sizeMatr; i++)
+      sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+    sortedColNames.sort();
+    sortedRowNames.sort();
+    
+    for(int i = 0; i < sizeMatr; i++) 
+      if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+        stop("The states must all be unique");
+      else if(sortedColNames(i) != sortedRowNames(i))
+        stop("The set of row names must be the same as the set of column names");
+  }
+ 
+  return true;
+}
+
+// [[Rcpp::export]]
+bool isValidHyperparameterMatrix(NumericMatrix hyperparam, CharacterVector states = CharacterVector()){
+  int sizeMatr = 0;
+  if(states.size() > 0){
+    states = unique(states).sort();
+    sizeMatr = states.size();
+  }
+  
+  if(hyperparam.nrow() != hyperparam.ncol())
+    stop("Dimensions of the hyperparameter matrix are inconsistent");
+    
+  if(hyperparam.nrow() < sizeMatr)
+    stop("Hyperparameters for all state transitions must be provided");
+    
+  List dimNames = hyperparam.attr("dimnames");
+  CharacterVector colNames = dimNames[1];
+  CharacterVector rowNames = dimNames[0];
+  int sizeHyperparam = hyperparam.ncol();
+  CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
+  for(int i = 0; i < sizeHyperparam; i++)
+    sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+  sortedColNames.sort();
+  sortedRowNames.sort();
+  
+  for(int i = 0; i < sizeHyperparam; i++){
+    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+      stop("The states must all be unique");
+    else if(sortedColNames(i) != sortedRowNames(i))
+      stop("The set of row names must be the same as the set of column names");
+  }
+  
+  // check for the case where hyperparam has missing data
+  for(int i = 0; i < sizeMatr; i++){
+    bool found = false;
+    for(int j = 0; j < sizeHyperparam; j++)
+      if(sortedColNames(j) == states(i))
+        found = true;
+    if(!found)
+      stop("Hyperparameters for all state transitions must be provided");
+  }   
+  
+  for(int i = 0; i < sizeHyperparam; i++)
+    for(int j = 0; j < sizeHyperparam; j++)
+      if(hyperparam(i, j) < 1.)
+        stop("The hyperparameter states must all be greater than or equal to 1");
+        
+  return true;
+}*/

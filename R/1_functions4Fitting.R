@@ -14,7 +14,6 @@
 #   return(out)
 # }
 
-
 markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1),
                                include.t0 = FALSE)
 {

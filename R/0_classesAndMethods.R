@@ -65,7 +65,7 @@ setMethod("initialize",
 		callNextMethod(.Object, states = states, byrow = byrow, transitionMatrix=transitionMatrix,name=name,...)
     }
 )
-		 
+
 # #test
 # stateNames=c("a","b")
 # ciao<-new("markovchain", states=stateNames, transitionMatrix=matrix(c(1,0,0,1),byrow=TRUE, nrow=2, 
@@ -91,6 +91,8 @@ setMethod("states","markovchain",
             return(out)
           }
 )
+
+
 
 
 
@@ -129,8 +131,6 @@ setValidity("markovchain",
 			if ( is.null(check) ) return(TRUE) else return(check)
 		}
 )
-
-
 
 .mcEigen<-function(matr, transpose=TRUE)
 {

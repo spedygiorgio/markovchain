@@ -5,6 +5,14 @@
     .Call('markovchain_isProb', PACKAGE = 'markovchain', prob)
 }
 
+generatorToTransitionMatrix <- function(gen) {
+    .Call('markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen)
+}
+
+.isGenRcpp <- function(gen) {
+    .Call('markovchain_isGen', PACKAGE = 'markovchain', gen)
+}
+
 .canonicFormRcpp <- function(object) {
     .Call('markovchain_canonicForm', PACKAGE = 'markovchain', object)
 }
@@ -51,5 +59,9 @@ period <- function(object) {
 
 predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
     .Call('markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
+}
+
+priorDistribution <- function(transMatr, hyperparam = matrix()) {
+    .Call('markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
 }
 

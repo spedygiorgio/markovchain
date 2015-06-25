@@ -1,6 +1,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 #include <RcppArmadillo.h>
+#include <math.h>
 
 using namespace Rcpp;
 
@@ -317,6 +318,11 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   elements = elements.sort();
   sizeMatr = elements.size();
   
+  for(int i = 0; i < sizeMatr; i++)
+    for(int j = 0; j < sizeMatr; j++)
+      if(hyperparam(i, j) < 1.)
+        stop("The hyperparameter elements must all be greater than or equal to 1");
+  
   // permute the elements of hyperparam such that the row, column names are sorted
   hyperparam = sortByDimNames(hyperparam);
   
@@ -354,4 +360,96 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   }
 
   return predictiveDist;
+}
+
+
+// [[Rcpp::export]]
+NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam = NumericMatrix()){
+  // begin validity checks for the transition matrix
+  if(transMatr.nrow() != transMatr.ncol())
+    stop("Transition matrix dimensions are inconsistent");
+    
+  int sizeMatr = transMatr.nrow();
+  for(int i = 0; i < sizeMatr; i++){
+    double rowSum = 0., eps = 1e-10;
+    for(int j = 0; j < sizeMatr; j++)
+      if(transMatr(i, j) < 0. || transMatr(i, j) > 1.)
+        stop("The entries in the transition matrix must each belong to the interval [0, 1]");
+      else
+        rowSum += transMatr(i, j);
+    if(rowSum <= 1. - eps || rowSum >= 1. + eps)
+      stop("The rows of the transition matrix must each sum to 1");
+  }
+  
+  List dimNames = transMatr.attr("dimnames");
+  if(dimNames.size() == 0)
+    stop("Provide dimnames for the transition matrix");
+  CharacterVector colNames = dimNames[1];
+  CharacterVector rowNames = dimNames[0];
+  CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
+  for(int i = 0; i < sizeMatr; i++)
+    sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+  sortedColNames.sort();
+  sortedRowNames.sort();
+  
+  for(int i = 0; i < sizeMatr; i++) 
+    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+      stop("The states must all be unique");
+    else if(sortedColNames(i) != sortedRowNames(i))
+      stop("The set of row names must be the same as the set of column names");
+  
+  // if no hyperparam argument provided, use default value of 1 for all 
+  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
+    NumericMatrix temp(sizeMatr, sizeMatr);
+    temp.attr("dimnames") = List::create(sortedColNames, sortedColNames);
+    for(int i = 0; i < sizeMatr; i++)
+      for(int j = 0; j < sizeMatr; j++)
+        temp(i, j) = 1;
+    hyperparam = temp;
+  }
+  
+  // validity check for hyperparam
+  if(hyperparam.nrow() != hyperparam.ncol())
+    stop("Dimensions of the hyperparameter matrix are inconsistent");
+    
+  if(hyperparam.nrow() != sizeMatr)
+    stop("Hyperparameter and the transition matrices differ in dimensions");
+    
+  List _dimNames = hyperparam.attr("dimnames");
+  if(_dimNames.size() == 0)
+    stop("Provide dimnames for the hyperparameter matrix");
+  CharacterVector _colNames = _dimNames[1];
+  CharacterVector _rowNames = _dimNames[0];
+  int sizeHyperparam = hyperparam.ncol();
+  CharacterVector _sortedColNames(sizeHyperparam), _sortedRowNames(sizeHyperparam);
+  for(int i = 0; i < sizeHyperparam; i++)
+    _sortedColNames(i) = colNames(i), _sortedRowNames(i) = rowNames(i);
+  _sortedColNames.sort();
+  _sortedRowNames.sort();
+  
+  for(int i = 0; i < sizeHyperparam; i++)
+    if(sortedColNames(i) != _sortedColNames(i) || sortedRowNames(i) != _sortedRowNames(i))
+      stop("Hyperparameter and the transition matrices states differ");
+  
+  for(int i = 0; i < sizeMatr; i++)
+    for(int j = 0; j < sizeMatr; j++)
+      if(hyperparam(i, j) < 1.)
+        stop("The hyperparameter elements must all be greater than or equal to 1");
+ 
+  transMatr = sortByDimNames(transMatr);
+  hyperparam = sortByDimNames(hyperparam);
+  
+  NumericVector logProbVec;
+  for(int i = 0; i < sizeMatr; i++){
+    double logProb_i = 0., hyperparamRowSum = 0;
+    for(int j = 0; j < sizeMatr; j++){
+      hyperparamRowSum += hyperparam(i, j);
+      logProb_i += (hyperparam(i, j) - 1.) * log(transMatr(i, j)) - lgamma(hyperparam(i, j));
+    }
+    logProb_i += lgamma(hyperparamRowSum);
+    logProbVec.push_back(logProb_i);
+  }
+  logProbVec.attr("names") = sortedColNames;
+
+  return logProbVec;
 }

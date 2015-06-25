@@ -113,3 +113,15 @@ test_that("inferHyperparam must satisfy", {
                             2, 2, 0), nrow = 3, 
                           dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
 })
+
+pDRes <- c(log(3/2), log(3/2))
+names(pDRes) <- c("a", "b")
+test_that("priorDistribution must sastisfy", {
+  expect_equal(priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), 
+                                            nrow = 2, 
+                                            dimnames = list(c("a", "b"), c("a", "b"))), 
+                                     matrix(c(2, 2, 2, 2), 
+                                            nrow = 2, 
+                                            dimnames = list(c("a", "b"), c("a", "b")))), 
+                   pDRes)
+})

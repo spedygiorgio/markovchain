@@ -94,10 +94,6 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   //sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
   if(sanitize==true)
   {
-//    if(parallel) {
-//      SanitizeLoop worker(freqMatrix, freqMatrix, sizeMatr);
-//      parallelFor(0, sizeMatr, worker);
-//    } else {
       for (int i = 0; i < sizeMatr; i++) {
         double rowSum = 0;
         for (int j = 0; j < sizeMatr; j++) 
@@ -106,7 +102,6 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
           for (int j = 0; j < sizeMatr; j++) 
             freqMatrix(i, j) = 1/sizeMatr;
       }
-//    }
   }
   if(toRowProbs==true)
     freqMatrix = _toRowProbs(freqMatrix);

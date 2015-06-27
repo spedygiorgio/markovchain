@@ -6,21 +6,23 @@ context("Bootstrap parallel")
 seqs<-sample(x = letters[1:4],size = 200,replace = TRUE)
 
 # mcFit<-markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=FALSE)
-mcFit<-markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=TRUE)
+# mcFit<-markovchainFit(data = seqs[1:100],nboot = 100,method="bootstrap",parallel=TRUE)
 # print(mcFit)
 
-library(rbenchmark)
+# library(rbenchmark)
 # res<-benchmark(
-#   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=TRUE),
-#   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=FALSE)
-#   , replications=10
+#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=TRUE),
+#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=FALSE)
+#   , replications=1
 # )
 # print(res)
 
-# benchmark(
-#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=FALSE),
-#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=TRUE)
+# library(microbenchmark)
+# res<-microbenchmark(
+#   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=FALSE),
+#   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=TRUE)
 # )
+# print(res)
 
 # data(rain)
 # sequs<-rain$rain

@@ -10,6 +10,7 @@
 \alias{[,markovchain,ANY,ANY,ANY-method}
 \alias{^,markovchain,numeric-method}
 \alias{==,markovchain,markovchain-method}
+\alias{!=,markovchain,markovchain-method}
 \alias{absorbingStates,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
 \alias{canonicForm,markovchain-method}
@@ -21,6 +22,7 @@
 \alias{coerce,matrix,markovchain-method}
 \alias{dim,markovchain-method}
 \alias{initialize,markovchain-method}
+\alias{names,markovchain-method}
 \alias{plot,markovchain,missing-method}
 \alias{predict,markovchain-method}
 \alias{print,markovchain-method}
@@ -56,6 +58,8 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
     \item{[}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
     \item{^}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
     \item{==}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: equality of two \code{markovchain} object}
+    \item{!=}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: non-equality of two \code{markovchain} object}
+
     \item{absorbingStates}{\code{signature(object = "markovchain")}: method to get absorbing states }
 	\item{canonicForm}{\code{signature(object = "markovchain")}: return a \code{markovchain} object into canonic form }
     \item{coerce}{\code{signature(from = "markovchain", to = "data.frame")}: coerce method from markovchain to \code{data.frame}}
@@ -66,12 +70,13 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
     \item{coerce}{\code{signature(from = "markovchain", to = "matrix")}: coercing to \code{matrix} objects }
     \item{coerce}{\code{signature(from = "matrix", to = "markovchain")}: coercing to \code{markovchain} objects from \code{matrix} one }
     \item{dim}{\code{signature(x = "markovchain")}: method to get the size}
+    \item{names}{\code{signature(x = "markovchain")}: method to get the names of states}
     \item{initialize}{\code{signature(.Object = "markovchain")}: initialize method }
     \item{plot}{\code{signature(x = "markovchain", y = "missing")}: plot method for \code{markovchain} objects }
 	\item{predict}{\code{signature(object = "markovchain")}: predict method }
     \item{print}{\code{signature(x = "markovchain")}: print method. }
     \item{show}{\code{signature(object = "markovchain")}: show method. }
-    \item{states}{\code{signature(object = "markovchain")}: states method. }
+    \item{states}{\code{signature(object = "markovchain")}: returns the names of states (as \code{names}. }
     \item{steadyStates}{\code{signature(object = "markovchain")}: method to get the steady vector. }
 	 \item{summary}{\code{signature(object = "markovchain")}: method to summarize structure of the markov chain }
 	\item{transientStates}{\code{signature(object = "markovchain")}: method to get the transient states. }

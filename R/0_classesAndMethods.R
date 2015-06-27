@@ -92,7 +92,13 @@ setMethod("states","markovchain",
           }
 )
 
-
+#adding a method names
+setMethod("names","markovchain", 
+          function(x) {
+            out <- x@states
+            return(out)
+          }
+)
 
 
 
@@ -678,30 +684,41 @@ setMethod("*", c("markovchain","numeric"),
 setMethod("==", c("markovchain","markovchain"),
           function(e1, e2) {
             out <- FALSE
-            out <- identical(e1@transitionMatrix, e2@transitionMatrix)
+            out <-
+              identical(e1@transitionMatrix, e2@transitionMatrix)
             return(out)
-          }
-)
+          })
 
+setMethod("!=", c("markovchain","markovchain"),
+          function(e1, e2) {
+            out <- FALSE
+            out <-
+              (!(identical(
+                e1@transitionMatrix, e2@transitionMatrix
+              )))
+            return(out)
+          })
 
 setMethod("^", c("markovchain", "numeric"),
-function(e1, e2) {
-	 out <- new("markovchain", states=e1@states, byrow=e1@byrow,transitionMatrix=e1@transitionMatrix%^%e2,
-			 name=paste(e1@name,"^",e2,sep=""))
-	 return(out)
-}
-)
+          function(e1, e2) {
+            out <-
+              new(
+                "markovchain", states = e1@states, byrow = e1@byrow,transitionMatrix = e1@transitionMatrix %^%
+                  e2,
+                name = paste(e1@name,"^",e2,sep = "")
+              )
+            return(out)
+          })
 
 
 #methods to directly access transition matrix elements
 
 setMethod("[",
-		signature(x = "markovchain", i = "ANY", j = "ANY"),
-		function(x, i, j) {
-			out <- x@transitionMatrix[i,j]
-			return(out)
-		}
-)
+          signature(x = "markovchain", i = "ANY", j = "ANY"),
+          function(x, i, j) {
+            out <- x@transitionMatrix[i,j]
+            return(out)
+          })
 
 #methods to directly access markovchain objects composing a markovchainList object
 

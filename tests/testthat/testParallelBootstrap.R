@@ -9,7 +9,7 @@ seqs<-sample(x = letters[1:4],size = 200,replace = TRUE)
 mcFit<-markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=TRUE)
 # print(mcFit)
 
-library(rbenchmark)
+#library(rbenchmark)
 # res<-benchmark(
 #   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=TRUE),
 #   markovchainFit(data = seqs[1:100],nboot = 10,method="bootstrap",parallel=FALSE)

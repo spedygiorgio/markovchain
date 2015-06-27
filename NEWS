@@ -1,3 +1,5 @@
 18-06-2015
 Version 0.3.1
-Period to markovchain
+Period to Rcpp
+Various optimization (thanks to TAE)
+Added new methods: names, !=

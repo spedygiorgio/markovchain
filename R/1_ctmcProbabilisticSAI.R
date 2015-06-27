@@ -14,7 +14,8 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0){
   out <- list(list(state, 0))
   
   t <- 0
-  for (i in 1:n){
+  i <- 1
+  while (i <= n){
     idx <- which(ctmc@states == state)
     t <- t + rexp(1, -ctmc@generator[idx, idx])
     state <- ctmc@states[sample(1:dim(ctmc), 1, prob = trans[idx, ])]
@@ -23,6 +24,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0){
       break
     
     out <- c(out, list(list(state, t)))
+    i <- i + 1
   }
   
   return (out)

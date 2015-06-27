@@ -52,13 +52,6 @@ test_that("Fit should satisfy", {
                [[1]]["confidenceLevel"][[1]], 0.95)
 })
 
-data(rain)
-sequs<-rain$rain
-# mcBoot<-markovchainFit(data = sequs,nboot = 10,method="bootstrap") #ok
-# mcBoot2<-markovchainFit(data = sequs,nboot = 200,method="bootstrap") #ok but slower
-mcBoot<-markovchainFit(data = sequs[1:100],nboot = 100,method="bootstrap",parallel=TRUE) # ok
-# mcBoot<-markovchainFit(data = sequs,nboot = 100,method="bootstrap",parallel=TRUE)
-
 ### MAP fit function tests
 data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")
 data2 <- c("c", "a", "b")

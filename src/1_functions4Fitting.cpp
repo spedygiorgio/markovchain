@@ -70,11 +70,7 @@ struct FreqLoop : public RcppParallel::Worker
 
 // [[Rcpp::export]]
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true, bool parallel=false) {
-  clock_t begin = clock();
   CharacterVector elements = unique(stringchar).sort();
-  clock_t end = clock();
-  double ms = double (end - begin) / CLOCKS_PER_SEC * 1000;
-//  Rcout << ms << " ms (" << end << "-" << begin << ")" << std::endl;
   int sizeMatr = elements.size();
   
   NumericMatrix freqMatrix(sizeMatr);

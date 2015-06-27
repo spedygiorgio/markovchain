@@ -201,3 +201,14 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// timesTwo
+NumericVector timesTwo(NumericVector x);
+RcppExport SEXP markovchain_timesTwo(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    __result = Rcpp::wrap(timesTwo(x));
+    return __result;
+END_RCPP
+}

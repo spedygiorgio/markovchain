@@ -65,3 +65,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call('markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
 }
 
+timesTwo <- function(x) {
+    .Call('markovchain_timesTwo', PACKAGE = 'markovchain', x)
+}
+

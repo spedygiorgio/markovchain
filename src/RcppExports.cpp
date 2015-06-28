@@ -201,3 +201,16 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// multinomCI
+List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
+RcppExport SEXP markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMat(transMatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    __result = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
+    return __result;
+END_RCPP
+}

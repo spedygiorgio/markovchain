@@ -65,3 +65,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call('markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
 }
 
+.multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
+    .Call('markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
+}
+

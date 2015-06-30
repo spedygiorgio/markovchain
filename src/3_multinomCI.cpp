@@ -6,21 +6,26 @@ using namespace Rcpp;
 
 // [[Rcpp::export(.multinomialCIRcpp)]]
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel) {
+  Function multinomialCI("multinomialCI");
+  List res;
+  NumericVector v;
+  
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
   int nrows = transMat.nrow();
   int ncols = transMat.ncol();
   NumericMatrix lowerEndpointMatr(nrows, ncols);
   NumericMatrix upperEndpointMatr(nrows, ncols);
-  // arma::mat tmat(transMat.begin(), transMat.nrow(), transMat.ncol(), false);
-  // arma::mat smat(seqMat.begin(), seqMat.nrow(), seqMat.ncol(), false);
-  double marginOfError, lowerEndpoint, upperEndpoint;
+  double lowerEndpoint, upperEndpoint;
   for(int i = 0; i < nrows; i ++) {
-    for(int j = 0; j < ncols; j ++) {
-      marginOfError = zscore * transMat(i, j) / sqrt(seqMat(i, j));
-      lowerEndpoint = transMat(i, j) - marginOfError;
-      upperEndpoint = transMat(i, j) + marginOfError;
-      lowerEndpointMatr(i,j) = (lowerEndpoint > 1.0) ? 1.0 : ((0.0 > lowerEndpoint) ? 0.0 : lowerEndpoint);
-      upperEndpointMatr(i,j) = (upperEndpoint > 1.0) ? 1.0 : ((0.0 > upperEndpoint) ? 0.0 : upperEndpoint);
+    NumericVector v = seqMat.row(i);
+    res = multinomialCI(v, 1-confidencelevel);
+//    Rf_PrintValue(res);
+    for(int j = 0; j < res.size()/2; j++) {
+      Rf_PrintValue(res[j]);
+      lowerEndpoint = (double)res[j];
+      lowerEndpointMatr(i,j) = lowerEndpoint;
+      upperEndpoint = (double)res[j];
+      upperEndpointMatr(i,j) = upperEndpoint;
     }
   }
   upperEndpointMatr.attr("dimnames") = lowerEndpointMatr.attr("dimnames") = seqMat.attr("dimnames");

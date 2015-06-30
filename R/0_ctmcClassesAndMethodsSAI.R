@@ -71,3 +71,72 @@ setValidity("ctmc",
               if ( is.null(check) ) return(TRUE) else return(check)
             }
 )
+
+.ctmcEigen<-function(matr, transpose=TRUE)
+{
+  # Function to extract eigenvalues, core of get steady states 
+  #
+  # Args:
+  # matr: the matrix to extract
+  # transpose:  boolean indicating whether the matrx shall be transpose
+  #
+  # Results:
+  # a matrix / vector
+  if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
+  eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
+  onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
+  #do the following: 1:get eigenvectors whose eigenvalues==1
+  #2: normalize
+  if (length(onesIndex)==0) {
+    warning("No eigenvalue = 1 found - the embedded Markov Chain must be irreducible, recurrent")
+    return(NULL)
+  }
+  if(length(onesIndex) > 1){
+    warning("Eigenvalue = 1 multiplicity > 1! - the embedded Markov Chain must be irreducible, recurrent")
+    return(NULL)
+  }
+  if (transpose==TRUE)
+  {
+    eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
+    if(rowSums(Im(eigenTake)) != 0){
+      warning("Eigenvector corresponding to largest eigenvalue has a non-zero imaginary part - the embedded Markov Chain must be irreducible, recurrent")
+      return(NULL)
+    }
+    out <- eigenTake
+  } else {
+    eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
+    if(colSums(Im(eigenTake)) != 0){
+      warning("Eigenvector corresponding to largest eigenvalue has a non-zero imaginary part - the embedded Markov Chain must be irreducible, recurrent")
+      return(NULL)
+    }
+    out <- eigenTake
+  }
+  return(out)
+}
+
+setMethod("steadyStates","ctmc", 
+          function(object) {
+            transposeYN <- FALSE
+            if(object@byrow==TRUE) transposeYN <- TRUE		
+            transMatr <- generatorToTransitionMatrix(object@generator, byrow = object@byrow)
+            out<-.ctmcEigen(matr=transMatr, transpose=transposeYN) 
+            if(is.null(out)) {
+              warning("Warning! No steady state")
+              return(NULL)
+            }
+            if(transposeYN==TRUE) { 
+              colnames(out) <- object@states
+            } else {
+              rownames(out) <- object@states
+            }
+            out <- - out / diag(object@generator)
+            if(transposeYN==TRUE){
+              out <- out / rowSums(out)
+            }
+            else{
+              out <- out / colSums(out)
+            }
+            return(out)
+          }
+)
+

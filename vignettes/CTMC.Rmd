@@ -48,6 +48,20 @@ where $A$ is the generator matrix.
 $$ A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mbox{else.} \end{cases} $$
 Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix. 
 
+### Stationary Distributions
+The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that $X(t)$ being irreducible and recurrent is the same as $X_n(t)$ being irreducible and recurrent. 
+
+Suppose that $X(t)$ is irreducible and recurrent. Then $X(t)$ has an invariant measure $\eta$, which is unique up to multiplicative factors. Moreover, for each $k \in S$, we have
+
+$$ \eta_k = \frac{\pi_k}{\lambda(k)} $$
+
+where $\pi$ is the unique invariant measure of the embedded discrete time Markov chain
+$Xn$. Finally, $\eta$ satisfies
+
+$$ 0 < \eta_j < \infty, \forall j \in S $$
+
+and if $\sum_i \eta_i < \infty$ then $\eta$ can be normalised to get a stationary distribution.
+
 ### Fitting
 Let the data set be $$D = \{(s_0, t_0), (s_1, t_1), ..., (s_{N-1}, t_{N-1})\}$$ where $N=|D|$. Each $s_i$ is a state from the state space $S$ and during the time $[t_i,t_{i+1}]$ the chain is in state $s_i$. Let the parameters be represented by 
 $$\theta = \{\lambda, P\}$$ where $\lambda$ is the vector of holding parameters for each state and $P$ the transition matrix of the embedded discrete time Markov chain. 
@@ -85,5 +99,9 @@ statesDist <- c(0.8, 0.2)
 rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 1)
 ```
 
+To obtain the stationary distribution simply invoke the _steadyStates_ function
+```{r ctmcSteadyStates, echo = TRUE, message=FALSE, warning=FALSE}
+steadyStates(molecularCTMC)
+```
 
 

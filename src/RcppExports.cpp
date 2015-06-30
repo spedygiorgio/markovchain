@@ -17,17 +17,6 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// generatorToTransitionMatrix
-NumericMatrix generatorToTransitionMatrix(NumericMatrix gen);
-RcppExport SEXP markovchain_generatorToTransitionMatrix(SEXP genSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
-    __result = Rcpp::wrap(generatorToTransitionMatrix(gen));
-    return __result;
-END_RCPP
-}
 // isGen
 bool isGen(NumericMatrix gen);
 RcppExport SEXP markovchain_isGen(SEXP genSEXP) {
@@ -47,6 +36,18 @@ BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
     __result = Rcpp::wrap(canonicForm(object));
+    return __result;
+END_RCPP
+}
+// generatorToTransitionMatrix
+NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow);
+RcppExport SEXP markovchain_generatorToTransitionMatrix(SEXP genSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    __result = Rcpp::wrap(generatorToTransitionMatrix(gen, byrow));
     return __result;
 END_RCPP
 }

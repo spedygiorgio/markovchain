@@ -118,3 +118,16 @@ test_that("priorDistribution must sastisfy", {
                                             dimnames = list(c("a", "b"), c("a", "b")))), 
                    pDRes)
 })
+
+energyStates <- c("sigma", "sigma_star")
+byRow <- TRUE
+gen <- matrix(data = c(-3, 3,
+                       1, -1), nrow = 2,
+              byrow = byRow, dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, 
+                     byrow = byRow, generator = gen, 
+                     name = "Molecular Transition Model")      
+test_that("steadyStates must satisfy", {
+  expect_identical(steadyStates(molecularCTMC), 
+                   matrix(c(1/4, 3/4), nrow = 1, dimnames = list(c(), energyStates)))
+})

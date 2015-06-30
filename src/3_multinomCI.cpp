@@ -20,12 +20,12 @@ List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencel
     NumericVector v = seqMat.row(i);
     res = multinomialCI(v, 1-confidencelevel);
 //    Rf_PrintValue(res);
-    for(int j = 0; j < res.size()/2; j++) {
-      Rf_PrintValue(res[j]);
-      lowerEndpoint = (double)res[j];
-      lowerEndpointMatr(i,j) = lowerEndpoint;
-      upperEndpoint = (double)res[j];
-      upperEndpointMatr(i,j) = upperEndpoint;
+    for(int j = 0; j < res.size() - 1; j+=2) {
+//      Rf_PrintValue(res[j]);
+      lowerEndpoint = as<double>(res[j]);
+      lowerEndpointMatr(i,j/2) = lowerEndpoint;
+      upperEndpoint = as<double>(res[j+1]);
+      upperEndpointMatr(i,j/2) = upperEndpoint;
     }
   }
   upperEndpointMatr.attr("dimnames") = lowerEndpointMatr.attr("dimnames") = seqMat.attr("dimnames");

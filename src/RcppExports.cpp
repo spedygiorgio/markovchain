@@ -52,16 +52,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // createSequenceMatrix
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize, bool parallel);
-RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP parallelSEXP) {
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
+RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< CharacterVector >::type stringchar(stringcharSEXP);
     Rcpp::traits::input_parameter< bool >::type toRowProbs(toRowProbsSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
-    __result = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize, parallel));
+    __result = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize));
     return __result;
 END_RCPP
 }

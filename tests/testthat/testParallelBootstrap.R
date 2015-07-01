@@ -6,14 +6,14 @@ context("Bootstrap parallel")
 seqs<-sample(x = letters[1:4],size = 200,replace = TRUE)
 
 # mcFit<-markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=FALSE)
-# mcFit<-markovchainFit(data = seqs[1:100],nboot = 100,method="bootstrap",parallel=TRUE)
+mcFit<-markovchainFit(data = seqs[1:100],nboot = 100,method="bootstrap",parallel=TRUE)
 # print(mcFit)
 
 # library(rbenchmark)
 # res<-benchmark(
-#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=TRUE),
-#   markovchainFit(data = seqs[1:100],nboot = 50,method="bootstrap",parallel=FALSE)
-#   , replications=1
+#   markovchainFit(data = seqs[1:100],nboot = 100,method="bootstrap",parallel=TRUE),
+#   markovchainFit(data = seqs[1:100],nboot = 100,method="bootstrap",parallel=FALSE)
+#   , replications=10
 # )
 # print(res)
 

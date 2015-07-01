@@ -1,7 +1,9 @@
 // [[Rcpp::depends(RcppParallel)]]
+// [[Rcpp::plugins(openmp)]]
 #include <RcppParallel.h>
 #include <Rcpp.h>
 #include <ctime>
+#include <omp.h>
 
 using namespace Rcpp;
 
@@ -24,52 +26,8 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
   return out;
 }
 
-// worker for parallel loop
-struct SanitizeLoop : public RcppParallel::Worker
-{
-  const RcppParallel::RMatrix< double > input;
-  RcppParallel::RMatrix< double > output;
-  int sizeMatr;
-
-  SanitizeLoop(const NumericMatrix input, NumericMatrix output, int sizeMatr)
-    : input(input), output(output), sizeMatr(sizeMatr) {}
-
-  void operator()(std::size_t begin, std::size_t end) {
-    for(size_t i = begin; i < end; i ++) {
-      double rowSum = 0;
-      for (int j = 0; j < sizeMatr; j++) 
-        rowSum += input(i, j);
-      if(rowSum == 0)
-        for (int j = 0; j < sizeMatr; j++) 
-          output(i, j) = 1/sizeMatr;
-    }
-  }
-};
-
-// worker for parallel loop
-struct FreqLoop : public RcppParallel::Worker
-{
-  const RcppParallel::RMatrix< double > input;
-  RcppParallel::RMatrix< double > output;
-  CharacterVector seq, rnames;
-
-  FreqLoop(const NumericMatrix input, NumericMatrix output, CharacterVector seq, CharacterVector rnames)
-    : input(input), output(output), seq(seq), rnames(rnames) {}
-
-  void operator()(std::size_t begin, std::size_t end) {
-    int posFrom = 0, posTo = 0;
-    for(size_t i = begin; i < end; i ++) {
-      for (int j = 0; j < rnames.size(); j ++) {
-        if(seq[i] == rnames[j]) posFrom = j;
-        if(seq[i + 1] == rnames[j]) posTo = j;
-      }
-      output(posFrom,posTo)++;
-    }
-  }
-};
-
 // [[Rcpp::export]]
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true, bool parallel=false) {
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
   CharacterVector elements = unique(stringchar).sort();
   int sizeMatr = elements.size();
   
@@ -78,19 +36,14 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   CharacterVector rnames = rownames(freqMatrix);
 
   int posFrom = 0, posTo = 0;
-  if(parallel) {
-    FreqLoop worker(freqMatrix, freqMatrix, stringchar, rnames);
-    parallelFor(0, stringchar.size() - 1, worker);
-  } else {
-    for(int i = 0; i < stringchar.size() - 1; i ++) {
-      for (int j = 0; j < rnames.size(); j ++) {
-        if(stringchar[i] == rnames[j]) posFrom = j;
-        if(stringchar[i + 1] == rnames[j]) posTo = j;
-      }
-    	freqMatrix(posFrom,posTo)++;
+  for(int i = 0; i < stringchar.size() - 1; i ++) {
+    for (int j = 0; j < rnames.size(); j ++) {
+      if(stringchar[i] == rnames[j]) posFrom = j;
+      if(stringchar[i + 1] == rnames[j]) posTo = j;
     }
+    freqMatrix(posFrom,posTo)++;
   }
- 
+  
   //sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
   if(sanitize==true)
   {
@@ -273,8 +226,14 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   int n = theList.size();
   List pmsBootStrapped(n);
 
-  for(int i = 0; i < n; i++) {
-    pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true, parallel);
+  if(parallel) {
+#pragma omp parallel for     
+    for(int i = 0; i < n; i++) {
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
+    }
+  } else {
+    for(int i = 0; i < n; i++) 
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
   }
 
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);

@@ -17,8 +17,8 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
     .Call('markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen, byrow)
 }
 
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE, parallel = FALSE) {
-    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, parallel)
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
+    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
 
 inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {

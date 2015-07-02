@@ -1,5 +1,5 @@
 # function to simulate a ctmc
-rctmc <- function(n, ctmc, initDist = numeric(), T = 0){
+rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.type = "list"){
   if(identical(initDist, numeric()))
     state <- sample(ctmc@states, 1) # sample state randomly
   else if(length(initDist) != dim(ctmc) | round(sum(initDist), 5) != 1)
@@ -11,7 +11,12 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0){
   trans <- generatorToTransitionMatrix(ctmc@generator)
   # obtain transition probability matrix from the generator matrix
   
-  out <- list(list(state, 0))
+  states <- c()
+  time <- c()
+  if (include.T0 == TRUE){
+    states <- c(states, state)
+    time <- c(time, 0)
+  }
   
   t <- 0
   i <- 1
@@ -23,9 +28,19 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0){
     if(T > 0 & t > T)
       break
     
-    out <- c(out, list(list(state, t)))
+    states <- c(states, state)
+    time <- c(time, t)
     i <- i + 1
   }
   
-  return (out)
+  out <- list(states, time)
+  if (out.type == "list")
+    return(out)
+  else if(out.type == "df"){
+    df <- data.frame(matrix(unlist(out), nrow = length(states)))
+    names(df) <- c("states", "time")
+    return(df)
+  }
+  else
+    stop("Not a valid output type")
 }

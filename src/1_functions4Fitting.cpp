@@ -1,9 +1,7 @@
 // [[Rcpp::depends(RcppParallel)]]
-// [[Rcpp::plugins(openmp)]]
 #include <RcppParallel.h>
 #include <Rcpp.h>
 #include <ctime>
-#include <omp.h>
 
 using namespace Rcpp;
 
@@ -213,7 +211,7 @@ List _fromBoot2Estimate(List listMatr) {
   	    probsEstimated.push_back(mat(i,j));
   	  }
   	  matrMean(i,j) = mean(probsEstimated);
-  	  matrSd(i,j) = sd(probsEstimated);
+  	  matrSd(i,j) = Rcpp::sd(probsEstimated);
   	}
   }
   matrMean.attr("dimnames") = List::create(rownames(firstMat), colnames(firstMat)); 
@@ -227,7 +225,6 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   List pmsBootStrapped(n);
 
   if(parallel) {
-#pragma omp parallel for     
     for(int i = 0; i < n; i++) {
       pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
     }

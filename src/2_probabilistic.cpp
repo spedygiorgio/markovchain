@@ -78,8 +78,11 @@ SEXP commclassesKernel(NumericMatrix P){
 
 //returns the underlying communicating classes
 // [[Rcpp::export(.communicatingClassesRcpp)]]
-List communicatingClasses(LogicalMatrix adjMatr)
+List communicatingClasses(S4 object)
 {
+  NumericMatrix matr = object.slot("transitionMatrix");
+  List temp = commclassesKernel(matr);
+  LogicalMatrix adjMatr = temp["C"];
   int len = adjMatr.nrow();
   List classesList;
   CharacterVector rnames = rownames(adjMatr);
@@ -156,7 +159,8 @@ List summaryKernel(S4 object)
 {
   NumericMatrix matr = object.slot("transitionMatrix");
   List temp = commclassesKernel(matr);
-  List communicatingClassList = communicatingClasses(temp["C"]);
+  List communicatingClassList = communicatingClasses(object);
+  // List communicatingClassList = communicatingClasses(temp["C"]);
   List v = temp["v"];
   CharacterVector ns = v.names();
   CharacterVector transientStates; 

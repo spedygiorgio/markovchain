@@ -92,7 +92,7 @@ is.irreducible<-function(object)
 {
   out<-FALSE
 #   tocheck<-.communicatingClasses(.commclassesKernel(object@transitionMatrix)$C)
-  tocheck<-.communicatingClassesRcpp(.commclassesKernelRcpp(object@transitionMatrix)$C)
+  tocheck<-.communicatingClassesRcpp(object)
   if(length(tocheck)==1) out<-TRUE
   return(out)
 }

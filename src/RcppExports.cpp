@@ -108,13 +108,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // communicatingClasses
-List communicatingClasses(LogicalMatrix adjMatr);
-RcppExport SEXP markovchain_communicatingClasses(SEXP adjMatrSEXP) {
+List communicatingClasses(S4 object);
+RcppExport SEXP markovchain_communicatingClasses(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< LogicalMatrix >::type adjMatr(adjMatrSEXP);
-    __result = Rcpp::wrap(communicatingClasses(adjMatr));
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    __result = Rcpp::wrap(communicatingClasses(object));
     return __result;
 END_RCPP
 }

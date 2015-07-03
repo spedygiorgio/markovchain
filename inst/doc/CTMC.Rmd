@@ -44,9 +44,23 @@ Basically, the first term is non-zero if and only if $i=j$ and represents the pr
 
 This equation can be represented compactly as follows
 $$ P'(t) = AP(t) $$
-where $A$ is the generator matrix. 
+where $A$ is the __generator__ matrix. 
 $$ A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mbox{else.} \end{cases} $$
 Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix. 
+
+### Stationary Distributions
+The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that $X(t)$ being irreducible and recurrent is the same as $X_n(t)$ being irreducible and recurrent. 
+
+Suppose that $X(t)$ is irreducible and recurrent. Then $X(t)$ has an invariant measure $\eta$, which is unique up to multiplicative factors. Moreover, for each $k \in S$, we have
+
+$$ \eta_k = \frac{\pi_k}{\lambda(k)} $$
+
+where $\pi$ is the unique invariant measure of the embedded discrete time Markov chain
+$Xn$. Finally, $\eta$ satisfies
+
+$$ 0 < \eta_j < \infty, \forall j \in S $$
+
+and if $\sum_i \eta_i < \infty$ then $\eta$ can be normalised to get a stationary distribution.
 
 ### Fitting
 Let the data set be $$D = \{(s_0, t_0), (s_1, t_1), ..., (s_{N-1}, t_{N-1})\}$$ where $N=|D|$. Each $s_i$ is a state from the state space $S$ and during the time $[t_i,t_{i+1}]$ the chain is in state $s_i$. Let the parameters be represented by 
@@ -58,10 +72,10 @@ $$Pr(D | \theta) \propto \lambda(s_0)e^{-\lambda(s_0)(t_1-t_0)}Pr(s_1|s_0) \;.\;
 Let $n(j|i)$ denote the number of $i$->$j$ transitions in $D$, and $n(i)$ the number of times $s_i$ occurs in $D$. Let $t(s_i)$ denote the total time the chain spends in state $s_i$. 
 
 Then the MLEs are given by
-$$\lambda(s) = \frac{n(s)}{t(s)},Pr(j|i)=\frac{n(j|i)}{n(i)}$$
+$$\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}$$
 
 # Usage
-To create a CTMC object, you need to provide a valid generator matrix. 
+To create a CTMC object, you need to provide a valid generator matrix. The CTMC object has the following slots - states, generator, byrow, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC -
 ```{r ctmcInit, echo = TRUE, message=FALSE, warning=FALSE}
 library(markovchain)
 energyStates <- c("sigma", "sigma_star")
@@ -74,16 +88,20 @@ molecularCTMC <- new("ctmc", states = energyStates,
                  name = "Molecular Transition Model")      
 ```
 
-To generate random CTMC transitions, we provide an initial distribution of the states. This must be in the same order as the dimnames of the generator.
+To generate random CTMC transitions, we provide an initial distribution of the states. This must be in the same order as the dimnames of the generator. The output can be returned either as a list or a data frame.
 ```{r ctmcRandom0, echo = TRUE, message=FALSE, warning=FALSE}
 statesDist <- c(0.8, 0.2)
-rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist)
+rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
 ```
 $n$ represents the number of samples to generate. There is an optional argument $T$ for _rctmc_. It represents the time of termination of the simulation. To use this feature, set $n$ to a very high value, say _Inf_ (since we do not know the number of transitions before hand) and set $T$ accordingly.
 ```{r ctmcRandom1, echo = TRUE, message=FALSE, warning=FALSE}
 statesDist <- c(0.8, 0.2)
-rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 1)
+rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 ```
 
+To obtain the stationary distribution simply invoke the _steadyStates_ function
+```{r ctmcSteadyStates, echo = TRUE, message=FALSE, warning=FALSE}
+steadyStates(molecularCTMC)
+```
 
 

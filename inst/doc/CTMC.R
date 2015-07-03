@@ -11,9 +11,12 @@ molecularCTMC <- new("ctmc", states = energyStates,
 
 ## ----ctmcRandom0, echo = TRUE, message=FALSE, warning=FALSE--------------
 statesDist <- c(0.8, 0.2)
-rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist)
+rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
 
 ## ----ctmcRandom1, echo = TRUE, message=FALSE, warning=FALSE--------------
 statesDist <- c(0.8, 0.2)
-rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 1)
+rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
+
+## ----ctmcSteadyStates, echo = TRUE, message=FALSE, warning=FALSE---------
+steadyStates(molecularCTMC)
 

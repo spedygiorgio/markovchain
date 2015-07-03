@@ -172,7 +172,7 @@ firstPassage<-function(object,state,n)
 # 	return(g)
 # }
 
-#@TAE: probably could be moved in Rcpp
+#moved in Rcpp
 
 #function to  get the period of a DTMC
 # period<-function(object) {
@@ -215,4 +215,9 @@ firstPassage<-function(object,state,n)
 # 	return(d)
 # 	}
 # }
+
+communicatingClasses<-function(object) {
+  out<-.communicatingClassesRcpp(object)
+  return(out)
+}
 

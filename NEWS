@@ -1,5 +1,7 @@
 18-06-2015
 Version 0.3.1
-Period to Rcpp
+Period to Rcpp (thanks to TAE)
+communicatingClasses (thanks to TAE)
 Various optimization (thanks to TAE)
+Initial support for Continuous Time Markov Chains (thanks to SAI)
 Added new methods: names, !=

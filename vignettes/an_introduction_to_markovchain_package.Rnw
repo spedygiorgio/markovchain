@@ -610,8 +610,9 @@ Table~\ref{tab:methodsToStats} shows methods that can be applied on \code{markov
     \hline  \hline
   \code{absorbingStates} & the absorbing states of the transition
   matrix, if any.\\
-\code{conditionalDistribution} & the conditional distribution of the
-subsequent state \\
+  \code{steadyStates} & the vector(s) of steady state(s) in matrix
+form.\\
+\code{communicatingClasses} & list of communicating classes. \\
  & $s_{j}$, given actual state $s_{i}$.\\
 \code{canonicForm} & the transition matrix into canonic form.\\
 \code{is.accessible} & verification if a state j is reachable from state i.\\

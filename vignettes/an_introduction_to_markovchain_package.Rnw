@@ -403,6 +403,7 @@ manipulate \code{markovchain} objects.
   \code{as} & Operator to convert \code{markovchain} objects into \code{data.frame} and\\
   & \code{table} object.\\
 \code{dim} & Dimension of the transition matrix.\\
+\code{names} & Equal to \code{states}.\\
 \code{plot} & \code{plot} method for \code{markovchain} objects.\\
 \code{print} & \code{print} method for \code{markovchain} objects.\\
 \code{show} & \code{show} method for \code{markovchain} objects.\\
@@ -442,6 +443,7 @@ quickly get states and transition matrix dimension.
 
 <<otherMethods, keep.source=TRUE>>=
 states(mcWeather)
+names(mcWeather)
 dim(mcWeather)
 @
 

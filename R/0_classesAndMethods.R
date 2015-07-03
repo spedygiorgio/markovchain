@@ -296,9 +296,9 @@ setMethod("print","markovchain", #metodo print
 	#with this works. 
 	matr<-object@transitionMatrix*100
 	if(round==TRUE) matr <- round(matr,2)
-	net <- graph.adjacency(adjmatrix=matr, weighted=TRUE, mode="directed")
-	#Investigate why plot does not work with Matrix sparse=TRUE 
-	#plot(net)
+	#netOld <- graph.adjacency(adjmatrix=matr, weighted=TRUE, mode="directed")
+	net<-graph_from_adjacency_matrix(adjmatrix = matr,weighted = TRUE,mode="directed")
+	plot(net)
 	return(net)
 }
 

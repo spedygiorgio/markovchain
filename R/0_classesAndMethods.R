@@ -297,8 +297,7 @@ setMethod("print","markovchain", #metodo print
 	matr<-object@transitionMatrix*100
 	if(round==TRUE) matr <- round(matr,2)
 	net <- graph.adjacency(adjmatrix=matr, weighted=TRUE, mode="directed")
-	# net<-graph_from_adjacency_matrix(adjmatrix = matr,weighted = TRUE,mode="directed")
-	plot(net)
+	#net<-graph_from_adjacency_matrix(adjmatrix = matr,weighted = TRUE,mode="directed")
 	return(net)
 }
 

@@ -118,6 +118,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// recurrentClasses
+List recurrentClasses(S4 object);
+RcppExport SEXP markovchain_recurrentClasses(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    __result = Rcpp::wrap(recurrentClasses(object));
+    return __result;
+END_RCPP
+}
 // commStatesFinder
 NumericMatrix commStatesFinder(NumericMatrix matr);
 RcppExport SEXP markovchain_commStatesFinder(SEXP matrSEXP) {

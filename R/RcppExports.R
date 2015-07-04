@@ -37,6 +37,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('markovchain_communicatingClasses', PACKAGE = 'markovchain', object)
 }
 
+.recurrentClassesRcpp <- function(object) {
+    .Call('markovchain_recurrentClasses', PACKAGE = 'markovchain', object)
+}
+
 .commStatesFinderRcpp <- function(matr) {
     .Call('markovchain_commStatesFinder', PACKAGE = 'markovchain', matr)
 }

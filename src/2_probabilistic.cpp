@@ -120,6 +120,51 @@ List communicatingClasses(S4 object)
   return classesList;
 }
 
+// [[Rcpp::export(.recurrentClassesRcpp)]]
+List recurrentClasses(S4 object)
+{
+  NumericMatrix matr = object.slot("transitionMatrix");
+  List temp = commclassesKernel(matr);
+  LogicalMatrix adjMatr = temp["C"];
+  int len = adjMatr.nrow();
+  List classesList;
+  CharacterVector rnames = rownames(adjMatr);
+  for(int i = 0; i < len; i ++) {
+    bool isNull = false;
+    LogicalVector row2Check = adjMatr(i, _);
+    CharacterVector proposedCommClass;
+    for(int j = 0; j < row2Check.size(); j++) {
+      if(row2Check[j] == true) {
+        String rname = rnames[j];
+        proposedCommClass.push_back(rname);
+      } else if(matr(i, j) > 0) {
+        isNull = true;
+        break;
+      }
+    }
+    if (i > 0) {
+      for(int j = 0; j < classesList.size(); j ++) {
+        bool check = false;        
+        CharacterVector cv = classesList[j];
+        std::set<std::string> s1, s2;
+        for(int k = 0; k < cv.size(); k ++) {
+          s1.insert(as<std::string>(cv[k]));
+          if(proposedCommClass.size() > k) 
+            s2.insert(as<std::string>(proposedCommClass[k]));
+        }
+        check = std::equal(s1.begin(), s1.end(), s2.begin());
+        if(check) {
+          isNull = true;
+          break;
+        }
+      }
+    }
+    if(!isNull) 
+      classesList.push_back(proposedCommClass);
+  }
+  return classesList;
+}
+
 arma::mat _pow(arma::mat A, int n) {
   arma::mat R = arma::eye(A.n_rows, A.n_rows);
   for(int i = 0; i < n; i ++) 

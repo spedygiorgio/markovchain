@@ -620,6 +620,7 @@ form.\\
 \code{is.accessible} & verification if a state j is reachable from state i.\\
 \code{is.irreducible} & verification whether a DTMC is irreducible.\\
 \code{period} & the period of an irreducible DTMC.\\
+\code{recurrentClasses} & list of recurrent classes. \\
 \code{steadyStates} & the vector(s) of steady state(s) in matrix
 form.\\
 \code{summary} & DTMC summary.\\

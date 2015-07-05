@@ -221,3 +221,8 @@ communicatingClasses<-function(object) {
   return(out)
 }
 
+recurrentClasses<-function(object) {
+  out<-.recurrentClassesRcpp(object)
+  return(out)
+}
+

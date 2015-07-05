@@ -15,7 +15,8 @@ is.irreducible(mathematicaAMc)
 transientStates(mathematicaAMc)
 absorbingStates(mathematicaAMc)
 
-
+communicatingClasses(mathematicaAMc)
+recurrentClasses(mathematicaAMc)
 
 #first passage time
 #should behave like
@@ -23,3 +24,6 @@ absorbingStates(mathematicaAMc)
 mathematicaBMatr= matrix(c(  0, 1/2, 1/2,  1/2, 0, 1/2,  1/2, 1/2, 0),byrow=TRUE, nrow=3) ;
 mathematicabMc<-as(mathematicaBMatr, "markovchain")
 firstPassage(mathematicabMc, "s3",9) #if you repeat this more thime results change. No good
+
+communicatingClasses(mathematicabMc)
+recurrentClasses(mathematicabMc)

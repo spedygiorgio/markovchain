@@ -3,6 +3,7 @@
 \alias{transientStates}
 \alias{canonicForm}
 \alias{communicatingClasses}
+\alias{recurrentClasses}
 \alias{period}
 \title{
 Various function to perform structural analysis of DTMC
@@ -15,6 +16,7 @@ absorbingStates(object)
 transientStates(object)
 canonicForm(object)
 communicatingClasses(object)
+recurrentClasses(object)
 period(object)
 }
 \arguments{

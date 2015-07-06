@@ -14,7 +14,7 @@ importFrom("matlab", size)
 importFrom("matlab", ones)
 importFrom("expm",'%^%')
 
-importFrom("stats", sd)
+importFrom("stats", sd,rexp)
 
 exportMethods(
     "*",

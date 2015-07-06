@@ -152,7 +152,8 @@ List recurrentClasses(S4 object)
           if(proposedCommClass.size() > k) 
             s2.insert(as<std::string>(proposedCommClass[k]));
         }
-        check = std::equal(s1.begin(), s1.end(), s2.begin());
+        if(!s1.empty() && !s2.empty())
+          check = std::equal(s1.begin(), s1.end(), s2.begin());
         if(check) {
           isNull = true;
           break;

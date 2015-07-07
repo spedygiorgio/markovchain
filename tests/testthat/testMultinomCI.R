@@ -8,6 +8,8 @@ seqmat<-createSequenceMatrix(seq)
 seqmat
 mCI <- .multinomialCIRcpp(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 # print(mCI)
+mCI2 <- .multinomialCIRcpp2(mcfit$estimate@transitionMatrix, seqmat, 0.95)
+
 
 ####end of creating multinomialCI
 context("Multinomial confidence interval")

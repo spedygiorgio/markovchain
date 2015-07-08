@@ -8,8 +8,6 @@ seqmat<-createSequenceMatrix(seq)
 seqmat
 mCI <- .multinomialCIRcpp(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 # print(mCI)
-mCI2 <- .multinomialCIRcpp2(mcfit$estimate@transitionMatrix, seqmat, 0.95)
-
 
 ####end of creating multinomialCI
 context("Multinomial confidence interval")
@@ -19,8 +17,8 @@ test_that("multinomial CI statisfay", {
 #                                                  0.5714286,0.1428571),nrow=2, byrow=TRUE, dimnames=list(c("a","b"),
 #                                                                                                 c("a","b"))
 #   ))
-#   expect_equal(mCI$upperEndpointMatrix, matrix(c(0.8070205,0.9181316,
-#                                                  1,0.6806468),nrow=2, byrow=TRUE, dimnames=list(c("a","b"),
+#   expect_equal(mCI$upperEndpointMatrix, matrix(c(0.8111456,0.9222567,
+#                                                  1,0.6839473),nrow=2, byrow=TRUE, dimnames=list(c("a","b"),
 #                                                                                                 c("a","b"))
 #   ))
   expect_equal(mCI$upperEndpointMatrix[2,1],1)

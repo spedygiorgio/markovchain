@@ -127,9 +127,7 @@ List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencel
   double lowerEndpoint, upperEndpoint;
   for(int i = 0; i < nrows; i ++) {
     v = seqMat.row(i);
-    Rf_PrintValue(v);
     res = multinomialCIForRow(v, confidencelevel);
-    Rf_PrintValue(res);
     for(int j = 0; j < res.rows(); j++) {
       lowerEndpoint = res(j, 0);
       lowerEndpointMatr(i,j) = lowerEndpoint;

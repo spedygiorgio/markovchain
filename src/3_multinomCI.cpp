@@ -78,6 +78,7 @@ double truncpoi(int c, NumericVector x, double n, int k){
   return(probn*probx*f/sqrt(s2));
 }
 
+// [[Rcpp::export(.multinomialCIForRowRcpp)]]
 NumericMatrix multinomialCIForRow (NumericVector x, double confidencelevel){
   double n = std::accumulate(x.begin(), x.end(), 0.0);
   int k = x.size();

@@ -212,6 +212,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// multinomialCIForRow
+NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
+RcppExport SEXP markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    __result = Rcpp::wrap(multinomialCIForRow(x, confidencelevel));
+    return __result;
+END_RCPP
+}
 // multinomCI
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
 RcppExport SEXP markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {

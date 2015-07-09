@@ -325,7 +325,10 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 		}
 )
 
-
+.plotRgraphviz <- function(object) {
+  # print(".plotRgraphviz")
+  # print(object)
+}
 
 
 #@TAE: create an internal function that does this. Check also if the canonic form function 

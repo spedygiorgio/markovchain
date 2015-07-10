@@ -36,3 +36,4 @@ mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
 mcWeather
 # plot(mcWeather)
 .plotdiagram(mcWeather)
+.plotDiagrammeR(mcWeather)

@@ -35,4 +35,4 @@ mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
                   name = "Weather")
 mcWeather
 # plot(mcWeather)
-.plotRgraphviz(mcWeather)
+.plotdiagram(mcWeather)

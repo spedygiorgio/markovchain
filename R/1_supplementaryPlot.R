@@ -1,19 +1,18 @@
 library(diagram)
 library(DiagrammeR)
 
-.plotdiagram <- function(object, options = NULL) {
+.plotdiagram <- function(object, ...) {
   mat <- object@transitionMatrix
-  res <- plotmat(mat, options)
+  res <- plotmat(mat, ...)
   return (res)
 }
 
-.plotDiagrammeR <- function(object, options = NULL) {
+.plotDiagrammeR <- function(object) {
   mat <- object@transitionMatrix
   nodes <- ''
   for(i in 1:nrow(mat)) {
     nodes<- paste0(nodes, i, "; ")
   }
-  # print(nodes)
   edges <- ''
   for(i in 1:nrow(mat)) {
     for(j in 1:ncol(mat)) {
@@ -21,7 +20,6 @@ library(DiagrammeR)
       edges <- paste0(edges, i, "->", j, " [label = ", mat[i,j], "] ")
     }
   }
-  # print(edges)
 #   res <- DiagrammeR("
 #   graph LR;
 #              A(1)-->|0.5|B(2)
@@ -81,5 +79,5 @@ library(DiagrammeR)
 #                                                     0.2, 0.45, 0.35), byrow = T, nrow = 3),
 #                  name = "Weather")
 # mcWeather
-# # .plotdiagram(mcWeather)
+# .plotdiagram(mcWeather, box.size = 0.06)
 # .plotDiagrammeR(mcWeather)

@@ -1,4 +1,3 @@
-#@TAE: substitute calls to hidden functions written in 2_probabilistic with Rcpp ones.
 
 # define Markov Chain class
 
@@ -65,13 +64,6 @@ setMethod("initialize",
 		callNextMethod(.Object, states = states, byrow = byrow, transitionMatrix=transitionMatrix,name=name,...)
     }
 )
-
-# #test
-# stateNames=c("a","b")
-# ciao<-new("markovchain", states=stateNames, transitionMatrix=matrix(c(1,0,0,1),byrow=TRUE, nrow=2, 
-#                                                  dimnames=list(stateNames,stateNames)
-#                                                  ))
-
 
 
 # .isProb<-function(prob)
@@ -304,24 +296,23 @@ setMethod("print","markovchain", #metodo print
 
  # Plot methods for markovchain objects
 
- # plotMc legagy
 
-#setGeneric("plotMc", function(object,...) standardGeneric("plotMc"))
-#setMethod("plotMc","markovchain", 
-#		function(object,...){
-#			warning("Legacy method. Will be removed in forthcoming versions")
-#			netMc <- .getNet(object,round=TRUE)
-#            edgeLabel <- round(E(netMc)$weight/100,2)
-#            plot.igraph(x=netMc,edge.label=edgeLabel, ...) #calls plot method from igraph
-#          }
-#)
 
 #plot method from stat5
 setMethod("plot", signature(x="markovchain", y="missing"),
-		function(x, y, ...){
-			netMc <- .getNet(x,round=TRUE)
-			edgeLabel <- round(E(netMc)$weight/100,2)
-			plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		function(x, y, package="igraph",...){
+		  switch(package,
+		         diagram = {
+		           .plotdiagram(object=x,...)
+		         },
+		         DiagrammeR= {
+		           .plotDiagrammeR(object=x)
+		         },
+		         {
+		           netMc <- .getNet(object=x,round=TRUE)
+		           edgeLabel <- round(E(netMc)$weight/100,2)
+		           plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		         })
 		}
 )
 
@@ -656,27 +647,6 @@ setMethod("*", c("markovchain","numeric"),
 		}
 )
 
-#power method
-
-# setMethod("^", c("markovchain", "numeric"),
-# function(e1, e2) {
-	 # if(e2==1) return(e1)
-	 # newStates<-e1@states
-	 # if(e2<1) stop("Error. Power must be greater or equal than one")
-	 # newTransMatr<-e1@transitionMatrix
-	 # for(i in 1:(e2-1))
-		# {
-			# newTransMatr<-newTransMatr%*%e1@transitionMatrix
-		# }
-	 # out<-new("markovchain", states=newStates, transitionMatrix=newTransMatr)
-	 # return(out)
-# }
-# )
-
-
-# library(microbenchmark)
-
-#method to ckeck the equality of two markovchain (on the transition matrices)
 
 setMethod("==", c("markovchain","markovchain"),
           function(e1, e2) {

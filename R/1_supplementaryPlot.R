@@ -3,8 +3,9 @@ library(DiagrammeR)
 
 .plotdiagram <- function(object, ...) {
   mat <- object@transitionMatrix
-  res <- plotmat(mat, ...)
-  return (res)
+  #res <- plotmat(mat, ...)
+  plotmat(mat, ...)
+  #return (res)
 }
 
 .plotDiagrammeR <- function(object) {
@@ -72,7 +73,7 @@ library(DiagrammeR)
 #   ")
   return (res)
 }
-
+# 
 # mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
 #                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
 #                                                     0.3, 0.4, 0.3,

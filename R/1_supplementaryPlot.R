@@ -8,35 +8,22 @@ library(DiagrammeR)
   #return (res)
 }
 
-.plotDiagrammeR <- function(object) {
+.plotDiagrammeR <- function(object, ...) {
   mat <- object@transitionMatrix
+  names <- rownames(mat)
   nodes <- ''
   for(i in 1:nrow(mat)) {
-    nodes<- paste0(nodes, i, "; ")
+    nodes<- paste0(nodes, names[i], "; ")
   }
   edges <- ''
   for(i in 1:nrow(mat)) {
     for(j in 1:ncol(mat)) {
-      # 1->1 [label = 0.80]
-      edges <- paste0(edges, i, "->", j, " [label = ", mat[i,j], "] ")
+      edges <- paste0(edges, names[i], "->", names[j], " [label = ", mat[i,j], "] ")
     }
   }
-#   res <- DiagrammeR("
-#   graph LR;
-#              A(1)-->|0.5|B(2)
-#               A-->|0.5|A
-#               B-->|0.1|B
-#              B-->|0.3|C(3)
-#               C-->|0.9|B;
-#              
-#              style A fill:#A2EB86, stroke:#04C4AB, stroke-width:2px;
-#              style B fill:#FFF289, stroke:#FCFCFF, stroke-width:2px, stroke-dasharray: 4, 4;
-#              style C fill:#FFA070, stroke:#FF5E5E, stroke-width:2px;
-#              ")
   
   res <- grViz(paste0("
   digraph circles {
-        # a 'graph' statement
         graph [overlap = true, fontsize = 10]
 
         node [shape = circle,
@@ -44,8 +31,7 @@ library(DiagrammeR)
         width = 0.9] // sets as circles
         ", nodes, "
         
-        # several 'edge' statements
-        ", edges, " 
+        ", edges, ...," 
   }
   "))
   
@@ -53,11 +39,6 @@ library(DiagrammeR)
 #   digraph circles {
 #         # a 'graph' statement
 #         graph [overlap = true, fontsize = 10]
-#         
-#         # several 'node' statements
-# #         node [shape = box,
-# #         fontname = Helvetica]
-# #         A; B; C; D; E; F
 #         
 #         node [shape = circle,
 #         fixedsize = true,
@@ -73,12 +54,12 @@ library(DiagrammeR)
 #   ")
   return (res)
 }
-# 
+
 # mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
 #                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
 #                                                     0.3, 0.4, 0.3,
 #                                                     0.2, 0.45, 0.35), byrow = T, nrow = 3),
 #                  name = "Weather")
 # mcWeather
-# .plotdiagram(mcWeather, box.size = 0.06)
+# # .plotdiagram(mcWeather, box.size = 0.06)
 # .plotDiagrammeR(mcWeather)

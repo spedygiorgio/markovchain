@@ -460,6 +460,7 @@ can be plotted by the use of \code{plot} method (as shown in Figure~\ref{fig:mcP
 \code{plot} method for \code{markovchain} objects is a wrapper of
 \code{plot.igraph} for \code{igraph} S4 objects defined within the \pkg{igraph} package. 
 Additional parameters can be passed to \code{plot} function to control the network graph layout.
+There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure~\ref{fig:mcPlotdiagram}.
 
 <<printAndShow, keep.source=TRUE>>=
 print(mcWeather)
@@ -476,6 +477,26 @@ plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition mat
 \label{fig:mcPlot}
 \end{center}
 \end{figure}
+
+\begin{figure}
+\begin{center}
+<<mcPlotdiagram,fig=TRUE,echo=FALSE>>=
+plot(mcWeather, package="diagram", box.size = 0.04)
+@
+\caption{Weather example. Markov chain plot with diagram. plot(mcWeather, package="diagram", box.size = 0.04)}
+\label{fig:mcPlotdiagram}
+\end{center}
+\end{figure}
+
+%' \begin{figure}
+%' \begin{center}
+%' <<mcPlotDiagrammeR,fig=TRUE,echo=FALSE>>=
+%' plot(mcWeather, package="DiagrammeR")
+%' @
+%' \caption{Weather example. Markov chain plot with DiagrammeR.}
+%' \label{fig:mcPlotDiagrammeR}
+%' \end{center}
+%' \end{figure}
 
 Import and export from some specific classes is possible, as shown in
 Figure~\ref{fig:fromAndTo} and in the following code.\\

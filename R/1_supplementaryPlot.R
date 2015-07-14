@@ -22,6 +22,12 @@ library(DiagrammeR)
     }
   }
   
+  dots <- list(...)
+  args <- ""
+  for(name in names(dots)) {
+    args <- paste0(args, name, "=\"", dots[[name]], "\" ")
+  }
+  # print(args)
   res <- grViz(paste0("
   digraph circles {
         graph [overlap = true, fontsize = 10]
@@ -31,7 +37,8 @@ library(DiagrammeR)
         width = 0.9] // sets as circles
         ", nodes, "
         
-        ", edges, ...," 
+        ", edges, args,"
+// labelfontsize = 20 labelloc='t' label ='Weather transition matrix'
   }
   "))
   
@@ -61,5 +68,6 @@ library(DiagrammeR)
 #                                                     0.2, 0.45, 0.35), byrow = T, nrow = 3),
 #                  name = "Weather")
 # mcWeather
-# # .plotdiagram(mcWeather, box.size = 0.06)
-# .plotDiagrammeR(mcWeather)
+# .plotdiagram(mcWeather, box.size = 0.06)
+# .plotDiagrammeR(mcWeather, label ="Weather transition matrix", labelloc="t")
+# plot(mcWeather, package = "DiagrammeR", label ="Weather transition matrix")

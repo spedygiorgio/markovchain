@@ -35,8 +35,8 @@ mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
                   name = "Weather")
 mcWeather
 plot(mcWeather)
-plot(mcWeather, package = "diagram", box.size = 0.06)
-plot(mcWeather, package = "DiagrammeR")
+plot(mcWeather, package = "diagram", box.size = 0.06, main = "Weather transition matrix")
+plot(mcWeather, package = "DiagrammeR", label ="Weather transition matrix", labelloc="t")
 
 #   curves <- matrix(nrow = ncol(mat), ncol = ncol(mat), 0)
 #   curves[3, 1] <- curves[1, 6] <- -0.35

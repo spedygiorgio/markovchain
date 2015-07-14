@@ -306,7 +306,7 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 		           .plotdiagram(object=x,...)
 		         },
 		         DiagrammeR= {
-		           .plotDiagrammeR(object=x)
+		           .plotDiagrammeR(object=x,...)
 		         },
 		         {
 		           netMc <- .getNet(object=x,round=TRUE)

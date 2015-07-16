@@ -394,10 +394,36 @@ setMethod("summary", signature(object="markovchain"),
 			if(check==0) cat("NONE","\n") else {
 				for(i in 1:check) cat(outs$closedClasses[[i]],"\n")
 			}
+			check <- length(outs$recurrentClasses)
+			cat("Recurrent classes:","\n")
+			if(check==0) cat("NONE","\n") else {
+			  cat("{")
+			  cat(outs$recurrentClasses[[1]], sep=",")
+			  cat("}")
+			  if(check > 1) {
+			    for(i in 2:check) {
+			      cat(",{")
+			      cat(outs$recurrentClasses[[i]],sep=",")
+			      cat("}")
+			    }
+			  }
+			  cat("\n")
+			}
 			check <- length(outs$transientClasses)
 			cat("Transient classes:","\n")
 			if(check==0) cat("NONE","\n") else {
-				for(i in 1:check) cat(outs$transientClasses[[i]],"\n")
+				# for(i in 1:check) cat(outs$transientClasses[[i]],"\n")
+			  cat("{")
+			  cat(outs$transientClasses[[1]], sep=",")
+			  cat("}")
+			  if(check > 1) { 
+			    for(i in 2:check) {
+			      cat(",{")
+			      cat(outs$transientClasses[[i]],sep=",")
+			      cat("}")
+			    }
+			  }
+			  cat("\n")
 			}
 			irreducibility <- is.irreducible(object)
 			if(irreducibility) cat("The Markov chain is irreducible","\n") else cat("The Markov chain is not irreducible","\n")

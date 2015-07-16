@@ -31,6 +31,7 @@ test_that("States are those that should be", {
   expect_equal(.canonicForm(mathematicaMc)@transitionMatrix, .canonicFormRcpp(mathematicaMc)@transitionMatrix)
   expect_equal(.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
   expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
+                                            recurrentClasses = list(c("c", "d"), c("e")),
                                             transientClasses = list(c("a", "b"))))
 })
 

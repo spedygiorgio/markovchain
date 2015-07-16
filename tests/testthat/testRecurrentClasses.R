@@ -18,6 +18,7 @@ probMc <- new("markovchain", transitionMatrix = P,
 
 context("Recurrent Classes")
 
+# summary(probMc)
 test_that("States are those that should be", {
   expect_equal(.recurrentClassesRcpp(probMc), list(c("a", "c")
                                                    , c("b", "g", "i")

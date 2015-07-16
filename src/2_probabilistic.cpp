@@ -214,7 +214,7 @@ List summaryKernel(S4 object)
     if(bool(v[i]) == false)
       transientStates.push_back(ns[i]);
   }
-  List closedClasses, transientClasses;
+  List closedClasses, transientClasses, recurrentClassesList;
 
   for(int i = 0; i < communicatingClassList.size(); i ++)
   {
@@ -224,7 +224,9 @@ List summaryKernel(S4 object)
       else 
         closedClasses.push_back(class2Test);
   }
+  recurrentClassesList = recurrentClasses(object);
   List summaryMc = List::create(_["closedClasses"] = closedClasses,
+                                _["recurrentClasses"] = recurrentClassesList,
                                 _["transientClasses"] = transientClasses);
   return(summaryMc);
 }

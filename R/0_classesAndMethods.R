@@ -584,6 +584,25 @@ setAs(from="data.frame", to="markovchain", def=.df2Mc)
 
 setAs(from="table", to="markovchain", def=.table2Mc)
 
+
+.msm2Mc<-function(from)
+{
+  #	statesNames <- unique(from[,1])
+  colProb <- .whichColProb(from)
+  prMatr <- zeros(length(statesNames))
+  rownames(prMatr)<-statesNames
+  colnames(prMatr)<-statesNames
+  for(i in 1:nrow(from)) {
+    idRow <- which(statesNames==from[i,1]) #assume first col from
+    idCol <- which(statesNames==from[i,2]) #assume second row to
+    prMatr[idRow,idCol]<-from[i,3]
+  }
+  out<-new("markovchain", transitionMatrix=prMatr)
+  return(out)
+}
+
+# setAs(from="msm", to="markovchain", def=.msm2Mc)
+
 #functions and methods to return a matrix
 
 .mc2matrix<-function(from)

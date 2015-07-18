@@ -292,3 +292,28 @@ markovchainListFit<-function(data,byrow=TRUE, laplacian=0, name) {
   return(out)
 }
 
+#' Return MultinomialWise Confidence intervals.
+#' 
+#' @description Return estimated transition matrix assuming a Multinomial Distribution
+#' 
+#' @param transitionMatrix An estimated transition matrix.
+#' @param countsTransitionMatrix Empirical (conts) transition matrix, on which the \code{transitionMatrix} was performed.
+#' @param confidencelevel confidence interval level.
+#' @return Two matrices containing the confidence intervals.
+#' 
+#' @seealso \code{markovchainFit}
+#' 
+#' @references Constructing two-sided simultaneous confidence intervals 
+#' for multinomial proportions for small counts in a large number of cells. 
+#' Journal of Statistical Software 5(6) (2000)
+#'
+#' @examples 
+#' myletterseq<-sample(x = letters[1:3],size = 120,replace=TRUE)
+#' myMcFit<-markovchainFit(data=myletterseq)
+#' myMultinomialCI=multinomialConfidenceItervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringchar = myletterseq))
+multinomialConfidenceItervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
+  
+  out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)
+  return(out)
+
+  }

@@ -226,3 +226,18 @@ recurrentClasses<-function(object) {
   return(out)
 }
 
+verifyMarkovProperty<-function(object) {
+  return(FALSE)
+}
+
+assessOrder<-function(object) {
+  return(1)
+}
+
+assessStationarity<-function(object) {
+  
+}
+
+divergenceTest<-function(object) {
+  
+}

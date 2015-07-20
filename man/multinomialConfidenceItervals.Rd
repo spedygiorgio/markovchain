@@ -7,10 +7,12 @@ Various function to perform structural analysis of DTMC
 These functions return absorbing and transient states of the \code{markovchain} objects.
 }
 \usage{
-multinomialConfidenceItervals(object)
+multinomialConfidenceItervals(transitionMatrix, countsTransitionMatrix, confidencelevel)
 }
 \arguments{
-  \item{object}{A \code{markovchain} object.}
+  \item{transitionMatrix}{Transition matrix.}
+  \item{countsTransitionMatrix}{Counts transition matrix.}
+  \item{confidencelevel}{Confidence level.}
 }
 \value{A matrix}
 \references{

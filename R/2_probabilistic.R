@@ -227,6 +227,53 @@ recurrentClasses<-function(object) {
 }
 
 verifyMarkovProperty<-function(object) {
+  # print(object)
+  stateNames<-c("a", "b")
+  SSO<-c("a"=0,"b"=0)
+  TSO<-c("a"=0,"b"=0)
+  prob<-c("a"=0,"b"=0)
+  present<-"a"
+  future<-"b"
+  for(i in 1:(length(object)-2))
+  {
+    # print(object[i])
+    past<-object[i]
+    if(object[i+1] == present) {
+      TSO[past] <- TSO[past] + 1
+      if(object[i+2] == future) {
+        for(s in stateNames) {
+          # print(s)
+          if(s == past) {
+            # print(paste0(s,"->",present,"->",future))
+            SSO[s] <- SSO[s] + 1
+          }
+        }
+      }
+    }
+  }
+#   print(SSO)
+#   print(TSO)
+  for(i in 1:(length(SSO))) {
+    prob[i]<-SSO[i]/TSO[i]
+  }
+  # print(prob)
+  # P<-object$estimate@transitionMatrix
+  # P<-object@transitionMatrix
+  # stateNames<-states(object)
+#   print(P)
+#   n<-nrow(P)
+#   j<-1
+#   m<-2
+#   for (i in 1:n) {
+#     if(P[i,j] > 0) {
+#       if(P[j,m] > 0) {
+#         r<-P[i,j] * P[j,m] / P[i,j]
+#         print(r)
+#       }
+#     }
+#   }
+#   colnames(outMatr)<-stateNames
+#   rownames(outMatr)<-1:n
   return(FALSE)
 }
 

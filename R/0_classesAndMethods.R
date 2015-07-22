@@ -587,7 +587,7 @@ setAs(from="table", to="markovchain", def=.table2Mc)
 
 .msm2Mc<-function(from)
 {
-  temp <- pmatrix.msm(from)
+  temp <- msm::pmatrix.msm(from)
   prMatr <- unclass(as.matrix(temp))
   out<-new("markovchain", transitionMatrix=prMatr)
   return(out)

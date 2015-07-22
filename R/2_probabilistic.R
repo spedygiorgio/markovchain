@@ -227,14 +227,16 @@ recurrentClasses<-function(object) {
 }
 
 verifyMarkovProperty<-function(object) {
+  significanceLevel<-0.05
   # print(object)
+  n<-length(object)
   stateNames<-c("a", "b")
   SSO<-c("a"=0,"b"=0)
   TSO<-c("a"=0,"b"=0)
   prob<-c("a"=0,"b"=0)
   present<-"a"
   future<-"b"
-  for(i in 1:(length(object)-2))
+  for(i in 1:(n-2))
   {
     # print(object[i])
     past<-object[i]
@@ -257,6 +259,21 @@ verifyMarkovProperty<-function(object) {
     prob[i]<-SSO[i]/TSO[i]
   }
   # print(prob)
+  
+  # chi-square test
+  Q<-0
+  for(i in 1:2) {
+    for(j in 1:2) {
+      # Q<-Q+(N[i,j] - n*(rowsum[i]/n)*(colsum[j]))^2 / (n*(rowsum[i]/n)*(colsum[j]/n))
+    }
+  }
+  df<-length(stateNames)
+  # print(df)
+  # res<-chisq.test(object)
+  # print(res)
+  # chisquare<-P_X(Q)
+  # if(chisquare > significanceLevel) return(TRUE)
+  
   # P<-object$estimate@transitionMatrix
   # P<-object@transitionMatrix
   # stateNames<-states(object)

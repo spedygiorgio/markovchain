@@ -1061,6 +1061,14 @@ weatherFittedBOOT$confidenceInterval
 @
 
 
+A special function, \code{multinomialConfidenceItervals}, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package's \pkg{MultinomialCI} functions \cite{pkg:MultinomialCI} that were themselves based on the \cite{sison1995simultaneous} paper.
+
+
+<<multinomial, keep.source=TRUE>>=
+multinomialConfidenceItervals(transitionMatrix = weatherFittedMLE$estimate@transitionMatrix, countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
+@
+
+
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
 
 Is is also possible to fit a DTMC or a \code{markovchainList} object 

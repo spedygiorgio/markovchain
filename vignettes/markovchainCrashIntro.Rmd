@@ -2,13 +2,15 @@
 title: "Crash Introduction to markovchain R package"
 author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
 date: \today
+
 output:
   beamer_presentation:
     incremental: no
     keep_tex: yes
     toc: yes
-  ioslides_presentation:
-    incremental: yes
+    fig_width: 7
+    fig_height: 6
+    fig_caption: false
 font_adjustmen: -1
 header-includes:
 - \usepackage{url}

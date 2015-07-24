@@ -1,10 +1,10 @@
-library(diagram)
-library(DiagrammeR)
+# library(diagram)
+# library(DiagrammeR)
 
 .plotdiagram <- function(object, ...) {
   mat <- object@transitionMatrix
   #res <- plotmat(mat, ...)
-  plotmat(mat, ...)
+  diagram::plotmat(mat, ...)
   #return (res)
 }
 
@@ -28,7 +28,7 @@ library(DiagrammeR)
     args <- paste0(args, name, "=\"", dots[[name]], "\" ")
   }
   # print(args)
-  res <- grViz(paste0("
+  res <- DiagrammeR::grViz(paste0("
   digraph circles {
         graph [overlap = true, fontsize = 10]
 

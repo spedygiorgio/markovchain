@@ -1,18 +1,20 @@
 
 verifyMarkovProperty<-function(object) {
-  significanceLevel<-0.05
-  # print(object)
   n<-length(object)
   u<-unique(object)
-  # print(u)
   stateNames<-u
   nelements<-length(stateNames)
   mat<-zeros(nelements)
-  dimnames(mat)<-list(stateNames, stateNames)
-  # print(mat)
-  SSO<-c("a"=0,"b"=0)
-  TSO<-c("a"=0,"b"=0)
-  prob<-c("a"=0,"b"=0)
+  dimnames(mat)<-list(stateNames, c("SSO", "TSO-SSO"))
+  SSO<-numeric()
+  for(i in 1:nelements) {
+    sname<-stateNames[i]
+    SSO[sname]<-0
+  }
+  # print(SSO)
+  TSO<-SSO
+  # print(TSO)
+  prob<-SSO
   present<-"a"
   future<-"b"
   for(i in 1:(n-2))
@@ -32,45 +34,18 @@ verifyMarkovProperty<-function(object) {
       }
     }
   }
-#   print(SSO)
-#   print(TSO)
   for(i in 1:(length(SSO))) {
     prob[i]<-SSO[i]/TSO[i]
+    mat[i,0]<-SSO[i]
+    mat[i,1]<-TSO[i] - SSO[i]
   }
-  # print(prob)
+  # print(mat)
   
-  # chi-square test
-  Q<-0
-  for(i in 1:2) {
-    for(j in 1:2) {
-      # Q<-Q+(N[i,j] - n*(rowsum[i]/n)*(colsum[j]))^2 / (n*(rowsum[i]/n)*(colsum[j]/n))
-    }
-  }
-  df<-length(stateNames)
-  # print(df)
-  # res<-chisq.test(object)
+  # chi-squared test
+  res<-chisq.test(mat)
   # print(res)
-  # chisquare<-P_X(Q)
-  # if(chisquare > significanceLevel) return(TRUE)
   
-  # P<-object$estimate@transitionMatrix
-  # P<-object@transitionMatrix
-  # stateNames<-states(object)
-  #   print(P)
-  #   n<-nrow(P)
-  #   j<-1
-  #   m<-2
-  #   for (i in 1:n) {
-  #     if(P[i,j] > 0) {
-  #       if(P[j,m] > 0) {
-  #         r<-P[i,j] * P[j,m] / P[i,j]
-  #         print(r)
-  #       }
-  #     }
-  #   }
-  #   colnames(outMatr)<-stateNames
-  #   rownames(outMatr)<-1:n
-  return(FALSE)
+  return(res)
 }
 
 assessOrder<-function(object) {

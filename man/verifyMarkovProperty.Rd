@@ -11,7 +11,7 @@ These functions verify the Markov property, assess the order and stationarity of
 }
 \usage{
 verifyMarkovProperty(mc)
-assessOrder(object)
+assessOrder(mc)
 assessStationarity(object)
 divergenceTest(object)
 }

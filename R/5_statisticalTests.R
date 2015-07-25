@@ -55,7 +55,7 @@ verifyMarkovProperty<-function(mc) {
 #verifyMarkovProperty(sequenza)
 #http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
 
-assessOrder<-function(object) {
+assessOrder<-function(mc) {
   return(1)
 }
 

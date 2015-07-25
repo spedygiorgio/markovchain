@@ -506,13 +506,22 @@ mcDf <- as(mcWeather, "data.frame")
 mcNew <- as(mcDf, "markovchain")
 mcDf
 mcIgraph <- as(mcWeather, "igraph")
+
+library(msm)
+Q <- rbind ( c(0, 0.25, 0, 0.25),
+             c(0.166, 0, 0.166, 0.166),
+             c(0, 0.25, 0, 0.25),
+             c(0, 0, 0, 0) )
+cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
+msmMc <- as(cavmsm, "markovchain")
+msmMc
 @
 
 \begin{figure}
 \begin{center}
 <<importExportPlot,fig=TRUE,echo=FALSE>>=
 library(igraph)
-importExportGraph<-graph.formula(dataframe++markovchain,markovchain-+igraph,markovchain++matrix,table-+markovchain)
+importExportGraph<-graph.formula(dataframe++markovchain,markovchain-+igraph,markovchain++matrix,table-+markovchain,msm-+markovchain)
 plot(importExportGraph,main="Import - Export from and to markovchain objects")
 @
 \caption{The \pkg{markovchain} methods for import and export.}
@@ -1065,7 +1074,9 @@ A special function, \code{multinomialConfidenceItervals}, has been written in or
 
 
 <<multinomial, keep.source=TRUE>>=
-multinomialConfidenceItervals(transitionMatrix = weatherFittedMLE$estimate@transitionMatrix, countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
+multinomialConfidenceIntervals(transitionMatrix = 
+        weatherFittedMLE$estimate@transitionMatrix, 
+        countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 @
 
 

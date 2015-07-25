@@ -310,8 +310,8 @@ markovchainListFit<-function(data,byrow=TRUE, laplacian=0, name) {
 #' @examples 
 #' myletterseq<-sample(x = letters[1:3],size = 120,replace=TRUE)
 #' myMcFit<-markovchainFit(data=myletterseq)
-#' myMultinomialCI=multinomialConfidenceItervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringchar = myletterseq))
-multinomialConfidenceItervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
+#' myMultinomialCI=multinomialConfidenceIntervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringchar = myletterseq))
+multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)
   return(out)

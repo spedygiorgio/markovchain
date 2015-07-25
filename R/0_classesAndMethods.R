@@ -584,6 +584,7 @@ setAs(from="data.frame", to="markovchain", def=.df2Mc)
 
 setAs(from="table", to="markovchain", def=.table2Mc)
 
+#function from msm to markovchain
 
 .msm2Mc<-function(from)
 {

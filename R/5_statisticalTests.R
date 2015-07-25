@@ -46,6 +46,15 @@ verifyMarkovProperty<-function(mc) {
   return(out)
 }
 
+#the out should be a function with following slots:
+#stateTransitionSequenceTable (as in page 25)
+#statistic: the chi - square statistic 
+#p-value: the p-value of the statistic with appropriate degrees of freedom (see p 25-27 on the calculation)
+
+#also the following should run: data(blanden); myMc<-as(blanden,"markovchain");sequenza<-rmarkovchain(n = 100,myMc)
+#verifyMarkovProperty(sequenza)
+#http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
+
 assessOrder<-function(object) {
   return(1)
 }

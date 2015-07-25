@@ -1,7 +1,7 @@
 
-verifyMarkovProperty<-function(object) {
-  n<-length(object)
-  u<-unique(object)
+verifyMarkovProperty<-function(mc) {
+  n<-length(mc)
+  u<-unique(mc)
   stateNames<-u
   nelements<-length(stateNames)
   mat<-zeros(nelements)
@@ -18,10 +18,10 @@ verifyMarkovProperty<-function(object) {
     for(future in stateNames) {
       for(i in 1:(n-1))
       {
-        past<-object[i]
-        if(object[i+1] == present) {
+        past<-mc[i]
+        if(mc[i+1] == present) {
           TSO[past] <- TSO[past] + 1
-          if((i < n - 1) && (object[i+2] == future)) {
+          if((i < n - 1) && (mc[i+2] == future)) {
             for(s in stateNames) {
               if(s == past) {
                 SSO[s] <- SSO[s] + 1

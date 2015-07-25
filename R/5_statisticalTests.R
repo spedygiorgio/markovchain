@@ -11,41 +11,39 @@ verifyMarkovProperty<-function(object) {
     sname<-stateNames[i]
     SSO[sname]<-0
   }
-  # print(SSO)
   TSO<-SSO
-  # print(TSO)
   prob<-SSO
-  present<-"a"
-  future<-"b"
-  for(i in 1:(n-2))
-  {
-    # print(object[i])
-    past<-object[i]
-    if(object[i+1] == present) {
-      TSO[past] <- TSO[past] + 1
-      if(object[i+2] == future) {
-        for(s in stateNames) {
-          # print(s)
-          if(s == past) {
-            # print(paste0(s,"->",present,"->",future))
-            SSO[s] <- SSO[s] + 1
+  out<-list()
+  for(present in stateNames) {
+    for(future in stateNames) {
+      for(i in 1:(n-1))
+      {
+        past<-object[i]
+        if(object[i+1] == present) {
+          TSO[past] <- TSO[past] + 1
+          if((i < n - 1) && (object[i+2] == future)) {
+            for(s in stateNames) {
+              if(s == past) {
+                SSO[s] <- SSO[s] + 1
+              }
+            }
           }
         }
       }
+      for(i in 1:(length(SSO))) {
+        prob[i]<-SSO[i]/TSO[i]
+        mat[i,0]<-SSO[i]
+        mat[i,1]<-TSO[i] - SSO[i]
+      }
+      
+      # chi-squared test
+      res<-chisq.test(mat)
+      out[[paste0(present,future)]]<-res
+      # out[[length(out) + 1]]<-res
     }
   }
-  for(i in 1:(length(SSO))) {
-    prob[i]<-SSO[i]/TSO[i]
-    mat[i,0]<-SSO[i]
-    mat[i,1]<-TSO[i] - SSO[i]
-  }
-  # print(mat)
   
-  # chi-squared test
-  res<-chisq.test(mat)
-  # print(res)
-  
-  return(res)
+  return(out)
 }
 
 assessOrder<-function(object) {

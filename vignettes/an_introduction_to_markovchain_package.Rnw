@@ -1070,7 +1070,7 @@ weatherFittedBOOT$confidenceInterval
 @
 
 
-A special function, \code{multinomialConfidenceItervals}, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package's \pkg{MultinomialCI} functions \cite{pkg:MultinomialCI} that were themselves based on the \cite{sison1995simultaneous} paper.
+A special function, \code{multinomialConfidenceIntervals}, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package's \pkg{MultinomialCI} functions \cite{pkg:MultinomialCI} that were themselves based on the \cite{sison1995simultaneous} paper.
 
 
 <<multinomial, keep.source=TRUE>>=

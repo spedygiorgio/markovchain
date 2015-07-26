@@ -21,6 +21,7 @@
 \alias{coerce,markovchain,matrix-method}
 \alias{coerce,matrix,markovchain-method}
 \alias{coerce,msm,markovchain-method}
+\alias{coerce,etm,markovchain-method}
 \alias{dim,markovchain-method}
 \alias{initialize,markovchain-method}
 \alias{names,markovchain-method}
@@ -67,6 +68,8 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
     \item{conditionalDistribution}{\code{signature(object = "markovchain")}: returns the conditional probability of subsequent states given a state}
     \item{coerce}{\code{signature(from = "data.frame", to = "markovchain")}: coerce method from \code{data.frame} to \code{markovchain}}
     \item{coerce}{\code{signature(from = "table", to = "markovchain")}: coerce method from \code{table} to \code{markovchain} }
+    \item{coerce}{\code{signature(from = "msm", to = "markovchain")}: coerce method from \code{msm} to \code{markovchain} }
+    \item{coerce}{\code{signature(from = "etm", to = "markovchain")}: coerce method from \code{etm} to \code{markovchain} }
     \item{coerce}{\code{signature(from = "markovchain", to = "igraph")}: coercing to \code{igraph} objects }
     \item{coerce}{\code{signature(from = "markovchain", to = "matrix")}: coercing to \code{matrix} objects }
     \item{coerce}{\code{signature(from = "matrix", to = "markovchain")}: coercing to \code{markovchain} objects from \code{matrix} one }

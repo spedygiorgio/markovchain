@@ -596,6 +596,35 @@ setAs(from="table", to="markovchain", def=.table2Mc)
 
 setAs(from="msm", to="markovchain", def=.msm2Mc)
 
+#function from etm to markovchain
+
+.etm2Mc<-function(from)
+{
+  df<-from$trans
+  elements<-from$state.names
+  nelements<-length(elements)
+  prMatr<-zeros(nelements)
+  dimnames(prMatr) = list(elements, elements)
+  for(i in 1:dim(df)[1]) {
+    r<-df[i,]
+    stateFrom<-r$from
+    stateTo<-r$to
+    prMatr[stateFrom, stateTo]<-prMatr[stateFrom, stateTo] + 1
+  }
+  rsums<-rowSums(prMatr)
+  prMatr<-prMatr/rsums
+  if(any(rsums == 0)) {
+    indicesToBeSanitized<-which(rsums==0)
+    for(i in indicesToBeSanitized) {
+      for(j in 1:nelements) prMatr[i,j]<-1/nelements
+    }
+  }
+  out<-new("markovchain", transitionMatrix=prMatr)
+  return(out)
+}
+
+setAs(from="etm", to="markovchain", def=.etm2Mc)
+
 #functions and methods to return a matrix
 
 .mc2matrix<-function(from)

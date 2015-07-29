@@ -10,18 +10,18 @@ markovB<-new("markovchain", states=statesNames, transitionMatrix=
 sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 # verifyMarkovProperty(sequence)
-assessOrder(sequence)
-assessStationarity(markovB)
-divergenceTest(markovB)
+# assessOrder(sequence)
+assessStationarity(sequence)
+divergenceTest(seqeuence)
 
 data(blanden)
 myMc<-as(blanden,"markovchain")
 sequenza<-rmarkovchain(n = 100,myMc)
 sequenza
-# res<-verifyMarkovProperty(sequenza)
-# res<-assessOrder(sequenza)
+res<-verifyMarkovProperty(sequenza)
+res<-assessOrder(sequenza)
 # print(res)
 
 test_that("States are those that should be", {
-  # expect_equal(verifyMarkovProperty(markovB), TRUE)
+  # expect_equal(verifyMarkovProperty(sequenza), TRUE)
 })

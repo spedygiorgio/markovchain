@@ -54,29 +54,26 @@ verifyMarkovProperty<-function(mc) {
 
 assessOrder<-function(mc) {
   n<-length(mc)
-  u<-unique(mc)
-  states<-u
+  states<-unique(mc)
   nelements<-length(states)
   mat<-zeros(nelements)
   dimnames(mat)<-list(states, states)
-  # print(mat)
-  SSO<-numeric()
-  TSO<-SSO
   out<-list()
   for(present in states) {
     mat<-zeros(nelements)
+    dimnames(mat)<-list(states, states)
     for(i in 1:(n - 2)) {
       if(present == mc[i + 1]) {
-        # print(paste0(mc[i],'->',mc[i+2]))
-        # mat[mc[i], mc[i+2]] <- mat[mc[i], mc[i+2]] + 1
+        past<-mc[i]
+        future<-mc[i+2]
+        # print(paste0(past,'->',future))
+        mat[past, future] <- mat[past, future] + 1 
       }
-      # print(paste0(present,'->',future))
     }
-    #       # chi-squared test
-    #       res<-chisq.test(mat)
-    #       out[[paste0(present,future)]]<-res
+    # chi-squared test
+    res<-chisq.test(mat)
+    out[[present]]<-res
   }
-  # print(out)
   return(out)
 }
 

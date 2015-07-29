@@ -1,4 +1,4 @@
 31-07-2015
 added multinomial ci into Rcpp
 improved plotting facility
-added a function to verify Marov property
+added functions to test using statisitical inference

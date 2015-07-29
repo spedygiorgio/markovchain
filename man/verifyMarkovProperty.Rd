@@ -38,8 +38,8 @@ markovB<-new("markovchain", states=statesNames, transitionMatrix=
                  ))
 sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
 verifyMarkovProperty(sequence)
-assessOrder(markovB)
-assessStationarity(object)
-divergenceTest(object)
+assessOrder(sequence)
+assessStationarity(sequence)
+divergenceTest(sequence)
 }
 

@@ -56,8 +56,8 @@ assessOrder<-function(mc) {
   n<-length(mc)
   states<-unique(mc)
   nelements<-length(states)
-  mat<-zeros(nelements)
-  dimnames(mat)<-list(states, states)
+  # mat<-zeros(nelements)
+  # dimnames(mat)<-list(states, states)
   out<-list()
   for(present in states) {
     mat<-zeros(nelements)
@@ -77,10 +77,48 @@ assessOrder<-function(mc) {
   return(out)
 }
 
-assessStationarity<-function(object) {
-  
+assessStationarity<-function(mc) {
+  n<-length(mc)
+  states<-unique(mc)
+  nstates<-length(states)
+  out<-list()
+  times<-numeric(nstates)
+  names(times)<-states
+  matlist<-list()
+  for(state in states) {
+    mat<-zeros(n-1,nstates)
+    dimnames(mat)<-list(1:(n-1), states)
+    matlist[[state]]<-mat
+  }
+  for(t in 1:(n - 1)) {
+    past<-mc[t]
+    present<-mc[t + 1]
+    for(state in states) {
+      mat<-matlist[[state]]
+      for(s in states) {
+        if(t > 1) 
+          mat[t, s] <- mat[t-1, s]
+        if((state == past) && (s == present)) {
+          if(t == 1) mat[t, s] <- 1
+          else mat[t, s] <- mat[t-1, s] + 1
+        }
+      }
+      matlist[[state]]<-mat
+    }
+  }
+  for(s in states) {
+    mat<-matlist[[s]]
+    rowsums<-rowSums(mat)
+    indices<-which(rowsums == 0)
+    mat<-mat/rowsums
+    for(i in indices) mat[i,]<-1/nstates
+    # chi-squared test
+    res<-chisq.test(mat)
+    out[[s]]<-res
+  }
+  return(out)
 }
 
-divergenceTest<-function(object) {
+divergenceTest<-function(mc) {
   
 }

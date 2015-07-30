@@ -11,7 +11,7 @@ sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b"
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 # verifyMarkovProperty(sequence)
 # assessOrder(sequence)
-assessStationarity(sequence)
+# assessStationarity(sequence)
 divergenceTest(seqeuence)
 
 data(blanden)
@@ -20,6 +20,7 @@ sequenza<-rmarkovchain(n = 100,myMc)
 sequenza
 res<-verifyMarkovProperty(sequenza)
 res<-assessOrder(sequenza)
+res<-assessStationarity(sequenza)
 # print(res)
 
 test_that("States are those that should be", {

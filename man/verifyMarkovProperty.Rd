@@ -7,21 +7,20 @@
 Various functions to perform statistical inference of DTMC
 }
 \description{
-These functions verify the Markov property, assess the order and stationarity of the \code{markovchain} objects.
+These functions verify the Markov property, assess the order and stationarity of the Markov chain.
 }
 \usage{
 verifyMarkovProperty(mc)
 assessOrder(mc)
-assessStationarity(object)
-divergenceTest(object)
+assessStationarity(mc)
+divergenceTest(mc)
 }
 \arguments{
   \item{mc}{A markov chain sequence.}
-  \item{object}{A \code{markovchain} object.}
 }
 \value{Verification result or the order}
 \references{
-Feres, Matlab listing for markov chain.
+Monika, Anderson and Goodman.
 }
 \author{
 Tae Seung Kang, Giorgio Alfredo Spedicato

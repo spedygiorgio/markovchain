@@ -13,13 +13,12 @@ These functions verify the Markov property, assess the order and stationarity of
 verifyMarkovProperty(mc)
 assessOrder(mc)
 assessStationarity(mc)
-divergenceTest(mc1, mc2, n)
+divergenceTest(m1, m2, mc)
 }
 \arguments{
   \item{mc}{A markov chain sequence.}
-  \item{mc1}{A markov chain sequence.}
-  \item{mc2}{A markov chain sequence.}
-  \item{n}{Length of the markov chain sequence.}
+  \item{m1}{A transition matrix for a markov chain sequence.}
+  \item{m2}{A transition matrix for a markov chain sequence.}
 }
 \value{Verification result}
 \references{
@@ -43,6 +42,6 @@ mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
 assessStationarity(sequence)
-divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, length(sequence))
+divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, sequence)
 }
 

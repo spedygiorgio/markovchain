@@ -119,17 +119,21 @@ assessStationarity<-function(mc) {
   return(out)
 }
 
-divergenceTest<-function(mc1, mc2, n) {
-  M<-nrow(mc1)
+divergenceTest<-function(m1, m2, mc) {
+  n<-length(mc)
+  M<-nrow(m1)
   v<-numeric()
   out<-2*n/.phi2(1)
   sum<-0
   for(i in 1:M) {
     sum2<-0
+    sum3<-0
     for(j in 1:M) {
-      sum2<-sum2+mc2[i,j]*.phi(mc1[i,j]/mc2[i,j])
+      sum2<-sum2+m2[i,j]*.phi(m1[i,j]/m2[i,j])
+      if(j > 1 && mc[j-1] == i)
+        sum3<-sum3 + 1
     }
-    v[i]<-1
+    v[i]<-sum3
     sum<-v[i]/n*sum2
   }
   out<-out*sum

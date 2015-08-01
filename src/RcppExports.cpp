@@ -51,6 +51,20 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// ctmcFit
+List ctmcFit(List data, bool byrow, String name, double confidencelevel);
+RcppExport SEXP markovchain_ctmcFit(SEXP dataSEXP, SEXP byrowSEXP, SEXP nameSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    Rcpp::traits::input_parameter< String >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    __result = Rcpp::wrap(ctmcFit(data, byrow, name, confidencelevel));
+    return __result;
+END_RCPP
+}
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
 RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {

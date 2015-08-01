@@ -17,6 +17,10 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
     .Call('markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen, byrow)
 }
 
+ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
+    .Call('markovchain_ctmcFit', PACKAGE = 'markovchain', data, byrow, name, confidencelevel)
+}
+
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }

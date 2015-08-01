@@ -13,12 +13,14 @@ These functions verify the Markov property, assess the order and stationarity of
 verifyMarkovProperty(mc)
 assessOrder(mc)
 assessStationarity(mc)
-divergenceTest(mc)
+divergenceTest(mc, mc2, n)
 }
 \arguments{
   \item{mc}{A markov chain sequence.}
+  \item{mc2}{A markov chain sequence.}
+  \item{n}{Length of the markov chain sequence.}
 }
-\value{Verification result or the order}
+\value{Verification result}
 \references{
 Monika, Anderson and Goodman.
 }
@@ -36,9 +38,10 @@ markovB<-new("markovchain", states=statesNames, transitionMatrix=
                    0.1,0.8,0.1),nrow=3, byrow=TRUE, dimnames=list(statesNames,statesNames)
                  ))
 sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
 assessStationarity(sequence)
-divergenceTest(sequence)
+divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, length(sequence))
 }
 

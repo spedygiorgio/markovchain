@@ -13,10 +13,11 @@ These functions verify the Markov property, assess the order and stationarity of
 verifyMarkovProperty(mc)
 assessOrder(mc)
 assessStationarity(mc)
-divergenceTest(mc, mc2, n)
+divergenceTest(mc1, mc2, n)
 }
 \arguments{
   \item{mc}{A markov chain sequence.}
+  \item{mc1}{A markov chain sequence.}
   \item{mc2}{A markov chain sequence.}
   \item{n}{Length of the markov chain sequence.}
 }

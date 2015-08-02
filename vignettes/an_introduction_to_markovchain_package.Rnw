@@ -1152,6 +1152,24 @@ method keeping to use the last \code{markovchain} in the sequence list.
 predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 @
 
+\subsection{Statistical Tests}
+
+\subsubsection{Divergence test for empirically estimated transition matrices}
+
+The $\phi$-divergence test \cite{pardo2005statistical} between two empirically estimated transition matrices $m1$ and $m2$ is given by
+
+\begin{equation}
+T^{\phi}_n(m_1, m_2, mc)=\frac{2n}{\phi^{''}(1)} \sum_{i=1}^{M} \frac{v_{i*}}{n} \sum_{j=1}^{M} p^0(i,j) \phi \left(\frac{m_1(i,j)}{m_2(i,j)} \right)
+\label{eq:phidivtest}
+\end{equation}
+
+where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ is the number of states, $v_{i*}$ is the number of transitions starting from the state $i$, and $\phi$ is 
+
+\begin{equation}
+\phi(x)=x \log x - x + 1.
+\label{eq:phi}
+\end{equation}
+
 \section{Applications}\label{sec:applications}
 
 This section shows applications of DTMC in various

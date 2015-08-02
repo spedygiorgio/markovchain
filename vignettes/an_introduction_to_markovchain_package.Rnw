@@ -77,7 +77,6 @@ Finally, some examples in which the package's functions are applied to Economics
   UnipolSai R\&D\\
   Via Firenze 11, Paderno Dugnano
   20037 Italy\\
-  Telephone: +39/334/6634384\\
   E-mail: \email{spedygiorgio@gmail.com}\\
   URL: \url{www.statisticaladvisor.com}\\
   

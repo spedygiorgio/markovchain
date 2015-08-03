@@ -48,10 +48,14 @@ test_that("Conversion of objects",
 sequence1<-c("a", "b", "a", "a", "a")
 sequence2<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
 mcFit<-markovchainFit(data=sequence1,byrow=FALSE)
+mcFit2<-markovchainFit(c("a","b","a","b"))
+
 test_that("Fit should satisfy", {
   expect_equal((mcFit["logLikelihood"])[[1]], log(1/3) + 2*log(2/3))
   expect_equal(markovchainFit(data=sequence2, method="bootstrap")["confidenceInterval"]
                [[1]]["confidenceLevel"][[1]], 0.95)
+  expect_equal(mcFit2$confidenceInterval$upperEndpointMatrix, matrix(c(0,1,1,0), nrow=2, byrow=TRUE,
+                                                dimnames=list(c("a","b"),c("a","b"))))
 })
 
 ### MAP fit function tests

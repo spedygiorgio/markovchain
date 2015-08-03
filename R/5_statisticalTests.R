@@ -141,7 +141,7 @@ divergenceTest<-function(m1, m2, mc) {
 }
 
 .phi<-function(x) {
-  out<-x*log(x)
+  out<-x*log(x)-x+1
   return(out)
 }
 

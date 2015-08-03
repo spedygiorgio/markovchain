@@ -96,8 +96,6 @@ NumericMatrix multinomialCIForRow (NumericVector x, double confidencelevel){
   NumericMatrix out(k,5);
   NumericMatrix num(k,1);
   c--;
-  double vol1=1;
-  double vol2=1;
   double obsp = 0;
   for(int i = 0; i < k; i++) {
     num(i, 0) = i;

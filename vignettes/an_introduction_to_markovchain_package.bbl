@@ -1,0 +1,228 @@
+\begin{thebibliography}{34}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{{B. A. Craig} and {A. A. Sendi}(2002)}]{craigSendi}
+{B A Craig}, {A A Sendi} (2002).
+\newblock \enquote{Estimation of the Transition Matrix of a Discrete-Time
+  Markov Chain.}
+\newblock \emph{Health Economics}, \textbf{11}, 33--42.
+
+\bibitem[{Bard(2000)}]{bardPpt}
+Bard JF (2000).
+\newblock \enquote{Lecture 12.5 - Additional Issues Concerning Discrete-Time
+  Markov Chains.}
+\newblock
+  \urlprefix\url{http://www.me.utexas.edu/~jensen%20/ORMM/instruction/powerpoint/or_models_09/12.5_dtmc2.ppt}.
+
+\bibitem[{Br{\'e}maud(1999)}]{bremaud1999discrete}
+Br{\'e}maud P (1999).
+\newblock \enquote{Discrete-Time Markov Models.}
+\newblock In \emph{Markov Chains}, pp. 53--93. Springer.
+
+\bibitem[{Chambers(2008)}]{chambers}
+Chambers J (2008).
+\newblock \emph{Software for Data Analysis: Programming with \proglang{R}}.
+\newblock Statistics and computing. Springer-Verlag.
+\newblock ISBN 9780387759357.
+
+\bibitem[{Ching and Ng(2006)}]{ching2006markov}
+Ching W, Ng M (2006).
+\newblock \emph{Markov Chains: Models, Algorithms and Applications}.
+\newblock International Series in Operations Research \& Management Science.
+  Springer-Verlag.
+\newblock ISBN 9780387293356.
+
+\bibitem[{Csardi and Nepusz(2006)}]{pkg:igraph}
+Csardi G, Nepusz T (2006).
+\newblock \enquote{The \pkg{igraph} Software Package for Complex Network
+  Research.}
+\newblock \emph{InterJournal}, \textbf{Complex Systems}, 1695.
+\newblock \urlprefix\url{http://igraph.sf.net}.
+
+\bibitem[{de~Wreede \emph{et~al.}(2011)de~Wreede, Fiocco, and Putter}]{mstateR}
+de~Wreede LC, Fiocco M, Putter H (2011).
+\newblock \enquote{\pkg{mstate}: An \proglang{R} Package for the Analysis of
+  Competing Risks and Multi-State Models.}
+\newblock \emph{Journal of Statistical Software}, \textbf{38}(7), 1--30.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v38/i07/}.
+
+\bibitem[{Denuit \emph{et~al.}(2007)Denuit, Mar{\'e}chal, Pitrebois, and
+  Walhin}]{denuit2007actuarial}
+Denuit M, Mar{\'e}chal X, Pitrebois S, Walhin JF (2007).
+\newblock \emph{Actuarial modelling of claim counts: Risk classification,
+  credibility and bonus-malus systems}.
+\newblock Wiley.
+
+\bibitem[{Deshmukh(2012)}]{deshmukh2012multiple}
+Deshmukh S (2012).
+\newblock \emph{Multiple Decrement Models in Insurance: An Introduction Using
+  \proglang{R}}.
+\newblock SpringerLink : B{\"u}cher. Springer-Verlag.
+\newblock ISBN 9788132206590.
+
+\bibitem[{Eddelbuettel(2013)}]{RcppR}
+Eddelbuettel D (2013).
+\newblock \emph{Seamless \proglang{R} and \proglang{C++} Integration with
+  \pkg{Rcpp}}.
+\newblock Springer-Verlag, New York.
+\newblock ISBN 978-1-4614-6867-7.
+
+\bibitem[{Feres(2007)}]{renaldoMatlab}
+Feres R (2007).
+\newblock \enquote{Notes for Math 450 \proglang{MATLAB} Listings for Markov
+  Chains.}
+\newblock \urlprefix\url{http://www.math.wustl.edu/~feres/Math450Lect04.pdf}.
+
+\bibitem[{Geyer and Johnson(2013)}]{mcmcR}
+Geyer CJ, Johnson LT (2013).
+\newblock \emph{mcmc: Markov Chain Monte Carlo}.
+\newblock \proglang{R} package version 0.9-2,
+  \urlprefix\url{http://CRAN.R-project.org/package=mcmc}.
+
+\bibitem[{Glass and Hall(1954)}]{glassHall}
+Glass D, Hall JR (1954).
+\newblock \enquote{Social Mobility in Great Britain: A Study in
+  Intergenerational Change in Status.}
+\newblock In \emph{Social Mobility in Great Britain}. Routledge and Kegan Paul.
+
+\bibitem[{Goulet \emph{et~al.}(2013)Goulet, Dutang, Maechler, Firth, Shapira,
+  Stadelmann, and {expm-developers@lists.R-forge.R-project.org}}]{expmR}
+Goulet V, Dutang C, Maechler M, Firth D, Shapira M, Stadelmann M,
+  {expm-developers@listsR-forgeR-projectorg} (2013).
+\newblock \emph{\pkg{expm}: Matrix Exponential}.
+\newblock R package version 0.99-1,
+  \urlprefix\url{http://CRAN.R-project.org/package=expm}.
+
+\bibitem[{Himmelmann and {www.linhi.com}(2010)}]{hmmR}
+Himmelmann SSDDL, {wwwlinhicom} (2010).
+\newblock \emph{\pkg{HMM}: HMM - Hidden Markov Models}.
+\newblock \proglang{R} package version 1.0,
+  \urlprefix\url{http://CRAN.R-project.org/package=HMM}.
+
+\bibitem[{{J. G. Kemeny} \emph{et~al.}(1974){J. G. Kemeny}, {J. L.Snell}, and
+  {G. L. Thompson}}]{landOfOz}
+{J G Kemeny}, {J LSnell}, {G L Thompson} (1974).
+\newblock \emph{Introduction to Finite Mathematics}.
+\newblock Prentice Hall.
+
+\bibitem[{Jackson(2011)}]{msmR}
+Jackson CH (2011).
+\newblock \enquote{Multi-State Models for Panel Data: The \pkg{msm} Package for
+  \proglang{R}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{38}(8), 1--29.
+\newblock \urlprefix\url{http://www.jstatsoft.org/v38/i08/}.
+
+\bibitem[{Jacob(2014)}]{manchesterR}
+Jacob I (2014).
+\newblock \enquote{Is R Cost Effective?}
+\newblock Electronic.
+\newblock Presented on Manchester R Meeting,
+  \urlprefix\url{http://www.rmanchester.org/Presentations/Ian%20Jacob%20-%20Is%20R%20Cost%20Effective.pdf}.
+
+\bibitem[{Jo~Blanden and Machin(2005)}]{blandenEtAlii}
+Jo~Blanden PG, Machin S (2005).
+\newblock \enquote{Intergenerational Mobility in Europe and North America.}
+\newblock \emph{Technical report}, Center for Economic Performances.
+\newblock
+  \urlprefix\url{http://cep.lse.ac.uk/about/news/IntergenerationalMobility.pdf}.
+
+\bibitem[{Montgomery(2009)}]{montgomery}
+Montgomery J (2009).
+\newblock \enquote{Communication Classes.}
+\newblock \urlprefix\url{http://www.ssc.wisc.edu/~jmontgom/commclasses.pdf}.
+
+\bibitem[{Nicholson(2013)}]{DTMCPackR}
+Nicholson W (2013).
+\newblock \emph{\pkg{DTMCPack}: Suite of Functions Related to Discrete-Time
+  Discrete-State Markov Chains}.
+\newblock R package version 0.1-2,
+  \urlprefix\url{http://CRAN.R-project.org/package=DTMCPack}.
+
+\bibitem[{{P. J. Avery} and {D. A. Henderson}(1999)}]{averyHenderson}
+{P J Avery}, {D A Henderson} (1999).
+\newblock \enquote{Fitting Markov Chain Models to Discrete State Series.}
+\newblock \emph{Applied Statistics}, \textbf{48}(1), 53--61.
+
+\bibitem[{{R Core Team}(2013)}]{rSoftware}
+{R Core Team} (2013).
+\newblock \emph{\proglang{R}: A Language and Environment for Statistical
+  Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria.
+\newblock \urlprefix\url{http://www.R-project.org/}.
+
+\bibitem[{Roebuck(2011)}]{pkg:matlab}
+Roebuck P (2011).
+\newblock \emph{\pkg{matlab}: \proglang{MATLAB} emulation package}.
+\newblock R package version 0.8.9,
+  \urlprefix\url{http://CRAN.R-project.org/package=matlab}.
+
+\bibitem[{Sison and Glaz(1995)}]{sison1995simultaneous}
+Sison CP, Glaz J (1995).
+\newblock \enquote{Simultaneous confidence intervals and sample size
+  determination for multinomial proportions.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{90}(429), 366--369.
+
+\bibitem[{Skuriat-Olechnowska(2005)}]{MSkuriat}
+Skuriat-Olechnowska M (2005).
+\newblock \emph{Statistical inference and hypothesis testing for Markov chains
+  with Interval Censoring}.
+\newblock diploma thesis, Delft University of Technology.
+
+\bibitem[{Snell(1999)}]{probBook}
+Snell L (1999).
+\newblock \enquote{Probability Book: chapter 11.}
+\newblock
+  \urlprefix\url{http://www.dartmouth.edu/~chance/teaching_aids/books_articles/probability_book/Chapter11.pdf}.
+
+\bibitem[{Spedicato(2015)}]{markovchainR}
+Spedicato GA (2015).
+\newblock \emph{\pkg{markovchain}: an \proglang{R} Package to Easily Handle
+  Discrete Markov Chains}.
+\newblock R package version 0.2.2.
+
+\bibitem[{Strelioff \emph{et~al.}(2007)Strelioff, Crutchfield, and
+  Hubler}]{sch}
+Strelioff CC, Crutchfield JP, Hubler AW (2007).
+\newblock \enquote{Inferring Markov Chains: Bayesian Estimation, Model
+  Comparison, Entropy Rate, and Out-of-class Modeling.}
+\newblock \emph{Sante Fe Working Papers}.
+\newblock \urlprefix\url{http://arxiv.org/abs/math/0703715/}.
+
+\bibitem[{Villacorta(2012)}]{pkg:MultinomialCI}
+Villacorta PJ (2012).
+\newblock \emph{MultinomialCI: Simultaneous confidence intervals for
+  multinomial proportions according to the method by Sison and Glaz}.
+\newblock R package version 1.0,
+  \urlprefix\url{http://CRAN.R-project.org/package=MultinomialCI}.
+
+\bibitem[{Wittmann(2007)}]{CreditMetricsR}
+Wittmann A (2007).
+\newblock \emph{CreditMetrics: Functions for Calculating the CreditMetrics Risk
+  Model}.
+\newblock \proglang{R} package version 0.0-2.
+
+\bibitem[{Wolfram~Research(2013{\natexlab{a}})}]{mathematica9MarkovChain}
+Wolfram~Research I (2013{\natexlab{a}}).
+\newblock
+  \urlprefix\url{http://www.wolfram.com/mathematica/new-in-9/markov-chains-and-queues/structural-properties-of-finite-markov-processes.html}.
+
+\bibitem[{Wolfram~Research(2013{\natexlab{b}})}]{mathematica9}
+Wolfram~Research I (2013{\natexlab{b}}).
+\newblock \emph{\proglang{Mathematica}}.
+\newblock Wolfram Research, Inc., ninth edition.
+
+\bibitem[{Yalamanchi and Spedicato(2015)}]{MAPmcR}
+Yalamanchi SB, Spedicato GA (2015).
+\newblock \emph{Bayesian Inference of First Order Markov Chains}.
+\newblock R package version 0.2.5.
+
+\end{thebibliography}

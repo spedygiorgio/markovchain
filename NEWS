@@ -1,4 +1,4 @@
-31-07-2015
+04-08-2015
 added multinomial confidence intervals into Rcpp
 improved plotting facility
 added functions to test using statisitical inference

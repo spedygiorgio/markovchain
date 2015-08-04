@@ -104,4 +104,8 @@ To obtain the stationary distribution simply invoke the _steadyStates_ function
 steadyStates(molecularCTMC)
 ```
 
-
+For fitting, use the _ctmcFit_ function. It returns the MLE values for the parameters along with the confidence intervals.
+```{r ctmcFitting, echo = TRUE, message=FALSE, warning=FALSE}
+data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+ctmcFit(data)
+```

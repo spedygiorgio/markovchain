@@ -1153,15 +1153,36 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}
 
+In this section, we describe the statistical tests: assessing the Markov property, the order, the statinarity of a Markov chain sequence, and the divergence test for empirically estimated transition matrices.
+For the first three tests, we use the $\chi ^2$ statistics. 
+
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition.
+
+<<test1, keep.source=TRUE>>=
+sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
+            "b", "a", "a", "b", "b", "b", "a")
+verifyMarkovProperty(sequence)
+@
+
 \subsubsection{Assessing the order of a Markov chain sequence}
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
+
+<<test2, keep.source=TRUE>>=
+assessOrder(sequence)
+@
 
 \subsubsection{Assessing the statinarity of a Markov chain sequence}
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
+
+<<test3, keep.source=TRUE>>=
+assessStationarity(sequence)
+@
 
 \subsubsection{Divergence test for empirically estimated transition matrices}
 
-The $\phi$-divergence test \cite{pardo2005statistical} between two empirically estimated transition matrices $m1$ and $m2$ is given by
+In order to test if two empirically estimated transition matrices $m1$ and $m2$ are different, we use the $\phi$-divergence test \cite{pardo2005statistical} that is given by
 
 \begin{equation}
 T^{\phi}_n(m_1, m_2, mc)=\frac{2n}{\phi^{''}(1)} \sum_{i=1}^{M} \frac{v_{i*}}{n} \sum_{j=1}^{M} m_2(i,j) \phi \left(\frac{m_1(i,j)}{m_2(i,j)} \right)
@@ -1174,6 +1195,13 @@ where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ 
 \phi(x)=x \log x - x + 1.
 \label{eq:phi}
 \end{equation}
+
+<<test4, keep.source=TRUE>>=
+mcFit<-markovchainFit(data=sequence,byrow=FALSE)
+divergenceTest(mcFit$estimate@transitionMatrix
+               , mcFit$estimate@transitionMatrix, length(sequence))
+@
+
 
 \section{Applications}\label{sec:applications}
 

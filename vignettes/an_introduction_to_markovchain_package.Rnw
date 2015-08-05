@@ -1154,10 +1154,11 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 \subsection{Statistical Tests}
 
 In this section, we describe the statistical tests: assessing the Markov property, the order, the statinarity of a Markov chain sequence, and the divergence test for empirically estimated transition matrices.
-For the first three tests, we use the $\chi ^2$ statistics. 
+For the first three tests, we use the $\chi ^2$ statistics \citep{MSkuriat}. 
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 
+This test invloves verifying whether the given sequence holds the Markov property for which the future state is independent of the past states and depends only on the current state.
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition.
 
 <<test1, keep.source=TRUE>>=
@@ -1167,6 +1168,7 @@ verifyMarkovProperty(sequence)
 @
 
 \subsubsection{Assessing the order of a Markov chain sequence}
+This test assesses the order of the given sequence.
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
 
 <<test2, keep.source=TRUE>>=
@@ -1174,6 +1176,7 @@ assessOrder(sequence)
 @
 
 \subsubsection{Assessing the statinarity of a Markov chain sequence}
+This test assesses if the transition probabilities change over time. 
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
 
 <<test3, keep.source=TRUE>>=
@@ -1182,7 +1185,7 @@ assessStationarity(sequence)
 
 \subsubsection{Divergence test for empirically estimated transition matrices}
 
-In order to test if two empirically estimated transition matrices $m1$ and $m2$ are different, we use the $\phi$-divergence test \cite{pardo2005statistical} that is given by
+In order to test if two empirically estimated transition matrices $m1$ and $m2$ are different, we use the $\phi$-divergence test \citep{pardo2005statistical} that is given by
 
 \begin{equation}
 T^{\phi}_n(m_1, m_2, mc)=\frac{2n}{\phi^{''}(1)} \sum_{i=1}^{M} \frac{v_{i*}}{n} \sum_{j=1}^{M} m_2(i,j) \phi \left(\frac{m_1(i,j)}{m_2(i,j)} \right)

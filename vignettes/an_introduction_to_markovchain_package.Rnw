@@ -1195,16 +1195,62 @@ verifyMarkovProperty(sequence)
 @
 
 \subsubsection{Assessing the order of a Markov chain sequence}
-The \code{assessOrder} function verifies if the given chain is of second order.
-This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
+The \code{assessOrder} function verifies if the given chain is of first order.
+For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l | l}
+    \hline
+  past & present & future & future \\
+   &  & a & b \\
+    \hline  \hline
+  a & a & 2 & 2\\
+  b & a & 2 & 2\\
+  \hline
+\end{tabular}
+\caption{Contingency table to assess the order for the present state a.}
+\label{tab:order}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is of first order. 
 
 <<test2, keep.source=TRUE>>=
 assessOrder(sequence)
 @
 
-\subsubsection{Assessing the statinarity of a Markov chain sequence}
-The \code{assessStationarity} function assesses if the transition probabilities of the given chain change over time. 
+\subsubsection{Assessing the stationarity of a Markov chain sequence}
+The \code{assessStationarity} function assesses if the transition probabilities of the given chain change over time. To be more specific, the chain is stationary if the following condition meets.
+
+\begin{equation}
+p_{ij}(t) = p_{ij} ~\textrm{ for all }~t
+\label{eq:stationarity}
+\end{equation}
+
+For each possible state, we construct a contingency table of the estimated transition probabilities over time as shown in Table \ref{tab:stationarity}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l}
+    \hline
+  time (t) & probability of transition to a & probability of transition to b \\
+    \hline  \hline
+  1 & 0 & 1\\
+  2 & 0 & 1\\
+  . & . & . \\
+  . & . & . \\
+  . & . & . \\
+  16 & 0.44 & 0.56\\
+  \hline
+\end{tabular}
+\caption{Contingency table to assess the stationarity of the state a.}
+\label{tab:stationarity}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
+If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is stationary.
 
 <<test3, keep.source=TRUE>>=
 assessStationarity(sequence)

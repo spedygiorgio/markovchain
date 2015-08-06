@@ -12,16 +12,17 @@ mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 # verifyMarkovProperty(sequence)
 # assessOrder(sequence)
 # assessStationarity(sequence)
-# divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, sequence)
+# divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, length(sequence))
 
 data(blanden)
 myMc<-as(blanden,"markovchain")
+# print(myMc)
 sequenza<-rmarkovchain(n = 100,myMc)
 sequenza
 res<-verifyMarkovProperty(sequenza)
 res<-assessOrder(sequenza)
 res<-assessStationarity(sequenza)
-res<-divergenceTest(myMc, myMc, sequenza)
+# res<-divergenceTest(myMc, myMc, length(sequenza))
 # print(res)
 
 test_that("States are those that should be", {

@@ -130,7 +130,7 @@ divergenceTest<-function(m1, m2, mc) {
     sum3<-0
     for(j in 1:M) {
       sum2<-sum2+m2[i,j]*.phi(m1[i,j]/m2[i,j])
-      if(j > 1 && mc[j-1] == i)
+      if((j > 1) && (mc[j-1] == i))
         sum3<-sum3 + 1
     }
     v[i]<-sum3

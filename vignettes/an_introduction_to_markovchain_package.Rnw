@@ -1153,22 +1153,49 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}
 
-In this section, we describe the statistical tests: assessing the Markov property, the order, the statinarity of a Markov chain sequence, and the divergence test for empirically estimated transition matrices.
+In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}).
 For the first three tests, we use the $\chi ^2$ statistics \citep{MSkuriat}. 
+As an example, we use the following sequence.
+
+<<tests, keep.source=TRUE>>=
+sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
+            "b", "a", "a", "b", "b", "b", "a")
+@
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 
-This test invloves verifying whether the given sequence holds the Markov property for which the future state is independent of the past states and depends only on the current state.
-This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition.
+The \code{verifyMarkovProperty} function invloves verifying whether the given chain holds the Markov property for which the future state is independent of the past states and depends only on the current state.
+
+\begin{equation}
+\textrm{Pr}\left\{ X_{t+1}=m | X_t = j, X_{t-1} = i \right\} = \textrm{Pr}\left\{X_{t+1}=m | X_t = j \right\}
+\label{eq:property}
+\end{equation}
+
+We first construct a contingency table in which the columns are the frequency of past$\rightarrow$present$\rightarrow$future (PPF), present$\rightarrow$future (PF) and (PF - PPF), and the rows are the possible three state transitions as shown in Table \ref{tab:property} for each possible present to future transition.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l | l}
+    \hline
+  Transitions (p$\rightarrow$p$\rightarrow$f) & PPF (p$\rightarrow$p$\rightarrow$f) & PF (p$\rightarrow$f) & PF - PPF \\
+    \hline  \hline
+  a $\rightarrow$ a $\rightarrow$ b & 2 (a $\rightarrow$ a $\rightarrow$ b) & 4 (a$\rightarrow$a) & 2\\
+  b $\rightarrow$ a $\rightarrow$ b & 2 (b $\rightarrow$ a $\rightarrow$ b) & 5 (b$\rightarrow$a) & 3\\
+  \hline
+\end{tabular}
+\caption{Contingency table for Markov property of the transition from the present state a to the future state b (a $\rightarrow$ b).}
+\label{tab:property}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the Markov property holds for the specific transition. 
 
 <<test1, keep.source=TRUE>>=
-sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
-            "b", "a", "a", "b", "b", "b", "a")
 verifyMarkovProperty(sequence)
 @
 
 \subsubsection{Assessing the order of a Markov chain sequence}
-This test assesses the order of the given sequence.
+The \code{assessOrder} function verifies if the given chain is of second order.
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
 
 <<test2, keep.source=TRUE>>=
@@ -1176,7 +1203,7 @@ assessOrder(sequence)
 @
 
 \subsubsection{Assessing the statinarity of a Markov chain sequence}
-This test assesses if the transition probabilities change over time. 
+The \code{assessStationarity} function assesses if the transition probabilities of the given chain change over time. 
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
 
 <<test3, keep.source=TRUE>>=

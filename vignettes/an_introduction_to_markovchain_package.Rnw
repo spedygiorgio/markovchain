@@ -1275,7 +1275,7 @@ where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ 
 <<test4, keep.source=TRUE>>=
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 divergenceTest(mcFit$estimate@transitionMatrix
-               , mcFit$estimate@transitionMatrix, length(sequence))
+               , mcFit$estimate@transitionMatrix, sequence)
 @
 
 

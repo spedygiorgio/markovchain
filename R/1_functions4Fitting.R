@@ -245,6 +245,24 @@ rmarkovchain<-function(n,object,...)
 
 
 #fit
+.fitHigherOrder<-function(data, order) {
+  X=as.numeric(x$probability)
+  ll=vector()
+  Q=alply(.data=seq(1,order,1), .margins=1, .fun=.getQ, clickstreamList)
+  transitions=llply(.data=Q, .fun=function(q) q$transition)
+  ll=laply(.data=Q, .fun=function(q) q$ll)
+  QX=llply(.data=transitions, .fun=function(tr) as.matrix(tr)%*%X) 
+  environment(.foo)=environment()
+  if (ans$optimizer == "quadratic") {
+    params=rep(1/order, order)
+    model=solnp(pars=params, fun=.foo, eqfun=.constr, eqB=1, LB=rep(0, order), control=list(trace=0))
+    lambda=model$pars
+  } else {
+    solution=.sollp(X, QX, ans$use.lpSolve)
+    lambda=solution[seq(length(solution) - length(QX) + 1, length(solution), 1)]
+  }
+}
+
 #markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95) {
 #    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel)
 #}

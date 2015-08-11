@@ -68,7 +68,7 @@ double truncpoi(int c, NumericVector x, double n, int k){
   double g2=s4/(pow(s2,2));
   double poly=1.0+g1*(pow(z,3)-3*z)/6.0+g2*(pow(z,4)-6.0*pow(z,2)+3.0)/24.0
               +pow(g1,2)*(pow(z,6)-15.0*pow(z,4)+45.0*pow(z,2)-15.0)/72.0;
-  double f=poly*exp(-pow(z,2)/2)/(sqrt(2)*R::gammafn(0.5)); 
+  double f=poly*exp(-pow(z,2)/2)/(sqrt(2.0)*R::gammafn(0.5)); 
   double probx=1;
   for(int i = 0; i < k; i++)
     probx=probx*m(i,4);

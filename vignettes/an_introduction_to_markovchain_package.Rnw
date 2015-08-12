@@ -1217,7 +1217,9 @@ Using the table, the function performs the $\chi ^2$ test by calling the \code{c
 This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is of first order. 
 
 <<test2, keep.source=TRUE>>=
-assessOrder(sequence)
+# assessOrder(sequence)
+data(rain)
+assessStationarity(rain$rain)
 @
 
 \subsubsection{Assessing the stationarity of a Markov chain sequence}
@@ -1254,8 +1256,6 @@ If the p-value is greater than the given significance level, we cannot reject th
 
 <<test3, keep.source=TRUE>>=
 assessStationarity(sequence)
-data(rain)
-assessStationarity(rain$rain)
 @
 
 \subsubsection{Divergence test for empirically estimated transition matrices}

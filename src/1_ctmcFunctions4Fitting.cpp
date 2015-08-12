@@ -1,6 +1,4 @@
-// [[Rcpp::depends(RcppParallel)]]
 #include <Rcpp.h>
-#include <RcppParallel.h>
 #include <ctime>
 
 using namespace Rcpp;

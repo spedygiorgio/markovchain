@@ -1,5 +1,5 @@
 
-verifyMarkovProperty<-function(mc) {
+verifyMarkovProperty<-function(mc, ...) {
   n<-length(mc)
   u<-unique(mc)
   stateNames<-u
@@ -36,7 +36,8 @@ verifyMarkovProperty<-function(mc) {
         mat[i,2]<-TSO[i] - SSO[i]
       }
       # chi-squared test
-      res<-chisq.test(mat)
+      res<-chisq.test(mat, ...)
+      res["table"]<-mat
       out[[paste0(present,future)]]<-res
     }
   }

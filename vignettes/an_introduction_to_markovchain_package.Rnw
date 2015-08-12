@@ -1254,6 +1254,8 @@ If the p-value is greater than the given significance level, we cannot reject th
 
 <<test3, keep.source=TRUE>>=
 assessStationarity(sequence)
+data(rain)
+assessStationarity(rain$rain)
 @
 
 \subsubsection{Divergence test for empirically estimated transition matrices}

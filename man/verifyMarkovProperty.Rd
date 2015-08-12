@@ -10,13 +10,14 @@ Various functions to perform statistical inference of DTMC
 These functions verify the Markov property, assess the order and stationarity of the Markov chain.
 }
 \usage{
-verifyMarkovProperty(mc)
+verifyMarkovProperty(mc, ...)
 assessOrder(mc)
 assessStationarity(mc)
 divergenceTest(m1, m2, mc)
 }
 \arguments{
   \item{mc}{A markov chain sequence.}
+  \item{...}{Parameters for chi-square statistics.}
   \item{m1}{A transition matrix for a markov chain sequence.}
   \item{m2}{A transition matrix for a markov chain sequence.}
 }

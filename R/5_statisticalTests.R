@@ -147,7 +147,9 @@ divergenceTest<-function(m1, m2, mc) {
     sum<-v[i]/n*sum2
   }
   TStat<-out*sum
-  out<-c(TStat,1-pchisq(TStat,c-M))
+  pvalue<-1-pchisq(TStat,c-M)
+  cat("The Divergence test statistic is: ",TStat, " the Chi-Square d.f. are: ",c-M," the p-value is: ",pvalue,"\n")
+  out<-list(statistic=TStat, p.value=pvalue)
   return (out)
 }
 

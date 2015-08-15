@@ -4,8 +4,8 @@ verifyMarkovProperty<-function(mc,...) {
   u<-unique(mc)
   stateNames<-u
   nelements<-length(stateNames)
-  mat<-zeros(nrow=nelements, ncol=2)
-  dimnames(mat)<-list(stateNames, c("SSO", "TSO-SSO"))
+  mat<-zeros(nrow=nelements, ncol=3)
+  dimnames(mat)<-list(stateNames, c("SSO", "TSO", "TSO-SSO"))
   SSO<-numeric()
   for(i in 1:nelements) {
     sname<-stateNames[i]
@@ -33,12 +33,15 @@ verifyMarkovProperty<-function(mc,...) {
       }
       for(i in 1:(length(SSO))) {
         mat[i,1]<-SSO[i]
-        mat[i,2]<-TSO[i] - SSO[i]
+        mat[i,2]<-TSO[i]
+        mat[i,3]<-TSO[i] - SSO[i]
       }
       # chi-squared test
-      table<-as.data.frame(mat)
-      res<-chisq.test(table,...)
-      res<-c(res,table)
+      # table<-as.data.frame(mat)
+      res<-chisq.test(mat[,c(1,3)],...)
+      res<-c(res)
+      table<-as.data.frame(mat[,c(1,2)])
+      res[["table"]]<-table
       out[[paste0(present,future)]]<-res
     }
   }

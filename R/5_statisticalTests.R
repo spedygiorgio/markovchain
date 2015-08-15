@@ -1,7 +1,7 @@
 
-verifyMarkovProperty<-function(mc,...) {
-  n<-length(mc)
-  u<-unique(mc)
+verifyMarkovProperty<-function(sequence,...) {
+  n<-length(sequence)
+  u<-unique(sequence)
   stateNames<-u
   nelements<-length(stateNames)
   mat<-zeros(nrow=nelements, ncol=3)
@@ -19,10 +19,10 @@ verifyMarkovProperty<-function(mc,...) {
       for(i in 1:nelements) TSO[i]<-SSO[i]<-0
       for(i in 1:(n-1))
       {
-        past<-mc[i]
-        if(mc[i+1] == present) {
+        past<-sequence[i]
+        if(sequence[i+1] == present) {
           TSO[past] <- TSO[past] + 1
-          if((i < n - 1) && (mc[i+2] == future)) {
+          if((i < n - 1) && (sequence[i+2] == future)) {
             for(s in stateNames) {
               if(s == past) {
                 SSO[s] <- SSO[s] + 1
@@ -81,7 +81,6 @@ assessOrder<-function(mc) {
   k<-nelements
   out<-c(Q,1-pchisq(q = Q, k*(k-1)^2))
   names(out)[2]<-"p-value"
-  print(out)
   return(out)
 }
 
@@ -127,8 +126,8 @@ assessStationarity<-function(mc, nblocks) {
   return(out)
 }
 
-divergenceTest<-function(m1, m2, mc) {
-  n<-length(mc)
+divergenceTest<-function(m1, m2, sequence) {
+  n<-length(sequence)
   M<-nrow(m1)
   v<-numeric()
   out<-2*n/.phi2(1)
@@ -140,7 +139,7 @@ divergenceTest<-function(m1, m2, mc) {
     for(j in 1:M) {
       if(m2[i,j]>0) c<-c+1
       sum2<-sum2+m2[i,j]*.phi(m1[i,j]/m2[i,j])
-      if((j > 1) && (mc[j-1] == i))
+      if((j > 1) && (sequence[j-1] == i))
         sum3<-sum3 + 1
     }
     v[i]<-sum3

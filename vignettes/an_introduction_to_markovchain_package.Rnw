@@ -1195,7 +1195,7 @@ verifyMarkovProperty(sequence)
 @
 
 \subsubsection{Assessing the order of a Markov chain sequence}
-The \code{assessOrder} function verifies if the given chain is of first order.
+The \code{assessOrder} function checks whether the given chain is of first order or of second order.
 For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
 
 \begin{table}[h]

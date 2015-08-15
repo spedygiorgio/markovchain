@@ -37,8 +37,8 @@ verifyMarkovProperty<-function(mc,...) {
         mat[i,3]<-TSO[i] - SSO[i]
       }
       # chi-squared test
-      # table<-as.data.frame(mat)
-      res<-chisq.test(mat[,c(1,3)],...)
+      table<-as.data.frame(mat[,c(1,3)])
+      res<-chisq.test(table,...)
       res<-c(res)
       table<-as.data.frame(mat[,c(1,2)])
       res[["table"]]<-table

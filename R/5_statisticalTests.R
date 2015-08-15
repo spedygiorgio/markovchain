@@ -79,8 +79,9 @@ assessOrder<-function(mc) {
     # out[[present]]<-res
   }
   k<-nelements
-  out<-c(Q,1-pchisq(q = Q, k*(k-1)^2))
-  names(out)[2]<-"p-value"
+  pvalue<-1-pchisq(q = Q, k*(k-1)^2)
+  out["statistic"]<-Q
+  out["p.value"]<-pvalue
   return(out)
 }
 

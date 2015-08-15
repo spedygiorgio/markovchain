@@ -1171,7 +1171,7 @@ The \code{verifyMarkovProperty} function invloves verifying whether the given ch
 \label{eq:property}
 \end{equation}
 
-We first construct a contingency table in which the columns are the frequency of past$\rightarrow$present$\rightarrow$future (PPF), present$\rightarrow$future (PF) and (PF - PPF), and the rows are the possible three state transitions as shown in Table \ref{tab:property} for each possible present to future transition.
+We first construct a contingency table in which the columns are the frequency of past$\rightarrow$present$\rightarrow$future (PPF) (or state transition sequence (STS)), present$\rightarrow$future (PF) (or two-state occurrences (STO)) and (PF - PPF), and the rows are the possible three state transitions as shown in Table \ref{tab:property} for each possible present to future transition.
 
 \begin{table}[h]
   \centering
@@ -1214,12 +1214,11 @@ For each possible present state, we construct a contingency table of the frequen
 \end{table} 
 
 Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
-This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is of first order. 
+This test returns a list of the chi-squared value and the p-value. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is of first order. 
 
 <<test2, keep.source=TRUE>>=
-# assessOrder(sequence)
 data(rain)
-assessStationarity(rain$rain, 1)
+assessOrder(rain$rain)
 @
 
 \subsubsection{Assessing the stationarity of a Markov chain sequence}
@@ -1255,7 +1254,7 @@ This test returns a list of the chi-squared value, the degrees of freedom, and t
 If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is stationary.
 
 <<test3, keep.source=TRUE>>=
-assessStationarity(sequence)
+assessStationarity(rain$rain, 10)
 @
 
 \subsubsection{Divergence test for empirically estimated transition matrices}

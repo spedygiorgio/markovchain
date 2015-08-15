@@ -1219,7 +1219,7 @@ This test returns a list of the chi-squared value, the degrees of freedom, and t
 <<test2, keep.source=TRUE>>=
 # assessOrder(sequence)
 data(rain)
-assessStationarity(rain$rain)
+assessStationarity(rain$rain, 1)
 @
 
 \subsubsection{Assessing the stationarity of a Markov chain sequence}

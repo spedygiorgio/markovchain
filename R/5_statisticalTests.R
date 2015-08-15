@@ -61,9 +61,8 @@ assessOrder<-function(mc) {
   n<-length(mc)
   states<-unique(mc)
   nelements<-length(states)
-  # mat<-zeros(nelements)
-  # dimnames(mat)<-list(states, states)
   out<-list()
+  Q<-0
   for(present in states) {
     mat<-zeros(nelements)
     dimnames(mat)<-list(states, states)
@@ -71,18 +70,22 @@ assessOrder<-function(mc) {
       if(present == mc[i + 1]) {
         past<-mc[i]
         future<-mc[i+2]
-        # print(paste0(past,'->',future))
         mat[past, future] <- mat[past, future] + 1 
       }
     }
     # chi-squared test
     res<-chisq.test(mat)
-    out[[present]]<-res
+    Q<-Q+res$statistic
+    # out[[present]]<-res
   }
+  k<-nelements
+  out<-c(Q,1-pchisq(q = Q, k*(k-1)^2))
+  names(out)[2]<-"p-value"
+  print(out)
   return(out)
 }
 
-assessStationarity<-function(mc) {
+assessStationarity<-function(mc, nblocks) {
   n<-length(mc)
   states<-unique(mc)
   nstates<-length(states)

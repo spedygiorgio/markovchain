@@ -12,7 +12,7 @@ These functions verify the Markov property, assess the order and stationarity of
 \usage{
 verifyMarkovProperty(mc, ...)
 assessOrder(mc)
-assessStationarity(mc)
+assessStationarity(mc, nblocks)
 divergenceTest(m1, m2, mc)
 }
 \arguments{
@@ -20,6 +20,7 @@ divergenceTest(m1, m2, mc)
   \item{...}{Parameters for chi-square statistics.}
   \item{m1}{A transition matrix for a markov chain sequence.}
   \item{m2}{A transition matrix for a markov chain sequence.}
+  \item{nblocks}{Number of blocks.}
 }
 \value{Verification result}
 \references{
@@ -36,7 +37,7 @@ sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b"
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
-assessStationarity(sequence)
+assessStationarity(sequence,1)
 divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, sequence)
 }
 

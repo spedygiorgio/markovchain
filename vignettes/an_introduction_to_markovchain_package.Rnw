@@ -1277,8 +1277,7 @@ This test returns a list of the chi-squared value and the p-value.
 
 <<test4, keep.source=TRUE>>=
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
-divergenceTest(mcFit$estimate@transitionMatrix
-               , mcFit$estimate@transitionMatrix, sequence)
+divergenceTest(sequence, mcFit$estimate@transitionMatrix)
 @
 
 

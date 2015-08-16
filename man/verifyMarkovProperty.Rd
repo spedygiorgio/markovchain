@@ -13,13 +13,12 @@ These functions verify the Markov property, assess the order and stationarity of
 verifyMarkovProperty(sequence, ...)
 assessOrder(sequence)
 assessStationarity(sequence, nblocks)
-divergenceTest(m1, m2, sequence)
+divergenceTest(sequence, hypothetic)
 }
 \arguments{
-  \item{sequence}{A sequence.}
+  \item{sequence}{An empirical sequence.}
   \item{...}{Parameters for chi-square statistics.}
-  \item{m1}{A transition matrix for a markov chain sequence.}
-  \item{m2}{A transition matrix for a markov chain sequence.}
+  \item{hypothetic}{A transition matrix for a hypothetic markov chain sequence.}
   \item{nblocks}{Number of blocks.}
 }
 \value{Verification result}
@@ -38,6 +37,6 @@ mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
 assessStationarity(sequence,1)
-divergenceTest(mcFit$estimate@transitionMatrix, mcFit$estimate@transitionMatrix, sequence)
+divergenceTest(sequence, mcFit$estimate@transitionMatrix)
 }
 

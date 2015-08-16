@@ -138,9 +138,24 @@ assessStationarity<-function(sequence, nblocks) {
   return(out)
 }
 
-divergenceTest<-function(m1, m2, sequence) {
+.seq2mat<-function(sequence) {
   n<-length(sequence)
-  M<-nrow(m1)
+  states<-unique(sequence)
+  nstates<-length(states)
+  mat<-zeros(nstates)
+  dimnames(mat)<-list(states, states)
+  for(i in 1:(n-1)) {
+    from<-sequence[i]
+    to<-sequence[i+1]
+    mat[from,to]<-mat[from,to]+1
+  }
+  return (mat)
+}
+
+divergenceTest<-function(sequence, hypothetic) {
+  n<-length(sequence)
+  empirical<-.seq2mat(sequence)
+  M<-nrow(empirical)
   v<-numeric()
   out<-2*n/.phi2(1)
   sum<-0
@@ -149,8 +164,8 @@ divergenceTest<-function(m1, m2, sequence) {
     sum2<-0
     sum3<-0
     for(j in 1:M) {
-      if(m2[i,j]>0) c<-c+1
-      sum2<-sum2+m2[i,j]*.phi(m1[i,j]/m2[i,j])
+      if(hypothetic[i,j]>0) c<-c+1
+      sum2<-sum2+hypothetic[i,j]*.phi(empirical[i,j]/hypothetic[i,j])
       if((j > 1) && (sequence[j-1] == i))
         sum3<-sum3 + 1
     }

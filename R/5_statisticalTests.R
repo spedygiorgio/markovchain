@@ -89,44 +89,25 @@ assessOrder<-function(sequence) {
 assessStationarity<-function(sequence, nblocks) {
   n<-length(sequence)
   blocksize<-n/nblocks
-  # print(blocksize)
   states<-unique(sequence)
   nstates<-length(states)
-  
-  times<-numeric(nstates)
-  names(times)<-states
-  matlist<-list()
-  for(state in states) {
-    mat<-zeros(n-1,nstates)
-    dimnames(mat)<-list(1:(n-1), states)
-    matlist[[state]]<-mat
-  }
-  for(t in 1:(n - 1)) {
-    past<-sequence[t]
-    present<-sequence[t + 1]
-    for(state in states) {
-      mat<-matlist[[state]]
-      for(s in states) {
-        if(t > 1) 
-          mat[t, s] <- mat[t-1, s]
-        if((state == past) && (s == present)) {
-          if(t == 1) mat[t, s] <- 1
-          else mat[t, s] <- mat[t-1, s] + 1
-        }
-      }
-      matlist[[state]]<-mat
-    }
-  }
   TStat<-0
-  for(s in states) {
-    mat<-matlist[[s]]
+  for(i in states) {
+    mat<-zeros(nblocks,nstates)
+    dimnames(mat)<-list(1:nblocks,states)
+    for(j in 1:(n-1)) {
+      if(sequence[j] == i) {
+        b<- ceiling(j / blocksize)
+        future<-sequence[j+1]
+        mat[b,future]<-mat[b,future]+1
+      }
+    }
     rowsums<-rowSums(mat)
     indices<-which(rowsums == 0)
     mat<-mat/rowsums
-    for(i in indices) mat[i,]<-1/nstates
+    for(k in indices) mat[k,]<-1/nstates
     # chi-squared test
     res<-chisq.test(mat)
-    # out[[s]]<-res
     TStat<-TStat+res$statistic
   }
   k<-nstates

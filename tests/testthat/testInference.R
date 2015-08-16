@@ -14,7 +14,7 @@ sequenza<-rmarkovchain(n = 100,myMc)
 sequenza
 res<-verifyMarkovProperty(sequenza)
 res<-assessOrder(sequenza)
-res<-assessStationarity(sequenza, 1)
+res<-assessStationarity(sequenza, 10)
 res<-divergenceTest(sequenza, myMc)
 # print(res)
 

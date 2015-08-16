@@ -11,12 +11,11 @@ These functions verify the Markov property, assess the order and stationarity of
 }
 \usage{
 verifyMarkovProperty(sequence, ...)
-assessOrder(mc)
-assessStationarity(mc, nblocks)
+assessOrder(sequence)
+assessStationarity(sequence, nblocks)
 divergenceTest(m1, m2, sequence)
 }
 \arguments{
-  \item{mc}{A markov chain sequence.}
   \item{sequence}{A sequence.}
   \item{...}{Parameters for chi-square statistics.}
   \item{m1}{A transition matrix for a markov chain sequence.}

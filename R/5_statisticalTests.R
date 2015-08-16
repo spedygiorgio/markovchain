@@ -57,39 +57,42 @@ verifyMarkovProperty<-function(sequence,...) {
 #verifyMarkovProperty(sequenza)
 #http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
 
-assessOrder<-function(mc) {
-  n<-length(mc)
-  states<-unique(mc)
+assessOrder<-function(sequence) {
+  n<-length(sequence)
+  states<-unique(sequence)
   nelements<-length(states)
-  out<-list()
-  Q<-0
+  TStat<-0
   for(present in states) {
     mat<-zeros(nelements)
     dimnames(mat)<-list(states, states)
     for(i in 1:(n - 2)) {
-      if(present == mc[i + 1]) {
-        past<-mc[i]
-        future<-mc[i+2]
+      if(present == sequence[i + 1]) {
+        past<-sequence[i]
+        future<-sequence[i+2]
         mat[past, future] <- mat[past, future] + 1 
       }
     }
     # chi-squared test
     res<-chisq.test(mat)
-    Q<-Q+res$statistic
+    TStat<-TStat+res$statistic
     # out[[present]]<-res
   }
   k<-nelements
-  pvalue<-1-pchisq(q = Q, k*(k-1)^2)
-  out["statistic"]<-Q
-  out["p.value"]<-pvalue
+  df<-k*(k-1)^2
+  pvalue<-1-pchisq(q = TStat, df)
+  #returning the output
+  cat("The assessOrder test statistic is: ",TStat, " the Chi-Square d.f. are: ",df," the p-value is: ",pvalue,"\n")
+  out<-list(statistic=TStat[[1]], p.value=pvalue[[1]])
   return(out)
 }
 
-assessStationarity<-function(mc, nblocks) {
-  n<-length(mc)
-  states<-unique(mc)
+assessStationarity<-function(sequence, nblocks) {
+  n<-length(sequence)
+  blocksize<-n/nblocks
+  # print(blocksize)
+  states<-unique(sequence)
   nstates<-length(states)
-  out<-list()
+  
   times<-numeric(nstates)
   names(times)<-states
   matlist<-list()
@@ -99,8 +102,8 @@ assessStationarity<-function(mc, nblocks) {
     matlist[[state]]<-mat
   }
   for(t in 1:(n - 1)) {
-    past<-mc[t]
-    present<-mc[t + 1]
+    past<-sequence[t]
+    present<-sequence[t + 1]
     for(state in states) {
       mat<-matlist[[state]]
       for(s in states) {
@@ -114,6 +117,7 @@ assessStationarity<-function(mc, nblocks) {
       matlist[[state]]<-mat
     }
   }
+  TStat<-0
   for(s in states) {
     mat<-matlist[[s]]
     rowsums<-rowSums(mat)
@@ -122,8 +126,15 @@ assessStationarity<-function(mc, nblocks) {
     for(i in indices) mat[i,]<-1/nstates
     # chi-squared test
     res<-chisq.test(mat)
-    out[[s]]<-res
+    # out[[s]]<-res
+    TStat<-TStat+res$statistic
   }
+  k<-nstates
+  df<-k*(nblocks - 1) * (k-1)
+  pvalue<-1-pchisq(TStat, df)
+  #returning the output
+  cat("The assessStationarity test statistic is: ",TStat, " the Chi-Square d.f. are: ",df," the p-value is: ",pvalue,"\n")
+  out<-list(statistic=TStat[[1]], p.value=pvalue[[1]])
   return(out)
 }
 

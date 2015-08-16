@@ -1250,8 +1250,8 @@ For each possible state, we construct a contingency table of the estimated trans
 \end{table} 
 
 Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
-This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each state.
-If the p-value is greater than the given significance level, we cannot reject the hypothesis that the chain is stationary.
+This test returns a list of the chi-squared value and the p-value.
+If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is stationary.
 
 <<test3, keep.source=TRUE>>=
 assessStationarity(rain$rain, 10)
@@ -1272,6 +1272,8 @@ where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ 
 \phi(x)=x \log x - x + 1.
 \label{eq:phi}
 \end{equation}
+
+This test returns a list of the chi-squared value and the p-value.
 
 <<test4, keep.source=TRUE>>=
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)

@@ -9,11 +9,11 @@ Given a sequence of states arising from a stationary state,
 it fits the underlying Markov chain distribution with higher order. 
 }
 \usage{
-fitHigherOrder(data, order = 2)
+fitHigherOrder(sequence, order = 2)
 }
 
 \arguments{
-  \item{data}{
+  \item{sequence}{
 A character list.
 }
 \item{order}{

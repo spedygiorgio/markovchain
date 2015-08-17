@@ -65,17 +65,6 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// fitHigherOrderRcpp
-void fitHigherOrderRcpp(SEXP data, int order);
-RcppExport SEXP markovchain_fitHigherOrderRcpp(SEXP dataSEXP, SEXP orderSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< int >::type order(orderSEXP);
-    fitHigherOrderRcpp(data, order);
-    return R_NilValue;
-END_RCPP
-}
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
 RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {

@@ -51,7 +51,7 @@ double _constr(NumericVector params) {
   return(sum(params));
 }
 
-// [[Rcpp::export]]
+//// [[Rcpp::export]]
 void fitHigherOrderRcpp(SEXP data, int order = 2) {
   Rcout << "fitHigherOrder " << order << std::endl;
   // Rf_PrintValue(data);

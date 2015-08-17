@@ -21,10 +21,6 @@ ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
     .Call('markovchain_ctmcFit', PACKAGE = 'markovchain', data, byrow, name, confidencelevel)
 }
 
-fitHigherOrderRcpp <- function(data, order = 2L) {
-    invisible(.Call('markovchain_fitHigherOrderRcpp', PACKAGE = 'markovchain', data, order))
-}
-
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }

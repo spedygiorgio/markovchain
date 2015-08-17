@@ -24,6 +24,19 @@ eqn1=function(x){
   return(c(z1,z2,z3))
 }
 
+.seq2freqProb<-function(sequence) {
+  n<-length(sequence)
+  states<-unique(sequence)
+  nstates<-length(states)
+  v<-vector(mode="numeric", length=nstates)
+  names(v)<-states
+  # print(v)
+  for(i in 1:n) {
+    v[sequence[i]]<-v[sequence[i]] + 1
+  }
+  return (v/sum(v))
+}
+
 .seq2matHigh<-function(sequence, order) {
   n<-length(sequence)
   states<-unique(sequence)
@@ -50,6 +63,8 @@ fitHigherOrder<-function(sequence, order = 2) {
   }
   # print(F)
   # print(Q)
+  X<-.seq2freqProb(sequence)
+  # print(X)
   x0 <- c(-2, 2, 2, -1, -1)
   model<-Rsolnp::solnp(x0, fun = fn1, eqfun = eqn1, eqB = c(10, 0, -1), control=list(trace=0))
   # print(model)

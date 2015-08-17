@@ -54,7 +54,7 @@ double _constr(NumericVector params) {
 // [[Rcpp::export]]
 void fitHigherOrder(SEXP data, int order = 2) {
   Rcout << "fitHigherOrder " << order << std::endl;
-  Rf_PrintValue(data);
+  // Rf_PrintValue(data);
 }
 // .fitHigherOrder<-function(frequency, sequencelist, order) {
 // X=as.numeric(frequency/sum(frequency))

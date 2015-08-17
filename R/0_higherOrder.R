@@ -13,11 +13,12 @@ setClass("HigherOrderMarkovChain", #class name
 #                    name="Unnamed Markov chain")
 )
 
-fn1=function(x)
+.fn1=function(x)
 {
   exp(x[1]*x[2]*x[3]*x[4]*x[5])
 }
-eqn1=function(x){
+
+.eqn1=function(x){
   z1=x[1]*x[1]+x[2]*x[2]+x[3]*x[3]+x[4]*x[4]+x[5]*x[5]
   z2=x[2]*x[3]-5*x[4]*x[5]
   z3=x[1]*x[1]*x[1]+x[2]*x[2]*x[2]
@@ -66,7 +67,7 @@ fitHigherOrder<-function(sequence, order = 2) {
   X<-.seq2freqProb(sequence)
   # print(X)
   x0 <- c(-2, 2, 2, -1, -1)
-  model<-Rsolnp::solnp(x0, fun = fn1, eqfun = eqn1, eqB = c(10, 0, -1), control=list(trace=0))
+  model<-Rsolnp::solnp(x0, fun = .fn1, eqfun = .eqn1, eqB = c(10, 0, -1), control=list(trace=0))
   # print(model)
   
   # X=as.numeric(frequency/sum(frequency))

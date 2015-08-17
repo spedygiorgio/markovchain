@@ -1,5 +1,83 @@
 library(markovchain)
 
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
-# mcFit<-fitHigherOrder(data=sequence,byrow=FALSE)
-fitHigherOrder(sequence)
+mcFit<-fitHigherOrder(sequence)
+# print(mcFit)
+
+#' # fitting a simple Markov chain
+#' clickstreams <- c("User1,h,c,c,p,c,h,c,p,p,c,p,p,o",
+#'                "User2,i,c,i,c,c,c,d",
+#'                "User3,h,i,c,i,c,p,c,c,p,c,c,i,d",
+#'                "User4,c,c,p,c,d",
+#'                "User5,h,c,c,p,p,c,p,p,p,i,p,o",
+#'                "User6,i,h,c,c,p,p,c,p,c,d")
+#' csf <- tempfile()
+#' writeLines(clickstreams, csf)
+#' cls <- readClickstreams(csf, header = TRUE)
+#' mc <- fitMarkovChain(cls)
+#' show(mc)
+
+# From the original paper by Y.Ye
+# see the unit tests for more....
+#---------------------------------------------------------------------------------
+# POWELL Problem
+# fn1=function(x)
+# {
+#   exp(x[1]*x[2]*x[3]*x[4]*x[5])
+# }
+# eqn1=function(x){
+#   z1=x[1]*x[1]+x[2]*x[2]+x[3]*x[3]+x[4]*x[4]+x[5]*x[5]
+#   z2=x[2]*x[3]-5*x[4]*x[5]
+#   z3=x[1]*x[1]*x[1]+x[2]*x[2]*x[2]
+#   return(c(z1,z2,z3))
+# }
+# x0 = c(-2, 2, 2, -1, -1)
+# powell=Rsolnp::solnp(x0, fun = fn1, eqfun = eqn1, eqB = c(10, 0, -1))
+# print(powell)
+
+# Iter: 1 fn: 0.03526	 Pars:  -1.59385  1.51051  2.07795 -0.81769 -0.81769
+# Iter: 2 fn: 0.04847	 Pars:  -1.74461  1.62029  1.80509 -0.77020 -0.77020
+# Iter: 3 fn: 0.05384	 Pars:  -1.71648  1.59482  1.82900 -0.76390 -0.76390
+# Iter: 4 fn: 0.05395	 Pars:  -1.71713  1.59570  1.82727 -0.76364 -0.76364
+# Iter: 5 fn: 0.05395	 Pars:  -1.71714  1.59571  1.82725 -0.76364 -0.76364
+# solnp--> Completed in 6 iterations
+
+# $pars
+# [1] -1.7171436  1.5957097  1.8272457 -0.7636431 -0.7636430
+# 
+# $convergence
+# [1] 0
+# 
+# $values
+# [1] 0.0003354626 0.0352631086 0.0484680325 0.0538408088 0.0539495955
+# [6] 0.0539498477 0.0539498478
+# 
+# $lagrange
+#              [,1]
+# [1,] -0.040162744
+# [2,]  0.037957783
+# [3,] -0.005222642
+# 
+# $hessian
+#              [,1]       [,2]        [,3]         [,4]         [,5]
+# [1,]  0.829090663 0.22304599 -0.26485541 -0.002160537 -0.002190363
+# [2,]  0.223045985 0.72432381  0.17986818  0.079114683  0.079196221
+# [3,] -0.264855413 0.17986818  0.41652769  0.074697268  0.074612806
+# [4,] -0.002160537 0.07911468  0.07469727  0.969603684 -0.030376752
+# [5,] -0.002190363 0.07919622  0.07461281 -0.030376752  0.969642726
+# 
+# $ineqx0
+# NULL
+# 
+# $nfuneval
+# [1] 172
+# 
+# $outer.iter
+# [1] 6
+# 
+# $elapsed
+# Time difference of 0.03999281 secs
+# 
+# $vscale
+# [1] 0.05394985 0.00000001 0.00000001 0.00000001 1.71714345 1.59570955 1.82724598
+# [8] 0.76364315 0.76364303

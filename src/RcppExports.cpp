@@ -65,14 +65,14 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// fitHigherOrder
-void fitHigherOrder(SEXP data, int order);
-RcppExport SEXP markovchain_fitHigherOrder(SEXP dataSEXP, SEXP orderSEXP) {
+// fitHigherOrderRcpp
+void fitHigherOrderRcpp(SEXP data, int order);
+RcppExport SEXP markovchain_fitHigherOrderRcpp(SEXP dataSEXP, SEXP orderSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type order(orderSEXP);
-    fitHigherOrder(data, order);
+    fitHigherOrderRcpp(data, order);
     return R_NilValue;
 END_RCPP
 }

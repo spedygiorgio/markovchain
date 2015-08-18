@@ -17,7 +17,7 @@ divergenceTest(sequence, hypothetic)
 }
 \arguments{
   \item{sequence}{An empirical sequence.}
-  \item{...}{Parameters for chi-square statistics.}
+  \item{...}{Parameters for chi-square test.}
   \item{hypothetic}{A transition matrix for a hypothetic markov chain sequence.}
   \item{nblocks}{Number of blocks.}
 }

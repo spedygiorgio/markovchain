@@ -1,4 +1,5 @@
 library(markovchain)
+library(Rsolnp)
 
 # Example from Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov chains. 
 # In Markov Chains (pp. 141-176). Springer US.

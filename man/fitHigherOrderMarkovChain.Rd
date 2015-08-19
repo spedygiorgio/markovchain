@@ -10,6 +10,7 @@ it fits the underlying Markov chain distribution with higher order.
 }
 \usage{
 fitHigherOrder(sequence, order = 2)
+fitHigherOrderRcpp(sequence, order = 2)
 }
 
 \arguments{

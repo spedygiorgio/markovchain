@@ -1,5 +1,6 @@
 \name{fitHigherOrder}
 \alias{fitHigherOrder}
+\alias{fitHigherOrderRcpp}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Function to fit a higher order Markov chain

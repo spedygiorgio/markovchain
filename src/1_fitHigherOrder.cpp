@@ -8,7 +8,7 @@ NumericVector seq2freqProb (CharacterVector sequence) {
   NumericVector v(nstates);
   v.names() = states;
   for(int i = 0; i < n; i ++) {
-    v[std::string(sequence[i])] = v[std::string(sequence[i])] + 1;
+    v[std::string(sequence[i])] = v[std::string(sequence[i])] + 1.0;
   }
   NumericVector out = v/sum(v);
   out.names() = v.names();

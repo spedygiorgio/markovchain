@@ -1,36 +1,17 @@
 library(markovchain)
 
-sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
-mcFit<-fitHigherOrder(sequence)
+# Example from Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov chains. 
+# In Markov Chains (pp. 141-176). Springer US.
+sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", 
+            "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
+# mcFit<-fitHigherOrder(sequence)
+mcFit<-fitHigherOrderRcpp(sequence)
 # print(mcFit)
-
-#' # fitting a simple Markov chain
-#' clickstreams <- c("User1,h,c,c,p,c,h,c,p,p,c,p,p,o",
-#'                "User2,i,c,i,c,c,c,d",
-#'                "User3,h,i,c,i,c,p,c,c,p,c,c,i,d",
-#'                "User4,c,c,p,c,d",
-#'                "User5,h,c,c,p,p,c,p,p,p,i,p,o",
-#'                "User6,i,h,c,c,p,p,c,p,c,d")
-#' csf <- tempfile()
-#' writeLines(clickstreams, csf)
-#' cls <- readClickstreams(csf, header = TRUE)
-#' mc <- fitMarkovChain(cls)
-#' show(mc)
 
 # From the original paper by Y.Ye
 # see the unit tests for more....
 #---------------------------------------------------------------------------------
 # POWELL Problem
-# fn1=function(x)
-# {
-#   exp(x[1]*x[2]*x[3]*x[4]*x[5])
-# }
-# eqn1=function(x){
-#   z1=x[1]*x[1]+x[2]*x[2]+x[3]*x[3]+x[4]*x[4]+x[5]*x[5]
-#   z2=x[2]*x[3]-5*x[4]*x[5]
-#   z3=x[1]*x[1]*x[1]+x[2]*x[2]*x[2]
-#   return(c(z1,z2,z3))
-# }
 # x0 = c(-2, 2, 2, -1, -1)
 # powell=Rsolnp::solnp(x0, fun = fn1, eqfun = eqn1, eqB = c(10, 0, -1))
 # print(powell)

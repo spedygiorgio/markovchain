@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// sequence to frequency probability vector
 NumericVector seq2freqProb (CharacterVector sequence) {
   int n = sequence.size(); 
   CharacterVector states = unique(sequence).sort();
@@ -15,7 +16,27 @@ NumericVector seq2freqProb (CharacterVector sequence) {
   return out;
 }
 
-// 
+// sequence to transition matrix for higher order markov chain
+NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
+  int n = sequence.size();
+  CharacterVector states = unique(sequence).sort();
+  int nstates = states.length();
+  
+  NumericMatrix out(nstates);
+  out.attr("dimnames") = List::create(states, states);
+  for(int i = 0; i < n - order; i ++) {
+    int from = -1, to = -1;
+    for (int j = 0; j < nstates; j ++) {
+      if(sequence[i] == states[j]) from = j;
+      if(sequence[i + order] == states[j]) to = j;
+    }
+    if(from != -1 && to != -1)
+      out(to, from) ++;
+    // out(to, from) = out(to, from) + 1.0;
+  }
+  // Rf_PrintValue(out);
+  return out;
+}
 // .seq2matHigh<-function(sequence, order) {
 // n<-length(sequence)
 //   states<-unique(sequence)
@@ -70,11 +91,13 @@ NumericVector seq2freqProb (CharacterVector sequence) {
 void fitHigherOrderRcpp(SEXP sequence, int order = 2) {
   Rcout << "fitHigherOrder " << order << std::endl;
   // Rf_PrintValue(sequence);
-    NumericVector X = seq2freqProb(sequence);
-    // Rf_PrintValue(X);
-  //   F<-list()
-  //   Q<-list()
-  //   QX<-list()
+  NumericVector X = seq2freqProb(sequence);
+  // Rf_PrintValue(X);
+  List F(order), Q(order), QX(order);
+  for(int i = 0; i < order; i ++) {
+    F[i] = seq2matHigh(sequence, i + 1);
+  }
+  // Rf_PrintValue(F);
   //   for(o in 1:order) {
   //     F[[o]]<-.seq2matHigh(sequence, o)
   //     Q[[o]]<-sweep(F[[o]], 2, colSums(F[[o]]), '/')

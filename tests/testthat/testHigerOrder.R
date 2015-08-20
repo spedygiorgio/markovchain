@@ -5,7 +5,7 @@ library(Rsolnp)
 # In Markov Chains (pp. 141-176). Springer US.
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", 
             "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
-mcFit<-fitHigherOrder(sequence)
+mcFit<-fitHigherOrder(sequence, 3)
 # mcFit<-fitHigherOrderRcpp(sequence)
 # print(mcFit)
 

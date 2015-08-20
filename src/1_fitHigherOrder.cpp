@@ -38,7 +38,6 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
       colsums[from] ++;
     }
   }
-  // Rf_PrintValue(out);
   for(int i = 0; i < nstates; i ++) {
     for(int j = 0; j < nstates; j ++)
       out(i, j) /= colsums[j];
@@ -49,20 +48,6 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
 void fn1() {
   // return 1.0;
 }
-// .fn1=function(params)
-// {
-//   QX=get("QX")
-//   X=get("X")    
-//   error=0
-//   for (i in 1:length(QX)) {
-//     error=error+(params[i]*QX[[i]]-X)
-//   }
-//   return(sum(error^2))
-// }
-// 
-// .eqn1=function(params){
-// return(sum(params))
-// }
 
 // [[Rcpp::export]]
 void fitHigherOrderRcpp(SEXP sequence, int order = 2) {

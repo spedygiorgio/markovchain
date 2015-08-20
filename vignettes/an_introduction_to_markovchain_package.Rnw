@@ -1096,6 +1096,18 @@ multinomialConfidenceIntervals(transitionMatrix =
         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 @
 
+In addition, \code{fitHigherOrder} function has been written in order to fit a higher order Markov chain (\cite{ching2013higher, ching2008higher}). 
+It takes a sequence as argument and returns the frequencty probability vector X of the given sequence and the parameters $\lambda_i$ with the transition probability matrices $Q_i$ for each order $i$.
+Its quadratic programming problem is solved using \code{solnp} function of \pkg{Rsolnp} (\cite{pkg:Rsolnp}). 
+
+<<higherOrder, keep.source=TRUE>>=
+library(Rsolnp)
+
+sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", 
+            "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
+fitHigherOrder(sequence, 2)
+@
+
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
 

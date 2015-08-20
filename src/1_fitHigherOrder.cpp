@@ -3,6 +3,7 @@
 using namespace Rcpp;
 
 // sequence to frequency probability vector
+// [[Rcpp::export]]
 NumericVector seq2freqProb (CharacterVector sequence) {
   int n = sequence.size(); 
   CharacterVector states = unique(sequence).sort();
@@ -18,6 +19,7 @@ NumericVector seq2freqProb (CharacterVector sequence) {
 }
 
 // sequence to transition matrix for higher order markov chain
+// [[Rcpp::export]]
 NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
   int n = sequence.size();
   CharacterVector states = unique(sequence).sort();
@@ -45,7 +47,7 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
 }
 
 void fn1() {
-  
+  // return 1.0;
 }
 // .fn1=function(params)
 // {
@@ -77,11 +79,11 @@ void fitHigherOrderRcpp(SEXP sequence, int order = 2) {
   // Rf_PrintValue(Q);
   // Rf_PrintValue(QX);
   Environment env;
-  env[".fn1"] = 1;
+  // env["fn1"] = fn1;
   Rcout << env << std::endl;
   Function solnp("solnp");
-  NumericVector params;
-  // List res = solnp(params, Named("fun", fn1));
+  NumericVector params = rep(1.0/order,order);
+  // List res = solnp(params, Named("fun", 1));
   //   environment(.fn1)=environment()
   //     params<-rep(1/order, order)
   //     model<-Rsolnp::solnp(params, fun = .fn1, eqfun = .eqn1, eqB=1, LB=rep(0, order), control=list(trace=0))

@@ -65,6 +65,29 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// seq2freqProb
+NumericVector seq2freqProb(CharacterVector sequence);
+RcppExport SEXP markovchain_seq2freqProb(SEXP sequenceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterVector >::type sequence(sequenceSEXP);
+    __result = Rcpp::wrap(seq2freqProb(sequence));
+    return __result;
+END_RCPP
+}
+// seq2matHigh
+NumericMatrix seq2matHigh(CharacterVector sequence, int order);
+RcppExport SEXP markovchain_seq2matHigh(SEXP sequenceSEXP, SEXP orderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterVector >::type sequence(sequenceSEXP);
+    Rcpp::traits::input_parameter< int >::type order(orderSEXP);
+    __result = Rcpp::wrap(seq2matHigh(sequence, order));
+    return __result;
+END_RCPP
+}
 // fitHigherOrderRcpp
 void fitHigherOrderRcpp(SEXP sequence, int order);
 RcppExport SEXP markovchain_fitHigherOrderRcpp(SEXP sequenceSEXP, SEXP orderSEXP) {

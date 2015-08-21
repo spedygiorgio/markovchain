@@ -2,6 +2,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
+// check if prob is probability or not
 // [[Rcpp::export(.isProbRcpp)]]
 bool isProb(double prob)
 {

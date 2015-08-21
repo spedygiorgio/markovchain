@@ -4,6 +4,7 @@
 
 using namespace Rcpp;
 
+// returns the column sums of a matrix
 NumericVector colSums(NumericMatrix m) {
   NumericVector out;
   for(int i = 0; i < m.cols(); i ++) 
@@ -11,10 +12,12 @@ NumericVector colSums(NumericMatrix m) {
   return out;
 }
 
+// poisson distribution
 double ppois(double n, double lambda) {
   return R::ppois(n,lambda, true, false);
 }
 
+// moments
 NumericVector moments(int c, double lambda){
   double a=lambda+c;
   double b=lambda-c;
@@ -45,6 +48,7 @@ NumericVector moments(int c, double lambda){
   return mom;
 }
 
+// coverage probability for the particular choice of c 
 double truncpoi(int c, NumericVector x, double n, int k){
   NumericMatrix m(k,5);
   for(int i = 0; i < k; i ++){
@@ -78,6 +82,7 @@ double truncpoi(int c, NumericVector x, double n, int k){
   return(probn*probx*f/sqrt(s2));
 }
 
+// multinomial confidence intervals for a row
 // [[Rcpp::export(.multinomialCIForRowRcpp)]]
 NumericMatrix multinomialCIForRow (NumericVector x, double confidencelevel){
   double n = std::accumulate(x.begin(), x.end(), 0.0);
@@ -114,6 +119,7 @@ NumericMatrix multinomialCIForRow (NumericVector x, double confidencelevel){
   return salida;
 }
 
+// multinomial confidence intervals
 // [[Rcpp::export(.multinomialCIRcpp)]]
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel) {
   NumericMatrix res;

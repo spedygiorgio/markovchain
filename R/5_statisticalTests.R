@@ -1,10 +1,12 @@
-
+# check if the sequence holds the Markov property
 verifyMarkovProperty<-function(sequence,...) {
   n<-length(sequence)
   u<-unique(sequence)
   stateNames<-u
   nelements<-length(stateNames)
   mat<-zeros(nrow=nelements, ncol=3)
+  # SSO: state sequence occurrences
+  # TSO: two state occurences
   dimnames(mat)<-list(stateNames, c("SSO", "TSO", "TSO-SSO"))
   SSO<-numeric()
   for(i in 1:nelements) {
@@ -57,6 +59,7 @@ verifyMarkovProperty<-function(sequence,...) {
 #verifyMarkovProperty(sequenza)
 #http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
 
+# check if sequence is of first order or of second order
 assessOrder<-function(sequence) {
   n<-length(sequence)
   states<-unique(sequence)
@@ -86,6 +89,7 @@ assessOrder<-function(sequence) {
   return(out)
 }
 
+# check if sequence is stationary
 assessStationarity<-function(sequence, nblocks) {
   n<-length(sequence)
   blocksize<-n/nblocks
@@ -119,6 +123,7 @@ assessStationarity<-function(sequence, nblocks) {
   return(out)
 }
 
+# sequence to transition frequencey matrix
 .seq2mat<-function(sequence) {
   n<-length(sequence)
   states<-unique(sequence)
@@ -133,6 +138,7 @@ assessStationarity<-function(sequence, nblocks) {
   return (mat)
 }
 
+# divergence test for the hypothesized one and an empirical transition matrix from sequence
 divergenceTest<-function(sequence, hypothetic) {
   n<-length(sequence)
   empirical<-.seq2mat(sequence)
@@ -160,11 +166,13 @@ divergenceTest<-function(sequence, hypothetic) {
   return (out)
 }
 
+# phi function for divergence test
 .phi<-function(x) {
   out<-x*log(x)-x+1
   return(out)
 }
 
+# another phi function for divergence test
 .phi2<-function(x) {
   out<-1/x
   return(out)

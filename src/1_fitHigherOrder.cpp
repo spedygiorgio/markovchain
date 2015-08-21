@@ -49,11 +49,10 @@ void fn1() {
   // return 1.0;
 }
 
-// [[Rcpp::export]]
+//// [[Rcpp::export]]
 void fitHigherOrderRcpp(SEXP sequence, int order = 2) {
   NumericVector v = seq2freqProb(sequence);
   arma::vec X(v.begin(), v.size(), false);
-  // Rcout << X << std::endl;
   List Q(order), QX(order);
   for(int i = 0; i < order; i ++) {
     NumericMatrix Qi = seq2matHigh(sequence, i + 1);
@@ -65,7 +64,7 @@ void fitHigherOrderRcpp(SEXP sequence, int order = 2) {
   // Rf_PrintValue(QX);
   Environment env;
   // env["fn1"] = fn1;
-  Rcout << env << std::endl;
+  // Rcout << env << std::endl;
   Function solnp("solnp");
   NumericVector params = rep(1.0/order,order);
   // List res = solnp(params, Named("fun", 1));

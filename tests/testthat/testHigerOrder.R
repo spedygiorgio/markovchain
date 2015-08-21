@@ -5,8 +5,58 @@ library(Rsolnp)
 # In Markov Chains (pp. 141-176). Springer US.
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", 
             "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
-mcFit<-fitHigherOrder(sequence, 3)
-# mcFit<-fitHigherOrderRcpp(sequence)
+# mcFit<-fitHigherOrder(sequence, 3)
+" 
+$lambda 
+[1] 9.999995e-01 3.242176e-07 2.165397e-07
+
+$Q
+$Q[[1]]
+a         b    c
+a 0.125 0.4285714 0.75
+b 0.750 0.1428571 0.25
+c 0.125 0.4285714 0.00
+
+$Q[[2]]
+a         b    c
+a 0.1428571 0.5714286 0.25
+b 0.4285714 0.2857143 0.75
+c 0.4285714 0.1428571 0.00
+
+$Q[[3]]
+a         b    c
+a 0.7142857 0.0000000 0.25
+b 0.2857143 0.6666667 0.25
+c 0.0000000 0.3333333 0.50
+
+
+$X
+a   b   c 
+0.4 0.4 0.2
+"
+mcFit<-fitHigherOrder(sequence)
+"
+$lambda
+[1] 1.000000e+00 1.626306e-08
+
+$Q
+$Q[[1]]
+      a         b    c
+a 0.125 0.4285714 0.75
+b 0.750 0.1428571 0.25
+c 0.125 0.4285714 0.00
+
+$Q[[2]]
+          a         b    c
+a 0.1428571 0.5714286 0.25
+b 0.4285714 0.2857143 0.75
+c 0.4285714 0.1428571 0.00
+
+
+$X
+  a   b   c 
+0.4 0.4 0.2
+"
 # print(mcFit)
 
 # From the original paper by Y.Ye

@@ -13,6 +13,7 @@ setClass("HigherOrderMarkovChain", #class name
 #                    name="Unnamed Markov chain")
 )
 
+# objective function to pass to solnp
 .fn1=function(params)
 {
   QX=get("QX")
@@ -24,6 +25,7 @@ setClass("HigherOrderMarkovChain", #class name
   return(sum(error^2))
 }
 
+# equality constraint function to pass to solnp
 .eqn1=function(params){
   return(sum(params))
 }
@@ -40,7 +42,6 @@ fitHigherOrder<-function(sequence, order = 2) {
   environment(.fn1)=environment()
   params<-rep(1/order, order)
   model<-Rsolnp::solnp(params, fun=.fn1, eqfun=.eqn1, eqB=1, LB=rep(0, order), control=list(trace=0))
-  # print(model)
   lambda=model$pars
   out<-list(lambda=lambda, Q=Q, X=X)
   return(out)

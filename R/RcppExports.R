@@ -29,10 +29,6 @@ seq2matHigh <- function(sequence, order) {
     .Call('markovchain_seq2matHigh', PACKAGE = 'markovchain', sequence, order)
 }
 
-fitHigherOrderRcpp <- function(sequence, order = 2L) {
-    invisible(.Call('markovchain_fitHigherOrderRcpp', PACKAGE = 'markovchain', sequence, order))
-}
-
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }

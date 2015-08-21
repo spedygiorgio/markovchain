@@ -1,6 +1,5 @@
 \name{fitHigherOrder}
 \alias{fitHigherOrder}
-\alias{fitHigherOrderRcpp}
 \alias{seq2freqProb}
 \alias{seq2matHigh}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -13,7 +12,6 @@ it fits the underlying Markov chain distribution with higher order.
 }
 \usage{
 fitHigherOrder(sequence, order = 2)
-fitHigherOrderRcpp(sequence, order = 2)
 seq2freqProb(sequence)
 seq2matHigh(sequence, order)
 }
@@ -27,7 +25,7 @@ Markov chain order
 }
 }
 \value{
-A list containing lambda.
+A list containing lambda, Q, and X.
 }
 \references{
 Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov chains. In Markov Chains (pp. 141-176). Springer US.

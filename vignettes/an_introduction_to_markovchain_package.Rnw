@@ -12,15 +12,6 @@
 
 %\usepackage{myVignette}
 
-\usepackage{ifpdf}
-\newcommand*{\Sconcordance}[1]{%
-  \ifpdf
-    \special{#1}%
-  \else
-    \immediate\pdfobj{#1}%
-  \fi
-}
-
 %dimensione figure
 \setkeys{Gin}{width=0.8\textwidth}
 
@@ -101,7 +92,6 @@ Finally, some examples in which the package's functions are applied to Economics
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 <<setup,echo=FALSE, results=hide>>=
 	options(prompt = "R> ", continue = "+  ", 

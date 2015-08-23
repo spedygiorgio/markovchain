@@ -1,13 +1,10 @@
-# library(diagram)
-# library(DiagrammeR)
-
+# plot a diagram using diagram from a markovian object
 .plotdiagram <- function(object, ...) {
   mat <- object@transitionMatrix
-  #res <- plotmat(mat, ...)
   diagram::plotmat(mat, ...)
-  #return (res)
 }
 
+# plot a diagram using DiagrammeR from a markovian object
 .plotDiagrammeR <- function(object, ...) {
   mat <- object@transitionMatrix
   names <- rownames(mat)

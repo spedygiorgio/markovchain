@@ -1,36 +1,68 @@
 library(markovchain)
+library(Rsolnp)
 
-sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
+# Example from Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov chains. 
+# In Markov Chains (pp. 141-176). Springer US.
+sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", 
+            "a", "b", "c", "a", "b", "c", "a", "b", "a", "b")
+# mcFit<-fitHigherOrder(sequence, 3)
+" 
+$lambda 
+[1] 9.999995e-01 3.242176e-07 2.165397e-07
+
+$Q
+$Q[[1]]
+a         b    c
+a 0.125 0.4285714 0.75
+b 0.750 0.1428571 0.25
+c 0.125 0.4285714 0.00
+
+$Q[[2]]
+a         b    c
+a 0.1428571 0.5714286 0.25
+b 0.4285714 0.2857143 0.75
+c 0.4285714 0.1428571 0.00
+
+$Q[[3]]
+a         b    c
+a 0.7142857 0.0000000 0.25
+b 0.2857143 0.6666667 0.25
+c 0.0000000 0.3333333 0.50
+
+
+$X
+a   b   c 
+0.4 0.4 0.2
+"
 mcFit<-fitHigherOrder(sequence)
-# print(mcFit)
+"
+$lambda
+[1] 1.000000e+00 1.626306e-08
 
-#' # fitting a simple Markov chain
-#' clickstreams <- c("User1,h,c,c,p,c,h,c,p,p,c,p,p,o",
-#'                "User2,i,c,i,c,c,c,d",
-#'                "User3,h,i,c,i,c,p,c,c,p,c,c,i,d",
-#'                "User4,c,c,p,c,d",
-#'                "User5,h,c,c,p,p,c,p,p,p,i,p,o",
-#'                "User6,i,h,c,c,p,p,c,p,c,d")
-#' csf <- tempfile()
-#' writeLines(clickstreams, csf)
-#' cls <- readClickstreams(csf, header = TRUE)
-#' mc <- fitMarkovChain(cls)
-#' show(mc)
+$Q
+$Q[[1]]
+      a         b    c
+a 0.125 0.4285714 0.75
+b 0.750 0.1428571 0.25
+c 0.125 0.4285714 0.00
+
+$Q[[2]]
+          a         b    c
+a 0.1428571 0.5714286 0.25
+b 0.4285714 0.2857143 0.75
+c 0.4285714 0.1428571 0.00
+
+
+$X
+  a   b   c 
+0.4 0.4 0.2
+"
+# print(mcFit)
 
 # From the original paper by Y.Ye
 # see the unit tests for more....
 #---------------------------------------------------------------------------------
 # POWELL Problem
-# fn1=function(x)
-# {
-#   exp(x[1]*x[2]*x[3]*x[4]*x[5])
-# }
-# eqn1=function(x){
-#   z1=x[1]*x[1]+x[2]*x[2]+x[3]*x[3]+x[4]*x[4]+x[5]*x[5]
-#   z2=x[2]*x[3]-5*x[4]*x[5]
-#   z3=x[1]*x[1]*x[1]+x[2]*x[2]*x[2]
-#   return(c(z1,z2,z3))
-# }
 # x0 = c(-2, 2, 2, -1, -1)
 # powell=Rsolnp::solnp(x0, fun = fn1, eqfun = eqn1, eqB = c(10, 0, -1))
 # print(powell)

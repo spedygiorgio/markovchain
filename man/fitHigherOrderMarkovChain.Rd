@@ -1,8 +1,10 @@
 \name{fitHigherOrder}
 \alias{fitHigherOrder}
+\alias{seq2freqProb}
+\alias{seq2matHigh}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to fit a higher order Markov chain
+Functions to fit a higher order Markov chain
 }
 \description{
 Given a sequence of states arising from a stationary state, 
@@ -10,6 +12,8 @@ it fits the underlying Markov chain distribution with higher order.
 }
 \usage{
 fitHigherOrder(sequence, order = 2)
+seq2freqProb(sequence)
+seq2matHigh(sequence, order)
 }
 
 \arguments{
@@ -21,7 +25,7 @@ Markov chain order
 }
 }
 \value{
-A list containing lambda.
+A list containing lambda, Q, and X.
 }
 \references{
 Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov chains. In Markov Chains (pp. 141-176). Springer US.

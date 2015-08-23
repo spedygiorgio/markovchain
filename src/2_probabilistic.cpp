@@ -8,6 +8,7 @@ using namespace Rcpp;
 template <typename T>
 T sortByDimNames(const T m);
 
+// communicating classes kernel
 // [[Rcpp::export(.commclassesKernelRcpp)]]
 SEXP commclassesKernel(NumericMatrix P){
   unsigned int m = P.ncol(), n;
@@ -120,6 +121,7 @@ List communicatingClasses(S4 object)
   return classesList;
 }
 
+// returns the recurrent classes
 // [[Rcpp::export(.recurrentClassesRcpp)]]
 List recurrentClasses(S4 object)
 {
@@ -166,6 +168,7 @@ List recurrentClasses(S4 object)
   return classesList;
 }
 
+// matrix power function
 arma::mat _pow(arma::mat A, int n) {
   arma::mat R = arma::eye(A.n_rows, A.n_rows);
   for(int i = 0; i < n; i ++) 
@@ -187,6 +190,7 @@ NumericMatrix commStatesFinder(NumericMatrix matr)
   return R;
 }
 
+// check if two vectors are intersected
 bool _intersected(CharacterVector v1, CharacterVector v2) {
   CharacterVector::iterator first1 = v1.begin();
   CharacterVector::iterator last1 = v1.end();
@@ -200,6 +204,7 @@ bool _intersected(CharacterVector v1, CharacterVector v2) {
   return false;
 }
 
+// summary of markovian object
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object)
 {
@@ -263,7 +268,7 @@ int gcd (int a, int b) {
   return b;
 }
 
-//function to  get the period of a DTMC
+//function to get the period of a DTMC
 // [[Rcpp::export(period)]]
 int period(S4 object) {
   Function isIrreducible("is.irreducible");

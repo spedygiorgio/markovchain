@@ -9,6 +9,7 @@ using namespace Rcpp;
 #include "mapFitFunctionsSAI.h"
 #include <math.h>
 
+// convert a frequency matrix to a transition probability matrix
 NumericMatrix _toRowProbs(NumericMatrix x) {
   int nrow = x.nrow(), ncol = x.ncol();
   NumericMatrix out(nrow);
@@ -24,6 +25,7 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
   return out;
 }
 
+// Create a frequency matrix
 // [[Rcpp::export]]
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
   CharacterVector elements = unique(stringchar).sort();
@@ -60,6 +62,7 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   return (freqMatrix);
 }
 
+// log-likelihood
 double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   double out = 0;
   CharacterVector rnames = rownames(transMatr);
@@ -74,6 +77,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   return out;
 }
 
+// fit with MLE method
 List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   // get initialMatr and freqMatr 
   CharacterVector elements = unique(stringchar).sort();
@@ -155,6 +159,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
 	);
 }
 
+// fit using Laplacian smooth
 List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian=0.01) {
   NumericMatrix origNum = createSequenceMatrix(stringchar, false);
   int nRows = origNum.nrow(), nCols = origNum.ncol();
@@ -178,6 +183,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   return List::create(_["estimate"] = outMc);
 }
 
+// bootstrap a sequence to produce a list of sample sequences
 List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1) {
   if(size == -1) size = stringchar.size();
   NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar);
@@ -210,6 +216,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size=-1
   return samples;
 }
 
+// estimate from the list of bootstrapped matrices
 List _fromBoot2Estimate(List listMatr) {
   int sampleSize = listMatr.size();
   NumericMatrix firstMat = listMatr[0];
@@ -232,6 +239,7 @@ List _fromBoot2Estimate(List listMatr) {
   return List::create(_["estMu"]=matrMean, _["estSigma"]=matrSd);
 }
 
+// fit with bootstrap method
 List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel) {
   List theList = _bootstrapCharacterSequences(data, nboot);
   int n = theList.size();
@@ -286,6 +294,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   return out;
 }
 
+// convert matrix data to transition probability matrix
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian=0) {
   int nRows = matrData.nrow(), nCols = matrData.ncol();
 
@@ -417,6 +426,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
   return out;
 }
 
+// main function for fitting markov chains
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0
             , String name="", bool parallel=false, double confidencelevel=0.95

@@ -77,7 +77,6 @@ Finally, some examples in which the package's functions are applied to Economics
   UnipolSai R\&D\\
   Via Firenze 11, Paderno Dugnano
   20037 Italy\\
-  Telephone: +39/334/6634384\\
   E-mail: \email{spedygiorgio@gmail.com}\\
   URL: \url{www.statisticaladvisor.com}\\
   
@@ -131,7 +130,7 @@ discusses how to handle and manage Markov chain objects within the package,
 Section~\ref{sec:probability} and Section~\ref{sec:statistics} show how to
 perform probabilistic and statistical modelling, while
 Section~\ref{sec:applications} presents some applied examples from various
-fields analyzed by means of the \pkg{markovchain} package. For continuous time Markov chains, refer to the CTMC vignette which is a part of the package.
+fields analyzed by means of the \pkg{markovchain} package. 
 
 \section{Review of core mathematical concepts}\label{sec:mathematic}
 
@@ -1323,11 +1322,11 @@ R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 R> weathersOfDays[1:30]
 \end{Sinput}
 \begin{Soutput}
- [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "cloudy"
- [8] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "rain"   "rain"  
-[15] "cloudy" "rain"   "rain"   "rain"   "rain"   "sunny"  "sunny" 
-[22] "sunny"  "sunny"  "rain"   "cloudy" "sunny"  "cloudy" "rain"  
-[29] "cloudy" "sunny" 
+ [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny" 
+ [8] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy"
+[15] "rain"   "cloudy" "sunny"  "cloudy" "cloudy" "rain"   "cloudy"
+[22] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "rain"   "rain"  
+[29] "sunny"  "rain"  
 \end{Soutput}
 \end{Schunk}
 
@@ -1343,14 +1342,14 @@ R> patientStates[1:10,]
 \begin{Soutput}
    iteration values
 1          1      H
-2          1      H
-3          1      I
+2          1      I
+3          1      D
 4          1      D
 5          1      D
 6          2      H
 7          2      H
 8          2      H
-9          2      H
+9          2      I
 10         2      D
 \end{Soutput}
 \end{Schunk}
@@ -1388,19 +1387,19 @@ Weather MLE
  A  3 - dimensional discrete Markov Chain with following states 
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
-          cloudy      rain     sunny
-cloudy 0.4444444 0.2936508 0.2619048
-rain   0.4691358 0.3333333 0.1975309
-sunny  0.2101911 0.1082803 0.6815287
+          cloudy       rain     sunny
+cloudy 0.3944954 0.32110092 0.2844037
+rain   0.4050633 0.37974684 0.2151899
+sunny  0.1931818 0.07954545 0.7272727
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedMLE$standardError
 \end{Sinput}
 \begin{Soutput}
            cloudy       rain      sunny
-cloudy 0.05939139 0.04827589 0.04559177
-rain   0.07610388 0.06415003 0.04938272
-sunny  0.03658957 0.02626182 0.06588586
+cloudy 0.06015999 0.05427596 0.05108041
+rain   0.07160575 0.06933197 0.05219121
+sunny  0.03313041 0.02125942 0.06428243
 \end{Soutput}
 \end{Schunk}
 
@@ -1427,10 +1426,10 @@ Weather LAPLACE
  A  3 - dimensional discrete Markov Chain with following states 
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
-          cloudy      rain     sunny
-cloudy 0.4444180 0.2936602 0.2619218
-rain   0.4690855 0.3333333 0.1975811
-sunny  0.2102146 0.1083233 0.6814621
+          cloudy       rain     sunny
+cloudy 0.3944786 0.32110428 0.2844171
+rain   0.4050361 0.37972922 0.2152347
+sunny  0.1932057 0.07958871 0.7272056
 \end{Soutput}
 \end{Schunk}
 
@@ -1446,9 +1445,9 @@ R> createSequenceMatrix(stringchar = weathersOfDays)
 \end{Sinput}
 \begin{Soutput}
        cloudy rain sunny
-cloudy     56   37    33
-rain       38   27    16
-sunny      33   17   107
+cloudy     43   35    31
+rain       32   30    17
+sunny      34   14   128
 \end{Soutput}
 \end{Schunk}
 
@@ -1487,18 +1486,18 @@ BootStrap Estimate
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
           cloudy      rain     sunny
-cloudy 0.4420864 0.2949811 0.2629325
-rain   0.4721776 0.3343147 0.1935077
-sunny  0.2066387 0.1112359 0.6821254
+cloudy 0.3981566 0.3198228 0.2820206
+rain   0.4141900 0.3717835 0.2140265
+sunny  0.1919972 0.0802571 0.7277457
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$standardError
 \end{Sinput}
 \begin{Soutput}
             cloudy        rain       sunny
-cloudy 0.004496236 0.004389933 0.003324478
-rain   0.005973287 0.005042829 0.004190635
-sunny  0.003152474 0.002496065 0.003877712
+cloudy 0.004972001 0.004718384 0.004800766
+rain   0.004972647 0.005072550 0.004558877
+sunny  0.003539623 0.002329060 0.003683298
 \end{Soutput}
 \end{Schunk}
 
@@ -1541,13 +1540,13 @@ where $n_{ij}$ is the entry of the frequency matrix and $p_{ij}$ is the entry of
 R> weatherFittedMLE$logLikelihood
 \end{Sinput}
 \begin{Soutput}
-[1] -349.6247
+[1] -334.9191
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$logLikelihood
 \end{Sinput}
 \begin{Soutput}
-[1] -349.6415
+[1] -334.9384
 \end{Soutput}
 \end{Schunk}
 
@@ -1571,15 +1570,15 @@ $confidenceLevel
 
 $lowerEndpointMatrix
           cloudy       rain     sunny
-cloudy 0.3467543 0.21424402 0.1869130
-rain   0.3439561 0.22781592 0.1163035
-sunny  0.1500066 0.06508341 0.5731561
+cloudy 0.2955410 0.23182491 0.2003839
+rain   0.2872823 0.26570589 0.1293430
+sunny  0.1386871 0.04457683 0.6215375
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5421346 0.3730576 0.3368965
-rain   0.5943155 0.4388507 0.2787582
-sunny  0.2703756 0.1514771 0.7899013
+cloudy 0.4934498 0.4103769 0.3684235
+rain   0.5228443 0.4937878 0.3010368
+sunny  0.2476765 0.1145141 0.8330079
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$confidenceInterval
@@ -1589,16 +1588,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.4346908 0.2877603 0.2574642
-rain   0.4623524 0.3260200 0.1866148
-sunny  0.2014534 0.1071302 0.6757471
+          cloudy       rain     sunny
+cloudy 0.3899784 0.31206175 0.2741241
+rain   0.4060107 0.36343986 0.2065279
+sunny  0.1861750 0.07642614 0.7216873
 
 $upperEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.4494821 0.3022019 0.2684007
-rain   0.4820028 0.3426094 0.2004007
-sunny  0.2118241 0.1153415 0.6885037
+          cloudy       rain     sunny
+cloudy 0.4063348 0.32758386 0.2899172
+rain   0.4223693 0.38012707 0.2215252
+sunny  0.1978193 0.08408807 0.7338042
 \end{Soutput}
 \end{Schunk}
 
@@ -1617,18 +1616,19 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy       rain      sunny
-cloudy 0.3571429 0.20634921 0.17460317
-rain   0.3580247 0.22222222 0.08641975
-sunny  0.1401274 0.03821656 0.61146497
+          cloudy       rain     sunny
+cloudy 0.3027523 0.22935780 0.1926606
+rain   0.2911392 0.26582278 0.1012658
+sunny  0.1306818 0.01704545 0.6647727
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5429844 0.3921908 0.3604447
-rain   0.5844847 0.4486823 0.3128798
-sunny  0.2828687 0.1809579 0.7542063
+cloudy 0.5033721 0.4299776 0.3932804
+rain   0.5230920 0.4977756 0.3332186
+sunny  0.2581626 0.1445262 0.7922535
 \end{Soutput}
 \end{Schunk}
+
 
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
@@ -1711,6 +1711,416 @@ R> predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 [1] "H" "D" "D" "D" "D"
 \end{Soutput}
 \end{Schunk}
+
+\subsection{Statistical Tests}
+
+In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}).
+For the first three tests, we use the $\chi ^2$ statistics \citep{anderson1957statistical,MSkuriat}. 
+As an example, we use the following sequence.
+
+\begin{Schunk}
+\begin{Sinput}
+R> sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
++              "b", "a", "a", "b", "b", "b", "a")
+\end{Sinput}
+\end{Schunk}
+
+\subsubsection{Assessing the Markov property of a Markov chain sequence}
+
+The \code{verifyMarkovProperty} function invloves verifying whether the given chain holds the Markov property for which the future state is independent of the past states and depends only on the current state.
+
+\begin{equation}
+\textrm{Pr}\left\{ X_{t+1}=m | X_t = j, X_{t-1} = i \right\} = \textrm{Pr}\left\{X_{t+1}=m | X_t = j \right\}
+\label{eq:property}
+\end{equation}
+
+We first construct a contingency table in which the columns are the frequency of past$\rightarrow$present$\rightarrow$future (PPF) (or state transition sequence (STS)), present$\rightarrow$future (PF) (or two-state occurrences (STO)) and (PF - PPF), and the rows are the possible three state transitions as shown in Table \ref{tab:property} for each possible present to future transition.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l | l}
+    \hline
+  Transitions (p$\rightarrow$p$\rightarrow$f) & PPF (p$\rightarrow$p$\rightarrow$f) & PF (p$\rightarrow$f) & PF - PPF \\
+    \hline  \hline
+  a $\rightarrow$ a $\rightarrow$ b & 2 (a $\rightarrow$ a $\rightarrow$ b) & 4 (a$\rightarrow$a) & 2\\
+  b $\rightarrow$ a $\rightarrow$ b & 2 (b $\rightarrow$ a $\rightarrow$ b) & 5 (b$\rightarrow$a) & 3\\
+  \hline
+\end{tabular}
+\caption{Contingency table for Markov property of the transition from the present state a to the future state b (a $\rightarrow$ b).}
+\label{tab:property}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
+This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the Markov property holds for the specific transition. 
+
+\begin{Schunk}
+\begin{Sinput}
+R> verifyMarkovProperty(sequence)
+\end{Sinput}
+\begin{Soutput}
+$aa
+$aa$statistic
+X-squared 
+        0 
+
+$aa$parameter
+df 
+ 1 
+
+$aa$p.value
+[1] 1
+
+$aa$method
+[1] "Pearson's Chi-squared test with Yates' continuity correction"
+
+$aa$data.name
+[1] "table"
+
+$aa$observed
+  SSO TSO-SSO
+a   2       2
+b   2       3
+
+$aa$expected
+       SSO  TSO-SSO
+a 1.777778 2.222222
+b 2.222222 2.777778
+
+$aa$residuals
+         SSO    TSO-SSO
+a  0.1666667 -0.1490712
+b -0.1490712  0.1333333
+
+$aa$stdres
+   SSO TSO-SSO
+a  0.3    -0.3
+b -0.3     0.3
+
+$aa$table
+  SSO TSO
+a   2   4
+b   2   5
+
+
+$ab
+$ab$statistic
+X-squared 
+        0 
+
+$ab$parameter
+df 
+ 1 
+
+$ab$p.value
+[1] 1
+
+$ab$method
+[1] "Pearson's Chi-squared test with Yates' continuity correction"
+
+$ab$data.name
+[1] "table"
+
+$ab$observed
+  SSO TSO-SSO
+a   2       2
+b   2       3
+
+$ab$expected
+       SSO  TSO-SSO
+a 1.777778 2.222222
+b 2.222222 2.777778
+
+$ab$residuals
+         SSO    TSO-SSO
+a  0.1666667 -0.1490712
+b -0.1490712  0.1333333
+
+$ab$stdres
+   SSO TSO-SSO
+a  0.3    -0.3
+b -0.3     0.3
+
+$ab$table
+  SSO TSO
+a   2   4
+b   2   5
+
+
+$ba
+$ba$statistic
+  X-squared 
+1.55307e-31 
+
+$ba$parameter
+df 
+ 1 
+
+$ba$p.value
+[1] 1
+
+$ba$method
+[1] "Pearson's Chi-squared test with Yates' continuity correction"
+
+$ba$data.name
+[1] "table"
+
+$ba$observed
+  SSO TSO-SSO
+a   4       1
+b   1       1
+
+$ba$expected
+       SSO   TSO-SSO
+a 3.571429 1.4285714
+b 1.428571 0.5714286
+
+$ba$residuals
+         SSO    TSO-SSO
+a  0.2267787 -0.3585686
+b -0.3585686  0.5669467
+
+$ba$stdres
+         SSO    TSO-SSO
+a  0.7937254 -0.7937254
+b -0.7937254  0.7937254
+
+$ba$table
+  SSO TSO
+a   4   5
+b   1   2
+
+
+$bb
+$bb$statistic
+  X-squared 
+1.55307e-31 
+
+$bb$parameter
+df 
+ 1 
+
+$bb$p.value
+[1] 1
+
+$bb$method
+[1] "Pearson's Chi-squared test with Yates' continuity correction"
+
+$bb$data.name
+[1] "table"
+
+$bb$observed
+  SSO TSO-SSO
+a   1       4
+b   1       1
+
+$bb$expected
+        SSO  TSO-SSO
+a 1.4285714 3.571429
+b 0.5714286 1.428571
+
+$bb$residuals
+         SSO    TSO-SSO
+a -0.3585686  0.2267787
+b  0.5669467 -0.3585686
+
+$bb$stdres
+         SSO    TSO-SSO
+a -0.7937254  0.7937254
+b  0.7937254 -0.7937254
+
+$bb$table
+  SSO TSO
+a   1   5
+b   1   2
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Assessing the order of a Markov chain sequence}
+The \code{assessOrder} function checks whether the given chain is of first order or of second order.
+For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l | l}
+    \hline
+  past & present & future & future \\
+   &  & a & b \\
+    \hline  \hline
+  a & a & 2 & 2\\
+  b & a & 2 & 2\\
+  \hline
+\end{tabular}
+\caption{Contingency table to assess the order for the present state a.}
+\label{tab:order}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
+This test returns a list of the chi-squared value and the p-value. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is of first order. 
+
+\begin{Schunk}
+\begin{Sinput}
+R> data(rain)
+R> assessOrder(rain$rain)
+\end{Sinput}
+\begin{Soutput}
+The assessOrder test statistic is:  26.09575  the Chi-Square d.f. are:  12  the p-value is:  0.01040395 
+$statistic
+[1] 26.09575
+
+$p.value
+[1] 0.01040395
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Assessing the stationarity of a Markov chain sequence}
+The \code{assessStationarity} function assesses if the transition probabilities of the given chain change over time. To be more specific, the chain is stationary if the following condition meets.
+
+\begin{equation}
+p_{ij}(t) = p_{ij} ~\textrm{ for all }~t
+\label{eq:stationarity}
+\end{equation}
+
+For each possible state, we construct a contingency table of the estimated transition probabilities over time as shown in Table \ref{tab:stationarity}.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{l | l | l}
+    \hline
+  time (t) & probability of transition to a & probability of transition to b \\
+    \hline  \hline
+  1 & 0 & 1\\
+  2 & 0 & 1\\
+  . & . & . \\
+  . & . & . \\
+  . & . & . \\
+  16 & 0.44 & 0.56\\
+  \hline
+\end{tabular}
+\caption{Contingency table to assess the stationarity of the state a.}
+\label{tab:stationarity}
+\end{table} 
+
+Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
+This test returns a list of the chi-squared value and the p-value.
+If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is stationary.
+
+\begin{Schunk}
+\begin{Sinput}
+R> assessStationarity(rain$rain, 10)
+\end{Sinput}
+\begin{Soutput}
+The assessStationarity test statistic is:  4.181815  the Chi-Square d.f. are:  54  the p-value is:  1 
+$statistic
+[1] 4.181815
+
+$p.value
+[1] 1
+\end{Soutput}
+\end{Schunk}
+
+\subsubsection{Divergence test for empirically estimated transition matrices}
+
+In order to test if two empirically estimated transition matrices $m1$ and $m2$ are different, we use the $\phi$-divergence test \citep{pardo2005statistical} that is given by
+
+\begin{equation}
+T^{\phi}_n(m_1, m_2, mc)=\frac{2n}{\phi^{''}(1)} \sum_{i=1}^{M} \frac{v_{i*}}{n} \sum_{j=1}^{M} m_2(i,j) \phi \left(\frac{m_1(i,j)}{m_2(i,j)} \right)
+\label{eq:phidivtest}
+\end{equation}
+
+where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ is the number of states, $v_{i*}$ is the number of transitions starting from the state $i$, and $\phi$ is 
+
+\begin{equation}
+\phi(x)=x \log x - x + 1.
+\label{eq:phi}
+\end{equation}
+
+This test returns a list of the chi-squared value and the p-value.
+
+\begin{Schunk}
+\begin{Sinput}
+R> mcFit<-markovchainFit(data=sequence,byrow=FALSE)
+R> divergenceTest(sequence, mcFit$estimate@transitionMatrix)
+\end{Sinput}
+\begin{Soutput}
+The Divergence test statistic is:  0  the Chi-Square d.f. are:  2  the p-value is:  1 
+$statistic
+[1] 0
+
+$p.value
+[1] 1
+\end{Soutput}
+\end{Schunk}
+
+\subsection{Other Functions}
+
+Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.\\
+
+An experimental \code{fitHigherOrder} function has been written in order to fit a higher order Markov chain (\cite{ching2013higher, ching2008higher}). 
+It takes a sequence and the order as arguments and returns the frequency probability vector X of the given sequence and the parameters $\lambda_i$ with the transition probability matrices $Q_i$ for each order $i$.
+Its quadratic programming problem is solved using \code{solnp} function of \pkg{Rsolnp}, \cite{pkg:Rsolnp}. 
+
+\begin{Schunk}
+\begin{Sinput}
+R> library(Rsolnp)
+R> data(rain)
+R> fitHigherOrder(rain$rain, 2)
+\end{Sinput}
+\begin{Soutput}
+$lambda
+[1] 0.5 0.5
+
+$Q
+$Q[[1]]
+            0       1-5        6+
+0   0.6605839 0.4625850 0.1976285
+1-5 0.2299270 0.3061224 0.3122530
+6+  0.1094891 0.2312925 0.4901186
+
+$Q[[2]]
+            0       1-5        6+
+0   0.6021898 0.4489796 0.3412698
+1-5 0.2445255 0.2687075 0.3214286
+6+  0.1532847 0.2823129 0.3373016
+
+
+$X
+        0       1-5        6+ 
+0.5000000 0.2691606 0.2308394 
+\end{Soutput}
+\begin{Sinput}
+R> fitHigherOrder(rain$rain, 3)
+\end{Sinput}
+\begin{Soutput}
+$lambda
+[1] 0.3333333 0.3333333 0.3333333
+
+$Q
+$Q[[1]]
+            0       1-5        6+
+0   0.6605839 0.4625850 0.1976285
+1-5 0.2299270 0.3061224 0.3122530
+6+  0.1094891 0.2312925 0.4901186
+
+$Q[[2]]
+            0       1-5        6+
+0   0.6021898 0.4489796 0.3412698
+1-5 0.2445255 0.2687075 0.3214286
+6+  0.1532847 0.2823129 0.3373016
+
+$Q[[3]]
+            0       1-5        6+
+0   0.5693431 0.4455782 0.4183267
+1-5 0.2536496 0.2891156 0.2749004
+6+  0.1770073 0.2653061 0.3067729
+
+
+$X
+        0       1-5        6+ 
+0.5000000 0.2691606 0.2308394 
+\end{Soutput}
+\end{Schunk}
+
+
 
 \section{Applications}\label{sec:applications}
 
@@ -2269,7 +2679,7 @@ An intitial rewriting of internal function in \proglang{C++} by means of \pkg{Rc
 
 \section*{Aknowledgments}\label{sec:aknowledgements}
 
-The author wishes to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A very special thanks also to Tae Seung Kang (and to the other Google Summer of Code 2015 candidates) for having rewritten the fitting functions into \pkg{Rcpp}. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.   
+The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.   
 
 \bibliography{markovchainBiblio}
 

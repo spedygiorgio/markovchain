@@ -1,17 +1,15 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.8.10)  3 AUG 2015 15:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.6.8)  23 AUG 2015 23:25
 entering extended mode
- restricted \write18 enabled.
- %&-line parsing enabled.
 **an_introduction_to_markovchain_package.tex
-(./an_introduction_to_markovchain_package.tex
-LaTeX2e <2014/05/01>
-Babel <3.9k> and hyphenation patterns for 78 languages loaded.
-(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/jss.cls
+(an_introduction_to_markovchain_package.tex
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 69 languages loaded.
+(C:/PROGRA~1/R/R-32~1.0/share/texmf/tex/latex\jss.cls
 Document Class: jss 2013/09/05 2.3 jss class by Achim Zeileis
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/size11.clo
-File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\size11.clo"
+File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
 \c@section=\count80
@@ -25,31 +23,31 @@ File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2014/04/25 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/keyval.sty
-Package: keyval 2014/05/08 v1.15 key=value parser (DPC)
+("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks14
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/trig.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\trig.sty"
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/graphics.cfg
-File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
 )
-Package graphics Info: Driver file: pdftex.def on input line 91.
+Package graphics Info: Driver file: pdftex.def on input line 94.
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/pdftex-def/pdftex.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.def"
 File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
 
-(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\infwarerr.sty"
 Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
 )
-(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds.sty"
 Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 )
 \Gread@gobject=\count87
@@ -57,30 +55,30 @@ Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/color.sty
-Package: color 2014/04/23 v1.1a Standard LaTeX Color (DPC)
+("C:\Program Files\MiKTeX 2.9\tex\latex\graphics\color.sty"
+Package: color 2014/10/28 v1.1a Standard LaTeX Color (DPC)
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/color.cfg
+("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package color Info: Driver file: pdftex.def on input line 137.
+Package color Info: Driver file: pdftex.def on input line 142.
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/ae/ae.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\ae.sty"
 Package: ae 2001/02/12 1.3 Almost European Computer Modern
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/fontenc.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\fontenc.sty"
 Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/t1enc.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\t1enc.def"
 File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
-LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 )
-LaTeX Font Info:    Try loading font information for T1+aer on input line 100.
+LaTeX Font Info:    Try loading font information for T1+aer on input line 105.
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/ae/t1aer.fd
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\t1aer.fd"
 File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 )))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+(C:\Users\Giorgio\AppData\Roaming\MiKTeX\2.9\tex\latex\fancyvrb\fancyvrb.sty
 Package: fancyvrb 2008/02/07
 
 Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix 
@@ -91,19 +89,18 @@ Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix
 \c@FancyVerbLine=\count89
 \FV@StepNumber=\count90
 \FV@OutFile=\write3
-)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/fontenc.sty
+) ("C:\Program Files\MiKTeX 2.9\tex\latex\base\fontenc.sty"
 Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/t1enc.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\t1enc.def"
 File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
-LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 ))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/upquote/upquote.sty
+(C:\Users\Giorgio\AppData\Roaming\MiKTeX\2.9\tex\latex\upquote\upquote.sty
 Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
 tim
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/textcomp.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\textcomp.sty"
 Package: textcomp 2005/09/27 v1.99g Standard LaTeX package
 Package textcomp Info: Sub-encoding information:
 (textcomp)               5 = only ISO-Adobe without \textcurrency
@@ -116,75 +113,76 @@ Package textcomp Info: Sub-encoding information:
 (textcomp)             only a restricted character set as indicated.
 (textcomp)             Family '?' is the default used for unknown fonts.
 (textcomp)             See the documentation for details.
-Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 71.
+Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 79.
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/ts1enc.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1enc.def"
 File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
 )
-LaTeX Info: Redefining \oldstylenums on input line 266.
-Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 281.
-Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 282.
-Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 283.
-Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 284.
-Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 285.
-Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 286.
-Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 287.
-Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 288.
-Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 289.
-Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 290.
-Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 291.
-Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 292.
-Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 293.
-Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 294.
-Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 295.
-Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 296.
-Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 297.
-Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 298.
-Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 299.
-Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 300.
-Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 301.
-Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 302.
-Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 303.
-Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 304.
+LaTeX Info: Redefining \oldstylenums on input line 334.
+Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 349.
+Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 350.
+Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 351.
+Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 352.
+Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 353.
+Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 354.
+Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 355.
+Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 356.
+Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 357.
+Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 358.
+Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 359.
+Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 360.
+Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 361.
+Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 362.
+Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 363.
+Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 364.
+Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 365.
+Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 366.
+Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 367.
+Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 368.
+Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 369.
+Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 370.
+Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 371.
+Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 372.
 
-Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 305.
-Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 306.
-Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 307.
-Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 308.
-Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 309.
-Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 310.
-Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 311.
-Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 312.
-Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 313.
-Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 314.
-Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 315.
-Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 316.
-Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 317.
-Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 318.
-Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 319.
-Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 320.
-Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 321.
-Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 322.
-Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 323.
-Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 324.
-Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 325.
-Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 326.
-Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 327.
-Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 328.
-Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 329.
-Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 330.
-Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 331.
-Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 332.
-Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 333.
-Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 334.
-Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 335.
-Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 336.
-Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 337.
-Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 338.
-Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 339.
-Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 340.
+Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 373.
+Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 374.
+Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 375.
+Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 376.
+Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 377.
+Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 378.
+Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 379.
+Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 380.
+Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 381.
+Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 382.
+Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 383.
+Package textcomp Info: Setting lmtt sub-encoding to TS1/0 on input line 384.
+Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 385.
+Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 386.
+Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 387.
+Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 388.
+Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 389.
+Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 390.
+Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 391.
+Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 392.
+Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 393.
+Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 394.
+Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 395.
+Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 396.
+Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 397.
+Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 398.
+Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 399.
+Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 400.
+Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 401.
+Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 402.
+Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 403.
+Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 404.
+Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 405.
+Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
+Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
+Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
+Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
 ))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/natbib/natbib.sty
+(C:\Users\Giorgio\AppData\Roaming\MiKTeX\2.9\tex\latex\natbib\natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip43
 \bibsep=\skip44
@@ -193,16 +191,16 @@ LaTeX Info: Redefining \cite on input line 694.
 )
 \footerskip=\skip45
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/hyperref.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hyperref.sty"
 Package: hyperref 2012/11/06 v6.83m Hypertext links for LaTeX
 
-(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
-Package: hobsub-hyperref 2012/05/28 v1.13 Bundle oberdiek, subset hyperref (HO)
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-hyperref.sty"
+Package: hobsub-hyperref 2012/04/25 v1.12 Bundle oberdiek, subset hyperref (HO)
 
 
-(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty
-Package: hobsub-generic 2012/05/28 v1.13 Bundle oberdiek, subset generic (HO)
-Package: hobsub 2012/05/28 v1.13 Construct package bundles (HO)
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\hobsub-generic.sty"
+Package: hobsub-generic 2012/04/25 v1.12 Bundle oberdiek, subset generic (HO)
+Package: hobsub 2012/04/25 v1.12 Construct package bundles (HO)
 Package hobsub Info: Skipping package `infwarerr' (already loaded).
 Package hobsub Info: Skipping package `ltxcmds' (already loaded).
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
@@ -233,7 +231,7 @@ Package: uniquecounter 2011/01/30 v1.2 Provide unlimited unique counter (HO)
 )
 Package hobsub Info: Skipping package `hobsub' (already loaded).
 Package: letltxmacro 2010/09/02 v1.4 Let assignment for LaTeX macros (HO)
-Package: hopatch 2012/05/28 v1.2 Wrapper for package hooks (HO)
+Package: hopatch 2011/06/24 v1.1 Wrapper for package hooks (HO)
 Package: xcolor-patch 2011/01/30 xcolor patch
 Package: atveryend 2011/06/30 v1.8 Hooks at the very end of document (HO)
 Package atveryend Info: \enddocument detected (standard20110627).
@@ -241,25 +239,25 @@ Package: atbegshi 2011/10/05 v1.16 At begin shipout hook (HO)
 Package: refcount 2011/10/16 v3.4 Data extraction from label references (HO)
 Package: hycolor 2011/01/30 v1.7 Color options for hyperref/bookmark (HO)
 )
-(/usr/local/texlive/2014/texmf-dist/tex/generic/ifxetex/ifxetex.sty
+("C:\Program Files\MiKTeX 2.9\tex\generic\ifxetex\ifxetex.sty"
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/auxhook.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\auxhook.sty"
 Package: auxhook 2011/03/04 v1.3 Hooks for auxiliary files (HO)
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\kvoptions.sty"
 Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
 )
 \@linkdim=\dimen105
 \Hy@linkcounter=\count92
 \Hy@pagecounter=\count93
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/pd1enc.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\pd1enc.def"
 File: pd1enc.def 2012/11/06 v6.83m Hyperref: PDFDocEncoding definition (HO)
 )
 \Hy@SavedSpaceFactor=\count94
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/hyperref.cfg
+("C:\Program Files\MiKTeX 2.9\tex\latex\00miktex\hyperref.cfg"
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
 )
 Package hyperref Info: Hyper figures OFF on input line 4443.
@@ -271,7 +269,7 @@ Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4688.
 \c@Hy@tempcnt=\count95
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/url/url.sty
+(C:\Users\Giorgio\AppData\Roaming\MiKTeX\2.9\tex\latex\url\url.sty
 \Urlmuskip=\muskip10
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
@@ -296,12 +294,12 @@ LaTeX Info: Redefining \pageref on input line 6369.
 
 Package hyperref Message: Driver (autodetected): hpdftex.
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/hpdftex.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hpdftex.def"
 File: hpdftex.def 2012/11/06 v6.83m Hyperref driver for pdfTeX
 \Fld@listcount=\count100
 \c@bookmark@seq@number=\count101
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\rerunfilecheck.sty"
 Package: rerunfilecheck 2011/04/15 v1.7 Rerun checks for auxiliary files (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 82.
@@ -322,45 +320,45 @@ Package hyperref Warning: Option `hyperindex' has already been used,
 Package hyperref Info: Option `colorlinks' set `true' on input line 444.
 Package hyperref Info: Option `linktocpage' set `true' on input line 444.
 Package hyperref Info: Option `plainpages' set `false' on input line 444.
-) (/usr/local/texlive/2014/texmf-dist/tex/latex/base/fontenc.sty
+) ("C:\Program Files\MiKTeX 2.9\tex\latex\base\fontenc.sty"
 Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/ot1enc.def
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ot1enc.def"
 File: ot1enc.def 2005/09/27 v1.99g Standard LaTeX file
-LaTeX Font Info:    Redeclaring font encoding OT1 on input line 43.
+LaTeX Font Info:    Redeclaring font encoding OT1 on input line 48.
 )
-LaTeX Font Info:    Try loading font information for OT1+aer on input line 100.
+LaTeX Font Info:    Try loading font information for OT1+aer on input line 105.
 
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/ae/ot1aer.fd
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\ot1aer.fd"
 File: ot1aer.fd 1997/11/16 Font definitions for OT1/aer.
 ))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/inputenc.sty
-Package: inputenc 2014/04/30 v1.2b Input encoding file
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\inputenc.sty"
+Package: inputenc 2015/03/17 v1.2c Input encoding file
 \inpenc@prehook=\toks15
 \inpenc@posthook=\toks16
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/latin1.def
-File: latin1.def 2014/04/30 v1.2b Input encoding file
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\latin1.def"
+File: latin1.def 2015/03/17 v1.2c Input encoding file
 ))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/amsmath/amsmath.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty"
 Package: amsmath 2013/01/14 v2.14 AMS math features
 \@mathmargin=\skip53
 
 For additional information on amsmath, use the `?' option.
-(/usr/local/texlive/2014/texmf-dist/tex/latex/amsmath/amstext.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amstext.sty"
 Package: amstext 2000/06/29 v2.01
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/amsmath/amsgen.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty"
 File: amsgen.sty 1999/11/30 v2.0
 \@emptytoks=\toks17
 \ex@=\dimen109
 ))
-(/usr/local/texlive/2014/texmf-dist/tex/latex/amsmath/amsbsy.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty"
 Package: amsbsy 1999/11/29 v1.2d
 \pmbraise@=\dimen110
 )
-(/usr/local/texlive/2014/texmf-dist/tex/latex/amsmath/amsopn.sty
+("C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty"
 Package: amsopn 1999/12/14 v2.01 operator names
 )
 \inf@bad=\count102
@@ -401,33 +399,31 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
 )
-(./an_introduction_to_markovchain_package.aux)
-\openout1 = `an_introduction_to_markovchain_package.aux'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 104.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 104.
+(an_introduction_to_markovchain_package.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 103.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 103.
 
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/ts1cmr.fd
-File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
+File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 104.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 104.
-LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    ... okay on input line 103.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 103.
+LaTeX Font Info:    ... okay on input line 103.
 
-(/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii
+(C:\Users\Giorgio\AppData\Roaming\MiKTeX\2.9\tex\context\base\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count114
 \scratchdimen=\dimen118
@@ -440,72 +436,55 @@ LaTeX Font Info:    ... okay on input line 104.
 \MPnumerator=\count118
 \makeMPintoPDFobject=\count119
 \everyMPtoPDFconversion=\toks23
-) (/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
-Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
 )
-Package grfext Info: Graphics extension search list:
-(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
-G,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 452.
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
-e
-))
 \AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring ON on input line 104.
-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/nameref.sty
+Package hyperref Info: Link coloring ON on input line 103.
+ ("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
-(/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
+("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count120
 )
-LaTeX Info: Redefining \ref on input line 104.
-LaTeX Info: Redefining \pageref on input line 104.
-LaTeX Info: Redefining \nameref on input line 104.
+LaTeX Info: Redefining \ref on input line 103.
+LaTeX Info: Redefining \pageref on input line 103.
+LaTeX Info: Redefining \nameref on input line 103.
 
-(./an_introduction_to_markovchain_package.out)
-(./an_introduction_to_markovchain_package.out)
+(an_introduction_to_markovchain_package.out)
+(an_introduction_to_markovchain_package.out)
 \@outlinefile=\write4
-\openout4 = `an_introduction_to_markovchain_package.out'.
-
-LaTeX Font Info:    Try loading font information for OT1+aess on input line 104
+LaTeX Font Info:    Try loading font information for OT1+aess on input line 103
 .
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/ae/ot1aess.fd
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\ot1aess.fd"
 File: ot1aess.fd 1997/11/16 Font definitions for OT1/aess.
 )
-(./an_introduction_to_markovchain_package-concordance.tex)
-LaTeX Font Info:    Try loading font information for TS1+aer on input line 115.
+(an_introduction_to_markovchain_package-concordance.tex)
+LaTeX Font Info:    Try loading font information for TS1+aer on input line 114.
 
 
-(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/ts1aer.fd
+(C:/PROGRA~1/R/R-32~1.0/share/texmf/tex/latex\ts1aer.fd
 File: ts1aer.fd 
 )
 LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10.95> not available
-(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 115.
-LaTeX Font Info:    Try loading font information for OT1+aett on input line 124
+(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 114.
+LaTeX Font Info:    Try loading font information for OT1+aett on input line 123
 .
 
-(/usr/local/texlive/2014/texmf-dist/tex/latex/ae/ot1aett.fd
+("C:\Program Files\MiKTeX 2.9\tex\latex\ae\ot1aett.fd"
 File: ot1aett.fd 1997/11/16 Font definitions for OT1/aett.
 )
-Overfull \hbox (1.73433pt too wide) in paragraph at lines 120--135
+Overfull \hbox (1.73433pt too wide) in paragraph at lines 119--134
 \OT1/aer/m/n/10.95 Maech-ler, Firth, Shapira, Stadel-mann, and expm-developers@
 lists.R-forge.R-project.org[][] [][]2013[][])
  []
 
 [1
 
-{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+{C:/Users/Giorgio/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}
 Non-PDF special ignored!]
-Overfull \hbox (10.21394pt too wide) in paragraph at lines 159--161
+Overfull \hbox (10.21394pt too wide) in paragraph at lines 158--160
 []\OT1/aer/m/n/10.95 The prob-a-bil-ity of mov-ing from state $\OML/cmm/m/it/10
 .95 i$ \OT1/aer/m/n/10.95 to $\OML/cmm/m/it/10.95 j$ \OT1/aer/m/n/10.95 in $\OM
 L/cmm/m/it/10.95 n$ \OT1/aer/m/n/10.95 steps is de-noted by $\OML/cmm/m/it/10.9
@@ -520,7 +499,7 @@ Overfull \hbox (5.475pt too wide) has occurred while \output is active
 [2]
 
 Package natbib Warning: Citation `konstantopoulos2009markov' on page 3 undefine
-d on input line 193.
+d on input line 192.
 
 
 Overfull \hbox (5.475pt too wide) has occurred while \output is active
@@ -552,7 +531,7 @@ Overfull \hbox (5.475pt too wide) has occurred while \output is active
  []
 
 [7]
-Overfull \hbox (3.0396pt too wide) in paragraph at lines 515--516
+Overfull \hbox (3.0396pt too wide) in paragraph at lines 514--515
 []\OT1/aer/m/n/10.95 A di-rect ac-cess to tran-si-tion prob-a-bil-i-ties is pro
 -vided both by \OT1/aett/m/n/10.95 transitionProbability \OT1/aer/m/n/10.95 met
 hod
@@ -564,25 +543,25 @@ Overfull \hbox (5.475pt too wide) has occurred while \output is active
  []
 
 [8]
-<an_introduction_to_markovchain_package-mcPlot.pdf, id=275, 433.62pt x 433.62pt
+<an_introduction_to_markovchain_package-mcPlot.pdf, id=297, 433.62pt x 433.62pt
 >
 File: an_introduction_to_markovchain_package-mcPlot.pdf Graphic file (type pdf)
 
  <use an_introduction_to_markovchain_package-mcPlot.pdf>
 Package pdftex.def Info: an_introduction_to_markovchain_package-mcPlot.pdf used
- on input line 567.
+ on input line 566.
 (pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
 
-<an_introduction_to_markovchain_package-mcPlotdiagram.pdf, id=276, 433.62pt x 4
+<an_introduction_to_markovchain_package-mcPlotdiagram.pdf, id=298, 433.62pt x 4
 33.62pt>
 File: an_introduction_to_markovchain_package-mcPlotdiagram.pdf Graphic file (ty
 pe pdf)
  <use an_introduction_to_markovchain_package-mcPlotdiagram.pdf>
 Package pdftex.def Info: an_introduction_to_markovchain_package-mcPlotdiagram.p
-df used on input line 575.
+df used on input line 574.
 (pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 591--593
+Underfull \hbox (badness 10000) in paragraph at lines 590--592
 
  []
 
@@ -602,13 +581,13 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
  []
 
 [11]
-<an_introduction_to_markovchain_package-importExportPlot.pdf, id=302, 433.62pt 
+<an_introduction_to_markovchain_package-importExportPlot.pdf, id=324, 433.62pt 
 x 433.62pt>
 File: an_introduction_to_markovchain_package-importExportPlot.pdf Graphic file 
 (type pdf)
  <use an_introduction_to_markovchain_package-importExportPlot.pdf>
 Package pdftex.def Info: an_introduction_to_markovchain_package-importExportPlo
-t.pdf used on input line 698.
+t.pdf used on input line 697.
 (pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
 
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
@@ -672,14 +651,14 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
  []
 
 [22]
-<an_introduction_to_markovchain_package-mathematica9McFig.pdf, id=395, 433.62pt
+<an_introduction_to_markovchain_package-mathematica9McFig.pdf, id=416, 433.62pt
  x 433.62pt>
 File: an_introduction_to_markovchain_package-mathematica9McFig.pdf Graphic file
  (type pdf)
 
 <use an_introduction_to_markovchain_package-mathematica9McFig.pdf>
 Package pdftex.def Info: an_introduction_to_markovchain_package-mathematica9McF
-ig.pdf used on input line 1236.
+ig.pdf used on input line 1235.
 (pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
 
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
@@ -727,11 +706,39 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
  []
 
 [30]
+Overfull \hbox (51.4338pt too wide) in paragraph at lines 1717--1720
+[]\OT1/aer/m/n/10.95 In this sec-tion, we de-scribe the sta-tis-ti-cal tests: a
+s-sess-ing the Markov prop-erty (\OT1/aett/m/n/10.95 verifyMarkovProperty\OT1/a
+er/m/n/10.95 ),
+ []
+
+
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 [] \OT1/aer/m/n/10.95 31
  []
 
 [31]
+Overfull \hbox (36.89603pt too wide) in paragraph at lines 1737--1738
+[]\OT1/aer/m/n/10.95 We first con-struct a con-tin-gency ta-ble in which the co
+lumns are the fre-quency of past$\OMS/cmsy/m/n/10.95 !$\OT1/aer/m/n/10.95 prese
+nt$\OMS/cmsy/m/n/10.95 !$\OT1/aer/m/n/10.95 future
+ []
+
+LaTeX Font Info:    Try loading font information for TS1+aett on input line 177
+4.
+(C:/PROGRA~1/R/R-32~1.0/share/texmf/tex/latex\ts1aett.fd
+File: ts1aett.fd 
+)
+LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 177
+4.
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmtt.fd"
+File: ts1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `TS1/aett/m/n' in size <10.95> not available
+(Font)              Font shape `TS1/cmtt/m/n' tried instead on input line 1774.
+
+
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 \OT1/aer/m/n/10.95 32 []
  []
@@ -762,14 +769,10 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
  []
 
 [37]
-<an_introduction_to_markovchain_package-blandenEtAlii2.pdf, id=562, 433.62pt x 
-433.62pt>
-File: an_introduction_to_markovchain_package-blandenEtAlii2.pdf Graphic file (t
-ype pdf)
- <use an_introduction_to_markovchain_package-blandenEtAlii2.pdf>
-Package pdftex.def Info: an_introduction_to_markovchain_package-blandenEtAlii2.
-pdf used on input line 2134.
-(pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
+Underfull \hbox (badness 10000) in paragraph at lines 2056--2057
+
+ []
+
 
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 \OT1/aer/m/n/10.95 38 []
@@ -780,7 +783,7 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 [] \OT1/aer/m/n/10.95 39
  []
 
-[39 <./an_introduction_to_markovchain_package-blandenEtAlii2.pdf>]
+[39]
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 \OT1/aer/m/n/10.95 40 []
  []
@@ -790,23 +793,7 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 [] \OT1/aer/m/n/10.95 41
  []
 
-[41] (./an_introduction_to_markovchain_package.bbl
-Underfull \hbox (badness 4981) in paragraph at lines 19--24
-[]\OT1/aer/m/n/10.95 Bard JF (2000).  ``Lec-ture 12.5 - Ad-di-tional Is-sues Co
-n-cern-ing Discrete-Time
- []
-
-LaTeX Font Info:    Font shape `OT1/aess/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/aess/m/sl' tried instead on input line 32.
-LaTeX Font Info:    Font shape `OT1/aer/b/it' in size <10.95> not available
-(Font)              Font shape `OT1/aer/bx/it' tried instead on input line 74.
-
-Underfull \hbox (badness 2894) in paragraph at lines 98--103
-[]\OT1/aer/m/n/10.95 Goulet V, Du-tang C, Maech-ler M, Firth D, Shapira M, Stad
-el-mann M, expm-
- []
-
-
+[41]
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 \OT1/aer/m/n/10.95 42 []
  []
@@ -817,77 +804,142 @@ Overfull \hbox (10.95001pt too wide) has occurred while \output is active
  []
 
 [43]
-Underfull \hbox (badness 10000) in paragraph at lines 214--217
-\OT1/aett/m/n/10.95 markov-[]chains-[]and-[]queues / structural-[]properties-[]
-of-[]finite-[]markov-[]processes .
- []
-
-)
-
-Package natbib Warning: There were undefined citations.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2278--2278
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 2278--2278
-
- []
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 2278.
-
 Overfull \hbox (10.95001pt too wide) has occurred while \output is active
 \OT1/aer/m/n/10.95 44 []
  []
 
 [44]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 2278.
- (./an_introduction_to_markovchain_package.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 2278.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 2278.
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+[] \OT1/aer/m/n/10.95 45
+ []
+
+[45]
+<an_introduction_to_markovchain_package-blandenEtAlii2.pdf, id=649, 433.62pt x 
+433.62pt>
+File: an_introduction_to_markovchain_package-blandenEtAlii2.pdf Graphic file (t
+ype pdf)
+ <use an_introduction_to_markovchain_package-blandenEtAlii2.pdf>
+Package pdftex.def Info: an_introduction_to_markovchain_package-blandenEtAlii2.
+pdf used on input line 2544.
+(pdftex.def)             Requested size: 354.12434pt x 354.14154pt.
+
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+\OT1/aer/m/n/10.95 46 []
+ []
+
+[46]
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+[] \OT1/aer/m/n/10.95 47
+ []
+
+[47 <./an_introduction_to_markovchain_package-blandenEtAlii2.pdf>]
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+\OT1/aer/m/n/10.95 48 []
+ []
+
+[48] (an_introduction_to_markovchain_package.bbl
+Underfull \hbox (badness 4981) in paragraph at lines 24--29
+[]\OT1/aer/m/n/10.95 Bard JF (2000).  ``Lec-ture 12.5 - Ad-di-tional Is-sues Co
+n-cern-ing Discrete-Time
+ []
+
+LaTeX Font Info:    Font shape `OT1/aess/m/it' in size <10.95> not available
+(Font)              Font shape `OT1/aess/m/sl' tried instead on input line 37.
+
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+[] \OT1/aer/m/n/10.95 49
+ []
+
+[49]
+LaTeX Font Info:    Font shape `OT1/aer/b/it' in size <10.95> not available
+(Font)              Font shape `OT1/aer/bx/it' tried instead on input line 91.
+
+Underfull \hbox (badness 2894) in paragraph at lines 121--126
+[]\OT1/aer/m/n/10.95 Goulet V, Du-tang C, Maech-ler M, Firth D, Shapira M, Stad
+el-mann M, expm-
+ []
+
+
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+\OT1/aer/m/n/10.95 50 []
+ []
+
+[50]
+Underfull \hbox (badness 10000) in paragraph at lines 242--245
+$\OT1/aett/m/n/10.95 markov-[]chains-[]and-[]queues / structural-[]properties-[
+]of-[]finite-[]markov-[]processes .$
+ []
+
+
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+[] \OT1/aer/m/n/10.95 51
+ []
+
+[51])
+
+Package natbib Warning: There were undefined citations.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2688--2688
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2688--2688
+
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 2688.
+
+Overfull \hbox (10.95001pt too wide) has occurred while \output is active
+\OT1/aer/m/n/10.95 52 []
+ []
+
+[52]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 2688.
+ (an_introduction_to_markovchain_package.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 2688.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 2688.
 
 Package rerunfilecheck Info: File `an_introduction_to_markovchain_package.out' 
 has not changed.
-(rerunfilecheck)             Checksum: A718AF78048B2694D25DE96FCC11C67B;3320.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 2278.
+(rerunfilecheck)             Checksum: B60041FA03AB0D9B27A6E17E2806B4FA;4336.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 2688.
  ) 
 Here is how much of TeX's memory you used:
- 7805 strings out of 493117
- 116416 string characters out of 6135433
- 200593 words of memory out of 5000000
- 10964 multiletter control sequences out of 15000+600000
- 14955 words of font info for 48 fonts, out of 8000000 for 9000
- 1141 hyphenation exceptions out of 8191
- 36i,10n,34p,508b,482s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
-}</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmb10.pfb><
-/usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></
-usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></u
-sr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></
-usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
-sr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
-r/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/
-local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/lo
-cal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loca
-l/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/t
-exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl10.pfb></usr/local/te
-xlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb></usr/local/t
-exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/te
-xlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/t
-exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/t
-exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/te
-xlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texl
-ive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texli
-ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texliv
-e/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive
-/2014/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on an_introduction_to_markovchain_package.pdf (44 pages, 440624 
+ 7784 strings out of 493671
+ 116065 string characters out of 3143857
+ 198738 words of memory out of 3000000
+ 10798 multiletter control sequences out of 15000+200000
+ 15253 words of font info for 49 fonts, out of 3000000 for 9000
+ 1025 hyphenation exceptions out of 8191
+ 36i,10n,34p,508b,488s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\Giorgio\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi60
+0\tctt1095.pk> <C:\Users\Giorgio\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknap
+pen\ec\dpi600\tcrm1095.pk><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfo
+nts/cm/cmb10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
+bx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/P
+rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program F
+iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
+1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/c
+m/cmsl10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsltt
+10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss10.pfb><
+C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Pro
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmti12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmtt10.pfb>
+Output written on an_introduction_to_markovchain_package.pdf (52 pages, 548908 
 bytes).
 PDF statistics:
- 755 PDF objects out of 1000 (max. 8388607)
- 671 compressed objects within 7 object streams
- 184 named destinations out of 1000 (max. 500000)
- 266 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 851 PDF objects out of 1000 (max. 8388607)
+ 216 named destinations out of 1000 (max. 500000)
+ 314 words of extra memory for PDF output out of 10000 (max. 10000000)
 

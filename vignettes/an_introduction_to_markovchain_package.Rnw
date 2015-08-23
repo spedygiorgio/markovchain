@@ -135,7 +135,7 @@ discusses how to handle and manage Markov chain objects within the package,
 Section~\ref{sec:probability} and Section~\ref{sec:statistics} show how to
 perform probabilistic and statistical modelling, while
 Section~\ref{sec:applications} presents some applied examples from various
-fields analyzed by means of the \pkg{markovchain} package. For continuous time Markov chains, refer to the CTMC vignette which is a part of the package.
+fields analyzed by means of the \pkg{markovchain} package. 
 
 \section{Review of core mathematical concepts}\label{sec:mathematic}
 
@@ -1096,16 +1096,6 @@ multinomialConfidenceIntervals(transitionMatrix =
         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 @
 
-In addition, \code{fitHigherOrder} function has been written in order to fit a higher order Markov chain (\cite{ching2013higher, ching2008higher}). 
-It takes a sequence and the order as arguments and returns the frequency probability vector X of the given sequence and the parameters $\lambda_i$ with the transition probability matrices $Q_i$ for each order $i$.
-Its quadratic programming problem is solved using \code{solnp} function of \pkg{Rsolnp} (\cite{pkg:Rsolnp}). 
-
-<<higherOrder, keep.source=TRUE>>=
-library(Rsolnp)
-data(rain)
-fitHigherOrder(rain$rain, 2)
-fitHigherOrder(rain$rain, 3)
-@
 
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
@@ -1290,6 +1280,22 @@ This test returns a list of the chi-squared value and the p-value.
 mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 divergenceTest(sequence, mcFit$estimate@transitionMatrix)
 @
+
+\subsection{Other Functions}
+
+Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.\\
+
+An experimental \code{fitHigherOrder} function has been written in order to fit a higher order Markov chain (\cite{ching2013higher, ching2008higher}). 
+It takes a sequence and the order as arguments and returns the frequency probability vector X of the given sequence and the parameters $\lambda_i$ with the transition probability matrices $Q_i$ for each order $i$.
+Its quadratic programming problem is solved using \code{solnp} function of \pkg{Rsolnp}, \cite{pkg:Rsolnp}. 
+
+<<higherOrder, keep.source=TRUE>>=
+library(Rsolnp)
+data(rain)
+fitHigherOrder(rain$rain, 2)
+fitHigherOrder(rain$rain, 3)
+@
+
 
 
 \section{Applications}\label{sec:applications}
@@ -1691,7 +1697,7 @@ An intitial rewriting of internal function in \proglang{C++} by means of \pkg{Rc
 
 \section*{Aknowledgments}\label{sec:aknowledgements}
 
-The author wishes to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A very special thanks also to Tae Seung Kang (and to the other Google Summer of Code 2015 candidates) for having rewritten the fitting functions into \pkg{Rcpp}. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.   
+The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.   
 
 \bibliography{markovchainBiblio}
 

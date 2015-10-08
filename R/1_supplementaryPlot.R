@@ -1,7 +1,7 @@
 # plot a diagram using diagram from a markovian object
 .plotdiagram <- function(object, ...) {
   mat <- object@transitionMatrix
-  diagram::plotmat(mat, ...)
+  diagram::plotmat(t(mat), ...)
 }
 
 # plot a diagram using DiagrammeR from a markovian object

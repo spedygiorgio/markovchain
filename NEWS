@@ -1,5 +1,2 @@
-20-08-2015
-added multinomial confidence intervals into Rcpp
-improved plotting facility
-added functions to test using statisitical inference
-added functions to fit higher order Markov chain
+10-10-2015
+fixed an error in plot function

@@ -1,3 +1,7 @@
+10-10-2015
+Version 0.4.3
+fixed an error in plot function
+
 08-07-2015
 Version 0.3.1
 Period to Rcpp (thanks to TAE)

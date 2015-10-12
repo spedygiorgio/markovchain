@@ -303,10 +303,26 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 		function(x, y, package="igraph",...){
 		  switch(package,
 		         diagram = {
-		           .plotdiagram(object=x,...)
+		           if (requireNamespace("diagram", quietly = TRUE)) {
+		             .plotdiagram(object=x,...)
+		           } else {
+		            # cat("diagram unavailable, using standard method","\n")
+		             netMc <- .getNet(object=x,round=TRUE)
+		             edgeLabel <- round(E(netMc)$weight/100,2)
+		             plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		           }
+		           
 		         },
 		         DiagrammeR= {
-		           .plotDiagrammeR(object=x,...)
+		           if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+		             .plotDiagrammeR(object=x,...)
+		           } else {
+		         #    cat("DiagrammeR unavailable, using standard method","\n")
+		             netMc <- .getNet(object=x,round=TRUE)
+		             edgeLabel <- round(E(netMc)$weight/100,2)
+		             plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		           }
+		          
 		         },
 		         {
 		           netMc <- .getNet(object=x,round=TRUE)

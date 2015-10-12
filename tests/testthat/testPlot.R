@@ -1,5 +1,6 @@
 library(markovchain)
-
+require(diagram)
+require(DiagrammeR)
 # P <- matrix(c(0, 0.5, 0.5,
 #               0.5, 0, 0.5, 
 #               0.5, 0.5, 0), byrow=T, ncol=3)

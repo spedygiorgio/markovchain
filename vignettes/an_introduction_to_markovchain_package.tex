@@ -92,7 +92,7 @@ Finally, some examples in which the package's functions are applied to Economics
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\input{an_introduction_to_markovchain_package-concordance}
+%\SweaveOpts{concordance=TRUE}
 
 
 \maketitle
@@ -663,7 +663,7 @@ Estimate of cov(P(1, 183))
 0 1   0   0   0   0   0   0  0.000000e+00  0.000000e+00   0
 1 1   0   0   0   0   0   0  0.000000e+00  0.000000e+00   0
 2 1   0   0   0   0   0   0  0.000000e+00  0.000000e+00   0
-0 2   0   0   0   0   0   0 -2.864030e-20 -1.126554e-19   0
+0 2   0   0   0   0   0   0 -2.864030e-20 -6.268044e-20   0
 1 2   0   0   0   0   0   0 -4.785736e-20  2.710505e-19   0
 2 2   0   0   0   0   0   0  0.000000e+00  0.000000e+00   0
 \end{Soutput}
@@ -1313,11 +1313,11 @@ R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 R> weathersOfDays[1:30]
 \end{Sinput}
 \begin{Soutput}
- [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "cloudy"
- [8] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "rain"   "rain"  
-[15] "cloudy" "rain"   "rain"   "rain"   "rain"   "sunny"  "sunny" 
-[22] "sunny"  "sunny"  "rain"   "cloudy" "sunny"  "cloudy" "rain"  
-[29] "cloudy" "sunny" 
+ [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny" 
+ [8] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy"
+[15] "rain"   "cloudy" "sunny"  "cloudy" "cloudy" "rain"   "cloudy"
+[22] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "rain"   "rain"  
+[29] "sunny"  "rain"  
 \end{Soutput}
 \end{Schunk}
 
@@ -1333,14 +1333,14 @@ R> patientStates[1:10,]
 \begin{Soutput}
    iteration values
 1          1      H
-2          1      H
-3          1      I
+2          1      I
+3          1      D
 4          1      D
 5          1      D
 6          2      H
 7          2      H
 8          2      H
-9          2      H
+9          2      I
 10         2      D
 \end{Soutput}
 \end{Schunk}
@@ -1378,19 +1378,19 @@ Weather MLE
  A  3 - dimensional discrete Markov Chain with following states 
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
-          cloudy      rain     sunny
-cloudy 0.4444444 0.2936508 0.2619048
-rain   0.4691358 0.3333333 0.1975309
-sunny  0.2101911 0.1082803 0.6815287
+          cloudy       rain     sunny
+cloudy 0.3944954 0.32110092 0.2844037
+rain   0.4050633 0.37974684 0.2151899
+sunny  0.1931818 0.07954545 0.7272727
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedMLE$standardError
 \end{Sinput}
 \begin{Soutput}
            cloudy       rain      sunny
-cloudy 0.05939139 0.04827589 0.04559177
-rain   0.07610388 0.06415003 0.04938272
-sunny  0.03658957 0.02626182 0.06588586
+cloudy 0.06015999 0.05427596 0.05108041
+rain   0.07160575 0.06933197 0.05219121
+sunny  0.03313041 0.02125942 0.06428243
 \end{Soutput}
 \end{Schunk}
 
@@ -1417,10 +1417,10 @@ Weather LAPLACE
  A  3 - dimensional discrete Markov Chain with following states 
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
-          cloudy      rain     sunny
-cloudy 0.4444180 0.2936602 0.2619218
-rain   0.4690855 0.3333333 0.1975811
-sunny  0.2102146 0.1083233 0.6814621
+          cloudy       rain     sunny
+cloudy 0.3944786 0.32110428 0.2844171
+rain   0.4050361 0.37972922 0.2152347
+sunny  0.1932057 0.07958871 0.7272056
 \end{Soutput}
 \end{Schunk}
 
@@ -1436,9 +1436,9 @@ R> createSequenceMatrix(stringchar = weathersOfDays)
 \end{Sinput}
 \begin{Soutput}
        cloudy rain sunny
-cloudy     56   37    33
-rain       38   27    16
-sunny      33   17   107
+cloudy     43   35    31
+rain       32   30    17
+sunny      34   14   128
 \end{Soutput}
 \end{Schunk}
 
@@ -1477,18 +1477,18 @@ BootStrap Estimate
  cloudy rain sunny 
  The transition matrix   (by rows)  is defined as follows 
           cloudy      rain     sunny
-cloudy 0.4420864 0.2949811 0.2629325
-rain   0.4721776 0.3343147 0.1935077
-sunny  0.2066387 0.1112359 0.6821254
+cloudy 0.3981566 0.3198228 0.2820206
+rain   0.4141900 0.3717835 0.2140265
+sunny  0.1919972 0.0802571 0.7277457
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$standardError
 \end{Sinput}
 \begin{Soutput}
             cloudy        rain       sunny
-cloudy 0.004496236 0.004389933 0.003324478
-rain   0.005973287 0.005042829 0.004190635
-sunny  0.003152474 0.002496065 0.003877712
+cloudy 0.004972001 0.004718384 0.004800766
+rain   0.004972647 0.005072550 0.004558877
+sunny  0.003539623 0.002329060 0.003683298
 \end{Soutput}
 \end{Schunk}
 
@@ -1531,13 +1531,13 @@ where $n_{ij}$ is the entry of the frequency matrix and $p_{ij}$ is the entry of
 R> weatherFittedMLE$logLikelihood
 \end{Sinput}
 \begin{Soutput}
-[1] -349.6247
+[1] -334.9191
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$logLikelihood
 \end{Sinput}
 \begin{Soutput}
-[1] -349.6415
+[1] -334.9384
 \end{Soutput}
 \end{Schunk}
 
@@ -1561,15 +1561,15 @@ $confidenceLevel
 
 $lowerEndpointMatrix
           cloudy       rain     sunny
-cloudy 0.3467543 0.21424402 0.1869130
-rain   0.3439561 0.22781592 0.1163035
-sunny  0.1500066 0.06508341 0.5731561
+cloudy 0.2955410 0.23182491 0.2003839
+rain   0.2872823 0.26570589 0.1293430
+sunny  0.1386871 0.04457683 0.6215375
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5421346 0.3730576 0.3368965
-rain   0.5943155 0.4388507 0.2787582
-sunny  0.2703756 0.1514771 0.7899013
+cloudy 0.4934498 0.4103769 0.3684235
+rain   0.5228443 0.4937878 0.3010368
+sunny  0.2476765 0.1145141 0.8330079
 \end{Soutput}
 \begin{Sinput}
 R> weatherFittedBOOT$confidenceInterval
@@ -1579,16 +1579,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.4346908 0.2877603 0.2574642
-rain   0.4623524 0.3260200 0.1866148
-sunny  0.2014534 0.1071302 0.6757471
+          cloudy       rain     sunny
+cloudy 0.3899784 0.31206175 0.2741241
+rain   0.4060107 0.36343986 0.2065279
+sunny  0.1861750 0.07642614 0.7216873
 
 $upperEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.4494821 0.3022019 0.2684007
-rain   0.4820028 0.3426094 0.2004007
-sunny  0.2118241 0.1153415 0.6885037
+          cloudy       rain     sunny
+cloudy 0.4063348 0.32758386 0.2899172
+rain   0.4223693 0.38012707 0.2215252
+sunny  0.1978193 0.08408807 0.7338042
 \end{Soutput}
 \end{Schunk}
 
@@ -1607,16 +1607,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy       rain      sunny
-cloudy 0.3571429 0.20634921 0.17460317
-rain   0.3580247 0.22222222 0.08641975
-sunny  0.1401274 0.03821656 0.61146497
+          cloudy       rain     sunny
+cloudy 0.3027523 0.22935780 0.1926606
+rain   0.2911392 0.26582278 0.1012658
+sunny  0.1306818 0.01704545 0.6647727
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5429844 0.3921908 0.3604447
-rain   0.5844847 0.4486823 0.3128798
-sunny  0.2828687 0.1809579 0.7542063
+cloudy 0.5033721 0.4299776 0.3932804
+rain   0.5230920 0.4977756 0.3332186
+sunny  0.2581626 0.1445262 0.7922535
 \end{Soutput}
 \end{Schunk}
 

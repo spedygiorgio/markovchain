@@ -25,6 +25,7 @@
 \alias{dim,markovchain-method}
 \alias{initialize,markovchain-method}
 \alias{names,markovchain-method}
+\alias{names<-,markovchain-method}
 \alias{plot,markovchain,missing-method}
 \alias{predict,markovchain-method}
 \alias{print,markovchain-method}
@@ -75,6 +76,7 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
     \item{coerce}{\code{signature(from = "matrix", to = "markovchain")}: coercing to \code{markovchain} objects from \code{matrix} one }
     \item{dim}{\code{signature(x = "markovchain")}: method to get the size}
     \item{names}{\code{signature(x = "markovchain")}: method to get the names of states}
+    \item{names<-}{\code{signature(x = "markovchain", value = "character")}: method to set the names of states}
     \item{initialize}{\code{signature(.Object = "markovchain")}: initialize method }
     \item{plot}{\code{signature(x = "markovchain", y = "missing")}: plot method for \code{markovchain} objects }
 	\item{predict}{\code{signature(object = "markovchain")}: predict method }

@@ -38,7 +38,7 @@ setMethod("initialize",
 		function (.Object, states, byrow, transitionMatrix,name,...) 
 		{
 			# put the standard markovchain 
-			if(missing(transitionMatrix)) transitionMatrix=matrix(data=c(0,1,1,0), #create a naive matrix
+			if(missing(transitionMatrix)) transitionMatrix<-matrix(data=c(0,1,1,0), #create a naive matrix
 						nrow=2,
 						byrow=TRUE, 
 						dimnames=list(c("a","b"), c("a","b"))
@@ -47,16 +47,16 @@ setMethod("initialize",
 		# check names of transition matrix
 			if(all(is.null(rownames(transitionMatrix)), is.null(colnames(transitionMatrix)))==TRUE) { #if all names are missing it initializes them to "1", "2",...
 				if(missing(states)) {
-					nr=nrow(transitionMatrix)
+					nr<-nrow(transitionMatrix)
 					stateNames<-as.character(seq(1:nr))
-				} else {stateNames=states}
+				} else {stateNames<-states}
 				
-			rownames(transitionMatrix)=stateNames
-			colnames(transitionMatrix)=stateNames
+			rownames(transitionMatrix)<-stateNames
+			colnames(transitionMatrix)<-stateNames
 		} else if(is.null(rownames(transitionMatrix))) { #fix when rownames null
-		  rownames(transitionMatrix)=colnames(transitionMatrix)
+		  rownames(transitionMatrix)<-colnames(transitionMatrix)
 		} else if(is.null(colnames(transitionMatrix))) { #fix when colnames null
-			colnames(transitionMatrix)=rownames(transitionMatrix)
+			colnames(transitionMatrix)<-rownames(transitionMatrix)
 		} else if(!setequal(rownames(transitionMatrix),colnames(transitionMatrix)))  colnames(transitionMatrix)=rownames(transitionMatrix) #fix when different
 		if(missing(states)) states=rownames(transitionMatrix) #assign
 		if(missing(byrow)) byrow=TRUE #set byrow as true by default
@@ -84,7 +84,7 @@ setMethod("states","markovchain",
           }
 )
 
-#adding a method names
+#adding a method names: to get names
 setMethod("names","markovchain", 
           function(x) {
             out <- x@states
@@ -92,6 +92,15 @@ setMethod("names","markovchain",
           }
 )
 
+#adding a method names: to set names
+setMethod("names<-","markovchain", 
+          function(x,value) {
+            x@states<-value
+            rownames(x@transitionMatrix)<-value
+            colnames(x@transitionMatrix)<-value
+            return(x)
+          }
+)
 
 
  # generic methods to get the dim of a markovchain and markovchainList

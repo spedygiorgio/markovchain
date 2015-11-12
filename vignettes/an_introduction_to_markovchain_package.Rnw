@@ -394,6 +394,7 @@ manipulate \code{markovchain} objects.
   & \code{table} object.\\
 \code{dim} & Dimension of the transition matrix.\\
 \code{names} & Equal to \code{states}.\\
+\code{names<-} & Change the \code{states} name.\\
 \code{plot} & \code{plot} method for \code{markovchain} objects.\\
 \code{print} & \code{print} method for \code{markovchain} objects.\\
 \code{show} & \code{show} method for \code{markovchain} objects.\\

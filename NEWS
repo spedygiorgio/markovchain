@@ -1,2 +1,3 @@
 10-10-2015
 * added a names method.
+* moved Bayesian Estimation and CTMC vignettes in Rnw

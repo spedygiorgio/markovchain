@@ -8,6 +8,20 @@ using namespace Rcpp;
 template <typename T>
 T sortByDimNames(const T m);
 
+// check if two vectors are intersected
+bool _intersected(CharacterVector v1, CharacterVector v2) {
+  CharacterVector::iterator first1 = v1.begin();
+  CharacterVector::iterator last1 = v1.end();
+  CharacterVector::iterator first2 = v2.begin();
+  CharacterVector::iterator last2 = v2.end();
+  while(first1!=last1 && first2!=last2) {
+    if(*first1 == *first2) return true;
+    else if(*first1 < *first2) ++first1;
+    else ++first2;    
+  }
+  return false;
+}
+
 // communicating classes kernel
 // [[Rcpp::export(.commclassesKernelRcpp)]]
 SEXP commclassesKernel(NumericMatrix P){
@@ -127,11 +141,32 @@ List recurrentClasses(S4 object)
 {
   NumericMatrix matr = object.slot("transitionMatrix");
   List temp = commclassesKernel(matr);
+  List communicatingClassList = communicatingClasses(object);
+  List v = temp["v"];
+  CharacterVector ns = v.names();
+  CharacterVector transientStates; 
+  for(int i = 0; i < v.size(); i++) {
+    if(bool(v[i]) == false)
+      transientStates.push_back(ns[i]);
+  }
+  List recurrentClassesList;
+  
+  for(int i = 0; i < communicatingClassList.size(); i ++)
+  {
+    CharacterVector class2Test = communicatingClassList[i];
+    if(!_intersected(class2Test,transientStates)) 
+      recurrentClassesList.push_back(class2Test);
+  }
+  return recurrentClassesList;
+  /*
+  NumericMatrix matr = object.slot("transitionMatrix");
+  List temp = commclassesKernel(matr);
   LogicalMatrix adjMatr = temp["C"];
   int len = adjMatr.nrow();
   List classesList;
   CharacterVector rnames = rownames(adjMatr);
   for(int i = 0; i < len; i ++) {
+    Rcout << i << std::endl;
     bool isNull = false;
     LogicalVector row2Check = adjMatr(i, _);
     CharacterVector proposedCommClass;
@@ -144,6 +179,7 @@ List recurrentClasses(S4 object)
         break;
       }
     }
+    Rcout << isNull << std::endl;
     if (i > 0) {
       for(int j = 0; j < classesList.size(); j ++) {
         bool check = false;        
@@ -151,21 +187,37 @@ List recurrentClasses(S4 object)
         std::set<std::string> s1, s2;
         for(int k = 0; k < cv.size(); k ++) {
           s1.insert(as<std::string>(cv[k]));
-          if(proposedCommClass.size() > k) 
+        }
+        // if(proposedCommClass.size() > k) {
+        for(int k = 0; k < proposedCommClass.size(); k ++) {
             s2.insert(as<std::string>(proposedCommClass[k]));
         }
-        if(!s1.empty() && !s2.empty())
+        if(!s1.empty() && !s2.empty()) {
+          Rcout << "s1" << " ";
+          for(std::set<std::string>::iterator it = s1.begin(); it != s1.end(); it ++)
+            Rcout << (*it) << " ";
+          Rcout << std::endl;
+          Rcout << "s2" << " ";
+          for(std::set<std::string>::iterator it = s2.begin(); it != s2.end(); it ++)
+            Rcout << (*it) << " ";
+          Rcout << std::endl;
           check = std::equal(s1.begin(), s1.end(), s2.begin());
+        }
         if(check) {
+          // Rf_PrintValue(proposedCommClass);
           isNull = true;
           break;
         }
       }
     }
-    if(!isNull) 
+    if(!isNull) {
+      // Rcout << proposedCommClass << std::endl;
+      Rf_PrintValue(proposedCommClass);
       classesList.push_back(proposedCommClass);
+    }
   }
   return classesList;
+   */
 }
 
 // matrix power function
@@ -190,20 +242,6 @@ NumericMatrix commStatesFinder(NumericMatrix matr)
   return R;
 }
 
-// check if two vectors are intersected
-bool _intersected(CharacterVector v1, CharacterVector v2) {
-  CharacterVector::iterator first1 = v1.begin();
-  CharacterVector::iterator last1 = v1.end();
-  CharacterVector::iterator first2 = v2.begin();
-  CharacterVector::iterator last2 = v2.end();
-  while(first1!=last1 && first2!=last2) {
-    if(*first1 == *first2) return true;
-    else if(*first1 < *first2) ++first1;
-    else ++first2;    
-  }
-  return false;
-}
-
 // summary of markovian object
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object)
@@ -226,8 +264,28 @@ List summaryKernel(S4 object)
     CharacterVector class2Test = communicatingClassList[i];
     if(_intersected(class2Test,transientStates)) 
         transientClasses.push_back(class2Test); 
-      else 
-        closedClasses.push_back(class2Test);
+      else {
+        bool isClosed = true;
+        for(int j = 0; j < class2Test.size(); j ++) {
+          for(int from = 0; from < ns.size(); from ++) {
+            bool inclass = false;
+            if(ns[from] != class2Test[j]) continue;
+            for(int to = 0; to < matr.cols(); to ++) {
+              for(int k = 0; k < class2Test.size(); k ++) {
+                if(class2Test[k] == ns[to]) inclass = true;
+              }
+              if(from == to || inclass) continue;
+              if(matr(from, to) != 0) {
+                isClosed = false;
+                break;
+              }
+            }
+          }
+        }
+        if(isClosed)
+          closedClasses.push_back(class2Test);
+        // recurrentClassesList.push_back(class2Test);
+      }
   }
   recurrentClassesList = recurrentClasses(object);
   List summaryMc = List::create(_["closedClasses"] = closedClasses,

@@ -1,4 +1,4 @@
-library(markovchain)
+#library(markovchain)
 
 #create basic markov chains
 markov1<-new("markovchain", states=c("a","b","c"), transitionMatrix=

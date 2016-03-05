@@ -837,7 +837,8 @@ setMethod("predict","markovchain",
             out <- character()
             for(i in 1:n.ahead)
             {
-              newState <- .getMode(probVector=conditionalDistribution(object,lastState), ties="random") #cyclically determine the most probabile subsequent state from the conditional distribution
+              #cyclically determine the most probabile subsequent state from the conditional distribution
+              newState <- .getMode(probVector=conditionalDistribution(object,lastState), ties="random") 
               out <- c(out,newState)
               lastState <- newState
             }

@@ -1,6 +1,6 @@
 # Period examples from http://www.math.wisc.edu/~anderson/605F11/Notes/StochBioChapter3.pdf
 
-library(markovchain)
+#library(markovchain)
 
 mcPeriodic<-new("markovchain", states=c("0","1","2"), transitionMatrix=
                  matrix(c(0,1,0,

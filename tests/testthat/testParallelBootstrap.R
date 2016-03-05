@@ -1,4 +1,4 @@
-library(markovchain)
+#library(markovchain)
 
 context("Bootstrap parallel")
 

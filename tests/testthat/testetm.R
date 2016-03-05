@@ -1,4 +1,4 @@
-library(markovchain)
+#library(markovchain)
 library(etm)
 
 data(sir.cont)

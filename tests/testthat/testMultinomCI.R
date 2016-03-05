@@ -1,4 +1,4 @@
-library(markovchain)
+#library(markovchain)
 
 seq<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
 mcfit<-markovchainFit(data=seq,byrow=TRUE)

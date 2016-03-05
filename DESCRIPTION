@@ -9,7 +9,7 @@ Description: Functions and S4 methods to create and manage discrete time Markov 
 License: GPL-2
 Depends: R (>= 3.0.0), methods
 Imports: igraph, Matrix, matlab, expm, stats4, parallel, Rcpp (>= 0.11.5), RcppParallel, utils, stats
-Suggests: knitr, testthat, diagram, DiagrammeR, msm, etm, Rsolnp, knitcitations, rmarkdown, knitr
+Suggests: knitr, testthat, diagram, DiagrammeR, msm, etm, Rsolnp, knitcitations, rmarkdown
 VignetteBuilder:  utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make

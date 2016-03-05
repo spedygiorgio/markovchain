@@ -9,7 +9,7 @@ Provided any \code{markovchain} or \code{markovchainList} objects, it returns a 
 states coming from the underlying stationary distribution. 
 }
 \usage{
-rmarkovchain(n, object, ...)
+rmarkovchain(n, object, what="data.frame",...)
 markovchainSequence(n, markovchain, t0 = sample(markovchain@states, 1), 
 include.t0 = FALSE)
 }
@@ -20,6 +20,9 @@ Sample size
 }
 \item{object}{
 Either a \code{markovchain} or a \code{markovchainList} object.
+}
+\item{what}{
+It specifies whether a \code{data.frame} or a \code{matrix} (each rows represent a simulation)
 }
 \item{\dots}{
 additional parameters passed to the internal sampler

@@ -1,6 +1,7 @@
-21-02-2016
+05-03-2016
 Version 0.4.3.1
 fixed a bug in the states classification
+added options to save output of random sampler in a matrix
 
 10-10-2015
 Version 0.4.3

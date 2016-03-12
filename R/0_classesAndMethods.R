@@ -246,7 +246,9 @@ setMethod("transitionProbability","markovchain",
 .showInt <- function(object, verbose=TRUE)
 {
 	if (object@byrow==TRUE) direction="(by rows)" else direction="(by cols)"
-	if (verbose==TRUE) cat(object@name,"\n A ",dim(object),"- dimensional discrete Markov Chain with following states \n",states(object), "\n The transition matrix  ", direction," is defined as follows \n")
+	if (verbose==TRUE) cat(object@name,"\n A ",dim(object),"- dimensional discrete Markov Chain with following states: \n",
+	                       paste(states(object),collapse=", "), "\n The transition matrix  ", 
+	                       direction," is defined as follows: \n")
 	print(object@transitionMatrix)
 	cat("\n")
 }
@@ -620,6 +622,23 @@ setAs(from="table", to="markovchain", def=.table2Mc)
 }
 
 setAs(from="msm", to="markovchain", def=.msm2Mc)
+
+#function for msm.est to mc. Assume a probability matrix given
+
+.msmest2Mc<-function(from)
+{
+  
+  if (is.matrix(from))
+    pMatr <- from #central estimate
+  if (is.list(from))
+    pMatr <- from[[1]] #central estimate
+  
+  out<-new("markovchain", transitionMatrix=as(pMatr,"matrix")) #need force matrix
+  return(out)
+}
+
+setAs(from="msm.est", to="markovchain", def=.msmest2Mc)
+
 
 #function from etm to markovchain
 

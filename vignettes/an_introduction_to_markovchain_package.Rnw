@@ -497,7 +497,9 @@ mcDf <- as(mcWeather, "data.frame")
 mcNew <- as(mcDf, "markovchain")
 mcDf
 mcIgraph <- as(mcWeather, "igraph")
+@
 
+<<exporImport2, keep.source=TRUE>>=
 library(msm)
 Q <- rbind ( c(0, 0.25, 0, 0.25),
              c(0.166, 0, 0.166, 0.166),
@@ -506,7 +508,9 @@ Q <- rbind ( c(0, 0.25, 0, 0.25),
 cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
 msmMc <- as(cavmsm, "markovchain")
 msmMc
+@
 
+<<exporImport3, keep.source=TRUE>>=
 library(etm)
 data(sir.cont)
 sir.cont <- sir.cont[order(sir.cont$id, sir.cont$time), ]

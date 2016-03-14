@@ -225,3 +225,30 @@ recurrentClasses<-function(object) {
   out<-.recurrentClassesRcpp(object)
   return(out)
 }
+
+#' @title Check if a DTMC is regular
+#' 
+#' @description Function to check wether a DTCM is regular
+#' 
+#' @details A regular Markov chain has $A^n$ strictly positive for some n. 
+#' So we check: if there is only one eigenvector; if the steadystate vector is striclty positive.
+#' 
+#' @param object a markovchain object
+#' 
+#' @return A boolean value
+#' 
+#' @examples 
+#' P=matrix(c(0.5,.25,.25,.5,0,.5,.25,.25,.5),nrow = 3)
+#' colnames(P)<-rownames(P)<-c("R","N","S")
+#' ciao<-as(P,"markovchain")
+#' is.regular(ciao)
+#' 
+#' @seealso \code{\link{is.irreducible}}
+
+
+is.regular<-function(object) {
+  eigenValues<-steadyStates(object = object)
+  minDim<-min(dim(eigenValues))
+  out <- minDim==1 & all(eigenValues>0)
+  return(out)
+}

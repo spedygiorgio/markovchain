@@ -246,9 +246,9 @@ recurrentClasses<-function(object) {
 #' @seealso \code{\link{is.irreducible}}
 
 
-is.regular<-function(object) {
-  eigenValues<-steadyStates(object = object)
-  minDim<-min(dim(eigenValues))
-  out <- minDim==1 & all(eigenValues>0)
-  return(out)
-}
+# is.regular<-function(object) {
+#   eigenValues<-steadyStates(object = object)
+#   minDim<-min(dim(eigenValues))
+#   out <- minDim==1 & all(eigenValues>0)
+#   return(out)
+# }

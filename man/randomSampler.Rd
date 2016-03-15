@@ -22,7 +22,7 @@ Sample size
 Either a \code{markovchain} or a \code{markovchainList} object.
 }
 \item{what}{
-It specifies whether a \code{data.frame} or a \code{matrix} (each rows represent a simulation)
+It specifies whether either a \code{data.frame} or a \code{matrix} (each rows represent a simulation) or a \code{list} is returned.
 }
 \item{\dots}{
 additional parameters passed to the internal sampler

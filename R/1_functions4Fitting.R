@@ -40,19 +40,23 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
 #random sampler#
 ################
 
+
 #check if the subsequent states are included in the previous ones
 
-.checkSequence<-function(object)
+.checkSequence <- function(object)
 {
-  out<-TRUE
-  if(dim(object)==1) return(out) #if the size of the list is one do
-  for(i in 2:dim(object))
+  out <- TRUE
+  if (dim(object) == 1)
+    return(out) #if the size of the list is one do
+  for (i in 2:dim(object))
   {
-    statesNm1<-states(object[[i-1]]) #evalutate mc n.1
-    statesN<-states(object[[i]]) #evaluate mc n
-    intersection<-intersect(statesNm1,statesN) #check the ibntersection
-    if(setequal(intersection, statesNm1)==FALSE) { #the states at n-1 
-      out<-FALSE
+    statesNm1 <- states(object[[i - 1]]) #evalutate mc n.1
+    statesN <- states(object[[i]]) #evaluate mc n
+    intersection <-
+      intersect(statesNm1, statesN) #check the ibntersection
+    if (setequal(intersection, statesNm1) == FALSE) {
+      #the states at n-1
+      out <- FALSE
       break
     }
   }
@@ -60,37 +64,60 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
 }
 
 
-
-rmarkovchain<-function(n,object,what="data.frame",...)
+rmarkovchain <- function(n, object, what = "data.frame", ...)
 {
-  if (class(object)=="markovchain") out<-markovchainSequence(n=n, markovchain=object,...)
-  if (class(object)=="markovchainList")
+  if (class(object) == "markovchain")
+    out <- markovchainSequence(n = n, markovchain = object, ...)
+  if (class(object) == "markovchainList")
   {
-    verify <-.checkSequence(object=object)
-    if(!verify) warning("Warning: some states in the markovchain sequences are not contained in the following states!")
-    iteration<-numeric()
-    values<-character()
-    for(i in 1:n) #number of replicates
+    verify <- .checkSequence(object = object)
+    if (!verify)
+      warning(
+        "Warning: some states in the markovchain sequences are not contained in the following states!"
+      )
+    iteration <- numeric()
+    values <- character()
+    for (i in 1:n)
+      #number of replicates
     {
       #the first iteration may include initial state
-      sampledValues<-markovchainSequence(n=1,markovchain=object[[1]],...)
-      outIter<-rep(i,length(sampledValues))
-      if(dim(object)>1)
-      {for(j in 2:dim(object))
+      sampledValues <-
+        markovchainSequence(n = 1, markovchain = object[[1]], ...)
+      outIter <- rep(i, length(sampledValues))
+      if (dim(object) > 1)
       {
-        pos2take<-length(sampledValues)
-        newVals<-markovchainSequence(n=1,markovchain=object[[j]],t0=sampledValues[pos2take]) #the initial state is in the ending position of the mclist
-        outIter<-c(outIter,i)
-        sampledValues<-c(sampledValues,newVals)
+        for (j in 2:dim(object))
+        {
+          pos2take <- length(sampledValues)
+          newVals <-
+            markovchainSequence(n = 1,
+                                markovchain = object[[j]],
+                                t0 = sampledValues[pos2take]) #the initial state is in the ending position of the mclist
+          outIter <- c(outIter, i)
+          sampledValues <- c(sampledValues, newVals)
+        }
       }
-      }
-      iteration<-c(iteration, outIter)
-      values<-c(values, sampledValues)
+      iteration <- c(iteration, outIter)
+      values <- c(values, sampledValues)
     }
-    if (what=="data.frame") 
-      out<-data.frame(iteration=iteration, values=values)
+    #defining the output
+    if (what == "data.frame")
+      out <- data.frame(iteration = iteration, values = values)
     else
-      out<-matrix(data=values,nrow=n,byrow=TRUE)
+      #matrix
+    {
+      out <- matrix(data = values,
+                    nrow = n,
+                    byrow = TRUE)
+      if (what == 'list')
+        #or list?
+      {
+        outlist <- list()
+        for (i in 1:nrow(out))
+          outlist[[i]] <- out[i, ]
+        out <- outlist
+      }
+    }
   }
   return(out)
 }
@@ -116,19 +143,31 @@ rmarkovchain<-function(n,object,what="data.frame",...)
 
 #function to fit a DTMC with Laplacian Smoother
 
-.mcFitLaplacianSmooth<-function(stringchar,byrow,laplacian=0.01)
+
+.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01)
 {
-	origNum<-createSequenceMatrix(stringchar=stringchar,toRowProbs=FALSE)
-	sumOfRow<-rowSums(origNum)
-	origDen<-matrix(rep(sumOfRow,length(sumOfRow)),byrow = FALSE,ncol=length(sumOfRow))
-	newNum<-origNum+laplacian
-	newSumOfRow<-rowSums(newNum)
-	newDen<-matrix(rep(newSumOfRow,length(newSumOfRow)),byrow = FALSE,ncol=length(newSumOfRow))
-	transMatr<-newNum/newDen
-	outMc<-new("markovchain", transitionMatrix=transMatr,name="Laplacian Smooth Fit")
-	if(byrow==FALSE) outMc<-t(outMc)
-	out<-list(estimate=outMc)
-	return(out)
+  origNum <-
+    createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
+  sumOfRow <- rowSums(origNum)
+  origDen <-
+    matrix(rep(sumOfRow, length(sumOfRow)),
+           byrow = FALSE,
+           ncol = length(sumOfRow))
+  newNum <- origNum + laplacian
+  newSumOfRow <- rowSums(newNum)
+  newDen <-
+    matrix(rep(newSumOfRow, length(newSumOfRow)),
+           byrow = FALSE,
+           ncol = length(newSumOfRow))
+  transMatr <- newNum / newDen
+  outMc <-
+    new("markovchain",
+        transitionMatrix = transMatr,
+        name = "Laplacian Smooth Fit")
+  if (byrow == FALSE)
+    outMc <- t(outMc)
+  out <- list(estimate = outMc)
+  return(out)
 }
 
 

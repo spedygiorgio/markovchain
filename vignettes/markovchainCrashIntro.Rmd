@@ -1,8 +1,7 @@
 ---
 title: "Crash Introduction to markovchain R package"
 author: "Giorgio Alfredo Spedicato, Ph.D C.Stat ACAS"
-date: \today
-
+date: "`r Sys.Date()`"
 output:
   beamer_presentation:
     incremental: no
@@ -15,10 +14,10 @@ font_adjustmen: -1
 header-includes:
 - \usepackage{url}
 bibliography: markovchainBiblio.bib
-vignette: |
+vignette: >
   %\VignetteIndexEntry{Crash Introduction to markovchain R package} 
   %\VignetteEngine{knitr::rmarkdown}  
-  %\usepackage[utf8]{inputenc}
+  %VignetteEncoding{UTF-8}
 ---
 
 <style type="text/css">

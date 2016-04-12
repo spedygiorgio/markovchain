@@ -429,6 +429,26 @@ after2Days
 round(after7Days, 3)
 @
 
+The initial state vector previously shown can not necessarily be a probability vector, as the code that follows shows: 
+
+<<fval, keep.source=TRUE>>=
+fvals<-function(mchain,initialstate,n) {
+  out<-data.frame()
+  names(initialstate)<-names(mchain)
+  for (i in 0:n)
+  {
+    iteration<-initialstate*mchain^(i)
+    out<-rbind(out,iteration)
+  }
+  out<-cbind(out, i=seq(0,n))
+  out<-out[,c(4,1:3)]
+  return(out)
+}
+fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
+@
+
+
+
 Basic methods have been defined for \code{markovchain} objects to
 quickly get states and transition matrix dimension.
 

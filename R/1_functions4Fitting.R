@@ -15,10 +15,16 @@
 # }
 
 markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1),
-                               include.t0 = FALSE)
+                               include.t0 = FALSE, useRCpp = TRUE)
 {
   if (!(t0 %in% markovchain@states))
     stop("Error! Initial state not defined")
+  
+  # call to cpp implmentation of markovchainSequence
+  if (useRCpp) {
+    return(.markovchainSequenceRcpp(n, markovchain, t0, include.t0))
+  }
+  
   chain <- rep(NA,n)# CHANGED
   state <- t0
   for (i in 1:n) {
@@ -33,7 +39,6 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
   else out <- chain
   return(out)
 }
-
 
 
 ################
@@ -64,12 +69,34 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
 }
 
 
-rmarkovchain <- function(n, object, what = "data.frame", ...)
+rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 {
   if (class(object) == "markovchain")
-    out <- markovchainSequence(n = n, markovchain = object, ...)
+    out <- markovchainSequence(n = n, markovchain = object, useRCpp = useRCpp, ...)
   if (class(object) == "markovchainList")
   {
+    #######################################################
+    if(useRCpp) {
+      include.t0 <- list(...)$include.t0
+      include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)
+      
+      dataList <- .markovchainListRcpp(n, object@markovchains, include.t0)
+      
+      if (what == "data.frame")
+        out <- data.frame(iteration = dataList[[1]], values = dataList[[2]])
+      else {
+        out <- matrix(data = dataList[[2]], nrow = n, byrow = TRUE)
+        if (what == "list") {
+          outlist <- list()
+          for (i in 1:nrow(out))
+            outlist[[i]] <- out[i, ]
+          out <- outlist
+        }
+      } 
+      return(out)
+    }
+    ##########################################################
+    
     verify <- .checkSequence(object = object)
     if (!verify)
       warning(

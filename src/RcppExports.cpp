@@ -88,6 +88,33 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// markovchainSequenceRcpp
+CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0, bool include_t0);
+RcppExport SEXP markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< S4 >::type markovchain(markovchainSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    __result = Rcpp::wrap(markovchainSequenceRcpp(n, markovchain, t0, include_t0));
+    return __result;
+END_RCPP
+}
+// markovchainListRcpp
+List markovchainListRcpp(int n, List object, bool include_t0);
+RcppExport SEXP markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    __result = Rcpp::wrap(markovchainListRcpp(n, object, include_t0));
+    return __result;
+END_RCPP
+}
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize);
 RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP) {

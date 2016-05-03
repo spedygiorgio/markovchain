@@ -29,6 +29,14 @@ seq2matHigh <- function(sequence, order) {
     .Call('markovchain_seq2matHigh', PACKAGE = 'markovchain', sequence, order)
 }
 
+.markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
+    .Call('markovchain_markovchainSequenceRcpp', PACKAGE = 'markovchain', n, markovchain, t0, include_t0)
+}
+
+.markovchainListRcpp <- function(n, object, include_t0 = FALSE) {
+    .Call('markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0)
+}
+
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }

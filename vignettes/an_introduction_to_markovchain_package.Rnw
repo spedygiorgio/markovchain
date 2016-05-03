@@ -592,16 +592,22 @@ transition probabilities change by year. Methods explicitly written for
 \code{markovchainList} objects are: \code{print}, \code{show},  \code{dim} and
 \code{[}.
 
-<<cchcMcList, echo=FALSE, keep.source=TRUE>>=
+<<cchcMcList, keep.source=TRUE>>=
 stateNames = c("H", "I", "D")
 Q0 <- new("markovchain", states = stateNames, 
-        transitionMatrix =matrix(c(0.7, 0.2, 0.1,0.1, 0.6, 0.3,0, 0, 1), byrow = TRUE, nrow = 3), name = "state t0")
+        transitionMatrix =matrix(c(0.7, 0.2, 0.1,0.1, 0.6, 0.3,0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t0")
 Q1 <- new("markovchain", states = stateNames, 
-        transitionMatrix = matrix(c(0.5, 0.3, 0.2,0, 0.4, 0.6,0, 0, 1), byrow = TRUE, nrow = 3), name = "state t1")
+        transitionMatrix = matrix(c(0.5, 0.3, 0.2,0, 0.4, 0.6,0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t1")
 Q2 <- new("markovchain", states = stateNames, 
-        transitionMatrix = matrix(c(0.3, 0.2, 0.5,0, 0.2, 0.8,0, 0, 1), byrow = TRUE,nrow = 3), name = "state t2")
-Q3 <- new("markovchain", states = stateNames, transitionMatrix = matrix(c(0, 0, 1, 0, 0, 1, 0, 0, 1), byrow = TRUE, nrow = 3), name = "state t3")
-mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3), name = "Continuous Care Health Community")
+        transitionMatrix = matrix(c(0.3, 0.2, 0.5,0, 0.2, 0.8,0, 0, 1), 
+        byrow = TRUE,nrow = 3), name = "state t2")
+Q3 <- new("markovchain", states = stateNames, 
+          transitionMatrix = matrix(c(0, 0, 1, 0, 0, 1, 0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t3")
+mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3), 
+      name = "Continuous Care Health Community")
 print(mcCCRC)
 @
 
@@ -964,6 +970,8 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
                               include.t0 = TRUE)
 patientStates[1:10,]
 @
+
+
 
 \subsection{Estimation}
 

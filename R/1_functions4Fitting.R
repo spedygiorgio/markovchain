@@ -51,9 +51,9 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
 .checkSequence <- function(object)
 {
   out <- TRUE
-  if (dim(object) == 1)
+  if (length(object) == 1)
     return(out) #if the size of the list is one do
-  for (i in 2:dim(object))
+  for (i in 2:length(object))
   {
     statesNm1 <- states(object[[i - 1]]) #evalutate mc n.1
     statesN <- states(object[[i]]) #evaluate mc n
@@ -111,9 +111,10 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
       sampledValues <-
         markovchainSequence(n = 1, markovchain = object[[1]], ...)
       outIter <- rep(i, length(sampledValues))
-      if (dim(object) > 1)
+      
+      if (length(object) > 1)
       {
-        for (j in 2:dim(object))
+        for (j in 2:length(object))
         {
           pos2take <- length(sampledValues)
           newVals <-
@@ -175,11 +176,6 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 {
   origNum <-
     createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
-  sumOfRow <- rowSums(origNum)
-  origDen <-
-    matrix(rep(sumOfRow, length(sumOfRow)),
-           byrow = FALSE,
-           ncol = length(sumOfRow))
   newNum <- origNum + laplacian
   newSumOfRow <- rowSums(newNum)
   newDen <-
@@ -191,8 +187,10 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
     new("markovchain",
         transitionMatrix = transMatr,
         name = "Laplacian Smooth Fit")
+
   if (byrow == FALSE)
-    outMc <- t(outMc)
+    outMc@transitionMatrix <- t(outMc@transitionMatrix)
+  
   out <- list(estimate = outMc)
   return(out)
 }
@@ -345,20 +343,20 @@ markovchainListFit<-function(data,byrow=TRUE, laplacian=0, name) {
   if(!byrow) data<-t(data)
   nCols<-ncol(data)
   #allocate a the list of markovchain
-  markovchains<-list(nCols-1)
+  markovchains<-list() #### doubt #####
   #fit by cols
   for(i in 2:(nCols)) {
 
     estMc<-.matr2Mc(matrData = data[,c(i-1,i)],laplacian = laplacian)
     if(!is.null(colnames(data))) estMc@name<-colnames(data)[i-1]
-    markovchains[i-1]<-estMc
+    markovchains[[i-1]]<-estMc  #### doubt #####
   }
   #return the fitted list
   outMcList<-new("markovchainList",markovchains=markovchains)
   out<-list(estimate=outMcList)
   if(!missing(name)) out$estimate@name<-name
   return(out)
-}
+}  
 
 #' Return MultinomialWise Confidence intervals.
 #' 

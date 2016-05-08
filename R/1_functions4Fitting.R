@@ -48,6 +48,10 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
 
 #check if the subsequent states are included in the previous ones
 
+# TODO: too strong contidion; should be changed by checking that
+# all states that can be reached in one step at t-1 are named  
+# in object[[t]]
+
 .checkSequence <- function(object)
 {
   out <- TRUE
@@ -55,7 +59,7 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
     return(out) #if the size of the list is one do
   for (i in 2:length(object))
   {
-    statesNm1 <- states(object[[i - 1]]) #evalutate mc n.1
+    statesNm1 <- states(object[[i - 1]]) #evalutate mc n-1
     statesN <- states(object[[i]]) #evaluate mc n
     intersection <-
       intersect(statesNm1, statesN) #check the ibntersection
@@ -315,7 +319,11 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 #    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel)
 #}
 
-#' Fit a markovchainList
+#' @title markovchainListFit
+#' 
+#' @description  Given a data frame or a matrix (rows are observations, by cols 
+#' the temporal sequence), it fits a non - homogeneous discrete time markov chain 
+#' process (storing row)
 #' 
 #' @param data Either a matrix or a data.frame object.
 #' @param laplacian Laplacian correction (default 0).
@@ -342,14 +350,15 @@ markovchainListFit<-function(data,byrow=TRUE, laplacian=0, name) {
   #otherwise transpose
   if(!byrow) data<-t(data)
   nCols<-ncol(data)
-  #allocate a the list of markovchain
-  markovchains<-list() #### doubt #####
+  #allocate a the list of markovchain: a non - homog DTMC process is a 
+  #list of DTMC of length n-1, being n the length of the sequence
+  markovchains<-list() #### allocating #####
   #fit by cols
-  for(i in 2:(nCols)) {
-
+  for(i in 2:(nCols)) { #if whe have at least two transitions
+    # estimate the thransition for period i-1 using cols i-1 and i
     estMc<-.matr2Mc(matrData = data[,c(i-1,i)],laplacian = laplacian)
     if(!is.null(colnames(data))) estMc@name<-colnames(data)[i-1]
-    markovchains[[i-1]]<-estMc  #### doubt #####
+    markovchains[[i-1]]<-estMc  #### save this in mc #####
   }
   #return the fitted list
   outMcList<-new("markovchainList",markovchains=markovchains)

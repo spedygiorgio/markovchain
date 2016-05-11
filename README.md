@@ -12,5 +12,5 @@ devtools::install_github('spedygiorgio/markovchain')
 ```
 
 ![alt tag](https://travis-ci.org/spedygiorgio/markovchain.svg?branch=master)
-[![Downloads](http://cranlogs.r-pkg.org/badges/markovchain)](http://cran.r-project.org/web/packages/package=markovchain)
- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/markovchain)](http://cran.r-project.org/web/packages/markovchain)
+[![Downloads](http://cranlogs.r-pkg.org/badges/markovchain)](https://cran.r-project.org/package=markovchain)
+ [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/markovchain)](https://cran.r-project.org/package=markovchain)

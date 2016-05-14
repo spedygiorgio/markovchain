@@ -486,7 +486,7 @@ setMethod("summary", signature(object="markovchain"),
 	
 	check <- rowSums(matr)
 	
-	for( i in 1:length(check)) if (check[i]!=1) {
+	for( i in 1:length(check)) if (abs(1-check[i]) > .Machine$double.eps) {
 			if(verbose) stop("Error! Either rows or cols should sum to 1")
 			return(FALSE)
 		}

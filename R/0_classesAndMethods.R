@@ -53,7 +53,7 @@ setMethod("initialize",
 				
 			rownames(transitionMatrix)<-stateNames
 			colnames(transitionMatrix)<-stateNames
-		} else if(is.null(rownames(transitionMatrix))) { #fix when rownames null
+	 	} else if(is.null(rownames(transitionMatrix))) { #fix when rownames null
 		  rownames(transitionMatrix)<-colnames(transitionMatrix)
 		} else if(is.null(colnames(transitionMatrix))) { #fix when colnames null
 			colnames(transitionMatrix)<-rownames(transitionMatrix)
@@ -158,12 +158,28 @@ setValidity("markovchain",
 		warning("No eigenvalue = 1 found")
 		return(NULL)
 	}
+	
+	# out of all eigen vectors we will consider only those whose all elements are >= 0
+	# since probability cannot be negative
+	correctOnesIndex <- vector(mode = "numeric")
+	for(i in onesIndex) {
+	  if(nrow(matr) == sum(eigenResults$vectors[, i]  >= 0)) {
+	    correctOnesIndex <- append(correctOnesIndex, i)
+	  }
+	}
+	
+	# whether valid eigen vector exists or not
+	if(length(correctOnesIndex) == 0) {
+	  warning("No valid eigen vector found")
+	  return(NULL)
+	}
+	
 	if (transpose==TRUE)
 	{
-		eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
+		eigenTake <- as.matrix(t(eigenResults$vectors[,correctOnesIndex])) 
 		out <- eigenTake/rowSums(eigenTake) 
 	} else {
-		eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
+		eigenTake <- as.matrix(eigenResults$vectors[,correctOnesIndex]) 
 		out <- eigenTake/colSums(eigenTake)
   }
   # subset the eigenvectors

@@ -163,7 +163,7 @@ setValidity("markovchain",
 	# since probability cannot be negative
 	correctOnesIndex <- vector(mode = "numeric")
 	for(i in onesIndex) {
-	  if(nrow(matr) == sum(eigenResults$vectors[, i]  >= 0)) {
+	  if(nrow(matr) == sum(Re(eigenResults$vectors[, i])  >= 0)) {
 	    correctOnesIndex <- append(correctOnesIndex, i)
 	  }
 	}

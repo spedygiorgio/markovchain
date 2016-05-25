@@ -32,7 +32,10 @@ setClass("HigherOrderMarkovChain", #class name
 
 # fit higher order markov chain
 fitHigherOrder<-function(sequence, order = 2) {
+  # prbability of each states of sequence
   X<-seq2freqProb(sequence)
+  
+  # store h step transition matrix
   Q<-list()
   QX<-list()
   for(o in 1:order) {

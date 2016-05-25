@@ -94,28 +94,33 @@ assessStationarity<-function(sequence, nblocks) {
   n<-length(sequence)
   blocksize<-n/nblocks
   states<-unique(sequence)
-  nstates<-length(states)
-  TStat<-0
+  nstates<-length(states) # number of states
+  TStat<-0 # sum of the statistics
+  # chi-squared test for each state
   for(i in states) {
+    # init matrix
     mat<-zeros(nblocks,nstates)
     dimnames(mat)<-list(1:nblocks,states)
+    # compute the transition matrix from sequence
     for(j in 1:(n-1)) {
-      if(sequence[j] == i) {
-        b<- ceiling(j / blocksize)
-        future<-sequence[j+1]
-        mat[b,future]<-mat[b,future]+1
+      if(sequence[j] == i) { # if the character is state i
+        b<- ceiling(j / blocksize) # row index
+        future<-sequence[j+1] # next state
+        mat[b,future]<-mat[b,future]+1 # update transition matrix
       }
     }
     rowsums<-rowSums(mat)
-    indices<-which(rowsums == 0)
-    mat<-mat/rowsums
-    for(k in indices) mat[k,]<-1/nstates
+    indices<-which(rowsums == 0) # store the indices with zero row sum
+    for(k in indices) mat[k,]<-1/nstates # update rows with zero sum
+    rowsums<-rowSums(mat)
+    mat<-mat/rowsums # row-wise normalize. 
+    # Some columns may still be all zeros. This causes NaN for chi-squared test.
     # chi-squared test
     res<-chisq.test(mat)
     TStat<-TStat+res$statistic
   }
   k<-nstates
-  df<-k*(nblocks - 1) * (k-1)
+  df<-k*(nblocks - 1) * (k-1) # degree of freedom
   pvalue<-1-pchisq(TStat, df)
   #returning the output
   cat("The assessStationarity test statistic is: ",TStat, " the Chi-Square d.f. are: ",df," the p-value is: ",pvalue,"\n")

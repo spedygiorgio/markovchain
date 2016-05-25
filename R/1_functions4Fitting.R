@@ -154,6 +154,70 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
   return(out)
 }
 
+######################################################################
+
+# helper function
+.markovchainSPHelper <- function(x) {
+  # number of transition matrices
+  n <- length(mclist@markovchains)
+  # a character vector to store a single sequence
+  seq <- character(length = n)
+  
+  for (i in 1:n) {
+    stateNames <- mclist@markovchains[[i]]@states 
+    byRow <- mclist@markovchains[[i]]@byrow
+    
+    if(byRow) prob <- mclist@markovchains[[i]]@transitionMatrix[which(stateNames == t0), ]
+    else prob <- mclist@markovchains[[i]]@transitionMatrix[, which(stateNames == t0)]
+    
+    t0 <- sample(x = stateNames, size = 1,  prob = prob)
+    seq[i] <- t0
+  }
+  
+  return(seq)
+}
+
+#' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
+#' 
+#' Provided any markovchainList object, it returns a list of sequence of states coming 
+#' from the underlying stationary distribution. 
+#' 
+#' @param  n Sample size
+#' @param object markovchainList object
+#' @param t0 Initial state
+#'   
+#' @export
+
+markovchainSequenceParallel <- function(n, object,
+                                        t0 = sample(object@markovchains[[1]]@states, 1)) {
+  verify <- .checkSequence(object = object)
+  if (!verify) {
+    warning("Warning: some states in the markovchain sequences are not contained in the following states!")
+  }
+    
+  # Calculate the number of cores
+  no_cores <- parallel::detectCores() - 1
+  
+  # Initiate cluster
+  cl <- parallel::makeCluster(no_cores)
+  
+  # export the variables to be used in the helper function
+  parallel::clusterExport(cl, "t0")
+  
+  mclist <- object
+  parallel::clusterExport(cl, "mclist")
+   
+  # list of n sequence
+  listSeq <- tryCatch(parallel::parLapply(cl, 1:n, .markovchainSPHelper), 
+                      error=function(e) e, warning=function(w) w)  
+  
+  # release the resources
+  parallel::stopCluster(cl)
+  
+  return(listSeq)
+}
+
+######################################################################
 
 #core function to get sequence matrix
 

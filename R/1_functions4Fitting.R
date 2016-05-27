@@ -185,11 +185,13 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 #' @param  n Sample size
 #' @param object markovchainList object
 #' @param t0 Initial state
+#' @param num.cores Number of cores
 #'   
 #' @export
 
 markovchainSequenceParallel <- function(n, object,
-                                        t0 = sample(object@markovchains[[1]]@states, 1)) {
+                                        t0 = sample(object@markovchains[[1]]@states, 1),
+                                        num.cores = NULL) {
   verify <- .checkSequence(object = object)
   if (!verify) {
     warning("Warning: some states in the markovchain sequences are not contained in the following states!")
@@ -197,6 +199,10 @@ markovchainSequenceParallel <- function(n, object,
     
   # Calculate the number of cores
   no_cores <- parallel::detectCores() - 1
+  
+  if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {
+    no_cores <- num.cores
+  }
   
   # Initiate cluster
   cl <- parallel::makeCluster(no_cores)

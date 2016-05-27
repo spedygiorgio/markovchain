@@ -5,7 +5,7 @@
 \title{Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.}
 \usage{
 markovchainSequenceParallel(n, object,
-  t0 = sample(object@markovchains[[1]]@states, 1))
+  t0 = sample(object@markovchains[[1]]@states, 1), num.cores = NULL)
 }
 \arguments{
 \item{n}{Sample size}
@@ -13,6 +13,8 @@ markovchainSequenceParallel(n, object,
 \item{object}{markovchainList object}
 
 \item{t0}{Initial state}
+
+\item{num.cores}{Number of cores}
 }
 \description{
 Provided any markovchainList object, it returns a list of sequence of states coming 

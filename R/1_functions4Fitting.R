@@ -156,21 +156,26 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 
 ######################################################################
 
-# helper function
+# helper function to calculate one sequence
 .markovchainSPHelper <- function(x) {
   # number of transition matrices
   n <- length(mclist@markovchains)
   # a character vector to store a single sequence
   seq <- character(length = n)
   
+  # calculate one element of sequence in each iteration
   for (i in 1:n) {
     stateNames <- mclist@markovchains[[i]]@states 
     byRow <- mclist@markovchains[[i]]@byrow
     
+    # check whether transition matrix follows row-wise or column-wise fashion
     if(byRow) prob <- mclist@markovchains[[i]]@transitionMatrix[which(stateNames == t0), ]
     else prob <- mclist@markovchains[[i]]@transitionMatrix[, which(stateNames == t0)]
     
+    # initial state for the next transition matrix
     t0 <- sample(x = stateNames, size = 1,  prob = prob)
+    
+    # populate the sequence vector
     seq[i] <- t0
   }
   
@@ -192,14 +197,17 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
 markovchainSequenceParallel <- function(n, object,
                                         t0 = sample(object@markovchains[[1]]@states, 1),
                                         num.cores = NULL) {
+  # check for the validity of non-uniform markov chain
   verify <- .checkSequence(object = object)
   if (!verify) {
     warning("Warning: some states in the markovchain sequences are not contained in the following states!")
   }
     
   # Calculate the number of cores
+  # It's not good to use all cores
   no_cores <- parallel::detectCores() - 1
   
+  # number of cores specified should be less than or equal to maximum cores available
   if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {
     no_cores <- num.cores
   }
@@ -210,6 +218,7 @@ markovchainSequenceParallel <- function(n, object,
   # export the variables to be used in the helper function
   parallel::clusterExport(cl, "t0")
   
+  # export the variables to be used in the helper function
   mclist <- object
   parallel::clusterExport(cl, "mclist")
    

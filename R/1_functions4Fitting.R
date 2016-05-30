@@ -1,22 +1,40 @@
-#sampler for univariate markov chains
-# markovchainSequence<-function(n,markovchain, t0=sample(markovchain@states,1),include.t0=FALSE)
-# {
-#   if(!(t0%in%markovchain@states)) stop("Error! Initial state not defined")
-#   chain=character()
-#   state=t0
-#   for(i in 1:n) {
-#     rowProbs<-markovchain@transitionMatrix[which(markovchain@states==state),]
-#     outstate<-sample(size=1, x=markovchain@states, prob=rowProbs)
-#     chain=c(chain, outstate)
-#     state=outstate
-#   }
-#   if(include.t0) out<-c(t0, chain) else out<-chain
-#   return(out)
-# }
+#' Function to generate a sequence of states from homogeneous Markov chains.
+#' 
+#' Provided any \code{markovchain} object, it returns a sequence of 
+#' states coming from the underlying stationary distribution. 
+#' 
+#' @param n Sample size
+#' @param markovchain \code{markovchain} object
+#' @param t0 The initial state
+#' @param include.t0 Specify if the initial state shall be used
+#' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
+#' 
+#' @details A sequence of size n is sampled.
+#' 
+#' @return A Character Vector
+#' 
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @author Giorgio Spedicato
+#' 
+#' @seealso \code{\link{markovchainFit}}
+#' 
+#' @examples 
+#' # define the markovchain object
+#' statesNames <- c("a", "b", "c")
+#' mcB <- new("markovchain", states = statesNames, 
+#'    transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
+#'    nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' 
+#' # show the sequence
+#' outs <- markovchainSequence(n = 100, markovchain = mcB, t0 = "a")
+#' 
+#' @export
 
-markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1),
-                               include.t0 = FALSE, useRCpp = TRUE)
-{
+markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 1),
+                               include.t0 = FALSE, useRCpp = TRUE) {
+  
+  # check whether given initial state is possible state or not
   if (!(t0 %in% markovchain@states))
     stop("Error! Initial state not defined")
   
@@ -25,71 +43,172 @@ markovchainSequence<-function (n, markovchain, t0 = sample(markovchain@states, 1
     return(.markovchainSequenceRcpp(n, markovchain, t0, include.t0))
   }
   
-  chain <- rep(NA,n)# CHANGED
+  # R implementation of the function
+  
+  # create a sequence of size n initially not initialized
+  chain <- rep(NA,n)
+  
+  # initial state
   state <- t0
+  
+  # populate the sequence
   for (i in 1:n) {
+    # row probabilty corresponding to the current state
     rowProbs <- markovchain@transitionMatrix[which(markovchain@states == state), ]
-    outstate <- sample(size = 1, x = markovchain@states,
-                       prob = rowProbs)
-    chain[i] <- outstate #CHANGED
+    
+    # select the next state
+    outstate <- sample(size = 1, x = markovchain@states, prob = rowProbs)
+    
+    # store the new state
+    chain[i] <- outstate
+    
+    # update the current state
     state <- outstate
   }
-  if (include.t0)
-    out <- c(t0, chain)
-  else out <- chain
+  
+  # output
+  out <- chain
+  
+  # whether to include initial state or not
+  if (include.t0) {
+    out <- c(t0, out)
+  }
+  
   return(out)
 }
 
 
-################
-#random sampler#
-################
+##################
+# random sampler #
+##################
 
-
-#check if the subsequent states are included in the previous ones
+# check if the subsequent states are included in the previous ones
 
 # TODO: too strong contidion; should be changed by checking that
 # all states that can be reached in one step at t-1 are named  
 # in object[[t]]
 
-.checkSequence <- function(object)
-{
+# check the validity of non homogeneous markovchain list
+# object is a list of markovchain object
+.checkSequence <- function(object) {
+  # assume non homogeneous markovchain list is valid
   out <- TRUE
-  if (length(object) == 1)
-    return(out) #if the size of the list is one do
-  for (i in 2:length(object))
-  {
-    statesNm1 <- states(object[[i - 1]]) #evalutate mc n-1
-    statesN <- states(object[[i]]) #evaluate mc n
-    intersection <-
-      intersect(statesNm1, statesN) #check the ibntersection
+  
+  # list of one transition matrix implies valid
+  if (length(object) == 1) {
+    return(out) 
+  }
+  
+  # if number of transition matrices are more than one  
+  for (i in 2:length(object)) {
+    
+    # possible states in the previous markovchain object
+    statesNm1 <- states(object[[i - 1]])
+    
+    # possible states in the current markovchain object
+    statesN <- states(object[[i]])
+    
+    # common states 
+    intersection <- intersect(statesNm1, statesN)
+    
+    # condition to check whether statesNm1 is a subset of statesN or not
     if (setequal(intersection, statesNm1) == FALSE) {
-      #the states at n-1
       out <- FALSE
       break
     }
+    
   }
+  
   return(out)
 }
 
+#' Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.
+#' 
+#' Provided any \code{markovchain} or \code{markovchainList} objects, it returns a sequence of 
+#' states coming from the underlying stationary distribution. 
+#' 
+#' @param n Sample size
+#' @param object Either a \code{markovchain} or a \code{markovchainList} object
+#' @param what It specifies whether either a \code{data.frame} or a \code{matrix} 
+#'        (each rows represent a simulation) or a \code{list} is returned.
+#' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
+#' @param ... additional parameters passed to the internal sampler
+#' 
+#' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
+#' sampled of size n. When an non - homogeneous process is assumed,
+#' n samples are taken but the process is assumed to last from the begin to the end of the 
+#' non-homogeneous markov process.
+#' 
+#' @return Character Vector, data.frame, list or matrix
+#' 
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @author Giorgio Spedicato
+#' 
+#' @note Check the type of input
+#' 
+#' @seealso \code{\link{markovchainFit}}
+#' 
+#' @examples 
+#' # define the markovchain object
+#' statesNames <- c("a", "b", "c")
+#' mcB <- new("markovchain", states = statesNames, 
+#'    transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
+#'    nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' 
+#' # show the sequence
+#' outs <- rmarkovchain(n = 100, object = mcB, what = "list")
+#' 
+#' 
+#' #define markovchainList object
+#' statesName = c("a", "b", "c")
+#' mcA <- new("markovchain", states = statesNames, transitionMatrix = 
+#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' mcB <- new("markovchain", states = statesNames, transitionMatrix = 
+#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' mcC <- new("markovchain", states = statesNames, transitionMatrix = 
+#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC)) 
+#' 
+#' # show the list of sequence
+#' rmarkovchain(100, mclist, "list")
+#'      
+#' @export
 
-rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
-{
-  if (class(object) == "markovchain")
+rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
+  
+  # check the class of the object
+  if (class(object) == "markovchain") {
     out <- markovchainSequence(n = n, markovchain = object, useRCpp = useRCpp, ...)
+    return(out)
+  }
+    
   if (class(object) == "markovchainList")
   {
     #######################################################
     if(useRCpp) {
+      
+      # if include.t0 is not passed as extra argument then set include.t0 as false
       include.t0 <- list(...)$include.t0
       include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)
       
+      # call fast cpp function
       dataList <- .markovchainListRcpp(n, object@markovchains, include.t0)
       
-      if (what == "data.frame")
+      # format in which results to be returned
+      if (what == "data.frame") {
         out <- data.frame(iteration = dataList[[1]], values = dataList[[2]])
+      }
+        
       else {
+        # output in matrix format
+        # each row is an independent sequence
         out <- matrix(data = dataList[[2]], nrow = n, byrow = TRUE)
+        
+        # output in list format
         if (what == "list") {
           outlist <- list()
           for (i in 1:nrow(out))
@@ -101,49 +220,58 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
     }
     ##########################################################
     
+    ##########################################################
+    
+    # store list of markovchain object in object
+    object <- object@markovchains
+    
+    # check the validity of markovchainList object
     verify <- .checkSequence(object = object)
-    if (!verify)
-      warning(
-        "Warning: some states in the markovchain sequences are not contained in the following states!"
-      )
+    
+    # show warning if sequence is invalid
+    if (!verify) {
+      warning("Warning: some states in the markovchain sequences are not contained in the following states!")
+    }
+    
+    # helper vector
     iteration <- numeric()
     values <- character()
-    for (i in 1:n)
-      #number of replicates
-    {
+    
+    # create one sequence in each iteration
+    for (i in 1:n) {
+      
       #the first iteration may include initial state
-      sampledValues <-
-        markovchainSequence(n = 1, markovchain = object[[1]], ...)
+      sampledValues <- markovchainSequence(n = 1, markovchain = object[[1]], ...)
       outIter <- rep(i, length(sampledValues))
       
-      if (length(object) > 1)
-      {
-        for (j in 2:length(object))
-        {
+      # number of markovchain objects are more than one
+      if (length(object) > 1) {
+        for (j in 2:length(object)) {
           pos2take <- length(sampledValues)
-          newVals <-
-            markovchainSequence(n = 1,
-                                markovchain = object[[j]],
-                                t0 = sampledValues[pos2take]) #the initial state is in the ending position of the mclist
+          # select new state of the sequence from the old state
+          # t0 refers to the old state
+          newVals <-markovchainSequence(n = 1, markovchain = object[[j]], t0 = sampledValues[pos2take]) 
+          
+          # update in every iteration
           outIter <- c(outIter, i)
           sampledValues <- c(sampledValues, newVals)
         }
       }
+      
+      # populate the helper vectors
       iteration <- c(iteration, outIter)
       values <- c(values, sampledValues)
     }
-    #defining the output
-    if (what == "data.frame")
+    
+    # defining the output
+    if (what == "data.frame") {
       out <- data.frame(iteration = iteration, values = values)
-    else
-      #matrix
-    {
-      out <- matrix(data = values,
-                    nrow = n,
-                    byrow = TRUE)
-      if (what == 'list')
-        #or list?
-      {
+    } else {
+      # ouput in matrix format
+      out <- matrix(data = values, nrow = n, byrow = TRUE)
+      
+      # store each row of the matrix in the list
+      if (what == 'list') {
         outlist <- list()
         for (i in 1:nrow(out))
           outlist[[i]] <- out[i, ]
@@ -151,6 +279,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...)
       }
     }
   }
+  
   return(out)
 }
 
@@ -198,7 +327,7 @@ markovchainSequenceParallel <- function(n, object,
                                         t0 = sample(object@markovchains[[1]]@states, 1),
                                         num.cores = NULL) {
   # check for the validity of non-uniform markov chain
-  verify <- .checkSequence(object = object)
+  verify <- .checkSequence(object@markovchains)
   if (!verify) {
     warning("Warning: some states in the markovchain sequences are not contained in the following states!")
   }

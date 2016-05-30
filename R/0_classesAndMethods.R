@@ -84,6 +84,22 @@ setMethod("states","markovchain",
           }
 )
 
+# generic method to get the name of the object
+setGeneric("name", function(object) standardGeneric("name"))
+setMethod("name", "markovchain", function(object) {
+  out <- object@name
+  return(out)
+})
+
+# generic method to set the name of the object
+setGeneric("name<-", function(object, value) standardGeneric("name<-"))
+setMethod("name<-", "markovchain", 
+          function(object, value) {
+            object@name <- value
+            object
+          }
+)
+
 #adding a method names: to get names
 setMethod("names","markovchain", 
           function(x) {

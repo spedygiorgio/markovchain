@@ -84,15 +84,36 @@ setMethod("states","markovchain",
           }
 )
 
-# generic method to get the name of the object
+#' @title Method to retrieve name of markovchain object  
+#' 
+#' @name name
+#' 
+#' @description This method returns the name of markovchain object
+#' 
+#' @param object A markovchain object
+#' @rdname getName
+#' @export
 setGeneric("name", function(object) standardGeneric("name"))
+
+#' @rdname getName
 setMethod("name", "markovchain", function(object) {
   out <- object@name
   return(out)
 })
 
-# generic method to set the name of the object
+#' @title Method to set name of markovchain object
+#' 
+#' @name name<-
+#' 
+#' @description This method modify the existing name of markovchain object
+#' 
+#' @param object A markovchain object
+#' @param value New name of markovchain object
+#' @rdname setName
+#' @export
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))
+
+#' @rdname setName
 setMethod("name<-", "markovchain", 
           function(object, value) {
             object@name <- value

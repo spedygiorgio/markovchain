@@ -1,19 +1,45 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.4.4
+Version: 0.4.4.1
 Date: 2016-05-10
-Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb]
+Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav
+    Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
-Description: Functions and S4 methods to create and manage discrete time Markov chains (DTMC) more easily. In addition functions to perform statistical (fitting and drawing random variates) and probabilistic (analysis of DTMC proprieties) analysis are provided.
+Description: Functions and S4 methods to create and manage discrete time Markov
+    chains (DTMC) more easily. In addition functions to perform statistical (fitting
+    and drawing random variates) and probabilistic (analysis of DTMC proprieties)
+    analysis are provided.
 License: GPL-2
-Depends: R (>= 3.2.0), methods
-Imports: igraph, Matrix, matlab, expm, stats4, parallel, Rcpp (>= 0.11.5), RcppParallel, utils, stats
-Suggests: knitr, testthat, diagram, DiagrammeR, msm, etm, Rsolnp, knitcitations, rmarkdown
-VignetteBuilder:  utils, knitr
+Depends:
+    R (>= 3.2.0),
+    methods
+Imports:
+    igraph,
+    Matrix,
+    matlab,
+    expm,
+    stats4,
+    parallel,
+    Rcpp (>= 0.11.5),
+    RcppParallel,
+    utils,
+    stats
+Suggests:
+    knitr,
+    testthat,
+    diagram,
+    DiagrammeR,
+    msm,
+    etm,
+    Rsolnp,
+    knitcitations,
+    rmarkdown
+VignetteBuilder: utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make
 LazyLoad: yes
 ByteCompile: yes
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
+RoxygenNote: 5.0.1

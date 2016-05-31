@@ -363,169 +363,96 @@ markovchainSequenceParallel <- function(n, object,
 
 ######################################################################
 
-#core function to get sequence matrix
-
-#createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
-#    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
-#}
-
-#functon to fit a Markov chain by MLE
-
-# .mcFitMle<-function(stringchar,byrow)
-# {
-#   initialMatr<-createSequenceMatrix(stringchar=stringchar,toRowProbs=TRUE)
-#   outMc<-new("markovchain", transitionMatrix=initialMatr,name="MLE Fit")
-#   if(byrow==FALSE) outMc<-t(outMc)
-#   out<-list(estimate=outMc)
-#   return(out)
-# }
-
-
-#function to fit a DTMC with Laplacian Smoother
-
-
-.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01)
-{
-  origNum <-
-    createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
-  newNum <- origNum + laplacian
-  newSumOfRow <- rowSums(newNum)
-  newDen <-
-    matrix(rep(newSumOfRow, length(newSumOfRow)),
-           byrow = FALSE,
-           ncol = length(newSumOfRow))
-  transMatr <- newNum / newDen
-  outMc <-
-    new("markovchain",
-        transitionMatrix = transMatr,
-        name = "Laplacian Smooth Fit")
-
-  if (byrow == FALSE)
-    outMc@transitionMatrix <- t(outMc@transitionMatrix)
+# function to fit a DTMC with Laplacian Smoother
+.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01) {
   
+  # every element of the matrix store the number of times jth state appears just
+  # after the ith state
+  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
+  
+  # add laplacian  to the sequence matrix
+  # why? to avoid the cases where sum of row is zero
+  newNum <- origNum + laplacian
+  
+  # store sum of each row  in the vector
+  newSumOfRow <- rowSums(newNum)
+  
+  # helper matrix to convert frequency matrix to transition matrix
+  newDen <- matrix(rep(newSumOfRow, length(newSumOfRow)), byrow = FALSE, ncol = length(newSumOfRow))
+  
+  # transition matrix
+  transMatr <- newNum / newDen
+  
+  # create a markovchain object
+  outMc <- new("markovchain", transitionMatrix = transMatr, name = "Laplacian Smooth Fit")
+
+  # transpose the transition matrix
+  if (byrow == FALSE) {
+    outMc@transitionMatrix <- t(outMc@transitionMatrix)
+    outMc@byrow <- FALSE
+  }
+  
+  # wrap markovchain object in a list
   out <- list(estimate = outMc)
   return(out)
 }
 
-
-#example
-
-#data=markovchainSequence(10000,markovA,t0="a")
-#ciao<-markovchainFit(data=data)
-
-
-#given a sting of characters, returns the associate one step transition matrix
-# .bootstrapCharacterSequences<-function(stringchar, n, size=length(stringchar))
-# {
-#   contingencyMatrix<-createSequenceMatrix(stringchar=stringchar)
-#   samples<-list()
-#   itemset<-rownames(contingencyMatrix)
-#   for(i in 1:n) #cicle to fill the samples
-#   {
-#     charseq<-character()
-#     char<-sample(x=itemset,size=1)
-#     charseq<-c(charseq,char)
-#     for(j in 2:size) #cicle to define the element in a list
-#     {
-#       probsVector<-contingencyMatrix[which(rownames(contingencyMatrix)==char),]
-#       char<-sample(x=itemset,size=1, replace=TRUE,prob=probsVector)
-#       charseq<-c(charseq,char)
-#     }
-#     samples[[length(samples)+1]]<-charseq #increase the list
-#   }
-#   return(samples)
-# }
-
-
-# .fromBoot2Estimate<-function(listMatr)
-# {
-#   sampleSize<-length(listMatr)
-#   matrDim<-nrow(listMatr[[1]])
-#   #create the estimate output
-#   matrMean<-zeros(matrDim)
-#   matrSd<-zeros(matrDim)
-#   #create the sample output
-#   for(i in 1:matrDim) #move by row
-#   {
-#     for(j in 1:matrDim) #move by cols
-#     {
-#       probsEstimated<-numeric()
-#       #fill the probs
-#       for(k in 1:sampleSize) probsEstimated<-c(probsEstimated,listMatr[[k]][i,j])
-#       muCell<-mean(probsEstimated)
-#       sdCell<-sd(probsEstimated)
-#       matrMean[i,j]<-muCell
-#       matrSd[i,j]<-sdCell
-#     }
-#   }
-# 	out<-list(estMu=matrMean, estSigma=matrSd)
-#     return(out)
-# }
-# 
-# 
-# .mcFitBootStrap<-function(data, nboot=10,byrow=TRUE, parallel=FALSE)
-# {
-#   #create the list of bootstrap sequence sample
-# 	theList<-.bootstrapCharacterSequences(stringchar=data, n=nboot)
-# 	if(!parallel)
-# 		#convert the list in a probability matrix
-# 		pmsBootStrapped<-lapply(X=theList, FUN=createSequenceMatrix, toRowProbs=TRUE,sanitize=TRUE)
-# 		 else {
-# 		#require(parallel)
-# 		type <- if(exists("mcfork", mode = "function")) "FORK" else "PSOCK"
-# 		cores <- getOption("mc.cores", detectCores())
-# 		cl <- makeCluster(cores, type = type)
-# 			clusterExport(cl, varlist = c("createSequenceMatrix","zeros"))
-# 			pmsBootStrapped<-parLapply(cl=cl, X=theList, fun="createSequenceMatrix", toRowProbs=TRUE,sanitize=TRUE)
-# 		stopCluster(cl)
-# 	}
-#  
-#   estimateList<-.fromBoot2Estimate(listMatr=pmsBootStrapped)
-#   #from raw to estimate
-#   temp<-estimateList$estMu
-#   transMatr<-sweep(temp, 1, rowSums(temp), FUN="/")
-#   estimate<-new("markovchain",transitionMatrix=transMatr, byrow=byrow, name="BootStrap Estimate")
-#   out<-list(estimate=estimate, standardError=estimateList$estSigma,bootStrapSamples=pmsBootStrapped)
-#   return(out)
-# }
-
-###############################################
-#special function for matrices and data.frames#
-###############################################
-
-#function that return a Markov Chain from a given matrix of observations
-
-.matr2Mc<-function(matrData,laplacian=0) {
-  #find unique values scanning the matrix
-  nCols<-ncol(matrData)
-  uniqueVals<-character()
-  for(i in 1:nCols) uniqueVals<-union(uniqueVals,unique(as.character(matrData[,i])))
-  uniqueVals<-sort(uniqueVals)
-  #create a contingency matrix
-  contingencyMatrix<-matrix(rep(0,length(uniqueVals)^2),ncol=length(uniqueVals))
-  rownames(contingencyMatrix)<-colnames(contingencyMatrix)<-uniqueVals
-  #fill the contingency matrix
-  for(i in 1:nrow(matrData))
-  {
-    for( j in 2:nCols)
-    {
-      stateBegin<-as.character(matrData[i,j-1]);whichRow<-which(uniqueVals==stateBegin)
-      stateEnd<-as.character(matrData[i,j]);whichCols<-which(uniqueVals==stateEnd)
-      contingencyMatrix[whichRow,whichCols]<-contingencyMatrix[whichRow,whichCols]+1
+# function that return a Markov Chain from a given matrix of observations
+.matr2Mc <- function(matrData, laplacian = 0) {
+  
+  # number of columns in the input matrix  
+  nCols <- ncol(matrData)
+  
+  # an empty character vector to store names of possible states
+  uniqueVals <- character()
+  
+  # populate uniqueVals with names of states 
+  for(i in 1:nCols) {
+    uniqueVals <- union(uniqueVals, unique(as.character(matrData[,i]))) 
+  }
+  
+  # possible states in lexicographical order
+  uniqueVals <- sort(uniqueVals)
+  
+  # create a contingency matrix which store the number of times 
+  # jth state appear just after the ith state
+  contingencyMatrix <- matrix(rep(0, length(uniqueVals)^2), ncol = length(uniqueVals))
+  
+  # set the names of rows and columns
+  rownames(contingencyMatrix) <- colnames(contingencyMatrix) <- uniqueVals
+  
+  # fill the contingency matrix
+  for (i in 1:nrow(matrData)) {
+    for (j in 2:nCols) {
+      # state in the ith row and (j-1)th column
+      stateBegin <- as.character(matrData[i, j-1])
+      
+      # index of beginning state 
+      whichRow <- which(uniqueVals == stateBegin)
+      
+      # state in the ith row and jth column
+      stateEnd <- as.character(matrData[i, j])
+      
+      # index of ending state 
+      whichCols <- which(uniqueVals == stateEnd)
+      
+      # update the contingency matrix
+      contingencyMatrix[whichRow, whichCols] <- contingencyMatrix[whichRow, whichCols] + 1
     }
   }
-  #add laplacian correction if needed
-  contingencyMatrix<-contingencyMatrix+laplacian
-  #get a transition matrix and a DTMC
-  transitionMatrix<-contingencyMatrix/rowSums(contingencyMatrix)
-  outMc<-new("markovchain",transitionMatrix=transitionMatrix)
+  
+  # add laplacian correction if needed
+  contingencyMatrix <- contingencyMatrix + laplacian
+  
+  # get a transition matrix and a DTMC
+  transitionMatrix <- contingencyMatrix / rowSums(contingencyMatrix)
+  
+  # markov chain object to be returned
+  outMc <- new("markovchain", transitionMatrix = transitionMatrix)
  
   return(outMc)
 }
 
-#markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95) {
-#    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel)
-#}
 
 #' @title markovchainListFit
 #' 
@@ -544,34 +471,63 @@ markovchainSequenceParallel <- function(n, object,
 #' 
 #' @examples
 #' 
-#' #using holson dataset
+#' # using holson dataset
 #' data(holson)
-#' #fitting a single markovchain
-#' singleMc<-markovchainFit(data=holson[,2:12])
-#' #fitting a markovchainList
-#' mclistFit<-markovchainListFit(data=holson[,2:12],name="holsonMcList")
+#' # fitting a single markovchain
+#' singleMc <- markovchainFit(data = holson[,2:12])
+#' # fitting a markovchainList
+#' mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
 
-markovchainListFit<-function(data,byrow=TRUE, laplacian=0, name) {
-  if (!(class(data) %in% c("data.frame","matrix"))) stop("Error: data must be either a matrix or a data.frame")
-  if(is.data.frame(data)) data<-as.matrix(data)
-  #byrow assumes distinct observations (trajectiories) are per row
-  #otherwise transpose
-  if(!byrow) data<-t(data)
-  nCols<-ncol(data)
-  #allocate a the list of markovchain: a non - homog DTMC process is a 
-  #list of DTMC of length n-1, being n the length of the sequence
-  markovchains<-list() #### allocating #####
-  #fit by cols
-  for(i in 2:(nCols)) { #if whe have at least two transitions
-    # estimate the thransition for period i-1 using cols i-1 and i
-    estMc<-.matr2Mc(matrData = data[,c(i-1,i)],laplacian = laplacian)
-    if(!is.null(colnames(data))) estMc@name<-colnames(data)[i-1]
-    markovchains[[i-1]]<-estMc  #### save this in mc #####
+markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
+  
+  # check the format of input data
+  if (! (class(data) %in% c("data.frame", "matrix"))) {
+    stop("Error: data must be either a matrix or a data.frame")  
   }
-  #return the fitted list
-  outMcList<-new("markovchainList",markovchains=markovchains)
-  out<-list(estimate=outMcList)
-  if(!missing(name)) out$estimate@name<-name
+  
+  # if input is data frame convert it to matrix
+  if(is.data.frame(data)) {
+    data <- as.matrix(data)
+  } 
+  
+  # make the entries row wise if it is not
+  if(!byrow) {
+    data <- t(data) 
+  }
+  
+  # number of columns in the matrix
+  nCols <- ncol(data)
+  
+  # allocate a list of markovchain: a non - homog DTMC process is a 
+  # list of DTMC of length n-1, being n the length of the sequence
+  markovchains <- list() 
+  
+  # fit by columns
+  for(i in 2:(nCols)) { 
+    
+    # (i-1)th transition matrix for transition from (i-1)th state to ith state
+    estMc <- .matr2Mc(matrData = data[, c(i-1, i)], laplacian = laplacian)
+    
+    # give name to the markovchain object which is same as the name of (i-1)th column
+    if(!is.null(colnames(data))) {
+      estMc@name <- colnames(data)[i-1]  
+    }
+    
+    # store one transition matrix at every iteration
+    markovchains[[i-1]] <- estMc
+  }
+  
+  # create markovchainList object
+  outMcList <- new("markovchainList", markovchains = markovchains)
+  
+  # wrap the object in a list
+  out <- list(estimate = outMcList)
+  
+  # set the name of markovchainList object as given in the argument
+  if(!missing(name)) {
+    out$estimate@name <- name 
+  }
+  
   return(out)
 }  
 

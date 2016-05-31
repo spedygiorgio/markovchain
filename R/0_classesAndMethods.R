@@ -178,46 +178,30 @@ setValidity("markovchain",
 
 .mcEigen<-function(matr, transpose=TRUE)
 {
- # Function to extract eigenvalues, core of get steady states 
- #
- # Args:
- # matr: the matrix to extract
- # transpose:  boolean indicating whether the matrx shall be transpose
- #
- # Results:
- # a matrix / vector
-	if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
-	eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
-	onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
-	#do the following: 1:get eigenvectors whose eigenvalues==1
-	#2: normalize
-	if (length(onesIndex)==0) {
-		warning("No eigenvalue = 1 found")
-		return(NULL)
-	}
-	
-	# out of all eigen vectors we will consider only those whose all elements are >= 0
-	# since probability cannot be negative
-	correctOnesIndex <- vector(mode = "numeric")
-	for(i in onesIndex) {
-	  if(nrow(matr) == sum(Re(eigenResults$vectors[, i])  >= 0)) {
-	    correctOnesIndex <- append(correctOnesIndex, i)
-	  }
-	}
-	
-	# whether valid eigen vector exists or not
-	if(length(correctOnesIndex) == 0) {
-	  warning("No valid eigen vector found")
-	  return(NULL)
-	}
-	
-	if (transpose==TRUE)
-	{
-		eigenTake <- as.matrix(t(eigenResults$vectors[,correctOnesIndex])) 
-		out <- eigenTake/rowSums(eigenTake) 
-	} else {
-		eigenTake <- as.matrix(eigenResults$vectors[,correctOnesIndex]) 
-		out <- eigenTake/colSums(eigenTake)
+  # Function to extract eigenvalues, core of get steady states 
+  #
+  # Args:
+  # matr: the matrix to extract
+  # transpose:  boolean indicating whether the matrx shall be transpose
+  #
+  # Results:
+  # a matrix / vector
+  if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
+  eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
+  onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
+  #do the following: 1:get eigenvectors whose eigenvalues==1
+  #2: normalize
+  if (length(onesIndex)==0) {
+    warning("No eigenvalue = 1 found")
+    return(NULL)
+  }
+  if (transpose==TRUE)
+  {
+    eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
+    out <- eigenTake/rowSums(eigenTake) 
+  } else {
+    eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
+    out <- eigenTake/colSums(eigenTake)
   }
   # subset the eigenvectors
   # normalize

@@ -102,8 +102,15 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   # if number of transition matrices are more than one  
   for (i in 2:length(object)) {
     
+    # select the states which are reachable in one step
+    if(object[[i - 1]]@byrow) {
+      reachable <- (colSums(object[[i - 1]]@transitionMatrix) != 0)
+    } else {
+      reachable <- (rowSums(object[[i - 1]]@transitionMatrix) != 0)
+    }
+    
     # possible states in the previous markovchain object
-    statesNm1 <- states(object[[i - 1]])
+    statesNm1 <- states(object[[i - 1]])[reachable]
     
     # possible states in the current markovchain object
     statesN <- states(object[[i]])

@@ -28,13 +28,13 @@
 %% almost as usual
 
 
-\author{Giorgio Alfredo Spedicato, Tae Seung Kang, and Sai Bhargav Yalamanchi}
+\author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi and Deepak Yadav}
 
 \title{The \pkg{markovchain} Package: A Package for Easily Handling Discrete
 Markov Chains in \proglang{R}}
 
 %% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi} %% comma-separated
+\Plainauthor{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav} %% comma-separated
 \Plaintitle{The markovchain Package: A Package for Easily Handling Discrete
 Markov Chains in R} %% without formatting
 \Shorttitle{The markovchain package} %% a short title (if necessary)
@@ -84,6 +84,13 @@ Finally, some examples in which the package's functions are applied to Economics
   Indian Institute of Technology, Bombay\\
   Mumbai - 400 076, India\\
   E-mail: \email{bhargavcoolboy@gmail.com}\\
+  
+  Deepak Yadav\\
+  B-Tech student\\
+  Computer Science and Engineering\\
+  Indian Institute of Technology, Varanasi\\
+  Uttar Pradesh - 221 005, India\\
+  E-mail: \email{deepakyadav.iitbhu@gmail.com}\\
 }
 
 %% for those who use Sweave please include the following line (with % symbols):
@@ -395,6 +402,8 @@ manipulate \code{markovchain} objects.
 \code{dim} & Dimension of the transition matrix.\\
 \code{names} & Equal to \code{states}.\\
 \code{names<-} & Change the \code{states} name.\\
+\code{name} & Get the name of \code{markovchain object}.\\
+\code{name<-} & Change the name of \code{markovchain object}.\\
 \code{plot} & \code{plot} method for \code{markovchain} objects.\\
 \code{print} & \code{print} method for \code{markovchain} objects.\\
 \code{show} & \code{show} method for \code{markovchain} objects.\\
@@ -456,6 +465,14 @@ quickly get states and transition matrix dimension.
 states(mcWeather)
 names(mcWeather)
 dim(mcWeather)
+@
+
+Methods are available to set and get the name of \code{markovchain} object.
+
+<<otherMethods, keep.source=TRUE>>=
+name(mcWeather)
+name(mcWeather) <- "New Name"
+name(mcWeather)
 @
 
 A direct access to transition probabilities is provided both by \code{transitionProbability} method and "[" method.

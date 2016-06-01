@@ -169,7 +169,7 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
           rowSum += freqMatrix(i, j);
         if(rowSum == 0)
           for (int j = 0; j < sizeMatr; j++) 
-            freqMatrix(i, j) = 1/sizeMatr;
+            freqMatrix(i, j) = 1;
       }
   }
   if(toRowProbs==true)

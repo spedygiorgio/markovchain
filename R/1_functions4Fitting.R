@@ -293,7 +293,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
 ######################################################################
 
 # helper function to calculate one sequence
-.markovchainSPHelper <- function(x) {
+.markovchainSPHelper <- function(x, t0, mclist) {
   # number of transition matrices
   n <- length(mclist@markovchains)
   # a character vector to store a single sequence
@@ -352,14 +352,14 @@ markovchainSequenceParallel <- function(n, object,
   cl <- parallel::makeCluster(no_cores)
   
   # export the variables to be used in the helper function
-  parallel::clusterExport(cl, "t0")
+  # parallel::clusterExport(cl, "t0")
   
   # export the variables to be used in the helper function
   mclist <- object
-  parallel::clusterExport(cl, "mclist")
+  # parallel::clusterExport(cl, "mclist")
    
   # list of n sequence
-  listSeq <- tryCatch(parallel::parLapply(cl, 1:n, .markovchainSPHelper), 
+  listSeq <- tryCatch(parallel::parLapply(cl, 1:n, .markovchainSPHelper, t0, mclist), 
                       error=function(e) e, warning=function(w) w)  
   
   # release the resources

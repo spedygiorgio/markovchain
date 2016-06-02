@@ -1,52 +1,120 @@
+#' @name verifyMarkovProperty
+#' 
+#' @rdname verifyMarkovProperty
+#' 
+#' @title Various functions to perform statistical inference of DTMC
+#' @description These functions verify the Markov property, assess 
+#'              the order and stationarity of the Markov chain.
+#' 
+#' @param sequence An empirical sequence.
+#' @param ... Parameters for chi-square test.
+#' @param hypothetic A transition matrix for a hypothetic markov chain sequence.
+#' @param nblocks Number of blocks.
+#' 
+#' @return Verification result
+#' 
+#' @references Monika, Anderson and Goodman.
+#' 
+#' @author Tae Seung Kang, Giorgio Alfredo Spedicato
+#' 
+#' @seealso \code{markovchain}
+#' 
+#' @examples 
+#' sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
+#'               "a", "b", "a", "a", "b", "b", "b", "a")
+#' mcFit <- markovchainFit(data = sequence, byrow = FALSE)
+#' verifyMarkovProperty(sequence)
+#' assessOrder(sequence)
+#' assessStationarity(sequence, 1)
+#' divergenceTest(sequence, mcFit$estimate@transitionMatrix)
+#' 
+NULL
+
+#' @rdname verifyMarkovProperty
+#' 
+#' @export
+
 # check if the sequence holds the Markov property
-verifyMarkovProperty<-function(sequence,...) {
-  n<-length(sequence)
-  u<-unique(sequence)
-  stateNames<-u
-  nelements<-length(stateNames)
-  mat<-zeros(nrow=nelements, ncol=3)
+verifyMarkovProperty <- function(sequence, ...) {
+  n <- length(sequence)
+  u <- unique(sequence)
+  stateNames <- u
+  nelements <- length(stateNames)
+  mat <- matlab::zeros(nrow = nelements, ncol = 3)
+  
   # SSO: state sequence occurrences
   # TSO: two state occurences
-  dimnames(mat)<-list(stateNames, c("SSO", "TSO", "TSO-SSO"))
-  SSO<-numeric()
+  dimnames(mat) <- list(stateNames, c("SSO", "TSO", "TSO-SSO"))
+  
+  # numeric vector initialized with zero for all states
+  SSO <- numeric()
   for(i in 1:nelements) {
-    sname<-stateNames[i]
-    SSO[sname]<-0
+    sname <- stateNames[i]
+    SSO[sname] <- 0
   }
-  TSO<-SSO
-  out<-list()
+  
+  # numeric vector initialized with zero for all states
+  TSO <- SSO
+  
+  # store the output to be returned
+  out <- list()
+  
   for(present in stateNames) {
     for(future in stateNames) {
-      # print(paste0(present,'->',future))
-      for(i in 1:nelements) TSO[i]<-SSO[i]<-0
-      for(i in 1:(n-1))
-      {
-        past<-sequence[i]
+      
+      for(i in 1:nelements) {
+        TSO[i] <- SSO[i] <- 0  
+      }
+      
+      # populate TSO and SSO vector
+      for(i in 1:(n-1)) {
+        # let the ith state as past state
+        past <- sequence[i]
+        
+        # if next state in the sequence is present state
         if(sequence[i+1] == present) {
           TSO[past] <- TSO[past] + 1
+          
+          # if next to next state in the sequence is future state
           if((i < n - 1) && (sequence[i+2] == future)) {
-            for(s in stateNames) {
-              if(s == past) {
-                SSO[s] <- SSO[s] + 1
-              }
-            }
+            SSO[past] <- SSO[past] + 1
           }
         }
       }
+      
+      # populate the matrix
+      # first column corresponds to SSO, second to TSO and
+      # third to their difference
+      
       for(i in 1:(length(SSO))) {
-        mat[i,1]<-SSO[i]
-        mat[i,2]<-TSO[i]
-        mat[i,3]<-TSO[i] - SSO[i]
+        mat[i, 1] <- SSO[i]
+        mat[i, 2] <- TSO[i]
+        mat[i, 3] <- TSO[i] - SSO[i]
       }
+      
       # chi-squared test
-      table<-as.data.frame(mat[,c(1,3)])
-      res<-chisq.test(table,...)
-      res<-c(res)
-      table<-as.data.frame(mat[,c(1,2)])
-      res[["table"]]<-table
-      out[[paste0(present,future)]]<-res
+      
+      # between SSO and TSO-SSO
+      table <- as.data.frame(mat[, c(1, 3)])
+      
+      # an object of class htest
+      res <- chisq.test(table, ...)
+      
+      # extract all information from htest object
+      # and stored the result in the form of list
+      res <- c(res)
+      
+      # SSO and TSO
+      table <- as.data.frame(mat[ , c(1, 2)])
+      
+      # stored the table in the list
+      res[["table"]] <- table
+      
+      # store the result corresponding to present state and future state
+      out[[paste0(present, future)]] <- res
     }
   }
+  
   return(out)
 }
 
@@ -58,6 +126,9 @@ verifyMarkovProperty<-function(sequence,...) {
 #also the following should run: data(blanden); myMc<-as(blanden,"markovchain");sequenza<-rmarkovchain(n = 100,myMc)
 #verifyMarkovProperty(sequenza)
 #http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
+
+#' @rdname verifyMarkovProperty
+#' @export
 
 # check if sequence is of first order or of second order
 assessOrder<-function(sequence) {
@@ -88,6 +159,9 @@ assessOrder<-function(sequence) {
   out<-list(statistic=TStat[[1]], p.value=pvalue[[1]])
   return(out)
 }
+
+#' @rdname verifyMarkovProperty
+#' @export
 
 # check if sequence is stationary
 assessStationarity<-function(sequence, nblocks) {
@@ -142,6 +216,11 @@ assessStationarity<-function(sequence, nblocks) {
   }
   return (mat)
 }
+
+
+#' @rdname verifyMarkovProperty
+#' @export
+
 
 # divergence test for the hypothesized one and an empirical transition matrix from sequence
 divergenceTest<-function(sequence, hypothetic) {

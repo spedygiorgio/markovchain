@@ -37,6 +37,7 @@ seq2matHigh <- function(sequence, order) {
     .Call('markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0)
 }
 
+#' @rdname markovchainFit
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
@@ -45,6 +46,60 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
     .Call('markovchain_inferHyperparam', PACKAGE = 'markovchain', transMatr, scale, data)
 }
 
+#' @name markovchainFit
+#' @title Function to fit a discrete Markov chain
+#' @description Given a sequence of states arising from a stationary state, 
+#'  it fits the underlying Markov chain distribution using either MLE (also using a 
+#'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
+#'  
+#' @param data A character list.
+#' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
+#' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
+#' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
+#' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
+#'                  is chosen.  
+#' @param name Optional character for name slot. 
+#' @param parallel Use parallel processing when performing Boostrap estimates.
+#' @param confidencelevel \deqn{\alpha} level for conficence intervals width. 
+#'                        Used only when \code{method} equal to "mle".
+#' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
+#'                   default value of 1 is assigned to each parameter. This must be of size kxk 
+#'                   where k is the number of states in the chain and the values should typically 
+#'                   be non-negative integers.                        
+#' @param stringchar Equivalent to data
+#' @param toRowProbs converts a sequence matrix into a probability matrix
+#' @param sanitize put 1 in all rows having rowSum equal to zero
+#' 
+#' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
+#'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
+#'         is used, the lower and upper confidence bounds are returned along with the standard error. 
+#'         The "map" method also returns the expected value of the parameters with respect to the 
+#'         posterior distribution.
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#'             
+#'             Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+#'             and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
+#'             Alfred Hubler, Santa Fe Institute
+#' 
+#'             Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+#'             package version 0.2.5          
+#'             
+#' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
+#' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
+#'       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
+#'       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
+#'       currently available.
+#'       
+#' @seealso \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}
+#' @examples
+#' sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
+#'               "b", "b", "b", "a")        
+#' sequenceMatr <- createSequenceMatrix(sequence, sanitize = FALSE)
+#' mcFitMLE <- markovchainFit(data = sequence)
+#' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
+#'
+#' @rdname markovchainFit
+#' 
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix()) {
     .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam)
 }

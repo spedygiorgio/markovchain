@@ -142,6 +142,7 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
 }
 
 // Create a frequency matrix
+//' @rdname markovchainFit
 // [[Rcpp::export]]
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
   CharacterVector elements = unique(stringchar).sort();
@@ -152,7 +153,7 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
   CharacterVector rnames = rownames(freqMatrix);
 
   int posFrom = 0, posTo = 0;
-  for(int i = 0; i < stringchar.size() - 1; i ++) {
+  for(long long i = 0; i < stringchar.size() - 1; i ++) {
     for (int j = 0; j < rnames.size(); j ++) {
       if(stringchar[i] == rnames[j]) posFrom = j;
       if(stringchar[i + 1] == rnames[j]) posTo = j;
@@ -189,7 +190,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   
   // caculate out
   int from = 0, to = 0; 
-  for(int i = 0; i < seq.size() - 1; i ++) {
+  for(long long i = 0; i < seq.size() - 1; i ++) {
     for(int r = 0; r < rnames.size(); r ++) {
       if(rnames[r] == seq[i]) from = r; 
       if(rnames[r] == seq[i + 1]) to = r; 
@@ -218,7 +219,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
 
   // populate frequency matrix
   int posFrom = 0, posTo = 0; 
-  for(int i = 0; i < stringchar.size() - 1; i++) {  // ### size ###
+  for(long long i = 0; i < stringchar.size() - 1; i++) {  
     for (int j = 0; j < sizeMatr; j++) {            
       if(stringchar[i] == elements[j]) posFrom = j;
       if(stringchar[i + 1] == elements[j]) posTo = j;
@@ -361,7 +362,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 }
 
 // bootstrap a sequence to produce a list of sample sequences
-List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size = -1) {
+List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long size = -1) {
   
   // store length of sequence
   if(size == -1) {
@@ -399,7 +400,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, int size = 
     charseq.push_back(ch);
     
     
-    for(int j = 1; j < size; j ++) {
+    for(long long j = 1; j < size; j ++) {
       // store row probability
       NumericVector probsVector;
       
@@ -552,14 +553,14 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
   
   // dimension of input matrix
-  int nRows = matrData.nrow(), nCols = matrData.ncol();
+  long long nRows = matrData.nrow(), nCols = matrData.ncol();
 
   // set of states
   std::set<std::string> uniqueVals;
   
   // populate uniqueVals set
-  for(int i = 0; i < nRows; i++) 
-  	for(int j = 0; j < nCols; j++) 
+  for(long long i = 0; i < nRows; i++) 
+  	for(long long j = 0; j < nCols; j++) 
 		  uniqueVals.insert((std::string)matrData(i, j));	
 
   // unique states
@@ -576,8 +577,8 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
   
   // populate contingency matrix
   int stateBegin = 0, stateEnd = 0;
-  for(int i = 0; i < nRows; i ++) {
-    for(int j = 1; j < nCols; j ++) {
+  for(long long i = 0; i < nRows; i ++) {
+    for(long long j = 1; j < nCols; j ++) {
       
       // row and column number of begin state and end state
       int k = 0;
@@ -618,80 +619,119 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
 }
 
 // [[Rcpp::export]]
-List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector scale = NumericVector(), CharacterVector data = CharacterVector()){
+List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector scale = NumericVector(), CharacterVector data = CharacterVector()) {
+  
+  // stop if there is only one element in the matrix and size of data sequence is zero
   if(transMatr.nrow() * transMatr.ncol() == 1 && data.size() == 0)
     stop("Provide the prior transition matrix or the data set in order to infer the hyperparameters");
   
+  // to store final result
   List out;
   
-  if(transMatr.nrow() * transMatr.ncol() != 1){
-    if(scale.size() == 0)
+  // Number of elements are greater than 1
+  if(transMatr.nrow() * transMatr.ncol() != 1) {
+    if(scale.size() == 0) {
       stop("Provide a non-zero scaling factor vector to infer integer hyperparameters");
+    }
       
-    // begin validity checks for the transition matrix
-    if(transMatr.nrow() != transMatr.ncol())
+    // --------begin validity checks for the transition matrix---------
+    if(transMatr.nrow() != transMatr.ncol()) {
       stop("Transition matrix dimensions are inconsistent");
+    }
       
+    //  number of rows in transition matrix
     int sizeMatr = transMatr.nrow();
-    for(int i = 0; i < sizeMatr; i++){
+    
+    // if any element is greater than 1 or less than 0 then raise error
+    // sum of each rows must lie between 1 - eps and 1 + eps
+    for(int i = 0; i < sizeMatr; i++) {
       double rowSum = 0., eps = 1e-10;
-      for(int j = 0; j < sizeMatr; j++)
+      
+      for(int j = 0; j < sizeMatr; j++) {
         if(transMatr(i, j) < 0. || transMatr(i, j) > 1.)
           stop("The entries in the transition matrix must each belong to the interval [0, 1]");
         else
           rowSum += transMatr(i, j);
+      }   
+        
       if(rowSum <= 1. - eps || rowSum >= 1. + eps)
-        stop("The rows of the transition matrix must each sum to 1");
+        stop("Each rows of the transition matrix must sum to 1");
     }
     
+    // rows and columns name of transition matrix 
     List dimNames = transMatr.attr("dimnames");
     CharacterVector colNames = dimNames[1];
     CharacterVector rowNames = dimNames[0];
+    
+    // sorted rows and columns names
     CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
-    for(int i = 0; i < sizeMatr; i++)
+    for(int i = 0; i < sizeMatr; i++) {
       sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+    }
     sortedColNames.sort();
     sortedRowNames.sort();
     
-    for(int i = 0; i < sizeMatr; i++) 
+    // rows names vector and columns name vector must be same
+    // and no names in names vectors should be same
+    for(int i = 0; i < sizeMatr; i++) {
       if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
         stop("The states must all be unique");
       else if(sortedColNames(i) != sortedRowNames(i))
-        stop("The set of row names must be the same as the set of column names");
-        
-    // validity check for the scaling factor vector
-    if(scale.size() != sizeMatr)
+        stop("The set of row names must be the same as the set of column names");  
+    } 
+    // --------end of validity checks for the transition matrix---------  
+      
+    
+    // --------beginning of validity checks for the scale factor vector---------  
+    
+    // length of scale vector must be equal to number of rows in transition matrix
+    if(scale.size() != sizeMatr) 
       stop("The dimensions of the scale vector must match the number of states in the chain");
       
-    for(int i = 0; i < sizeMatr; i++)
+    // if any value in the scale vector is zero  
+    for(int i = 0; i < sizeMatr; i++) {
       if(scale(i) == 0)
         stop("The scaling factors must be non-zero!");
+    }
+    // --------end of validity checks for the scale factor vector---------  
+      
     
+    // Creation of output matrix i.e. hyper param matrix
     NumericMatrix hpScaled(sizeMatr);
     hpScaled.attr("dimnames") = List::create(rowNames, colNames);
+    
+    // populate hyper param matrix
     for(int i = 0; i < sizeMatr; i++)
       for(int j = 0; j < sizeMatr; j++)
         hpScaled(i, j) = scale(i) * transMatr(i, j);
-        
+    
+    /* shift rows and columns so that names of rows
+       and columns names will be in sorted order */
     hpScaled = sortByDimNames(hpScaled);
     
+    // store list of hyper param scaled matrix
     out = List::create(_["scaledInference"] = hpScaled);
   }
   
-  else if(data.size() != 0){
+  else if(data.size() != 0) {
+    
+    // to store unique states in sorted order
     CharacterVector elements = data;
     for(int i = 0; i < data.size(); i++)
       elements.push_back(data[i]);
-    
     elements = unique(elements).sort();
+    
+    // size of hyperparam matrix
     int sizeMatr = elements.size();
     
+    // create hyperparam matrix
     NumericMatrix hpData(sizeMatr);
     hpData.attr("dimnames") = List::create(elements, elements); 
     std::fill(hpData.begin(), hpData.end(), 1);
     
+    // populate hyper param matrix
     int posFrom = 0, posTo = 0;
-    for(int i = 0; i < data.size() - 1; i ++) {
+    for(long long i = 0; i < data.size() - 1; i ++) {
       for (int j = 0; j < sizeMatr; j ++) {
         if(data[i] == elements[j]) posFrom = j;
         if(data[i + 1] == elements[j]) posTo = j;
@@ -699,13 +739,68 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
       hpData(posFrom,posTo)++;
     }
     
+    // ouput data
     out = List::create(_["dataInference"] = hpData);
   }
   
   return out;
 }
 
-// main function for fitting markov chains
+
+//' @name markovchainFit
+//' @title Function to fit a discrete Markov chain
+//' @description Given a sequence of states arising from a stationary state, 
+//'  it fits the underlying Markov chain distribution using either MLE (also using a 
+//'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
+//'  
+//' @param data A character list.
+//' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
+//' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
+//' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
+//' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
+//'                  is chosen.  
+//' @param name Optional character for name slot. 
+//' @param parallel Use parallel processing when performing Boostrap estimates.
+//' @param confidencelevel \deqn{\alpha} level for conficence intervals width. 
+//'                        Used only when \code{method} equal to "mle".
+//' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
+//'                   default value of 1 is assigned to each parameter. This must be of size kxk 
+//'                   where k is the number of states in the chain and the values should typically 
+//'                   be non-negative integers.                        
+//' @param stringchar Equivalent to data
+//' @param toRowProbs converts a sequence matrix into a probability matrix
+//' @param sanitize put 1 in all rows having rowSum equal to zero
+//' 
+//' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
+//'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
+//'         is used, the lower and upper confidence bounds are returned along with the standard error. 
+//'         The "map" method also returns the expected value of the parameters with respect to the 
+//'         posterior distribution.
+//' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+//'             
+//'             Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+//'             and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
+//'             Alfred Hubler, Santa Fe Institute
+//' 
+//'             Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+//'             package version 0.2.5          
+//'             
+//' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
+//' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
+//'       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
+//'       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
+//'       currently available.
+//'       
+//' @seealso \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}
+//' @examples
+//' sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
+//'               "b", "b", "b", "a")        
+//' sequenceMatr <- createSequenceMatrix(sequence, sanitize = FALSE)
+//' mcFitMLE <- markovchainFit(data = sequence)
+//' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
+//'
+//' @rdname markovchainFit
+//' 
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0
             , String name = "", bool parallel = false, double confidencelevel = 0.95
@@ -726,7 +821,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  
   	  // matrix : no of rows = no of rows in df : same for number of columns
   	  mat = CharacterMatrix(df.nrows(), df.size());
-  	  for(int i = 0; i < df.size(); i++) {
+  	  for(long long i = 0; i < df.size(); i++) {
   	    mat(_,i) = CharacterVector(df[i]);
   	  }
  	  } 

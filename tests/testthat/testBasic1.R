@@ -44,18 +44,28 @@ test_that("Conversion of objects",
             expect_equal(class(provaMatr2Mc)=="markovchain",TRUE)
           })
 
-###perform some fitting
-sequence1<-c("a", "b", "a", "a", "a")
-sequence2<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-mcFit<-markovchainFit(data=sequence1,byrow=FALSE)
-mcFit2<-markovchainFit(c("a","b","a","b"))
+### Markovchain Fitting
+sequence1 <- c("a", "b", "a", "a", "a")
+sequence2 <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+mcFit <- markovchainFit(data = sequence1, byrow = FALSE)
+mcFit2 <- markovchainFit(c("a","b","a","b"))
 
 test_that("Fit should satisfy", {
   expect_equal((mcFit["logLikelihood"])[[1]], log(1/3) + 2*log(2/3))
-  expect_equal(markovchainFit(data=sequence2, method="bootstrap")["confidenceInterval"]
+  expect_equal(markovchainFit(data = sequence2, method = "bootstrap")["confidenceInterval"]
                [[1]]["confidenceLevel"][[1]], 0.95)
-  expect_equal(mcFit2$confidenceInterval$upperEndpointMatrix, matrix(c(0,1,1,0), nrow=2, byrow=TRUE,
-                                                dimnames=list(c("a","b"),c("a","b"))))
+  expect_equal(mcFit2$confidenceInterval$upperEndpointMatrix, matrix(c(0,1,1,0), nrow = 2, byrow = TRUE,
+                                                dimnames = list(c("a", "b"), c("a", "b"))))
+})
+
+### Markovchain Fitting for bigger markov chain
+bigseq <- rep(c("a", "b", "c"), 500000)
+bigmcFit <- markovchainFit(bigseq)
+
+test_that("MC Fit for large sequence", {
+  expect_equal(bigmcFit$logLikelihood, 0)
+  expect_equal(bigmcFit$confidenceInterval$confidenceLevel, 0.95)
+  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
 })
 
 ### MAP fit function tests

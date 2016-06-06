@@ -283,7 +283,7 @@ setMethod("transitionProbability","markovchain",
 .showInt <- function(object, verbose=TRUE)
 {
 	if (object@byrow==TRUE) direction="(by rows)" else direction="(by cols)"
-	if (verbose==TRUE) cat(object@name,"\n A ",dim(object),"- dimensional discrete Markov Chain with following states: \n",
+	if (verbose==TRUE) cat(object@name,"\n A ",dim(object),"- dimensional discrete Markov Chain characterized by following states: \n",
 	                       paste(states(object),collapse=", "), "\n The transition matrix  ", 
 	                       direction," is defined as follows: \n")
 	print(object@transitionMatrix)

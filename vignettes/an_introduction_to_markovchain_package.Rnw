@@ -1452,7 +1452,7 @@ where the search space is the set of right stochastic matrices of dimension $|\m
 $n(u, s)$ denotes the number of times the word $us$ occurs in $D$ and $n(u)=\sum_{s \in \mathcal{A}}n(u, s)$. The hyperparameters are similarly denoted by $\alpha(u, s)$ and $\alpha(u)$ respectively.
 
 \subsubsection{Methods}
-Given $D$, its likelihood is given by
+Given $D$, its likelihood conditioned on the observed initial state in D is given by
 $$ P(D|\theta) = \prod_{s \in \mathcal{A}} \prod_{u \in \mathcal{A}} p(s|u)^{n(u, s)}$$
 
 Conjugate priors are used to model the prior $P(\theta)$. The reasons are two fold:

@@ -68,6 +68,28 @@ test_that("MC Fit for large sequence", {
   expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
 })
 
+### Test for createSequenceMatrix
+rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+
+test_that("createSequenceMatrix : Permutation of parameters",{
+  expect_equal(createSequenceMatrix(rsequence, FALSE, FALSE), 
+                   matrix(c(4, 4, 0, 3, 3, 1, 0, 0, 0), nrow = 3, 
+                          byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(createSequenceMatrix(rsequence, FALSE, TRUE), 
+               matrix(c(4, 4, 0, 3, 3, 1, 1, 1, 1), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(createSequenceMatrix(rsequence, TRUE, FALSE), 
+               matrix(c(4/8, 4/8, 0, 3/7, 3/7, 1/7, 0, 0, 0), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(createSequenceMatrix(rsequence, TRUE, TRUE), 
+               matrix(c(4/8, 4/8, 0, 3/7, 3/7, 1/7, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+})
+
+
 ### MAP fit function tests
 data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")
 data2 <- c("c", "a", "b")

@@ -126,7 +126,7 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false) {
 }
 
 // convert a frequency matrix to a transition probability matrix
-NumericMatrix _toRowProbs(NumericMatrix x) {
+NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
   int nrow = x.nrow(), ncol = x.ncol();
   NumericMatrix out(nrow);
 
@@ -134,8 +134,25 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
     double rowSum = 0;
     for (int j = 0; j < ncol; j++) 
       rowSum += x(i, j);
-    for (int j = 0; j < ncol; j++) 
-      out(i, j) = x(i, j)/rowSum;
+    for (int j = 0; j < ncol; j++) {
+      
+      if(sanitize == true) {
+        if(rowSum == 0) {
+          out(i, j) = 1.0/ncol;  
+        } else {
+          out(i, j) = x(i, j) / rowSum;
+        }
+      }
+      
+      else {
+        if(rowSum == 0) {
+          out(i, j) = 0;  
+        } else {
+          out(i, j) = x(i, j) / rowSum;
+        }
+      }
+      
+    }
   }
   out.attr("dimnames") = List::create(rownames(x), colnames(x)); 
   return out;
@@ -144,7 +161,7 @@ NumericMatrix _toRowProbs(NumericMatrix x) {
 // Create a frequency matrix
 //' @rdname markovchainFit
 // [[Rcpp::export]]
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=false, bool sanitize=true) {
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs = false, bool sanitize = false) {
   CharacterVector elements = unique(stringchar).sort();
   int sizeMatr = elements.size();
   
@@ -158,11 +175,11 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
       if(stringchar[i] == rnames[j]) posFrom = j;
       if(stringchar[i + 1] == rnames[j]) posTo = j;
     }
-    freqMatrix(posFrom,posTo)++;
+    freqMatrix(posFrom, posTo)++;
   }
   
-  //sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
-  if(sanitize==true)
+  // sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
+  if(sanitize == true)
   {
       for (int i = 0; i < sizeMatr; i++) {
         double rowSum = 0;
@@ -173,8 +190,9 @@ NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs=f
             freqMatrix(i, j) = 1;
       }
   }
-  if(toRowProbs==true)
-    freqMatrix = _toRowProbs(freqMatrix);
+  
+  if(toRowProbs == true)
+    return _toRowProbs(freqMatrix, sanitize);
   
   return (freqMatrix);
 }
@@ -228,7 +246,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
     freqMatr(posFrom, posTo)++;
   }
 
-  // take care of rows with all entries 0
+  // take care of rows with all entries 0  // take care of sanitize  
   for (int i = 0; i < sizeMatr; i++) {  
   	double rowSum = 0;
   	for (int j = 0; j < sizeMatr; j++) { 
@@ -236,7 +254,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   	}
   		
   	// calculate rows probability
-  	for (int j = 0; j < sizeMatr; j++) {  
+  	for (int j = 0; j < sizeMatr; j++) {  // take care of sanitize  
   	  if(rowSum == 0) {
   	    initialMatr(i, j) = 1.0/sizeMatr;
   	  }
@@ -326,9 +344,9 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
 List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian = 0.01) {
   
   // create frequency matrix
-  NumericMatrix origNum = createSequenceMatrix(stringchar, false);
+  NumericMatrix origNum = createSequenceMatrix(stringchar, false); // take care of sanitize
   
-  // store dimension of frequenct matrix
+  // store dimension of frequency matrix
   int nRows = origNum.nrow(), nCols = origNum.ncol();
   
   // convert frequency matrix to transition matrix
@@ -343,7 +361,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   	}
 	  
   	// get a transition matrix and a DTMC
-	  for(int j = 0; j < nCols; j ++) {
+	  for(int j = 0; j < nCols; j ++) { // take care of sanitize
 	    origNum(i,j) /= rowSum; 
 	  }
   }
@@ -370,7 +388,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long s
   }
   
   // frequency matrix
-  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar);
+  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar); // take care of sanitize use sanitize  = true  2nd param true too
   
   // many samples from a given a sequence :: bootstrap
   // res list is helper list
@@ -480,20 +498,20 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   // to store frequency matrix for every sequence
   List pmsBootStrapped(n);
 
-  // populate pmsBootStrapped
+  // populate pmsBootStrapped  // take care of sanitize
   if(parallel)
     for(int i = 0; i < n; i++)
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true); // take care of sanitize
   
   else 
     for(int i = 0; i < n; i++) 
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true);
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true); // take care of sanitize
   
   
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
   
   // transition matrix
-  NumericMatrix transMatr = _toRowProbs(estimateList["estMu"]);
+  NumericMatrix transMatr = _toRowProbs(estimateList["estMu"]); // take care of sanitize 
 
   // markovchain object
   S4 estimate("markovchain");
@@ -605,7 +623,7 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
   	}
   	
   	// get the transition matrix and a DTMC
-	  for(int j = 0; j < usize; j ++) {
+	  for(int j = 0; j < usize; j ++) {     // take care of sanitize
 	    contingencyMatrix(i,j) /= rowSum;
 	  }
     		
@@ -847,7 +865,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   List out;
   
   // if input data is data frame or matrix
-  if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { 
+  if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { // problem with class checking
     
     // store input data in mat
     CharacterMatrix mat;
@@ -872,7 +890,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  mat = _transpose(mat); 
   	}
   	
-   	S4 outMc =_matr2Mc(mat, laplacian);
+   	S4 outMc =_matr2Mc(mat, laplacian);  // take care sanitize   
    	out = List::create(_["estimate"] = outMc);
   } 
   else {

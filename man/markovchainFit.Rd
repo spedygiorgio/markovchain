@@ -5,7 +5,7 @@
 \alias{markovchainFit}
 \title{Function to fit a discrete Markov chain}
 \usage{
-createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = TRUE)
+createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE)
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,

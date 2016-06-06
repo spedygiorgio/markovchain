@@ -38,7 +38,7 @@ seq2matHigh <- function(sequence, order) {
 }
 
 #' @rdname markovchainFit
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = TRUE) {
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
 

@@ -160,6 +160,8 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 
 // Create a frequency matrix
 //' @rdname markovchainFit
+//' 
+//' @export
 // [[Rcpp::export]]
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs = false, bool sanitize = false) {
   CharacterVector elements = unique(stringchar).sort();
@@ -671,7 +673,9 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
 //'                                  0.2, 0.4, 0.4), 
 //'                         byrow = TRUE, nrow = 3, 
 //'                         dimnames = list(weatherStates, weatherStates))
-//'  inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+//' inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+//'  
+//' @export
 //'  
 // [[Rcpp::export]]
 List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector scale = NumericVector(), CharacterVector data = CharacterVector()) {
@@ -855,6 +859,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 //'
 //' @rdname markovchainFit
+//' 
+//' @export
 //' 
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0

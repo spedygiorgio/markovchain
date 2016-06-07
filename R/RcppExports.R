@@ -38,6 +38,8 @@ seq2matHigh <- function(sequence, order) {
 }
 
 #' @rdname markovchainFit
+#' 
+#' @export
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE) {
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
 }
@@ -78,7 +80,9 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
 #'                                  0.2, 0.4, 0.4), 
 #'                         byrow = TRUE, nrow = 3, 
 #'                         dimnames = list(weatherStates, weatherStates))
-#'  inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+#' inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+#'  
+#' @export
 #'  
 inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {
     .Call('markovchain_inferHyperparam', PACKAGE = 'markovchain', transMatr, scale, data)
@@ -138,6 +142,8 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'
 #' @rdname markovchainFit
 #' 
+#' @export
+#' 
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix()) {
     .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam)
 }
@@ -170,6 +176,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('markovchain_gcd', PACKAGE = 'markovchain', a, b)
 }
 
+#' @rdname absorbingStates
+#' 
+#' @export
+#' 
 period <- function(object) {
     .Call('markovchain_period', PACKAGE = 'markovchain', object)
 }

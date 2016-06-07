@@ -43,7 +43,7 @@ weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1,
                                  0.2, 0.4, 0.4), 
                         byrow = TRUE, nrow = 3, 
                         dimnames = list(weatherStates, weatherStates))
- inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
+inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
  
 }
 \author{

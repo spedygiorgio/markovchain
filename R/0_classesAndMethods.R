@@ -234,8 +234,11 @@ setMethod("steadyStates","markovchain",
 )
 
 
-#generic function to extract absorbing states
+# generic function to extract absorbing states
 
+#' @rdname absorbingStates
+#' 
+#' @export
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
 setMethod("absorbingStates","markovchain", 
           function(object) {
@@ -253,7 +256,11 @@ setMethod("absorbingStates","markovchain",
           }
 )
 
-#generic method to extract transient states
+# generic method to extract transient states
+
+#' @rdname absorbingStates
+#' 
+#' @export
 setGeneric("transientStates", function(object) standardGeneric("transientStates"))
 setMethod("transientStates","markovchain", 
 		function(object) {
@@ -386,6 +393,10 @@ setMethod("plot", signature(x="markovchain", y="missing"),
 
  # method to convert into canonic form a markovchain object
  # TODO: check meaninsg of this function
+
+#' @rdname absorbingStates
+#' 
+#' @export
 setGeneric("canonicForm",function(object) standardGeneric("canonicForm"))
 setMethod("canonicForm","markovchain",
           function(object)

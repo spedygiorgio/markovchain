@@ -393,7 +393,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long s
   }
   
   // frequency matrix
-  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar); // take care of sanitize use sanitize  = true  2nd param true too
+  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar, true, true);
   
   // many samples from a given a sequence :: bootstrap
   // res list is helper list
@@ -492,7 +492,7 @@ List _fromBoot2Estimate(List listMatr) {
 }
 
 // Fit DTMC using bootstrap method
-List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel) {
+List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false) {
   
   // list of sequence generated using given sequence
   List theList = _bootstrapCharacterSequences(data, nboot);
@@ -506,17 +506,17 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   // populate pmsBootStrapped  // take care of sanitize
   if(parallel)
     for(int i = 0; i < n; i++)
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true); // take care of sanitize
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize);
   
   else 
     for(int i = 0; i < n; i++) 
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, true); // take care of sanitize
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize);
   
   
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
   
   // transition matrix
-  NumericMatrix transMatr = _toRowProbs(estimateList["estMu"]); // take care of sanitize 
+  NumericMatrix transMatr = _toRowProbs(estimateList["estMu"], sanitize);
 
   // markovchain object
   S4 estimate("markovchain");
@@ -926,7 +926,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     }
     
     if(method == "bootstrap") {
-      out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel);
+      out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel, sanitize);
     }
   
     if(method == "laplace") {

@@ -222,7 +222,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
 }
 
 // Fit DTMC using MLE
-List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
+List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, bool sanitize = false) {
   
   // unique states
   CharacterVector elements = unique(stringchar).sort();
@@ -248,7 +248,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
     freqMatr(posFrom, posTo)++;
   }
 
-  // take care of rows with all entries 0  // take care of sanitize  
+  // take care of rows with all entries 0 
   for (int i = 0; i < sizeMatr; i++) {  
   	double rowSum = 0;
   	for (int j = 0; j < sizeMatr; j++) { 
@@ -256,9 +256,9 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel) {
   	}
   		
   	// calculate rows probability
-  	for (int j = 0; j < sizeMatr; j++) {  // take care of sanitize  
+  	for (int j = 0; j < sizeMatr; j++) { 
   	  if(rowSum == 0) {
-  	    initialMatr(i, j) = 1.0/sizeMatr;
+  	    initialMatr(i, j) = (sanitize ? 1.0/sizeMatr : 0);
   	  }
   	  else {
   	    initialMatr(i, j) = freqMatr(i, j)/rowSum;
@@ -919,7 +919,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   else {
     
     if(method == "mle") {
-      out = _mcFitMle(data, byrow, confidencelevel); 
+      out = _mcFitMle(data, byrow, confidencelevel, sanitize); 
     }
     
     if(method == "bootstrap") {

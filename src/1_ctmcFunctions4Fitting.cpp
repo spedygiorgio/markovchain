@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 List markovchainFit(SEXP data, String method="mle", bool byrow=true, int nboot=10, double laplacian=0
             , String name="", bool parallel=false, double confidencelevel=0.95
-            , NumericMatrix hyperparam = NumericMatrix()); 
+            , NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false); 
 
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95)

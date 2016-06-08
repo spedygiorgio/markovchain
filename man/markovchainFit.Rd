@@ -9,7 +9,7 @@ createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE)
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
-  hyperparam = matrix())
+  hyperparam = matrix(), sanitize = FALSE)
 }
 \arguments{
 \item{stringchar}{Equivalent to data}

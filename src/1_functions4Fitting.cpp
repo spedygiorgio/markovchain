@@ -570,19 +570,19 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
 }
 
 // convert matrix data to transition probability matrix
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false) {
   
   // dimension of input matrix
   long long nRows = matrData.nrow(), nCols = matrData.ncol();
-
+  
   // set of states
   std::set<std::string> uniqueVals;
   
   // populate uniqueVals set
   for(long long i = 0; i < nRows; i++) 
-  	for(long long j = 0; j < nCols; j++) 
-		  uniqueVals.insert((std::string)matrData(i, j));	
-
+    for(long long j = 0; j < nCols; j++) 
+      uniqueVals.insert((std::string)matrData(i, j));	
+  
   // unique states
   int usize = uniqueVals.size();
   
@@ -615,28 +615,45 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0) {
       contingencyMatrix(stateBegin,stateEnd)++;
     }
   }
-
+  
   // add laplacian correction if needed
   for(int i = 0; i < usize; i++) {
-	  double rowSum = 0;
-	  for(int j = 0; j < usize; j++) {
-    		contingencyMatrix(i,j) += laplacian;
-    		rowSum += contingencyMatrix(i, j);
-  	}
-  	
-  	// get the transition matrix and a DTMC
-	  for(int j = 0; j < usize; j ++) {     // take care of sanitize
-	    contingencyMatrix(i,j) /= rowSum;
-	  }
-    		
+    double rowSum = 0;
+    for(int j = 0; j < usize; j++) {
+      contingencyMatrix(i,j) += laplacian;
+      rowSum += contingencyMatrix(i, j);
+    }
+    
+    // get the transition matrix and a DTMC
+    for(int j = 0; j < usize; j ++) {
+      
+      if(sanitize == true) {
+        if(rowSum == 0)  {
+          contingencyMatrix(i,j) = 1.0/usize;
+        } else {
+          contingencyMatrix(i,j) /= rowSum;
+        }
+      } 
+      
+      else {
+        if(rowSum == 0) {
+          contingencyMatrix(i,j) = 0;
+        } else {
+          contingencyMatrix(i,j) /= rowSum;
+        }
+      }
+      
+    }
+    
   }
   
   // markovchain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = contingencyMatrix;
-
+  
   return(outMc);
 }
+
 //' @name inferHyperparam
 //' @title Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set
 //' @description Since the Bayesian inference approach implemented in the package is based on conjugate priors, 
@@ -865,13 +882,13 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0
             , String name = "", bool parallel = false, double confidencelevel = 0.95
-            , NumericMatrix hyperparam = NumericMatrix()) {
+            , NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false) {
   
   // list to store the output
   List out;
   
   // if input data is data frame or matrix
-  if(Rf_inherits(data, "data.frame") || Rf_inherits(data, "matrix")) { // problem with class checking
+  if(Rf_inherits(data, "data.frame") || Rf_isMatrix(data)) { 
     
     // store input data in mat
     CharacterMatrix mat;
@@ -896,7 +913,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  mat = _transpose(mat); 
   	}
   	
-   	S4 outMc =_matr2Mc(mat, laplacian);  // take care sanitize   
+   	S4 outMc =_matr2Mc(mat, laplacian, sanitize);
    	out = List::create(_["estimate"] = outMc);
   } 
   else {
@@ -928,7 +945,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   NumericMatrix transMatr = estimate.slot("transitionMatrix");
   
   // data is neither data frame nor matrix
-  if(!Rf_inherits(data, "data.frame") && !Rf_inherits(data, "matrix")) 
+  if(!Rf_inherits(data, "data.frame") && !Rf_isMatrix(data)) 
     out["logLikelihood"] = _loglikelihood(data, transMatr);
   
   estimate.slot("states") = rownames(transMatr);

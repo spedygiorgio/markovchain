@@ -1,3 +1,7 @@
+09-06-2016
+Version 0.4.4.2
+added sanitize=false paramter to markovchainFit
+
 31-05-2016
 Version 0.4.4.1
 Improvement of the internal method checkSequence.

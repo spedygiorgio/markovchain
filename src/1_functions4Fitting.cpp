@@ -934,7 +934,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     }
     
     if(method == "map") {
-      out = _mcFitMap(data, byrow, confidencelevel, hyperparam);
+      out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize);
     }
   }
   

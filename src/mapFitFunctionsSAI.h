@@ -1,4 +1,4 @@
-List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix()) {
+List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false) {
   
   // vector to store unique states in sorted order
   CharacterVector elements = stringchar;
@@ -144,7 +144,7 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
       expMatr(i, j) = p / (p + q);
       
       if(p + q == sizeMatr) {
-        mapEstMatr(i, j) = 1.0 / sizeMatr;
+        mapEstMatr(i, j) = (sanitize ? 1.0 / sizeMatr : 0);
       }
       else {
         // maximum a posteriori estimate

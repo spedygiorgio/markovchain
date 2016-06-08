@@ -142,8 +142,6 @@ test_that("Markovchain Laplace", {
   expect_equal(lap_fit1$logLikelihood, lap_fit2$logLikelihood)
 })
 
-
-
 ### Test for createSequenceMatrix
 rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
 

@@ -47,8 +47,8 @@ test_that("Conversion of objects",
 ### Markovchain Fitting
 sequence1 <- c("a", "b", "a", "a", "a")
 sequence2 <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-mcFit <- markovchainFit(data = sequence1, byrow = FALSE)
-mcFit2 <- markovchainFit(c("a","b","a","b"))
+mcFit <- markovchainFit(data = sequence1, byrow = FALSE, sanitize = TRUE)
+mcFit2 <- markovchainFit(c("a","b","a","b"), sanitize = TRUE)
 
 test_that("Fit should satisfy", {
   expect_equal((mcFit["logLikelihood"])[[1]], log(1/3) + 2*log(2/3))
@@ -62,7 +62,15 @@ test_that("Fit should satisfy", {
 bigseq <- rep(c("a", "b", "c"), 500000)
 bigmcFit <- markovchainFit(bigseq)
 
-test_that("MC Fit for large sequence", {
+test_that("MC Fit for large sequence 1", {
+  expect_equal(bigmcFit$logLikelihood, 0)
+  expect_equal(bigmcFit$confidenceInterval$confidenceLevel, 0.95)
+  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
+})
+
+bigmcFit <- markovchainFit(bigseq, sanitize = TRUE)
+
+test_that("MC Fit for large sequence 2", {
   expect_equal(bigmcFit$logLikelihood, 0)
   expect_equal(bigmcFit$confidenceInterval$confidenceLevel, 0.95)
   expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
@@ -95,6 +103,46 @@ test_that("Markovchain Fit for matrix as input", {
                         byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
 
 })
+
+### Markovchain Fitting(mle) with sanitize parameter
+mle_sequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+mle_fit1 <- markovchainFit(mle_sequence)
+mle_fit2 <- markovchainFit(mle_sequence, sanitize = TRUE)
+
+test_that("MarkovchainFit MLE", {
+  expect_equal(mle_fit1$estimate@transitionMatrix, 
+               matrix(c(0.5, 0.5, 0, 3/7, 3/7, 1/7, 0, 0, 0), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(mle_fit2$estimate@transitionMatrix, 
+               matrix(c(0.5, 0.5, 0, 3/7, 3/7, 1/7, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(mle_fit1$logLikelihood, mle_fit2$logLikelihood)
+  
+  expect_equal(mle_fit1$confidenceInterval, mle_fit2$confidenceInterval)
+  
+  expect_equal(mle_fit2$standardError, mle_fit2$standardError)
+})
+
+### Markovchain Fitting(laplace) with sanitize parameter
+lap_sequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+lap_fit1 <- markovchainFit(lap_sequence, "laplace")
+lap_fit2 <- markovchainFit(lap_sequence, "laplace", sanitize = TRUE)
+
+test_that("Markovchain Laplace", {
+  expect_equal(lap_fit1$estimate@transitionMatrix, 
+               matrix(c(0.5, 0.5, 0, 3/7, 3/7, 1/7, 0, 0, 0), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(lap_fit2$estimate@transitionMatrix, 
+               matrix(c(0.5, 0.5, 0, 3/7, 3/7, 1/7, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(lap_fit1$logLikelihood, lap_fit2$logLikelihood)
+})
+
+
 
 ### Test for createSequenceMatrix
 rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")

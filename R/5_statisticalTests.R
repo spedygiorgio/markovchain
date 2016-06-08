@@ -131,32 +131,45 @@ verifyMarkovProperty <- function(sequence, ...) {
 #' @export
 
 # check if sequence is of first order or of second order
-assessOrder<-function(sequence) {
-  n<-length(sequence)
-  states<-unique(sequence)
-  nelements<-length(states)
-  TStat<-0
+assessOrder <- function(sequence) {
+  
+  # length of sequence
+  n <- length(sequence)
+  
+  # unique states
+  states <- unique(sequence)
+  
+  # number of unique states
+  nelements <- length(states)
+  
+  TStat <- 0
   for(present in states) {
-    mat<-zeros(nelements)
-    dimnames(mat)<-list(states, states)
+    # going to be a transition matrix 
+    mat <- matlab::zeros(nelements)
+    dimnames(mat) <- list(states, states)
+    
+    # populate transition matrix
     for(i in 1:(n - 2)) {
       if(present == sequence[i + 1]) {
-        past<-sequence[i]
-        future<-sequence[i+2]
+        past <- sequence[i]
+        future <- sequence[i+2]
         mat[past, future] <- mat[past, future] + 1 
       }
     }
+    
     # chi-squared test
-    res<-chisq.test(mat)
-    TStat<-TStat+res$statistic
-    # out[[present]]<-res
+    res <- chisq.test(mat)
+    TStat <- TStat + res$statistic
   }
-  k<-nelements
-  df<-k*(k-1)^2
-  pvalue<-1-pchisq(q = TStat, df)
-  #returning the output
-  cat("The assessOrder test statistic is: ",TStat, " the Chi-Square d.f. are: ",df," the p-value is: ",pvalue,"\n")
-  out<-list(statistic=TStat[[1]], p.value=pvalue[[1]])
+  
+  k <- nelements
+  df <- k*(k-1)^2
+  pvalue <- 1-pchisq(q = TStat, df)
+  
+  # returning the output
+  cat("The assessOrder test statistic is: ", TStat, " the Chi-Square d.f. are: ", df, " the p-value is: ", pvalue, "\n")
+  out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
+  
   return(out)
 }
 
@@ -164,56 +177,97 @@ assessOrder<-function(sequence) {
 #' @export
 
 # check if sequence is stationary
-assessStationarity<-function(sequence, nblocks) {
-  n<-length(sequence)
-  blocksize<-n/nblocks
-  states<-unique(sequence)
-  nstates<-length(states) # number of states
-  TStat<-0 # sum of the statistics
+assessStationarity <- function(sequence, nblocks) {
+  
+  # length of sequence
+  n <- length(sequence)
+  
+  # size of each block
+  blocksize <- n / nblocks
+  
+  # vector of unique states
+  states <- unique(sequence)
+  
+  # number of states
+  nstates <- length(states) 
+  
+  # sum of the statistics
+  TStat <- 0 
+  
   # chi-squared test for each state
   for(i in states) {
+    
     # init matrix
-    mat<-zeros(nblocks,nstates)
-    dimnames(mat)<-list(1:nblocks,states)
+    mat <- matlab::zeros(nblocks, nstates)
+    dimnames(mat) <- list(1:nblocks, states)
+    
     # compute the transition matrix from sequence
     for(j in 1:(n-1)) {
-      if(sequence[j] == i) { # if the character is state i
-        b<- ceiling(j / blocksize) # row index
-        future<-sequence[j+1] # next state
-        mat[b,future]<-mat[b,future]+1 # update transition matrix
+      if(sequence[j] == i) {
+        # row index
+        b <- ceiling(j / blocksize) 
+        
+        # next state
+        future <- sequence[j+1] 
+        
+        # update transition matrix
+        mat[b, future] <- mat[b, future] + 1 
       }
     }
-    rowsums<-rowSums(mat)
-    indices<-which(rowsums == 0) # store the indices with zero row sum
-    for(k in indices) mat[k,]<-1/nstates # update rows with zero sum
-    rowsums<-rowSums(mat)
-    mat<-mat/rowsums # row-wise normalize. 
+    
+    # vector to store row sum of matrix
+    rowsums <- rowSums(mat)
+    
+    # store the indices with zero row sum
+    indices <- which(rowsums == 0) 
+    
+    # update rows with zero sum
+    for(k in indices) mat[k, ] <- 1/nstates 
+    
+    # update row sum after checking zero sum row
+    rowsums <- rowSums(mat)
+    
+    # row-wise normalize. 
+    mat <- mat/rowsums 
+    
     # Some columns may still be all zeros. This causes NaN for chi-squared test.
     # chi-squared test
-    res<-chisq.test(mat)
-    TStat<-TStat+res$statistic
+    res <- chisq.test(mat)
+    TStat <- TStat + res$statistic
   }
-  k<-nstates
-  df<-k*(nblocks - 1) * (k-1) # degree of freedom
-  pvalue<-1-pchisq(TStat, df)
-  #returning the output
-  cat("The assessStationarity test statistic is: ",TStat, " the Chi-Square d.f. are: ",df," the p-value is: ",pvalue,"\n")
-  out<-list(statistic=TStat[[1]], p.value=pvalue[[1]])
+  
+  k <- nstates
+  
+  # degree of freedom
+  df <- k * (nblocks - 1) * (k-1)
+  pvalue <- 1-pchisq(TStat, df)
+  
+  # returning the output
+  cat("The assessStationarity test statistic is: ", TStat, " the Chi-Square d.f. are: ", df," the p-value is: ", pvalue,"\n")
+  out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
+  
   return(out)
 }
 
 # sequence to transition frequencey matrix
-.seq2mat<-function(sequence) {
-  n<-length(sequence)
-  states<-unique(sequence)
-  nstates<-length(states)
-  mat<-zeros(nstates)
-  dimnames(mat)<-list(states, states)
+.seq2mat <- function(sequence) {
+  
+  # basic requirement to create transition matrix
+  n <- length(sequence)
+  states <- unique(sequence)
+  nstates <- length(states)
+  
+  # create transition matrix
+  mat <- matlab::zeros(nstates)
+  dimnames(mat) <- list(states, states)
+  
+  # populate transition matrix
   for(i in 1:(n-1)) {
-    from<-sequence[i]
-    to<-sequence[i+1]
-    mat[from,to]<-mat[from,to]+1
+    from <- sequence[i]
+    to <- sequence[i+1]
+    mat[from, to] <- mat[from, to] + 1
   }
+  
   return (mat)
 }
 
@@ -223,41 +277,59 @@ assessStationarity<-function(sequence, nblocks) {
 
 
 # divergence test for the hypothesized one and an empirical transition matrix from sequence
-divergenceTest<-function(sequence, hypothetic) {
-  n<-length(sequence)
-  empirical<-.seq2mat(sequence)
-  M<-nrow(empirical)
-  v<-numeric()
-  out<-2*n/.phi2(1)
-  sum<-0
-  c<-0
+divergenceTest <- function(sequence, hypothetic) {
+  
+  # length of sequence
+  n <- length(sequence)
+  
+  # frequency matrix
+  empirical <- .seq2mat(sequence)
+  
+  # unique states as per the sequence given
+  M <- nrow(empirical)
+  v <- numeric()
+  
+  out <- 2 * n / .phi2(1)
+  sum <- 0
+  c <- 0
+  
   for(i in 1:M) {
-    sum2<-0
-    sum3<-0
+    
+    sum2 <- 0
+    sum3 <- 0
+    
     for(j in 1:M) {
-      if(hypothetic[i,j]>0) c<-c+1
-      sum2<-sum2+hypothetic[i,j]*.phi(empirical[i,j]/hypothetic[i,j])
-      if((j > 1) && (sequence[j-1] == i))
+      if(hypothetic[i, j] > 0) {
+        c <- c + 1
+      }
+      
+      sum2 <- sum2 + hypothetic[i, j] * .phi(empirical[i, j] / hypothetic[i, j])
+      if((j > 1) && (sequence[j-1] == i)) {
         sum3<-sum3 + 1
+      }
     }
-    v[i]<-sum3
-    sum<-v[i]/n*sum2
+    
+    v[i] <- sum3
+    sum <- v[i] / n * sum2
   }
-  TStat<-out*sum
-  pvalue<-1-pchisq(TStat,c-M)
-  cat("The Divergence test statistic is: ",TStat, " the Chi-Square d.f. are: ",c-M," the p-value is: ",pvalue,"\n")
-  out<-list(statistic=TStat, p.value=pvalue)
-  return (out)
+  
+  TStat <- out * sum
+  pvalue <- 1 - pchisq(TStat, c-M)
+  
+  cat("The Divergence test statistic is: ", TStat, " the Chi-Square d.f. are: ", c-M," the p-value is: ", pvalue,"\n")
+  out <- list(statistic = TStat, p.value = pvalue)
+  
+  return(out)
 }
 
 # phi function for divergence test
-.phi<-function(x) {
-  out<-x*log(x)-x+1
+.phi <- function(x) {
+  out <- x*log(x) - x + 1
   return(out)
 }
 
 # another phi function for divergence test
-.phi2<-function(x) {
-  out<-1/x
+.phi2 <- function(x) {
+  out <- 1/x
   return(out)
 }

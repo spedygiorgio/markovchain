@@ -68,6 +68,34 @@ test_that("MC Fit for large sequence", {
   expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
 })
 
+### Markovchain Fitting For dataframe or matrix as an input
+matseq <- matrix(c("a", "b", "c", "a","b", "c"), nrow = 2, byrow = T)
+
+# for matrix as input
+
+test_that("Markovchain Fit for matrix as input", {
+
+# for matrix as input    
+  
+  expect_equal(markovchainFit(matseq)$estimate@transitionMatrix, 
+               matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(markovchainFit(matseq, sanitize = TRUE)$estimate@transitionMatrix, 
+               matrix(c(0, 1, 0, 0, 0, 1, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+# for data frame as input
+    expect_equal(markovchainFit(as.data.frame(matseq))$estimate@transitionMatrix, 
+                 matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3, 
+                        byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+    
+    expect_equal(markovchainFit(as.data.frame(matseq), sanitize = TRUE)$estimate@transitionMatrix, 
+                 matrix(c(0, 1, 0, 0, 0, 1, 1/3, 1/3, 1/3), nrow = 3, 
+                        byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+
+})
+
 ### Test for createSequenceMatrix
 rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
 

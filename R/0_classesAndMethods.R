@@ -1,82 +1,130 @@
-
 # define Markov Chain class
-
-setClass("markovchain", #class name
-  representation(states = "character", byrow = "logical",
-  transitionMatrix = "matrix", name = "character"),
-  prototype(states = c("a","b"), byrow = TRUE, # prototypizing
-  transitionMatrix=matrix(data = c(0,1,1,0),
-  nrow=2, byrow=TRUE, dimnames=list(c("a","b"), c("a","b"))),
-  name="Unnamed Markov chain")
+setClass("markovchain", # class name
+         
+         # Define the slots
+         slots = list(states = "character", byrow = "logical",
+                      transitionMatrix = "matrix", name = "character"),
+         
+         # Set the default values for the slots
+         prototype = list(states = c("a","b"), byrow = TRUE, 
+                          transitionMatrix = matrix(data = c(0,1,1,0),
+                                                    nrow = 2, byrow = TRUE, 
+                                                    dimnames = list(c("a","b"), c("a","b"))),  
+                          name = "Unnamed Markov chain")
 )
 
-# define Markov Chain class
-
-setClass("markovchainList", 
-		representation(markovchains = "list", 
-		name = "character")
-)
-
-# verifies if a markovchainList object is valid function is valid
-
-setValidity("markovchainList",
-		function(object){
-		check <- NULL
-		for(i in length(object@markovchains))
-		{
-			if(class(object@markovchains[[i]]) != "markovchain") check <- "Error! All elements should be of class 'markovchain'" # All elemeents in the list should be a markovchain element
-		}
-		if(is.null(check)) check <- TRUE
-		return(check)
-	}
-)
-
-#initializing method for markovchain objects
-
+# initializing method for markovchain objects
 setMethod("initialize",
-		signature(.Object = "markovchain"),
-		function (.Object, states, byrow, transitionMatrix,name,...) 
-		{
-			# put the standard markovchain 
-			if(missing(transitionMatrix)) transitionMatrix<-matrix(data=c(0,1,1,0), #create a naive matrix
-						nrow=2,
-						byrow=TRUE, 
-						dimnames=list(c("a","b"), c("a","b"))
-			)
-			
-		# check names of transition matrix
-			if(all(is.null(rownames(transitionMatrix)), is.null(colnames(transitionMatrix)))==TRUE) { #if all names are missing it initializes them to "1", "2",...
-				if(missing(states)) {
-					nr<-nrow(transitionMatrix)
-					stateNames<-as.character(seq(1:nr))
-				} else {stateNames<-states}
-				
-			rownames(transitionMatrix)<-stateNames
-			colnames(transitionMatrix)<-stateNames
-	 	} else if(is.null(rownames(transitionMatrix))) { #fix when rownames null
-		  rownames(transitionMatrix)<-colnames(transitionMatrix)
-		} else if(is.null(colnames(transitionMatrix))) { #fix when colnames null
-			colnames(transitionMatrix)<-rownames(transitionMatrix)
-		} else if(!setequal(rownames(transitionMatrix),colnames(transitionMatrix)))  colnames(transitionMatrix)=rownames(transitionMatrix) #fix when different
-		if(missing(states)) states=rownames(transitionMatrix) #assign
-		if(missing(byrow)) byrow=TRUE #set byrow as true by default
-    if(missing(name)) name="Unnamed Markov chain"
-		callNextMethod(.Object, states = states, byrow = byrow, transitionMatrix=transitionMatrix,name=name,...)
-    }
+          signature(.Object = "markovchain"),
+          function (.Object, states, byrow, transitionMatrix, name, ...) {
+            
+            # put the standard markovchain 
+            if(missing(transitionMatrix)) {
+              transitionMatrix <- matrix(data = c(0, 1, 1, 0),
+                                         nrow = 2,
+                                         byrow = TRUE, 
+                                         dimnames = list(c("a","b"), c("a","b"))
+              ) 
+            }
+            
+            # check names of transition matrix
+            # if all names are missing it initializes them to "1", "2", ....
+            
+            if(all(is.null(rownames(transitionMatrix)), is.null(colnames(transitionMatrix))) == TRUE) { 
+              
+              if(missing(states)) {
+                nr <- nrow(transitionMatrix)
+                stateNames <- as.character(seq(1:nr))
+              } else {stateNames <- states}
+              
+              rownames(transitionMatrix) <- stateNames
+              colnames(transitionMatrix) <- stateNames
+              
+            } else if(is.null(rownames(transitionMatrix))) { # fix when rownames null
+              
+              rownames(transitionMatrix) <- colnames(transitionMatrix)
+              
+            } else if(is.null(colnames(transitionMatrix))) { # fix when colnames null
+              
+              colnames(transitionMatrix) <- rownames(transitionMatrix)
+              
+            } else if(!setequal(rownames(transitionMatrix), colnames(transitionMatrix)))  {
+              
+              colnames(transitionMatrix) <- rownames(transitionMatrix) # fix when different
+              
+            }
+            
+            if(missing(states)) {
+              states <- rownames(transitionMatrix)
+            }
+            
+            if(missing(byrow)) {
+              byrow <- TRUE
+            }
+            
+            if(missing(name)) {
+              name <- "Unnamed Markov chain" 
+            }
+            
+            callNextMethod(.Object, states = states, byrow = byrow, 
+                           transitionMatrix = transitionMatrix, name = name, ...)
+          }
 )
 
+# define Markov Chain List class
+setClass("markovchainList", 
+         slots = list(markovchains = "list", 
+		                  name = "character")
+)
 
-# .isProb<-function(prob)
-# {
-# 	if (class(prob)!="numeric") return(FALSE)
-# 	if (prob<0 | prob >1) return(FALSE)
-# 	return(TRUE)
-# }
-
+# verifies if a markovchainList object is valid or not
+setValidity("markovchainList",
+		         function(object) {
+		           check <- NULL
+		           for(i in 1:length(object@markovchains)) {
+			            if(class(object@markovchains[[i]]) != "markovchain") {
+			              # All elemeents in the list should be a markovchain object 
+			              check <- "Error! All elements should be of class 'markovchain'" 
+			            }
+		           }
+		           
+		           if(is.null(check)) check <- TRUE
+		           return(check)
+	           }
+)
 
 # generic method to print out states
 
+#' @name states
+#' 
+#' @title Defined states of a transition matrix
+#' 
+#' @description This method returns the states of a transition matrix.
+#' 
+#' @param object A discrete \code{markovchain} object
+#' @return The character vector corresponding to states slot.
+#' 
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @author Giorgio Spedicato
+#' 
+#' @seealso \code{\linkS4class{markovchain}}
+#' 
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )
+#' states(markovB)
+#' 
+#' @rdname states
+#' 
+#' @export
 setGeneric("states", function(object) standardGeneric("states"))
+
+#' @rdname states
 setMethod("states","markovchain", 
           function(object) {
             out <- object@states
@@ -92,8 +140,20 @@ setMethod("states","markovchain",
 #' 
 #' @param object A markovchain object
 #' @rdname getName
+#' @author Giorgio Spedicato, Deepak Yadav
+#' 
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )
+#' name(markovB)
+#' 
 #' @export
 setGeneric("name", function(object) standardGeneric("name"))
+
 
 #' @rdname getName
 setMethod("name", "markovchain", function(object) {
@@ -110,6 +170,17 @@ setMethod("name", "markovchain", function(object) {
 #' @param object A markovchain object
 #' @param value New name of markovchain object
 #' @rdname setName
+#' @author Giorgio Spedicato, Deepak Yadav
+#' 
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )
+#' name(markovB) <- "dangerous mc"
+#' 
 #' @export
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))
 

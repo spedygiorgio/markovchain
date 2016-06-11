@@ -31,7 +31,6 @@
 \alias{predict,markovchain-method}
 \alias{print,markovchain-method}
 \alias{show,markovchain-method}
-\alias{states,markovchain-method}
 \alias{steadyStates,markovchain-method}
 \alias{summary,markovchain-method}
 \alias{transientStates,markovchain-method}

@@ -40,8 +40,8 @@ seq2matHigh <- function(sequence, order) {
 #' @rdname markovchainFit
 #' 
 #' @export
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE) {
-    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize)
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
+    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, possibleStates)
 }
 
 #' @name inferHyperparam
@@ -111,6 +111,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' @param stringchar Equivalent to data
 #' @param toRowProbs converts a sequence matrix into a probability matrix
 #' @param sanitize put 1 in all rows having rowSum equal to zero
+#' @param possibleStates Possible states which are not present in the given sequence
 #' 
 #' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 #'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -144,8 +145,8 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' 
 #' @export
 #' 
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix(), sanitize = FALSE) {
-    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, sanitize)
+markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
+    .Call('markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, hyperparam, sanitize, possibleStates)
 }
 
 .commclassesKernelRcpp <- function(P) {

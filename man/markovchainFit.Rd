@@ -5,11 +5,12 @@
 \alias{markovchainFit}
 \title{Function to fit a discrete Markov chain}
 \usage{
-createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE)
+createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE,
+  possibleStates = character())
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
-  hyperparam = matrix(), sanitize = FALSE)
+  hyperparam = matrix(), sanitize = FALSE, possibleStates = character())
 }
 \arguments{
 \item{stringchar}{Equivalent to data}
@@ -17,6 +18,8 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 
 \item{sanitize}{put 1 in all rows having rowSum equal to zero}
+
+\item{possibleStates}{Possible states which are not present in the given sequence}
 
 \item{data}{A character list.}
 

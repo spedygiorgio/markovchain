@@ -163,8 +163,10 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 //' 
 //' @export
 // [[Rcpp::export]]
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs = false, bool sanitize = false) {
-  CharacterVector elements = unique(stringchar).sort();
+NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs = false, bool sanitize = false,
+                                   CharacterVector possibleStates = CharacterVector()) {
+  
+  CharacterVector elements = unique(union_(stringchar, possibleStates)).sort();
   int sizeMatr = elements.size();
   
   NumericMatrix freqMatrix(sizeMatr);
@@ -222,12 +224,13 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
 }
 
 // Fit DTMC using MLE
-List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, bool sanitize = false) {
+List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, bool sanitize = false, 
+               CharacterVector possibleStates = CharacterVector()) {
   
   // unique states
-  CharacterVector elements = unique(stringchar).sort();
+  CharacterVector elements = unique(union_(stringchar, possibleStates)).sort();
   // matrix size = nrows = ncols
-  int sizeMatr = elements.size(); 
+  int sizeMatr = elements.size();
   
   // initial matrix = transition matrix
   NumericMatrix initialMatr(sizeMatr);
@@ -343,10 +346,11 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, b
 }
 
 // Fit DTMC using Laplacian smooth
-List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian = 0.01, bool sanitize = false) {
+List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian = 0.01, bool sanitize = false,
+                           CharacterVector possibleStates = CharacterVector()) {
   
   // create frequency matrix
-  NumericMatrix origNum = createSequenceMatrix(stringchar, false, sanitize);
+  NumericMatrix origNum = createSequenceMatrix(stringchar, false, sanitize, possibleStates);
   
   // store dimension of frequency matrix
   int nRows = origNum.nrow(), nCols = origNum.ncol();
@@ -385,7 +389,8 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 }
 
 // bootstrap a sequence to produce a list of sample sequences
-List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long size = -1) {
+List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long size = -1, 
+                                  CharacterVector possibleStates = CharacterVector()) {
   
   // store length of sequence
   if(size == -1) {
@@ -393,7 +398,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long s
   }
   
   // frequency matrix
-  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar, true, true);
+  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar, true, true, possibleStates);
   
   // many samples from a given a sequence :: bootstrap
   // res list is helper list
@@ -492,10 +497,11 @@ List _fromBoot2Estimate(List listMatr) {
 }
 
 // Fit DTMC using bootstrap method
-List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false) {
+List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false,
+                     CharacterVector possibleStates = CharacterVector()) {
   
   // list of sequence generated using given sequence
-  List theList = _bootstrapCharacterSequences(data, nboot);
+  List theList = _bootstrapCharacterSequences(data, nboot, data.size(), possibleStates);
   
   // number of new sequence
   int n = theList.size();
@@ -506,11 +512,11 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   // populate pmsBootStrapped  // take care of sanitize
   if(parallel)
     for(int i = 0; i < n; i++)
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize);
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);
   
   else 
     for(int i = 0; i < n; i++) 
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize);
+      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);
   
   
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
@@ -849,6 +855,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param stringchar Equivalent to data
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
+//' @param possibleStates Possible states which are not present in the given sequence
 //' 
 //' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 //'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -884,8 +891,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' 
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0
-            , String name = "", bool parallel = false, double confidencelevel = 0.95
-            , NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false) {
+            , String name = "", bool parallel = false, double confidencelevel = 0.95, NumericMatrix hyperparam
+             = NumericMatrix(), bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
   // list to store the output
   List out;
@@ -922,19 +929,19 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   else {
     
     if(method == "mle") {
-      out = _mcFitMle(data, byrow, confidencelevel, sanitize); 
+      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates); 
     }
     
     if(method == "bootstrap") {
-      out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel, sanitize);
+      out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel, sanitize, possibleStates);
     }
   
     if(method == "laplace") {
-      out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize);
+      out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize, possibleStates);
     }
     
     if(method == "map") {
-      out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize);
+      out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize, possibleStates);
     }
   }
   

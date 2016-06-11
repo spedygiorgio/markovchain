@@ -1,8 +1,9 @@
-List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false) {
+List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
+               bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
   // vector to store unique states in sorted order
   CharacterVector elements = stringchar;
-  elements = unique(elements).sort();
+  elements = unique(union_(elements, possibleStates)).sort();
   
   // number of unique states
   int sizeMatr = elements.size();

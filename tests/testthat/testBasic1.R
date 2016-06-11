@@ -142,6 +142,37 @@ test_that("Markovchain Laplace", {
   expect_equal(lap_fit1$logLikelihood, lap_fit2$logLikelihood)
 })
 
+### Markovchain Fitting when some states are not present in the given sequence
+mix_seq <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+
+mix_fit1 <- markovchainFit(mix_seq, "mle", sanitize = TRUE, possibleStates = c("d"))
+mix_fit2 <- markovchainFit(mix_seq, "laplace", sanitize = TRUE, possibleStates = c("d")) 
+mix_fit3 <- markovchainFit(mix_seq, "map", sanitize = TRUE, possibleStates = c("d")) 
+
+test_that("Mixture of Markovchain Fitting", {
+  expect_equal(mix_fit2$estimate@transitionMatrix, 
+               matrix(c(.5, .5, 0, 0, 3/7, 3/7, 1/7, 0,
+                        1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4), nrow = 4, byrow = TRUE,
+                      dimnames = list(c("a", "b", "c", "d"), c("a", "b", "c", "d"))
+                      )
+              )
+  
+  expect_equal(mix_fit1$estimate@transitionMatrix, 
+               matrix(c(.5, .5, 0, 0, 3/7, 3/7, 1/7, 0,
+                        1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4), nrow = 4, byrow = TRUE,
+                      dimnames = list(c("a", "b", "c", "d"), c("a", "b", "c", "d"))
+               )
+  )
+  
+  expect_equal(mix_fit3$estimate@transitionMatrix, 
+               matrix(c(.5, .5, 0, 0, 3/7, 3/7, 1/7, 0,
+                        1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4), nrow = 4, byrow = TRUE,
+                      dimnames = list(c("a", "b", "c", "d"), c("a", "b", "c", "d"))
+               )
+  )
+  
+})
+
 ### Test for createSequenceMatrix
 rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
 

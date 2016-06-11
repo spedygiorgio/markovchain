@@ -192,7 +192,7 @@ setMethod("name<-", "markovchain",
           }
 )
 
-#adding a method names: to get names
+# adding a method names: to get names
 setMethod("names","markovchain", 
           function(x) {
             out <- x@states
@@ -200,27 +200,27 @@ setMethod("names","markovchain",
           }
 )
 
-#adding a method names: to set names
-setMethod("names<-","markovchain", 
-          function(x,value) {
-            x@states<-value
-            rownames(x@transitionMatrix)<-value
-            colnames(x@transitionMatrix)<-value
+# adding a method names: to set names
+setMethod("names<-", "markovchain", 
+          function(x, value) {
+            rownames(x@transitionMatrix) <- value
+            colnames(x@transitionMatrix) <- value
+            x@states <- value
             return(x)
           }
 )
 
 
- # generic methods to get the dim of a markovchain and markovchainList
+# generic methods to get the dim of a markovchain and markovchainList
 
-setMethod("dim","markovchain", 
+setMethod("dim", "markovchain", 
 		function(x) {
 			out <- nrow(x@transitionMatrix)
 			return(out)
 		}
 )
 
-setMethod("dim","markovchainList", 
+setMethod("dim", "markovchainList", 
 		function(x) {
 			  out <- length(x@markovchains)
 			  return(out)
@@ -228,80 +228,149 @@ setMethod("dim","markovchainList",
 )
 
 
- # method  to set the validity of a markovchain object
-
+# method  to set the validity of a markovchain object
 setValidity("markovchain",
 		function(object) {
-			check<-NULL
+			check <- NULL
+			
 			# performs a set of check whose results are saved in check
-			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp))==FALSE) check <- "Error! Some elements are not probabilities" #checks if probability
-			if (object@byrow==TRUE) {
-				if(any(round(rowSums(object@transitionMatrix),5)!=1)) check <- "Error! Row sums not equal to one"
+			
+			# check all values of transition matrix belongs to [0, 1]
+			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp)) == FALSE) {
+			  check <- "Error! Some elements are not probabilities"
+			}
+			
+			# rows sum or columns sum = 1
+			if (object@byrow == TRUE) {
+				if(any(round(rowSums(object@transitionMatrix), 5) != 1)) {
+				  check <- "Error! Row sums not equal to one" 
+				}
 			} else {
-				if(any(round(colSums(object@transitionMatrix),5)!=1)) check <- "Error! Col sums not equal to one"
-			} #checks if col sums not equal to one
-			if (nrow(object@transitionMatrix)!=ncol(object@transitionMatrix)) check <- "Error! Not squared matrix" #check if squalre matrix
-            if (!setequal(colnames(object@transitionMatrix),object@states)) check <- "Error! Colnames <> states" #checks if 
-            if (!setequal(rownames(object@transitionMatrix),object@states)) check <- "Error! Rownames <> states"
-			if ( is.null(check) ) return(TRUE) else return(check)
+				if(any(round(colSums(object@transitionMatrix), 5) != 1)) {
+				  check <- "Error! Col sums not equal to one"
+				}
+			}
+			
+			
+			# check whether matrix is square amtrix or not
+			if (nrow(object@transitionMatrix) != ncol(object@transitionMatrix)) {
+			  check <- "Error! Not squared matrix" #check if squalre matrix
+			}
+      
+			# check whether column names or rows names equal to state names or not
+			if (!setequal(colnames(object@transitionMatrix), object@states)) {
+			  check <- "Error! Colnames <> states" 
+			}
+      if (!setequal(rownames(object@transitionMatrix), object@states)) {
+        check <- "Error! Rownames <> states"
+      }
+			
+      if ( is.null(check) ) {
+        return(TRUE)
+      }  else {
+        return(check)
+      }
 		}
 )
 
-.mcEigen<-function(matr, transpose=TRUE)
-{
-  # Function to extract eigenvalues, core of get steady states 
-  #
-  # Args:
-  # matr: the matrix to extract
-  # transpose:  boolean indicating whether the matrx shall be transpose
-  #
-  # Results:
-  # a matrix / vector
-  if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
-  eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
-  onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
-  #do the following: 1:get eigenvectors whose eigenvalues==1
-  #2: normalize
-  if (length(onesIndex)==0) {
+# matr : matrix
+# transpose : boolean indicating whether the matrix shall be transposed or not
+# output : a matrix / vector
+
+.mcEigen <- function(matr, transpose = TRUE) {
+  
+  if (transpose) {
+    tMatr <- t(matr) 
+  } else {
+    tMatr <- matr
+  }
+  
+  # perform the eigenvalue extraction
+  eigenResults <- eigen(x = tMatr, symmetric = FALSE) 
+  
+  # takes the one eigenvalue
+  onesIndex <- which(round(eigenResults$values,3) == 1) 
+  
+  # do the following: 
+  # 1 : get eigenvectors whose eigenvalues == 1
+  # 2 : normalize
+  
+  if (length(onesIndex) == 0) {
     warning("No eigenvalue = 1 found")
     return(NULL)
   }
-  if (transpose==TRUE)
-  {
-    eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
-    out <- eigenTake/rowSums(eigenTake) 
+  
+  if (transpose == TRUE) {
+    eigenTake <- as.matrix(t(eigenResults$vectors[, onesIndex])) 
+    out <- eigenTake / rowSums(eigenTake) # normalize
   } else {
     eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
-    out <- eigenTake/colSums(eigenTake)
+    out <- eigenTake / colSums(eigenTake) # normalize
   }
+  
   # subset the eigenvectors
   # normalize
   # take the real part: need to be sanitized
-	#@TAE: later we have to see and optimize this part. I am not sure taking
-	#the real part is the most appropriate.
+	# @TAE: later we have to see and optimize this part. I am not sure taking
+	#       the real part is most appropriate.
+  
   out <- Re(out)
   return(out)
 }
 
-#method to get stationary states
+# method to get stationary states
+
+#' @name steadyStates
+#' @title Stationary states of a \code{markovchain} objeect
+#' 
+#' @description This method returns the stationary vector in matricial form of a markovchain object.
+#' @param object A discrete \code{markovchain} object
+#' 
+#' @return A matrix corresponding to the stationary states
+#' 
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @author Giorgio Spedicato
+#' @seealso \code{\linkS4class{markovchain}}
+#' 
+#' @note The steady states are identified starting from which eigenvectors correspond 
+#'       to identity eigenvalues and then normalizing them to sum up to unity.
+#'       
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )       
+#' steadyStates(markovB)
+#' 
+#' @rdname steadyStates
+#' @export
 setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
+
+#' @rdname steadyStates
 setMethod("steadyStates","markovchain", 
 		function(object) {
 			transposeYN <- FALSE
-			if(object@byrow==TRUE) transposeYN <- TRUE		
-            out<-.mcEigen(matr=object@transitionMatrix, transpose=transposeYN) #wrapper for .mcEigen
-            if(is.null(out)) {
+			if(object@byrow == TRUE) {
+			  transposeYN <- TRUE		
+			}
+      
+			out <- .mcEigen(matr = object@transitionMatrix, transpose = transposeYN)
+      
+			if(is.null(out)) {
 				warning("Warning! No steady state")
 				return(NULL)
-            }
-			if(transposeYN==TRUE) { 
+			}
+			
+			if(transposeYN == TRUE) { 
 				colnames(out) <- object@states
 			} else {
 				rownames(out) <- object@states
 			}
-            #if(nrow(out)==1) out<-as.numeric(out)
-            return(out)
-          }
+
+      return(out)
+    }
 )
 
 
@@ -311,20 +380,34 @@ setMethod("steadyStates","markovchain",
 #' 
 #' @export
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
-setMethod("absorbingStates","markovchain", 
+setMethod("absorbingStates", "markovchain", 
           function(object) {
-			  out <- character()
-			  matr <- object@transitionMatrix #extract the byrow transition matrix
-			  transposeYN <- FALSE
-			  if(object@byrow==TRUE) transposeYN <- TRUE
-			  steadyStates <- .mcEigen(matr=matr, transpose=transposeYN) #checkk
-			  if(is.null(steadyStates)) return(character(0))
-			  #identify which states are absorbing if they are diagonally one
-			  if(transposeYN==TRUE) maxCols <- apply(steadyStates, 2, "max") else maxCols <- apply(steadyStates, 1, "max")  
-			  index <- which(maxCols==1)
-			  if(length(index)>0) out <- object@states[index] 
-			  return(out)
-          }
+			      out <- character()
+			      matr <- object@transitionMatrix
+			      transposeYN <- FALSE
+			      if(object@byrow == TRUE) {
+			        transposeYN <- TRUE
+			      }
+			      
+			      steadyStates <- .mcEigen(matr = matr, transpose = transposeYN)
+			      if(is.null(steadyStates)) {
+			        return(character(0))
+			      }
+			      
+			      # identify which states are absorbing if they are diagonally one
+			      if(transposeYN == TRUE) {
+			        maxCols <- apply(steadyStates, 2, "max")
+			      } else {
+			        maxCols <- apply(steadyStates, 1, "max")  
+			      }
+			      
+			      index <- which(maxCols == 1)
+			      if(length(index) > 0) {
+			        out <- object@states[index] 
+			      }
+			      
+			      return(out)
+          } 
 )
 
 # generic method to extract transient states
@@ -333,27 +416,72 @@ setMethod("absorbingStates","markovchain",
 #' 
 #' @export
 setGeneric("transientStates", function(object) standardGeneric("transientStates"))
-setMethod("transientStates","markovchain", 
-		function(object) {
-			out <- character()
-			matr <- object@transitionMatrix #extract the byrow transition matrix
-			temp <- .commclassesKernelRcpp(matr)
-			index <- which(temp$v==FALSE)
-			if(length(index)>0) out <- names(temp$v[index])
-			return(out)
-		}
+
+#' @rdname absorbingStates
+setMethod("transientStates", "markovchain", 
+	       	function(object) {
+			      out <- character()
+			      
+			      # make byRow = true for the matrix
+			      if(object@byrow == TRUE) {
+			        matr <- object@transitionMatrix
+			      } else {
+			        matr <- t(object@transitionMatrix)
+			      }
+			      
+			      temp <- .commclassesKernelRcpp(matr)
+			      index <- which(temp$v == FALSE)
+			      if(length(index) > 0) {
+			        out <- names(temp$v[index])
+			      }
+			      
+			      return(out)
+		      }
 )
 
-#generic method to extract transition probability
+# generic method to extract transition probability
+# from state t0 to state t1
+
+#' @name transitionProbability
+#' @title Function to get the transition probabilities from initial 
+#'        to subsequent states.
+#' @description This is a convenience function to get transition probabilities.
+#' 
+#' @param object A \code{markovchain} object.
+#' @param t0 Initial state.
+#' @param t1 Subsequent state.
+#' 
+#' @references A First Course in Probability (8th Edition), 
+#'             Sheldon Ross, Prentice Hall 2010
+#' 
+#' @return Numeric Vector  
+#' 
+#' @author Giorgio Spedicato
+#' @seealso \code{\linkS4class{markovchain}}
+#' 
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )    
+#' transitionProbability(markovB,"b", "c")
+#' @rdname transitionProbability
+#'      
+#' @export
 setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("transitionProbability"))
-setMethod("transitionProbability","markovchain", 
-	function(object, t0, t1) {
-		out <- numeric(1)
-		fromState <- which(object@states==t0)
-		toState <- which(object@states==t1)
-		out<-ifelse(object@byrow==TRUE, object@transitionMatrix[fromState, toState] , object@transitionMatrix[toState, fromState])
-		return(out)
-	}
+
+#' @rdname transitionProbability
+setMethod("transitionProbability", "markovchain", 
+	        function(object, t0, t1) {
+		        out <- numeric(1)
+		        fromState <- which(object@states == t0)
+		        toState <- which(object@states == t1)
+		        out <- ifelse(object@byrow == TRUE, object@transitionMatrix[fromState, toState] , 
+		                      object@transitionMatrix[toState, fromState])
+		        return(out)
+	        }
 )
 
 #print plot show methods

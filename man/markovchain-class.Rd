@@ -31,11 +31,8 @@
 \alias{predict,markovchain-method}
 \alias{print,markovchain-method}
 \alias{show,markovchain-method}
-\alias{steadyStates,markovchain-method}
 \alias{summary,markovchain-method}
-\alias{transientStates,markovchain-method}
 \alias{t,markovchain-method}
-\alias{transitionProbability,markovchain-method}
 \title{Class \code{"markovchain"}}
 \description{
 The S4 class that describes \code{markovchain} objects.

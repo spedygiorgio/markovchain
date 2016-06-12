@@ -80,10 +80,10 @@ setClass("markovchainList",
 # verifies if a markovchainList object is valid or not
 setValidity("markovchainList",
 		         function(object) {
-		           check <- NULL
+		           check <- NULL #@DEEPAK: maybe why not false?
 		           for(i in 1:length(object@markovchains)) {
 			            if(class(object@markovchains[[i]]) != "markovchain") {
-			              # All elemeents in the list should be a markovchain object 
+			              # All elements in the list should be a markovchain object 
 			              check <- "Error! All elements should be of class 'markovchain'" 
 			            }
 		           }
@@ -239,13 +239,14 @@ setValidity("markovchain",
 			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp)) == FALSE) {
 			  check <- "Error! Some elements are not probabilities"
 			}
-			
+			#@DEEPAK: try with machine eps?
 			# rows sum or columns sum = 1
 			if (object@byrow == TRUE) {
 				if(any(round(rowSums(object@transitionMatrix), 5) != 1)) {
 				  check <- "Error! Row sums not equal to one" 
 				}
 			} else {
+			  #@DEEPAK: try with machine eps?
 				if(any(round(colSums(object@transitionMatrix), 5) != 1)) {
 				  check <- "Error! Col sums not equal to one"
 				}
@@ -311,7 +312,7 @@ setValidity("markovchain",
   # subset the eigenvectors
   # normalize
   # take the real part: need to be sanitized
-	# @TAE: later we have to see and optimize this part. I am not sure taking
+	# @DEEPAK: later we have to see and optimize this part. I am not sure taking
 	#       the real part is most appropriate.
   
   out <- Re(out)
@@ -772,6 +773,8 @@ setMethod("summary", signature(object="markovchain"),
 
 }
 
+
+
 setAs(from="matrix", to="markovchain", def=.matrix2Mc)
 
 
@@ -784,7 +787,7 @@ setAs(from="matrix", to="markovchain", def=.matrix2Mc)
 #
 # from: a markovchain object
 #
-# Returns:
+# returns:
 # a data.frame
 	nr<-nrow(from@transitionMatrix) #cycles for all rows and columns
 	for(i in 1:nr){

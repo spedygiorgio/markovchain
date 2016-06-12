@@ -484,50 +484,57 @@ setMethod("transitionProbability", "markovchain",
 	        }
 )
 
-#print plot show methods
+#  print, plot and show methods
 
-.showInt <- function(object, verbose=TRUE)
-{
-	if (object@byrow==TRUE) direction="(by rows)" else direction="(by cols)"
-	if (verbose==TRUE) cat(object@name,"\n A ",dim(object),"- dimensional discrete Markov Chain characterized by following states: \n",
-	                       paste(states(object),collapse=", "), "\n The transition matrix  ", 
-	                       direction," is defined as follows: \n")
+.showInt <- function(object, verbose = TRUE) {
+	
+  # find the direction
+  if (object@byrow == TRUE) {
+	  direction <- "(by rows)" 
+	} else {
+	  direction <- "(by cols)" 
+	}
+  
+	if (verbose == TRUE) {
+	  cat(object@name, "\n A ", dim(object), "- dimensional discrete Markov Chain characterized by following states: \n",
+	      paste(states(object), collapse=", "), "\n The transition matrix ", 
+	      direction, " is defined as follows: \n")
+	}
+  
 	print(object@transitionMatrix)
 	cat("\n")
 }
 
 
-#show methods for markovchain and markovchain list objects 
-setMethod("show","markovchain", #markovchain
+# show methods for markovchain and markovchain list objects 
+setMethod("show", "markovchain",
           function(object){
-          .showInt(object)
+            .showInt(object)
           }
 )
 
 setMethod("show", "markovchainList",
-          function(object){
-		  cat(object@name, " list of Markov chain(s)","\n")
-          for(i in 1:length(object@markovchains)) 
-          {
-            cat("Markovchain ",i,"\n")
-            show(object@markovchains[[i]])
-          }
+          function(object) {
+		        cat(object@name, " list of Markov chain(s)", "\n")
+            for(i in 1:length(object@markovchains)) {
+              cat("Markovchain ",i,"\n")
+              show(object@markovchains[[i]])
+            }
           }
 )
 
-#print methods
-
-setMethod("print","markovchainList",function(x) show(x))
-setMethod("print","markovchain", #metodo print
+# print methods
+setMethod("print", "markovchainList", function(x) show(x))
+setMethod("print", "markovchain",
           function(x){
            object <- x
-		   .showInt(object,verbose=FALSE)
+		       .showInt(object, verbose = FALSE)
           }
 )
 
-.getNet<-function(object,round=FALSE)
-{
- 	# function to get the absorbency matrix to plot and export to igraph
+.getNet <- function(object, round = FALSE) {
+ 	
+  # function to get the absorbency matrix to plot and export to igraph
 	#
  	# Args: 
 	# object: a markovchain object
@@ -535,53 +542,53 @@ setMethod("print","markovchain", #metodo print
  	#
 	# Returns:
 	#
-	# a graph adjacenty
-	if (object@byrow==FALSE) object <- t(object)
-	#with this fails 
-	#matr <- Matrix(data=object@transitionMatrix, sparse = TRUE)*100 #need to multiply by 100
-	#with this works. 
-	matr<-object@transitionMatrix*100
-	if(round==TRUE) matr <- round(matr,2)
-	net <- graph.adjacency(adjmatrix=matr, weighted=TRUE, mode="directed")
-	#net<-graph_from_adjacency_matrix(adjmatrix = matr,weighted = TRUE,mode="directed")
+	# a graph adjacency
+  
+	if (object@byrow == FALSE) {
+	  object <- t(object)
+	}
+  
+	matr <- object@transitionMatrix*100
+	if(round == TRUE) {
+	  matr <- round(matr, 2)
+	}
+	
+	net <- graph.adjacency(adjmatrix = matr, weighted = TRUE, mode = "directed")
 	return(net)
 }
 
 
- # Plot methods for markovchain objects
+# Plot methods for markovchain objects
 
-
-
-#plot method from stat5
-setMethod("plot", signature(x="markovchain", y="missing"),
-		function(x, y, package="igraph",...){
-		  switch(package,
+# plot method from stat5
+setMethod("plot", signature(x = "markovchain", y = "missing"),
+		      function(x, y, package = "igraph", ...) {
+		        switch(package,
+		         
 		         diagram = {
 		           if (requireNamespace("diagram", quietly = TRUE)) {
-		             .plotdiagram(object=x,...)
+		             .plotdiagram(object = x, ...)
 		           } else {
-		            # cat("diagram unavailable, using standard method","\n")
-		             netMc <- .getNet(object=x,round=TRUE)
-		             edgeLabel <- round(E(netMc)$weight/100,2)
-		             plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		             netMc <- .getNet(object = x, round = TRUE)
+		             edgeLabel <- round(E(netMc)$weight / 100, 2)
+		             plot.igraph(x = netMc, edge.label = edgeLabel, ...)
 		           }
-		           
 		         },
-		         DiagrammeR= {
+		         
+		         DiagrammeR = {
 		           if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-		             .plotDiagrammeR(object=x,...)
+		             .plotDiagrammeR(object = x, ...)
 		           } else {
-		         #    cat("DiagrammeR unavailable, using standard method","\n")
-		             netMc <- .getNet(object=x,round=TRUE)
-		             edgeLabel <- round(E(netMc)$weight/100,2)
-		             plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		             netMc <- .getNet(object = x, round = TRUE)
+		             edgeLabel <- round(E(netMc)$weight / 100, 2)
+		             plot.igraph(x = netMc, edge.label = edgeLabel, ...)
 		           }
-		          
 		         },
+		         
 		         {
-		           netMc <- .getNet(object=x,round=TRUE)
-		           edgeLabel <- round(E(netMc)$weight/100,2)
-		           plot.igraph(x=netMc,edge.label=edgeLabel, ...)
+		           netMc <- .getNet(object = x,round = TRUE)
+		           edgeLabel <- round(E(netMc)$weight / 100, 2)
+		           plot.igraph(x = netMc, edge.label = edgeLabel, ...)
 		         })
 		}
 )

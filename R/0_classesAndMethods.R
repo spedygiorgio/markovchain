@@ -80,7 +80,7 @@ setClass("markovchainList",
 # verifies if a markovchainList object is valid or not
 setValidity("markovchainList",
 		         function(object) {
-		           check <- NULL #@DEEPAK: maybe why not false?
+		           check <- FALSE 
 		           for(i in 1:length(object@markovchains)) {
 			            if(class(object@markovchains[[i]]) != "markovchain") {
 			              # All elements in the list should be a markovchain object 
@@ -88,7 +88,7 @@ setValidity("markovchainList",
 			            }
 		           }
 		           
-		           if(is.null(check)) check <- TRUE
+		           if(check == FALSE) check <- TRUE
 		           return(check)
 	           }
 )
@@ -231,7 +231,7 @@ setMethod("dim", "markovchainList",
 # method  to set the validity of a markovchain object
 setValidity("markovchain",
 		function(object) {
-			check <- NULL
+			check <- FALSE
 			
 			# performs a set of check whose results are saved in check
 			
@@ -239,15 +239,22 @@ setValidity("markovchain",
 			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp)) == FALSE) {
 			  check <- "Error! Some elements are not probabilities"
 			}
-			#@DEEPAK: try with machine eps?
+			
 			# rows sum or columns sum = 1
 			if (object@byrow == TRUE) {
-				if(any(round(rowSums(object@transitionMatrix), 5) != 1)) {
+			  
+			  # absolute difference
+			  absdiff <- abs(1-rowSums(object@transitionMatrix))
+				
+			  if(any(absdiff > .Machine$double.eps*10)) {
 				  check <- "Error! Row sums not equal to one" 
 				}
 			} else {
-			  #@DEEPAK: try with machine eps?
-				if(any(round(colSums(object@transitionMatrix), 5) != 1)) {
+			  
+			  # absolute difference
+			  absdiff <- abs(1-colSums(object@transitionMatrix))
+			  
+			  if(any(absdiff > .Machine$double.eps*10)) {
 				  check <- "Error! Col sums not equal to one"
 				}
 			}
@@ -266,7 +273,7 @@ setValidity("markovchain",
         check <- "Error! Rownames <> states"
       }
 			
-      if ( is.null(check) ) {
+      if (check == FALSE) {
         return(TRUE)
       }  else {
         return(check)

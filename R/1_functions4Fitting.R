@@ -341,7 +341,7 @@ markovchainSequenceParallel <- function(n, object,
     
   # Calculate the number of cores
   # It's not good to use all cores
-  no_cores <- parallel::detectCores() - 1
+  no_cores <- max(1,parallel::detectCores() - 1)
   
   # number of cores specified should be less than or equal to maximum cores available
   if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {

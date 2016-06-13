@@ -19,7 +19,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 \item{sanitize}{put 1 in all rows having rowSum equal to zero}
 
-\item{possibleStates}{Possible states which are not present in the given sequence}
+\item{possibleStates}{Possible states of the Markov chain. Actual matrix will be the union of \code{possibleStates} and the unique states found in \code{data}}
 
 \item{data}{A character list.}
 

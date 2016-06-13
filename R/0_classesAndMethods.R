@@ -594,73 +594,124 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 )
 
 
-#@TAE: create an internal function that does this. Check also if the canonic form function 
-#is appropriate
-
- # method to convert into canonic form a markovchain object
- # TODO: check meaninsg of this function
+# @TAE: create an internal function that does this. Check also if the canonic form function 
+#       is appropriate
+# method to convert into canonic form : a markovchain object
+# TODO: check meaning of this function
 
 #' @rdname absorbingStates
 #' 
 #' @export
-setGeneric("canonicForm",function(object) standardGeneric("canonicForm"))
-setMethod("canonicForm","markovchain",
-          function(object)
-          {
+setGeneric("canonicForm", function(object) standardGeneric("canonicForm"))
+setMethod("canonicForm", "markovchain",
+          function(object) {
+            # Obtain the canonical form Q of a stochastic matrix P
             P <- object@transitionMatrix
+            
+            # Uses the internal function commclassesKernelRcpp
             comclasList <- .commclassesKernelRcpp(P)
+            
+            # vu is a row vector of 0s and 1s. vu(i) = 1 if
+            # the class C(i) is closed, and 0 otherwise
             vu <- comclasList$v
 			
-            u <- find(vu==TRUE)
-            w <- find(vu==FALSE)
+            # find index of closed communicating classes
+            u <- matlab::find(vu == TRUE)
             
+            # find index of open communicating classes
+            w <- matlab::find(vu == FALSE)
+            
+            # Cmatr(i,j) is 1 if and only if j is in the
+            # communicating class of i.
             Cmatr <- comclasList$C
+            
+            # R is now the set of representatives of closed classes
+            # Each closed class has a unique representative in R.
             R <- numeric()
-            while(length(u)>0)
-            {
-              R <- c(R,u[1])
-              vu <- as.logical(vu*(Cmatr[u[1],]==FALSE));
-              u <- find(vu==TRUE);
+            while(length(u) > 0) {
+              # everytime add a unique closed communicating classes index
+              R <- c(R, u[1])
+              
+              # remove the duplicate communication classes as u[1]
+              vu <- as.logical(vu * (Cmatr[u[1], ] == FALSE))
+              
+              # rest communicating classes index are hidden inside u
+              u <- find(vu == TRUE);
             }
+            
+            # we have now a permutation p of indices, p, that
+            # gives the new stochastic matrix Q.
             p <- numeric()
             for (i in 1:length(R))
             {
-              a <- find(Cmatr[R[i],])
+              a <- find(Cmatr[R[i], ])
               p <- c(p,a)
             }
+            
+            # append open communicating classes index
             p <- c(p, w)
-            Q <- P[p,p]
-            out<-new("markovchain",transitionMatrix=Q,name=object@name)
+            
+            # extract canonical form out of given matrix using 
+            # permutation of indexes calculated above
+            Q <- P[p, p]
+            
+            out <- new("markovchain", transitionMatrix = Q, name = object@name)
             return(out)
           }
 )
 
-.canonicForm<-function(object)
-{
+.canonicForm <- function(object) {
+  # Obtain the canonical form Q of a stochastic matrix P
   P <- object@transitionMatrix
+  
+  # Uses the internal function commclassesKernelRcpp
   comclasList <- .commclassesKernelRcpp(P)
+  
+  # vu is a row vector of 0s and 1s. vu(i) = 1 if
+  # the class C(i) is closed, and 0 otherwise
   vu <- comclasList$v
   
-  u <- find(vu==TRUE)
-  w <- find(vu==FALSE)
+  # find index of closed communicating classes
+  u <- matlab::find(vu == TRUE)
   
+  # find index of open communicating classes
+  w <- matlab::find(vu == FALSE)
+  
+  # Cmatr(i,j) is 1 if and only if j is in the
+  # communicating class of i.
   Cmatr <- comclasList$C
+  
+  # R is now the set of representatives of closed classes
+  # Each closed class has a unique representative in R.
   R <- numeric()
-  while(length(u)>0)
-  {
-    R <- c(R,u[1])
-    vu <- as.logical(vu*(Cmatr[u[1],]==FALSE));
-    u <- find(vu==TRUE);
+  while(length(u) > 0) {
+    # everytime add a unique closed communicating classes index
+    R <- c(R, u[1])
+    
+    # remove the duplicate communication classes as u[1]
+    vu <- as.logical(vu * (Cmatr[u[1], ] == FALSE))
+    
+    # rest communicating classes index are hidden inside u
+    u <- find(vu == TRUE);
   }
+  
+  # we have now a permutation p of indices, p, that
+  # gives the new stochastic matrix Q.
   p <- numeric()
   for (i in 1:length(R))
   {
-    a <- find(Cmatr[R[i],])
+    a <- find(Cmatr[R[i], ])
     p <- c(p,a)
   }
+  
+  # append open communicating classes index
   p <- c(p, w)
-  Q <- P[p,p]
-  out<-new("markovchain",transitionMatrix=Q,name=object@name)
+  
+  # extract canonical form out of given matrix using 
+  # permutation of indexes calculated above
+  Q <- P[p, p]
+  
+  out <- new("markovchain", transitionMatrix = Q, name = object@name)
   return(out)
 }
 

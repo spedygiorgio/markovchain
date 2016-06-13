@@ -1,7 +1,6 @@
-13-06-2016
-Version 0.4.4.3
-Sum of rows or columns of transition matrix need not sum to exactly 1.
-The sum is allowed to differ by small value i.e. epsilon.
+14-06-2016
+Version 0.4.4.4
+Bug fixed for markovchainFit when method = bootstrap
 
 09-06-2016
 Version 0.4.4.2

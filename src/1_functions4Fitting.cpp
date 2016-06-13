@@ -501,7 +501,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
                      CharacterVector possibleStates = CharacterVector()) {
   
   // list of sequence generated using given sequence
-  List theList = _bootstrapCharacterSequences(data, nboot, data.size(), possibleStates);
+  List theList = _bootstrapCharacterSequences(data, nboot, data.size());
   
   // number of new sequence
   int n = theList.size();
@@ -509,7 +509,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   // to store frequency matrix for every sequence
   List pmsBootStrapped(n);
 
-  // populate pmsBootStrapped  // take care of sanitize
+  // populate pmsBootStrapped 
   if(parallel)
     for(int i = 0; i < n; i++)
       pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);

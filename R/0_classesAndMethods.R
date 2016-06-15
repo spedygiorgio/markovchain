@@ -725,144 +725,203 @@ setMethod("canonicForm", "markovchain",
 
 # summary method for markovchain class
 # lists: closed, transient classes, irreducibility, absorbint, transient states
-setMethod("summary", signature(object="markovchain"),
-		function(object){
-			outs <- .summaryKernelRcpp(object)
-			cat(object@name," Markov chain that is composed by:","\n")
-			check <- length(outs$closedClasses)
-			cat("Closed classes:","\n")
-			if(check==0) cat("NONE","\n") else {
-				for(i in 1:check) cat(outs$closedClasses[[i]],"\n")
-			}
-			check <- length(outs$recurrentClasses)
-			cat("Recurrent classes:","\n")
-			if(check==0) cat("NONE","\n") else {
-			  cat("{")
-			  cat(outs$recurrentClasses[[1]], sep=",")
-			  cat("}")
-			  if(check > 1) {
-			    for(i in 2:check) {
-			      cat(",{")
-			      cat(outs$recurrentClasses[[i]],sep=",")
-			      cat("}")
-			    }
-			  }
-			  cat("\n")
-			}
-			check <- length(outs$transientClasses)
-			cat("Transient classes:","\n")
-			if(check==0) cat("NONE","\n") else {
-				# for(i in 1:check) cat(outs$transientClasses[[i]],"\n")
-			  cat("{")
-			  cat(outs$transientClasses[[1]], sep=",")
-			  cat("}")
-			  if(check > 1) { 
-			    for(i in 2:check) {
-			      cat(",{")
-			      cat(outs$transientClasses[[i]],sep=",")
-			      cat("}")
-			    }
-			  }
-			  cat("\n")
-			}
-			irreducibility <- is.irreducible(object)
-			if(irreducibility) cat("The Markov chain is irreducible","\n") else cat("The Markov chain is not irreducible","\n")
-			check <- absorbingStates(object)
-			if(length(check)==0) check <- "NONE"
-			cat("The absorbing states are:",check )
-			cat("\n")
-			invisible(outs) 
+setMethod("summary", signature(object = "markovchain"),
+		      function(object){
+			      
+		        # list of closed, recurrent and transient classes
+		        outs <- .summaryKernelRcpp(object)
+			      
+		        # display name of the markovchain object
+			      cat(object@name," Markov chain that is composed by:", "\n")
+			      
+			      # number of closed classes
+			      check <- length(outs$closedClasses)
+			      
+			      cat("Closed classes:","\n")
+			      
+			      # display closed classes
+			      if(check == 0) cat("NONE", "\n") else {
+				      for(i in 1:check) cat(outs$closedClasses[[i]], "\n")
+			      }
+			      
+			      # number of recurrent classes
+			      check <- length(outs$recurrentClasses)
+			
+			      cat("Recurrent classes:", "\n")
+			      
+			      # display recurrent classes
+			      if(check == 0) cat("NONE", "\n") else {
+			          cat("{")
+			          cat(outs$recurrentClasses[[1]], sep = ",")
+			          cat("}")
+			          if(check > 1) {
+			            for(i in 2:check) {
+			              cat(",{")
+			              cat(outs$recurrentClasses[[i]], sep = ",")
+			              cat("}")
+			            }
+			          }
+			          cat("\n")
+			      }
+			      
+			      # number of transient classes
+			      check <- length(outs$transientClasses)
+			      
+			      cat("Transient classes:","\n")
+			
+			      # display transient classes
+			      if(check == 0) cat("NONE", "\n") else {
+			          cat("{")
+			          cat(outs$transientClasses[[1]], sep = ",")
+			          cat("}")
+			          if(check > 1) { 
+			            for(i in 2:check) {
+			              cat(",{")
+			              cat(outs$transientClasses[[i]], sep = ",")
+			              cat("}")
+			            }
+			          }
+			          cat("\n")
+			      }
+			
+			      # bool to say about irreducibility of markovchain
+			      irreducibility <- is.irreducible(object)
+			      
+			      if(irreducibility) 
+			        cat("The Markov chain is irreducible", "\n") 
+			      else cat("The Markov chain is not irreducible", "\n")
+			      
+			      # display absorbing states
+			      check <- absorbingStates(object)
+			      if(length(check) == 0) check <- "NONE"
+			      cat("The absorbing states are:", check )
+			      cat("\n")
+			      
+			      # return outs
+			      # useful when user will assign the value returned
+			      invisible(outs) 
           }
 )
+
 ##################################################AS METHODS#########################
 
-.checkMatrix <- function(matr, byrow=TRUE, verbose=FALSE) {
-	#first check: size
-	if (dim(matr)[1]!=dim(matr)[2]) {
+.checkMatrix <- function(matr, byrow = TRUE, verbose = FALSE) {
+	
+  # first check: size
+	if (dim(matr)[1] != dim(matr)[2]) {
 		if(verbose) stop("Error! Rectangular matrix")
 		return(FALSE)
 	}
 	
-	#second check: all elements are probs
-	
+	# second check: all elements are probs
 	for(i in 1:nrow(matr)) {
 		for(j in 1:ncol(matr)){
-			if(!(.isProbRcpp(matr[i,j]))){
+			if(!(.isProbRcpp(matr[i, j]))) {
 				if(verbose) stop("Error! Non probabilities")
-				return(FALSE)}
+				  return(FALSE)
+			}
 		}
 	}
 	
-	#third check: either columns or rows sum to one
-		
-	if(byrow==FALSE) matr <- t(matr) #to perform only one check
+	# third check: either columns or rows sum to one
+  # to perform only one check 	
+	if(byrow == FALSE) {
+	  matr <- t(matr) 
+	}
 	
+  # calculate row's sum
 	check <- rowSums(matr)
 	
-	for( i in 1:length(check)) if (abs(1-check[i]) > .Machine$double.eps) {
-			if(verbose) stop("Error! Either rows or cols should sum to 1")
-			return(FALSE)
-		}
-	#if all test are passed
+	for( i in 1:length(check)) {
+	  if (abs(1-check[i]) > .Machine$double.eps) {
+	    if(verbose) {
+	      stop("Error! Either rows or cols should sum to 1") 
+	    }
+	    
+	    return(FALSE)
+	  }
+	}
+	
+	# if all test are passed
 	return(TRUE)
 }
 
-.matrix2Mc<-function(from){
+# Internal function to return a markovchain object given a matrix
+.matrix2Mc <- function(from) {
 	
-	#Internal function to return a markovchain object given a matrix
+  # whether given matrix is a transition matrix or not
+  # if it is then how probabilities are stored
+  # row-wise or columnwise
+  
+	byrow <- FALSE
+	checkByRow <- .checkMatrix(from, byrow = TRUE)
 	
-	byrow<-FALSE
-	checkByRow <- .checkMatrix(from,byrow = TRUE)
-	
-	if(checkByRow) byrow=TRUE else  {
-		checkByCols <- .checkMatrix(from,byrow = FALSE)
-		if(!checkByCols) stop("Error! Not a probability matrix")	
+	if(checkByRow) {
+	  byrow <- TRUE
+	} else  {
+		checkByCols <- .checkMatrix(from, byrow = FALSE)
+		if(!checkByCols) {
+		  stop("Error! Not a probability matrix")	
+		}
 	}
 	
-	if(byrow==TRUE) namesCandidate <- rownames(from) else namesCandidate <- colnames(from)
+	# extract states names
+	if(byrow == TRUE) {
+	  namesCandidate <- rownames(from) 
+	} else {
+	  namesCandidate <- colnames(from)
+	}
+	
+	# if states names is not there create it s1, s2, s3, ....
 	if(is.null(namesCandidate)) {
 		namesCandidate <- character()
-		for(i in 1:nrow(from)) namesCandidate<-c(namesCandidate, paste("s",i,sep=""))
+		for(i in 1:nrow(from)) {
+		  namesCandidate <- c(namesCandidate, paste("s", i, sep = "")) 
+		}
 	}
 	
-	out<-new("markovchain",transitionMatrix=from, states=namesCandidate,byrow=byrow)
+	# create markovchain object
+	out <- new("markovchain", transitionMatrix = from, states = namesCandidate, byrow = byrow)
 	
 	invisible(out)
-
 }
 
 
+# coerce matrix to markovchain object using internal method
+# example: as("some matrix", "markovchain")
+setAs(from = "matrix", to = "markovchain", def = .matrix2Mc)
 
-setAs(from="matrix", to="markovchain", def=.matrix2Mc)
-
-
-
-
-.mc2Df<-function(from)
-{
 # Function to transform a markovchain into a data.frame
 # Args:
-#
 # from: a markovchain object
 #
 # returns:
 # a data.frame
-	nr<-nrow(from@transitionMatrix) #cycles for all rows and columns
+.mc2Df <- function(from) {
+  
+  # number of rows or columns
+	nr <- nrow(from@transitionMatrix)
 	for(i in 1:nr){
 		for(j in 1:nr){
 			t0 <- from@states[i]
 			t1 <- from@states[j]
-			prob <- transitionProbability(object=from, t0=t0, t1=t1)
-			rowDf <- data.frame(t0=t0, t1=t1, prob=prob)
-			if(exists("outDf")) outDf <- rbind(outDf, rowDf) else outDf <- rowDf
+			prob <- transitionProbability(object = from, t0 = t0, t1 = t1)
+			rowDf <- data.frame(t0 = t0, t1 = t1, prob = prob)
+			
+			# go to else part if first row of data frame is generated
+			if(exists("outDf")) {
+			  outDf <- rbind(outDf, rowDf)
+			} else {
+			  outDf <- rowDf
+			}
 		}
 	}
+	
 	return(outDf)
 }
 
-#method to convert from markovchain to data.frame
-
-setAs(from="markovchain", to="data.frame", def=.mc2Df)
+# method to convert(coerce) from markovchain to data.frame
+setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 
 .whichColProb<-function(df)
 {

@@ -6,9 +6,12 @@
 
 using namespace Rcpp;
 using namespace RcppArmadillo;
+using namespace RcppParallel;
+using namespace std;
 
 #include "mathHelperFunctions.h"
 #include "mapFitFunctionsSAI.h"
+#include "sampler.h"   
 #include <math.h>
 
 
@@ -124,6 +127,229 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false) {
   
   return(List::create(iteration, values));
 }
+
+struct MCList : public Worker
+{   
+  // 3-D matrix where each slice is a transition matrix
+  const arma::cube mat;
+  
+  // matrix where ith row vector store the list of states 
+  // names present in ith transition matrix 
+  const vector<vector<string> > names;
+  
+  // number of transition matrices
+  const int num_mat;
+  
+  // vector ehose ith element stor the dimension of ith
+  // transition matrix
+  const vector<int> size_emat;
+  
+  // whether to include first state
+  const bool include_t0;
+  
+  // each element of list is a sequence
+  list<vector<string> > output;
+  
+  // constructor for initialization
+  MCList(const arma::cube &pmat, const int &pnum_mat, const vector<vector<string> > &pnames, 
+         const vector<int> psize_emat, const bool &pinclude_t0) : 
+    mat(pmat), num_mat(pnum_mat), names(pnames), size_emat(psize_emat), include_t0(pinclude_t0) {}
+  
+  
+  MCList(const MCList& mclist, Split) : 
+    mat(mclist.mat), num_mat(mclist.num_mat), names(mclist.names), size_emat(mclist.size_emat) , 
+    include_t0(mclist.include_t0) {}
+  
+  void operator()(std::size_t begin, std::size_t end) {
+    
+    // to take care of include_t0
+    int ci = 0;
+    if(include_t0) ci = 1;
+    
+    // to store single sequence generated each time
+    vector<string> temp(num_mat+ci);
+    
+    // initial probability and states indices
+    arma::vec in_probs(size_emat[0]);
+    arma::vec in_states(size_emat[0]);
+    
+    // assume equal chances of selection of states for the first time
+    for(int i=0;i<in_probs.size();i++) {
+      in_probs[i] = 1.0/size_emat[0];
+      in_states[i] = i;
+    }
+    
+    // to store the index of the state selected
+    arma::vec istate;
+    string t0;
+    
+    // every time generate one sequence
+    for(int p = begin; p < end; p++) {
+      
+      // randomly selected state
+      istate = rsample(in_states, 1, false, in_probs);
+      t0 = names[0][istate[0]];
+      
+      // include the state in the sequence
+      if(include_t0) temp[0] = t0;
+      
+      // to generate one sequence
+      for(int i = 0; i < num_mat; i++) {
+        
+        // useful for generating rows probabilty vector
+        int j = 0;
+        for(j = 0; j < size_emat[i]; j++) {
+          if(names[i][j] == t0) break;
+        }
+        
+        // vector to be passed to rsample method
+        arma::vec probs(size_emat[i]);
+        arma::vec states(size_emat[i]);
+        
+        for(int k=0; k < probs.size(); k++) {
+          probs[k] = mat(i, j, k);
+          states[k] = k;
+        }
+        
+        
+        // new state selected
+        arma::vec elmt = rsample(states, 1, false, probs);
+        t0 = names[i][elmt[0]];
+        
+        // populate sequence
+        temp[i+ci] = t0;
+        
+      }
+      
+      // insert one sequence to the output
+      output.push_back(temp);  
+    }
+    
+  }
+  
+  void join(const MCList& rhs) { 
+    
+    // constant iterator to the first element of rhs.output  
+    list<vector<string> >::const_iterator it = rhs.output.begin();
+    
+    // merge the result of two parallel computation
+    for(;it != rhs.output.end();it++) {
+      output.push_back(*it);
+    }
+    
+  }
+  
+};
+
+
+//' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
+//' 
+//' Provided any markovchainList object, it returns a list of sequence of states coming 
+//' from the underlying stationary distribution. 
+//' 
+//' @param listObject markovchainList object
+//' @param n Sample size
+//' @param include_t0 Specify if the initial state shall be used
+//' 
+//' @return A List
+//' @author Giorgio Spedicato, Deepak Yadav
+//'   
+//' @examples
+//' statesNames <- c("a")
+//' mcA <- new("markovchain", states = statesNames, transitionMatrix = 
+//'        matrix(c(1), nrow = 1, byrow = TRUE, 
+//'        dimnames = list(statesNames, statesNames)))
+//'  
+//' statesNames <- c("a","b")
+//' mcB <- new("markovchain", states = statesNames, transitionMatrix = 
+//'        matrix(c(0.5, 0.5, 0.3, 0.7), nrow = 2, byrow = TRUE, 
+//'        dimnames = list(statesNames, statesNames)))
+//'        
+//' statesNames <- c("a","b","c")       
+//' mcC <- new("markovchain", states = statesNames, transitionMatrix = 
+//'        matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+//'        byrow = TRUE, dimnames = list(statesNames, statesNames)))  
+//'
+//' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))   
+//' 
+//' markovchainSequenceParallelRcpp(mclist, 99999, TRUE)
+//' 
+//' 
+// [[Rcpp::export]]
+List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = false) {
+  
+  // list of markovchain object
+  List object = listObject.slot("markovchains");
+  
+  // store number of transition matrices
+  int num_matrix = object.size();
+  
+  // maximum of dimension of all transition matrices
+  int max_dim_mat = 0;
+  
+  // to store the dimension of each transition matrices
+  vector<int> size_emat(num_matrix);
+  
+  // to store list of states in a transition matrix
+  CharacterVector states;
+  
+  // calculate max_dim_mat and populate size_emat
+  for(int i = 0; i < num_matrix; i++) {
+    
+    // extract ith markovchain object
+    S4  ob = object[i];
+    
+    // list of states in ith markovchain object
+    states = ob.slot("states");
+    
+    // keep track of maximun dimension
+    if(states.size() > max_dim_mat) max_dim_mat = states.size();
+    
+    // size of ith transition matrix
+    size_emat[i] = states.size();
+  }
+  
+  // Matrix with ith row store the states in ith t-matrix
+  vector<vector<string> > names(num_matrix, vector<string>(max_dim_mat));
+  
+  // to store all t-matrix
+  arma::cube mat(max_dim_mat, max_dim_mat, num_matrix);
+  mat.fill(0);
+  
+  for(int i = 0; i < num_matrix;i++) {
+    
+    // ith markovchain object
+    S4  ob = object[i];
+    
+    // t-matrix and states names
+    NumericMatrix tmat = ob.slot("transitionMatrix"); 
+    CharacterVector stat_names = ob.slot("states");
+    
+    // populate 3-D matrix
+    for(int j = 0;j < tmat.nrow();j++) {
+      for(int k = 0; k < tmat.ncol();k++) {
+        
+        mat(i, j, k) = tmat(j, k);
+        
+      }
+      
+      // populate names of states
+      names[i][j] = stat_names[j];
+    }
+    
+  }
+  
+  // create an object of MCList class
+  MCList mcList(mat, num_matrix, names, size_emat, include_t0);
+  
+  // start parallel computation
+  parallelReduce(0, n, mcList);
+  
+  // list of sequences  
+  return wrap(mcList.output);
+  
+}
+
 
 // convert a frequency matrix to a transition probability matrix
 NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {

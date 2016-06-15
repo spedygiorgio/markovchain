@@ -115,6 +115,19 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// markovchainSequenceParallelRcpp
+List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0);
+RcppExport SEXP markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< S4 >::type listObject(listObjectSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    __result = Rcpp::wrap(markovchainSequenceParallelRcpp(listObject, n, include_t0));
+    return __result;
+END_RCPP
+}
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
 RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {

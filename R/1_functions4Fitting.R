@@ -451,8 +451,17 @@ markovchainSequenceParallel <- function(n, object,
   # add laplacian correction if needed
   contingencyMatrix <- contingencyMatrix + laplacian
   
+  # take care of rows with all entries 0
+  sumOfRows <- rowSums(contingencyMatrix) 
+  for(i in 1:length(sumOfRows)) {
+    if(sumOfRows[i] == 0) {
+      contingencyMatrix[i, ] <- 1
+      sumOfRows[i] <- length(sumOfRows)
+    }
+  }
+  
   # get a transition matrix and a DTMC
-  transitionMatrix <- contingencyMatrix / rowSums(contingencyMatrix)
+  transitionMatrix <- contingencyMatrix / sumOfRows
   
   # markov chain object to be returned
   outMc <- new("markovchain", transitionMatrix = transitionMatrix)

@@ -103,15 +103,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // markovchainListRcpp
-List markovchainListRcpp(int n, List object, bool include_t0);
-RcppExport SEXP markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP) {
+List markovchainListRcpp(int n, List object, bool include_t0, CharacterVector t0);
+RcppExport SEXP markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP, SEXP t0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< List >::type object(objectSEXP);
     Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
-    __result = Rcpp::wrap(markovchainListRcpp(n, object, include_t0));
+    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
+    __result = Rcpp::wrap(markovchainListRcpp(n, object, include_t0, t0));
     return __result;
 END_RCPP
 }

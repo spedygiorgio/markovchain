@@ -41,7 +41,12 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
     // extracting row probabilties for the given state from transition matrix
     int row_no = 0;
     for(int j = 0;j < states.size();j++) {
-      if(states[j] == state[0]) {
+      
+      /* last element of state character vector
+         because of markovchainListRcpp, a seq of length greater than 1
+         is also passed whose end state is the beginning state here */
+      
+      if(states[j] == state[state.size()-1]) {
         row_no = j;
         break;
       }
@@ -92,7 +97,9 @@ bool checkSequenceRcpp(List object) {
 }
 
 // [[Rcpp::export(.markovchainListRcpp)]]
-List markovchainListRcpp(int n, List object, bool include_t0 = false) {
+List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterVector t0
+                           = CharacterVector()) {
+  
   bool verify = checkSequenceRcpp(object);
   
   if (not verify) {
@@ -107,13 +114,43 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false) {
   CharacterVector sampledValues, newVals;
   IntegerVector outIter;
   
+  // Initial State selection if not passed
+  //-----------------------------------------------------------------------------
+      CharacterVector ustates = ob.slot("states");
+      NumericVector rowProbs;
+  
+      for(int i = 0;i < ustates.size();i++) {
+        rowProbs.push_back(1.0 / ustates.size());
+      }
+  
+      bool rselect = (t0.size() == 0);
+  
+      if(rselect) {
+        t0 = sample(ustates, 1, false, rowProbs);
+      }
+  //------------------------------------------------------------------------------
+
+  // check whether t0 is in unique states or not 
+  for(int i = 0;i < ustates.size();i++) {
+    if(ustates[i] == t0[0]) break;
+    
+    else if(i == ustates.size()-1) stop("Error! Initial state not defined");
+  }
+  
+  // generate n sequence
   for(int i = 0;i < n;i++) {
-    sampledValues = markovchainSequenceRcpp(1, object[0], CharacterVector(ob.slot("states")), include_t0);
+    
+    // random selection of initial state if not passed to the function
+    if(rselect) {
+      t0 = sample(ustates, 1, false, rowProbs);
+    }
+    
+    sampledValues = markovchainSequenceRcpp(1, object[0], t0, include_t0);
     outIter = rep(i+1, sampledValues.size());
     
     if(object.size() > 1) {
       for(int j = 1;j < object.size();j++) {
-        newVals = markovchainSequenceRcpp(1, object[j], sampledValues, include_t0);
+        newVals = markovchainSequenceRcpp(1, object[j], sampledValues);
         outIter.push_back(i+1);
         sampledValues.push_back(newVals[0]);
       }

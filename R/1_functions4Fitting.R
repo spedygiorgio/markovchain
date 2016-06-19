@@ -202,8 +202,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
       include.t0 <- list(...)$include.t0
       include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)
       
+      # check whether initial state is passed or not
+      t0 <- list(...)$t0
+      if (is.null(t0)) t0 <- character()
+      
       # call fast cpp function
-      dataList <- .markovchainListRcpp(n, object@markovchains, include.t0)
+      dataList <- .markovchainListRcpp(n, object@markovchains, include.t0, t0)
       
       # format in which results to be returned
       if (what == "data.frame") {
@@ -247,7 +251,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
     # create one sequence in each iteration
     for (i in 1:n) {
       
-      #the first iteration may include initial state
+      # the first iteration may include initial state
       sampledValues <- markovchainSequence(n = 1, markovchain = object[[1]], ...)
       outIter <- rep(i, length(sampledValues))
       

@@ -33,8 +33,8 @@ seq2matHigh <- function(sequence, order) {
     .Call('markovchain_markovchainSequenceRcpp', PACKAGE = 'markovchain', n, markovchain, t0, include_t0)
 }
 
-.markovchainListRcpp <- function(n, object, include_t0 = FALSE) {
-    .Call('markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0)
+.markovchainListRcpp <- function(n, object, include_t0 = FALSE, t0 = character()) {
+    .Call('markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0, t0)
 }
 
 #' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.

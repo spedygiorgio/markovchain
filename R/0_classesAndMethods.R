@@ -923,244 +923,333 @@ setAs(from = "matrix", to = "markovchain", def = .matrix2Mc)
 # method to convert(coerce) from markovchain to data.frame
 setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 
-.whichColProb<-function(df)
-{
-	out=0
-	if(ncol(df)>3) warning("Warning! More than three column. Only the first three will be used")
-	if(ncol(df)<3) stop("Error! Three column needed")
+# method to find the column which stores transition probability
+.whichColProb <- function(df) {
 	
-	for(i in 1:ncol(df))
-		{
-			if((class(df[,i])=="numeric")&(all(sapply(df[,i], .isProbRcpp)==TRUE))) #when found the first numeric and probability col
-				{
-					out=i
-					break
-				}
-		}
-	return(out)
-}
-
-.df2Mc<-function(from)
- {
-	 #
-	 # Function to convert from a data.frame containing initial, ending and probability columns to a proper markovchain object
-	 #
-	 # Args:
-	 #
-	 # from: a data.frame
-	 #
-	 # Returns:
-	 #
-	 # A markovchain object 
-	statesNames <- unique(from[,1])
-	colProb <- .whichColProb(from)
-	prMatr <- zeros(length(statesNames))
-	rownames(prMatr)<-statesNames
-	colnames(prMatr)<-statesNames
-	for(i in 1:nrow(from)) {
-		idRow <- which(statesNames==from[i,1]) #assume first col from
-		idCol <- which(statesNames==from[i,2]) #assume second row to
-		prMatr[idRow,idCol]<-from[i,3]
+  # column number which stores transition probability
+  out <- 0
+  
+  # check for validity of data frame
+	if(ncol(df) > 3) {
+	  warning("Warning! More than three column. Only the first three will be used")
 	}
- 	out<-new("markovchain", transitionMatrix=prMatr)
-	return(out)
- }
-
-#method to convert 
-setAs(from="data.frame", to="markovchain", def=.df2Mc)
-
-
-.table2Mc<-function(from)
-{
-	#checks
-	if(dim(from)[1]!=dim(from)[2]) stop("Error! Table is not squared")
-	if(!setequal(rownames(from),colnames(from))) stop("Error! Rows not equal to coulumns")
-	#temp <- as.matrix(from) #compatibility issues raised by Kurt
-  temp <- unclass(as.matrix(from)) #following Kurt's suggestion
-	fromMatr <- temp[,order(rownames(temp))] #makes the same sequence of col / row
-	outMatr <- fromMatr/rowSums(fromMatr)
-	out <- new("markovchain",states=rownames(temp), transitionMatrix=outMatr, byrow=TRUE)
+  
+	if(ncol(df) < 3) {
+	  stop("Error! Three column needed")
+	}
+	
+	for(i in 1:ncol(df)) {
+	    
+	  # when found the first numeric and probability col
+			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbRcpp) == TRUE))) {
+					out <- i
+					break
+			}
+	}
+  
 	return(out)
 }
 
-setAs(from="table", to="markovchain", def=.table2Mc)
+# Function to convert from a data.frame containing initial, ending 
+#    and probability columns to a proper markovchain object
+#
+# Args:
+# from: a data.frame
+#
+# Returns:
+# A markovchain object 
 
-#function from msm to markovchain
+.df2Mc <- function(from) {
+	
+	statesNames <- unique(from[, 1])
+	colProb <- .whichColProb(from) # what is the use
+	
+	# transition matrix
+	prMatr <- zeros(length(statesNames))
+	rownames(prMatr) <- statesNames
+	colnames(prMatr) <- statesNames
+	
+	
+	for(i in 1:nrow(from)) {
+		idRow <- which(statesNames == from[i, 1]) # assume first col from
+		idCol <- which(statesNames == from[i, 2]) # assume second col to
+		prMatr[idRow, idCol] <- from[i, 3]        # assume third col t-probability
+	}
+	
+ 	out <- new("markovchain", transitionMatrix = prMatr)
+	return(out)
+}
 
-.msm2Mc<-function(from)
-{
+# method to convert(coerce) data frame to markovchain object 
+setAs(from = "data.frame", to = "markovchain", def = .df2Mc)
+
+
+# example
+# data <- data.frame(from = c("a", "a", "b", "b", "b", "b"), 
+#                      to = c("a", "b", "b", "b", "b", "a"))
+# 
+# from <- table(data)
+# .table2Mc(from)
+
+.table2Mc <- function(from) {
+	
+  # check whether table has square dimension or not
+	if(dim(from)[1] != dim(from)[2]) {
+	  stop("Error! Table is not squared")
+	}
+  
+  # rows ond columns name should be same
+	if(!setequal(rownames(from),colnames(from))) {
+	  stop("Error! Rows not equal to coulumns")
+	}
+  
+  temp <- unclass(as.matrix(from))
+  
+  # make same sequence of col / row
+	fromMatr <- temp[, order(rownames(temp))]
+	
+	# obtain transition matrix
+	outMatr <- fromMatr / rowSums(fromMatr)
+	
+	out <- new("markovchain", states = rownames(temp), 
+	           transitionMatrix = outMatr, byrow=TRUE)
+	
+	return(out)
+}
+
+# coerce table to markovchain object
+setAs(from = "table", to = "markovchain", def = .table2Mc)
+
+
+# function from msm to markovchain
+# msm is a package. Use this package to create msm object.
+# see how to create msm object using ?msm
+
+.msm2Mc <- function(from) {
   temp <- msm::pmatrix.msm(from)
   prMatr <- unclass(as.matrix(temp))
-  out<-new("markovchain", transitionMatrix=prMatr)
+  out <- new("markovchain", transitionMatrix = prMatr)
   return(out)
 }
 
-setAs(from="msm", to="markovchain", def=.msm2Mc)
+# coerce msm object to markovchain object
+setAs(from = "msm", to = "markovchain", def = .msm2Mc)
 
-#function for msm.est to mc. Assume a probability matrix given
 
-.msmest2Mc<-function(from)
-{
+# function for msm.est to mc. Assume a probability matrix given
+.msmest2Mc <- function(from) {
   
-  if (is.matrix(from))
-    pMatr <- from #central estimate
-  if (is.list(from))
-    pMatr <- from[[1]] #central estimate
-  
-  out<-new("markovchain", transitionMatrix=as(pMatr,"matrix")) #need force matrix
-  return(out)
-}
-
-setAs(from="msm.est", to="markovchain", def=.msmest2Mc)
-
-
-#function from etm to markovchain
-
-.etm2Mc<-function(from)
-{
-  df<-from$trans
-  elements<-from$state.names
-  nelements<-length(elements)
-  prMatr<-zeros(nelements)
-  dimnames(prMatr) = list(elements, elements)
-  for(i in 1:dim(df)[1]) {
-    r<-df[i,]
-    stateFrom<-r$from
-    stateTo<-r$to
-    prMatr[stateFrom, stateTo]<-prMatr[stateFrom, stateTo] + 1
+  if (is.matrix(from)) {
+    # central estimate
+    pMatr <- from 
   }
-  rsums<-rowSums(prMatr)
-  prMatr<-prMatr/rsums
+    
+  if (is.list(from)) {
+    # central estimate
+    pMatr <- from[[1]] 
+  }
+    
+  out <- new("markovchain", transitionMatrix = as(pMatr, "matrix"))
+  
+  return(out)
+}
+
+# coerce ms.est to markovchain object
+setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
+
+
+# function from etm to markovchain
+.etm2Mc<-function(from) {
+  
+  # data frame consists of  'from' and 'to' column
+  df <- from$trans
+  
+  # name of states
+  elements <- from$state.names
+  # number of unique states
+  nelements <- length(elements)
+  
+  # temporary t-matrix
+  prMatr <- matlab::zeros(nelements)
+  dimnames(prMatr) <- list(elements, elements)
+  
+  # populate t-matrix
+  for(i in 1:dim(df)[1]) {
+    r <- df[i, ] # each row one by one
+    stateFrom <- r$from
+    stateTo <- r$to
+    prMatr[stateFrom, stateTo] <- prMatr[stateFrom, stateTo] + 1
+  }
+  
+  # convert freq-matrix to trans-matrix
+  rsums <- rowSums(prMatr)
+  prMatr <- prMatr / rsums
+  
+  # take care of rows with all entries 0
   if(any(rsums == 0)) {
-    indicesToBeSanitized<-which(rsums==0)
+    indicesToBeSanitized <- which(rsums == 0)
+    
     for(i in indicesToBeSanitized) {
-      for(j in 1:nelements) prMatr[i,j]<-1/nelements
+      for(j in 1:nelements) {
+        prMatr[i, j] <- 1 / nelements
+      }
     }
   }
-  out<-new("markovchain", transitionMatrix=prMatr)
+  
+  # create markovchain object
+  out <- new("markovchain", transitionMatrix = prMatr)
   return(out)
 }
 
-setAs(from="etm", to="markovchain", def=.etm2Mc)
+# coerce etm object to markovchain object
+setAs(from = "etm", to = "markovchain", def = .etm2Mc)
 
-#functions and methods to return a matrix
 
-.mc2matrix<-function(from)
-{
+# functions and methods to return a matrix
+.mc2matrix <- function(from) {
 	out <- from@transitionMatrix
 	return(out)
 }
 
-setAs(from="markovchain", to="matrix", def=.mc2matrix)
-
-#functions and methods to return a matrix
-
-.mc2igraph<-function(from)
-{
-	temp <- .mc2Df(from) #convert the markovchain to data.frame
-	out <- graph.data.frame(temp) #convert the data frame to igraph graph
-	return(out) #return
-}
-
-setAs(from="markovchain", to="igraph", def=.mc2igraph)
+# coerce markovchain object to matrix(transition)
+setAs(from = "markovchain", to = "matrix", def = .mc2matrix)
 
 
-#transposing method for markovchain objects
-
-setMethod("t", "markovchain", 
-		function(x) {
-			out <- new("markovchain", byrow=!x@byrow, transitionMatrix=t(x@transitionMatrix))
-			return(out)
-		} 
-)
-
-#multiplicationMethod
-#by a markov chain (like a power by 2)
-setMethod("*", c("markovchain", "markovchain"),
-function(e1, e2) {
+# functions and methods to return a matrix
+.mc2igraph <- function(from) {
+  
+  # convert the markovchain to data.frame
+	temp <- .mc2Df(from) 
 	
-	#
-	# function to multiplicate two markov chains
-	#
-	# Args:
-	#
-	# e1: first markovchain
-	# e2: second markov chain
-	#
-	# Returns:
-	# if feasible, a markovchain where the transition matrix i e1*e2
-			
-			if(!setequal(e1@states,e1@states)) warning("Warning! Different states")
-			if(!setequal(dim(e1@transitionMatrix), dim(e2@transitionMatrix))) stop("Error! Different size")
-			if(!(e1@byrow==e2@byrow)) stop("Error! Both transition matrix should be defined either by row or by column")
-			newStates <- e1@states
-			newTransMatr <- e1@transitionMatrix%*%e2@transitionMatrix
-			byRow <- e1@byrow
-			mcName <- e1@name #multiplicated matrix takes the first matrix's name
-			out<-new("markovchain", states=newStates, transitionMatrix=newTransMatr, byrow=byRow, name=mcName)
-			return(out)
+	# convert the data frame to igraph graph
+	out <- graph.data.frame(temp) 
+	return(out)
 }
+
+# coerce markovchain object to igraph
+setAs(from = "markovchain", to = "igraph", def = .mc2igraph)
+
+
+# transposing method for markovchain objects
+setMethod("t", "markovchain", 
+		      function(x) { 
+			      out <- new("markovchain", byrow = !x@byrow, 
+			                 transitionMatrix = t(x@transitionMatrix))
+			      
+			      return(out)
+		      } 
 )
 
-#methods implemented for multplicating with matrices, vectors, etc...
+
+# function to multiplicate two markov chains
+#
+# Args:
+# e1: first markovchain
+# e2: second markov chain
+#
+# Returns:
+# if feasible, a markovchain where the transition matrix is e1*e2
+
+setMethod("*", c("markovchain", "markovchain"),
+          function(e1, e2) {
+            
+            # compare states of markovchains
+	          if(!setequal(e1@states, e2@states)) {
+	            warning("Warning! Different states")
+	          }
+            
+            # dimension must be equal
+			      if(!setequal(dim(e1@transitionMatrix), dim(e2@transitionMatrix))) {
+			        stop("Error! Different size")
+			      }
+			
+            # both must be either row wise or col wise
+            if(!(e1@byrow == e2@byrow)) {
+              stop("Error! Both transition matrix should be defined either by row or by column")
+            }
+		
+            newStates <- e1@states
+			      newTransMatr <- e1@transitionMatrix %*% e2@transitionMatrix
+			      byRow <- e1@byrow
+			      # multiplicated matrix takes the first matrix's name
+			      mcName <- e1@name 
+			      
+			      out<-new("markovchain", states = newStates, transitionMatrix = newTransMatr, 
+			               byrow = byRow, name = mcName)
+			      
+			      return(out)
+          }
+)
+
+# methods implemented for multiplication of markovchain object with 
+# matrix, 1-D vector, and vice-versa
 
 setMethod("*", c("matrix", "markovchain"),
-		function(e1, e2) {
-			out <- e1%*%e2@transitionMatrix
-			return(out)
-		}
+		      function(e1, e2) {
+			      out <- e1 %*% e2@transitionMatrix
+			      return(out)
+		      }
 )
 
-setMethod("*", c("markovchain","matrix"),
-		function(e1, e2) {
-			out <- e1@transitionMatrix%*%e2
-			return(out)
-}
+setMethod("*", c("markovchain", "matrix"),
+		      function(e1, e2) {
+			      out <- e1@transitionMatrix %*% e2
+			      return(out)
+          }
 )
 
-setMethod("*", c("numeric","markovchain"),
-		function(e1, e2) {
-			if(length(e1)!=dim(e2)) stop("Error! Uncompatible dimensions") else out <- e1%*%e2@transitionMatrix
-			return(out)
-		}
+setMethod("*", c("numeric", "markovchain"),
+		      function(e1, e2) {
+			      if(length(e1) != dim(e2)) {
+			        stop("Error! Uncompatible dimensions")
+			      } else {
+			        out <- e1 %*% e2@transitionMatrix
+			      }
+		        
+			      return(out)
+		      }
 )
 
-setMethod("*", c("markovchain","numeric"),
-		function(e1, e2) {
-			if(length(e2)!=dim(e1)) stop("Error! Uncompatible dimensions") else out <- e1@transitionMatrix%*%e2
-			return(out)
-		}
+setMethod("*", c("markovchain", "numeric"),
+		      function(e1, e2) {
+			      if(length(e2) != dim(e1)) {
+			        stop("Error! Uncompatible dimensions")
+			      } else {
+			        out <- e1@transitionMatrix %*% e2
+			      }
+		        
+			       return(out)
+		      }
 )
 
-
-setMethod("==", c("markovchain","markovchain"),
+# compare two markovchain object
+setMethod("==", c("markovchain", "markovchain"),
           function(e1, e2) {
             out <- FALSE
-            out <-
-              identical(e1@transitionMatrix, e2@transitionMatrix)
+            out <- identical(e1@transitionMatrix, e2@transitionMatrix)
             return(out)
-          })
+          }
+)
 
-setMethod("!=", c("markovchain","markovchain"),
+setMethod("!=", c("markovchain", "markovchain"),
           function(e1, e2) {
             out <- FALSE
-            out <-
-              (!(identical(
-                e1@transitionMatrix, e2@transitionMatrix
-              )))
+            out <- !(e1 == e2)
             return(out)
-          })
+          }
+)
 
+# markovchain raise to some power
 setMethod("^", c("markovchain", "numeric"),
           function(e1, e2) {
-            out <-
-              new(
-                "markovchain", states = e1@states, byrow = e1@byrow,transitionMatrix = e1@transitionMatrix %^%
-                  e2,
-                name = paste(e1@name,"^",e2,sep = "")
-              )
+            out <- new("markovchain", states = e1@states, byrow = e1@byrow,
+                       transitionMatrix = e1@transitionMatrix %^% e2,
+                       name = paste(e1@name, "^", e2, sep = "")
+                      )
+            
             return(out)
-          })
+          }
+)
 
 
 #methods to directly access transition matrix elements

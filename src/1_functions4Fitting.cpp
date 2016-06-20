@@ -429,42 +429,68 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 //' 
 //' @export
 // [[Rcpp::export]]
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs = false, bool sanitize = false,
+NumericMatrix createSequenceMatrix(SEXP stringChar, bool toRowProbs = false, bool sanitize = false,
                                    CharacterVector possibleStates = CharacterVector()) {
   
+  CharacterVector stringchar = as<CharacterVector>(stringChar);
   CharacterVector elements = unique(union_(stringchar, possibleStates)).sort();
   int sizeMatr = elements.size();
   
   NumericMatrix freqMatrix(sizeMatr);
   freqMatrix.attr("dimnames") = List::create(elements, elements); 
   CharacterVector rnames = rownames(freqMatrix);
-
-  int posFrom = 0, posTo = 0;
-  for(long long i = 0; i < stringchar.size() - 1; i ++) {
-    for (int j = 0; j < rnames.size(); j ++) {
-      if(stringchar[i] == rnames[j]) posFrom = j;
-      if(stringchar[i + 1] == rnames[j]) posTo = j;
+  
+  if(Rf_isMatrix(stringChar)) {
+    
+    // coerce SEXP to CharacterMatrix
+    CharacterMatrix seqMat = as<CharacterMatrix>(stringChar);
+    
+    // number of columns must be 2
+    if(seqMat.ncol() != 2) {
+      stop("Number of columns must be 2");
     }
-    freqMatrix(posFrom, posTo)++;
+    
+    // populate frequency matrix
+    int posFrom = 0, posTo = 0;
+    for(long long i = 0; i < seqMat.nrow(); i ++) {
+      for (int j = 0; j < rnames.size(); j ++) {
+        if(seqMat(i, 0) == rnames[j]) posFrom = j;
+        if(seqMat(i, 1) == rnames[j]) posTo = j;
+      }
+      freqMatrix(posFrom, posTo)++;
+    }  
+  } 
+  
+  else {
+    
+    int posFrom = 0, posTo = 0;
+    for(long long i = 0; i < stringchar.size() - 1; i ++) {
+      for (int j = 0; j < rnames.size(); j ++) {
+        if(stringchar[i] == rnames[j]) posFrom = j;
+        if(stringchar[i + 1] == rnames[j]) posTo = j;
+      }
+      freqMatrix(posFrom, posTo)++;
+    }  
   }
   
   // sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
   if(sanitize == true)
   {
-      for (int i = 0; i < sizeMatr; i++) {
-        double rowSum = 0;
+    for (int i = 0; i < sizeMatr; i++) {
+      double rowSum = 0;
+      for (int j = 0; j < sizeMatr; j++) 
+        rowSum += freqMatrix(i, j);
+      if(rowSum == 0)
         for (int j = 0; j < sizeMatr; j++) 
-          rowSum += freqMatrix(i, j);
-        if(rowSum == 0)
-          for (int j = 0; j < sizeMatr; j++) 
-            freqMatrix(i, j) = 1;
-      }
+          freqMatrix(i, j) = 1;
+    }
   }
   
   if(toRowProbs == true)
     return _toRowProbs(freqMatrix, sanitize);
   
   return (freqMatrix);
+  
 }
 
 // log-likelihood
@@ -1118,7 +1144,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                   default value of 1 is assigned to each parameter. This must be of size kxk 
 //'                   where k is the number of states in the chain and the values should typically 
 //'                   be non-negative integers.                        
-//' @param stringchar Equivalent to data
+//' @param stringChar Equivalent to data. Either a nx2 matrix or a character vector.
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence

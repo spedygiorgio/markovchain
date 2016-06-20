@@ -5,7 +5,7 @@
 \alias{markovchainFit}
 \title{Function to fit a discrete Markov chain}
 \usage{
-createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE,
+createSequenceMatrix(stringChar, toRowProbs = FALSE, sanitize = FALSE,
   possibleStates = character())
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
@@ -13,7 +13,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   hyperparam = matrix(), sanitize = FALSE, possibleStates = character())
 }
 \arguments{
-\item{stringchar}{Equivalent to data}
+\item{stringChar}{Equivalent to data. Either a nx2 matrix or a character vector.}
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 

@@ -77,8 +77,8 @@ markovchainSequenceParallelRcpp <- function(listObject, n, include_t0 = FALSE) {
 #' @rdname markovchainFit
 #' 
 #' @export
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
-    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, possibleStates)
+createSequenceMatrix <- function(stringChar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
+    .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringChar, toRowProbs, sanitize, possibleStates)
 }
 
 #' @name inferHyperparam
@@ -145,7 +145,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'                   default value of 1 is assigned to each parameter. This must be of size kxk 
 #'                   where k is the number of states in the chain and the values should typically 
 #'                   be non-negative integers.                        
-#' @param stringchar Equivalent to data
+#' @param stringChar Equivalent to data. Either a nx2 matrix or a character vector.
 #' @param toRowProbs converts a sequence matrix into a probability matrix
 #' @param sanitize put 1 in all rows having rowSum equal to zero
 #' @param possibleStates Possible states which are not present in the given sequence

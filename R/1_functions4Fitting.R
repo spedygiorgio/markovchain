@@ -379,7 +379,7 @@ markovchainSequenceParallel <- function(n, object,
   
   # every element of the matrix store the number of times jth state appears just
   # after the ith state
-  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
+  origNum <- createSequenceMatrix(stringChar = stringchar, toRowProbs = FALSE)
   
   # add laplacian  to the sequence matrix
   # why? to avoid the cases where sum of row is zero
@@ -569,7 +569,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' @examples 
 #' myletterseq<-sample(x = letters[1:3],size = 120,replace=TRUE)
 #' myMcFit<-markovchainFit(data=myletterseq)
-#' myMultinomialCI=multinomialConfidenceIntervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringchar = myletterseq))
+#' myMultinomialCI=multinomialConfidenceIntervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringChar = myletterseq))
 multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)

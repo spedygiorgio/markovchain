@@ -1252,24 +1252,20 @@ setMethod("^", c("markovchain", "numeric"),
 )
 
 
-#methods to directly access transition matrix elements
-
-setMethod("[",
-          signature(x = "markovchain", i = "ANY", j = "ANY"),
+# methods to directly access transition matrix elements
+setMethod("[", signature(x = "markovchain", i = "ANY", j = "ANY"),
           function(x, i, j) {
-            out <- x@transitionMatrix[i,j]
+            out <- x@transitionMatrix[i, j]
             return(out)
-          })
+          }
+)
 
-#methods to directly access markovchain objects composing a markovchainList object
-
-
-setMethod("[[",
-		signature(x = "markovchainList", i = "ANY"),
-		function(x, i) {
-			out <- x@markovchains[[i]]
+# methods to directly access markovchain objects composing a markovchainList object
+setMethod("[[", signature(x = "markovchainList", i = "ANY"),
+		      function(x, i) {
+			      out <- x@markovchains[[i]]
             return(out)
-		}
+		      }
 )
 
 setGeneric("conditionalDistribution", function(object,state) standardGeneric("conditionalDistribution"))

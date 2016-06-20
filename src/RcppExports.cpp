@@ -130,16 +130,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // createSequenceMatrix
-NumericMatrix createSequenceMatrix(CharacterVector stringchar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+NumericMatrix createSequenceMatrix(SEXP stringChar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
+RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringCharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< CharacterVector >::type stringchar(stringcharSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type stringChar(stringCharSEXP);
     Rcpp::traits::input_parameter< bool >::type toRowProbs(toRowProbsSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    __result = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize, possibleStates));
+    __result = Rcpp::wrap(createSequenceMatrix(stringChar, toRowProbs, sanitize, possibleStates));
     return __result;
 END_RCPP
 }

@@ -194,6 +194,24 @@ test_that("createSequenceMatrix : Permutation of parameters",{
                       byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
 })
 
+### Test for createSequenceMatrix : input nx2 matrix
+data <- matrix(c("a", "a", "b", "a", "b", "a", "b", "a", "a", "a", "a", "b"), ncol = 2,
+               byrow = TRUE)
+
+test_that("createSequenceMatrix : input as matrix",{
+  expect_equal(createSequenceMatrix(data),
+               matrix(c(2, 1, 3, 0), nrow = 2, byrow = TRUE, 
+                      dimnames = list(c("a", "b"), c("a", "b"))))
+  
+  expect_equal(createSequenceMatrix(data, toRowProbs = TRUE),
+               matrix(c(2/3, 1/3, 3/3, 0), nrow = 2, byrow = TRUE, 
+                      dimnames = list(c("a", "b"), c("a", "b"))))
+  
+  expect_equal(createSequenceMatrix(data, toRowProbs = TRUE, possibleStates = "d",
+                                    sanitize = TRUE),
+               matrix(c(2/3, 1/3, 0, 1, 0, 0, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "d"), c("a", "b", "d"))))
+})
 
 ### MAP fit function tests
 data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")

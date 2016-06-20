@@ -1044,7 +1044,7 @@ showing the $\left( X_{t}=i, X_{t+1}=j\right)$ distribution within the sample,
 as code below shows. 
 
 <<fitSequenceMatrix, keep.source=TRUE>>=
-createSequenceMatrix(stringchar = weathersOfDays)
+createSequenceMatrix(stringChar = weathersOfDays)
 @
 
 

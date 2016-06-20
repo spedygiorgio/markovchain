@@ -106,13 +106,18 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
     warning("Warning: some states in the markovchain sequences are not contained in the following states!");
   }
   
+  // size of result vector
+  int sz = n*object.size();
+  if(include_t0) sz += n;
   
-  NumericVector iteration = NumericVector::create();
-  CharacterVector values = CharacterVector::create();
+  int vin = 0; // useful in filling below vectors
+  NumericVector iteration(sz);
+  CharacterVector values(sz); 
+  
+  
   S4 ob(object[0]);
   
   CharacterVector sampledValues, newVals;
-  IntegerVector outIter;
   
   // Initial State selection if not passed
   //-----------------------------------------------------------------------------
@@ -129,7 +134,7 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
         t0 = sample(ustates, 1, false, rowProbs);
       }
   //------------------------------------------------------------------------------
-
+  
   // check whether t0 is in unique states or not 
   for(int i = 0;i < ustates.size();i++) {
     if(ustates[i] == t0[0]) break;
@@ -146,19 +151,17 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
     }
     
     sampledValues = markovchainSequenceRcpp(1, object[0], t0, include_t0);
-    outIter = rep(i+1, sampledValues.size());
     
     if(object.size() > 1) {
       for(int j = 1;j < object.size();j++) {
         newVals = markovchainSequenceRcpp(1, object[j], sampledValues);
-        outIter.push_back(i+1);
         sampledValues.push_back(newVals[0]);
       }
     }
     
-    for(int k = 0;k < outIter.size();k++) {
-      iteration.push_back(outIter[k]);
-      values.push_back(sampledValues[k]);
+    for(int k = 0;k < sampledValues.size();k++) {
+      iteration[vin] = i + 1;
+      values[vin++] = sampledValues[k];
     }
   }
   

@@ -187,18 +187,23 @@ struct MCList : public Worker
   // whether to include first state
   const bool include_t0;
   
+  // info about initial state
+  const bool init; // whether initial state is passed to the method
+  const string init_state; // if yes what's the name
+  
   // each element of list is a sequence
   list<vector<string> > output;
   
   // constructor for initialization
   MCList(const arma::cube &pmat, const int &pnum_mat, const vector<vector<string> > &pnames, 
-         const vector<int> psize_emat, const bool &pinclude_t0) : 
-    mat(pmat), num_mat(pnum_mat), names(pnames), size_emat(psize_emat), include_t0(pinclude_t0) {}
+         const vector<int> psize_emat, const bool &pinclude_t0, const bool &pinit, const string &pinit_state) : 
+    mat(pmat), num_mat(pnum_mat), names(pnames), size_emat(psize_emat), include_t0(pinclude_t0), init(pinit), 
+    init_state(pinit_state) {}
   
   
   MCList(const MCList& mclist, Split) : 
     mat(mclist.mat), num_mat(mclist.num_mat), names(mclist.names), size_emat(mclist.size_emat) , 
-    include_t0(mclist.include_t0) {}
+    include_t0(mclist.include_t0), init(mclist.init), init_state(mclist.init_state) {}
   
   void operator()(std::size_t begin, std::size_t end) {
     
@@ -226,9 +231,16 @@ struct MCList : public Worker
     // every time generate one sequence
     for(int p = begin; p < end; p++) {
       
-      // randomly selected state
-      istate = rsample(in_states, 1, false, in_probs);
-      t0 = names[0][istate[0]];
+      if(not init) {
+        
+        // randomly selected state
+        istate = rsample(in_states, 1, false, in_probs);
+        t0 = names[0][istate[0]];  
+      }
+      
+      else {
+        t0 = init_state;
+      }
       
       // include the state in the sequence
       if(include_t0) temp[0] = t0;
@@ -247,7 +259,7 @@ struct MCList : public Worker
         arma::vec states(size_emat[i]);
         
         for(int k=0; k < probs.size(); k++) {
-          probs[k] = mat(i, j, k);
+          probs[k] = mat(j, k, i);
           states[k] = k;
         }
         
@@ -282,41 +294,42 @@ struct MCList : public Worker
 };
 
 
-//' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
-//' 
-//' Provided any markovchainList object, it returns a list of sequence of states coming 
-//' from the underlying stationary distribution. 
-//' 
-//' @param listObject markovchainList object
-//' @param n Sample size
-//' @param include_t0 Specify if the initial state shall be used
-//' 
-//' @return A List
-//' @author Giorgio Spedicato, Deepak Yadav
-//'   
-//' @examples
-//' statesNames <- c("a")
-//' mcA <- new("markovchain", states = statesNames, transitionMatrix = 
-//'        matrix(c(1), nrow = 1, byrow = TRUE, 
-//'        dimnames = list(statesNames, statesNames)))
-//'  
-//' statesNames <- c("a","b")
-//' mcB <- new("markovchain", states = statesNames, transitionMatrix = 
-//'        matrix(c(0.5, 0.5, 0.3, 0.7), nrow = 2, byrow = TRUE, 
-//'        dimnames = list(statesNames, statesNames)))
-//'        
-//' statesNames <- c("a","b","c")       
-//' mcC <- new("markovchain", states = statesNames, transitionMatrix = 
-//'        matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-//'        byrow = TRUE, dimnames = list(statesNames, statesNames)))  
-//'
-//' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))   
-//' 
-//' markovchainSequenceParallelRcpp(mclist, 99999, TRUE)
-//' 
-//' 
-// [[Rcpp::export]]
-List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = false) {
+// Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
+// 
+// Provided any markovchainList object, it returns a list of sequence of states coming 
+// from the underlying stationary distribution. 
+// 
+// @param listObject markovchainList object
+// @param n Sample size
+// @param include_t0 Specify if the initial state shall be used
+// 
+// @return A List
+// @author Giorgio Spedicato, Deepak Yadav
+//   
+// @examples
+// statesNames <- c("a")
+// mcA <- new("markovchain", states = statesNames, transitionMatrix = 
+//        matrix(c(1), nrow = 1, byrow = TRUE, 
+//        dimnames = list(statesNames, statesNames)))
+//  
+// statesNames <- c("a","b")
+// mcB <- new("markovchain", states = statesNames, transitionMatrix = 
+//        matrix(c(0.5, 0.5, 0.3, 0.7), nrow = 2, byrow = TRUE, 
+//        dimnames = list(statesNames, statesNames)))
+//        
+// statesNames <- c("a","b","c")       
+// mcC <- new("markovchain", states = statesNames, transitionMatrix = 
+//        matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+//        byrow = TRUE, dimnames = list(statesNames, statesNames)))  
+//
+// mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))   
+// 
+// markovchainSequenceParallelRcpp(mclist, 99999, TRUE)
+// 
+// 
+// [[Rcpp::export(.markovchainSequenceParallelRcpp)]]
+List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = false,
+                                     CharacterVector init_state = CharacterVector()) {
   
   // list of markovchain object
   List object = listObject.slot("markovchains");
@@ -369,7 +382,7 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     for(int j = 0;j < tmat.nrow();j++) {
       for(int k = 0; k < tmat.ncol();k++) {
         
-        mat(i, j, k) = tmat(j, k);
+        mat(j, k, i) = tmat(j, k);
         
       }
       
@@ -379,8 +392,17 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     
   }
   
+  // initial state is passed or not
+  bool init = false;
+  string ini_state;
+  
+  if(init_state.size() != 0) {
+    init = true;
+    ini_state = as<string>(init_state[0]);
+  }
+  
   // create an object of MCList class
-  MCList mcList(mat, num_matrix, names, size_emat, include_t0);
+  MCList mcList(mat, num_matrix, names, size_emat, include_t0, init, ini_state);
   
   // start parallel computation
   parallelReduce(0, n, mcList);

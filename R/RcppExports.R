@@ -37,41 +37,8 @@ seq2matHigh <- function(sequence, order) {
     .Call('markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0, t0)
 }
 
-#' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
-#' 
-#' Provided any markovchainList object, it returns a list of sequence of states coming 
-#' from the underlying stationary distribution. 
-#' 
-#' @param listObject markovchainList object
-#' @param n Sample size
-#' @param include_t0 Specify if the initial state shall be used
-#' 
-#' @return A List
-#' @author Giorgio Spedicato, Deepak Yadav
-#'   
-#' @examples
-#' statesNames <- c("a")
-#' mcA <- new("markovchain", states = statesNames, transitionMatrix = 
-#'        matrix(c(1), nrow = 1, byrow = TRUE, 
-#'        dimnames = list(statesNames, statesNames)))
-#'  
-#' statesNames <- c("a","b")
-#' mcB <- new("markovchain", states = statesNames, transitionMatrix = 
-#'        matrix(c(0.5, 0.5, 0.3, 0.7), nrow = 2, byrow = TRUE, 
-#'        dimnames = list(statesNames, statesNames)))
-#'        
-#' statesNames <- c("a","b","c")       
-#' mcC <- new("markovchain", states = statesNames, transitionMatrix = 
-#'        matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-#'        byrow = TRUE, dimnames = list(statesNames, statesNames)))  
-#'
-#' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))   
-#' 
-#' markovchainSequenceParallelRcpp(mclist, 99999, TRUE)
-#' 
-#' 
-markovchainSequenceParallelRcpp <- function(listObject, n, include_t0 = FALSE) {
-    .Call('markovchain_markovchainSequenceParallelRcpp', PACKAGE = 'markovchain', listObject, n, include_t0)
+.markovchainSequenceParallelRcpp <- function(listObject, n, include_t0 = FALSE, init_state = character()) {
+    .Call('markovchain_markovchainSequenceParallelRcpp', PACKAGE = 'markovchain', listObject, n, include_t0, init_state)
 }
 
 #' @rdname markovchainFit

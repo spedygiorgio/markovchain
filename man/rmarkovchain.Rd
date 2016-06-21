@@ -4,7 +4,8 @@
 \alias{rmarkovchain}
 \title{Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.}
 \usage{
-rmarkovchain(n, object, what = "data.frame", useRCpp = TRUE, ...)
+rmarkovchain(n, object, what = "data.frame", useRCpp = TRUE,
+  parallel = TRUE, ...)
 }
 \arguments{
 \item{n}{Sample size}
@@ -15,6 +16,8 @@ rmarkovchain(n, object, what = "data.frame", useRCpp = TRUE, ...)
 (each rows represent a simulation) or a \code{list} is returned.}
 
 \item{useRCpp}{Boolean. Should RCpp fast implementation being used? Default is yes.}
+
+\item{parallel}{Boolean. Should parallel implementation being used? Default is yes.}
 
 \item{...}{additional parameters passed to the internal sampler}
 }

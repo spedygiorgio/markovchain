@@ -139,6 +139,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' @param what It specifies whether either a \code{data.frame} or a \code{matrix} 
 #'        (each rows represent a simulation) or a \code{list} is returned.
 #' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
+#' @param parallel Boolean. Should parallel implementation being used? Default is yes.
 #' @param ... additional parameters passed to the internal sampler
 #' 
 #' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
@@ -185,7 +186,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'      
 #' @export
 
-rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
+rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = TRUE, ...) {
   
   # check the class of the object
   if (class(object) == "markovchain") {
@@ -196,7 +197,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
   if (class(object) == "markovchainList")
   {
     #######################################################
-    if(useRCpp) {
+    if(useRCpp && !parallel) {
       
       # if include.t0 is not passed as extra argument then set include.t0 as false
       include.t0 <- list(...)$include.t0
@@ -230,6 +231,41 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, ...) {
       return(out)
     }
     ##########################################################
+    if(useRCpp && parallel) {
+      
+      # if include.t0 is not passed as extra argument then set include.t0 as false
+      include.t0 <- list(...)$include.t0
+      include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)
+      
+      # check whether initial state is passed or not
+      t0 <- list(...)$t0
+      if (is.null(t0)) t0 <- character()
+      
+      dataList <- .markovchainSequenceParallelRcpp(object, n, include.t0, t0)
+      
+      if(what == "list") return(dataList)
+      
+      # dimension of matrix to be returned
+      nrow <- length(dataList)
+      ncol <- length(dataList[[1]])   
+      
+      if(what == "matrix") {
+        out <- matrix(nrow = nrow, ncol = ncol)
+        for(i in 1:nrow) out[i, ] <- dataList[[i]]
+        return(out)
+      }
+      
+      iteration <- numeric()
+      values <- character()
+      
+      # if what id data frame
+      for(i in 1:nrow) {
+        iteration <- append(iteration, rep(i, ncol))
+        values <- append(values, dataList[[i]])
+      }
+      
+      return(data.frame(iteration = iteration, values = values))
+    }
     
     ##########################################################
     

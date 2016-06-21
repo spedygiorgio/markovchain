@@ -117,15 +117,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // markovchainSequenceParallelRcpp
-List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0);
-RcppExport SEXP markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP) {
+List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0, CharacterVector init_state);
+RcppExport SEXP markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP, SEXP init_stateSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< S4 >::type listObject(listObjectSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
-    __result = Rcpp::wrap(markovchainSequenceParallelRcpp(listObject, n, include_t0));
+    Rcpp::traits::input_parameter< CharacterVector >::type init_state(init_stateSEXP);
+    __result = Rcpp::wrap(markovchainSequenceParallelRcpp(listObject, n, include_t0, init_state));
     return __result;
 END_RCPP
 }

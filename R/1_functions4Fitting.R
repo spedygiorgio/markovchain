@@ -140,6 +140,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'        (each rows represent a simulation) or a \code{list} is returned.
 #' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
 #' @param parallel Boolean. Should parallel implementation being used? Default is yes.
+#' @param num.cores Number of Cores to be used
 #' @param ... additional parameters passed to the internal sampler
 #' 
 #' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
@@ -186,7 +187,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'      
 #' @export
 
-rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = TRUE, ...) {
+rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = TRUE, num.cores = NULL, ...) {
   
   # check the class of the object
   if (class(object) == "markovchain") {
@@ -268,6 +269,42 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     }
     
     ##########################################################
+    if(!useRCpp && parallel) {
+      # if include.t0 is not passed as extra argument then set include.t0 as false
+      include.t0 <- list(...)$include.t0
+      include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)
+      
+      # check whether initial state is passed or not
+      t0 <- list(...)$t0
+      if (is.null(t0)) t0 <- character()
+      
+      dataList <- .markovchainSequenceParallel(n, object, t0, num.cores, include.t0)
+      
+      if(what == "list") return(dataList)
+      
+      # dimension of matrix to be returned
+      nrow <- length(dataList)
+      ncol <- length(dataList[[1]])   
+      
+      if(what == "matrix") {
+        out <- matrix(nrow = nrow, ncol = ncol)
+        for(i in 1:nrow) out[i, ] <- dataList[[i]]
+        return(out)
+      }
+      
+      iteration <- numeric()
+      values <- character()
+      
+      # if what id data frame
+      for(i in 1:nrow) {
+        iteration <- append(iteration, rep(i, ncol))
+        values <- append(values, dataList[[i]])
+      }
+      
+      return(data.frame(iteration = iteration, values = values))
+      
+    }
+    ##########################################################
     
     # store list of markovchain object in object
     object <- object@markovchains
@@ -333,11 +370,23 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 ######################################################################
 
 # helper function to calculate one sequence
-.markovchainSPHelper <- function(x, t0, mclist) {
+.markovchainSPHelper <- function(x, t0, mclist, include.t0) {
   # number of transition matrices
   n <- length(mclist@markovchains)
+  
+  # take care of initial state
+  vin <- 0
+  if(include.t0) vin <- 1
+  
   # a character vector to store a single sequence
-  seq <- character(length = n)
+  seq <- character(length = n + vin)
+  
+  if(length(t0) == 0) {
+    stateNames <- mclist@markovchains[[1]]@states 
+    t0 <- sample(x = stateNames, size = 1,  prob = rep(1 / length(stateNames), length(stateNames)))
+  }
+  
+  if(include.t0) seq[1] <- t0
   
   # calculate one element of sequence in each iteration
   for (i in 1:n) {
@@ -352,27 +401,26 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     t0 <- sample(x = stateNames, size = 1,  prob = prob)
     
     # populate the sequence vector
-    seq[i] <- t0
+    seq[i+vin] <- t0
   }
   
   return(seq)
 }
 
-#' Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
-#' 
-#' Provided any markovchainList object, it returns a list of sequence of states coming 
-#' from the underlying stationary distribution. 
-#' 
-#' @param  n Sample size
-#' @param object markovchainList object
-#' @param t0 Initial state
-#' @param num.cores Number of cores
-#'   
-#' @export
+# Function to generate a list of sequence of states in parallel from non-homogeneous Markov chains.
+# 
+# Provided any markovchainList object, it returns a list of sequence of states coming 
+# from the underlying stationary distribution. 
+# 
+# @param  n Sample size
+# @param object markovchainList object
+# @param t0 Initial state
+# @param num.cores Number of cores
+#   
 
-markovchainSequenceParallel <- function(n, object,
-                                        t0 = sample(object@markovchains[[1]]@states, 1),
-                                        num.cores = NULL) {
+.markovchainSequenceParallel <- function(n, object,
+                                        t0 = character(),
+                                        num.cores = NULL, include.t0 = FALSE) {
   # check for the validity of non-uniform markov chain
   verify <- .checkSequence(object@markovchains)
   if (!verify) {
@@ -399,7 +447,7 @@ markovchainSequenceParallel <- function(n, object,
   # parallel::clusterExport(cl, "mclist")
    
   # list of n sequence
-  listSeq <- tryCatch(parallel::parLapply(cl, 1:n, .markovchainSPHelper, t0, mclist), 
+  listSeq <- tryCatch(parallel::parLapply(cl, 1:n, .markovchainSPHelper, t0, mclist, include.t0), 
                       error=function(e) e, warning=function(w) w)  
   
   # release the resources

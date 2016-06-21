@@ -78,14 +78,29 @@ bool checkSequenceRcpp(List object) {
     return(true);
   
   S4 ob0, ob1;
-  CharacterVector statesNm1, statesN, intersection;
+  CharacterVector statesN1, statesN, intersection;
   
   for(int i = 1; i < nob;i++) {
+    
+    CharacterVector statesNm1;
+    
     ob0 = S4(object[i-1]);
     ob1 = S4(object[i]);
     
-    statesNm1 = ob0.slot("states"); 
+    statesN1 = ob0.slot("states"); 
     statesN = ob1.slot("states");
+    
+    NumericMatrix matr = ob0.slot("transitionMatrix");
+    double csum = 0;
+    
+    for(int j = 0;j < matr.ncol();j++) {
+      csum = 0;
+      for(int k = 0;k < matr.nrow();k++) {
+        csum += matr(k, j);
+      }
+
+      if(csum != 0) statesNm1.push_back(statesN1[j]);
+    }
     
     intersection = intersect(statesNm1, statesN);
     if(not setequal(intersection, statesNm1)) {
@@ -333,6 +348,11 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
   
   // list of markovchain object
   List object = listObject.slot("markovchains");
+  
+  bool verify = checkSequenceRcpp(object);
+  if (not verify) {
+    warning("Warning: some states in the markovchain sequences are not contained in the following states!");
+  }
   
   // store number of transition matrices
   int num_matrix = object.size();

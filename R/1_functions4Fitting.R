@@ -234,6 +234,17 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     ##########################################################
     if(useRCpp && parallel) {
       
+      # Calculate the number of cores
+      # It's not good to use all cores
+      no_cores <- max(1,parallel::detectCores() - 1)
+      
+      # number of cores specified should be less than or equal to maximum cores available
+      if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {
+        no_cores <- num.cores
+      }
+      
+      RcppParallel::setThreadOptions(no_cores)
+      
       # if include.t0 is not passed as extra argument then set include.t0 as false
       include.t0 <- list(...)$include.t0
       include.t0 <- ifelse(is.null(include.t0), FALSE, include.t0)

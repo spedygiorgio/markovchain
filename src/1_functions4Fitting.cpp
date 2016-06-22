@@ -188,12 +188,12 @@ struct MCList : public Worker
   // 3-D matrix where each slice is a transition matrix
   const arma::cube mat;
   
+  // number of transition matrices
+  const int num_mat;
+  
   // matrix where ith row vector store the list of states 
   // names present in ith transition matrix 
   const vector<vector<string> > names;
-  
-  // number of transition matrices
-  const int num_mat;
   
   // vector ehose ith element stor the dimension of ith
   // transition matrix
@@ -223,7 +223,7 @@ struct MCList : public Worker
   void operator()(std::size_t begin, std::size_t end) {
     
     // to take care of include_t0
-    int ci = 0;
+    unsigned int ci = 0;
     if(include_t0) ci = 1;
     
     // to store single sequence generated each time
@@ -234,7 +234,7 @@ struct MCList : public Worker
     arma::vec in_states(size_emat[0]);
     
     // assume equal chances of selection of states for the first time
-    for(int i=0;i<in_probs.size();i++) {
+    for(unsigned int i=0;i<in_probs.size();i++) {
       in_probs[i] = 1.0/size_emat[0];
       in_states[i] = i;
     }
@@ -244,7 +244,7 @@ struct MCList : public Worker
     string t0;
     
     // every time generate one sequence
-    for(int p = begin; p < end; p++) {
+    for(unsigned int p = begin; p < end; p++) {
       
       if(not init) {
         
@@ -261,10 +261,10 @@ struct MCList : public Worker
       if(include_t0) temp[0] = t0;
       
       // to generate one sequence
-      for(int i = 0; i < num_mat; i++) {
+      for(unsigned int i = 0; i < num_mat; i++) {
         
         // useful for generating rows probabilty vector
-        int j = 0;
+        unsigned int j = 0;
         for(j = 0; j < size_emat[i]; j++) {
           if(names[i][j] == t0) break;
         }
@@ -273,7 +273,7 @@ struct MCList : public Worker
         arma::vec probs(size_emat[i]);
         arma::vec states(size_emat[i]);
         
-        for(int k=0; k < probs.size(); k++) {
+        for(unsigned int k=0; k < probs.size(); k++) {
           probs[k] = mat(j, k, i);
           states[k] = k;
         }

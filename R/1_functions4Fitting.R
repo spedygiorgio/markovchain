@@ -585,7 +585,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   
   # check the format of input data
-  if (! (class(data) %in% c("data.frame", "matrix"))) {
+  if (!any((class(data) %in% c("data.frame", "matrix")))) {
     stop("Error: data must be either a matrix or a data.frame")  
   }
   

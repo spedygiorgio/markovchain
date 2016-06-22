@@ -988,7 +988,7 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 @
 
-
+Two advance parameters are availabe to the \code{rmarkovchain} method which helps you decide which implementation to use. There are four options available : \code{R}, \code{R} in parallel, \code{C++} and \code{C++} in parallel. Two boolean parameters \code{useRcpp} and \code{parallel} will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \code{C++} implementation. Obviously, the \code{C++} implementation is faster than the \code{R} implementation. If you have multicore processors then you can take advantage of \code{parallel} parameter by setting it to \code{TRUE}.
 
 \subsection{Estimation}
 

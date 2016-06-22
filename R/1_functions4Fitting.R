@@ -187,7 +187,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'      
 #' @export
 
-rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = TRUE, num.cores = NULL, ...) {
+rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = FALSE, num.cores = NULL, ...) {
   
   # check the class of the object
   if (class(object) == "markovchain") {

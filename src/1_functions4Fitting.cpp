@@ -261,11 +261,11 @@ struct MCList : public Worker
       if(include_t0) temp[0] = t0;
       
       // to generate one sequence
-      for(unsigned int i = 0; i < num_mat; i++) {
+      for(unsigned int i = 0; i < (unsigned int)num_mat; i++) {
         
         // useful for generating rows probabilty vector
         unsigned int j = 0;
-        for(j = 0; j < size_emat[i]; j++) {
+        for(j = 0; j < (unsigned int)size_emat[i]; j++) {
           if(names[i][j] == t0) break;
         }
         

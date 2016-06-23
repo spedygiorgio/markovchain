@@ -573,7 +573,8 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' 
 #' @description  Given a data frame or a matrix (rows are observations, by cols 
 #' the temporal sequence), it fits a non - homogeneous discrete time markov chain 
-#' process (storing row)
+#' process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
+#' estimating transitions from the n samples given by consecutive column pairs.
 #' 
 #' @param data Either a matrix or a data.frame object.
 #' @param laplacian Laplacian correction (default 0).

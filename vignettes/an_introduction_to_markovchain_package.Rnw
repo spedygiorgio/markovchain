@@ -988,7 +988,7 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 @
 
-Two advance parameters are availabe to the \code{rmarkovchain} method which helps you decide which implementation to use. There are four options available : \code{R}, \code{R} in parallel, \code{C++} and \code{C++} in parallel. Two boolean parameters \code{useRcpp} and \code{parallel} will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \code{C++} implementation. Obviously, the \code{C++} implementation is faster than the \code{R} implementation. If you have multicore processors then you can take advantage of \code{parallel} parameter by setting it to \code{TRUE}.
+Two advance parameters are availabe to the \code{rmarkovchain} method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters \code{useRcpp} and \code{parallel} will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the \code{R} implementation. If you have multicore processors then you can take advantage of \code{parallel} parameter by setting it to \code{TRUE}. When both \code{Rcpp=TRUE} and  \code{parallel=TRUE} the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
 
 \subsection{Estimation}
 
@@ -1051,6 +1051,14 @@ createSequenceMatrix(stringChar = weathersOfDays)
 An issue occurs when the sample contains only one realization of a state (say $X_{\beta}$) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional
 distribution of the transition). In this case the estimated transition matrix is
 corrected assuming $p_{\beta,j}=1/k$, being $k$ the possible states.
+
+Create sequence matrix can also be used to obtain transition matrices from a given $n*2$ matrix as the following example shows:
+
+<<fitSequenceMatrix2, keep.source=TRUE>>=
+myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2)
+createSequenceMatrix(stringChar = myMatr,toRowProbs = TRUE)
+@
+
 
 A bootstrap estimation approach has been developed within the package in order
 to provide an indication of the variability of ${\hat p}_{ij}$ estimates. The

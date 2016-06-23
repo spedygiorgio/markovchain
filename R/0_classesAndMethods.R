@@ -504,7 +504,7 @@ setMethod("transitionProbability", "markovchain",
 	}
   
 	if (verbose == TRUE) {
-	  cat(object@name, "\n A ", dim(object), "- dimensional discrete Markov Chain characterized by following states: \n",
+	  cat(object@name, "\n A ", dim(object), "- dimensional discrete Markov Chain defined by the following states: \n",
 	      paste(states(object), collapse=", "), "\n The transition matrix ", 
 	      direction, " is defined as follows: \n")
 	}
@@ -931,11 +931,11 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
   
   # check for validity of data frame
 	if(ncol(df) > 3) {
-	  warning("Warning! More than three column. Only the first three will be used")
+	  warning("Warning! More than three columns. Only the first three will be used")
 	}
   
 	if(ncol(df) < 3) {
-	  stop("Error! Three column needed")
+	  stop("Error! Three columns needed")
 	}
 	
 	for(i in 1:ncol(df)) {

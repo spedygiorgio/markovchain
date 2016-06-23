@@ -12,8 +12,7 @@
 A class to handle non - homogeneous Markov chains
 }
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("markovchainList", ...)}.
-Each item in the list is a \code{markovchain} object.
+A \code{markovchainlist} is a list of \code{markovchain} objects. They can be used to model non - homogeneous discrete time Markov Chains, when transition probabilities (and possible states) change by time.
 }
 \section{Slots}{
   \describe{
@@ -32,7 +31,7 @@ Each item in the list is a \code{markovchain} object.
 	  \item{predict}{\code{signature(object = "markovchainList")}: predict 
 	  from a \code{markovchainList} }
     \item{print}{\code{signature(x = "markovchainList")}: prints the list of markovchains }
-    \item{show}{\code{signature(object = "markovchainList")}: same as print }
+    \item{show}{\code{signature(object = "markovchainList")}: same as \code{print} }
    }
 }
 \references{

@@ -1268,86 +1268,130 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 		      }
 )
 
-setGeneric("conditionalDistribution", function(object,state) standardGeneric("conditionalDistribution"))
-setMethod("conditionalDistribution","markovchain", #metodo plot
-          function(object,state){
-			stateNames <- states(object) #get the names
-			out <- numeric(length(stateNames)) #allocater oiutvect
-			index2Take <- which(stateNames==state) #states are assumed to be sorted
-			if(object@byrow==TRUE) #returns the probability vector depending by sorting
-			{
-				out <- object@transitionMatrix[index2Take,]
-			} else {
-				out <- object@transitionMatrix[,index2Take]
-			}	
-			#names the output and returs it
-			names(out)<-stateNames
-			return(out) 
-		}
+# transition probabilty vector from a given state
+
+#' @title \code{conditionalDistribution} of a Markov Chain
+#' 
+#' @name conditionalDistribution
+#' 
+#' @description It extracts the conditional distribution of the subsequent state, 
+#'              given current state.
+#' 
+#' @param object A \code{markovchain} object.
+#' @param state Subsequent state.
+#' 
+#' @author Giorgio Spedicato, Deepak Yadav
+#' 
+#' @return A named probability vector
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @seealso \code{\linkS4class{markovchain}}
+#' 
+#' @examples 
+#' # define a markov chain
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix = 
+#'                matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1),nrow = 3, 
+#'                       byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#'                       
+#' conditionalDistribution(markovB, "b")                       
+#' 
+#' @export
+setGeneric("conditionalDistribution", function(object, state) standardGeneric("conditionalDistribution"))
+setMethod("conditionalDistribution", "markovchain",
+          function(object, state) {
+            # get the states names
+			      stateNames <- states(object) 
+			      
+			      # number of unique states
+			      out <- numeric(length(stateNames))
+			      
+			      # states are assumed to be sorted
+			      index2Take <- which(stateNames == state) 
+			      
+			      if(object@byrow == TRUE) {
+				      out <- object@transitionMatrix[index2Take, ]
+			      } else {
+				      out <- object@transitionMatrix[, index2Take]
+			      }
+			      
+			      # names the output and returs it
+			      names(out) <- stateNames
+			      
+			      return(out) 
+		      }
 )
 		  
+# Function to get the mode of a probability vector
+# 
+# Args:
+# probVector: the probability vector
+# ties: specifies if ties are to be sampled, otherwise more than one element is returned
+#
+# Returns:
+# the name of the model element
 
-#geth the mode of a probability vector
-.getMode<-function(probVector,ties="random")
-{
-	#
-	# Function to get the mode of a probability vector
-	# 
-	# Args:
-	#
-	# probvector: the probability vector
-	# ties: specifies if ties are to be sampled, otherwise more than one element is returned
-	#
-	# Returns:
-	#
-	# the name of the model element
-	maxIndex <- which(probVector==max(probVector))
-	temp <- probVector[maxIndex]
-	if((ties=="random")&(length(temp)>1)) out <- sample(temp,1) else out <- temp
+.getMode <- function(probVector, ties = "random") {
+	
+	maxIndex <- which(probVector == max(probVector))
+	temp <- probVector[maxIndex] # index of maximum probabilty
+	
+	if((ties == "random") & (length(temp) > 1)) {
+	  out <- sample(temp, 1) 
+	} else {
+	  out <- temp
+	}
+	
 	return(names(out))
 }
 
-#predict method for markovchain objects
+# predict method for markovchain objects
+# given initial state return a vector of next n.ahead states
 
-setMethod("predict","markovchain", 
-		function(object,newdata,n.ahead=1) {
-			lastState <- newdata[length(newdata)] #identify the last state
+setMethod("predict", "markovchain", 
+		      function(object, newdata, n.ahead = 1) {
+		        # identify the last state
+			      lastState <- newdata[length(newdata)]
             out <- character()
-            for(i in 1:n.ahead)
-            {
-              #cyclically determine the most probabile subsequent state from the conditional distribution
-              newState <- .getMode(probVector=conditionalDistribution(object,lastState), ties="random") 
-              out <- c(out,newState)
+            
+            for(i in 1:n.ahead) {
+              # cyclically determine the most probable subsequent state from the conditional distribution
+              newState <- .getMode(probVector = conditionalDistribution(object, lastState), ties = "random") 
+              out <- c(out, newState)
               lastState <- newState
             }
+            
             return(out)
           }
 )
 
-setMethod("predict","markovchainList",
-		definition = function(object,newdata,n.ahead=1,continue=FALSE) {
-			#object a markovchainList, newdata=the actual data, n.ahead=how much ahead, continue=veryfi if thake last
-			out<-character() #allocate output
-			actualPos<-length(newdata) 
-			lastState<-newdata[actualPos] #takes last position
-			for(i in 1:n.ahead) #cycles
-			{
-				newPos <- actualPos + i - 1 #increments
-				if(newPos<=dim(object)) #applies if within the length of markovchainList
-				{
-					newState <- predict(object=object[[newPos]], newdata = lastState, n.ahead=1)
-					out <- c(out,newState)
-					lastState <- newState
-				} else {
-					if(continue==TRUE) #applies if allowed to predict over last state
-					{
-						newState <- predict(object=object[[dim(object)]], newdata = lastState, n.ahead=1)
-						out <- c(out,newState)
-						lastState <- newState
-					} else break;
-				} #chiude else
-			} #chiude for
-			return(out)
-		}
-
+# predict method for markovchainList objects
+setMethod("predict", "markovchainList",
+		      definition = function(object, newdata, n.ahead = 1, continue = FALSE) {
+			    # object a markovchainList
+		      # newdata = the actual data 
+		      # n.ahead = how much ahead 
+		      # continue = veryfy if that lasts
+		        
+		                      # allocate output
+			                    out <- character() 
+			                    actualPos <- length(newdata) 
+			                    lastState <- newdata[actualPos] # take last position
+			                    for(i in 1:n.ahead) {
+				                    newPos <- actualPos + i - 1
+				                    if(newPos <= dim(object)) {
+					                    newState <- predict(object = object[[newPos]], newdata = lastState, n.ahead = 1)
+					                    out <- c(out, newState)
+					                    lastState <- newState
+				                    } else {
+					                      if(continue == TRUE) {
+						                      newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
+						                      out <- c(out, newState)
+						                      lastState <- newState
+					                      } else break;
+				                      }
+			                    }
+			
+			                    return(out)
+		                   }
 )

@@ -1044,7 +1044,7 @@ showing the $\left( X_{t}=i, X_{t+1}=j\right)$ distribution within the sample,
 as code below shows. 
 
 <<fitSequenceMatrix, keep.source=TRUE>>=
-createSequenceMatrix(stringChar = weathersOfDays)
+createSequenceMatrix(stringchar = weathersOfDays)
 @
 
 
@@ -1056,7 +1056,7 @@ Create sequence matrix can also be used to obtain transition matrices from a giv
 
 <<fitSequenceMatrix2, keep.source=TRUE>>=
 myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2)
-createSequenceMatrix(stringChar = myMatr,toRowProbs = TRUE)
+createSequenceMatrix(stringchar = myMatr,toRowProbs = TRUE)
 @
 
 

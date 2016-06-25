@@ -474,7 +474,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
   
   # every element of the matrix store the number of times jth state appears just
   # after the ith state
-  origNum <- createSequenceMatrix(stringChar = stringchar, toRowProbs = FALSE)
+  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
   
   # add laplacian  to the sequence matrix
   # why? to avoid the cases where sum of row is zero

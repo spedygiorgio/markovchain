@@ -669,6 +669,7 @@ Finally, Table~\ref{tab:demos} lists the demos included in the demo directory of
     \code{bard.R} & Structural analysis of Markov chains from Bard PPT.\\
     \code{examples.R} & Notable Markov chains, e.g., The Gambler Ruin chain.\\
     \code{quickStart.R} & Generic examples.\\
+    \code{extractMatrices.R} & Generic examples.\\
 \hline
 \end{tabular}
 \caption{The \pkg{markovchain} demos.}

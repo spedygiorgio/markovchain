@@ -504,69 +504,69 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 }
 
 # function that return a Markov Chain from a given matrix of observations
-.matr2Mc <- function(matrData, laplacian = 0) {
-  
-  # number of columns in the input matrix  
-  nCols <- ncol(matrData)
-  
-  # an empty character vector to store names of possible states
-  uniqueVals <- character()
-  
-  # populate uniqueVals with names of states 
-  for(i in 1:nCols) {
-    uniqueVals <- union(uniqueVals, unique(as.character(matrData[,i]))) 
-  }
-  
-  # possible states in lexicographical order
-  uniqueVals <- sort(uniqueVals)
-  
-  # create a contingency matrix which store the number of times 
-  # jth state appear just after the ith state
-  contingencyMatrix <- matrix(rep(0, length(uniqueVals)^2), ncol = length(uniqueVals))
-  
-  # set the names of rows and columns
-  rownames(contingencyMatrix) <- colnames(contingencyMatrix) <- uniqueVals
-  
-  # fill the contingency matrix
-  for (i in 1:nrow(matrData)) {
-    for (j in 2:nCols) {
-      # state in the ith row and (j-1)th column
-      stateBegin <- as.character(matrData[i, j-1])
-      
-      # index of beginning state 
-      whichRow <- which(uniqueVals == stateBegin)
-      
-      # state in the ith row and jth column
-      stateEnd <- as.character(matrData[i, j])
-      
-      # index of ending state 
-      whichCols <- which(uniqueVals == stateEnd)
-      
-      # update the contingency matrix
-      contingencyMatrix[whichRow, whichCols] <- contingencyMatrix[whichRow, whichCols] + 1
-    }
-  }
-  
-  # add laplacian correction if needed
-  contingencyMatrix <- contingencyMatrix + laplacian
-  
-  # take care of rows with all entries 0
-  sumOfRows <- rowSums(contingencyMatrix) 
-  for(i in 1:length(sumOfRows)) {
-    if(sumOfRows[i] == 0) {
-      contingencyMatrix[i, ] <- 1
-      sumOfRows[i] <- length(sumOfRows)
-    }
-  }
-  
-  # get a transition matrix and a DTMC
-  transitionMatrix <- contingencyMatrix / sumOfRows
-  
-  # markov chain object to be returned
-  outMc <- new("markovchain", transitionMatrix = transitionMatrix)
- 
-  return(outMc)
-}
+# .matr2Mc <- function(matrData, laplacian = 0) {
+#   
+#   # number of columns in the input matrix  
+#   nCols <- ncol(matrData)
+#   
+#   # an empty character vector to store names of possible states
+#   uniqueVals <- character()
+#   
+#   # populate uniqueVals with names of states 
+#   for(i in 1:nCols) {
+#     uniqueVals <- union(uniqueVals, unique(as.character(matrData[,i]))) 
+#   }
+#   
+#   # possible states in lexicographical order
+#   uniqueVals <- sort(uniqueVals)
+#   
+#   # create a contingency matrix which store the number of times 
+#   # jth state appear just after the ith state
+#   contingencyMatrix <- matrix(rep(0, length(uniqueVals)^2), ncol = length(uniqueVals))
+#   
+#   # set the names of rows and columns
+#   rownames(contingencyMatrix) <- colnames(contingencyMatrix) <- uniqueVals
+#   
+#   # fill the contingency matrix
+#   for (i in 1:nrow(matrData)) {
+#     for (j in 2:nCols) {
+#       # state in the ith row and (j-1)th column
+#       stateBegin <- as.character(matrData[i, j-1])
+#       
+#       # index of beginning state 
+#       whichRow <- which(uniqueVals == stateBegin)
+#       
+#       # state in the ith row and jth column
+#       stateEnd <- as.character(matrData[i, j])
+#       
+#       # index of ending state 
+#       whichCols <- which(uniqueVals == stateEnd)
+#       
+#       # update the contingency matrix
+#       contingencyMatrix[whichRow, whichCols] <- contingencyMatrix[whichRow, whichCols] + 1
+#     }
+#   }
+#   
+#   # add laplacian correction if needed
+#   contingencyMatrix <- contingencyMatrix + laplacian
+#   
+#   # take care of rows with all entries 0
+#   sumOfRows <- rowSums(contingencyMatrix) 
+#   for(i in 1:length(sumOfRows)) {
+#     if(sumOfRows[i] == 0) {
+#       contingencyMatrix[i, ] <- 1
+#       sumOfRows[i] <- length(sumOfRows)
+#     }
+#   }
+#   
+#   # get a transition matrix and a DTMC
+#   transitionMatrix <- contingencyMatrix / sumOfRows
+#   
+#   # markov chain object to be returned
+#   outMc <- new("markovchain", transitionMatrix = transitionMatrix)
+#  
+#   return(outMc)
+# }
 
 
 #' @title markovchainListFit
@@ -622,7 +622,9 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   for(i in 2:(nCols)) { 
     
     # (i-1)th transition matrix for transition from (i-1)th state to ith state
-    estMc <- .matr2Mc(matrData = data[, c(i-1, i)], laplacian = laplacian)
+    matrData <- data[, c(i-1, i)]
+    matrData[1, ] <- as.character(matrData[1, ])
+    estMc <- .matr2Mc(matrData, laplacian = laplacian, TRUE)
     
     # give name to the markovchain object which is same as the name of (i-1)th column
     if(!is.null(colnames(data))) {

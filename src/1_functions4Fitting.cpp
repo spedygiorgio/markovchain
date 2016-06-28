@@ -913,6 +913,7 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
 }
 
 // convert matrix data to transition probability matrix
+// [[Rcpp::export(.matr2Mc)]]
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false) {
   
   // dimension of input matrix

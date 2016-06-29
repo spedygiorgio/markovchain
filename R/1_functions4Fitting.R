@@ -624,7 +624,16 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
     # (i-1)th transition matrix for transition from (i-1)th state to ith state
     matrData <- data[, c(i-1, i)]
     matrData[1, ] <- as.character(matrData[1, ])
-    estMc <- .matr2Mc(matrData, laplacian = laplacian, TRUE)
+    freqMatrix <- createSequenceMatrix(matrData, toRowProbs = FALSE, sanitize = TRUE)
+    
+    # add laplacian correction
+    freqMatrix <- freqMatrix + laplacian
+    rSums <- rowSums(freqMatrix)
+    
+    # transition matrix
+    tMatrix <- freqMatrix / rSums;
+    
+    estMc <- new("markovchain", transitionMatrix = tMatrix)
     
     # give name to the markovchain object which is same as the name of (i-1)th column
     if(!is.null(colnames(data))) {

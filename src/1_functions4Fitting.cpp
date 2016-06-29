@@ -475,7 +475,20 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
                                    CharacterVector possibleStates = CharacterVector()) {
   
   CharacterVector stringChar = as<CharacterVector>(stringchar);
-  CharacterVector elements = unique(union_(stringChar, possibleStates)).sort();
+  
+  // may include missing values
+  CharacterVector elements_na = unique(union_(stringChar, possibleStates));
+  
+  // free from missing values
+  CharacterVector elements;
+  
+  for(int i = 0; i < elements_na.size();i++) {
+    if(elements_na[i] != "NA") {
+      elements.push_back(elements_na[i]);
+    }
+  }
+  
+  elements = elements.sort();
   int sizeMatr = elements.size();
   
   NumericMatrix freqMatrix(sizeMatr);
@@ -495,11 +508,13 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     // populate frequency matrix
     int posFrom = 0, posTo = 0;
     for(long long i = 0; i < seqMat.nrow(); i ++) {
-      for (int j = 0; j < rnames.size(); j ++) {
-        if(seqMat(i, 0) == rnames[j]) posFrom = j;
-        if(seqMat(i, 1) == rnames[j]) posTo = j;
+      if(seqMat(i, 0) != "NA" && seqMat(i, 1) != "NA") {
+        for (int j = 0; j < rnames.size(); j ++) {
+          if(seqMat(i, 0) == rnames[j]) posFrom = j;
+          if(seqMat(i, 1) == rnames[j]) posTo = j;
+        }
+        freqMatrix(posFrom, posTo)++;  
       }
-      freqMatrix(posFrom, posTo)++;
     }  
   } 
   

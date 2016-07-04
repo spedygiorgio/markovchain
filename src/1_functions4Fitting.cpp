@@ -507,7 +507,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     
     // populate frequency matrix
     int posFrom = 0, posTo = 0;
-    for(long long i = 0; i < seqMat.nrow(); i ++) {
+    for(long int i = 0; i < seqMat.nrow(); i ++) {
       if(seqMat(i, 0) != "NA" && seqMat(i, 1) != "NA") {
         for (int j = 0; j < rnames.size(); j ++) {
           if(seqMat(i, 0) == rnames[j]) posFrom = j;
@@ -521,7 +521,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   else {
     
     int posFrom = 0, posTo = 0;
-    for(long long i = 0; i < stringChar.size() - 1; i ++) {
+    for(long int i = 0; i < stringChar.size() - 1; i ++) {
       for (int j = 0; j < rnames.size(); j ++) {
         if(stringChar[i] == rnames[j]) posFrom = j;
         if(stringChar[i + 1] == rnames[j]) posTo = j;
@@ -561,7 +561,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   
   // caculate out
   int from = 0, to = 0; 
-  for(long long i = 0; i < seq.size() - 1; i ++) {
+  for(long int i = 0; i < seq.size() - 1; i ++) {
     for(int r = 0; r < rnames.size(); r ++) {
       if(rnames[r] == seq[i]) from = r; 
       if(rnames[r] == seq[i + 1]) to = r; 
@@ -591,7 +591,7 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, b
 
   // populate frequency matrix
   int posFrom = 0, posTo = 0; 
-  for(long long i = 0; i < stringchar.size() - 1; i++) {  
+  for(long int i = 0; i < stringchar.size() - 1; i++) {  
     for (int j = 0; j < sizeMatr; j++) {            
       if(stringchar[i] == elements[j]) posFrom = j;
       if(stringchar[i + 1] == elements[j]) posTo = j;
@@ -738,7 +738,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 }
 
 // bootstrap a sequence to produce a list of sample sequences
-List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long size = -1, 
+List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long int size = -1, 
                                   CharacterVector possibleStates = CharacterVector()) {
   
   // store length of sequence
@@ -777,7 +777,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long long s
     charseq.push_back(ch);
     
     
-    for(long long j = 1; j < size; j ++) {
+    for(long int j = 1; j < size; j ++) {
       // store row probability
       NumericVector probsVector;
       
@@ -932,14 +932,14 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false) {
   
   // dimension of input matrix
-  long long nRows = matrData.nrow(), nCols = matrData.ncol();
+  long int nRows = matrData.nrow(), nCols = matrData.ncol();
   
   // set of states
   std::set<std::string> uniqueVals;
   
   // populate uniqueVals set
-  for(long long i = 0; i < nRows; i++) 
-    for(long long j = 0; j < nCols; j++) 
+  for(long int i = 0; i < nRows; i++) 
+    for(long int j = 0; j < nCols; j++) 
       uniqueVals.insert((std::string)matrData(i, j));	
   
   // unique states
@@ -956,8 +956,8 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   
   // populate contingency matrix
   int stateBegin = 0, stateEnd = 0;
-  for(long long i = 0; i < nRows; i ++) {
-    for(long long j = 1; j < nCols; j ++) {
+  for(long int i = 0; i < nRows; i ++) {
+    for(long int j = 1; j < nCols; j ++) {
       
       // row and column number of begin state and end state
       int k = 0;
@@ -1166,7 +1166,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     
     // populate hyper param matrix
     int posFrom = 0, posTo = 0;
-    for(long long i = 0; i < data.size() - 1; i ++) {
+    for(long int i = 0; i < data.size() - 1; i ++) {
       for (int j = 0; j < sizeMatr; j ++) {
         if(data[i] == elements[j]) posFrom = j;
         if(data[i + 1] == elements[j]) posTo = j;
@@ -1259,7 +1259,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  
   	  // matrix : no of rows = no of rows in df : same for number of columns
   	  mat = CharacterMatrix(df.nrows(), df.size());
-  	  for(long long i = 0; i < df.size(); i++) {
+  	  for(long int i = 0; i < df.size(); i++) {
   	    mat(_,i) = CharacterVector(df[i]);
   	  }
  	  } 

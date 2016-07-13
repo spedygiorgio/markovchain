@@ -54,7 +54,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   # populate the sequence
   for (i in 1:n) {
     # row probabilty corresponding to the current state
-    rowProbs <- markovchain@transitionMatrix[which(markovchain@states == state), ]
+    rowProbs <- markovchain@transitionMatrix[state, ]
     
     # select the next state
     outstate <- sample(size = 1, x = markovchain@states, prob = rowProbs)

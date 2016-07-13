@@ -51,7 +51,7 @@ outs <- rmarkovchain(n = 100, object = mcB, what = "list")
 
 
 #define markovchainList object
-statesName = c("a", "b", "c")
+statesNames <- c("a", "b", "c")
 mcA <- new("markovchain", states = statesNames, transitionMatrix = 
    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
    byrow = TRUE, dimnames = list(statesNames, statesNames)))

@@ -223,10 +223,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
         
         # output in list format
         if (what == "list") {
-          outlist <- list()
-          for (i in 1:nrow(out))
-            outlist[[i]] <- out[i, ]
-          out <- outlist
+          # outlist <- list()
+          # for (i in 1:nrow(out))
+          #  outlist[[i]] <- out[i, ]
+          # out <- outlist
+          out <- as.list(data.frame(t(out), stringsAsFactors = FALSE))
+          out <- unname(out)
         }
       } 
       return(out)

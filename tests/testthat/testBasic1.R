@@ -213,6 +213,66 @@ test_that("createSequenceMatrix : input as matrix",{
                       byrow = TRUE, dimnames = list(c("a", "b", "d"), c("a", "b", "d"))))
 })
 
+### Test for markovchainSequence and rmarkovchain
+statesNames <- c("a", "b", "c")
+mcB <- new("markovchain", states = statesNames, 
+           transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
+           nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+
+s1 <- markovchainSequence(10, mcB)
+s2 <- markovchainSequence(10, mcB, include.t0 = TRUE)
+s3 <- markovchainSequence(10, mcB, t0 = "b", include.t0 = TRUE)
+
+s4 <- markovchainSequence(10, mcB, useRCpp = FALSE)
+s5 <- markovchainSequence(10, mcB, include.t0 = TRUE, useRCpp = FALSE)
+s6 <- markovchainSequence(10, mcB, t0 = "b", include.t0 = TRUE, useRCpp = FALSE)
+
+test_that("Output format of markovchainSequence", {
+  expect_equal(length(s1), 10)
+  expect_equal(length(s2), 11)
+  expect_equal(length(s3), 11)
+  expect_equal(s3[1], "b")
+  expect_equal(length(s4), 10)
+  expect_equal(length(s5), 11)
+  expect_equal(length(s6), 11)
+  expect_equal(s6[1], "b")
+})
+
+statesNames <- c("a", "b", "c")
+mcA <- new("markovchain", states = statesNames, transitionMatrix = 
+             matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+                    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mcB <- new("markovchain", states = statesNames, transitionMatrix = 
+             matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+                    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mcC <- new("markovchain", states = statesNames, transitionMatrix = 
+             matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
+                    byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))
+
+o1 <- rmarkovchain(15, mclist, "list")
+o2 <- rmarkovchain(15, mclist, "matrix")
+o3 <- rmarkovchain(15, mclist, "data.frame")
+
+o4 <- rmarkovchain(15, mclist, "list", t0 = "a", include.t0 = TRUE)
+o5 <- rmarkovchain(15, mclist, "matrix", t0 = "a", include.t0 = TRUE)
+o6 <- rmarkovchain(15, mclist, "data.frame", t0 = "a", include.t0 = TRUE)
+
+test_that("Output format of rmarkovchain", {
+  expect_equal(length(o1), 15)
+  expect_equal(length(o1[[1]]), 3)
+  expect_equal(all(dim(o2) == c(15, 3)), TRUE)
+  expect_equal(all(dim(o3) == c(45, 2)), TRUE)
+  
+  expect_equal(length(o4), 15)
+  expect_equal(length(o4[[1]]), 4)
+  expect_equal(o4[[1]][1], "a")
+  expect_equal(all(dim(o5) == c(15, 4)), TRUE)
+  expect_equal(all(o5[, 1] == "a"), TRUE)
+  expect_equal(all(dim(o6) == c(60, 2)), TRUE)
+})
+
+
 ### MAP fit function tests
 data1 <- c("a", "b", "a", "c", "a", "b", "a", "b", "c", "b", "b", "a", "b")
 data2 <- c("c", "a", "b")

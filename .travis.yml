@@ -15,6 +15,7 @@ before_install:
 
 install:
   - ./travis-tool.sh install_deps
+  - Rscript -e 'install.packages("DiagrammeR", repos = "http://cran.rstudio.com")'
   
 script: ./travis-tool.sh run_tests
 

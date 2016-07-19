@@ -1119,10 +1119,11 @@ setAs(from = "markovchain", to = "matrix", def = .mc2matrix)
 .mc2igraph <- function(from) {
   
   # convert the markovchain to data.frame
-	temp <- .mc2Df(from) 
+	temp <- .mc2Df(from=from) 
 	
 	# convert the data frame to igraph graph
-	out <- graph.data.frame(temp) 
+	# need to set only non zero weights
+	out <- graph.data.frame(d=temp[temp$prob>0,]) 
 	return(out)
 }
 

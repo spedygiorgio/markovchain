@@ -1398,7 +1398,7 @@ $\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}$
 
 \subsubsection{Examples}
 
-To create a CTMC object, you need to provide a valid generator matrix. The CTMC object has the following slots - states, generator, byrow, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
+To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, byrow, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
 
 <<rCtmcInit, keep.source=TRUE>>=
 energyStates <- c("sigma", "sigma_star")
@@ -1435,6 +1435,21 @@ For fitting, use the \code{ctmcFit} function. It returns the MLE values for the 
 data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
 ctmcFit(data)
+@
+
+One approach to obtain the generator matrix is to apply the \code{logm} function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see [@israel2001finding]. For example, applying the standard \code{method} ('Higham08') on \code{mcWeather} raises an error, whilst the alternative method (eigenvalue decomposition) is ok. The following code estimates the generator matrix of the \code{mcWeather} transition matrix.
+
+<<mcWeatherQ, keep.source=TRUE>>=
+mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
+mcWeatherQ
+@
+
+Therefore, the "half - day" transition probability for mcWeather DTMC is 
+
+<<mcWeatherHalfDay, keep.source=TRUE>>=
+mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
+mcWeatherHalfDay <-new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
+mcWeatherHalfDay
 @
 
 \subsection{Bayesian Estimation}

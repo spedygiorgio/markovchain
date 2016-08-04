@@ -538,6 +538,7 @@ mcIgraph <- as(mcWeather, "igraph")
 
 <<exporImport2, keep.source=TRUE>>=
 library(msm)
+data(cav)
 Q <- rbind ( c(0, 0.25, 0, 0.25),
              c(0.166, 0, 0.166, 0.166),
              c(0, 0.25, 0, 0.25),
@@ -1843,7 +1844,34 @@ hob
 data("sales")
 
 # fit 8th order multivariate markov chain
-fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
+object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
+@
+
+<<label=result, echo=FALSE>>=
+i <- c(1, 2, 2, 3, 4, 4, 4, 5, 5, 5)
+j <- c(2, 2, 2, 5, 2, 5, 5, 2, 4, 5)
+k <- c(1, 1, 3, 1, 8, 1, 2, 8, 1, 2)
+
+if(object@byrow == TRUE) {
+    direction <- "(by rows)" 
+} else {
+    direction <- "(by cols)" 
+}
+
+cat("Order of multivariate markov chain =", object@order, "\n")
+cat("states =", object@states, "\n")
+
+cat("\n")
+cat("List of Lambda's and the corresponding transition matrix", direction,":\n")
+
+for(p in 1:10) {
+  t <- 8*5*(i[p]-1) + (j[p]-1)*8
+  cat("Lambda", k[p], "(", i[p], ",", j[p], ") : ", object@Lambda[t+k[p]],"\n", sep = "")
+  cat("P", k[p], "(", i[p], ",", j[p], ") : \n", sep = "")
+  print(object@P[, , t+k[p]])
+  cat("\n")
+}  
+  
 @
 
 \section{Applications}\label{sec:applications}

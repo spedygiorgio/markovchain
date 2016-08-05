@@ -44,3 +44,147 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.t
   else
     stop("Not a valid output type")
 }
+
+# generator method
+# `generator/generator` <- function(Po, Di, odi) {
+#   P <- Po
+#   N <- nrow(P)
+#   options(digits = Di)
+#   odigs <- odi
+#   
+#   rSum <- rowSums(P)
+#   if(! all(abs(1-rSum) < 0.001)) {
+#     stop("Sum of each rows of Po should be equal to 1")
+#   }
+#   
+#   P <- P/rSum
+#   d <- det(P)
+#   
+#   if(d <= 0) {
+#     cat("Matrix has non-positive determinant")
+#     return(NULL)
+#   }
+#   
+#   diagP <- 1
+#   for(i in 1:nrow(P)) diagP <- diagP * P[i, i]
+#   
+#   if(d >= diagP) {
+#     cat("Determinant exceeds product of diagonal elements")
+#     return(NULL)
+#   }
+#   
+#   E <- eigen(P)[[1]]
+#   B <- eigen(P)[[2]]
+#   
+#   print("Eigenvalues")
+#   print(E)
+#   
+#   if(length(unique(E)) != length(E)) {
+#     warning("Matrix does not have distinct eigenvalues")
+#   }
+#   
+#   L <- abs(log(d))
+#   addigs <- 2 + round(log10(kappa(B))) + round(L/log(10))
+#   
+#   if(options()$digits < odigs + addigs) {
+#     if(odigs + addigs > 100) {
+#       print("Eigenvector matrix is singular")
+#       return(NULL)
+#     }
+#     
+#     cat('Going to', odigs + addigs, "digits")
+#     return(`generator/generator`(Po, odigs + addigs, odigs))
+#   }
+#   
+#   Bi <- solve(B)
+#   
+#   posevs <- NULL
+#   negevs <- NULL
+#   bestj <- 1
+#   marks <- rep(TRUE, length(E))
+#   
+#   for(i in 1:length(E)) { 
+#     if(marks[i] && E[i] <= 0) {
+#       cj <- Conj(E[i])
+#       best <- Inf
+#       if(i+1 <= length(E)) {
+#         for(j in (i+1):length(E)) {
+#           if(marks[j]) {
+#             score <- abs(cj-E[j])
+#             if(score < best) {
+#               best <- score
+#               bestj <- j
+#             }
+#           }
+#         }
+#       }
+#       
+#       if(best > 10^(3-options()$digits)) {
+#         cat("Unpaired non-positive eigenvalue", E[i])
+#         return(NULL)
+#       }
+#       marks[bestj] <- FALSE
+#       if(Im(E[i]) >= 0) {
+#         posevs <- c(posevs, i)
+#         negevs <- c(negevs, bestj)
+#         if(Im(E[bestj]) == 0) {
+#           E[bestj] <- complex(real = E[bestj], imaginary = 0)
+#         }
+#       } else {
+#         posevs <- c(posevs, bestj)  
+#         negevs <- c(negevs, i)
+#         if(Im(E[i]) == 0) {
+#           E[i] <- complex(real = E[i], imaginary = 0)
+#         }
+#       }
+#     }
+#   }
+#   
+#   npairs <- length(posevs)
+#   # display conjugate pairs
+#   
+#   Kmax <- rep(0, npairs)
+#   Kmin <- Kmax
+#   
+#   for(i in 1:npairs) {
+#     a <- Arg(E[posevs[i]])
+#     Kmax[i] <- trunc((L-a)/2*pi)
+#     Kmin[i] <- trunc((-L-a)/2*pi)
+#   }
+#   
+#   # display K-max
+#   # display K-min
+#   
+#   best <- -0.001
+#   DD <- diag(log(E))
+#   Dk <- matlab::zeros(N)
+#   res <- NULL
+#   while(`generator/nextk`(k, Kmin, Kmax)) {
+#     # diaply value of k
+#     for(i in 1:npairs) {
+#       
+#     }
+#   }
+# }
+# 
+# generator <- function(Po, digits = 10) {
+#   odigs <- digits
+#   options(digits = 15)
+#   if(is.matrix(Po)) {
+#     P <- Po
+#   } else {
+#     stop("Po must be matrix")
+#   }
+#   
+#   if(nrow(P) != ncol(P)) {
+#     print(P)
+#     stop('Po must be square matrix')
+#   }
+#   
+#   if(! all(P >= 0)) {
+#     print(P)
+#     stop('Po must be non negative square matrix')
+#   }
+#   
+#   `generator/generator`(P, options()$digits, odigs)
+# }

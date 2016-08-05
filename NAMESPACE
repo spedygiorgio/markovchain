@@ -7,7 +7,7 @@ importFrom(Rcpp, evalCpp)
 importFrom(RcppParallel, RcppParallelLibs)
 importFrom("stats4",  plot, summary)
 importFrom("matlab", zeros, find, eye, size, ones)
-importFrom("expm",'%^%','expm','logm')
+importFrom("expm",'%^%','logm')
 importFrom("stats", sd,rexp,chisq.test,pchisq, predict)
 
 exportMethods(

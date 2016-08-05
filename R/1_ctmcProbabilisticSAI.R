@@ -44,3 +44,27 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.t
   else
     stop("Not a valid output type")
 }
+
+
+#' @title Return the generator matrix for a corresponding transition matrix
+#'
+#' @param P transition matrix between time 0 and t
+#' @param t time of observation
+#' @param method "logarithm" returns the Matrix logarithm of the transition matrix
+#'
+#' @return A matrix that represent the generator of P
+#' @export
+#'
+#' @examples
+#' 
+#' mymatr<-matrix(c(.4,.6,.1,.9),nrow=2, byrow=TRUE)
+#' Q=transition2Generator(P = myMc@transitionMatrix)
+#' expm(Q)
+#'  
+#' @seealso \code{\link{rctmc}}
+transition2Generator<-function(P, t=1,method="logarithm") {
+  if (method=="logarithm") {
+    Q=logm(P)/t
+  } #else 
+  return(Q)
+}

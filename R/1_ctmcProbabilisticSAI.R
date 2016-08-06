@@ -70,7 +70,37 @@ transition2Generator<-function(P, t=1,method="logarithm") {
   return(Q)
 }
 
-# generator method
+# `generator/nextki` <- function(k) {
+#   if(k >= 0) return(-1-k)
+#   return(-k)
+# }
+# 
+# `generator/nextk` <- function(k, Kmin, Kmax) {
+#   if(is.null(k)) {
+#     k <- rep(0, length(Kmin))
+#     return(list(ans = TRUE, k = k))
+#   }
+#   
+#   if(length(Kmin) == 0) {
+#     return(list(ans = FALSE, k = k))
+#   }
+#   
+#   i <- 1
+#   kl <- k
+#   kl[i] <- `generator/nextki`(kl[i])
+#   while (kl[i] > Kmax[i] || kl[i] < Kmin[i]) {
+#     kl[i] <- 0
+#     i <- i+1
+#     if(i > length(kl)) {
+#       k <- kl
+#       return(list(ans = FALSE, k = k))
+#     }
+#     kl[i] <- `generator/nextki`(kl[i])
+#   }
+#   k <- kl
+#   return(list(ans = TRUE, k = k))
+# }
+# 
 # `generator/generator` <- function(Po, Di, odi) {
 #   P <- Po
 #   N <- nrow(P)
@@ -104,12 +134,13 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   print("Eigenvalues")
 #   print(E)
 #   
+#   # risky 
 #   if(length(unique(E)) != length(E)) {
 #     warning("Matrix does not have distinct eigenvalues")
 #   }
 #   
 #   L <- abs(log(d))
-#   addigs <- 2 + round(log10(kappa(B))) + round(L/log(10))
+#   addigs <- 2 + round(log10(1/Matrix::rcond(B))) + round(L/log(10)) # problem
 #   
 #   if(options()$digits < odigs + addigs) {
 #     if(odigs + addigs > 100) {
@@ -129,7 +160,7 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   marks <- rep(TRUE, length(E))
 #   
 #   for(i in 1:length(E)) { 
-#     if(marks[i] && E[i] <= 0) {
+#     if(marks[i] && !(Re(E[i]) > 0 && Im(E[i]) == 0)) { # invalid comparison of complex number
 #       cj <- Conj(E[i])
 #       best <- Inf
 #       if(i+1 <= length(E)) {
@@ -182,13 +213,25 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   
 #   best <- -0.001
 #   DD <- diag(log(E))
-#   Dk <- matlab::zeros(N)
+#   DK <- matlab::zeros(N)
 #   res <- NULL
-#   while(`generator/nextk`(k, Kmin, Kmax)) {
-#     # diaply value of k
+#   k <- NULL
+#   while(TRUE) {
+#     
+#     dlist <- `generator/nextk`(k, Kmin, Kmax)
+#     k <- dlist$k
+#     
+#     if(dlist$ans == FALSE) {break}
+#     
+#     # display value of k
 #     for(i in 1:npairs) {
-#       
+#       ke <- complex(real = 0, imaginary = 2*pi*k[i])
+#       DK[posevs[i], posevs[i]] <- ke
+#       DK[negevs[i], negevs[i]] <- -ke
 #     }
+#     
+#     Q <- B %*% (DD + DK) %*% Bi
+#     
 #   }
 # }
 # 

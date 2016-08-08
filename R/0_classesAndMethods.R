@@ -341,7 +341,8 @@ setValidity("markovchain",
 #' @seealso \code{\linkS4class{markovchain}}
 #' 
 #' @note The steady states are identified starting from which eigenvectors correspond 
-#'       to identity eigenvalues and then normalizing them to sum up to unity.
+#'       to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
+#'       in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
 #'       
 #' @examples 
 #' statesNames <- c("a", "b", "c")
@@ -365,11 +366,20 @@ setMethod("steadyStates","markovchain",
 			}
       
 			out <- .mcEigen(matr = object@transitionMatrix, transpose = transposeYN)
+			
+			# if any element negative
+			if (min(out)<0) {
+			  warning("Negative elements in steady states, working on closed classes submatrix")
+			  if(object@byrow==TRUE) myObject=object else myObject=t(object)
+			  out <- .steadyStatesByRecurrentClasses(object=myObject)
+			  if (object@byrow==FALSE) out<-t(out)
+			}
       
 			if(is.null(out)) {
 				warning("Warning! No steady state")
 				return(NULL)
 			}
+		
 			
 			if(transposeYN == TRUE) { 
 				colnames(out) <- object@states
@@ -380,6 +390,38 @@ setMethod("steadyStates","markovchain",
       return(out)
     }
 )
+
+
+
+
+#' @title steadyStatesByRecurrent classes
+#' 
+#' @description Function to extract steady states when needed
+#' Only recurrent closed classes are considered 
+#' @author Christope Dutang and Giorgio Spedicato
+#' @return A matrix
+.steadyStatesByRecurrentClasses<-function(object) {
+  #inizialization
+  M<-object@transitionMatrix
+  #transpose bycol matrices
+  if (object@byrow==FALSE) M <- t(M)
+  namesSequence<-names(object)
+  #characterizin recurrent classes
+  recClasses<-recurrentClasses(object)
+  numRecClasses<-length(recClasses)
+  recurrentClassesNames<-unlist(recClasses)
+  #extracting recurrent classes
+  Msub <- M[rownames(M) %in% recurrentClassesNames, colnames(M) %in% recurrentClassesNames]
+  
+  out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
+  colnames(out)<-names(object)
+  #getting their steady states
+  partialOutput<-t(eigen(Msub)$vectors[,eigen(Msub)$values == 1]) / colSums(eigen(Msub)$vectors[,eigen(Msub)$values == 1])
+  colnames(partialOutput)<-recurrentClassesNames
+  #allocating to their columns
+  out[,colnames(out) %in% recurrentClassesNames]<-partialOutput
+  return(out)
+}
 
 
 # generic function to extract absorbing states

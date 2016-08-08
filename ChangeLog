@@ -1,5 +1,7 @@
-17-07-2016
-Version 0.5.0.1
+08-08-2016
+Version 0.6
+Added multivariate higher order markov chains
+Better handlign of steady state analysis on non - recurrent Markov Chains
 Fixed an error in the igraph conversion
 08-07-2016
 Fixed C++ 11 variables types

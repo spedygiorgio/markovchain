@@ -210,7 +210,8 @@ setMethod("show", "hommc",
 #' @description Given a matrix of categorical sequences it fits 
 #'              Higher Order Multivariate Markov chain.
 #'
-#' @param seqMat a matrix where each row is a categorical sequence
+#' @param seqMat a matrix or a data frame where each column 
+#'               is a categorical sequence
 #' @param order Multivariate Markov chain order. Default is 2.
 #' @param Norm Norm to be used. Default is 2.
 #' 
@@ -219,7 +220,7 @@ setMethod("show", "hommc",
 #' @examples 
 #' data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1', 
 #'                c('2', '4', '4', '4', '4', '2', '3', '3', '1', '4', '3', '3')), 
-#'                nrow = 2, byrow = TRUE)
+#'                ncol = 2, byrow = FALSE)
 #'                
 #' fitHighOrderMultivarMC(data, order = 2, Norm = 2)                
 #' 
@@ -231,6 +232,13 @@ setMethod("show", "hommc",
 fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   
   message("This function is experimental")
+  
+  if(class(seqMat) == "data.frame") {
+    seqMat <- as.matrix(seqMat)
+  }
+  
+  seqMat <- t(seqMat)
+  
   # array of transition matrices
   allTmat <- .allTransMat(seqMat, order = order)
   

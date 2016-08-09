@@ -1775,7 +1775,7 @@ hob
 \code{fitHighOrderMultivarMC} method is available to fit HOMMC. Below are the 3 parameters of this method.
 
 \begin{enumerate}
-  \item {seqMat}: a character matrix, each row represents a categorical sequence.
+  \item {seqMat}: a character matrix or a data frame, each column represents a categorical sequence.
   \item {order}: order of Multivariate Markov chain. Default is 2.
   \item {Norm}: Norm to be used. Default is 2.
 \end{enumerate}

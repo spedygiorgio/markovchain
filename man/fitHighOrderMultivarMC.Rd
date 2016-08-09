@@ -7,7 +7,8 @@
 fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
 }
 \arguments{
-\item{seqMat}{a matrix where each row is a categorical sequence}
+\item{seqMat}{a matrix or a data frame where each column 
+is a categorical sequence}
 
 \item{order}{Multivariate Markov chain order. Default is 2.}
 
@@ -23,7 +24,7 @@ Given a matrix of categorical sequences it fits
 \examples{
 data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1', 
                c('2', '4', '4', '4', '4', '2', '3', '3', '1', '4', '3', '3')), 
-               nrow = 2, byrow = TRUE)
+               ncol = 2, byrow = FALSE)
                
 fitHighOrderMultivarMC(data, order = 2, Norm = 2)                
 

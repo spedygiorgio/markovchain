@@ -104,6 +104,8 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 # `generator/generator` <- function(Po, Di, odi) {
 #   P <- Po
 #   N <- nrow(P)
+#   
+#   if(Di > 22) return(NULL) # bad idea
 #   options(digits = Di)
 #   odigs <- odi
 #   
@@ -124,7 +126,7 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   for(i in 1:nrow(P)) diagP <- diagP * P[i, i]
 #   
 #   if(d >= diagP) {
-#     cat("Determinant exceeds product of diagonal elements")
+#     cat("Determinant exceeds product of diagonal elements\n")
 #     return(NULL)
 #   }
 #   
@@ -156,7 +158,8 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   
 #   posevs <- NULL
 #   negevs <- NULL
-#   bestj <- 1
+#   bestj <- NULL
+#   bestQ <- NULL
 #   marks <- rep(TRUE, length(E))
 #   
 #   for(i in 1:length(E)) { 
@@ -165,16 +168,16 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #       best <- Inf
 #       if(i+1 <= length(E)) {
 #         for(j in (i+1):length(E)) {
-#           if(marks[j]) {
-#             score <- abs(cj-E[j])
-#             if(score < best) {
-#               best <- score
-#               bestj <- j
-#             }
-#           }
+#          if(marks[j]) {
+#            score <- abs(cj-E[j])
+#            if(score < best) {
+#              best <- score
+#              bestj <- j
+#            }
+#          }
 #         }
 #       }
-#       
+#         
 #       if(best > 10^(3-options()$digits)) {
 #         cat("Unpaired non-positive eigenvalue", E[i])
 #         return(NULL)
@@ -214,7 +217,7 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #   best <- -0.001
 #   DD <- diag(log(E))
 #   DK <- matlab::zeros(N)
-#   res <- NULL
+#   res <- list(); p <- 1
 #   k <- NULL
 #   while(TRUE) {
 #     
@@ -231,8 +234,53 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #     }
 #     
 #     Q <- B %*% (DD + DK) %*% Bi
+#     # Q <- fnormal(Re(Q), options()$digits, 5*(10^(-1-odigs))) # define fnormal of maple
+#     qmin <- Q[1,2]
+#     for(i in 1:N) {
+#       for(j in 1:N) {
+#         if(i != j) {
+#           if(Q[i, j] < qmin) qmin <- Q[i, j]
+#         }
+#       }
+#     }
 #     
+#     if(EnvAllGenerators == TRUE) {
+#       if(qmin > -.001) {
+#         cat("Possible generator with qmin =", qmin)
+#         res[[p]] <- round(Q, odigs)
+#         p <- p + 1  
+#       } else {
+#         cat("qmin =", qmin)  
+#       }
+#       
+#     } else {
+#       if(qmin >= 0) {
+#         cat("Found a generator")
+#         return(round(Q, odigs))
+#       } else {
+#         if(qmin > best) {
+#           best <- qmin
+#           bestQ <- Q
+#         }
+#         if(qmin > -.001) {
+#           cat("Approximate generator with qmin = ", qmin)
+#         } else {
+#           cat("qmin =", qmin)
+#         }
+#       }
+#     }
 #   }
+#   
+#   if(EnvAllGenerators == TRUE) {
+#     return(res)
+#   }
+#   
+#   warning("No completely valid generator found")
+#   
+#   if(! is.null(bestQ)) {
+#     return(round(bestQ, odigs))
+#   } else return(NULL)
+#   
 # }
 # 
 # generator <- function(Po, digits = 10) {

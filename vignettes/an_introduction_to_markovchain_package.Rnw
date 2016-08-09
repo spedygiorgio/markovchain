@@ -1465,7 +1465,7 @@ data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"),
 ctmcFit(data)
 @
 
-One approach to obtain the generator matrix is to apply the \code{logm} function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see [@israel2001finding]. For example, applying the standard \code{method} ('Higham08') on \code{mcWeather} raises an error, whilst the alternative method (eigenvalue decomposition) is ok. The following code estimates the generator matrix of the \code{mcWeather} transition matrix.
+One approach to obtain the generator matrix is to apply the \code{logm} function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see \cite{israel2001finding}. For example, applying the standard \code{method} ('Higham08') on \code{mcWeather} raises an error, whilst the alternative method (eigenvalue decomposition) is ok. The following code estimates the generator matrix of the \code{mcWeather} transition matrix.
 
 <<mcWeatherQ, keep.source=TRUE>>=
 mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
@@ -1476,7 +1476,7 @@ Therefore, the "half - day" transition probability for mcWeather DTMC is
 
 <<mcWeatherHalfDay, keep.source=TRUE>>=
 mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
-mcWeatherHalfDay <-new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
+mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
 mcWeatherHalfDay
 @
 

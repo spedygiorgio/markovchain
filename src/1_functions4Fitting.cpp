@@ -845,12 +845,121 @@ List _fromBoot2Estimate(List listMatr) {
   return List::create(_["estMu"] = matrMean, _["estSigma"] = matrSd);
 }
 
+struct BootstrapList : public Worker {
+  
+  // transition matrix
+  const RMatrix<double> input;
+  
+  // unique states
+  const vector<string> states;
+  
+  // length of sequence
+  const int len;
+  
+  // list of new sequences
+  list<vector<string> > output;
+  
+  // constructor
+  BootstrapList(const NumericMatrix input, const vector<string> states, const int len) : 
+    input(input), states(states), len(len) {}
+  
+  BootstrapList(const BootstrapList& bsList, Split) : 
+    input(bsList.input), states(bsList.states), len(bsList.len) {}
+  
+  // generate (end-begin) sequences
+  void operator()(std::size_t begin, std::size_t end) {
+    
+    // number of unique states
+    unsigned int n = states.size();
+    
+    // initial probability vector
+    arma::vec iprobs(n); 
+    
+    // probability vector (can be any row of transition matrix)
+    arma::vec probs(n);
+    
+    // unique states indices
+    arma::vec ustates(n); 
+    
+    // initialization
+    for(unsigned int i = 0;i < n;i++) {
+      iprobs[i] = 1.0/n;
+      ustates[i] = i;
+    }
+    
+    // to store new state generated
+    arma::vec istate;
+    
+    // every time generate one sequence
+    for(unsigned int p = begin; p < (unsigned int)end;p++) {
+      
+      // randomly select starting state
+      vector<string> result(len);
+      istate = rsample(ustates, 1, false, iprobs);
+      result[0] = states[istate[0]];
+      
+      // given a present state generate a future state
+      for(unsigned int j = 1; j < (unsigned int)len;j++) {
+        
+        // row vector corresponding to state istate[0]
+        for(unsigned int k = 0;k < (unsigned int)n;k++) {
+          probs[k] = input(istate[0], k);
+        }
+        
+        // select future state
+        istate = rsample(ustates, 1, false, probs);
+        result[j] = states[istate[0]];
+      }
+      
+      // populate a sequence
+      output.push_back(result);
+    }
+  }
+  
+  void join(const BootstrapList& rhs) {
+    
+    // constant iterator to the first element of rhs.output  
+    list<vector<string> >::const_iterator it = rhs.output.begin();
+    
+    // merge the result of two parallel computation
+    for(;it != rhs.output.end();it++) {
+      output.push_back(*it);
+    }
+    
+  }
+  
+};
+
+List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, long int size = -1, 
+                                  CharacterVector possibleStates = CharacterVector()) {
+  // store length of sequence
+  if(size == -1) {
+    size = stringchar.size();  
+  }
+  
+  // frequency matrix
+  NumericMatrix contingencyMatrix = createSequenceMatrix(stringchar, true, true, possibleStates);
+  
+  // state names
+  vector<string> itemset = as<vector<string> >(rownames(contingencyMatrix));
+  
+  
+  // number of distinct states
+  int itemsetsize = itemset.size();
+  
+   BootstrapList bsList(contingencyMatrix, itemset, size);
+   parallelReduce(0, n, bsList);
+  
+   return wrap(bsList.output);
+}
+
 // Fit DTMC using bootstrap method
 List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false,
                      CharacterVector possibleStates = CharacterVector()) {
   
   // list of sequence generated using given sequence
-  List theList = _bootstrapCharacterSequences(data, nboot, data.size());
+  List theList = (parallel) ? _bootstrapCharacterSequencesParallel(data, nboot, data.size()) : 
+                 _bootstrapCharacterSequences(data, nboot, data.size());
   
   // number of new sequence
   int n = theList.size();

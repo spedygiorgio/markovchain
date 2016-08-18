@@ -1109,16 +1109,16 @@ these steps:
 
 <<fitMcbyBootStrap, keep.source=TRUE>>=
 weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
-                                    method = "bootstrap", nboot = 100)
+                                    method = "bootstrap", nboot = 20)
 weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 @
 
-The bootstrapping process can be done in \code{parallel}.
+The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Parallelized implementation is definitively suggested when the data sample size or the required number of bootstrap runs is high.
 
 <<fitMcbyBootStrap, keep.source=TRUE, eval=FALSE>>=
 weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
-                                    method = "bootstrap", nboot = 10, 
+                                    method = "bootstrap", nboot = 20, 
                                     parallel = TRUE)
 weatherFittedBOOTParallel$estimate
 weatherFittedBOOTParallel$standardError
@@ -1130,10 +1130,10 @@ Note that this should be done in R before calling the \code{markovchainFit} func
 For example, the following code will set the number of threads to 4.
 
 <<fitMcbyBootStrap, keep.source=TRUE, eval=FALSE>>=
-RcppParallel::setNumThreads(4)
+RcppParallel::setNumThreads(2)
 @
 
-For more details, please refer to \pkg{RcppParallel} (http://rcppcore.github.io/RcppParallel/).
+For more details, please refer to \pkg{RcppParallel} web site.
 
 
 For all the fitting methods, the \code{logLikelihood}~\citep{MSkuriat} denoted in Equation~\ref{eq:LLH} is provided. 

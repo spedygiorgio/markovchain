@@ -945,7 +945,7 @@ List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, lon
   
   
   // number of distinct states
-  int itemsetsize = itemset.size();
+  // int itemsetsize = itemset.size();
   
    BootstrapList bsList(contingencyMatrix, itemset, size);
    parallelReduce(0, n, bsList);

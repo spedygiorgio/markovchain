@@ -1,3 +1,5 @@
+#define STRICT_R_HEADERS
+
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 #include <ctime>

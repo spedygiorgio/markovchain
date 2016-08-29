@@ -1954,7 +1954,7 @@ We tried to replicate the example found in \cite{ching2008higher} for an applica
 
 <<hommsales, keep.source=TRUE>>=
 data(sales)
-head(t(sales))
+head(sales)
 @
 
 
@@ -2017,8 +2017,6 @@ analyze the relationship of sales demand.
 
 
 <<label=hommcFit>>=
-data("sales")
-
 # fit 8th order multivariate markov chain
 object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
 @

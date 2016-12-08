@@ -92,13 +92,16 @@ verifyMarkovProperty <- function(sequence, ...) {
         mat[i, 3] <- TSO[i] - SSO[i]
       }
       
+    }
+  }
+      
       # chi-squared test
       
       # between SSO and TSO-SSO
       table <- as.data.frame(mat[, c(1, 3)])
       
       # an object of class htest
-      res <- chisq.test(table, ...)
+      res <- chisq.test(table)
       
       # extract all information from htest object
       # and stored the result in the form of list
@@ -112,8 +115,7 @@ verifyMarkovProperty <- function(sequence, ...) {
       
       # store the result corresponding to present state and future state
       out[[paste0(present, future)]] <- res
-    }
-  }
+  
   
   return(out)
 }

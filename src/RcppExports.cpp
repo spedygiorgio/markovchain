@@ -157,6 +157,19 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// _list2Mc
+S4 _list2Mc(List data, double laplacian, bool sanitize);
+RcppExport SEXP markovchain__list2Mc(SEXP dataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
+    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
+    __result = Rcpp::wrap(_list2Mc(data, laplacian, sanitize));
+    return __result;
+END_RCPP
+}
 // inferHyperparam
 List inferHyperparam(NumericMatrix transMatr, NumericVector scale, CharacterVector data);
 RcppExport SEXP markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {

@@ -52,6 +52,10 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
     .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize)
 }
 
+.list2Mc <- function(data, laplacian = 0, sanitize = FALSE) {
+    .Call('markovchain__list2Mc', PACKAGE = 'markovchain', data, laplacian, sanitize)
+}
+
 #' @name inferHyperparam
 #' @title Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set
 #' @description Since the Bayesian inference approach implemented in the package is based on conjugate priors, 

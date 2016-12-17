@@ -13,7 +13,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   hyperparam = matrix(), sanitize = FALSE, possibleStates = character())
 }
 \arguments{
-\item{stringchar}{Equivalent to data. Either a nx2 matrix or a character vector.}
+\item{stringchar}{Equivalent to data. It can be a nx2 matrix or a character vector or a list}
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 

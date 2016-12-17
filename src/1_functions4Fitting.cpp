@@ -476,6 +476,53 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, bool sanitize = false,
                                    CharacterVector possibleStates = CharacterVector()) {
   
+  //---------------------------------------------------------------------
+  // check whether stringchar is a list or not
+  if(TYPEOF(stringchar) == VECSXP) {
+    List seqs = as<List>(stringchar);
+    CharacterVector pstates; // possiblestates
+    for(int i = 0;i < seqs.size();i++) {
+      CharacterVector tseq = unique(as<CharacterVector>(seqs[i]));
+      for(int j = 0;j < tseq.size();j++) {
+        if(tseq[j] != "NA") {
+          pstates.push_back(tseq[j]);
+        }
+      }
+    }
+    
+    for(int i = 0;i < possibleStates.size();i++) {
+      pstates.push_back(possibleStates[i]);
+    }
+    
+    pstates = unique(pstates);
+    pstates = pstates.sort();
+    int sizeMatr = pstates.size();
+    NumericMatrix freqMatrix(sizeMatr);
+    freqMatrix.attr("dimnames") = List::create(pstates, pstates);
+    
+    for(int i = 0;i < seqs.size();i++) {
+      NumericMatrix temp = createSequenceMatrix(seqs[i], false, false, pstates);
+      freqMatrix += temp;
+    }
+    
+    if(sanitize == true) {
+      for (int i = 0; i < sizeMatr; i++) {
+        double rowSum = 0;
+        for (int j = 0; j < sizeMatr; j++) 
+          rowSum += freqMatrix(i, j);
+        if(rowSum == 0)
+          for (int j = 0; j < sizeMatr; j++) 
+            freqMatrix(i, j) = 1;
+      }
+    }
+    
+    if(toRowProbs == true)
+      return _toRowProbs(freqMatrix, sanitize);
+    
+    return freqMatrix;
+  }
+  //---------------------------------------------------------------------
+  
   CharacterVector stringChar = as<CharacterVector>(stringchar);
   
   // may include missing values
@@ -1313,7 +1360,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                   default value of 1 is assigned to each parameter. This must be of size kxk 
 //'                   where k is the number of states in the chain and the values should typically 
 //'                   be non-negative integers.                        
-//' @param stringchar Equivalent to data. Either a nx2 matrix or a character vector.
+//' @param stringchar Equivalent to data. It can be a nx2 matrix or a character vector or a list
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence

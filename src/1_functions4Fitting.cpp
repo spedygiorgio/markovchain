@@ -621,78 +621,47 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   return out;
 }
 
-// Fit DTMC using MLE
-List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, bool sanitize = false, 
-               CharacterVector possibleStates = CharacterVector()) {
+List generateCI(double confidencelevel, NumericMatrix freqMatr) {
+  int sizeMatr = freqMatr.nrow();
+  // transition matrix
+  NumericMatrix initialMatr(sizeMatr, sizeMatr);
   
-  // unique states
-  CharacterVector elements = unique(union_(stringchar, possibleStates)).sort();
-  // matrix size = nrows = ncols
-  int sizeMatr = elements.size();
-  
-  // initial matrix = transition matrix
-  NumericMatrix initialMatr(sizeMatr);
-  // frequencey matrix 
-  NumericMatrix freqMatr(sizeMatr);
-  
-  // set names of states as rows name and columns name
-  initialMatr.attr("dimnames") = List::create(elements, elements); 
-
-  // populate frequency matrix
-  int posFrom = 0, posTo = 0; 
-  for(long int i = 0; i < stringchar.size() - 1; i++) {  
-    for (int j = 0; j < sizeMatr; j++) {            
-      if(stringchar[i] == elements[j]) posFrom = j;
-      if(stringchar[i + 1] == elements[j]) posTo = j;
-    }
-    
-    freqMatr(posFrom, posTo)++;
-  }
-
+  // calculation of transition matrix
   // take care of rows with all entries 0 
   for (int i = 0; i < sizeMatr; i++) {  
-  	double rowSum = 0;
-  	for (int j = 0; j < sizeMatr; j++) { 
-  	  rowSum += freqMatr(i, j);
-  	}
-  		
-  	// calculate rows probability
-  	for (int j = 0; j < sizeMatr; j++) { 
-  	  if(rowSum == 0) {
-  	    initialMatr(i, j) = (sanitize ? 1.0/sizeMatr : 0);
-  	  }
-  	  else {
-  	    initialMatr(i, j) = freqMatr(i, j)/rowSum;
-  	  }
-  	}
+    double rowSum = 0;
+    for (int j = 0; j < sizeMatr; j++) { 
+      rowSum += freqMatr(i, j);
+    }
+    
+    // calculate rows probability
+    for (int j = 0; j < sizeMatr; j++) { 
+      if(rowSum == 0) {
+        initialMatr(i, j) = 1.0/sizeMatr;
+      }
+      else {
+        initialMatr(i, j) = freqMatr(i, j)/rowSum;
+      }
+    }
   }
-
-  // transpose the matrix if byrow is false
-  if(byrow == false) {
-    initialMatr = _transpose(initialMatr); 
-  }
-
+  
+  // matrix to store end results
+  NumericMatrix lowerEndpointMatr(sizeMatr, sizeMatr);
+  NumericMatrix upperEndpointMatr(sizeMatr, sizeMatr);
+  NumericMatrix standardError(sizeMatr, sizeMatr);
+  
   // z score for given confidence interval
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
   
-  // store dimension of matrix
-  int nrows = initialMatr.nrow();
-  int ncols = initialMatr.ncol();
-  
-  // matrix to store end results
-  NumericMatrix lowerEndpointMatr(nrows, ncols);
-  NumericMatrix upperEndpointMatr(nrows, ncols);
-  NumericMatrix standardError(nrows, ncols);
-
   // populate above defined matrix 
   double marginOfError, lowerEndpoint, upperEndpoint;
-  for(int i = 0; i < nrows; i++) {
-    for(int j = 0; j < ncols; j++) {
+  for(int i = 0; i < sizeMatr; i++) {
+    for(int j = 0; j < sizeMatr; j++) {
       if(freqMatr(i, j) == 0) {
         
         // whether entire ith row is zero or not
         bool notrans = true;
-        for(int k = 0; k < ncols; k++) {
+        for(int k = 0; k < sizeMatr; k++) {
           
           // if entire ith row is not zero then set notrans to false  
           if(freqMatr(i, k) != 0) {
@@ -727,19 +696,64 @@ List _mcFitMle(CharacterVector stringchar, bool byrow, double confidencelevel, b
   
   // set the rows and columns name as states names
   standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
-          = lowerEndpointMatr.attr("dimnames") = List::create(elements, elements); 
+    = lowerEndpointMatr.attr("dimnames") = freqMatr.attr("dimnames");
+  
+  return List::create(_["standardError"] = standardError,
+                      _["confidenceInterval"] = List::create(_["confidenceLevel"] = confidencelevel, 
+                                           _["lowerEndpointMatrix"] = lowerEndpointMatr, 
+                                           _["upperEndpointMatrix"] = upperEndpointMatr)							
+  );
+}
 
+// Fit DTMC using MLE
+List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = false, 
+               CharacterVector possibleStates = CharacterVector()) {
+  
+  NumericMatrix freqMatr = createSequenceMatrix(data, false, false, possibleStates);
+  
+  // matrix size = nrows = ncols
+  int sizeMatr = freqMatr.nrow();
+  
+  // initial matrix = transition matrix
+  NumericMatrix initialMatr(sizeMatr);
+  
+  // set names of states as rows name and columns name
+  initialMatr.attr("dimnames") = freqMatr.attr("dimnames");
+
+  // take care of rows with all entries 0 
+  for (int i = 0; i < sizeMatr; i++) {  
+  	double rowSum = 0;
+  	for (int j = 0; j < sizeMatr; j++) { 
+  	  rowSum += freqMatr(i, j);
+  	}
+  		
+  	// calculate rows probability
+  	for (int j = 0; j < sizeMatr; j++) { 
+  	  if(rowSum == 0) {
+  	    initialMatr(i, j) = (sanitize ? 1.0/sizeMatr : 0);
+  	  }
+  	  else {
+  	    initialMatr(i, j) = freqMatr(i, j)/rowSum;
+  	  }
+  	}
+  }
+
+  // transpose the matrix if byrow is false
+  if(byrow == false) {
+    initialMatr = _transpose(initialMatr); 
+  }
+  
   // create markov chain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = initialMatr;
   outMc.slot("name") = "MLE Fit";  
   
+  List CI = generateCI(confidencelevel, freqMatr);
+  
   // return a list of important results
   return List::create(_["estimate"] = outMc,
-                      _["standardError"] = standardError,
-		                  _["confidenceInterval"] = List::create(_["confidenceLevel"] = confidencelevel, 
-		                                                         _["lowerEndpointMatrix"] = lowerEndpointMatr, 
-		                                                         _["upperEndpointMatrix"] = upperEndpointMatr)							
+                      _["standardError"] = CI[0],
+		                  _["confidenceInterval"] = CI[1]
 	       );
 }
 
@@ -1522,12 +1536,11 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
    	out = List::create(_["estimate"] = outMc);
   } 
   else if(TYPEOF(data) == VECSXP) { 
-    S4 outMc = _list2Mc(as<List>(data), laplacian, sanitize);
-    out = List::create(_["estimate"] = outMc);
+    out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
   }
   else {    
     if(method == "mle") {
-      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates); 
+      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
     }
     
     if(method == "bootstrap") {

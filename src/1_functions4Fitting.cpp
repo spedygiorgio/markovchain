@@ -699,10 +699,9 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
     = lowerEndpointMatr.attr("dimnames") = freqMatr.attr("dimnames");
   
   return List::create(_["standardError"] = standardError,
-                      _["confidenceInterval"] = List::create(_["confidenceLevel"] = confidencelevel, 
-                                           _["lowerEndpointMatrix"] = lowerEndpointMatr, 
-                                           _["upperEndpointMatrix"] = upperEndpointMatr)							
-  );
+                      _["confidenceLevel"] = confidencelevel, 
+                      _["lowerEndpointMatrix"] = lowerEndpointMatr, 
+                      _["upperEndpointMatrix"] = upperEndpointMatr);
 }
 
 // Fit DTMC using MLE
@@ -753,7 +752,9 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   // return a list of important results
   return List::create(_["estimate"] = outMc,
                       _["standardError"] = CI[0],
-		                  _["confidenceInterval"] = CI[1]
+                      _["confidenceLevel"] = CI[1],
+                      _["lowerEndpointMatrix"] = CI[2],
+                      _["upperEndpointMatrix"] = CI[3]
 	       );
 }
 

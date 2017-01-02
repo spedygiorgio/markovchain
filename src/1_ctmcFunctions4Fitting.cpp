@@ -62,7 +62,10 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   outCtmc.slot("name") = name;
   
   return List::create(_["estimate"] = outCtmc,
-                      _["errors"] = List::create(_["dtmcConfidenceInterval"] = dtmcData["confidenceInterval"],
+                      _["errors"] = List::create(_["dtmcConfidenceInterval"] = List::create(
+                                                 _["confidenceLevel"] = dtmcData["confidenceLevel"],
+                                                 _["lowerEndpointMatrix"] = dtmcData["lowerEndpointMatrix"],
+                                                 _["upperEndpointMatrix"] = dtmcData["upperEndpointMatrix"]),
                       _["lambdaConfidenceInterval"] = List::create(_["lowerEndpointVector"] = lowerConfVecLambda,
                       _["upperEndpointVector"] = upperConfVecLambda)));
 }

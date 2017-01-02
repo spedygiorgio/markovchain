@@ -54,7 +54,7 @@ test_that("Fit should satisfy", {
   expect_equal((mcFit["logLikelihood"])[[1]], log(1/3) + 2*log(2/3))
   expect_equal(markovchainFit(data = sequence2, method = "bootstrap")["confidenceInterval"]
                [[1]]["confidenceLevel"][[1]], 0.95)
-  expect_equal(mcFit2$confidenceInterval$upperEndpointMatrix, matrix(c(0,1,1,0), nrow = 2, byrow = TRUE,
+  expect_equal(mcFit2$upperEndpointMatrix, matrix(c(0,1,1,0), nrow = 2, byrow = TRUE,
                                                 dimnames = list(c("a", "b"), c("a", "b"))))
 })
 
@@ -64,16 +64,16 @@ bigmcFit <- markovchainFit(bigseq)
 
 test_that("MC Fit for large sequence 1", {
   expect_equal(bigmcFit$logLikelihood, 0)
-  expect_equal(bigmcFit$confidenceInterval$confidenceLevel, 0.95)
-  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
+  expect_equal(bigmcFit$confidenceLevel, 0.95)
+  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
 })
 
 bigmcFit <- markovchainFit(bigseq, sanitize = TRUE)
 
 test_that("MC Fit for large sequence 2", {
   expect_equal(bigmcFit$logLikelihood, 0)
-  expect_equal(bigmcFit$confidenceInterval$confidenceLevel, 0.95)
-  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$confidenceInterval$upperEndpointMatrix)
+  expect_equal(bigmcFit$confidenceLevel, 0.95)
+  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
 })
 
 ### Markovchain Fitting For dataframe or matrix as an input

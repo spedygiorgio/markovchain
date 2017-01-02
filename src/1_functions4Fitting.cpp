@@ -1534,8 +1534,17 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	}
   	
    	S4 outMc =_matr2Mc(mat, laplacian, sanitize);
-   	out = List::create(_["estimate"] = outMc);
-  } 
+  	
+  	// convert matrix to list
+  	int nrows = mat.nrow();
+  	List manyseq(nrows);
+  	for(int i = 0;i < nrows;i++) {
+  	  manyseq[i] = mat(i,_);
+  	}
+  	
+  	out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
+   	out[0] = outMc;
+  }
   else if(TYPEOF(data) == VECSXP) { 
     out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
   }

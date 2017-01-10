@@ -1081,7 +1081,7 @@ An issue occurs when the sample contains only one realization of a state (say $X
 distribution of the transition). In this case the estimated transition matrix is
 corrected assuming $p_{\beta,j}=1/k$, being $k$ the possible states.
 
-Create sequence matrix can also be used to obtain transition matrices from a given $n*2$ matrix as the following example shows:
+Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
 
 <<fitSequenceMatrix2, keep.source=TRUE>>=
 myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2)
@@ -1178,17 +1178,31 @@ multinomialConfidenceIntervals(transitionMatrix =
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
 
-Is is also possible to fit a DTMC or a \code{markovchainList} object 
+Is is also possible to fit a DTMC object 
 from \code{matrix} or \code{data.frame} objects as shown in following code.
 
 <<fitMclists, keep.source=TRUE>>=
 data(holson)
 singleMc<-markovchainFit(data=holson[,2:12],name="holson")
+@
+
+The same applies for \code{markovchainList}.
+
+<<fitMclistsFit, keep.source=TRUE>>=
 mcListFit<-markovchainListFit(data=holson[,2:6],name="holson")
 mcListFit$estimate
 @
 
+Finally, given a \code{list} object, it is possible to fit a \code{markovchain} object or to obtain the raw transition matrix.
 
+<<fitMclistsFit, keep.source=TRUE>>=
+a1<-sample(letters[1:3],size = 100,replace = T)
+a2<-sample(letters[1:3],size = 20,replace = T)
+a3<-sample(letters[1:3],size = 50,replace = T)
+mylist<-list(a1,a2,a3)
+mylistMc<-markovchainFit(data=a1)
+mylistMc
+@
 
 
 The maximum a posteriori method (MAP) has been implemented using Bayesian inference \citep{sch}. For details on usage, refer to the stand-alone vignette for MAP \citep{MAPmcR}.

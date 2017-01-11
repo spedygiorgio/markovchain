@@ -621,6 +621,50 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   return out;
 }
 
+// [[Rcpp::export(.mcListFitForList)]]
+List mcListFitForList(List data) {
+  
+  int l = data.size(); // length of list
+  
+  // pair of length and index
+  // length of sequence data[index]
+  vector<pair<int, int> > length_seq(l);
+  
+  for(int i = 0;i < l;i++) {
+    CharacterVector temp = as<CharacterVector>(data[i]);
+    length_seq[i] = make_pair(temp.size(), i);
+  }
+  
+  // increasing order of the length of sequence in the list
+  sort(length_seq.begin(), length_seq.end());
+  
+  int i = 1; // ith transition
+  int j = 0; // start from least length sequence
+  
+  List out; // to store result
+  
+  while(j < l) {
+    int len = length_seq[j].first;
+    if(i < len) {
+      // transition from (i-1)th to ith
+      CharacterMatrix temp(l-j, 2);
+      for(int k = j;k < l;k++) {
+        temp(k-j, 0) = (as<CharacterVector>(data[length_seq[k].second]))[i-1];
+        temp(k-j, 1) = (as<CharacterVector>(data[length_seq[k].second]))[i];
+      }
+      
+      // frequency matrix
+      out.push_back(createSequenceMatrix(temp, false, true));
+      i++;
+      
+    } else {
+      j++;
+    }
+  }
+  
+  return out;
+}
+
 List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   int sizeMatr = freqMatr.nrow();
   // transition matrix

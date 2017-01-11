@@ -578,7 +578,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
 #' estimating transitions from the n samples given by consecutive column pairs.
 #' 
-#' @param data Either a matrix or a data.frame object.
+#' @param data Either a matrix or a data.frame or a list object.
 #' @param laplacian Laplacian correction (default 0).
 #' @param byrow Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.
 #' @param name Optional name.
@@ -599,8 +599,45 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   
   # check the format of input data
-  if (!any((class(data) %in% c("data.frame", "matrix")))) {
-    stop("Error: data must be either a matrix or a data.frame")  
+  if (!any((class(data) %in% c("data.frame", "matrix", "list")))) {
+    stop("Error: data must be either a matrix or a data.frame or a list")
+  }
+  
+  if(is.list(data)) {
+    markovchains <- list()
+    # list of frquency matrix
+    out <- .mcListFitForList(data)
+    l <- length(out)
+    
+    # no transition at all
+    if(l == 0) {
+      return(markovchains)
+    }
+    
+    for(i in 1:l) {
+      freqMatrix <- out[[i]]
+      # add laplacian correction
+      freqMatrix <- freqMatrix + laplacian
+      rSums <- rowSums(freqMatrix)
+      # transition matrix
+      tMatrix <- freqMatrix / rSums;
+      
+      estMc <- new("markovchain", transitionMatrix = tMatrix)
+      markovchains[[i]] <- estMc
+    }
+    
+    # create markovchainList object
+    outMcList <- new("markovchainList", markovchains = markovchains)
+    
+    # wrap the object in a list
+    result <- list(estimate = outMcList)
+    
+    # set the name of markovchainList object as given in the argument
+    if(!missing(name)) {
+      result$estimate@name <- name 
+    }
+    
+    return(result)
   }
   
   # if input is data frame convert it to matrix

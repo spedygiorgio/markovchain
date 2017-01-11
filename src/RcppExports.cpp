@@ -144,6 +144,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// mcListFitForList
+List mcListFitForList(List data);
+RcppExport SEXP markovchain_mcListFitForList(SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    __result = Rcpp::wrap(mcListFitForList(data));
+    return __result;
+END_RCPP
+}
 // _matr2Mc
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize);
 RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {

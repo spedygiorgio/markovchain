@@ -48,6 +48,10 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
     .Call('markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, possibleStates)
 }
 
+.mcListFitForList <- function(data) {
+    .Call('markovchain_mcListFitForList', PACKAGE = 'markovchain', data)
+}
+
 .matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE) {
     .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize)
 }

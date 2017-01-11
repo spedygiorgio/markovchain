@@ -7,7 +7,7 @@
 markovchainListFit(data, byrow = TRUE, laplacian = 0, name)
 }
 \arguments{
-\item{data}{Either a matrix or a data.frame object.}
+\item{data}{Either a matrix or a data.frame or a list object.}
 
 \item{byrow}{Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.}
 

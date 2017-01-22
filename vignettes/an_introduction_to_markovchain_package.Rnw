@@ -192,7 +192,7 @@ As a consequence, the relation between $x^{(1)}$ and $x^{(0)}$
 is $x^{(1)}=x^{(0)}P$ and, recursively, we get $x^{(2)}=x^{(0)}P^{2}$ and
 $x^{(n)}=x^{(0)}P^{n},\, n>0$.
 
-DTMC are explained in most theory books on stochastic processes, see \cite{bremaud1999discrete} and \cite{ching2006markov} for example. Valuable references online available are: \cite{konstantopoulos2009markov}, \cite{probBook} and \cite{bardPpt}.
+DTMC are explained in most theory books on stochastic processes, see \cite{bremaud1999discrete} and \cite{dobrow2016introduction} for example. Valuable references online available are: \cite{konstantopoulos2009markov}, \cite{probBook} and \cite{bardPpt}.
 
 
 \subsection{Properties and classification of states}\label{sec:properties}

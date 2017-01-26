@@ -603,7 +603,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
     stop("Error: data must be either a matrix or a data.frame or a list")
   }
   
-  if(is.list(data)) {
+  if(class(data) == "list") {
     markovchains <- list()
     # list of frquency matrix
     out <- .mcListFitForList(data)

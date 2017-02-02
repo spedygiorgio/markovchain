@@ -1,2 +1,2 @@
-27-01-2017 Version 0.6.6.1
-Fixing bug in markovchainListFit
+02-02-2017 Version 0.6.6.2
+Add parameter confint to markovchainFit

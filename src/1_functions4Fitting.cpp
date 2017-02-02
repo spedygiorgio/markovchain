@@ -1502,6 +1502,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param parallel Use parallel processing when performing Boostrap estimates.
 //' @param confidencelevel \deqn{\alpha} level for conficence intervals width. 
 //'                        Used only when \code{method} equal to "mle".
+//' @param confint a boolean to decide whether to compute Confidence Interval or not.                       
 //' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
 //'                   default value of 1 is assigned to each parameter. This must be of size kxk 
 //'                   where k is the number of states in the chain and the values should typically 
@@ -1510,6 +1511,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence
+//' 
+//' @details Disabling confint would lower the computation time on large datasets
 //' 
 //' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 //'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -1544,9 +1547,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @export
 //' 
 // [[Rcpp::export]]
-List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0
-            , String name = "", bool parallel = false, double confidencelevel = 0.95, NumericMatrix hyperparam
-             = NumericMatrix(), bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
+List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0,
+                String name = "", bool parallel = false, double confidencelevel = 0.95, bool confint = true, 
+                NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false, 
+                CharacterVector possibleStates = CharacterVector()) {
   
   // list to store the output
   List out;
@@ -1579,15 +1583,20 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	
    	S4 outMc =_matr2Mc(mat, laplacian, sanitize);
   	
-  	// convert matrix to list
-  	int nrows = mat.nrow();
-  	List manyseq(nrows);
-  	for(int i = 0;i < nrows;i++) {
-  	  manyseq[i] = mat(i,_);
+  	// whether to compute confidence interval or not
+  	if(confint) {
+  	  // convert matrix to list
+  	  int nrows = mat.nrow();
+  	  List manyseq(nrows);
+  	  for(int i = 0;i < nrows;i++) {
+  	    manyseq[i] = mat(i,_);
+  	  }
+  	  
+  	  out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
+  	  out[0] = outMc;  
+  	} else {
+  	  out = List::create(_["estimate"] = outMc);
   	}
-  	
-  	out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
-   	out[0] = outMc;
   }
   else if(TYPEOF(data) == VECSXP) { 
     out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);

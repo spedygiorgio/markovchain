@@ -1066,11 +1066,11 @@ weatherFittedLAPLACE <- markovchainFit(data = weathersOfDays,
 weatherFittedLAPLACE$estimate
 @
 
-
+(NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.)
 Both MLE and Laplace approach are based on the \code{createSequenceMatrix}
 functions that converts a data (character) sequence into a contingency table,
 showing the $\left( X_{t}=i, X_{t+1}=j\right)$ distribution within the sample,
-as code below shows. 
+as code below shows.
 
 <<fitSequenceMatrix, keep.source=TRUE>>=
 createSequenceMatrix(stringchar = weathersOfDays)
@@ -1178,7 +1178,7 @@ multinomialConfidenceIntervals(transitionMatrix =
 
 The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.\\
 
-Is is also possible to fit a DTMC object 
+It is also possible to fit a DTMC object 
 from \code{matrix} or \code{data.frame} objects as shown in following code.
 
 <<fitMclists, keep.source=TRUE>>=

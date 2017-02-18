@@ -341,10 +341,19 @@ assessStationarity <- function(sequence, nblocks) {
 }
 
 
-#' @rdname verifyMarkovProperty
+
+
+#' Title
+#'
+#' @param data 
+#' @param object 
+#' @param verbose 
+#'
+#' @return
 #' @export
-
-
+#'
+#' @examples
+#' 
 verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
   
   if (!class(object)=='markovchain') stop("Error! Object should belong to the markovchain class")

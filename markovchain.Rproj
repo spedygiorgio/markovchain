@@ -17,3 +17,4 @@ PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
 PackageBuildArgs: --compact-vignettes=both --resave-data
 PackageCheckArgs: --as-cran
+PackageRoxygenize: rd,collate,namespace

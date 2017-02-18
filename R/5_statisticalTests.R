@@ -3,7 +3,7 @@
 
 #helper function for checkMP
 
-.findNijPjk<-function(Nijk=Nijk, Nij=Nij, trans=transMatrix, row=1){
+.findNijPjk<-function(Nijk=Nijk, Nij=Nij, trans, row=1){
   i<-Nijk[row,1]
   j<-Nijk[row,2]
   k<-Nijk[row,3]
@@ -30,13 +30,13 @@
 #'              the order and stationarity of the Markov chain.
 #' 
 #' @param sequence An empirical sequence.
-#' @param ... Parameters for chi-square test.
+#' @param verbose Should test resuls been printed out?
 #' @param hypothetic A transition matrix for a hypothetic markov chain sequence.
 #' @param nblocks Number of blocks.
 #' 
 #' @return Verification result
 #' 
-#' @references Monika, Anderson and Goodman.
+#' @references Anderson and Goodman.
 #' 
 #' @author Tae Seung Kang, Giorgio Alfredo Spedicato
 #' 
@@ -49,16 +49,14 @@
 #' verifyMarkovProperty(sequence)
 #' assessOrder(sequence)
 #' assessStationarity(sequence, 1)
-#' divergenceTest(sequence, mcFit$estimate@transitionMatrix)
 #' 
-NULL
 
 #' @rdname verifyMarkovProperty
 #' 
 #' @export
 
 # check if the sequence holds the Markov property
-verifyMarkovProperty <- function(sequence) {
+verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   #fitting the markovchain
   
@@ -178,6 +176,12 @@ verifyMarkovProperty <- function(sequence) {
   #     
   #     # store the result corresponding to present state and future state
   #     out[[paste0(present, future)]] <- res
+  
+  if (verbose==TRUE) {
+    cat("Testing markovianity property on given data sequence\n")
+    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
+  }
+  
   
   
   return(out)
@@ -341,82 +345,48 @@ assessStationarity <- function(sequence, nblocks) {
 #' @export
 
 
-
-
-# divergence test for the hypothesized one and an empirical transition matrix from sequence
-divergenceTest <- function(sequence, hypothetic) {
-  # length of sequence
-  n <- length(sequence)
-  # frequency matrix
-  empirical <- .seq2mat(sequence)
-  # unique states as per the sequence given
-  M <- nrow(empirical)
-  v <- numeric()
-  out <- 2 * n / .phi2(1)
-  sum <- 0
-  c <- 0
-  for (i in 1:M) {
-    sum2 <- 0
-    sum3 <- 0
-    for (j in 1:M) {
-      if (hypothetic[i, j] > 0) {
-        c <- c + 1
-      }
-      sum2 <-
-        sum2 + hypothetic[i, j] * .phi(empirical[i, j] / hypothetic[i, j])
-      for (k in 2:n) {
-        if (sequence[k - 1] == rownames(empirical)[i] &&
-            sequence[k] == rownames(empirical)[j]) {
-          sum3 <- sum3 + 1
-        }
-      }
+verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
+  
+  if (!class(object)=='markovchain') stop("Error! Object should belong to the markovchain class")
+  if (missing(data) | missing(object)) stop("Error! Required inputs missing")
+  if (!(class(data) %in% c("matrix","character","numeric"))) stop("Error! Data should be either a raw transition matrix or 
+                                                                  either a character or a numeric element")
+  
+  if (class(data) %in% c("character","numeric")) data<-createSequenceMatrix(stringchar = data)
+  
+  if (length(setdiff(names(data),names(object)))>0) stop("Error! Empirical and theoretical tm have different support")
+  
+  # (possibly rearrange columns and rownames)
+  
+  data <- data[match(rownames(data),names(object)),] #matching rows
+  data <- data[,match(colnames(data),names(object))] #matching cols
+  
+  f_i_dot <-colSums(data)
+  
+  statistic <- 0
+  
+  for (i in 1:dim(object)) {
+    for (j in 1:dim(object)) {
+      if (data[i,j]>0&object[i,j]>0) statistic <- statistic + data[i,j]*log(data[i,j]/(f_i_dot[i]*object[i,j]))
     }
-    v[i] <- sum3
-    sum <- sum + ((v[i] / n) * sum2)
   }
-  TStat <- out * sum
-  pvalue <- 1 - pchisq(TStat, c - M)
-  cat(
-    "The Divergence test statistic is: ",
-    TStat,
-    " the Chi-Square d.f. are: ",
-    c - M,
-    " the p-value is: ",
-    pvalue,
-    "\n"
-  )
-  out <- list(statistic = TStat, p.value = pvalue)
-  return(out)
-}
-
-.seq2mat <- function(sequence) {
-  n <- length(sequence)
-  states <- unique(sequence)
-  nstates <- length(states)
   
-  mat <- matlab::zeros(nstates)
-  dimnames(mat) <- list(states, states)
+  statistic <- statistic * 2
   
-  for(i in 1:(n-1)) {
-    from <- sequence[i]
-    to <- sequence[i+1]
-    mat[from, to] <- mat[from, to] + 1
+  null_elements <- sum(object@transitionMatrix==0)
+  
+  dof <- dim(object) * (dim(object)-1) - null_elements #r(r-1) - c, c null element ob objects
+  
+  p.value <- 1 - pchisq(q=statistic,df=dof)
+  
+  if (verbose==TRUE) {
+    cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
+    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
   }
-  for (i in 1:nstates){
-    mat[i,] = mat[i,]/rowSums(mat)[i]
-  }
-  return (mat)
-}
 
-
-# phi function for divergence test
-.phi <- function(x) {
-  out <- x*log(x) - x + 1
+  
+  out <- list(statistic=statistic, pvalue=p.value)
+  
   return(out)
 }
 
-# another phi function for divergence test
-.phi2 <- function(x) {
-  out <- 1/x
-  return(out)
-}

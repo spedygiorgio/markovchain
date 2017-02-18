@@ -29,10 +29,9 @@ data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1',
 fitHighOrderMultivarMC(data, order = 2, Norm = 2)                
 
 }
-\author{
-Giorgio Spedicato, Deepak Yadav
-}
 \references{
 W.-K. Ching et al. / Linear Algebra and its Applications
 }
-
+\author{
+Giorgio Spedicato, Deepak Yadav
+}

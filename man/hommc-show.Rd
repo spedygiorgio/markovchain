@@ -14,4 +14,3 @@
 This is a convenience function to display the slots of hommc object
              in proper format
 }
-

@@ -35,4 +35,3 @@ singleMc <- markovchainFit(data = holson[,2:12])
 # fitting a markovchainList
 mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
 }
-

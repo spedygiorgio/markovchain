@@ -31,4 +31,3 @@ name(markovB) <- "dangerous mc"
 \author{
 Giorgio Spedicato, Deepak Yadav
 }
-

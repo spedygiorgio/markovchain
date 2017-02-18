@@ -1257,9 +1257,7 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}
 
-In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}).
-For the first three tests, we use the $\chi ^2$ statistics \citep{anderson1957statistical,MSkuriat}. 
-As an example, we use the following sequence.
+In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}). Most of such tests are based on the $\chi ^2$ statistics. Relevand references are \cite{kullback1962tests} and \cite{anderson1957statistical}. As an example, we use the following sequence.
 
 <<tests, keep.source=TRUE>>=
 sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
@@ -1337,28 +1335,15 @@ If the p-value is greater than the given significance level, we cannot reject th
 assessStationarity(rain$rain, 10)
 @
 
-\subsubsection{Divergence test for empirically estimated transition matrices}
+\subsubsection{Divergence tests for empirically estimated transition matrices}
 
-In order to test if two empirically estimated transition matrices $m1$ and $m2$ are different, we use the $\phi$-divergence test \citep{pardo2005statistical} that is given by
+This section discusses tests developed to verify whether: 
 
-\begin{equation}
-T^{\phi}_n(m_1, m_2, mc)=\frac{2n}{\phi^{''}(1)} \sum_{i=1}^{M} \frac{v_{i*}}{n} \sum_{j=1}^{M} m_2(i,j) \phi \left(\frac{m_1(i,j)}{m_2(i,j)} \right)
-\label{eq:phidivtest}
-\end{equation}
+1. An empirical transition matrix is consistent with a theoretical one;
+2. Two or more empirical transition matrices belongs to the same DTMC.
 
-where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ is the number of states, $v_{i*}$ is the number of transitions starting from the state $i$, and $\phi$ is 
 
-\begin{equation}
-\phi(x)=x \log x - x + 1.
-\label{eq:phi}
-\end{equation}
 
-This test returns a list of the chi-squared value and the p-value.
-
-<<test4, keep.source=TRUE>>=
-mcFit<-markovchainFit(data=sample_sequence,byrow=FALSE)
-divergenceTest(sample_sequence, mcFit$estimate@transitionMatrix)
-@
 
 \subsection{Continuous Times Markov Chains}
 

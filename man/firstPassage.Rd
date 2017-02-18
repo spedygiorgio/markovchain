@@ -30,13 +30,12 @@ simpleMc <- new("markovchain", states = c("a", "b"),
 firstPassage(simpleMc, "b", 20)
 
 }
-\author{
-Giorgio Spedicato
-}
 \references{
 Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains
 }
 \seealso{
 \code{\link{conditionalDistribution}}
 }
-
+\author{
+Giorgio Spedicato
+}

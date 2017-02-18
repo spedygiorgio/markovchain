@@ -76,9 +76,6 @@ mcFitMLE <- markovchainFit(data = sequence)
 mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 
 }
-\author{
-Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
-}
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
             
@@ -92,4 +89,6 @@ A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 \seealso{
 \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}
 }
-
+\author{
+Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
+}

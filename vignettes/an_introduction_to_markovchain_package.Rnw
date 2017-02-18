@@ -1262,40 +1262,16 @@ For the first three tests, we use the $\chi ^2$ statistics \citep{anderson1957st
 As an example, we use the following sequence.
 
 <<tests, keep.source=TRUE>>=
-sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
+sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
             "b", "a", "a", "b", "b", "b", "a")
 @
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 
-The \code{verifyMarkovProperty} function invloves verifying whether the given chain holds the Markov property for which the future state is independent of the past states and depends only on the current state.
-
-\begin{equation}
-\textrm{Pr}\left\{ X_{t+1}=m | X_t = j, X_{t-1} = i \right\} = \textrm{Pr}\left\{X_{t+1}=m | X_t = j \right\}
-\label{eq:property}
-\end{equation}
-
-We first construct a contingency table in which the columns are the frequency of past$\rightarrow$present$\rightarrow$future (PPF) (or state transition sequence (STS)), present$\rightarrow$future (PF) (or two-state occurrences (STO)) and (PF - PPF), and the rows are the possible three state transitions as shown in Table \ref{tab:property} for each possible present to future transition.
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{l | l | l | l}
-    \hline
-  Transitions (p$\rightarrow$p$\rightarrow$f) & PPF (p$\rightarrow$p$\rightarrow$f) & PF (p$\rightarrow$f) & PF - PPF \\
-    \hline  \hline
-  a $\rightarrow$ a $\rightarrow$ b & 2 (a $\rightarrow$ a $\rightarrow$ b) & 4 (a$\rightarrow$a) & 2\\
-  b $\rightarrow$ a $\rightarrow$ b & 2 (b $\rightarrow$ a $\rightarrow$ b) & 5 (b$\rightarrow$a) & 3\\
-  \hline
-\end{tabular}
-\caption{Contingency table for Markov property of the transition from the present state a to the future state b (a $\rightarrow$ b).}
-\label{tab:property}
-\end{table} 
-
-Using the table, the function performs the $\chi ^2$ test by calling the \code{chisq.test} function.
-This test returns a list of the chi-squared value, the degrees of freedom, and the p-value for each possible transition. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the Markov property holds for the specific transition. 
+The \code{verifyMarkovProperty} function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{x+2}=k$, then if the Markov property holds $n_{ijk}$ follows a Binomial distribution with parameters $n_{ij}$ and $p_{jk}$. A classical $\chi^2$ test can check this distributional assumption, since $\sum_{i}\sum_{j}\sum_{k}\frac{n_{ijk}-n_{ij}\hat{p_{jk}}}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(|S|^3 \right )$ where $|S|$ is the cardinality of the state space. 
 
 <<test1, keep.source=TRUE>>=
-verifyMarkovProperty(sequence)
+verifyMarkovProperty(sample_sequence)
 @
 
 \subsubsection{Assessing the order of a Markov chain sequence}
@@ -1380,8 +1356,8 @@ where $mc$ is the markov chain sequence, $n$ is the length of the sequence, $M$ 
 This test returns a list of the chi-squared value and the p-value.
 
 <<test4, keep.source=TRUE>>=
-mcFit<-markovchainFit(data=sequence,byrow=FALSE)
-divergenceTest(sequence, mcFit$estimate@transitionMatrix)
+mcFit<-markovchainFit(data=sample_sequence,byrow=FALSE)
+divergenceTest(sample_sequence, mcFit$estimate@transitionMatrix)
 @
 
 \subsection{Continuous Times Markov Chains}

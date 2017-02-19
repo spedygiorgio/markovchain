@@ -1257,18 +1257,16 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}
 
-In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}). Most of such tests are based on the $\chi ^2$ statistics. Relevand references are \cite{kullback1962tests} and \cite{anderson1957statistical}. As an example, we use the following sequence.
-
-<<tests, keep.source=TRUE>>=
-sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
-            "b", "a", "a", "b", "b", "b", "a")
-@
+In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}). Most of such tests are based on the $\chi ^2$ statistics. Relevand references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 
 The \code{verifyMarkovProperty} function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{x+2}=k$, then if the Markov property holds $n_{ijk}$ follows a Binomial distribution with parameters $n_{ij}$ and $p_{jk}$. A classical $\chi^2$ test can check this distributional assumption, since $\sum_{i}\sum_{j}\sum_{k}\frac{n_{ijk}-n_{ij}\hat{p_{jk}}}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(|S|^3 \right )$ where $|S|$ is the cardinality of the state space. 
 
 <<test1, keep.source=TRUE>>=
+
+sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
+            "b", "a", "a", "b", "b", "b", "a")
 verifyMarkovProperty(sample_sequence)
 @
 
@@ -1339,10 +1337,31 @@ assessStationarity(rain$rain, 10)
 
 This section discusses tests developed to verify whether: 
 
-1. An empirical transition matrix is consistent with a theoretical one;
-2. Two or more empirical transition matrices belongs to the same DTMC.
+1. An empirical transition matrix is consistent with a theoretical one.  
+2. Two or more empirical transition matrices belongs to the same DTMC. 
+
+The first test is implemented by the \code{verifyEmpiricalToTheoretical} function. Bein $f_{ij}$ the raw transition count, \cite{kullback1962tests} shows that $2*\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i.}P\left( E_j | E_i\right)} \sim \chi^2\left ( r*(r-1) \right )$. The following example is taken from \cite{kullback1962tests}:
+
+<<divergence2, keep.source=TRUE>>=
+sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
+2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
+0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
+0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
+0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
+mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
+rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
+verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
+@
 
 
+
+The second one is implemented by the \code{verifyHomogeneity} function. Assuming that $i=1,2, \ldots, s$ DTMC samples are available and that the cardinality of the state space is $r$ it verifies whether the $s$ chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, $2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )$. Also the following example is taken from \cite{kullback1962tests}:
+
+
+<<divergence2, keep.source=TRUE>>=
+data(kullback)
+verifyHomogeneity(inputList=kullback,verbose=TRUE)
+@
 
 
 \subsection{Continuous Times Markov Chains}

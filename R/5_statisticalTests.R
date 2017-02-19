@@ -460,6 +460,8 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
 #'
 #' @examples
 #' 
+#' data(kullback)
+#' verifyHomogeneity(inputList=kullback,verbose=TRUE)
 #' 
 verifyHomogeneity<-function(inputList, verbose=TRUE) {
   if (class(inputList)!="list") stop("Error! inputList should be a string")

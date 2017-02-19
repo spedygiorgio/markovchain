@@ -450,6 +450,17 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
 }
 
 
+#' @title Verify Homogeneity across transition matrices
+#'
+#' @param inputList A list of items that can coerced to transition matrices
+#' @param verbose Does output should be printed out
+#'
+#' @return a list of transition matrices?
+#' @export
+#'
+#' @examples
+#' 
+#' 
 verifyHomogeneity<-function(inputList, verbose=TRUE) {
   if (class(inputList)!="list") stop("Error! inputList should be a string")
   if (length(inputList)<2) stop("Error! inputList length lower than 2")
@@ -494,7 +505,7 @@ verifyHomogeneity<-function(inputList, verbose=TRUE) {
     }
   }
   
-  #create the matrix of rowsums
+  #create the matrix of rowsums fij.
   for (k in 1:length(inputList)) {
     my_row_sums<-rowSums(inputList[[k]])
     current_support = names(my_row_sums)
@@ -544,3 +555,13 @@ verifyHomogeneity<-function(inputList, verbose=TRUE) {
   
   
 }
+
+
+#' Example from Kullback and Kupperman Tests for Contingency Tables
+#' 
+#' A list of two matrices representing raw transitions between two states
+#' 
+#' @format A list containing two 6x6 non - negative integer matrices
+#' 
+#' @source Kullback, Kupperman Tests for Contingency Tables Technometrics
+"kullback"

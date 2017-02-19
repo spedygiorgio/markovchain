@@ -23,7 +23,8 @@
 
 #' @name verifyMarkovProperty
 #' 
-#' @rdname verifyMarkovProperty
+#' @rdname statisticalTests
+#' @family statisticalTests
 #' 
 #' @title Various functions to perform statistical inference of DTMC
 #' @description These functions verify the Markov property, assess 
@@ -51,7 +52,7 @@
 #' assessStationarity(sequence, 1)
 #' 
 
-#' @rdname verifyMarkovProperty
+#' @rdname statisticalTests
 #' 
 #' @export
 
@@ -84,7 +85,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
     foundNijPjk<-.findNijPjk(Nijk=Nijk, Nij=Nij, trans=transMatrix, row=z)
     test[z]<-((Nijk[z,4]-foundNijPjk)^2)/foundNijPjk
   }
-  result<-sum(test)
+  statistic<-sum(test)
   #return value of the test statistic and test at confience level 95% and 99%
   
   #dof
@@ -94,7 +95,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   pvalue <- 1-pchisq(q = result,df = dof)
   
-  out<-list(statistic=result,p.value=pvalue)
+  out<-list(statistic=statistic,p.value=pvalue)
   
   # previous version
   # n <- length(sequence)
@@ -179,7 +180,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   if (verbose==TRUE) {
     cat("Testing markovianity property on given data sequence\n")
-    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
+    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",pvalue,"\n")  
   }
   
   
@@ -187,16 +188,9 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   return(out)
 }
 
-#the out should be a function with following slots:
-#stateTransitionSequenceTable (as in page 25)
-#statistic: the chi - square statistic 
-#p-value: the p-value of the statistic with appropriate degrees of freedom (see p 25-27 on the calculation)
 
-#also the following should run: data(blanden); myMc<-as(blanden,"markovchain");sequenza<-rmarkovchain(n = 100,myMc)
-#verifyMarkovProperty(sequenza)
-#http://stats.stackexchange.com/questions/37386/check-memoryless-property-of-a-markov-chain 
 
-#' @rdname verifyMarkovProperty
+#' @rdname statisticalTests
 #' @export
 
 # check if sequence is of first order or of second order
@@ -242,7 +236,7 @@ assessOrder <- function(sequence) {
   return(out)
 }
 
-#' @rdname verifyMarkovProperty
+#' @rdname statisticalTests
 #' @export
 
 # check if sequence is stationary
@@ -343,17 +337,37 @@ assessStationarity <- function(sequence, nblocks) {
 
 
 
-#' Title
+#' @title test whether an empirical transition matrix is compatible to a theoretical one
+#' 
+#' @description This function tests whether an empirical transition matrix is statistically compatible
+#' with a theoretical one. It is a chi-square based test
+#' 
+#' @rdname statisticalTests
+#' @family statisticalTests
 #'
-#' @param data 
-#' @param object 
-#' @param verbose 
+#' @param data matrix, character or list to be converted in a raw transition matrix
+#' @param object a markovchain object
+#' @param verbose print log
 #'
-#' @return
+#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
 #' @export
 #'
 #' @examples
 #' 
+#' #Example taken from Kullback Kupperman Tests 
+#' for Contingency Tables and Markov Chains
+#' sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
+#' 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
+#' 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
+#' 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
+#' 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
+#' 
+#' mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
+#' rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
+#' 
+#' verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
+#' 
+
 verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
   
   if (!class(object)=='markovchain') stop("Error! Object should belong to the markovchain class")
@@ -393,9 +407,140 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
     cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
   }
 
-  
-  out <- list(statistic=statistic, pvalue=p.value)
+  #return output
+  out <- list(statistic=statistic, dof=dof,pvalue=p.value)
   
   return(out)
 }
 
+
+
+
+.checkMatrix4Homogeneity<-function(matr) {
+  out<-TRUE
+  if (length(colnames(matr))==0) {message("Error! No colnames in input matrix"); out=FALSE}
+  if (length(rownames(matr))==0) {message("Error! No rownames in input matrix"); out=FALSE}
+  if (!all.equal(rownames(matr),colnames(matr))) {message("Error! Colnames <> Rownames")}
+  if (any(matr<0)) {message("Error! Negative elements"); out=FALSE}
+  return(out)
+}
+
+.addNamedColumns <- function(matr, fullnames) {
+  if ( length( setdiff(names(matr),fullnames) )>0)  stop("Error! Names in matr not in fullnames")
+  fullnames<-sort(fullnames)
+  newMatr<-matrix(0,nrow=length(fullnames),ncol=length(fullnames),dimnames = list(fullnames,fullnames))
+  
+  current_support = colnames(matr)
+  current_dim = dim(matr)
+  
+  for (i in 1:current_dim[1]) { #cycle on row
+    for (j in 1:current_dim[2]) { #cycle on cols
+      item<-matr[i,j] #take the element
+      which_row_trans<-current_support[i] #define current row and cols
+      which_col_trans<-current_support[j]
+      # lookup element in the pooled table
+      row_to_write <-match(x=which_row_trans,table = fullnames)
+      col_to_write <-match(x=which_col_trans,table = fullnames)
+      # write element into the pooled table
+      newMatr[row_to_write,col_to_write]<-newMatr[row_to_write,col_to_write]+item
+    }
+  }
+
+  return(newMatr)
+}
+
+
+verifyHomogeneity<-function(inputList, verbose=TRUE) {
+  if (class(inputList)!="list") stop("Error! inputList should be a string")
+  if (length(inputList)<2) stop("Error! inputList length lower than 2")
+  
+  #checks whether all inputs can be put as transition matrices
+  
+  for (i in 1:length(inputList)) {
+    if (class(inputList[[i]])=='matrix') {
+      checks<-.checkMatrix4Homogeneity(inputList[[i]])
+      if (!checks) stop("Error! Element ",i," to be checked")
+    } else {
+      inputList[[i]]<-createSequenceMatrix(stringchar = inputList[[i]]) #convert all elements into transition matrices
+    }
+  }
+  
+  # create the pooled raw transition matrix and the matrix of rowsums
+  all.names<-character()
+  for (i in 1:length(inputList)) {
+    all.names<-c(all.names, rownames(inputList[[i]]))
+  }
+  all.names<-sort(unique(all.names))
+  ##initialize
+  PooledRawTransitionMatrix<-matrix(0,nrow=length(all.names),ncol=length(all.names),dimnames = list(all.names, all.names))
+  RowSumsMatrix<-matrix(0, nrow=length(inputList),ncol=length(all.names),dimnames = list(1:length(inputList),all.names))
+  ##sum for each element in the list
+  
+  for (k in 1:length(inputList)) {
+    current_support = rownames(inputList[[k]])
+    current_dim = dim(inputList[[k]])
+    
+    for (i in 1:current_dim[1]) { #cycle on row
+      for (j in 1:current_dim[2]) { #cycle on cols
+        num_trans<-inputList[[k]][i,j] #take the element
+        which_row_trans<-current_support[i] #define current row and cols
+        which_col_trans<-current_support[j]
+        # lookup element in the pooled table
+        row_to_write <-match(x=which_row_trans,table = all.names)
+        col_to_write <-match(x=which_col_trans,table = all.names)
+        # write element into the pooled table
+        PooledRawTransitionMatrix[row_to_write,col_to_write]=PooledRawTransitionMatrix[row_to_write,col_to_write]+num_trans
+      }
+    }
+  }
+  
+  #create the matrix of rowsums
+  for (k in 1:length(inputList)) {
+    my_row_sums<-rowSums(inputList[[k]])
+    current_support = names(my_row_sums)
+    for (i in 1:length(current_support)) {
+      my_element<-my_row_sums[i]
+      col_to_write<-match(x=current_support[i],table = all.names)
+      RowSumsMatrix[k,col_to_write]<-RowSumsMatrix[k,col_to_write]+my_element
+    }
+  }
+  
+  # compute the chi - square statistic
+  
+  statistic <- 0
+ # degreesOfFreedomLess <- 0
+  newInputList<-lapply(inputList,.addNamedColumns,fullnames=all.names)
+  number_of_transitions<-sapply(newInputList,sum)
+  total_transitions<-sum(number_of_transitions)
+  
+  for (s in 1:length(inputList)) { #cycle across inputs
+    for (j in 1:length(all.names)) { #cycle across rows
+      for (k in 1:length(all.names)) { #cycle across cols
+       if (any(newInputList[[s]][j,k]==0, number_of_transitions[s]==0, PooledRawTransitionMatrix[j,k]==0)) {
+         statistic <- statistic + 0 # zero element in log expr does not contribute to statistics 
+#         degreesOfFreedomLess <- degreesOfFreedomLess +1
+       } else {
+         statistic <- statistic + newInputList[[s]][j,k]*log((total_transitions*newInputList[[s]][j,k])/(number_of_transitions[s]*PooledRawTransitionMatrix[j,k]))
+       }
+    }
+    }
+  }
+  
+  statistic <- statistic * 2
+  #dof (s-1)*(r^2-1)-#zeros
+  degrees_of_freedom <- (length(inputList)-1)*(length(all.names)^2-1)#-degreesOfFreedomLess
+  
+  p.value <- 1 - pchisq(q=statistic,df=degrees_of_freedom)
+  
+  if (verbose==TRUE) {
+    cat("Testing homogeneity of DTMC underlying input list \n")
+    cat("ChiSq statistic is",statistic,"d.o.f are",degrees_of_freedom,"corresponding p-value is",p.value,"\n")  
+  }
+  
+  #return output
+  out <- list(statistic=statistic, dof=degrees_of_freedom,pvalue=p.value)
+  
+  return(out)
+  
+  
+}

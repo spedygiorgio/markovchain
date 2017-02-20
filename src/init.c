@@ -4,7 +4,7 @@
 #include <R_ext/Rdynload.h>
 
 /* FIXME: 
-Check these declarations against the C/Fortran source code.
+   Check these declarations against the C/Fortran source code.
 */
 
 /* .Call calls */
@@ -38,39 +38,39 @@ extern SEXP markovchain_seq2matHigh(SEXP, SEXP);
 extern SEXP markovchain_summaryKernel(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-  {"markovchain__list2Mc",                        (DL_FUNC) &markovchain__list2Mc,                         3},
-  {"markovchain__matr2Mc",                        (DL_FUNC) &markovchain__matr2Mc,                         3},
-  {"markovchain_canonicForm",                     (DL_FUNC) &markovchain_canonicForm,                      1},
-  {"markovchain_commclassesKernel",               (DL_FUNC) &markovchain_commclassesKernel,                1},
-  {"markovchain_commStatesFinder",                (DL_FUNC) &markovchain_commStatesFinder,                 1},
-  {"markovchain_communicatingClasses",            (DL_FUNC) &markovchain_communicatingClasses,             1},
-  {"markovchain_createSequenceMatrix",            (DL_FUNC) &markovchain_createSequenceMatrix,             4},
-  {"markovchain_ctmcFit",                         (DL_FUNC) &markovchain_ctmcFit,                          4},
-  {"markovchain_firstpassageKernel",              (DL_FUNC) &markovchain_firstpassageKernel,               3},
-  {"markovchain_gcd",                             (DL_FUNC) &markovchain_gcd,                              2},
-  {"markovchain_generatorToTransitionMatrix",     (DL_FUNC) &markovchain_generatorToTransitionMatrix,      2},
-  {"markovchain_inferHyperparam",                 (DL_FUNC) &markovchain_inferHyperparam,                  3},
-  {"markovchain_isGen",                           (DL_FUNC) &markovchain_isGen,                            1},
-  {"markovchain_isProb",                          (DL_FUNC) &markovchain_isProb,                           1},
-  {"markovchain_markovchainFit",                  (DL_FUNC) &markovchain_markovchainFit,                  12},
-  {"markovchain_markovchainListRcpp",             (DL_FUNC) &markovchain_markovchainListRcpp,              4},
-  {"markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &markovchain_markovchainSequenceParallelRcpp,  4},
-  {"markovchain_markovchainSequenceRcpp",         (DL_FUNC) &markovchain_markovchainSequenceRcpp,          4},
-  {"markovchain_mcListFitForList",                (DL_FUNC) &markovchain_mcListFitForList,                 1},
-  {"markovchain_multinomCI",                      (DL_FUNC) &markovchain_multinomCI,                       3},
-  {"markovchain_multinomialCIForRow",             (DL_FUNC) &markovchain_multinomialCIForRow,              2},
-  {"markovchain_period",                          (DL_FUNC) &markovchain_period,                           1},
-  {"markovchain_predictiveDistribution",          (DL_FUNC) &markovchain_predictiveDistribution,           3},
-  {"markovchain_priorDistribution",               (DL_FUNC) &markovchain_priorDistribution,                2},
-  {"markovchain_recurrentClasses",                (DL_FUNC) &markovchain_recurrentClasses,                 1},
-  {"markovchain_seq2freqProb",                    (DL_FUNC) &markovchain_seq2freqProb,                     1},
-  {"markovchain_seq2matHigh",                     (DL_FUNC) &markovchain_seq2matHigh,                      2},
-  {"markovchain_summaryKernel",                   (DL_FUNC) &markovchain_summaryKernel,                    1},
-  {NULL, NULL, 0}
+    {"markovchain__list2Mc",                        (DL_FUNC) &markovchain__list2Mc,                         3},
+    {"markovchain__matr2Mc",                        (DL_FUNC) &markovchain__matr2Mc,                         3},
+    {"markovchain_canonicForm",                     (DL_FUNC) &markovchain_canonicForm,                      1},
+    {"markovchain_commclassesKernel",               (DL_FUNC) &markovchain_commclassesKernel,                1},
+    {"markovchain_commStatesFinder",                (DL_FUNC) &markovchain_commStatesFinder,                 1},
+    {"markovchain_communicatingClasses",            (DL_FUNC) &markovchain_communicatingClasses,             1},
+    {"markovchain_createSequenceMatrix",            (DL_FUNC) &markovchain_createSequenceMatrix,             4},
+    {"markovchain_ctmcFit",                         (DL_FUNC) &markovchain_ctmcFit,                          4},
+    {"markovchain_firstpassageKernel",              (DL_FUNC) &markovchain_firstpassageKernel,               3},
+    {"markovchain_gcd",                             (DL_FUNC) &markovchain_gcd,                              2},
+    {"markovchain_generatorToTransitionMatrix",     (DL_FUNC) &markovchain_generatorToTransitionMatrix,      2},
+    {"markovchain_inferHyperparam",                 (DL_FUNC) &markovchain_inferHyperparam,                  3},
+    {"markovchain_isGen",                           (DL_FUNC) &markovchain_isGen,                            1},
+    {"markovchain_isProb",                          (DL_FUNC) &markovchain_isProb,                           1},
+    {"markovchain_markovchainFit",                  (DL_FUNC) &markovchain_markovchainFit,                  12},
+    {"markovchain_markovchainListRcpp",             (DL_FUNC) &markovchain_markovchainListRcpp,              4},
+    {"markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &markovchain_markovchainSequenceParallelRcpp,  4},
+    {"markovchain_markovchainSequenceRcpp",         (DL_FUNC) &markovchain_markovchainSequenceRcpp,          4},
+    {"markovchain_mcListFitForList",                (DL_FUNC) &markovchain_mcListFitForList,                 1},
+    {"markovchain_multinomCI",                      (DL_FUNC) &markovchain_multinomCI,                       3},
+    {"markovchain_multinomialCIForRow",             (DL_FUNC) &markovchain_multinomialCIForRow,              2},
+    {"markovchain_period",                          (DL_FUNC) &markovchain_period,                           1},
+    {"markovchain_predictiveDistribution",          (DL_FUNC) &markovchain_predictiveDistribution,           3},
+    {"markovchain_priorDistribution",               (DL_FUNC) &markovchain_priorDistribution,                2},
+    {"markovchain_recurrentClasses",                (DL_FUNC) &markovchain_recurrentClasses,                 1},
+    {"markovchain_seq2freqProb",                    (DL_FUNC) &markovchain_seq2freqProb,                     1},
+    {"markovchain_seq2matHigh",                     (DL_FUNC) &markovchain_seq2matHigh,                      2},
+    {"markovchain_summaryKernel",                   (DL_FUNC) &markovchain_summaryKernel,                    1},
+    {NULL, NULL, 0}
 };
 
 void R_init_markovchain(DllInfo *dll)
 {
-  R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-  R_useDynamicSymbols(dll, FALSE);
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

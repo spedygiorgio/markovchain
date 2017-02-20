@@ -10,9 +10,9 @@
 \usage{
 verifyMarkovProperty(sequence, verbose = TRUE)
 
-assessOrder(sequence)
+assessOrder(sequence, verbose = TRUE)
 
-assessStationarity(sequence, nblocks)
+assessStationarity(sequence, nblocks, verbose = TRUE)
 
 verifyEmpiricalToTheoretical(data, object, verbose = TRUE)
 

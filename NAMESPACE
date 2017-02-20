@@ -1,4 +1,5 @@
 useDynLib(markovchain, .registration = TRUE)
+#useDynLib(markovchain)
 exportPattern("^[[:alpha:]]+")
 import(igraph, Matrix,  methods)
 import(parallel)

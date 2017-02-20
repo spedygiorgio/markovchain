@@ -182,9 +182,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
     cat("ChiSq statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
   }
   
-  
-  
-  return(out)
+  invisible(out)
 }
 
 
@@ -193,7 +191,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
 #' @export
 
 # check if sequence is of first order or of second order
-assessOrder <- function(sequence) {
+assessOrder <- function(sequence, verbose=TRUE) {
   
   # length of sequence
   n <- length(sequence)
@@ -227,19 +225,21 @@ assessOrder <- function(sequence) {
   k <- nelements
   df <- k*(k-1)^2
   pvalue <- 1-pchisq(q = TStat, df)
-  
-  # returning the output
-  cat("The assessOrder test statistic is: ", TStat, " the Chi-Square d.f. are: ", df, " the p-value is: ", pvalue, "\n")
   out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
   
-  return(out)
+  # returning the output
+  if (verbose==TRUE) {
+    cat("The assessOrder test statistic is: ", TStat, " the Chi-Square d.f. are: ", df, " the p-value is: ", pvalue, "\n")
+  }
+  
+  invisible(out)
 }
 
 #' @rdname statisticalTests
 #' @export
 
 # check if sequence is stationary
-assessStationarity <- function(sequence, nblocks) {
+assessStationarity <- function(sequence, nblocks, verbose=TRUE) {
   
   # length of sequence
   n <- length(sequence)
@@ -305,10 +305,14 @@ assessStationarity <- function(sequence, nblocks) {
   pvalue <- 1-pchisq(TStat, df)
   
   # returning the output
-  cat("The assessStationarity test statistic is: ", TStat, " the Chi-Square d.f. are: ", df," the p-value is: ", pvalue,"\n")
+  
+  if (verbose==TRUE) {
+    cat("The assessStationarity test statistic is: ", TStat, " the Chi-Square d.f. are: ", df," the p-value is: ", pvalue,"\n")
+  }
+  
   out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
   
-  return(out)
+  invisible(out)
 }
 
 # sequence to transition frequencey matrix

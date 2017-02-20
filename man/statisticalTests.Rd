@@ -5,6 +5,7 @@
 \alias{assessOrder}
 \alias{assessStationarity}
 \alias{verifyEmpiricalToTheoretical}
+\alias{verifyHomogeneity}
 \title{Various functions to perform statistical inference of DTMC}
 \usage{
 verifyMarkovProperty(sequence, verbose = TRUE)
@@ -14,6 +15,8 @@ assessOrder(sequence)
 assessStationarity(sequence, nblocks)
 
 verifyEmpiricalToTheoretical(data, object, verbose = TRUE)
+
+verifyHomogeneity(inputList, verbose = TRUE)
 }
 \arguments{
 \item{sequence}{An empirical sequence.}
@@ -26,12 +29,14 @@ verifyEmpiricalToTheoretical(data, object, verbose = TRUE)
 
 \item{object}{a markovchain object}
 
-\item{verbose}{print log}
+\item{inputList}{A list of items that can coerced to transition matrices}
 }
 \value{
 Verification result
 
 a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
+
+a list of transition matrices?
 }
 \description{
 These functions verify the Markov property, assess 
@@ -39,6 +44,8 @@ These functions verify the Markov property, assess
 
 This function tests whether an empirical transition matrix is statistically compatible
 with a theoretical one. It is a chi-square based test
+
+Verifies that the s elements in the input list belongs to the same DTMC
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
@@ -61,6 +68,10 @@ mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 
 verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
+
+
+data(kullback)
+verifyHomogeneity(inputList=kullback,verbose=TRUE)
 
 }
 \references{

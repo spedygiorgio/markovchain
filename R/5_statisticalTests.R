@@ -346,7 +346,6 @@ assessStationarity <- function(sequence, nblocks) {
 #'
 #' @param data matrix, character or list to be converted in a raw transition matrix
 #' @param object a markovchain object
-#' @param verbose print log
 #'
 #' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
 #' @export
@@ -452,9 +451,11 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
 #' @title Verify Homogeneity across transition matrices
 #' 
 #' @description Verifies that the s elements in the input list belongs to the same DTMC
+#' 
+#' @rdname statisticalTests
+#' @family statisticalTests
 #'
 #' @param inputList A list of items that can coerced to transition matrices
-#' @param verbose Does output should be printed out
 #'
 #' @return a list of transition matrices?
 #' @export

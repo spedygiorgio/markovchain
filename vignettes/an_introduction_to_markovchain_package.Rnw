@@ -664,6 +664,7 @@ the package.
  \hline  \hline
   \code{blanden} & Mobility across income quartiles, \cite{blandenEtAlii}.\\
   \code{craigsendi} & CD4 cells, \cite{craigSendi}.\\
+  \code{kullback} & raw transition matrices for testing homogeneity, \cite{kullback1962tests}.\\
   \code{preproglucacon} & Preproglucacon DNA basis, \cite{averyHenderson}.\\
   \code{rain} & Alofi Island rains, \cite{averyHenderson}.\\
   \code{holson} & Individual states trajectiories.\\

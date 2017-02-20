@@ -1,8 +1,8 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.6.6
-Date: 2017-01-22
+Version: 0.6.8
+Date: 2017-02-21
 Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav
     Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
@@ -42,4 +42,4 @@ LazyLoad: yes
 ByteCompile: yes
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
-RoxygenNote: 6.0.0
+RoxygenNote: 6.0.1

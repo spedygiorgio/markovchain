@@ -32,7 +32,6 @@
 #' 
 #' @param sequence An empirical sequence.
 #' @param verbose Should test resuls been printed out?
-#' @param hypothetic A transition matrix for a hypothetic markov chain sequence.
 #' @param nblocks Number of blocks.
 #' 
 #' @return Verification result
@@ -93,9 +92,9 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   dof=length(unique(sequence))^3
   
   
-  pvalue <- 1-pchisq(q = result,df = dof)
+  pvalue <- 1-pchisq(q = statistic,df = dof)
   
-  out<-list(statistic=statistic,p.value=pvalue)
+  out<-list(statistic=statistic,dof=dof,p.value=pvalue)
   
   # previous version
   # n <- length(sequence)
@@ -180,7 +179,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   if (verbose==TRUE) {
     cat("Testing markovianity property on given data sequence\n")
-    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",pvalue,"\n")  
+    cat("ChiSq statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
   }
   
   
@@ -354,8 +353,8 @@ assessStationarity <- function(sequence, nblocks) {
 #'
 #' @examples
 #' 
-#' #Example taken from Kullback Kupperman Tests 
-#' for Contingency Tables and Markov Chains
+#' #Example taken from Kullback Kupperman Tests for Contingency Tables and Markov Chains
+#' 
 #' sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
 #' 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
 #' 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
@@ -451,6 +450,8 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose=TRUE) {
 
 
 #' @title Verify Homogeneity across transition matrices
+#' 
+#' @description Verifies that the s elements in the input list belongs to the same DTMC
 #'
 #' @param inputList A list of items that can coerced to transition matrices
 #' @param verbose Does output should be printed out

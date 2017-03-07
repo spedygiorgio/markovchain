@@ -1,13 +1,25 @@
+//using namespace Rcpp;
+//#include "mathHelperFunctions.h"
 List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
                bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
   // vector to store unique states in sorted order
   CharacterVector elements = stringchar;
   elements = unique(union_(elements, possibleStates)).sort();
+  CharacterVector elements_na;
+   for(int i =0;i<elements.size();i++){
+   if(elements[i] != "NA"){
+    //   Rcout << elements[i] <<" ";
+       elements_na.push_back(elements[i]);
+     }
+   }
+  // Rcout << "\n";
+  elements = elements_na;
+  elements = unique(elements);
   
   // number of unique states
   int sizeMatr = elements.size();
-  
+  //Rcout << sizeMatr<<"\n";
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
     
@@ -46,6 +58,11 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   }
   sortedColNames.sort();
   sortedRowNames.sort();
+  //for(int i=0;i<sortedColNames.size();i++)
+  //{
+  //  Rcout << sortedColNames[i] << " " << sortedRowNames[i];
+  //  Rcout << "\n";
+  //}
   
   // validity of hyperparam matrix
   for(int i = 0; i < sizeHyperparam; i++){
@@ -123,7 +140,9 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
       if(stringchar[i] == elements[j]) posFrom = j;
       if(stringchar[i + 1] == elements[j]) posTo = j;
     }
+    if(stringchar[i]!="NA" && stringchar[i+1]!="NA"){
     freqMatr(posFrom,posTo)++;
+    }
   }
  
   // sanitize and to row probs

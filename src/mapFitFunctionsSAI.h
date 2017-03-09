@@ -1,10 +1,27 @@
+/*
+ * @param elements_na vector that could contain NA values
+ * @return vector without NA values
+ */
+
+CharacterVector clean_nas(CharacterVector elements_na){
+  CharacterVector elements;
+    
+  for(int i = 0; i < elements_na.size();i++)
+    if(elements_na[i] != "NA")
+      elements.push_back(elements_na[i]);
+
+  return elements;
+}
+  
+
 List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
                bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
+  // vector that could contain NA values
+  CharacterVector elements_na = stringchar;
+  elements_na = unique(union_(elements_na, possibleStates)).sort();
   // vector to store unique states in sorted order
-  CharacterVector elements = stringchar;
-  elements = unique(union_(elements, possibleStates)).sort();
-  
+  CharacterVector elements = clean_nas(elements_na);
   // number of unique states
   int sizeMatr = elements.size();
   
@@ -119,11 +136,13 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   // populate frequeny matrix for old data; this is used for inference 
   int posFrom = 0, posTo = 0;
   for(long int i = 0; i < stringchar.size() - 1; i ++) {
-    for (int j = 0; j < sizeMatr; j ++) {
-      if(stringchar[i] == elements[j]) posFrom = j;
-      if(stringchar[i + 1] == elements[j]) posTo = j;
+    if(stringchar[i] != "NA" && stringchar[i+1] != "NA"){
+      for (int j = 0; j < sizeMatr; j ++) {
+        if(stringchar[i] == elements[j]) posFrom = j;
+        if(stringchar[i + 1] == elements[j]) posTo = j;
+      }
+      freqMatr(posFrom,posTo)++;
     }
-    freqMatr(posFrom,posTo)++;
   }
  
   // sanitize and to row probs

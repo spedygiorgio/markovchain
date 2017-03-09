@@ -131,7 +131,7 @@ test_that("MarkovchainFit MLE", {
 })
 
 ### Markovchain Fitting(laplace) with sanitize parameter
-mle_sequence <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
+lap_sequence <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
 lap_fit1 <- markovchainFit(lap_sequence, "laplace")
 lap_fit2 <- markovchainFit(lap_sequence, "laplace", sanitize = TRUE)
 

@@ -479,16 +479,10 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   //---------------------------------------------------------------------
   // check whether stringchar is a list or not
   if(TYPEOF(stringchar) == VECSXP) {
-    //Rcout << "Yes\n" ;
     List seqs = as<List>(stringchar);
-    //for(int i=0;i<seqs.size();i++){
-      //Rcout << as<CharacterVector>(seqs[i])<<" ";
-    //}
-    //Rcout << "\n";
     CharacterVector pstates; // possiblestates
     for(int i = 0;i < seqs.size();i++) {
       CharacterVector tseq = unique(as<CharacterVector>(seqs[i]));
-      //Rcout << tseq << "\n";
       for(int j = 0;j < tseq.size();j++) {
         if(tseq[j] != "NA") {
           pstates.push_back(tseq[j]);
@@ -501,15 +495,12 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     }
     
     pstates = unique(pstates);
-    //for(int i = 0;i<pstates.size();i++)
-      //Rcout << pstates[i] << "\n";
     pstates = pstates.sort();
     int sizeMatr = pstates.size();
     NumericMatrix freqMatrix(sizeMatr);
     freqMatrix.attr("dimnames") = List::create(pstates, pstates);
     
     for(int i = 0;i < seqs.size();i++) {
-      //Rcout << as<CharacterVector>(seqs[i]) << "\n";
       NumericMatrix temp = createSequenceMatrix(seqs[i], false, false, pstates);
       freqMatrix += temp;
     }
@@ -533,17 +524,9 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   //---------------------------------------------------------------------
   
   CharacterVector stringChar = as<CharacterVector>(stringchar);
-  //for(int i=0;i<stringChar.size();i++){
-    //Rcout << stringChar[i] << " ";
-  //}
-  //Rcout << "\n";
   
   // may include missing values
   CharacterVector elements_na = unique(union_(stringChar, possibleStates));
-  //for(int i =0;i<elements_na.size();i++){
-  //  Rcout << elements_na[i] << " ";
-  //}
-  //cout << "\n";
   
   // free from missing values
   CharacterVector elements;
@@ -562,7 +545,6 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   CharacterVector rnames = rownames(freqMatrix);
   
   if(Rf_isMatrix(stringchar)) {
-    //Rcout << "Yes";
     // coerce SEXP to CharacterMatrix
     CharacterMatrix seqMat = as<CharacterMatrix>(stringchar);
     
@@ -775,13 +757,6 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   
   // matrix size = nrows = ncols
   int sizeMatr = freqMatr.nrow();
-  
-  // for(int i =0;i<sizeMatr;i++){
-  //   for(int j=0;j<sizeMatr;j++){
-  //     Rcout << freqMatr(i,j) << " ";
-  //   }
-  //   Rcout << "\n";
-  // }
   
   // initial matrix = transition matrix
   NumericMatrix initialMatr(sizeMatr);

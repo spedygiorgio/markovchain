@@ -9,17 +9,14 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   CharacterVector elements_na;
    for(int i =0;i<elements.size();i++){
    if(elements[i] != "NA"){
-    //   Rcout << elements[i] <<" ";
        elements_na.push_back(elements[i]);
      }
    }
-  // Rcout << "\n";
   elements = elements_na;
   elements = unique(elements);
   
   // number of unique states
   int sizeMatr = elements.size();
-  //Rcout << sizeMatr<<"\n";
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
     

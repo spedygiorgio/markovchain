@@ -615,8 +615,10 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
     for(int r = 0; r < rnames.size(); r ++) {
       if(rnames[r] == seq[i]) from = r; 
       if(rnames[r] == seq[i + 1]) to = r; 
-    }    
+    }
+    if(seq[i]!="NA" && seq[i+1]!="NA"){
     out += log(transMatr(from, to));
+    }
   }
   
   return out;

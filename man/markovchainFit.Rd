@@ -63,6 +63,8 @@ Given a sequence of states arising from a stationary state,
 Disabling confint would lower the computation time on large datasets
 }
 \note{
+If \code{createSequenceMatrix} and \code{markovchainFit} are provided with a sequence containing \code{NA} values, for example \code{c("a","b","NA","b")}, count for a cosecutive state pair containing \code{NA} value is not counted. In this case \code{b} to \code{NA} and vice versa.
+
 This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 

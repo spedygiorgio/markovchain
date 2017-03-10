@@ -26,6 +26,12 @@ the temporal sequence), it fits a non - homogeneous discrete time markov chain
 process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
 estimating transitions from the n samples given by consecutive column pairs.
 }
+\note{
+\code{NA} values in \code{data} are handled when creating the frequency matrix using \code{createSequenceMatrix} function. Please look into \code{createSequenceMatrix} function for more details.  
+}
+\seealso{
+\code{\link{createSequenceMatrix}}
+}
 \examples{
 
 # using holson dataset

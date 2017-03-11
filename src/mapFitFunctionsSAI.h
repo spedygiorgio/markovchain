@@ -1,6 +1,5 @@
 /*
- * @param elements_na vector that could contain NA values
- * @return vector without NA values
+ * Function to remove NA values from a vector
  */
 
 CharacterVector clean_nas(CharacterVector elements_na){

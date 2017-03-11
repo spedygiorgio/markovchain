@@ -60,7 +60,8 @@ Given a sequence of states arising from a stationary state,
  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 }
 \details{
-Disabling confint would lower the computation time on large datasets
+Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 }
 \note{
 This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
@@ -75,6 +76,10 @@ sequenceMatr <- createSequenceMatrix(sequence, sanitize = FALSE)
 mcFitMLE <- markovchainFit(data = sequence)
 mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 
+na.sequence <- c("a", NA, "a", "b")
+# There will be only a (a,b) transition        
+na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
+mcFitMLE <- markovchainFit(data = na.sequence)
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010

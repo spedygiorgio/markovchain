@@ -583,6 +583,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' @param byrow Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.
 #' @param name Optional name.
 #' 
+#' @details If \code{data} contains \code{NAs} then the transitions containing \code{NA} will be ignored.
 #' @return A list containing two slots:
 #' estimate (the estimate)
 #' name

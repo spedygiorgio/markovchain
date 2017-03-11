@@ -1512,7 +1512,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence
 //' 
-//' @details Disabling confint would lower the computation time on large datasets
+//' @details Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+//' contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 //' 
 //' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 //'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -1542,6 +1543,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' mcFitMLE <- markovchainFit(data = sequence)
 //' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 //'
+//' na.sequence <- c("a", NA, "a", "b")
+//' # There will be only a (a,b) transition        
+//' na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
+//' mcFitMLE <- markovchainFit(data = na.sequence)
 //' @rdname markovchainFit
 //' 
 //' @export

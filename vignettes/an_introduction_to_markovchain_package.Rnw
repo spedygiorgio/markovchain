@@ -1077,6 +1077,7 @@ as code below shows.
 createSequenceMatrix(stringchar = weathersOfDays)
 @
 
+\code{stringchar} could contain \code{NA} values, and the transitions containing \code{NA} would be ignored.
 
 An issue occurs when the sample contains only one realization of a state (say $X_{\beta}$) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional
 distribution of the transition). In this case the estimated transition matrix is
@@ -1216,6 +1217,7 @@ markovchainListFit(data=mylist)
 @
 
 
+If any transition contains \code{NA}, it will be ignored in the results.
 
 
 

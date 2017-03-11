@@ -26,6 +26,9 @@ the temporal sequence), it fits a non - homogeneous discrete time markov chain
 process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
 estimating transitions from the n samples given by consecutive column pairs.
 }
+\details{
+If \code{data} contains \code{NAs} then the transitions containing \code{NA} will be ignored.
+}
 \examples{
 
 # using holson dataset

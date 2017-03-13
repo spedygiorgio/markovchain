@@ -645,13 +645,22 @@ List mcListFitForList(List data) {
     if(i < len) {
       // transition from (i-1)th to ith
       CharacterMatrix temp(l-j, 2);
+      // indicates wheter there is a valid transition for the current time of the
+      // markov chain
+      bool validTransition = false;
+      
       for(int k = j;k < l;k++) {
         temp(k-j, 0) = (as<CharacterVector>(data[length_seq[k].second]))[i-1];
         temp(k-j, 1) = (as<CharacterVector>(data[length_seq[k].second]))[i];
+        
+        if(temp(k-j,0) != "NA" && temp(k-j, 1) != "NA")
+          validTransition = true;
       }
       
       // frequency matrix
-      out.push_back(createSequenceMatrix(temp, false, true));
+      if(validTransition)
+        out.push_back(createSequenceMatrix(temp, false, true));
+      
       i++;
       
     } else {

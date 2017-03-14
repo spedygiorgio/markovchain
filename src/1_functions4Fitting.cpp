@@ -628,7 +628,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
 List mcListFitForList(List data) {
   
   int l = data.size(); // length of list
-  
+  Rcout << l << "\n";
   // pair of length and index
   // length of sequence data[index]
   vector<pair<int, int> > length_seq(l);
@@ -651,13 +651,20 @@ List mcListFitForList(List data) {
     if(i < len) {
       // transition from (i-1)th to ith
       CharacterMatrix temp(l-j, 2);
+      //If atleast one sequence has an invalid transition we will ignore it. 
+      bool flag = false;
       for(int k = j;k < l;k++) {
         temp(k-j, 0) = (as<CharacterVector>(data[length_seq[k].second]))[i-1];
         temp(k-j, 1) = (as<CharacterVector>(data[length_seq[k].second]))[i];
+        if(temp(k-j,0)!="NA" && temp(k-j,1)!="NA"){
+          flag = true;
+        }
       }
       
       // frequency matrix
+      if(flag){
       out.push_back(createSequenceMatrix(temp, false, true));
+      }
       i++;
       
     } else {

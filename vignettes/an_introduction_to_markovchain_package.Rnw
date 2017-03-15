@@ -1043,8 +1043,7 @@ SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
 \end{equation}
 
 <<fitMcbyMLE, keep.source=TRUE>>=
-weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",
-                                 name = "Weather MLE")
+weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",name = "Weather MLE")
 weatherFittedMLE$estimate
 weatherFittedMLE$standardError
 @

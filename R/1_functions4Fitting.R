@@ -583,6 +583,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' @param byrow Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.
 #' @param name Optional name.
 #' 
+#' @details If \code{data} contains \code{NAs} then the transitions containing \code{NA} will be ignored.
 #' @return A list containing two slots:
 #' estimate (the estimate)
 #' name
@@ -603,85 +604,57 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
     stop("Error: data must be either a matrix or a data.frame or a list")
   }
   
+  freqMatrixes <- list() 
+  
   if(class(data) == "list") {
     markovchains <- list()
     # list of frquency matrix
-    out <- .mcListFitForList(data)
-    l <- length(out)
+    freqMatrixes <- .mcListFitForList(data)
     
-    # no transition at all
-    if(l == 0) {
-      return(markovchains)
+  } else{
+    # if input is data frame convert it to matrix
+    if(is.data.frame(data)) {
+      data <- unname(as.matrix(data))
     }
     
-    for(i in 1:l) {
-      freqMatrix <- out[[i]]
-      # add laplacian correction
-      freqMatrix <- freqMatrix + laplacian
-      rSums <- rowSums(freqMatrix)
-      # transition matrix
-      tMatrix <- freqMatrix / rSums;
+    # make the entries row wise if it is not
+    if(!byrow) {
+      data <- t(data) 
+    }
+    
+    # number of columns in the matrix
+    nCols <- ncol(data)
+    
+    # fit by columns
+    freqMatrixes <- lapply(seq_len(nCols-1), function(i){
+      # (i-1)th transition matrix for transition from (i-1)th state to ith state
+      matrData <- data[, c(i, i+1)]
+      matrData[1, ] <- as.character(matrData[1, ])
+      validTransition <- any(apply(matrData, 1, function(x){ !any(is.na(x)) }))
       
-      estMc <- new("markovchain", transitionMatrix = tMatrix)
-      markovchains[[i]] <- estMc
-    }
+      if(validTransition)
+        createSequenceMatrix(matrData, toRowProbs = FALSE, sanitize = TRUE)
     
-    # create markovchainList object
-    outMcList <- new("markovchainList", markovchains = markovchains)
+    })
     
-    # wrap the object in a list
-    result <- list(estimate = outMcList)
-    
-    # set the name of markovchainList object as given in the argument
-    if(!missing(name)) {
-      result$estimate@name <- name 
-    }
-    
-    return(result)
+    freqMatrixes <- freqMatrixes[ !sapply(freqMatrixes, is.null) ]
   }
   
-  # if input is data frame convert it to matrix
-  if(is.data.frame(data)) {
-    data <- as.matrix(data)
-  } 
-  
-  # make the entries row wise if it is not
-  if(!byrow) {
-    data <- t(data) 
+  if(length(freqMatrixes) == 0) {
+    return(list())
   }
   
-  # number of columns in the matrix
-  nCols <- ncol(data)
   
-  # allocate a list of markovchain: a non - homog DTMC process is a 
-  # list of DTMC of length n-1, being n the length of the sequence
-  markovchains <- list() 
-  
-  # fit by columns
-  for(i in 2:(nCols)) { 
-    
-    # (i-1)th transition matrix for transition from (i-1)th state to ith state
-    matrData <- data[, c(i-1, i)]
-    matrData[1, ] <- as.character(matrData[1, ])
-    freqMatrix <- createSequenceMatrix(matrData, toRowProbs = FALSE, sanitize = TRUE)
-    
+  markovchains <- lapply(freqMatrixes, function(freqMatrix){
     # add laplacian correction
     freqMatrix <- freqMatrix + laplacian
     rSums <- rowSums(freqMatrix)
-    
     # transition matrix
     tMatrix <- freqMatrix / rSums;
     
     estMc <- new("markovchain", transitionMatrix = tMatrix)
-    
-    # give name to the markovchain object which is same as the name of (i-1)th column
-    if(!is.null(colnames(data))) {
-      estMc@name <- colnames(data)[i-1]  
-    }
-    
-    # store one transition matrix at every iteration
-    markovchains[[i-1]] <- estMc
-  }
+    estMc
+  })
   
   # create markovchainList object
   outMcList <- new("markovchainList", markovchains = markovchains)

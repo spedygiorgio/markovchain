@@ -44,9 +44,10 @@ test_that("Conversion of objects",
             expect_equal(class(provaMatr2Mc)=="markovchain",TRUE)
           })
 
+
 ### Markovchain Fitting
-sequence1 <- c("a", "b", "a", "a", "a")
-sequence2 <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+sequence1 <- c("a", "b", "a", "a", NA, "a", "a", NA)
+sequence2 <- c(NA, "a", "b", NA, "a", "a", "a", NA, "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a", NA)
 mcFit <- markovchainFit(data = sequence1, byrow = FALSE, sanitize = TRUE)
 mcFit2 <- markovchainFit(c("a","b","a","b"), sanitize = TRUE)
 
@@ -55,8 +56,9 @@ test_that("Fit should satisfy", {
   expect_equal(markovchainFit(data = sequence2, method = "bootstrap")["confidenceInterval"]
                [[1]]["confidenceLevel"][[1]], 0.95)
   expect_equal(mcFit2$upperEndpointMatrix, matrix(c(0,1,1,0), nrow = 2, byrow = TRUE,
-                                                dimnames = list(c("a", "b"), c("a", "b"))))
+                                                  dimnames = list(c("a", "b"), c("a", "b"))))
 })
+
 
 ### Markovchain Fitting for bigger markov chain
 bigseq <- rep(c("a", "b", "c"), 500000)
@@ -76,14 +78,15 @@ test_that("MC Fit for large sequence 2", {
   expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
 })
 
+
 ### Markovchain Fitting For dataframe or matrix as an input
-matseq <- matrix(c("a", "b", "c", "a","b", "c"), nrow = 2, byrow = T)
+matseq <- matrix(c("a", "b", "c", NA ,"b", "c"), nrow = 2, byrow = T)
 
 # for matrix as input
 
 test_that("Markovchain Fit for matrix as input", {
-
-# for matrix as input    
+  
+  # for matrix as input    
   
   expect_equal(markovchainFit(matseq)$estimate@transitionMatrix, 
                matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3, 
@@ -93,19 +96,21 @@ test_that("Markovchain Fit for matrix as input", {
                matrix(c(0, 1, 0, 0, 0, 1, 1/3, 1/3, 1/3), nrow = 3, 
                       byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
   
-# for data frame as input
-    expect_equal(markovchainFit(as.data.frame(matseq))$estimate@transitionMatrix, 
-                 matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3, 
-                        byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
-    
-    expect_equal(markovchainFit(as.data.frame(matseq), sanitize = TRUE)$estimate@transitionMatrix, 
-                 matrix(c(0, 1, 0, 0, 0, 1, 1/3, 1/3, 1/3), nrow = 3, 
-                        byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
-
+  # for data frame as input
+  expect_equal(markovchainFit(as.data.frame(matseq))$estimate@transitionMatrix, 
+               matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
+  expect_equal(markovchainFit(as.data.frame(matseq), sanitize = TRUE)$estimate@transitionMatrix, 
+               matrix(c(0, 1, 0, 0, 0, 1, 1/3, 1/3, 1/3), nrow = 3, 
+                      byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
+  
 })
 
+
+
 ### Markovchain Fitting(mle) with sanitize parameter
-mle_sequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+mle_sequence <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
 mle_fit1 <- markovchainFit(mle_sequence)
 mle_fit2 <- markovchainFit(mle_sequence, sanitize = TRUE)
 
@@ -126,7 +131,7 @@ test_that("MarkovchainFit MLE", {
 })
 
 ### Markovchain Fitting(laplace) with sanitize parameter
-lap_sequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+lap_sequence <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
 lap_fit1 <- markovchainFit(lap_sequence, "laplace")
 lap_fit2 <- markovchainFit(lap_sequence, "laplace", sanitize = TRUE)
 
@@ -143,19 +148,20 @@ test_that("Markovchain Laplace", {
 })
 
 ### Markovchain Fitting when some states are not present in the given sequence
-mix_seq <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+mix_seq <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
 
 mix_fit1 <- markovchainFit(mix_seq, "mle", sanitize = TRUE, possibleStates = c("d"))
 mix_fit2 <- markovchainFit(mix_seq, "laplace", sanitize = TRUE, possibleStates = c("d")) 
 mix_fit3 <- markovchainFit(mix_seq, "map", sanitize = TRUE, possibleStates = c("d")) 
+
 
 test_that("Mixture of Markovchain Fitting", {
   expect_equal(mix_fit2$estimate@transitionMatrix, 
                matrix(c(.5, .5, 0, 0, 3/7, 3/7, 1/7, 0,
                         1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4, 1/4), nrow = 4, byrow = TRUE,
                       dimnames = list(c("a", "b", "c", "d"), c("a", "b", "c", "d"))
-                      )
-              )
+               )
+  )
   
   expect_equal(mix_fit1$estimate@transitionMatrix, 
                matrix(c(.5, .5, 0, 0, 3/7, 3/7, 1/7, 0,
@@ -173,8 +179,9 @@ test_that("Mixture of Markovchain Fitting", {
   
 })
 
+
 ### Test for createSequenceMatrix
-rsequence <- c("a", "b", "b", "a", "a", "a", "b", "b", "b", "a", "a", "b", "a", "a", "b", "c")
+rsequence <- c("a", "b", NA, "b", "b", "a", "a", "a", "b", "b", NA, "b", "b", "a", "a", "b", "a", "a", "b", "c")
 
 test_that("createSequenceMatrix : Permutation of parameters",{
   expect_equal(createSequenceMatrix(rsequence, FALSE, FALSE), 
@@ -195,7 +202,7 @@ test_that("createSequenceMatrix : Permutation of parameters",{
 })
 
 ### Test for createSequenceMatrix : input nx2 matrix
-data <- matrix(c("a", "a", "b", "a", "b", "a", "b", "a", "a", "a", "a", "b"), ncol = 2,
+data <- matrix(c("a", "a", "b", "a", "b", "a", "b", "a", NA, "a", "a", "a", "a", "b", NA, "b"), ncol = 2,
                byrow = TRUE)
 
 test_that("createSequenceMatrix : input as matrix",{

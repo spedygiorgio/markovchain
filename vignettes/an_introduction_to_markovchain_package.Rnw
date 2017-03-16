@@ -2181,6 +2181,17 @@ V <- PVFB - PVFP
 V
 @
 
+An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved
+in the \code{exdata} folder.
+
+<<healthIns6, keep.source=TRUE>>=
+library(markovchain)
+ltcDemoPath<-system.file("extdata", "ltdItaData.txt", package = "markovchain")
+ltcDemo<-read.table(file = ltcDemoPath, header=TRUE, sep=";",dec = ".")
+head(ltcDemo)
+@
+
+
 \subsection{Sociology}\label{app:sociology}
 
 Markov chains have been actively used to model progressions and regressions between social classes. The first study was performed by \cite{glassHall}, while a more recent application can be found in \cite{blandenEtAlii}. The table that follows shows the income quartile of the father when the son was 16 (in 1984) and the income quartile of the son when aged 30 (in 2000) for the 1970 cohort.

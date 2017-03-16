@@ -2185,7 +2185,6 @@ An applied example can be performed using the data from \cite{de2016assicurazion
 in the \code{exdata} folder.
 
 <<healthIns6, keep.source=TRUE>>=
-library(markovchain)
 ltcDemoPath<-system.file("extdata", "ltdItaData.txt", package = "markovchain")
 ltcDemo<-read.table(file = ltcDemoPath, header=TRUE, sep=";",dec = ".")
 head(ltcDemo)

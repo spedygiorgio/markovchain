@@ -551,8 +551,8 @@ mcIgraph <- as(mcWeather, "igraph")
 @
 
 <<exporImport2, keep.source=TRUE>>=
-library(msm)
-data(cav)
+require(msm)
+#data(cav)
 Q <- rbind ( c(0, 0.25, 0, 0.25),
              c(0.166, 0, 0.166, 0.166),
              c(0, 0.25, 0, 0.25),

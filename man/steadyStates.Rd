@@ -23,8 +23,6 @@ This method returns the stationary vector in matricial form of a markovchain obj
 The steady states are identified starting from which eigenvectors correspond 
       to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
       in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
-      
-The \code{steadystates} function also handles the case when no eigen value comes out to be exactly 1. In such a case, it uses \code{zapsmall} rounding function to ensure that atleast one eigen value is equal to 1 (which theoritically is true.)
 }
 \examples{
 statesNames <- c("a", "b", "c")

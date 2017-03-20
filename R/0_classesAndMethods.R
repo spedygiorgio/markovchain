@@ -416,7 +416,7 @@ setMethod("steadyStates","markovchain",
   out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
   colnames(out)<-names(object)
   #getting their steady states
-  partialOutput<-t(eigen(Msub)$vectors[,zapsmall(eigen(Msub)$values == 1)]) / colSums(eigen(Msub)$vectors[,zapsmall(eigen(Msub)$values == 1)])
+  partialOutput<-t(eigen(Msub)$vectors[,eigen(Msub)$values == 1]) / colSums(eigen(Msub)$vectors[,eigen(Msub)$values == 1])
   colnames(partialOutput)<-recurrentClassesNames
   #allocating to their columns
   out[,colnames(out) %in% recurrentClassesNames]<-partialOutput

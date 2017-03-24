@@ -1,5 +1,2 @@
-16-03-2017 Version 0.6.8.1
-Deep restructuring of statistical tests
-Add parameter confint to markovchainFit
-Fixed bug in markovchainFitList
-Handling of NA
+24-03-2017 Version 0.6.8.2
+Revised numeric tolerance when creating markovchains

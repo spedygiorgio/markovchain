@@ -244,7 +244,7 @@ setValidity("markovchain",
 			if (object@byrow == TRUE) {
 			  
 			  # absolute difference
-			  absdiff <- abs(1-rowSums(object@transitionMatrix))
+			  absdiff <- abs(1-zapsmall(rowSums(object@transitionMatrix)))
 				
 			  if(any(absdiff > .Machine$double.eps*100)) {
 				  check <- "Error! Row sums not equal to one" 
@@ -252,9 +252,9 @@ setValidity("markovchain",
 			} else {
 			  
 			  # absolute difference
-			  absdiff <- abs(1-colSums(object@transitionMatrix))
+			  absdiff <- abs(1-zapsmall(colSums(object@transitionMatrix)))
 			  
-			  if(any(absdiff > .Machine$double.eps*10)) {
+			  if(any(absdiff > .Machine$double.eps*100)) {
 				  check <- "Error! Col sums not equal to one"
 				}
 			}

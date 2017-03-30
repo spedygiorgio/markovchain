@@ -247,7 +247,8 @@ setValidity("markovchain",
 			  absdiff <- abs(1-zapsmall(rowSums(object@transitionMatrix)))
 				
 			  if(any(absdiff > .Machine$double.eps*100)) {
-				  check <- "Error! Row sums not equal to one" 
+			    pos2check<-which(absdiff > .Machine$double.eps*100)
+				  check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
 				}
 			} else {
 			  
@@ -255,7 +256,8 @@ setValidity("markovchain",
 			  absdiff <- abs(1-zapsmall(colSums(object@transitionMatrix)))
 			  
 			  if(any(absdiff > .Machine$double.eps*100)) {
-				  check <- "Error! Col sums not equal to one"
+			    pos2check<-which(absdiff > .Machine$double.eps*100)
+			    check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
 				}
 			}
 			
@@ -883,9 +885,9 @@ setMethod("summary", signature(object = "markovchain"),
 	for( i in 1:length(check)) {
 	  if (abs(1-check[i]) > .Machine$double.eps) {
 	    if(verbose) {
-	      stop("Error! Either rows or cols should sum to 1") 
+	      myMessage<-paste("Error! Either rows or cols should sum to 1","check state",i)
+	      stop(myMessage) 
 	    }
-	    
 	    return(FALSE)
 	  }
 	}
@@ -909,6 +911,9 @@ setMethod("summary", signature(object = "markovchain"),
 	} else  {
 		checkByCols <- .checkMatrix(from, byrow = FALSE)
 		if(!checkByCols) {
+		  #error could be either in rows or in cols
+		  if (any(colSums(from)!=1)) cat("columns sums not equal to one are:",which(colSums(from)!=1),"\n")
+		  if (any(rowSums(from)!=1)) cat("columns sums not equal to one are:",which(rowSums(from)!=1),"\n")
 		  stop("Error! Not a probability matrix")	
 		}
 	}

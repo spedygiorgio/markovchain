@@ -36,6 +36,7 @@ extern SEXP markovchain_recurrentClasses(SEXP);
 extern SEXP markovchain_seq2freqProb(SEXP);
 extern SEXP markovchain_seq2matHigh(SEXP, SEXP);
 extern SEXP markovchain_summaryKernel(SEXP);
+extern SEXP markovchain_lexicographicalSort(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"markovchain__list2Mc",                        (DL_FUNC) &markovchain__list2Mc,                         3},
@@ -66,6 +67,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_seq2freqProb",                    (DL_FUNC) &markovchain_seq2freqProb,                     1},
     {"markovchain_seq2matHigh",                     (DL_FUNC) &markovchain_seq2matHigh,                      2},
     {"markovchain_summaryKernel",                   (DL_FUNC) &markovchain_summaryKernel,                    1},
+    {"markovchain_lexicographicalSort",             (DL_FUNC) &markovchain_lexicographicalSort,              1},
     {NULL, NULL, 0}
 };
 

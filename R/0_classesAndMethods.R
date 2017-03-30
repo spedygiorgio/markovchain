@@ -296,8 +296,8 @@ setValidity("markovchain",
   # perform the eigenvalue extraction
   eigenResults <- eigen(x = tMatr, symmetric = FALSE) 
   
-  # takes the one eigenvalue
-  onesIndex <- which(round(eigenResults$values,3) == 1) 
+  # takes the one eigenvalues
+  onesIndex <- which( sapply (eigenResults$values, function(e){ isTRUE(all.equal( as.complex(e),1+0i)) } ))
   
   # do the following: 
   # 1 : get eigenvectors whose eigenvalues == 1
@@ -308,11 +308,14 @@ setValidity("markovchain",
     return(NULL)
   }
   
+  # Gives always a norm-based order to eigenvectors
+  eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
+
   if (transpose == TRUE) {
-    eigenTake <- as.matrix(t(eigenResults$vectors[, onesIndex])) 
+    eigenTake <- as.matrix(t(eigenvectors)) 
     out <- eigenTake / rowSums(eigenTake) # normalize
   } else {
-    eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
+    eigenTake <- as.matrix(eigenvectors) 
     out <- eigenTake / colSums(eigenTake) # normalize
   }
   
@@ -372,14 +375,16 @@ setMethod("steadyStates","markovchain",
 			  warning("Negative elements in steady states, working on closed classes submatrix")
 			  if(object@byrow==TRUE) myObject=object else myObject=t(object)
 			  out <- .steadyStatesByRecurrentClasses(object=myObject)
-			  if (object@byrow==FALSE) out<-t(out)
 			}
       
 			if(is.null(out)) {
 				warning("Warning! No steady state")
 				return(NULL)
-			}
-		
+			} else{
+			  # order vectors lexicographically
+			  out <- .mcLexSort(out)
+		    if (object@byrow==FALSE) out<-t(out)
+		  }
 			
 			if(transposeYN == TRUE) { 
 				colnames(out) <- object@states
@@ -415,8 +420,9 @@ setMethod("steadyStates","markovchain",
   
   out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
   colnames(out)<-names(object)
-  #getting their steady states
-  partialOutput<-t(eigen(Msub)$vectors[,eigen(Msub)$values == 1]) / colSums(eigen(Msub)$vectors[,eigen(Msub)$values == 1])
+  #getting their steady states, calculating first indexes of eigenvalues equal to 1
+  onesIndex <- which( sapply (eigen(Msub)$values, function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }) )
+  partialOutput<-t(eigen(Msub)$vectors[, onesIndex]) / colSums(eigen(Msub)$vectors[, onesIndex])
   colnames(partialOutput)<-recurrentClassesNames
   #allocating to their columns
   out[,colnames(out) %in% recurrentClassesNames]<-partialOutput
@@ -1438,3 +1444,9 @@ setMethod("predict", "markovchainList",
 			                    return(out)
 		                   }
 )
+
+# Wrapper for a function to lexicographically sort the rows of a matrixx
+# m : matrix
+.mcLexSort <- function(m) {
+  matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
+}

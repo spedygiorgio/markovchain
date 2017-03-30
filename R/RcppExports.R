@@ -225,3 +225,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call('markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
 }
 
+.lexicographical_sort <- function(y) {
+    .Call('markovchain_lexicographicalSort', PACKAGE = 'markovchain', y)
+}
+

@@ -381,11 +381,8 @@ setMethod("steadyStates","markovchain",
 				warning("Warning! No steady state")
 				return(NULL)
 			} else{
-			  # order vectors by norm
-			  if (nrow(out) > 1){
-		      eigenorder <- order(apply(out, 1, function(x){ norm(as.matrix(x), type="F") }), decreasing = T)
-		      out <- as.matrix( out[ eigenorder, ])
-			  }
+			  # order vectors lexicographically
+			  out <- .mcLexSort(out)
 		    if (object@byrow==FALSE) out<-t(out)
 		  }
 			
@@ -1448,3 +1445,8 @@ setMethod("predict", "markovchainList",
 		                   }
 )
 
+# Wrapper for a function to lexicographically sort the rows of a matrixx
+# m : matrix
+.mcLexSort <- function(m) {
+  matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
+}

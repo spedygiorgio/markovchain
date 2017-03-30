@@ -74,3 +74,22 @@ SEXP canonicForm (S4 object)
   return out;
 
 }
+
+
+
+
+// Function to sort a list of vectors lexicographically
+// Input should be given as a matrix where each row represents a vector
+// [[Rcpp::export(.lexicographical_sort)]]
+SEXP lexicographicalSort(SEXP y) {
+  NumericMatrix m(y);
+  std::vector< std::vector<double> > x(m.nrow(), std::vector<double>(m.ncol()));
+  
+  for(int i=0; i<m.nrow(); i++)
+    for(int j=0; j<m.ncol(); j++)
+      x[i][j] = m(i,j);
+  
+  sort(x.begin(), x.end());
+  
+  return(wrap(x));
+}

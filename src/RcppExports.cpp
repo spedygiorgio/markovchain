@@ -357,3 +357,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lexicographicalSort
+SEXP lexicographicalSort(SEXP y);
+RcppExport SEXP markovchain_lexicographicalSort(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(lexicographicalSort(y));
+    return rcpp_result_gen;
+END_RCPP
+}

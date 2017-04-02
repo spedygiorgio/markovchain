@@ -652,8 +652,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 )
 
 
-# @TAE: create an internal function that does this. Check also if the canonic form function 
-#       is appropriate
+
 # method to convert into canonic form : a markovchain object
 # TODO: check meaning of this function
 

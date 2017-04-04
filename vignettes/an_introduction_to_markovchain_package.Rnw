@@ -1895,54 +1895,7 @@ This means that the average premium paid by policyholders in the portfolio
 almost halves in the long run.
 
 \subsubsection{Health insurance example}\label{sec:hi}
-Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts).
-Key quantities of actuarial interest are: the expected present value of future benefits, $PVFB$, the (periodic) benefit premium, $P$, and the present value of future premium $PVFP$. A level benefit premium could be set equating at the beginning of the contract $PVFB=PVFP$. After the beginning of the contract the benefit reserve is the difference between $PVFB$ and $PVFP$.
-The example comes from \cite{deshmukh2012multiple}. The interest rate is 5\%, 
-benefits are payable upon death (1000) and disability (500). Premiums are 
-payable at the beginning of period only if the policyholder is active. The contract term is three years.
-
-<<healthIns1, keep.source=TRUE>>=
-
-mcHI <- new("markovchain", states = c("active", "disable", "withdrawn", 
-                                      "death"),
-         transitionMatrix = matrix(c(0.5, .25, .15, .1,
-                                   0.4, 0.4, 0.0, 0.2,
-                                   0, 0, 1, 0,
-                                   0, 0, 0, 1), byrow = TRUE, nrow = 4))
-benefitVector <- as.matrix(c(0, 0, 500, 1000))
-@
-
-The policyholders is active at $T_0$. Therefore the expected states at $T_1, \ldots T_3$ are calculated in the following.
-
-<<healthIns2, keep.source=TRUE>>=
-T0 <- t(as.matrix(c(1, 0, 0, 0)))
-T1 <- T0 * mcHI
-T2 <- T1 * mcHI
-T3 <- T2 * mcHI
-@
-
-The present value of future benefit at T0 is given by
-
-<<healthIns3, keep.source=TRUE>>=
-PVFB <- T0 %*% benefitVector * 1.05 ^ -0 + 
-  T1 %*% benefitVector * 1.05 ^ -1+
-  T2 %*% benefitVector * 1.05 ^ -2 + T3 %*% benefitVector * 1.05 ^ -3
-@
-
-The yearly premium payable whether the insured is alive is as follows. 
-
-<<healthIns4, keep.source=TRUE>>=
-P <- PVFB / (T0[1] * 1.05 ^- 0 + T1[1] * 1.05 ^ -1 + T2[1] * 1.05 ^ -2)
-@
-
-The reserve at the beginning of the second year, in the case of the insured being alive, is as follows.
-
-<<healthIns5, keep.source=TRUE>>=
-PVFB <- T2 %*% benefitVector * 1.05 ^ -1 + T3 %*% benefitVector * 1.05 ^ -2
-PVFP <- P*(T1[1] * 1.05 ^ -0 + T2[1] * 1.05 ^ -1)
-V <- PVFB - PVFP
-V
-@
+Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts), see \cite{deshmukh2012multiple} for details.
 
 An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved
 in the \code{exdata} folder.
@@ -1952,6 +1905,66 @@ ltcDemoPath<-system.file("extdata", "ltdItaData.txt", package = "markovchain")
 ltcDemo<-read.table(file = ltcDemoPath, header=TRUE, sep=";",dec = ".")
 head(ltcDemo)
 @
+
+The data shows the probability of transition between the state of (A)ctive, to (I)ll and Dead. It is easy to complete the 
+transition matrix.
+
+<<healthIns7, keep.source=TRUE>>=
+ltcDemo<-transform(ltcDemo,
+                   pIA=0,
+                   pII=1-pID,
+                   pDD=1,
+                   pDA=0,
+                   pDI=0)
+@
+
+Now we build a function that returns the transition during the $t+1$ th year, assuming that the subject has attained year $t$.
+
+<<healthIns8, keep.source=TRUE>>=
+possibleStates<-c("A","I","D")
+getMc4Age<-function(age) {
+  transitionsAtAge<-ltcDemo[ltcDemo$age==age,]
+  
+  myTransMatr<-matrix(0, nrow=3,ncol = 3,dimnames = list(possibleStates,possibleStates))
+  myTransMatr[1,1]<-transitionsAtAge$pAA[1]
+  myTransMatr[1,2]<-transitionsAtAge$pAI[1]
+  myTransMatr[1,3]<-transitionsAtAge$pAD[1]
+  myTransMatr[2,2]<-transitionsAtAge$pII[1]
+  myTransMatr[2,3]<-transitionsAtAge$pID[1]
+  myTransMatr[3,3]<-1
+  
+  myMc<-new("markovchain",transitionMatrix=myTransMatr,states=possibleStates,name=paste("Age",age,"transition matrix"))
+  
+  return(myMc)
+
+}
+@
+
+Cause transitions are not homogeneous across ages, we use a \code{markovchainList} object to describe the transition probabilities for a guy starting at age 89.
+
+
+<<healthIns8, keep.source=TRUE>>=
+getFullTransitionTable<-function(age){
+  ageSequence<-seq(from=age, to=120)
+  k=1
+  myList=list()
+  for ( i in ageSequence) {
+    mc_age_i<-getMc4Age(age = i)
+    myList[[k]]<-mc_age_i
+    k=k+1
+  }
+  myMarkovChainList<-new("markovchainList",markovchains=myList,name=paste("TransitionsSinceAge",age,sep=""))
+  return(myMarkovChainList)
+}
+transitionsSince89<-getFullTransitionTable(age=89)
+@
+
+We can use such transition for simulating a life trajectory:
+
+<<healthIns, keep.source=TRUE>>=
+as.character(rmarkovchain(n=1, object=transitionsSince89,what="matrix"),t0="A")
+@
+
 
 
 \subsection{Sociology}\label{app:sociology}

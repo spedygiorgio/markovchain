@@ -1454,3 +1454,29 @@ setMethod("predict", "markovchainList",
 .mcLexSort <- function(m) {
   matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
 }
+
+
+#sort method for markovchain objects
+
+setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
+
+setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
+  
+  #get matrix and state names 2 be sorted
+ 
+  matr2besorted<-x@transitionMatrix 
+  if (x@byrow==TRUE) states2besorted<-rownames(matr2besorted) else states2besorted<-colnames(matr2besorted)
+  
+  #sorting
+  sort_index<-order(states2besorted,decreasing = decreasing)
+  
+  #reallocating
+  matr_sorted<-matr2besorted[sort_index,sort_index]
+  states_sorted<-states2besorted[sort_index]
+  
+  x@transitionMatrix<-matr_sorted
+  x@states<-states_sorted
+  
+  return(x)
+}
+)

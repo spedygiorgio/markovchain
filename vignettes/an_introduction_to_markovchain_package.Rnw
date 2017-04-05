@@ -1951,7 +1951,7 @@ getMc4Age<-function(age) {
 }
 @
 
-Cause transitions are not homogeneous across ages, we use a \code{markovchainList} object to describe the transition probabilities for a guy starting at age 89.
+Cause transitions are not homogeneous across ages, we use a \code{markovchainList} object to describe the transition probabilities for a guy starting at age 100.
 
 
 <<healthIns8, keep.source=TRUE>>=
@@ -1967,13 +1967,13 @@ getFullTransitionTable<-function(age){
   myMarkovChainList<-new("markovchainList",markovchains=myList,name=paste("TransitionsSinceAge",age,sep=""))
   return(myMarkovChainList)
 }
-transitionsSince89<-getFullTransitionTable(age=89)
+transitionsSince100<-getFullTransitionTable(age=100)
 @
 
 We can use such transition for simulating a life trajectory:
 
 <<healthIns, keep.source=TRUE>>=
-as.character(rmarkovchain(n=1, object=transitionsSince89,what="matrix"),t0="A")
+rmarkovchain(n=10, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
 @
 
 

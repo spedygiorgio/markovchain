@@ -156,7 +156,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' 
 #' @note Check the type of input
 #' 
-#' @seealso \code{\link{markovchainFit}}
+#' @seealso \code{\link{markovchainFit}}, \code{\link{markovchainSequence}}
 #' 
 #' @examples 
 #' # define the markovchain object

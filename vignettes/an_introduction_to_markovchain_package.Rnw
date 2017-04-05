@@ -1970,10 +1970,10 @@ getFullTransitionTable<-function(age){
 transitionsSince100<-getFullTransitionTable(age=100)
 @
 
-We can use such transition for simulating a life trajectory:
+We can use such transition for simulating a life trajectory for a guy that begins "healthy":
 
 <<healthIns, keep.source=TRUE>>=
-rmarkovchain(n=10, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
+rmarkovchain(n=3, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
 @
 
 

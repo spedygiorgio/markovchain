@@ -421,6 +421,7 @@ manipulate \code{markovchain} objects.
 \code{plot} & \code{plot} method for \code{markovchain} objects.\\
 \code{print} & \code{print} method for \code{markovchain} objects.\\
 \code{show} & \code{show} method for \code{markovchain} objects.\\
+\code{sort} & \code{sort} method for \code{markovchain} objects.\\
   \code{states} & Name of the transition states.\\
   \code{t} & Transposition operator (which switches byrow slot value and modifies \\
  &  the transition matrix coherently).\\
@@ -488,6 +489,13 @@ name(mcWeather)
 name(mcWeather) <- "New Name"
 name(mcWeather)
 @
+
+Also it is possible to alphabetically sort the transition matrix:
+
+<<sortMethod, keep.source=TRUE>>=
+sort(mcWeather)
+@
+
 
 A direct access to transition probabilities is provided both by \code{transitionProbability} method and "[" method.
 
@@ -1895,6 +1903,9 @@ This means that the average premium paid by policyholders in the portfolio
 almost halves in the long run.
 
 \subsubsection{Health insurance example}\label{sec:hi}
+
+TO BE COMPLETED
+
 Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts), see \cite{deshmukh2012multiple} for details.
 
 An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved

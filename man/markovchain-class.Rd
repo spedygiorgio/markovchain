@@ -32,6 +32,7 @@
 \alias{print,markovchain-method}
 \alias{show,markovchain-method}
 \alias{summary,markovchain-method}
+\alias{sort,markovchain-method}
 \alias{t,markovchain-method}
 \title{Class \code{"markovchain"}}
 \description{
@@ -80,6 +81,7 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
 	\item{predict}{\code{signature(object = "markovchain")}: predict method }
     \item{print}{\code{signature(x = "markovchain")}: print method. }
     \item{show}{\code{signature(object = "markovchain")}: show method. }
+    \item{sort}{\code{signature(x = "markovchain", decreasing=FALSE)}: sorting the transition matrix. }
     \item{states}{\code{signature(object = "markovchain")}: returns the names of states (as \code{names}. }
     \item{steadyStates}{\code{signature(object = "markovchain")}: method to get the steady vector. }
 	 \item{summary}{\code{signature(object = "markovchain")}: method to summarize structure of the markov chain }

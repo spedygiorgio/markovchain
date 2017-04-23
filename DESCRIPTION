@@ -1,10 +1,10 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.6.8
-Date: 2017-02-21
+Version: 0.6.9.1
+Date: 2017-04-05
 Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav
-    Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb]
+    Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb], Nacho Cordón Castillo [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov
     chains more easily. In addition functions to perform statistical (fitting

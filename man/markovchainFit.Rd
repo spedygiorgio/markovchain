@@ -60,7 +60,8 @@ Given a sequence of states arising from a stationary state,
  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 }
 \details{
-Disabling confint would lower the computation time on large datasets
+Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 }
 \note{
 If \code{createSequenceMatrix} and \code{markovchainFit} are provided with a sequence containing \code{NA} values, for example \code{c("a","b","NA","b")}, count for a cosecutive state pair containing \code{NA} value is not counted. In this case \code{b} to \code{NA} and vice versa.
@@ -77,6 +78,10 @@ sequenceMatr <- createSequenceMatrix(sequence, sanitize = FALSE)
 mcFitMLE <- markovchainFit(data = sequence)
 mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 
+na.sequence <- c("a", NA, "a", "b")
+# There will be only a (a,b) transition        
+na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
+mcFitMLE <- markovchainFit(data = na.sequence)
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010

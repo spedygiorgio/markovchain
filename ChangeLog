@@ -1,5 +1,12 @@
-21-02-2017 Version 0.6.8
+31-03-2014 Version 0.6.9
+Added sort method
+Revised numeric tolerance when creating markovchains
+Added suggestion for which row to fix
+16-03-2017 Version 0.6.8
 Deep restructuring of statistical tests
+Add parameter confint to markovchainFit
+Fixed bug in markovchainFitList
+Handling of NA
 02-02-2017 Version 0.6.6.2
 Add parameter confint to markovchainFit
 27-01-2017 Version 0.6.6.1

@@ -1,20 +1,27 @@
-//using namespace Rcpp;
-//#include "mathHelperFunctions.h"
+=======
+/*
+ * Function to remove NA values from a vector
+ */
+
+CharacterVector clean_nas(CharacterVector elements_na){
+  CharacterVector elements;
+    
+  for(int i = 0; i < elements_na.size();i++)
+    if(elements_na[i] != "NA")
+      elements.push_back(elements_na[i]);
+
+  return elements;
+}
+  
+
 List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
                bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
+  // vector that could contain NA values
+  CharacterVector elements_na = stringchar;
+  elements_na = unique(union_(elements_na, possibleStates)).sort();
   // vector to store unique states in sorted order
-  CharacterVector elements = stringchar;
-  elements = unique(union_(elements, possibleStates)).sort();
-  CharacterVector elements_na;
-   for(int i =0;i<elements.size();i++){
-   if(elements[i] != "NA"){
-       elements_na.push_back(elements[i]);
-     }
-   }
-  elements = elements_na;
-  elements = unique(elements);
-  
+  CharacterVector elements = clean_nas(elements_na);
   // number of unique states
   int sizeMatr = elements.size();
   // if no hyperparam argument provided, use default value of 1 for all 
@@ -133,12 +140,12 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   // populate frequeny matrix for old data; this is used for inference 
   int posFrom = 0, posTo = 0;
   for(long int i = 0; i < stringchar.size() - 1; i ++) {
-    for (int j = 0; j < sizeMatr; j ++) {
-      if(stringchar[i] == elements[j]) posFrom = j;
-      if(stringchar[i + 1] == elements[j]) posTo = j;
-    }
-    if(stringchar[i]!="NA" && stringchar[i+1]!="NA"){
-    freqMatr(posFrom,posTo)++;
+    if(stringchar[i] != "NA" && stringchar[i+1] != "NA"){
+      for (int j = 0; j < sizeMatr; j ++) {
+        if(stringchar[i] == elements[j]) posFrom = j;
+        if(stringchar[i + 1] == elements[j]) posTo = j;
+      }
+      freqMatr(posFrom,posTo)++;
     }
   }
  
@@ -199,7 +206,8 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   outMc.slot("transitionMatrix") = mapEstMatr;
   outMc.slot("name") = "Bayesian Fit";  
   
-  warning("\n\'estimate\' is the MAP set of parameters where as \'expectedValue\' \nis the expectation of the parameters with respect to the posterior.\nThe confidence intervals are given for \'estimate\'.");
+ // message("\n\'estimate\' is the MAP set of parameters where as \'expectedValue\' \nis the expectation 
+ // of the parameters with respect to the posterior.\nThe confidence intervals are given for \'estimate\'.");
   
   return List::create(_["estimate"] = outMc,
                       _["expectedValue"] = expMatr,

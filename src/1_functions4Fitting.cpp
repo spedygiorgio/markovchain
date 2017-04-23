@@ -493,9 +493,9 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     for(int i = 0;i < possibleStates.size();i++) {
       pstates.push_back(possibleStates[i]);
     }
-    
     pstates = unique(pstates);
     pstates = pstates.sort();
+    
     int sizeMatr = pstates.size();
     NumericMatrix freqMatrix(sizeMatr);
     freqMatrix.attr("dimnames") = List::create(pstates, pstates);
@@ -518,6 +518,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     
     if(toRowProbs == true)
       return _toRowProbs(freqMatrix, sanitize);
+      
     
     return freqMatrix;
   }
@@ -529,14 +530,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   CharacterVector elements_na = unique(union_(stringChar, possibleStates));
   
   // free from missing values
-  CharacterVector elements;
-  
-  for(int i = 0; i < elements_na.size();i++) {
-    if(elements_na[i] != "NA") {
-      elements.push_back(elements_na[i]);
-    }
-  }
-  
+  CharacterVector elements = clean_nas(elements_na);
   elements = elements.sort();
   int sizeMatr = elements.size();
   
@@ -570,14 +564,14 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     
     int posFrom = 0, posTo = 0;
     for(long int i = 0; i < stringChar.size() - 1; i ++) {
-      for (int j = 0; j < rnames.size(); j ++) {
-        if(stringChar[i] == rnames[j]) posFrom = j;
-        if(stringChar[i + 1] == rnames[j]) posTo = j;
+      if(stringChar[i] != "NA" && stringChar[i+1] != "NA"){
+        for (int j = 0; j < rnames.size(); j ++) {
+          if(stringChar[i] == rnames[j]) posFrom = j;
+          if(stringChar[i + 1] == rnames[j]) posTo = j;
+        }
+        freqMatrix(posFrom, posTo)++;
       }
-      if(stringChar[i]!="NA" && stringChar[i+1]!="NA"){
-      freqMatrix(posFrom, posTo)++;
-      }
-    }  
+    }
   }
   
   // sanitizing if any row in the matrix sums to zero by posing the corresponding diagonal equal to 1/dim
@@ -595,9 +589,8 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   
   if(toRowProbs == true)
     return _toRowProbs(freqMatrix, sanitize);
-  
+
   return (freqMatrix);
-  
 }
 
 // log-likelihood
@@ -612,12 +605,12 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   // caculate out
   int from = 0, to = 0; 
   for(long int i = 0; i < seq.size() - 1; i ++) {
-    for(int r = 0; r < rnames.size(); r ++) {
-      if(rnames[r] == seq[i]) from = r; 
-      if(rnames[r] == seq[i + 1]) to = r; 
-    }
-    if(seq[i]!="NA" && seq[i+1]!="NA"){
-    out += log(transMatr(from, to));
+    if(seq[i] != "NA" && seq[i+1] != "NA"){
+      for(int r = 0; r < rnames.size(); r ++) {
+        if(rnames[r] == seq[i]) from = r; 
+        if(rnames[r] == seq[i + 1]) to = r; 
+      }      
+      out += log(transMatr(from, to));
     }
   }
   
@@ -651,20 +644,22 @@ List mcListFitForList(List data) {
     if(i < len) {
       // transition from (i-1)th to ith
       CharacterMatrix temp(l-j, 2);
-      //If atleast one sequence has an invalid transition we will ignore it. 
-      bool flag = false;
+      // indicates wheter there is a valid transition for the current time of the
+      // markov chain
+      bool validTransition = false;
+      
       for(int k = j;k < l;k++) {
         temp(k-j, 0) = (as<CharacterVector>(data[length_seq[k].second]))[i-1];
         temp(k-j, 1) = (as<CharacterVector>(data[length_seq[k].second]))[i];
-        if(temp(k-j,0)!="NA" && temp(k-j,1)!="NA"){
-          flag = true;
-        }
+        
+        if(temp(k-j,0) != "NA" && temp(k-j, 1) != "NA")
+          validTransition = true;
       }
       
       // frequency matrix
-      if(flag){
-      out.push_back(createSequenceMatrix(temp, false, true));
-      }
+      if(validTransition)
+        out.push_back(createSequenceMatrix(temp, false, true));
+      
       i++;
       
     } else {
@@ -799,6 +794,7 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   // create markov chain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = initialMatr;
+  
   outMc.slot("name") = "MLE Fit";  
   
   List CI = generateCI(confidencelevel, freqMatr);
@@ -1166,9 +1162,10 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   
   // populate uniqueVals set
   for(long int i = 0; i < nRows; i++) 
-    for(long int j = 0; j < nCols; j++) 
-      uniqueVals.insert((std::string)matrData(i, j));	
-  
+    for(long int j = 0; j < nCols; j++){
+      if(matrData(i,j) != "NA")
+        uniqueVals.insert((std::string)matrData(i, j));	
+    }
   // unique states
   int usize = uniqueVals.size();
   
@@ -1185,20 +1182,21 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   int stateBegin = 0, stateEnd = 0;
   for(long int i = 0; i < nRows; i ++) {
     for(long int j = 1; j < nCols; j ++) {
+      if(matrData(i,j-1) != "NA" && matrData(i,j) != "NA"){
+        // row and column number of begin state and end state
+        int k = 0;
+        for(it = uniqueVals.begin(); it != uniqueVals.end(); ++it, k++) {
+          if(*it == (std::string)matrData(i, j-1)) {
+            stateBegin = k;
+          }
+          
+          if(*it == (std::string)matrData(i,j)) {
+            stateEnd = k;
+          }
+        }
       
-      // row and column number of begin state and end state
-      int k = 0;
-      for(it = uniqueVals.begin(); it != uniqueVals.end(); ++it, k++) {
-        if(*it == (std::string)matrData(i, j-1)) {
-          stateBegin = k;
-        }
-        
-        if(*it == (std::string)matrData(i,j)) {
-          stateEnd = k;
-        }
+        contingencyMatrix(stateBegin,stateEnd)++;
       }
-      
-      contingencyMatrix(stateBegin,stateEnd)++;
     }
   }
   
@@ -1522,7 +1520,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence
 //' 
-//' @details Disabling confint would lower the computation time on large datasets
+//' @details Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+//' contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 //' 
 //' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 //'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -1552,6 +1551,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' mcFitMLE <- markovchainFit(data = sequence)
 //' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
 //'
+//' na.sequence <- c("a", NA, "a", "b")
+//' # There will be only a (a,b) transition        
+//' na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
+//' mcFitMLE <- markovchainFit(data = na.sequence)
 //' @rdname markovchainFit
 //' 
 //' @export
@@ -1603,7 +1606,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  }
   	  
   	  out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
-  	  out[0] = outMc;  
+  	  out[0] = outMc;
   	} else {
   	  out = List::create(_["estimate"] = outMc);
   	}
@@ -1611,7 +1614,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   else if(TYPEOF(data) == VECSXP) { 
     out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
   }
-  else {    
+  else {
     if(method == "mle") {
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
     }

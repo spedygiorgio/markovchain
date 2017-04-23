@@ -244,18 +244,20 @@ setValidity("markovchain",
 			if (object@byrow == TRUE) {
 			  
 			  # absolute difference
-			  absdiff <- abs(1-rowSums(object@transitionMatrix))
+			  absdiff <- abs(1-zapsmall(rowSums(object@transitionMatrix)))
 				
 			  if(any(absdiff > .Machine$double.eps*100)) {
-				  check <- "Error! Row sums not equal to one" 
+			    pos2check<-which(absdiff > .Machine$double.eps*100)
+				  check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
 				}
 			} else {
 			  
 			  # absolute difference
-			  absdiff <- abs(1-colSums(object@transitionMatrix))
+			  absdiff <- abs(1-zapsmall(colSums(object@transitionMatrix)))
 			  
-			  if(any(absdiff > .Machine$double.eps*10)) {
-				  check <- "Error! Col sums not equal to one"
+			  if(any(absdiff > .Machine$double.eps*100)) {
+			    pos2check<-which(absdiff > .Machine$double.eps*100)
+			    check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
 				}
 			}
 			
@@ -296,8 +298,8 @@ setValidity("markovchain",
   # perform the eigenvalue extraction
   eigenResults <- eigen(x = tMatr, symmetric = FALSE) 
   
-  # takes the one eigenvalue
-  onesIndex <- which(round(eigenResults$values,3) == 1) 
+  # takes the one eigenvalues
+  onesIndex <- which( sapply (eigenResults$values, function(e){ isTRUE(all.equal( as.complex(e),1+0i)) } ))
   
   # do the following: 
   # 1 : get eigenvectors whose eigenvalues == 1
@@ -308,11 +310,14 @@ setValidity("markovchain",
     return(NULL)
   }
   
+  # Gives always a norm-based order to eigenvectors
+  eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
+
   if (transpose == TRUE) {
-    eigenTake <- as.matrix(t(eigenResults$vectors[, onesIndex])) 
+    eigenTake <- as.matrix(t(eigenvectors)) 
     out <- eigenTake / rowSums(eigenTake) # normalize
   } else {
-    eigenTake <- as.matrix(eigenResults$vectors[,onesIndex]) 
+    eigenTake <- as.matrix(eigenvectors) 
     out <- eigenTake / colSums(eigenTake) # normalize
   }
   
@@ -372,14 +377,16 @@ setMethod("steadyStates","markovchain",
 			  warning("Negative elements in steady states, working on closed classes submatrix")
 			  if(object@byrow==TRUE) myObject=object else myObject=t(object)
 			  out <- .steadyStatesByRecurrentClasses(object=myObject)
-			  if (object@byrow==FALSE) out<-t(out)
 			}
       
 			if(is.null(out)) {
 				warning("Warning! No steady state")
 				return(NULL)
-			}
-		
+			} else{
+			  # order vectors lexicographically
+			  out <- .mcLexSort(out)
+		    if (object@byrow==FALSE) out<-t(out)
+		  }
 			
 			if(transposeYN == TRUE) { 
 				colnames(out) <- object@states
@@ -415,8 +422,9 @@ setMethod("steadyStates","markovchain",
   
   out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
   colnames(out)<-names(object)
-  #getting their steady states
-  partialOutput<-t(eigen(Msub)$vectors[,eigen(Msub)$values == 1]) / colSums(eigen(Msub)$vectors[,eigen(Msub)$values == 1])
+  #getting their steady states, calculating first indexes of eigenvalues equal to 1
+  onesIndex <- which( sapply (eigen(Msub)$values, function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }) )
+  partialOutput<-t(eigen(Msub)$vectors[, onesIndex]) / colSums(eigen(Msub)$vectors[, onesIndex])
   colnames(partialOutput)<-recurrentClassesNames
   #allocating to their columns
   out[,colnames(out) %in% recurrentClassesNames]<-partialOutput
@@ -644,8 +652,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 )
 
 
-# @TAE: create an internal function that does this. Check also if the canonic form function 
-#       is appropriate
+
 # method to convert into canonic form : a markovchain object
 # TODO: check meaning of this function
 
@@ -877,9 +884,9 @@ setMethod("summary", signature(object = "markovchain"),
 	for( i in 1:length(check)) {
 	  if (abs(1-check[i]) > .Machine$double.eps) {
 	    if(verbose) {
-	      stop("Error! Either rows or cols should sum to 1") 
+	      myMessage<-paste("Error! Either rows or cols should sum to 1","check state",i)
+	      stop(myMessage) 
 	    }
-	    
 	    return(FALSE)
 	  }
 	}
@@ -903,6 +910,9 @@ setMethod("summary", signature(object = "markovchain"),
 	} else  {
 		checkByCols <- .checkMatrix(from, byrow = FALSE)
 		if(!checkByCols) {
+		  #error could be either in rows or in cols
+		  if (any(colSums(from)!=1)) cat("columns sums not equal to one are:",which(colSums(from)!=1),"\n")
+		  if (any(rowSums(from)!=1)) cat("columns sums not equal to one are:",which(rowSums(from)!=1),"\n")
 		  stop("Error! Not a probability matrix")	
 		}
 	}
@@ -1437,4 +1447,36 @@ setMethod("predict", "markovchainList",
 			
 			                    return(out)
 		                   }
+)
+
+# Wrapper for a function to lexicographically sort the rows of a matrixx
+# m : matrix
+.mcLexSort <- function(m) {
+  matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
+}
+
+
+#sort method for markovchain objects
+
+setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
+
+setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
+  
+  #get matrix and state names 2 be sorted
+ 
+  matr2besorted<-x@transitionMatrix 
+  if (x@byrow==TRUE) states2besorted<-rownames(matr2besorted) else states2besorted<-colnames(matr2besorted)
+  
+  #sorting
+  sort_index<-order(states2besorted,decreasing = decreasing)
+  
+  #reallocating
+  matr_sorted<-matr2besorted[sort_index,sort_index]
+  states_sorted<-states2besorted[sort_index]
+  
+  x@transitionMatrix<-matr_sorted
+  x@states<-states_sorted
+  
+  return(x)
+}
 )

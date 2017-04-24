@@ -1157,6 +1157,25 @@ setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
 setAs(from = "etm", to = "markovchain", def = .etm2Mc)
 
 
+#sparse matrix from Matrix package
+.sparseMatrix2markovchain<-function(from){
+  temp<-as(from,"matrix")
+  out <- as(temp, "markovchain")
+  return(out)
+}
+
+.markovchain2sparseMatrix<-function(from){
+  temp<-as(from,"matrix")
+  out <- as(temp, "sparseMatrix")
+  return(out)
+}
+
+
+setAs(from = "sparseMatrix", to = "markovchain", def = .sparseMatrix2markovchain)
+setAs(from = "markovchain", to = "sparseMatrix", def = .markovchain2sparseMatrix)
+
+
+
 # functions and methods to return a matrix
 .mc2matrix <- function(from) {
 	out <- from@transitionMatrix

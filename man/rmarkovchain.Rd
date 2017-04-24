@@ -71,7 +71,7 @@ rmarkovchain(100, mclist, "list")
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
-\code{\link{markovchainFit}}
+\code{\link{markovchainFit}}, \code{\link{markovchainSequence}}
 }
 \author{
 Giorgio Spedicato

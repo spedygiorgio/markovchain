@@ -1,4 +1,2 @@
-24-03-2017 Version 0.6.9
-Added sort method
-Revised numeric tolerance when creating markovchains
-Added suggestion for which row to fix
+31-04-2017 Version 0.6.9.1
+Possible to coerce from and to sparseMatrix

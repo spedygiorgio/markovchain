@@ -43,3 +43,12 @@ P[3,2]<-P[3,4]<-0.5
 P[4,3]<-P[4,5]<-0.5
 mcP<-as(P,"markovchain")
 mcPCan<-canonicForm(mcP)
+
+
+# coercing markov chains to sparse matrix forth and back
+require(Matrix)
+ciauz<-c(0,.5,.5,1,0,0,.2,0,.8)
+matrix(ciauz, nrow=3, byrow=TRUE)
+sparse<-as(matrix(ciauz, nrow=3, byrow=TRUE),"sparseMatrix")
+mc<-as(sparse,"markovchain")
+sparse2<-as(mc,"sparseMatrix")

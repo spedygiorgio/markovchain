@@ -593,7 +593,9 @@ etm2mc
 \begin{center}
 <<importExportPlot,fig=TRUE,echo=FALSE>>=
 library(igraph)
-importExportGraph<-graph.formula(dataframe++markovchain,markovchain-+igraph,markovchain++matrix,table-+markovchain,msm-+markovchain,etm-+markovchain)
+importExportGraph<-graph.formula(dataframe++markovchain,markovchain-+igraph,
+                                 markovchain++matrix,table-+markovchain,msm-+markovchain,etm-+markovchain,
+                                 markovchain++sparseMatrix)
 plot(importExportGraph,main="Import - Export from and to markovchain objects")
 @
 \caption{The \pkg{markovchain} methods for import and export.}

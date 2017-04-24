@@ -1477,7 +1477,7 @@ setMethod("predict", "markovchainList",
 
 #sort method for markovchain objects
 
-setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
+setGeneric("sort", function(x, decreasing=FALSE) standardGeneric("sort"))
 
 setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
   
@@ -1493,9 +1493,11 @@ setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
   matr_sorted<-matr2besorted[sort_index,sort_index]
   states_sorted<-states2besorted[sort_index]
   
-  x@transitionMatrix<-matr_sorted
-  x@states<-states_sorted
+  out<-x
   
-  return(x)
+  out@transitionMatrix<-matr_sorted
+  out@states<-states_sorted
+  
+  return(out)
 }
 )

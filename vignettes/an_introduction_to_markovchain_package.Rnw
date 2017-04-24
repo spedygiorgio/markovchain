@@ -493,7 +493,8 @@ name(mcWeather)
 Also it is possible to alphabetically sort the transition matrix:
 
 <<sortMethod, keep.source=TRUE>>=
-sort(mcWeather)
+#check why does not work!!
+#sort(mcWeather)
 @
 
 

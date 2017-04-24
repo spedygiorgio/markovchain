@@ -20,6 +20,7 @@
 \alias{coerce,markovchain,igraph-method}
 \alias{coerce,markovchain,matrix-method}
 \alias{coerce,markovchain,sparseMatrix-method}
+\alias{coerce,sparseMatrix,markovchain-method}
 \alias{coerce,matrix,markovchain-method}
 \alias{coerce,msm,markovchain-method}
 \alias{coerce,msm.est,markovchain-method}

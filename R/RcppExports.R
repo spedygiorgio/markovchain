@@ -13,10 +13,6 @@
     .Call('markovchain_canonicForm', PACKAGE = 'markovchain', object)
 }
 
-.lexicographical_sort <- function(y) {
-    .Call('markovchain_lexicographicalSort', PACKAGE = 'markovchain', y)
-}
-
 generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
     .Call('markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen, byrow)
 }
@@ -56,8 +52,8 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
     .Call('markovchain_mcListFitForList', PACKAGE = 'markovchain', data)
 }
 
-.matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE, possibleStates = character()) {
-    .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize, possibleStates)
+.matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE) {
+    .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize)
 }
 
 .list2Mc <- function(data, laplacian = 0, sanitize = FALSE) {
@@ -227,5 +223,9 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
     .Call('markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
+}
+
+.lexicographical_sort <- function(y) {
+    .Call('markovchain_lexicographicalSort', PACKAGE = 'markovchain', y)
 }
 

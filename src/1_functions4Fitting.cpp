@@ -45,8 +45,8 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
     for(int j = 0;j < states.size();j++) {
       
       /* last element of state character vector
-      because of markovchainListRcpp, a seq of length greater than 1
-      is also passed whose end state is the beginning state here */
+         because of markovchainListRcpp, a seq of length greater than 1
+         is also passed whose end state is the beginning state here */
       
       if(states[j] == state[state.size()-1]) {
         row_no = j;
@@ -100,7 +100,7 @@ bool checkSequenceRcpp(List object) {
       for(int k = 0;k < matr.nrow();k++) {
         csum += matr(k, j);
       }
-      
+
       if(csum != 0) statesNm1.push_back(statesN1[j]);
     }
     
@@ -138,18 +138,18 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
   
   // Initial State selection if not passed
   //-----------------------------------------------------------------------------
-  CharacterVector ustates = ob.slot("states");
-  NumericVector rowProbs;
+      CharacterVector ustates = ob.slot("states");
+      NumericVector rowProbs;
   
-  for(int i = 0;i < ustates.size();i++) {
-    rowProbs.push_back(1.0 / ustates.size());
-  }
+      for(int i = 0;i < ustates.size();i++) {
+        rowProbs.push_back(1.0 / ustates.size());
+      }
   
-  bool rselect = (t0.size() == 0);
+      bool rselect = (t0.size() == 0);
   
-  if(rselect) {
-    t0 = sample(ustates, 1, false, rowProbs);
-  }
+      if(rselect) {
+        t0 = sample(ustates, 1, false, rowProbs);
+      }
   //------------------------------------------------------------------------------
   
   // check whether t0 is in unique states or not 
@@ -439,7 +439,7 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
 NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
   int nrow = x.nrow(), ncol = x.ncol();
   NumericMatrix out(nrow);
-  
+
   for (int i = 0; i < nrow; i++) {
     double rowSum = 0;
     for (int j = 0; j < ncol; j++) 
@@ -518,7 +518,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     
     if(toRowProbs == true)
       return _toRowProbs(freqMatrix, sanitize);
-    
+      
     
     return freqMatrix;
   }
@@ -590,7 +590,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   
   if(toRowProbs == true)
     return _toRowProbs(freqMatrix, sanitize);
-  
+
   return (freqMatrix);
 }
 
@@ -768,25 +768,25 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   
   // set names of states as rows name and columns name
   initialMatr.attr("dimnames") = freqMatr.attr("dimnames");
-  
+
   // take care of rows with all entries 0 
   for (int i = 0; i < sizeMatr; i++) {  
-    double rowSum = 0;
-    for (int j = 0; j < sizeMatr; j++) { 
-      rowSum += freqMatr(i, j);
-    }
-    
-    // calculate rows probability
-    for (int j = 0; j < sizeMatr; j++) { 
-      if(rowSum == 0) {
-        initialMatr(i, j) = (sanitize ? 1.0/sizeMatr : 0);
-      }
-      else {
-        initialMatr(i, j) = freqMatr(i, j)/rowSum;
-      }
-    }
+  	double rowSum = 0;
+  	for (int j = 0; j < sizeMatr; j++) { 
+  	  rowSum += freqMatr(i, j);
+  	}
+  		
+  	// calculate rows probability
+  	for (int j = 0; j < sizeMatr; j++) { 
+  	  if(rowSum == 0) {
+  	    initialMatr(i, j) = (sanitize ? 1.0/sizeMatr : 0);
+  	  }
+  	  else {
+  	    initialMatr(i, j) = freqMatr(i, j)/rowSum;
+  	  }
+  	}
   }
-  
+
   // transpose the matrix if byrow is false
   if(byrow == false) {
     initialMatr = _transpose(initialMatr); 
@@ -803,10 +803,10 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   // return a list of important results
   return List::create(_["estimate"] = outMc,
                       _["standardError"] = CI[0],
-                                             _["confidenceLevel"] = CI[1],
-                                                                      _["lowerEndpointMatrix"] = CI[2],
-                                                                                                   _["upperEndpointMatrix"] = CI[3]
-  );
+                      _["confidenceLevel"] = CI[1],
+                      _["lowerEndpointMatrix"] = CI[2],
+                      _["upperEndpointMatrix"] = CI[3]
+	       );
 }
 
 // Fit DTMC using Laplacian smooth
@@ -821,34 +821,34 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   
   // convert frequency matrix to transition matrix
   for(int i = 0; i < nRows; i ++) {
-    double rowSum = 0;
-    
-    // add laplacian correction to each entry
-    // also calculate row's sum
-    for(int j = 0; j < nCols; j ++) {
-      origNum(i,j) += laplacian;
-      rowSum += origNum(i,j);
-    }
-    
-    // get a transition matrix and a DTMC
-    for(int j = 0; j < nCols; j ++) { 
-      if(rowSum == 0)
-        origNum(i,j) = sanitize ? origNum(i,j)/rowSum : 0;
-      else 
-        origNum(i,j) = origNum(i,j)/rowSum;
-    }
+	  double rowSum = 0;
+	  
+	  // add laplacian correction to each entry
+	  // also calculate row's sum
+	  for(int j = 0; j < nCols; j ++) {
+    		origNum(i,j) += laplacian;
+    		rowSum += origNum(i,j);
+  	}
+	  
+  	// get a transition matrix and a DTMC
+	  for(int j = 0; j < nCols; j ++) { 
+	    if(rowSum == 0)
+	      origNum(i,j) = sanitize ? origNum(i,j)/rowSum : 0;
+	    else 
+	      origNum(i,j) = origNum(i,j)/rowSum;
+	  }
   }
   
   // transpose transition matrix = columnwise storage 
   if(byrow == false) {
     origNum = _transpose(origNum);  
   }
-  
+ 
   // create markovchain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = origNum;
   outMc.slot("name") = "Laplacian Smooth Fit";  
-  
+
   return List::create(_["estimate"] = outMc);
 }
 
@@ -873,7 +873,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long int si
   
   // number of distinct states
   int itemsetsize = itemset.size();
-  
+
   // access R sample function
   Function sample("sample");
   
@@ -916,7 +916,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long int si
     // every add one sequence
     samples.push_back(charseq);
   }
-  
+
   // return a list of n sequence of same length as of given sequence
   return samples;
 }
@@ -936,20 +936,20 @@ List _fromBoot2Estimate(List listMatr) {
   
   // matrix to store mean and standard deviation
   NumericMatrix matrMean(matrDim), matrSd(matrDim);
-  
+
   // populate mean and sd matrix
   for(int i = 0; i < matrDim; i ++) { 
-    for(int j = 0; j < matrDim; j ++) { 
-      
-      NumericVector probsEstimated;
-      for(int k = 0; k < sampleSize; k ++) {
+  	for(int j = 0; j < matrDim; j ++) { 
+  	  
+  	  NumericVector probsEstimated;
+  	  for(int k = 0; k < sampleSize; k ++) {
         NumericMatrix mat = listMatr[k];
-        probsEstimated.push_back(mat(i,j));
-      }
-      
-      matrMean(i, j) = mean(probsEstimated);
-      matrSd(i, j) = Rcpp::sd(probsEstimated);
-    }
+  	    probsEstimated.push_back(mat(i,j));
+  	  }
+  	  
+  	  matrMean(i, j) = mean(probsEstimated);
+  	  matrSd(i, j) = Rcpp::sd(probsEstimated);
+  	}
   }
   
   // set rows and columns names = states names
@@ -1046,7 +1046,7 @@ struct BootstrapList : public Worker {
 };
 
 List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, long int size = -1, 
-                                          CharacterVector possibleStates = CharacterVector()) {
+                                  CharacterVector possibleStates = CharacterVector()) {
   // store length of sequence
   if(size == -1) {
     size = stringchar.size();  
@@ -1062,10 +1062,10 @@ List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, lon
   // number of distinct states
   // int itemsetsize = itemset.size();
   
-  BootstrapList bsList(contingencyMatrix, itemset, size);
-  parallelReduce(0, n, bsList);
+   BootstrapList bsList(contingencyMatrix, itemset, size);
+   parallelReduce(0, n, bsList);
   
-  return wrap(bsList.output);
+   return wrap(bsList.output);
 }
 
 // Fit DTMC using bootstrap method
@@ -1074,14 +1074,14 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   
   // list of sequence generated using given sequence
   List theList = (parallel) ? _bootstrapCharacterSequencesParallel(data, nboot, data.size()) : 
-  _bootstrapCharacterSequences(data, nboot, data.size());
+                 _bootstrapCharacterSequences(data, nboot, data.size());
   
   // number of new sequence
   int n = theList.size();
   
   // to store frequency matrix for every sequence
   List pmsBootStrapped(n);
-  
+
   // populate pmsBootStrapped 
   if(parallel)
     for(int i = 0; i < n; i++)
@@ -1096,13 +1096,13 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   
   // transition matrix
   NumericMatrix transMatr = _toRowProbs(estimateList["estMu"], sanitize);
-  
+
   // markovchain object
   S4 estimate("markovchain");
   estimate.slot("transitionMatrix") = transMatr;
   estimate.slot("byrow") = byrow;
   estimate.slot("name") = "BootStrap Estimate";  
-  
+
   // z score for given confidence interval
   double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
   
@@ -1137,24 +1137,23 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   
   // set the rows and columns name as states names
   standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
-    = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames"); 
+              = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames"); 
   
   // return a list of important results
   List out = List::create(_["estimate"] = estimate,
                           _["standardError"] = standardError,
                           _["confidenceInterval"] = List::create(_["confidenceLevel"] = confidencelevel, 
-                                               _["lowerEndpointMatrix"] = lowerEndpointMatr,
-                                               _["upperEndpointMatrix"] = upperEndpointMatr),
-                                               _["bootStrapSamples"] = pmsBootStrapped
-  ); 
-  
+                                                                 _["lowerEndpointMatrix"] = lowerEndpointMatr,
+                                                                 _["upperEndpointMatrix"] = upperEndpointMatr),
+                          _["bootStrapSamples"] = pmsBootStrapped
+		                     ); 
+
   return out;
 }
 
 // convert matrix data to transition probability matrix
 // [[Rcpp::export(.matr2Mc)]]
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false, 
-            CharacterVector possibleStates = CharacterVector()) {
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false) {
   
   // dimension of input matrix
   long int nRows = matrData.nrow(), nCols = matrData.ncol();
@@ -1164,17 +1163,12 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   
   // populate uniqueVals set
   for(long int i = 0; i < nRows; i++) 
-    for(long int j = 0; j < nCols; j++) {
+    for(long int j = 0; j < nCols; j++){
       if(matrData(i,j) != "NA")
         uniqueVals.insert((std::string)matrData(i, j));	
     }
-    
-    for(int i = 0;i < possibleStates.size();i++) {
-      uniqueVals.insert((std::string)possibleStates[i]);
-    }
-    
-    // unique states
-    int usize = uniqueVals.size();
+  // unique states
+  int usize = uniqueVals.size();
   
   // matrix of dimension usize
   NumericMatrix contingencyMatrix (usize);
@@ -1201,7 +1195,7 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
             stateEnd = k;
           }
         }
-        
+      
         contingencyMatrix(stateBegin,stateEnd)++;
       }
     }
@@ -1387,12 +1381,12 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     if(scale.size() == 0) {
       stop("Provide a non-zero scaling factor vector to infer integer hyperparameters");
     }
-    
+      
     // --------begin validity checks for the transition matrix---------
     if(transMatr.nrow() != transMatr.ncol()) {
       stop("Transition matrix dimensions are inconsistent");
     }
-    
+      
     //  number of rows in transition matrix
     int sizeMatr = transMatr.nrow();
     
@@ -1407,7 +1401,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
         else
           rowSum += transMatr(i, j);
       }   
-      
+        
       if(rowSum <= 1. - eps || rowSum >= 1. + eps)
         stop("Each rows of the transition matrix must sum to 1");
     }
@@ -1434,21 +1428,21 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
         stop("The set of row names must be the same as the set of column names");  
     } 
     // --------end of validity checks for the transition matrix---------  
-    
+      
     
     // --------beginning of validity checks for the scale factor vector---------  
     
     // length of scale vector must be equal to number of rows in transition matrix
     if(scale.size() != sizeMatr) 
       stop("The dimensions of the scale vector must match the number of states in the chain");
-    
+      
     // if any value in the scale vector is zero  
     for(int i = 0; i < sizeMatr; i++) {
       if(scale(i) == 0)
         stop("The scaling factors must be non-zero!");
     }
     // --------end of validity checks for the scale factor vector---------  
-    
+      
     
     // Creation of output matrix i.e. hyper param matrix
     NumericMatrix hpScaled(sizeMatr);
@@ -1460,7 +1454,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
         hpScaled(i, j) = scale(i) * transMatr(i, j);
     
     /* shift rows and columns so that names of rows
-    and columns names will be in sorted order */
+       and columns names will be in sorted order */
     hpScaled = sortByDimNames(hpScaled);
     
     // store list of hyper param scaled matrix
@@ -1568,9 +1562,9 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' 
 // [[Rcpp::export]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10, double laplacian = 0,
-                    String name = "", bool parallel = false, double confidencelevel = 0.95, bool confint = true, 
-                    NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false, 
-                    CharacterVector possibleStates = CharacterVector()) {
+                String name = "", bool parallel = false, double confidencelevel = 0.95, bool confint = true, 
+                NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false, 
+                CharacterVector possibleStates = CharacterVector()) {
   
   // list to store the output
   List out;
@@ -1582,41 +1576,41 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     CharacterMatrix mat;
     
     // if data is a data.frame force it to matrix
-    if(Rf_inherits(data, "data.frame")) {
-      DataFrame df(data);
-      
-      // matrix : no of rows = no of rows in df : same for number of columns
-      mat = CharacterMatrix(df.nrows(), df.size());
-      for(long int i = 0; i < df.size(); i++) {
-        mat(_,i) = CharacterVector(df[i]);
-      }
-    } 
-    else {
-      mat = data;
-    }
-    
-    // byrow assumes distinct observations (trajectiories) are per row
-    // otherwise transpose
-    if(!byrow) {
-      mat = _transpose(mat); 
-    }
-    
-    S4 outMc =_matr2Mc(mat, laplacian, sanitize, possibleStates);
-    
-    // whether to compute confidence interval or not
-    if(confint) {
-      // convert matrix to list
-      int nrows = mat.nrow();
-      List manyseq(nrows);
-      for(int i = 0;i < nrows;i++) {
-        manyseq[i] = mat(i,_);
-      }
-      
-      out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
-      out[0] = outMc;
-    } else {
-      out = List::create(_["estimate"] = outMc);
-    }
+  	if(Rf_inherits(data, "data.frame")) {
+  	  DataFrame df(data);
+  	  
+  	  // matrix : no of rows = no of rows in df : same for number of columns
+  	  mat = CharacterMatrix(df.nrows(), df.size());
+  	  for(long int i = 0; i < df.size(); i++) {
+  	    mat(_,i) = CharacterVector(df[i]);
+  	  }
+ 	  } 
+  	else {
+		  mat = data;
+	  }
+  	
+  	// byrow assumes distinct observations (trajectiories) are per row
+  	// otherwise transpose
+  	if(!byrow) {
+  	  mat = _transpose(mat); 
+  	}
+  	
+   	S4 outMc =_matr2Mc(mat, laplacian, sanitize);
+  	
+  	// whether to compute confidence interval or not
+  	if(confint) {
+  	  // convert matrix to list
+  	  int nrows = mat.nrow();
+  	  List manyseq(nrows);
+  	  for(int i = 0;i < nrows;i++) {
+  	    manyseq[i] = mat(i,_);
+  	  }
+  	  
+  	  out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
+  	  out[0] = outMc;
+  	} else {
+  	  out = List::create(_["estimate"] = outMc);
+  	}
   }
   else if(TYPEOF(data) == VECSXP) { 
     out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
@@ -1629,7 +1623,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     if(method == "bootstrap") {
       out = _mcFitBootStrap(data, nboot, byrow, parallel, confidencelevel, sanitize, possibleStates);
     }
-    
+  
     if(method == "laplace") {
       out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize, possibleStates);
     }

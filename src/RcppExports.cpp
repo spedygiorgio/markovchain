@@ -39,17 +39,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// lexicographicalSort
-SEXP lexicographicalSort(SEXP y);
-RcppExport SEXP markovchain_lexicographicalSort(SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(lexicographicalSort(y));
-    return rcpp_result_gen;
-END_RCPP
-}
 // generatorToTransitionMatrix
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow);
 RcppExport SEXP markovchain_generatorToTransitionMatrix(SEXP genSEXP, SEXP byrowSEXP) {
@@ -167,16 +156,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // _matr2Mc
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize);
+RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterMatrix >::type matrData(matrDataSEXP);
     Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize, possibleStates));
+    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -366,6 +354,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
     Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
     rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lexicographicalSort
+SEXP lexicographicalSort(SEXP y);
+RcppExport SEXP markovchain_lexicographicalSort(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(lexicographicalSort(y));
     return rcpp_result_gen;
 END_RCPP
 }

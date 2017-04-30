@@ -1973,11 +1973,31 @@ getFullTransitionTable<-function(age){
 transitionsSince100<-getFullTransitionTable(age=100)
 @
 
-We can use such transition for simulating a life trajectory for a guy that begins "healthy":
+We can use such transition for simulating ten life trajectories for a guy that begins "active" (A) aged 100:
 
-<<healthIns, keep.source=TRUE>>=
-rmarkovchain(n=3, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
+<<healthIns9, keep.source=TRUE>>=
+rmarkovchain(n=10, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
 @
+
+
+Lets consider 1000 simulated live trajectories, for a healty guy aged 80. We can compute the expected time a guy will be disabled starting active at age 100.
+
+
+<<healthIns10, keep.source=TRUE>>=
+transitionsSince80<-getFullTransitionTable(age=80)
+lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,what="matrix",t0="A",include.t0=TRUE)
+temp<-matrix(0,nrow=nrow(lifeTrajectories),ncol = ncol(lifeTrajectories))
+temp[lifeTrajectories=="I"]<-1
+expected_period_disabled<-mean(rowSums((temp)))
+expected_period_disabled
+@
+
+Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.
+
+<<healthIns11,keep.source=TRUE>>=
+mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
+@
+
 
 
 

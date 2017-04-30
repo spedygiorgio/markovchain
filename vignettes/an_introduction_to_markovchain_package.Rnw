@@ -1907,8 +1907,6 @@ almost halves in the long run.
 
 \subsubsection{Health insurance example}\label{sec:hi}
 
-TO BE COMPLETED
-
 Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts), see \cite{deshmukh2012multiple} for details.
 
 An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved
@@ -1997,7 +1995,6 @@ Assuming that the health insurance will pay a benefit of 12000 per year disabled
 <<healthIns11,keep.source=TRUE>>=
 mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
 @
-
 
 
 

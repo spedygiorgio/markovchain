@@ -866,7 +866,8 @@ setMethod("summary", signature(object = "markovchain"),
 	for(i in 1:nrow(matr)) {
 		for(j in 1:ncol(matr)){
 			if(!(.isProbRcpp(matr[i, j]))) {
-				if(verbose) stop("Error! Non probabilities")
+			  myMessage<-paste("Error!","Element",i,j,"is not a probability")
+				if(verbose) stop(myMessage)
 				  return(FALSE)
 			}
 		}
@@ -912,8 +913,8 @@ setMethod("summary", signature(object = "markovchain"),
 		if(!checkByCols) {
 		  #error could be either in rows or in cols
 		  if (any(colSums(from)!=1)) cat("columns sums not equal to one are:",which(colSums(from)!=1),"\n")
-		  if (any(rowSums(from)!=1)) cat("columns sums not equal to one are:",which(rowSums(from)!=1),"\n")
-		  stop("Error! Not a probability matrix")	
+		  if (any(rowSums(from)!=1)) cat("row sums not equal to one are:",which(rowSums(from)!=1),"\n")
+		  stop("Error! Not a transition matrix")	
 		}
 	}
 	

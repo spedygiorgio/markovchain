@@ -9,6 +9,17 @@ mcPeriodic<-new("markovchain", states=c("0","1","2"), transitionMatrix=
                                                                    c("0","1","2"))
                  ))
 
+
+myMatr<-matrix(c(0 , 0 , 1/2 , 1/4 , 1/4 , 0  , 0,
+                 0 , 0 , 1/3 , 0 , 2/3,  0 , 0 ,
+                 0 , 0 , 0 , 0 , 0 , 1/3 , 2/3 ,
+                 0 , 0 , 0 , 0 , 0 , 1/2 , 1/2 ,
+                 0 , 0 , 0 , 0 , 0 , 3/4 , 1/4 ,
+                 1/2,  1/2 , 0 , 0 , 0 , 0 , 0 ,
+                 1/4,  3/4 , 0 , 0 , 0 , 0 , 0),byrow=TRUE, nrow = 7)
+mcPeriodic2<-as(myMatr, "markovchain")
+
+
 mcAperiodic<-new("markovchain", states=c("0","1","2","3","4"), transitionMatrix=
                  matrix(c(1/2,1/2,0,0,0,
                           1/2,0,1/2,0,0,
@@ -23,5 +34,6 @@ context("Basic DTMC proprieties")
 
 test_that("States are those that should be", {
   expect_equal(period(mcPeriodic),3)
+  expect_equal(period(mcPeriodic2),3)
   expect_equal(period(mcAperiodic),1)
 })

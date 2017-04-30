@@ -101,7 +101,7 @@ A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 \note{
 \code{markovchain} object are written in S4 Classes.
 }
-\section{Warning }{Validation method is used to assess whether either columns or rows totals to one. Rounding is used up to 5th decimal. If state names are not properly defined for a probability  \code{matrix}, coercing to \code{markovhcain} object leads to overriding states name with artificial "s1", "s2", ... sequence }
+\section{Warning }{Validation method is used to assess whether either columns or rows totals to one. Rounding is used up to 5th decimal. If state names are not properly defined for a probability  \code{matrix}, coercing to \code{markovhcain} object leads to overriding states name with artificial "s1", "s2", ... sequence. In addition, operator overloading has been applied for \eqn{+,*,^,==,!=} operators. }
 \seealso{
 \code{\link{markovchainSequence}},\code{\link{markovchainFit}}
 }

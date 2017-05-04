@@ -1352,6 +1352,7 @@ This section discusses tests developed to verify whether:
 1. An empirical transition matrix is consistent with a theoretical one.  
 2. Two or more empirical transition matrices belongs to the same DTMC. 
 
+
 The first test is implemented by the \code{verifyEmpiricalToTheoretical} function. Bein $f_{ij}$ the raw transition count, \cite{kullback1962tests} shows that $2*\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i.}P\left( E_j | E_i\right)} \sim \chi^2\left ( r*(r-1) \right )$. The following example is taken from \cite{kullback1962tests}:
 
 <<divergence2, keep.source=TRUE>>=
@@ -1367,7 +1368,7 @@ verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
 
 
 
-The second one is implemented by the \code{verifyHomogeneity} function. Assuming that $i=1,2, \ldots, s$ DTMC samples are available and that the cardinality of the state space is $r$ it verifies whether the $s$ chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, $2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )$. Also the following example is taken from \cite{kullback1962tests}:
+The second one is implemented by the \code{verifyHomogeneity} function, inspired by \cite[section~9]{kullback1962tests}. Assuming that $i=1,2, \ldots, s$ DTMC samples are available and that the cardinality of the state space is $r$ it verifies whether the $s$ chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, $2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )$. Also the following example is taken from \cite{kullback1962tests}:
 
 
 <<divergence2, keep.source=TRUE>>=

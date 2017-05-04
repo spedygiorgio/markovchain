@@ -1478,7 +1478,7 @@ setMethod("predict", "markovchainList",
 
 #sort method for markovchain objects
 
-setGeneric("sort", function(x, decreasing=FALSE) standardGeneric("sort"))
+setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
 
 setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
   

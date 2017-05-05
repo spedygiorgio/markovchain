@@ -1,3 +1,4 @@
+=======
 /*
  * Function to remove NA values from a vector
  */
@@ -23,7 +24,6 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   CharacterVector elements = clean_nas(elements_na);
   // number of unique states
   int sizeMatr = elements.size();
-  
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
     
@@ -62,6 +62,11 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   }
   sortedColNames.sort();
   sortedRowNames.sort();
+  //for(int i=0;i<sortedColNames.size();i++)
+  //{
+  //  Rcout << sortedColNames[i] << " " << sortedRowNames[i];
+  //  Rcout << "\n";
+  //}
   
   // validity of hyperparam matrix
   for(int i = 0; i < sizeHyperparam; i++){

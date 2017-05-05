@@ -1080,7 +1080,7 @@ weatherFittedLAPLACE$estimate
 Both MLE and Laplace approach are based on the \code{createSequenceMatrix}
 functions that converts a data (character) sequence into a contingency table,
 showing the $\left( X_{t}=i, X_{t+1}=j\right)$ distribution within the sample,
-as code below shows.
+as code below shows. 
 
 <<fitSequenceMatrix, keep.source=TRUE>>=
 createSequenceMatrix(stringchar = weathersOfDays)
@@ -1091,6 +1091,8 @@ createSequenceMatrix(stringchar = weathersOfDays)
 An issue occurs when the sample contains only one realization of a state (say $X_{\beta}$) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional
 distribution of the transition). In this case the estimated transition matrix is
 corrected assuming $p_{\beta,j}=1/k$, being $k$ the possible states.
+
+\code{createSequenceMatrix} function also handles \code{NA} values in \code{data}. Any consecutive pair in \code{stringchar} which contains \code{NA} is not counted when calculating the contigency table. 
 
 Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
 
@@ -1153,7 +1155,7 @@ For all the fitting methods, the \code{logLikelihood}~\citep{MSkuriat} denoted i
 LLH = \sum_{i,j} n_{ij} * log (p_{ij})
 \label{eq:LLH}
 \end{equation}
-where $n_{ij}$ is the entry of the frequency matrix and $p_{ij}$ is the entry of the transition probability matrix.
+where $n_{ij}$ is the entry of the frequency matrix and $p_{ij}$ is the entry of the transition probability matrix. The function for calculating \code{loglikelihood} handles \code{NA} values as it discards pairs that have \code{NA} values.
 
 <<fitMcbyMLE, keep.source=TRUE>>=
 weatherFittedMLE$logLikelihood
@@ -1226,7 +1228,9 @@ markovchainListFit(data=mylist)
 @
 
 
+
 If any transition contains \code{NA}, it will be ignored in the results.
+
 
 
 

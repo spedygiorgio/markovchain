@@ -539,7 +539,6 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   CharacterVector rnames = rownames(freqMatrix);
   
   if(Rf_isMatrix(stringchar)) {
-    
     // coerce SEXP to CharacterMatrix
     CharacterMatrix seqMat = as<CharacterMatrix>(stringchar);
     
@@ -622,7 +621,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
 List mcListFitForList(List data) {
   
   int l = data.size(); // length of list
-  
+  Rcout << l << "\n";
   // pair of length and index
   // length of sequence data[index]
   vector<pair<int, int> > length_seq(l);

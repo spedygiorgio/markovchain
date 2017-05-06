@@ -16,7 +16,7 @@ This table show mobility between income quartiles for father and sons for the 19
   ..$ : chr [1:4] "Bottom" "2nd" "3rd" "Top"
 }
 \details{
-The rows represent father's income quartile when the son is aged 16, whilst the columns represent sons' income quartiles when he is aged 30 (in 2000).
+The rows represent fathers' income quartile when the son is aged 16, whilst the columns represent sons' income quartiles when he is aged 30 (in 2000).
 }
 \source{
 Personal elaborations from references

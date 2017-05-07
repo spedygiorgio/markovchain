@@ -1,11 +1,11 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.6.9.1
-Date: 2017-04-31
+Version: 0.6.9.3
+Date: 2017-05-08
 Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav
     Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb], Nacho Cordón
-    Castillo [ctb]
+    Castillo [ctb], Vandit Jain [ctb]
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov
     chains more easily. In addition functions to perform statistical (fitting
@@ -44,4 +44,4 @@ ByteCompile: yes
 Encoding: latin1
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

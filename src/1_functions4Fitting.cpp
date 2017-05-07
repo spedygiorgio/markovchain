@@ -1153,7 +1153,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
 
 // convert matrix data to transition probability matrix
 // [[Rcpp::export(.matr2Mc)]]
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false) {
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false, 
+            CharacterVector possibleStates = CharacterVector()) {
   
   // dimension of input matrix
   long int nRows = matrData.nrow(), nCols = matrData.ncol();
@@ -1167,6 +1168,11 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
       if(matrData(i,j) != "NA")
         uniqueVals.insert((std::string)matrData(i, j));	
     }
+  
+  for(int i = 0;i < possibleStates.size();i++) {
+          uniqueVals.insert((std::string)possibleStates[i]);
+    }
+  
   // unique states
   int usize = uniqueVals.size();
   
@@ -1595,7 +1601,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	  mat = _transpose(mat); 
   	}
   	
-   	S4 outMc =_matr2Mc(mat, laplacian, sanitize);
+   	S4 outMc =_matr2Mc(mat, laplacian, sanitize, possibleStates);
   	
   	// whether to compute confidence interval or not
   	if(confint) {

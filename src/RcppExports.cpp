@@ -167,15 +167,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // _matr2Mc
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize);
-RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize, CharacterVector possibleStates);
+RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< CharacterMatrix >::type matrData(matrDataSEXP);
     Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize));
+    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize, possibleStates));
     return rcpp_result_gen;
 END_RCPP
 }

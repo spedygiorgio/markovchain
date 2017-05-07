@@ -56,8 +56,8 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
     .Call('markovchain_mcListFitForList', PACKAGE = 'markovchain', data)
 }
 
-.matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE) {
-    .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize)
+.matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE, possibleStates = character()) {
+    .Call('markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize, possibleStates)
 }
 
 .list2Mc <- function(data, laplacian = 0, sanitize = FALSE) {

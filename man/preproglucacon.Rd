@@ -26,3 +26,4 @@ preproglucaconMc<-markovchainFit(data=preproglucacon$preproglucacon)
 Averuy Henderson, Fitting markov chain models on discrete time series such as DNA sequences
 }
 \keyword{datasets}
+

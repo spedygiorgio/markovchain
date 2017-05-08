@@ -30,7 +30,7 @@
 #' 
 #' @references Jo Blanden, Paul Gregg and Stephen Machin, Intergenerational Mobility in Europe and North America, Center for Economic Performances (2005)
 #' 
-#' @example 
+#' @examples
 #' data(blanden)
 #' mobilityMc<-as(blanden, "markovchain")
 "blanden"
@@ -55,7 +55,7 @@
 #' 
 #' @references see source
 #' 
-#' @example 
+#' @examples 
 #' data(craigsendi)
 #' csMc<-as(craigsendi, "markovchain")
 #' steadyStates(csMc)

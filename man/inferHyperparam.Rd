@@ -46,6 +46,9 @@ weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1,
 inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
  
 }
+\author{
+Sai Bhargav Yalamanchi, Giorgio Spedicato
+}
 \references{
 Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
             package version 0.2.5
@@ -53,6 +56,4 @@ Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Cha
 \seealso{
 \code{\link{markovchainFit}}, \code{\link{predictiveDistribution}}
 }
-\author{
-Sai Bhargav Yalamanchi, Giorgio Spedicato
-}
+

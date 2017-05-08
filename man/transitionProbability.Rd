@@ -33,6 +33,9 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 )    
 transitionProbability(markovB,"b", "c")
 }
+\author{
+Giorgio Spedicato
+}
 \references{
 A First Course in Probability (8th Edition), 
             Sheldon Ross, Prentice Hall 2010
@@ -40,6 +43,4 @@ A First Course in Probability (8th Edition),
 \seealso{
 \code{\linkS4class{markovchain}}
 }
-\author{
-Giorgio Spedicato
-}
+

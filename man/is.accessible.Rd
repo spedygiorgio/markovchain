@@ -35,12 +35,13 @@ markovB <- new("markovchain", states = statesNames,
                )
 is.accessible(markovB, "a", "c")
 }
+\author{
+Giorgio Spedicato
+}
 \references{
 James Montgomery, University of Madison
 }
 \seealso{
 \code{is.irreducible}
 }
-\author{
-Giorgio Spedicato
-}
+

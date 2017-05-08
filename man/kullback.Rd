@@ -3,7 +3,6 @@
 \docType{data}
 \name{kullback}
 \alias{kullback}
-\alias{kullback}
 \title{Example from Kullback and Kupperman Tests for Contingency Tables}
 \format{A list containing two 6x6 non - negative integer matrices}
 \source{
@@ -20,3 +19,4 @@ A list of two matrices representing raw transitions between two states
 A list of two matrices representing raw transitions between two states
 }
 \keyword{datasets}
+

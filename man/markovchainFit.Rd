@@ -81,6 +81,9 @@ na.sequence <- c("a", NA, "a", "b")
 na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
 mcFitMLE <- markovchainFit(data = na.sequence)
 }
+\author{
+Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
+}
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
             
@@ -94,6 +97,4 @@ A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 \seealso{
 \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}
 }
-\author{
-Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
-}
+

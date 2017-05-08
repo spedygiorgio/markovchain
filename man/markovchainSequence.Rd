@@ -39,12 +39,13 @@ mcB <- new("markovchain", states = statesNames,
 outs <- markovchainSequence(n = 100, markovchain = mcB, t0 = "a")
 
 }
+\author{
+Giorgio Spedicato
+}
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\link{markovchainFit}}
 }
-\author{
-Giorgio Spedicato
-}
+

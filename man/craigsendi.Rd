@@ -21,7 +21,13 @@ This is the table shown in Craig and Sendi paper showing zero and six month CD4 
 \details{
 Rows represent counts at the beginning, cols represent counts after six months.
 }
+\examples{
+data(craigsendi)
+csMc<-as(craigsendi, "markovchain")
+steadyStates(csMc)
+}
 \references{
 see source
 }
 \keyword{datasets}
+

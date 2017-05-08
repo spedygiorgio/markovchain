@@ -29,3 +29,4 @@ expm::expm(Q)
 \seealso{
 \code{\link{rctmc}}
 }
+

@@ -1077,9 +1077,7 @@ weatherFittedLAPLACE$estimate
 
 (NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.)
 Both MLE and Laplace approach are based on the \code{createSequenceMatrix}
-functions that converts a data (character) sequence into a contingency table,
-showing the $\left( X_{t}=i, X_{t+1}=j\right)$ distribution within the sample,
-as code below shows.
+functions that returns the raw counts transition matrix.
 
 <<fitSequenceMatrix, keep.source=TRUE>>=
 createSequenceMatrix(stringchar = weathersOfDays)
@@ -1128,7 +1126,7 @@ The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} p
 
 <<fitMcbyBootStrap, keep.source=TRUE, eval=FALSE>>=
 weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
-                                    method = "bootstrap", nboot = 20, 
+                                    method = "bootstrap", nboot = 200, 
                                     parallel = TRUE)
 weatherFittedBOOTParallel$estimate
 weatherFittedBOOTParallel$standardError
@@ -1210,7 +1208,7 @@ c1<-c("a","b","a","a","c","c","a")
 c2<-c("b")
 c3<-c("c","a","a","c")
 c4<-c("b","a","b","a","a","c","b")
-c5<-c("a","a","c","b")
+c5<-c("a","a","c",NA)
 c6<-c("b","c","b","c","a")
 mylist<-list(c1,c2,c3,c4,c5,c6)
 mylistMc<-markovchainFit(data=mylist)
@@ -1225,7 +1223,7 @@ markovchainListFit(data=mylist)
 @
 
 
-If any transition contains \code{NA}, it will be ignored in the results.
+If any transition contains \code{NA}, it will be ignored in the results as the above example showed.
 
 
 

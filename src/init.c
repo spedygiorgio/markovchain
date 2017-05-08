@@ -9,7 +9,7 @@
 
 /* .Call calls */
 extern SEXP markovchain__list2Mc(SEXP, SEXP, SEXP);
-extern SEXP markovchain__matr2Mc(SEXP, SEXP, SEXP);
+extern SEXP markovchain__matr2Mc(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_canonicForm(SEXP);
 extern SEXP markovchain_commclassesKernel(SEXP);
 extern SEXP markovchain_commStatesFinder(SEXP);
@@ -40,7 +40,7 @@ extern SEXP markovchain_lexicographicalSort(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"markovchain__list2Mc",                        (DL_FUNC) &markovchain__list2Mc,                         3},
-    {"markovchain__matr2Mc",                        (DL_FUNC) &markovchain__matr2Mc,                         3},
+    {"markovchain__matr2Mc",                        (DL_FUNC) &markovchain__matr2Mc,                         4},
     {"markovchain_canonicForm",                     (DL_FUNC) &markovchain_canonicForm,                      1},
     {"markovchain_commclassesKernel",               (DL_FUNC) &markovchain_commclassesKernel,                1},
     {"markovchain_commStatesFinder",                (DL_FUNC) &markovchain_commStatesFinder,                 1},

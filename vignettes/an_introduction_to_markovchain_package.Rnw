@@ -493,8 +493,7 @@ name(mcWeather)
 Also it is possible to alphabetically sort the transition matrix:
 
 <<sortMethod, keep.source=TRUE>>=
-#check why does not work!!
-#sort(mcWeather)
+markovchain:::sort(mcWeather)
 @
 
 

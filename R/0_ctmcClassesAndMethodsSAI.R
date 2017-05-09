@@ -36,11 +36,12 @@ setMethod("initialize",
             } else if(!setequal(rownames(generator),colnames(generator)))  colnames(generator)=rownames(generator) #fix when different
             if(missing(states)) states=rownames(generator) #assign
             if(missing(byrow)) byrow=TRUE #set byrow as true by default
-            if(missing(name)) name="Unnamed Markov chain"
+            if(missing(name)) name="Unnamed Markov chain"  #generic name to the object
             callNextMethod(.Object, states = states, byrow = byrow, generator=generator,name=name,...)
           }
 )
 
+#returns states of the ctmc
 setMethod("states","ctmc", 
           function(object) {
             out <- object@states
@@ -48,6 +49,7 @@ setMethod("states","ctmc",
           }
 )
 
+#returns states of the ctmc
 setMethod("dim","ctmc", 
           function(x) {
             out <- nrow(x@generator)

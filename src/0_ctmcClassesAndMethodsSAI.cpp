@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-
+//obtain transition probability matrix from the generator matrix
 // [[Rcpp::export]]
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow = true){
   NumericMatrix transMatr(gen.nrow());

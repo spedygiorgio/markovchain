@@ -8,8 +8,9 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.t
     state <- sample(ctmc@states, 1, prob = initDist) # if valid probability distribution,
   # sample accordingly
   
-  trans <- generatorToTransitionMatrix(ctmc@generator)
   # obtain transition probability matrix from the generator matrix
+  trans <- generatorToTransitionMatrix(ctmc@generator)
+  
   
   states <- c()
   time <- c()

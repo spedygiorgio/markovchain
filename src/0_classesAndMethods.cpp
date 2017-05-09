@@ -9,7 +9,7 @@ bool isProb(double prob)
 	if (prob<0 || prob >1) return false;
 	return true;
 }
-
+// doubt
 // [[Rcpp::export(.isGenRcpp)]]
 bool isGen(NumericMatrix gen){
   for(int i = 0; i < gen.nrow(); i++)

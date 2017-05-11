@@ -32,7 +32,7 @@ states coming from the underlying stationary distribution.
 }
 \details{
 When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
-sampled of size n. When an non - homogeneous process is assumed,
+sampled of size n. When a non - homogeneous process is assumed,
 n samples are taken but the process is assumed to last from the begin to the end of the 
 non-homogeneous markov process.
 }

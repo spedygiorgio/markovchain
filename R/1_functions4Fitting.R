@@ -144,7 +144,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' @param ... additional parameters passed to the internal sampler
 #' 
 #' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
-#' sampled of size n. When an non - homogeneous process is assumed,
+#' sampled of size n. When a non - homogeneous process is assumed,
 #' n samples are taken but the process is assumed to last from the begin to the end of the 
 #' non-homogeneous markov process.
 #' 
@@ -401,21 +401,23 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
   
   if(include.t0) seq[1] <- t0
   
-  # calculate one element of sequence in each iteration
-  for (i in 1:n) {
-    stateNames <- mclist@markovchains[[i]]@states 
-    byRow <- mclist@markovchains[[i]]@byrow
-    
-    # check whether transition matrix follows row-wise or column-wise fashion
-    if(byRow) prob <- mclist@markovchains[[i]]@transitionMatrix[which(stateNames == t0), ]
-    else prob <- mclist@markovchains[[i]]@transitionMatrix[, which(stateNames == t0)]
-    
-    # initial state for the next transition matrix
-    t0 <- sample(x = stateNames, size = 1,  prob = prob)
-    
-    # populate the sequence vector
-    seq[i+vin] <- t0
+  invisible(lapply(seq_len(n),
+    function(i)
+    {
+      stateNames <<- mclist@markovchains[[i]]@states 
+        byRow <- mclist@markovchains[[i]]@byrow
+
+        # check whether transition matrix follows row-wise or column-wise fashion
+        if(byRow) prob <- mclist@markovchains[[i]]@transitionMatrix[which(stateNames == t0), ]
+        else prob <- mclist@markovchains[[i]]@transitionMatrix[, which(stateNames == t0)]
+
+        # initial state for the next transition matrix
+        t0 <<- sample(x = stateNames, size = 1,  prob = prob)
+
+        # populate the sequence vector
+        seq[i+vin] <<- t0
   }
+  ))
   
   return(seq)
 }

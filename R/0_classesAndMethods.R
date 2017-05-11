@@ -262,7 +262,7 @@ setValidity("markovchain",
 			}
 			
 			
-			# check whether matrix is square amtrix or not
+			# check whether matrix is square matrix or not
 			if (nrow(object@transitionMatrix) != ncol(object@transitionMatrix)) {
 			  check <- "Error! Not squared matrix" #check if squalre matrix
 			}
@@ -393,9 +393,9 @@ setMethod("steadyStates","markovchain",
 			} else {
 				rownames(out) <- object@states
 			}
-
       return(out)
-    }
+	
+		  }
 )
 
 
@@ -408,12 +408,12 @@ setMethod("steadyStates","markovchain",
 #' @author Christope Dutang and Giorgio Spedicato
 #' @return A matrix
 .steadyStatesByRecurrentClasses<-function(object) {
-  #inizialization
+  #initialization
   M<-object@transitionMatrix
   #transpose bycol matrices
   if (object@byrow==FALSE) M <- t(M)
   namesSequence<-names(object)
-  #characterizin recurrent classes
+  #characterizing recurrent classes
   recClasses<-recurrentClasses(object)
   numRecClasses<-length(recClasses)
   recurrentClassesNames<-unlist(recClasses)
@@ -446,24 +446,20 @@ setMethod("absorbingStates", "markovchain",
 			      if(object@byrow == TRUE) {
 			        transposeYN <- TRUE
 			      }
-			      
 			      steadyStates <- .mcEigen(matr = matr, transpose = transposeYN)
 			      if(is.null(steadyStates)) {
 			        return(character(0))
 			      }
-			      
 			      # identify which states are absorbing if they are diagonally one
 			      if(transposeYN == TRUE) {
 			        maxCols <- apply(steadyStates, 2, "max")
 			      } else {
 			        maxCols <- apply(steadyStates, 1, "max")  
 			      }
-			      
 			      index <- which(maxCols == 1)
 			      if(length(index) > 0) {
 			        out <- object@states[index] 
 			      }
-			      
 			      return(out)
           } 
 )
@@ -622,7 +618,6 @@ setMethod("print", "markovchain",
 setMethod("plot", signature(x = "markovchain", y = "missing"),
 		      function(x, y, package = "igraph", ...) {
 		        switch(package,
-		         
 		         diagram = {
 		           if (requireNamespace("diagram", quietly = TRUE)) {
 		             .plotdiagram(object = x, ...)
@@ -642,12 +637,11 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 		             plot.igraph(x = netMc, edge.label = edgeLabel, ...)
 		           }
 		         },
-		         
 		         {
 		           netMc <- .getNet(object = x,round = TRUE)
 		           edgeLabel <- round(E(netMc)$weight / 100, 2)
 		           plot.igraph(x = netMc, edge.label = edgeLabel, ...)
-		         })
+		        })
 		}
 )
 

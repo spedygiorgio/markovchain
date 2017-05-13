@@ -197,7 +197,7 @@ struct MCList : public Worker
   // names present in ith transition matrix 
   const vector<vector<string> > names;
   
-  // vector ehose ith element stor the dimension of ith
+  // vector whose ith element store the dimension of ith
   // transition matrix
   const vector<int> size_emat;
   
@@ -445,7 +445,7 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
     for (int j = 0; j < ncol; j++) 
       rowSum += x(i, j);
     for (int j = 0; j < ncol; j++) {
-      
+      // not updating out(i,j) outside sanitize condition as it may lead to runtime error(rowSum=0)
       if(sanitize == true) {
         if(rowSum == 0) {
           out(i, j) = 1.0/ncol;  
@@ -534,18 +534,19 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   elements = elements.sort();
   int sizeMatr = elements.size();
   
+  // output matrix of dimensions equal to total possible states
   NumericMatrix freqMatrix(sizeMatr);
   freqMatrix.attr("dimnames") = List::create(elements, elements); 
   CharacterVector rnames = rownames(freqMatrix);
   
   if(Rf_isMatrix(stringchar)) {
     
-    // coerce SEXP to CharacterMatrix
+    // coerce to CharacterMatrix
     CharacterMatrix seqMat = as<CharacterMatrix>(stringchar);
     
     // number of columns must be 2
     if(seqMat.ncol() != 2) {
-      stop("Number of columns must be 2");
+      stop("Number of columns in the matrix must be 2");
     }
     
     // populate frequency matrix
@@ -559,7 +560,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
         freqMatrix(posFrom, posTo)++;  
       }
     }  
-  } 
+  }
   
   else {
     
@@ -610,7 +611,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
       for(int r = 0; r < rnames.size(); r ++) {
         if(rnames[r] == seq[i]) from = r; 
         if(rnames[r] == seq[i + 1]) to = r; 
-      }      
+      }
       out += log(transMatr(from, to));
     }
   }
@@ -678,9 +679,9 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   
   // calculation of transition matrix
   // take care of rows with all entries 0 
-  for (int i = 0; i < sizeMatr; i++) {  
+  for (int i = 0; i < sizeMatr; i++) {
     double rowSum = 0;
-    for (int j = 0; j < sizeMatr; j++) { 
+    for (int j = 0; j < sizeMatr; j++) {
       rowSum += freqMatr(i, j);
     }
     
@@ -695,7 +696,7 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
     }
   }
   
-  // matrix to store end results
+  // matrices to store end results
   NumericMatrix lowerEndpointMatr(sizeMatr, sizeMatr);
   NumericMatrix upperEndpointMatr(sizeMatr, sizeMatr);
   NumericMatrix standardError(sizeMatr, sizeMatr);
@@ -713,7 +714,7 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
         bool notrans = true;
         for(int k = 0; k < sizeMatr; k++) {
           
-          // if entire ith row is not zero then set notrans to false  
+          // if the entire ith row is not zero then set notrans to false  
           if(freqMatr(i, k) != 0) {
             standardError(i, j) = lowerEndpointMatr(i, j) = upperEndpointMatr(i, j) = 0;
             notrans = false;

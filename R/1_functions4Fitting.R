@@ -83,11 +83,6 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 ##################
 
 # check if the subsequent states are included in the previous ones
-
-# TODO: too strong contidion; should be changed by checking that
-# all states that can be reached in one step at t-1 are named  
-# in object[[t]]
-
 # check the validity of non homogeneous markovchain list
 # object is a list of markovchain object
 .checkSequence <- function(object) {
@@ -632,6 +627,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
       # (i-1)th transition matrix for transition from (i-1)th state to ith state
       matrData <- data[, c(i, i+1)]
       matrData[1, ] <- as.character(matrData[1, ])
+      # checking particular data for NA values.
       validTransition <- any(apply(matrData, 1, function(x){ !any(is.na(x)) }))
       
       if(validTransition)

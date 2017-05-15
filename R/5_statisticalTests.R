@@ -31,7 +31,7 @@
 #'              the order and stationarity of the Markov chain.
 #' 
 #' @param sequence An empirical sequence.
-#' @param verbose Should test resuls been printed out?
+#' @param verbose Should test results be printed out?
 #' @param nblocks Number of blocks.
 #' 
 #' @return Verification result
@@ -62,7 +62,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   transMatrix<-markovchainFit(data=sequence)$estimate@transitionMatrix
   
-  #make the n-2x3 matrix for observations
+  #make the (n-2)x3 matrix for observations
   subSample<-sequence[1:(length(sequence)-(length(sequence)%%3))]
   
   seqSet1<-matrix(c(subSample[1:(length(subSample)-2)],
@@ -80,10 +80,12 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   test<-c(length=dim(Nijk)[1])
   #compute the test statistic
-  for(z in 1:dim(Nijk)[1]){
-    foundNijPjk<-.findNijPjk(Nijk=Nijk, Nij=Nij, trans=transMatrix, row=z)
-    test[z]<-((Nijk[z,4]-foundNijPjk)^2)/foundNijPjk
-  }
+  invisible(lapply(seq_len(dim(Nijk)[1]),function(i)
+    {
+    foundNijPjk<-.findNijPjk(Nijk=Nijk, Nij=Nij, trans=transMatrix, row=i)
+    test[i] <<- ((Nijk[i,4]-foundNijPjk)^2)/foundNijPjk
+  })
+  )
   statistic<-sum(test)
   #return value of the test statistic and test at confience level 95% and 99%
   

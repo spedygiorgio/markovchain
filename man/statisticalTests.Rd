@@ -21,7 +21,7 @@ verifyHomogeneity(inputList, verbose = TRUE)
 \arguments{
 \item{sequence}{An empirical sequence.}
 
-\item{verbose}{Should test resuls been printed out?}
+\item{verbose}{Should test results be printed out?}
 
 \item{nblocks}{Number of blocks.}
 

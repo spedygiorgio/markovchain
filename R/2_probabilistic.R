@@ -4,7 +4,7 @@
 #' @name is.accessible
 #' @title Verify if a state j is reachable from state i.
 #' @description This function verifies if a state is reachable from another, i.e., 
-#'              if exists a path that leads to state j leaving from state i with 
+#'              if there exists a path that leads to state j leaving from state i with 
 #'              positive probability
 #'              
 #' @param object A \code{markovchain} object.

@@ -18,7 +18,7 @@ A boolean value.
 }
 \description{
 This function verifies if a state is reachable from another, i.e., 
-             if exists a path that leads to state j leaving from state i with 
+             if there exists a path that leads to state j leaving from state i with 
              positive probability
 }
 \details{

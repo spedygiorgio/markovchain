@@ -181,7 +181,7 @@ verifyMarkovProperty <- function(sequence, verbose=TRUE) {
   
   if (verbose==TRUE) {
     cat("Testing markovianity property on given data sequence\n")
-    cat("ChiSq statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
+    cat("Chi - square statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
   }
   
   invisible(out)

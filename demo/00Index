@@ -1,6 +1,7 @@
 quickStart			quick start for markovchain package
 examples  		  various examples of Markov Chain
 bard    	      Structural analysis of Markov chains from Bard PPT
-mathematica     Mathematica Markov Chains
 extractMatrices Given a matrix, returns the canonical form, fundamental matrix etc...
+mathematica     Mathematica Markov Chains
+reliability     Simulate reliability in inverting a markovchain
 quasiBayesian   Quasi Bayesian estimator function

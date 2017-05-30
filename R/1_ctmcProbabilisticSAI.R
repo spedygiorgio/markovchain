@@ -71,6 +71,53 @@ transition2Generator<-function(P, t=1,method="logarithm") {
   return(Q)
 }
 
+#' @title Return expected hitting time from state i to state j
+#' 
+#' @description Return expected hitting time from state i to state j
+#' 
+#' @param C A CTMC object
+#' @param i initial state i
+#' @param j final state j
+#' 
+#' @return A value that returns expected hitting times from i to j
+#' 
+#' @export
+ExpectedTime <- function(C,i,j){
+  # take generator from ctmc-class object
+  Q = C@generator
+  NoofStates = dim(C)
+  
+  Exceptj = c(1:NoofStates)
+  # create vector with all values from 1:NoofStates except j 
+  Exceptj = which(Exceptj!=j)
+  
+  # build matrix with vlaues from Q such that row!=j or column!=j
+  Q_Exceptj = Q[Exceptj,Exceptj]
+  
+  # check for positivity of holding times except for state j
+  if(!all(diag(Q_Exceptj)!=0)){
+    stop("Holding times for all states except j should be greater than 0")
+  }
+  
+  # get b for solving the system of linear equation Ax = b where A is Q_Exceptj
+  b <- rep(-1,dim(Q_Exceptj)[1])
+  
+  # use solve function from base packge to solve Ax = b
+  out <- solve(Q_Exceptj,b)
+  
+  # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
+  if(i<j){
+    
+    return(out[[i]])
+    
+  } else if(i==j) {
+    return(0);
+    
+  } else {
+    return(out[[i-1]])
+  }
+}
+
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

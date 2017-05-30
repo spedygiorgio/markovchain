@@ -1,6 +1,8 @@
+#load required libraries
+library(parallel)
 require(MCMCpack)
 require(markovchain)
-#create the function to verify the inversion
+#function to simulate the inversion of a matrix of size num
 checkInversion<-function(i,num){
   #simulate the priors
   priors.dirichlet<-runif(n=num)
@@ -12,13 +14,13 @@ checkInversion<-function(i,num){
   if(class(out)=="logical") return(0) else return(1)
 }
 
+#performing the simulation
 dimensions2Test<-2:32
 successRate<-numeric(length(dimensions2Test))
-
-
-library(parallel)
-no_cores <- detectCores() - 1
 numSim=10000
+
+#using parallel backend
+no_cores <- detectCores() - 1 
 cl <- makeCluster(no_cores)
 clusterExport(cl, "checkInversion")
 clusterEvalQ(cl, library(markovchain))
@@ -26,7 +28,7 @@ clusterEvalQ(cl, library(MCMCpack))
 k=1
 for (dimension in dimensions2Test){
   simulations<-parSapply(cl=cl,1:numSim,FUN=checkInversion,num=dimension)
-  errorRate[k]<-mean(simulations)
+  successRate[k]<-mean(simulations)
   k=k+1
 }
 stopCluster(cl)

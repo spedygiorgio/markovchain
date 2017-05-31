@@ -5,3 +5,4 @@ extractMatrices Given a matrix, returns the canonical form, fundamental matrix e
 mathematica     Mathematica Markov Chains
 reliability     Simulate reliability in inverting a markovchain
 quasiBayesian   Quasi Bayesian estimator function
+computationTime Computation time by size of the character sequence

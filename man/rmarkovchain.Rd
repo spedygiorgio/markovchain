@@ -67,13 +67,12 @@ mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC))
 rmarkovchain(100, mclist, "list")
      
 }
-\author{
-Giorgio Spedicato
-}
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\link{markovchainFit}}, \code{\link{markovchainSequence}}
 }
-
+\author{
+Giorgio Spedicato
+}

@@ -26,4 +26,3 @@ rainMc<-markovchainFit(data=rain$rain)
 Avery Henderson, Fitting markov chain models on discrete time series such as DNA sequences
 }
 \keyword{datasets}
-

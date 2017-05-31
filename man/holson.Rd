@@ -39,4 +39,3 @@ head(holson)
 Private communications
 }
 \keyword{datasets}
-

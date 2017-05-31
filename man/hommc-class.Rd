@@ -2,8 +2,8 @@
 % Please edit documentation in R/0_hommc.R
 \docType{class}
 \name{hommc-class}
-\alias{hommc}
 \alias{hommc-class}
+\alias{hommc}
 \title{An S4 class for representing High Order Multivariate Markovchain (HOMMC)}
 \description{
 An S4 class for representing High Order Multivariate Markovchain (HOMMC)
@@ -23,6 +23,7 @@ An S4 class for representing High Order Multivariate Markovchain (HOMMC)
 
 \item{\code{name}}{a name given to hommc}
 }}
+
 \examples{
 statesName <- c("a", "b")
 
@@ -40,4 +41,3 @@ ob <- new("hommc", order = 1, states = statesName, P = P,
 \author{
 Giorgio Spedicato, Deepak Yadav
 }
-

@@ -2,21 +2,35 @@
 % Please edit documentation in R/1_ctmcProbabilisticSAI.R
 \name{ExpectedTime}
 \alias{ExpectedTime}
-\title{Return expected hitting time from state i to state j}
+\title{Returns expected hitting time from state i to state j}
 \usage{
-ExpectedTime(C, i, j)
+ExpectedTime(C,i,j)
 }
 \arguments{
-\item{C}{A CTMC object}
+\item{C}{A CTMC S4 object}
 
-\item{i}{initial state i}
+\item{i}{Initial state i}
 
-\item{j}{final state j}
+\item{j}{Final state j}
 }
 \value{
-a value that returns expected hitting times from i to j
+A numerical value that returns expected hitting times from i to j
 }
 \description{
-Return expected hitting time from state i to state j
+Returns expected hitting time from state i to state j
 }
+\details{
+According to the theorem, holding times for all states except j should be greater than 0.
+}
+\examples{
+states <- c("a","b","c","d")
+byRow <- TRUE
+gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
+nrow = 4,byrow = byRow, dimnames = list(states,states))
+ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
+ExpectedTime(ctmc,1,4)
 
+}
+\references{
+Markovchains, J. R. Norris, Cambridge University Press
+}

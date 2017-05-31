@@ -25,4 +25,3 @@ mobilityMc<-as(blanden, "markovchain")
 Jo Blanden, Paul Gregg and Stephen Machin, Intergenerational Mobility in Europe and North America, Center for Economic Performances (2005)
 }
 \keyword{datasets}
-

@@ -28,13 +28,12 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 conditionalDistribution(markovB, "b")                       
 
 }
-\author{
-Giorgio Spedicato, Deepak Yadav
-}
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\linkS4class{markovchain}}
 }
-
+\author{
+Giorgio Spedicato, Deepak Yadav
+}

@@ -30,4 +30,3 @@ steadyStates(csMc)
 see source
 }
 \keyword{datasets}
-

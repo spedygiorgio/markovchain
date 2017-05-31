@@ -2,12 +2,26 @@
 library(parallel)
 require(MCMCpack)
 require(markovchain)
-require(expm)
+dimensions2Test<-2:32
+numSim=10000
+
+#helper function to create a random stochastic matrix
+
+createMatrix<-function(matr_size) {
+  out<-matrix(0, nrow=matr_size, ncol = matr_size)
+  for (i in 1:matr_size) {
+    priors.dirichlet<-runif(n=matr_size)
+    myStochasticRow<-rdirichlet(n=1,alpha=priors.dirichlet)
+    out[i,]<-myStochasticRow
+  }
+  return(out)
+}
+
+
 #first test: function to simulate the inversion of a matrix of size num
 checkInversion<-function(i,num){
   #simulate the priors
-  priors.dirichlet<-runif(n=num)
-  myStochasticMatrix<-rdirichlet(n=num,alpha=priors.dirichlet)
+  myStochasticMatrix<-createMatrix(matr_size = num)
   #this code returns FALSE -> 0 if error in inversion 1 otherwise
   out<-tryCatch(steadyStates(as(myStochasticMatrix, "markovchain")),
                 error=function(c) return(FALSE)
@@ -16,14 +30,14 @@ checkInversion<-function(i,num){
 }
 
 #performing the simulation
-dimensions2Test<-2:32
+
 successRate<-numeric(length(dimensions2Test))
-numSim=10000
 
 #using parallel backend
 no_cores <- detectCores() - 1 
 cl <- makeCluster(no_cores)
 clusterExport(cl, "checkInversion")
+clusterExport(cl, "createMatrix")
 clusterEvalQ(cl, library(markovchain))
 clusterEvalQ(cl, library(MCMCpack))
 k=1
@@ -34,17 +48,16 @@ for (dimension in dimensions2Test){
 }
 stopCluster(cl)
 #summarising first test:
+#png("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability1.png")
 plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix sixe",ylab="success rate",main="Steady state computation success rate")
 abline(h=0.5,col="red")
 text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
-
+#dev.off()
 #second test: simulating exponentiation
 
 checkExponentiation<-function(i,num){
   #simulate the priors
-  priors.dirichlet<-runif(n=num)
-  myStochasticMatrix<-rdirichlet(n=num,alpha=priors.dirichlet)
-  
+  myStochasticMatrix<-createMatrix(matr_size = num)
   #this code returns FALSE -> 0 if error in inversion 1 otherwise
   out<-tryCatch((as(myStochasticMatrix, "markovchain"))^2,
                 error=function(c) return(FALSE)
@@ -54,24 +67,35 @@ checkExponentiation<-function(i,num){
 
 
 #performing the simulation
-dimensions2Test<-2:32
-successRate<-numeric(length(dimensions2Test))
-numSim=100000
+successRate2<-numeric(length(dimensions2Test))
+
 
 #using parallel backend
 no_cores <- detectCores() - 1 
 cl <- makeCluster(no_cores)
 clusterExport(cl, "checkExponentiation")
+clusterExport(cl, "createMatrix")
 clusterEvalQ(cl, library(markovchain))
 clusterEvalQ(cl, library(MCMCpack))
 k=1
 for (dimension in dimensions2Test){
   simulations<-parSapply(cl=cl,1:numSim,FUN=checkExponentiation,num=dimension)
-  successRate[k]<-mean(simulations)
+  successRate2[k]<-mean(simulations)
   k=k+1
 }
 stopCluster(cl)
 #summarising first test:
-plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix sixe",ylab="success rate",main="Exponentiation computation success rate")
+
+#png("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability2.png")
+#par(mfrow=c(1,2))
+pdf("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability.pdf")
+plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix sixe",ylab="success rate",main="Steady state computation success rate")
 abline(h=0.5,col="red")
 text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
+dev.off()
+#dev.off()
+
+# plot(x=dimensions2Test,y=successRate2,type="l",xlab="matrix sixe",ylab="success rate",main="Exponentiation computation success rate")
+# abline(h=0.5,col="red")
+# text(x=dimensions2Test,y=successRate2,labels=round(successRate2,digits=2),col="darkred",cex=0.7)
+

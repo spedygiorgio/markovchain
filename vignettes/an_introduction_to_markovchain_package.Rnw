@@ -1439,6 +1439,18 @@ Let $n(j|i)$ denote the number of $i$->$j$ transitions in $D$, and $n(i)$ the nu
 Then the MLEs are given by
 $\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}$
 
+
+\subsubsection{Expected Hitting Time}
+The package provides a function \code{ExpectedTime} to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+\begin{equation}
+\begin{cases}
+      p_{k} = 0 & k = j \\
+      -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
+\end{cases}
+\label{eq:EHT}
+\end{equation}
+
+
 \subsubsection{Examples}
 
 To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, byrow, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:

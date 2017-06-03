@@ -132,6 +132,68 @@ ExpectedTime <- function(C,i,j){
   }
 }
 
+#' Calculating probability from a ctmc object
+#' 
+#' @description 
+#' This function returns the probability of every state at time t under different conditions
+#' 
+#' @usage probabilityatT(C,t,x0)
+#' 
+#' @param C A CTMC S4 object
+#' @param t final time t
+#' @param x0 initial state
+#' 
+#' @details The initial state is not mandatory, In case it is not provided, 
+#' function returns a matrix of transition function at time \code{t} else it returns
+#' vector of probaabilities of transition to different states if initial state was \code{x0}
+#' 
+#' @return returns a vector or a matrix in case \code{x0} is provided or not respectively.
+#' 
+#' @references INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
+#' 
+#' @examples
+#' states <- c("a","b","c","d")
+#' byRow <- TRUE
+#' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
+#' nrow = 4,byrow = byRow, dimnames = list(states,states))
+#' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
+#' probabilityatT(ctmc,1)
+#' 
+#' @export
+probabilityatT <- function(C,t,x0){
+  
+  if(class(C)!="ctmc"){
+    stop("Provided object is not a ctmc object")
+  }
+  if(t<0){
+    stop("Time provided should be greater than equal to 0")
+  }
+  # take generator from ctmc-class object
+  Q <- C@generator
+  NoofStates = dim(C)
+  
+  
+  # calculate transition functoin at time t using Kolmogorov backward equation
+  P <- expm(t*Q)
+  
+  # return the row vector according to state at time t=0 if x0 is provided
+  # if x0 not provided returns the whole matrix
+  # hence returns probability of being at state j at time t if state at t =0 is x0
+  # where j is from 1:noof States
+  if(missing(x0)){
+    P <- matrix(P,nrow = NoofStates,dimnames = list(C@states,C@states))
+    return(P)
+  } else {
+    if(x0 > NoofStates || x0 < 1){
+      stop("Initial state provided is not correct")
+    }
+    return(P[x0,])
+  }
+}
+
+
+
+
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

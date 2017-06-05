@@ -75,7 +75,7 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #' 
 #' @description Returns expected hitting time from state i to state j
 #' 
-#' @usage ExpectedTime(C,i,j)
+#' @usage expectedTime(C,i,j)
 #' 
 #' @param C A CTMC S4 object
 #' @param i Initial state i
@@ -93,10 +93,10 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
 #' nrow = 4,byrow = byRow, dimnames = list(states,states))
 #' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-#' ExpectedTime(ctmc,1,4)
+#' expectedTime(ctmc,1,4)
 #' 
 #' @export
-ExpectedTime <- function(C,i,j){
+expectedTime <- function(C,i,j){
   # take generator from ctmc-class object
   Q = C@generator
   NoofStates = dim(C)

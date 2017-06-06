@@ -6,6 +6,7 @@
 \alias{initialize,ctmc-method}
 \alias{states,ctmc-method}
 \alias{steadyStates,ctmc-method}
+\alias{plot,ctmc,missing-method}
 
 \title{Class \code{"ctmc"}}
 \description{
@@ -28,6 +29,7 @@ Objects can be created by calls of the form \code{new("ctmc", states, byrow, gen
     \item{initialize}{\code{signature(.Object = "ctmc")}: initialize method }
     \item{states}{\code{signature(object = "ctmc")}: states method. }
     \item{steadyStates}{\code{signature(object = "ctmc")}: method to get the steady state vector. }
+    \item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method for \code{ctmc} objects }
 	 }
 }
 \references{
@@ -52,5 +54,6 @@ molecularCTMC <- new("ctmc", states = energyStates,
                  name = "Molecular Transition Model")
 
 steadyStates(molecularCTMC)
+\dontrun{plot(molecularCTMC)}
 }
 \keyword{classes}

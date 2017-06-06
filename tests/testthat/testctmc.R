@@ -8,6 +8,6 @@ gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0,
 ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
 
 test_that("Check Expected hitting time from one state to another",{
-  expect_equal(ExpectedTime(ctmc,1,4),7)
-  expect_equal(ExpectedTime(ctmc,2,4),5.5)
+  expect_equal(expectedTime(ctmc,1,4),7)
+  expect_equal(expectedTime(ctmc,2,4),5.5)
 })

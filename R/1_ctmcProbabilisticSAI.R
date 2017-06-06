@@ -99,6 +99,11 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 expectedTime <- function(C,i,j){
   # take generator from ctmc-class object
   Q = C@generator
+  
+  # in case where generator is written column wise
+  if(C@byrow==FALSE){
+    Q = t(Q)
+  }
   NoofStates = dim(C)
   
   Exceptj = c(1:NoofStates)
@@ -170,6 +175,11 @@ probabilityatT <- function(C,t,x0){
   }
   # take generator from ctmc-class object
   Q <- C@generator
+  
+  # in case where generator is written column wise
+  if(C@byrow==FALSE){
+    Q = t(Q)
+  }
   NoofStates = dim(C)
   
   

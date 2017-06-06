@@ -142,3 +142,62 @@ setMethod("steadyStates","ctmc",
           }
 )
 
+
+
+# internal function for plotting ctmc object using igraph
+.getNetctmc <- function(object, round = FALSE) {
+  
+  # function to get the graph adjacency object to plot and export to igraph
+  #
+  # Args: 
+  # object: a ctmc object
+  # round: boolean to round
+  #
+  # Returns:
+  #
+  # a graph adjacency
+  
+  if (object@byrow == FALSE) {
+    object <- t(object)
+  }
+  
+  #gets the generator matrix
+  matr <- object@generator*100
+  if(round == TRUE) {
+    matr <- round(matr, 2)
+  }
+  
+  net <- graph.adjacency(adjmatrix = matr, weighted = TRUE, mode = "directed")
+  return(net)
+}
+
+
+setMethod("plot",signature(x="ctmc",y="missing"),
+          function(x,y,package = "igraph",...){
+            switch(package,
+                   diagram = {
+                     if (requireNamespace("diagram", quietly = TRUE)) {
+                       .plotdiagram(object = x, ...)
+                     } else {
+                       netMc <- .getNetctmc(object = x, round = TRUE)
+                       edgeLabel <- round(E(netMc)$weight / 100, 2)
+                       plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+                     }
+                   },
+                   
+                   DiagrammeR = {
+                     if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+                       .plotDiagrammeR(object = x, ...)
+                     } else {
+                       netMc <- .getNetctmc(object = x, round = TRUE)
+                       edgeLabel <- round(E(netMc)$weight / 100, 2)
+                       plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+                     }
+                   },
+                   {
+                     netMc <- .getNetctmc(object = x,round = TRUE)
+                     edgeLabel <- round(E(netMc)$weight / 100, 2)
+                     plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+                   })
+          }
+          )

@@ -1,17 +1,25 @@
 # plot a diagram using diagram for a markovchain object
 .plotdiagram <- function(object, ...) {
-  mat <- object@transitionMatrix
+  if(class(object) == "markovchain"){
+    mat <- object@transitionMatrix
+  } else if(class(object) == "ctmc"){
+    mat <- object@generator
+  }
   if(object@byrow == FALSE) {
     mat <- t(mat)
   }
   
   # pass the matrix as columnwise fashion
-  diagram::plotmat(t(mat), ...)
+  diagram::plotmat(t(mat),relsize = 0.75, ...)
 }
 
 # plot a diagram using DiagrammeR for a markovchain object
 .plotDiagrammeR <- function(object, ...) {
+  if(class(object) == "markovchain"){
   mat <- object@transitionMatrix
+  } else if(class(object) == "ctmc"){
+    mat <- object@generator
+  }
   names <- rownames(mat)
   
   # names of nodes

@@ -1441,7 +1441,7 @@ $\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}$
 
 
 \subsubsection{Expected Hitting Time}
-The package provides a function \code{expectedTime} to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+The package provides a function \code{ExpectedTime} to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
 \begin{equation}
 \begin{cases}
       p_{k} = 0 & k = j \\

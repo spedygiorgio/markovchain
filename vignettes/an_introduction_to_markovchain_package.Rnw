@@ -1451,6 +1451,12 @@ The package provides a function \code{expectedTime} to calculate average hitting
 \end{equation}
 
 
+\subsubsection{Probability at time t}
+The package provides a function \code{probabilityatT} to calculate probability of every state according to given \code{ctmc} object. Here we use Kolmogorov's backward equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. Here $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the probability of the state at time $t$ to be eqaul to j if it was equal to i at time $t=0$.
+It takes care of the case when \code{ctmc} object has a generator represented by columns.
+If inital state is not provided, the function returns the whole transition matrix $P(t)$.
+
+
 \subsubsection{Examples}
 
 To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, byrow, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:

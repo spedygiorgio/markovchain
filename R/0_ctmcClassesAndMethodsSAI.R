@@ -201,3 +201,23 @@ setMethod("plot",signature(x="ctmc",y="missing"),
                    })
           }
           )
+
+
+
+#' An S4 class for representing Imprecise Continuous Time Markovchains
+#' 
+#' @slot states a vector of states present in the ICTMC model
+#' @slot Q array of matrices representing the generator demonstrated in the form of variables
+#' @slot range a matrix that stores values of range of variables
+#' @slot name name given to ICTMC
+#' 
+ictmc <- setClass("ictmc",
+                  slots = list(states = "character", Q = "array",
+                               range = "matrix", name = "character")
+                  )
+
+
+
+
+
+

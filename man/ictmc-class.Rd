@@ -13,7 +13,7 @@ An S4 class for representing Imprecise Continuous Time Markovchains
 \describe{
 \item{\code{states}}{a vector of states present in the ICTMC model}
 
-\item{\code{Q}}{array of matrices representing the generator demonstrated in the form of variables}
+\item{\code{Q}}{matrix representing the generator demonstrated in the form of variables}
 
 \item{\code{range}}{a matrix that stores values of range of variables}
 

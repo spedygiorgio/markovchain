@@ -204,6 +204,89 @@ probabilityatT <- function(C,t,x0){
 
 
 
+#' Calculating full conditional probability using lower rate transition matrix
+#' 
+#' This function calculates full conditional probability at given 
+#' time s using lower rate transition matrix
+#' 
+#' @usage impreciseProbabilityatT(C,i,t,s,error)
+#' 
+#' @param C a ictmc class object
+#' @param i initial state at time t
+#' @param t initial time t. Default value = 0
+#' @param s final time
+#' @param error error rate. Default value = 0.001
+#'
+impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
+  ##  input validity checking
+  if(s<=t){
+    stop("Please provide time points such that initial time is greater than or equal to end point")
+  }
+  
+  if(!class(C) == 'ictmc'){
+    stop("Please provide a valid ictmc-class object")
+  }
+  noOfstates<-length(C@states)
+  
+  if(i <= 0 || i > noOfstates){
+    stop("Please provide a valid initial state")
+  }
+  ### validity checking ends
+  
+  ## extract values from ictmc object 
+  Q <- C@Q
+  range <- C@range
+  
+  ### calculate ||QI_i||
+  
+  #initialise Q norm value
+  QNorm <- -1
+  
+  for(i in 1:noOfstates){
+    sum <- 0
+    for(j in 1:noOfstates){
+      sum <- sum + abs(Q[i,j])
+    }
+    QNorm <- max(sum,QNorm)
+  }
+  
+  ### calculate no of iterations
+  # The 1 is for norm of I_s i.e. ||I_s|| which equals 1
+  n <- max((s-t)*QNorm,(s-t)*(s-t)*QNorm*1/(2*error))
+  
+  ### calculate delta
+  delta <- (s-t)/n
+  
+  ### build I_i vector
+  Ii <- rep(0,noOfstates)
+  Ii[i] <- 1
+  
+  
+  ### calculate value of lower operator _QI_i(x) for all x belongs to no ofStates
+  values <- Q%*%Ii
+  Qgx <- rep(0,noOfstates)
+  for(i in 1:noOfstates){
+    Qgx[i] <- min(values[i]*range[i,1],values[i]*range[i,2])
+  }
+  Qgx <- delta*Qgx
+  Qgx <- Ii + Qgx
+  for(iter in 1:n-1){
+    temp <- Qgx
+    values <- Q%*%Qgx
+    for(i in 1:noOfstates){
+      Qgx[i] <- min(values[i]*range[i,1],values[i]*range[i,2])
+    }
+    Qgx <- delta*Qgx
+    Qgx <- temp + Qgx
+  }
+  return(Qgx)
+}
+
+
+
+
+
+
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

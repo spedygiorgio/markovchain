@@ -21,3 +21,15 @@ impreciseProbabilityatT(C,i,t,s,error)
 This function calculates full conditional probability at given 
 time s using lower rate transition matrix
 }
+\examples{
+states <- c("n","y")
+Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = T,dimnames = list(states,states))
+range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
+name <- "testictmc"
+ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
+impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3)
+
+}
+\references{
+Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
+}

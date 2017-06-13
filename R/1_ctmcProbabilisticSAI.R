@@ -216,6 +216,16 @@ probabilityatT <- function(C,t,x0){
 #' @param t initial time t. Default value = 0
 #' @param s final time
 #' @param error error rate. Default value = 0.001
+#' 
+#' @references Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
+#' 
+#' @examples
+#' states <- c("n","y")
+#' Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = T,dimnames = list(states,states))
+#' range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
+#' name <- "testictmc"
+#' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
+#' impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3)
 #'
 impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
   ##  input validity checking

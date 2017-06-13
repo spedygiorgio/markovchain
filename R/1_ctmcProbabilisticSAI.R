@@ -257,12 +257,14 @@ impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
     for(j in 1:noOfstates){
       sum <- sum + abs(Q[i,j])
     }
-    QNorm <- max(sum,QNorm)
+    QNorm <- max(sum*range[i,2],QNorm)
   }
   
   ### calculate no of iterations
   # The 1 is for norm of I_s i.e. ||I_s|| which equals 1
-  n <- max((s-t)*QNorm,(s-t)*(s-t)*QNorm*1/(2*error))
+  n <- max((s-t)*QNorm,(s-t)*(s-t)*QNorm*QNorm*1/(2*error))
+  print(QNorm)
+  print(n)
   
   ### calculate delta
   delta <- (s-t)/n

@@ -41,3 +41,17 @@ ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "test
 test_that("Check probabilityatT using a ctmc object:",{
   expect_equal(round(probabilityatT(ctmc,2.5),3),ansMatrix)
 })
+
+
+### Adds tests for impreciseprobabilityatT function
+context("Checking that impreciseprobabilityatT function works as expected:")
+states <- c("n","y")
+Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = T,dimnames = list(states,states))
+range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
+name <- "testictmc"
+ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
+
+
+test_that("Check impreciseProbabilityatT function using an ictmc object:",{
+  expect_equal(round(impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3),4),c(0.0083,0.1410))
+})

@@ -1,11 +1,94 @@
 ---
 title: "GSoC-2017_Additions"
 author: "Vandit Jain"
-date: "14 June 2017"
+date: "June 2017"
 output: pdf_document
 vignette: >
   %\VignetteIndexEntry{GSoC-2017_Additions} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
 ---
+
+# Expected Hittting Time using CTMC
+The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+\begin{equation}
+\begin{cases}
+      p_{k} = 0 & k = j \\
+      -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
+\end{cases}
+\label{eq:EHT}
+\end{equation}
+
+
+For example, consider the continuous time markovchain which is as follows:
+
+
+``` {r,message = FALSE}
+library(markovchain)
+states <- c("a","b","c","d")
+byRow <- TRUE
+gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
+nrow = 4,byrow = byRow, dimnames = list(states,states))
+ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
+```
+
+
+The generator matrix of the ctmc is:
+$$
+M = \left(\begin{matrix}
+-1 & 1/2 & 1/2 & 0\\
+1/4 & -1/2 & 1/4 & 1/6\\
+1/6 & 0 & -1/3 & 1/6\\
+0 & 0 & 0 & 0\\
+\end{matrix}\right)
+$$
+
+
+Now if we have to calculate expected hitting time the process will take to hit state $d$ if we start from $a$, we apply the $ExpectedTime$ function. $ExpectedTime$ function takes three inputs namely a $ctmc$ class object, initial state $i$ and the final state $j$ that we have to calculate expected hitting time.
+
+
+``` {r}
+ExpectedTime(ctmc,1,4)
+```
+
+
+We find that the expected hitting time for process to be hit state $d$ is 7 units in this case.
+
+
+
+# Calculating Probability at time T using ctmc
+
+The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. The Kolmogorov's backward equation gives us a relation between transition matrix at any time t with the geneartor matrix: 
+
+\begin{equation}
+P'(t) = QP(t)
+\end{equation}
+
+Here we use the solution of this differential equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. In this equation, $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the conditional probability of the state at time $t$ to be eqaul to j if it was equal to i at time $t=0$.
+It takes care of the case when `ctmc` object has a generator represented by columns.
+If inital state is not provided, the function returns the whole transition matrix $P(t)$.
+Next, We consider both examples where intial state is given and case where initial state is not given.
+
+In the first case, the function takes two inputs, first of them is an object of the S4 class 'ctmc' and second is the final time $t$.
+
+``` {r}
+probabilityatT(ctmc,1)
+```
+
+Here we get an output in the form of a transition matrix.
+
+If we take the second case i.e. considering some initial input:
+
+``` {r}
+probabilityatT(ctmc,1,1)
+```
+
+In this case we get the probabilities corresponding to every state. this also includes probability that the process hits the same stae $a$ after time $t=1$.
+
+
+
+
+
+
+
 

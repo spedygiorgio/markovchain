@@ -2,11 +2,11 @@
 title: "GSoC-2017_Additions"
 author: "Vandit Jain"
 date: "June 2017"
-output: pdf_document
-vignette: >
-  %\VignetteIndexEntry{GSoC-2017_Additions} 
-  %\VignetteEngine{knitr::rmarkdown}  
-  %VignetteEncoding{UTF-8}
+output:
+  pdf_document: default
+  html_document: default
+vignette: |
+  %\VignetteIndexEntry{GSoC-2017_Additions}  %\VignetteEngine{knitr::rmarkdown}   %VignetteEncoding{UTF-8}
 ---
 
 # Expected Hittting Time using CTMC
@@ -85,6 +85,38 @@ probabilityatT(ctmc,1,1)
 
 In this case we get the probabilities corresponding to every state. this also includes probability that the process hits the same stae $a$ after time $t=1$.
 
+
+
+# Plotting generator matrix of continuous-time markovchains
+
+The package provides a `plot` function for plotting a generator matrix $Q$ in the form of a directed graph where every possible state is assigned a node. Edges connecting these nodes are weighted. Weight of the edge going from a state $i$ to state $j$ is equal to the value $Q_{ij}$. This gives a picture of the generator matrix.
+
+For example, we build a ctmc-class object to plot it.
+
+``` {r}
+energyStates <- c("sigma", "sigma_star")
+byRow <- TRUE
+gen <- matrix(data = c(-3, 3,
+                       1, -1), nrow = 2,
+              byrow = byRow, dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, 
+                 byrow = byRow, generator = gen, 
+                 name = "Molecular Transition Model")    
+```
+
+Now if we plot this function we get the following graph:
+``` {r}
+plot(molecularCTMC)
+```
+
+The figure shown is built using the $igraph$ package. The package also provides options of plotting graph using $diagram$ and $DiagrameR$ package. Plot using these packages can be built using these commands:
+
+``` {r}
+plot(molecularCTMC,package = "diagram")
+```
+
+
+Similarly, one can easily replace $diagram$ package with $DiagrammeR$ 
 
 
 

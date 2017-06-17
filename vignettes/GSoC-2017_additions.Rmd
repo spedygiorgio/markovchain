@@ -120,6 +120,42 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 
+# Imprecise Conitnuous-Time Markovchains
+Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
+
+
+More technically, an ICTMC is a set of “precise” continuous-time finite-state stochastic processes, and rather than computing expected values of functions, we seek to compute lower expectations, which are tight lower bounds on the expectations that correspond to such a set of “precise” models.
+
+
+## Types of ICTMCs
+For any non-empty bounded set of rate matrices $L$, and any non-empty set $M$ of probability mass functions on $X$, we define the following three sets of stochastic processes that are jointly consistent with $L$ and $M$:
+
+* $P^{W}_{L,M}$ is the consistent set of all well-behaved stochastic processes;
+* $P^{WM}_{L,M}$ is the consistent set of all well-behaved Markov chains;
+* $P^{WHM}_{L,M}$ is the consistent set of all well-behaved homogeneous Markov chains.
+
+From a practical point of view, after having specified a (precise) stochastic process, one is typically interested in the expected value of some function of interest, or the probability of some event. Similarly, in this work, our main objects of consideration will be the lower probabilities that correspond to the ICTMCs. 
+
+
+
+## Lower Transition Rate Operators for ICTMCs
+
+A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$: 
+
+1. $[Q_{l}m](x) = 0$
+2. $[Q_{l}I](x) \geq 0 \forall y \in X$ such that $x \neq y$
+3. $[Q_{l}(f + g)](x)\geq [Q_{l}f](x) + [Q_{l}g](x)$
+4. $[Q_{l}(l f)](x) = \lambda Q_{l}f[(x)]$
+
+
+## Lower Transition Operators
+A map $T_{l}$ from $L (X )$ to $L (X )$ is called a lower transition operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$: 
+
+1. $[T_{l} f](x) \geq min(f(y) : y \in L)$
+2. $[T_{l}(f +g)](x) \geq [T_{l} f](x)+[T_{l}g](x)$
+3. $[T_{l}(\lambda f)](x) = l [T_{l} f](x)$
+
+
 
 
 

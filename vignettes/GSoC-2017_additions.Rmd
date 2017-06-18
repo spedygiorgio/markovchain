@@ -208,8 +208,28 @@ I_{s} = \left(\begin{matrix}
 \end{matrix}\right)
 $$
 We observe that the $||I_{s}|| = 1$. 
-Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator $Q_{l}$ Next we calculate the norm of the lower transition rate operator and use it in the preposition. 
+Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator $Q_{l}$ Next we calculate the norm of the lower transition rate operator and use it in the preposition. Also we take value of $\epsilon$ to be 0.001.
 
+Using the preposition we can come upto an algorithm for calculating the probability at any time $s$ given state at initial time $t$ and a ICTMC generator.
 
+The algorithm is as follows:
+  
+**Input**: A lower transition rate operator $Q$, two time points $t,s$ such that $t \leq s$, a function $f \in L(X )$ and a maximum numerical error $\epsilon \in R_{>0}$.
+
+**Algorithm**: 
+
+1. $n = max((s-t)||Q||,\frac{1}{2\epsilon}(s-t)^{2}||Q||^{2}||f||_v)$
+2. $\Delta = \frac{s-t}{n}$
+3. $g_{0} = I_{s}$ 
+4. for $i \in (1,.....,n)$ do
+  $g_{i} = g_{i-1} + \Delta Q_{l}g_{i-1}$
+5. end for
+6. return $g_{n}$
+
+**Output**:
+
+The conditional probability vector after time $t$ with error $\epsilon$. Hence, after applying the algorithm on above example we get the following result:
+
+$ g_{n} = 0.0083$ if final state is $healthy$ and $g_{n} = 0.141$ if the final state is $sick$. The probability calculated is with an error equal to $\epsilon$ i.e. $0.001$.
 
 

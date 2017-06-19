@@ -25,7 +25,8 @@ Imports:
     Rcpp (>= 0.11.5),
     RcppParallel,
     utils,
-    stats
+    stats,
+    grDevices
 Suggests:
     knitr,
     testthat,

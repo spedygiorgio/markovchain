@@ -2,15 +2,27 @@
 .plotdiagram <- function(object, ...) {
   if(class(object) == "markovchain"){
     mat <- object@transitionMatrix
+    list <- .communicatingClassesRcpp(object)
+    sections <- length(list)
+    colorList <- grDevices::colors()
+    colorList <- sample(colorList,sections)
+    colorvector <- rep("white",length(object@states))
+    for(i in 1:length(list)){
+      part <- list[[i]]
+      for(j in 1:length(part)){
+        colorvector[match(part[j],object@states)] <- colorList[i]
+      }
+    }
   } else if(class(object) == "ctmc"){
     mat <- object@generator
+    colorvector <- rep("white",length(object@states))
   }
   if(object@byrow == FALSE) {
     mat <- t(mat)
   }
   
   # pass the matrix as columnwise fashion
-  diagram::plotmat(t(mat),relsize = 0.75, ...)
+  diagram::plotmat(t(mat),relsize = 0.75,box.col = colorvector, ...)
 }
 
 # plot a diagram using DiagrammeR for a markovchain object

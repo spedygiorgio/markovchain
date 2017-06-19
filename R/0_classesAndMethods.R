@@ -611,6 +611,22 @@ setMethod("print", "markovchain",
 	return(net)
 }
 
+getColorVector <- function(object){
+  mat <- object@transitionMatrix
+  list <- .communicatingClassesRcpp(object)
+  sections <- length(list)
+  colorList <- grDevices::colors()
+  colorList <- sample(colorList,sections)
+  colorvector <- rep("white",length(object@states))
+  for(i in 1:length(list)){
+    part <- list[[i]]
+    for(j in 1:length(part)){
+      colorvector[match(part[j],object@states)] <- colorList[i]
+    }
+  }
+  return(colorvector)
+}
+
 
 # Plot methods for markovchain objects
 
@@ -624,7 +640,8 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 		           } else {
 		             netMc <- .getNet(object = x, round = TRUE)
 		             edgeLabel <- round(E(netMc)$weight / 100, 2)
-		             plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+		             colorvector <- getColorVector(x)
+		             plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
 		           }
 		         },
 		         
@@ -634,17 +651,22 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 		           } else {
 		             netMc <- .getNet(object = x, round = TRUE)
 		             edgeLabel <- round(E(netMc)$weight / 100, 2)
-		             plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+		             colorvector <- getColorVector(x)
+		             plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
 		           }
 		         },
 		         {
 		           netMc <- .getNet(object = x,round = TRUE)
 		           edgeLabel <- round(E(netMc)$weight / 100, 2)
-		           plot.igraph(x = netMc, edge.label = edgeLabel, ...)
+		           colorvector <- getColorVector(x)
+		           plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
 		        })
 		}
 )
 
+
+
+#setMethod("plotCommunicatingClasses",signature(x = "markovchain"))
 
 
 # method to convert into canonic form : a markovchain object

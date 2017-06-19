@@ -16,6 +16,7 @@ importFrom("stats4",  plot, summary)
 importFrom("matlab", zeros, find, eye, size, ones)
 importFrom("expm",'%^%','logm')
 importFrom("stats", sd,rexp,chisq.test,pchisq, predict, aggregate)
+importFrom("grDevices","colors")
 
 exportMethods(
     "*",
@@ -25,7 +26,7 @@ exportMethods(
     "transientStates",
     "coerce",
     "dim",
-    "initialize",
+    #"initialize",
     #"plotMc",
     "plot",
     "print",

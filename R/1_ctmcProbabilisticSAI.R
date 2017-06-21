@@ -71,6 +71,32 @@ transition2Generator<-function(P, t=1,method="logarithm") {
   return(Q)
 }
 
+
+#' Returns a generator matrix corresponding to frequency matrix
+#' 
+#' @description The function provides interface to calculate generator matrix corresponding to 
+#' a frequency matrix and time taken
+#' 
+#' @param P frequency matrix
+#' @param t (default value = 1)
+#' @param method one among "QO"(Quasi optimaisation), "WA"(weighted adjustment), "DA"(diagonal adjustment)
+#' @param logmethod method for computation of matrx algorithm (by default : Eigen)
+#' 
+#' @return returns a generator matix with same dimnames
+#' 
+#' @export
+#' 
+freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
+  if(method == "QO"){
+    out <- ctmcd::gmQO(P,t,logmethod)
+  } else if(method == "WA") {
+    out <- ctmcd::gmWA(P,t,logmethod)
+  } else if(method == "DA") {
+    out <- ctmcd::gmDA(P,t,logmethod)
+  }
+  return(out)
+}
+
 #' @title Returns expected hitting time from state i to state j
 #' 
 #' @description Returns expected hitting time from state i to state j

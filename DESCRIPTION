@@ -36,7 +36,8 @@ Suggests:
     etm,
     Rsolnp,
     knitcitations,
-    rmarkdown
+    rmarkdown,
+    ctmcd
 VignetteBuilder: utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make

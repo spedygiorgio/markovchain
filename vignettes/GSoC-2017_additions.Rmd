@@ -11,7 +11,7 @@ vignette: |
 ---
 
 # Expected Hittting Time using CTMC
-The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations[@NorrisBook]:
 \begin{equation}
 \begin{cases}
       p_{k} = 0 & k = j \\
@@ -59,7 +59,7 @@ We find that the expected hitting time for process to be hit state $d$ is 7 unit
 
 # Calculating Probability at time T using ctmc
 
-The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. The Kolmogorov's backward equation gives us a relation between transition matrix at any time t with the geneartor matrix: 
+The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. The Kolmogorov's backward equation gives us a relation between transition matrix at any time t with the geneartor matrix[@dobrow2016introduction]: 
 
 \begin{equation}
 P'(t) = QP(t)
@@ -122,7 +122,7 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 # Imprecise Conitnuous-Time Markovchains
-Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
+Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration[@ictmcpaper].
 
 
 More technically, an ICTMC is a set of “precise” continuous-time finite-state stochastic processes, and rather than computing expected values of functions, we seek to compute lower expectations, which are tight lower bounds on the expectations that correspond to such a set of “precise” models.
@@ -133,7 +133,7 @@ For any non-empty bounded set of rate matrices $L$, and any non-empty set $M$ of
 
 * $P^{W}_{L,M}$ is the consistent set of all well-behaved stochastic processes;
 * $P^{WM}_{L,M}$ is the consistent set of all well-behaved Markov chains;
-* $P^{WHM}_{L,M}$ is the consistent set of all well-behaved homogeneous Markov chains.
+* $P^{WHM}_{L,M}$ is the consistent set of all well-behaved homogeneous Markov chains[@ictmcpaper].
 
 From a practical point of view, after having specified a (precise) stochastic process, one is typically interested in the expected value of some function of interest, or the probability of some event. Similarly, in this work, our main objects of consideration will be the lower probabilities that correspond to the ICTMCs. 
 
@@ -141,7 +141,7 @@ From a practical point of view, after having specified a (precise) stochastic pr
 
 ## Lower Transition Rate Operators for ICTMCs
 
-A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$: 
+A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$[@ictmcpaper]: 
 
 1. $[Q_{l}m](x) = 0$
 2. $[Q_{l}I](x) \geq 0 \forall y \in X$ such that $x \neq y$
@@ -150,7 +150,7 @@ A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate operator i
 
 
 ## Lower Transition Operators
-A map $T_{l}$ from $L (X )$ to $L (X )$ is called a lower transition operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$: 
+A map $T_{l}$ from $L (X )$ to $L (X )$ is called a lower transition operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$[@ictmcpaper]: 
 
 1. $[T_{l} f](x) \geq min(f(y) : y \in L)$
 2. $[T_{l}(f +g)](x) \geq [T_{l} f](x)+[T_{l}g](x)$
@@ -163,12 +163,12 @@ Now I would like to come onto the practical purpose of using ICTMC classes. ICTM
 
 For every generator matrix, we have a corresponding transition function. Similarly, for every Lower Transition rate operator of an ICTMC, we have a corresponding lower transition operator denoted by $L_{t}^{s}$. Here $t$ is the initial time and $s$ is the final time. 
 
-Now we mention a proposition which states that:
+Now we mention a proposition[@ictmcpaper] which states that:
 Let $Q_{l}$ be a lower transition rate operator, choose any time $t$ and $s$ both greater than 0 such that $t \leq s$, and let $L_{t}^{s}$ be the lower transition operator corresponding to $Q_{l}$. Then for any $f \in L(X)$ and $\epsilon \in R_{>0}$, if we choose any $n \in N$ such that:
 
 $$n \geq max((s-t)*||Q||,\frac{1}{2\epsilon}(s-t)^{2}||Q||^{2}||f||_v)$$
 
-with $||f||_{v}$ := max $f$ - min $f$, we are guaranteed that
+with $||f||_{v}$ := max $f$ - min $f$, we are guaranteed that[@ictmcpaper]
 
 $$ ||L_{t}^{s} - \prod_{i=1}^{n}(I + \Delta Q_{l}) || \leq \epsilon$$
 
@@ -210,7 +210,7 @@ $$
 We observe that the $||I_{s}|| = 1$. 
 Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator $Q_{l}$ Next we calculate the norm of the lower transition rate operator and use it in the preposition. Also we take value of $\epsilon$ to be 0.001.
 
-Using the preposition we can come upto an algorithm for calculating the probability at any time $s$ given state at initial time $t$ and a ICTMC generator.
+Using the preposition we can come upto an algorithm for calculating the probability at any time $s$ given state at initial time $t$ and a ICTMC generator[@ictmcpaper].
 
 The algorithm is as follows:
   
@@ -233,3 +233,5 @@ The conditional probability vector after time $t$ with error $\epsilon$. Hence, 
 $ g_{n} = 0.0083$ if final state is $healthy$ and $g_{n} = 0.141$ if the final state is $sick$. The probability calculated is with an error equal to $\epsilon$ i.e. $0.001$.
 
 
+# References
+\bibliography{markovchainBiblio}

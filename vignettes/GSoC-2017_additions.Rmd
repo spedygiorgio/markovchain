@@ -233,5 +233,17 @@ The conditional probability vector after time $t$ with error $\epsilon$. Hence, 
 $ g_{n} = 0.0083$ if final state is $healthy$ and $g_{n} = 0.141$ if the final state is $sick$. The probability calculated is with an error equal to $\epsilon$ i.e. $0.001$.
 
 
+# Continuous time markovchain generator using frequency Matrix
+
+The package provides `freq2Generator` function. It takes in a matrix representing relative frequency values along with time taken to provide a continuous time markovchain generator matrix. The function also allows to chose among three methods for calculation of the generator matrix.
+
+Three methods are as follows:
+
+1. Quasi Optimisation - "QO" 
+2. Diagonal Adjustment - "DA"
+3. Weighted Adjustment - "WA"
+
+
+
 # References
 \bibliography{markovchainBiblio}

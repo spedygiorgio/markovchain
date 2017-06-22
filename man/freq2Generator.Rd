@@ -7,7 +7,7 @@
 freq2Generator(P, t = 1, method = "QO", logmethod = "Eigen")
 }
 \arguments{
-\item{P}{frequency matrix}
+\item{P}{relative frequency matrix}
 
 \item{t}{(default value = 1)}
 

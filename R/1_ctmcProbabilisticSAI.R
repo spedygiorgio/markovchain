@@ -77,7 +77,7 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #' @description The function provides interface to calculate generator matrix corresponding to 
 #' a frequency matrix and time taken
 #' 
-#' @param P frequency matrix
+#' @param P relative frequency matrix
 #' @param t (default value = 1)
 #' @param method one among "QO"(Quasi optimaisation), "WA"(weighted adjustment), "DA"(diagonal adjustment)
 #' @param logmethod method for computation of matrx algorithm (by default : Eigen)

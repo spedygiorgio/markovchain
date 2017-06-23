@@ -16,6 +16,7 @@ extern SEXP markovchain_commStatesFinder(SEXP);
 extern SEXP markovchain_communicatingClasses(SEXP);
 extern SEXP markovchain_createSequenceMatrix(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_ctmcFit(SEXP, SEXP, SEXP, SEXP);
+extern SEXP markovchain_ExpectedTimeRcpp(SEXP,SEXP);
 extern SEXP markovchain_firstpassageKernel(SEXP, SEXP, SEXP);
 extern SEXP markovchain_gcd(SEXP, SEXP);
 extern SEXP markovchain_generatorToTransitionMatrix(SEXP, SEXP);
@@ -47,6 +48,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_communicatingClasses",            (DL_FUNC) &markovchain_communicatingClasses,             1},
     {"markovchain_createSequenceMatrix",            (DL_FUNC) &markovchain_createSequenceMatrix,             4},
     {"markovchain_ctmcFit",                         (DL_FUNC) &markovchain_ctmcFit,                          4},
+    {"markovchain_ExpectedTimeRcpp",                (DL_FUNC) &markovchain_ExpectedTimeRcpp,                 2},
     {"markovchain_firstpassageKernel",              (DL_FUNC) &markovchain_firstpassageKernel,               3},
     {"markovchain_gcd",                             (DL_FUNC) &markovchain_gcd,                              2},
     {"markovchain_generatorToTransitionMatrix",     (DL_FUNC) &markovchain_generatorToTransitionMatrix,      2},

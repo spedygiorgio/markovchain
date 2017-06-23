@@ -25,6 +25,10 @@ ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
     .Call(markovchain_ctmcFit, data, byrow, name, confidencelevel)
 }
 
+.ExpectedTimeRCpp <- function(x, y) {
+    .Call(markovchain_ExpectedTimeRcpp, x, y)
+}
+
 seq2freqProb <- function(sequence) {
     .Call(markovchain_seq2freqProb, sequence)
 }

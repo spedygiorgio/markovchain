@@ -4,7 +4,7 @@
 \alias{ExpectedTime}
 \title{Returns expected hitting time from state i to state j}
 \usage{
-ExpectedTime(C,i,j)
+ExpectedTime(C,i,j,=useRCpp)
 }
 \arguments{
 \item{C}{A CTMC S4 object}
@@ -12,6 +12,8 @@ ExpectedTime(C,i,j)
 \item{i}{Initial state i}
 
 \item{j}{Final state j}
+
+\item{useRCpp}{logical whether to use Rcpp}
 }
 \value{
 A numerical value that returns expected hitting times from i to j
@@ -28,7 +30,7 @@ byRow <- TRUE
 gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
 nrow = 4,byrow = byRow, dimnames = list(states,states))
 ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-ExpectedTime(ctmc,1,4)
+ExpectedTime(ctmc,1,4,TRUE)
 
 }
 \references{

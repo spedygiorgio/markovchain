@@ -101,11 +101,12 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' 
 #' @description Returns expected hitting time from state i to state j
 #' 
-#' @usage ExpectedTime(C,i,j)
+#' @usage ExpectedTime(C,i,j,=useRCpp)
 #' 
 #' @param C A CTMC S4 object
 #' @param i Initial state i
 #' @param j Final state j
+#' @param useRCpp logical whether to use Rcpp
 #' 
 #' @details According to the theorem, holding times for all states except j should be greater than 0.
 #' 
@@ -121,10 +122,10 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
 #' nrow = 4,byrow = byRow, dimnames = list(states,states))
 #' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-#' ExpectedTime(ctmc,1,4)
+#' ExpectedTime(ctmc,1,4,TRUE)
 #' 
 #' @export
-ExpectedTime <- function(C,i,j){
+ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   # take generator from ctmc-class object
   Q = C@generator
   
@@ -151,6 +152,10 @@ ExpectedTime <- function(C,i,j){
   
   # use solve function from base packge to solve Ax = b
   out <- solve(Q_Exceptj,b)
+  
+  if(useRCpp == TRUE){
+    out <- .ExpectedTimeRCpp(Q_Exceptj,b)
+  }
   
   # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
   if(i<j){

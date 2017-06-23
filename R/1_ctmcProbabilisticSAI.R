@@ -113,6 +113,8 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' 
 #' @references Markovchains, J. R. Norris, Cambridge University Press
 #' 
+#' @author Vandit Jain
+#' 
 #' @examples
 #' states <- c("a","b","c","d")
 #' byRow <- TRUE
@@ -182,6 +184,8 @@ ExpectedTime <- function(C,i,j){
 #' 
 #' @references INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
 #' 
+#' @author Vandit Jain
+#' 
 #' @examples
 #' states <- c("a","b","c","d")
 #' byRow <- TRUE
@@ -244,6 +248,8 @@ probabilityatT <- function(C,t,x0){
 #' @param error error rate. Default value = 0.001
 #' 
 #' @references Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
+#' 
+#' @author Vandit Jain
 #' 
 #' @examples
 #' states <- c("n","y")

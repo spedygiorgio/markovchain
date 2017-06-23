@@ -33,3 +33,6 @@ impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3)
 \references{
 Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
 }
+\author{
+Vandit Jain
+}

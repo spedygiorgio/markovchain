@@ -34,3 +34,6 @@ ExpectedTime(ctmc,1,4)
 \references{
 Markovchains, J. R. Norris, Cambridge University Press
 }
+\author{
+Vandit Jain
+}

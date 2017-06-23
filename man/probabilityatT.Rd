@@ -36,3 +36,6 @@ probabilityatT(ctmc,1)
 \references{
 INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
 }
+\author{
+Vandit Jain
+}

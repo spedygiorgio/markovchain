@@ -511,6 +511,7 @@ can be plotted by the use of \code{plot} method (as shown in Figure~\ref{fig:mcP
 \code{plot.igraph} for \code{igraph} S4 objects defined within the \pkg{igraph} package. 
 Additional parameters can be passed to \code{plot} function to control the network graph layout.
 There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure~\ref{fig:mcPlotdiagram}.
+The \code{plot} function also uses \code{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same colour.
 
 <<printAndShow, keep.source=TRUE>>=
 print(mcWeather)

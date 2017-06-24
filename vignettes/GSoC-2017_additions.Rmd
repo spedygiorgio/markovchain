@@ -45,7 +45,7 @@ M = \left(\begin{matrix}
 $$
 
 
-Now if we have to calculate expected hitting time the process will take to hit state $d$ if we start from $a$, we apply the $ExpectedTime$ function. $ExpectedTime$ function takes three inputs namely a $ctmc$ class object, initial state $i$ and the final state $j$ that we have to calculate expected hitting time.
+Now if we have to calculate expected hitting time the process will take to hit state $d$ if we start from $a$, we apply the $ExpectedTime$ function. $ExpectedTime$ function takes four inputs namely a $ctmc$ class object, initial state $i$, the final state $j$ that we have to calculate expected hitting time and a logical parameter whether to use RCpp implementation. By default, the function uses RCpp as it is faster and takes lesser time.
 
 
 ``` {r}
@@ -65,9 +65,11 @@ The package provides a function `probabilityatT` to calculate probability of eve
 P'(t) = QP(t)
 \end{equation}
 
-Here we use the solution of this differential equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. In this equation, $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the conditional probability of the state at time $t$ to be eqaul to j if it was equal to i at time $t=0$.
+Here we use the solution of this differential equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. In this equation, $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the conditional probability of the state at time $t$ to be equal to j if it was equal to i at time $t=0$.
 It takes care of the case when `ctmc` object has a generator represented by columns.
 If inital state is not provided, the function returns the whole transition matrix $P(t)$.
+
+Also to mention is that the function is also implemented using RCpp and can be used used to lessen the time of computation. It is used by default.
 Next, We consider both examples where intial state is given and case where initial state is not given.
 
 In the first case, the function takes two inputs, first of them is an object of the S4 class 'ctmc' and second is the final time $t$.
@@ -84,7 +86,7 @@ If we take the second case i.e. considering some initial input:
 probabilityatT(ctmc,1,1)
 ```
 
-In this case we get the probabilities corresponding to every state. this also includes probability that the process hits the same stae $a$ after time $t=1$.
+In this case we get the probabilities corresponding to every state. this also includes probability that the process hits the same state $a$ after time $t=1$.
 
 
 

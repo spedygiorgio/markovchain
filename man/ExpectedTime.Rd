@@ -4,7 +4,7 @@
 \alias{ExpectedTime}
 \title{Returns expected hitting time from state i to state j}
 \usage{
-ExpectedTime(C,i,j,=useRCpp)
+ExpectedTime(C,i,j,useRCpp)
 }
 \arguments{
 \item{C}{A CTMC S4 object}

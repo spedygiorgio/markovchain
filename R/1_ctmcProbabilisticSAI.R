@@ -101,7 +101,7 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' 
 #' @description Returns expected hitting time from state i to state j
 #' 
-#' @usage ExpectedTime(C,i,j,=useRCpp)
+#' @usage ExpectedTime(C,i,j,useRCpp)
 #' 
 #' @param C A CTMC S4 object
 #' @param i Initial state i
@@ -151,10 +151,10 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   b <- rep(-1,dim(Q_Exceptj)[1])
   
   # use solve function from base packge to solve Ax = b
-  out <- solve(Q_Exceptj,b)
-  
   if(useRCpp == TRUE){
     out <- .ExpectedTimeRCpp(Q_Exceptj,b)
+  } else {
+    out <-solve(Q_Exceptj,b)
   }
   
   # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
@@ -175,11 +175,12 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
 #' @description 
 #' This function returns the probability of every state at time t under different conditions
 #' 
-#' @usage probabilityatT(C,t,x0)
+#' @usage probabilityatT(C,t,x0,useRCpp)
 #' 
 #' @param C A CTMC S4 object
 #' @param t final time t
 #' @param x0 initial state
+#' @param useRCpp logical whether to use RCpp implementation
 #' 
 #' @details The initial state is not mandatory, In case it is not provided, 
 #' function returns a matrix of transition function at time \code{t} else it returns
@@ -197,10 +198,10 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
 #' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
 #' nrow = 4,byrow = byRow, dimnames = list(states,states))
 #' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-#' probabilityatT(ctmc,1)
+#' probabilityatT(ctmc,1,useRcpp = TRUE)
 #' 
 #' @export
-probabilityatT <- function(C,t,x0){
+probabilityatT <- function(C,t,x0,useRCpp = TRUE){
   
   if(class(C)!="ctmc"){
     stop("Provided object is not a ctmc object")
@@ -219,12 +220,18 @@ probabilityatT <- function(C,t,x0){
   
   
   # calculate transition functoin at time t using Kolmogorov backward equation
+  if(useRCpp == TRUE){
+    P <- .probabilityatTRCpp(t*Q);
+  }
+  else{
   P <- expm(t*Q)
+  }
+  
   
   # return the row vector according to state at time t=0 if x0 is provided
   # if x0 not provided returns the whole matrix
   # hence returns probability of being at state j at time t if state at t =0 is x0
-  # where j is from 1:noof States
+  # where j is from 1:noofStates
   if(missing(x0)){
     P <- matrix(P,nrow = NoofStates,dimnames = list(C@states,C@states))
     return(P)

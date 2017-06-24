@@ -13,7 +13,7 @@ using namespace arma;
 NumericVector ExpectedTimeRcpp(NumericMatrix x,NumericVector y) {
   NumericVector out;
   int size = x.nrow();
-  arma::mat T = arma::zeros(size, size);;
+  arma::mat T = arma::zeros(size, size);
   for(int i=0;i<size;i++)
   {
     for(int j=0;j<size;j++)
@@ -25,6 +25,32 @@ NumericVector ExpectedTimeRcpp(NumericMatrix x,NumericVector y) {
   for(int i=0;i<size;i++)
     c[i] = y[i];
   out = wrap(solve(T,c));
+  return out;
+}
+
+
+// [[Rcpp::export(.probabilityatTRCpp)]]
+NumericMatrix probabilityatTRCpp(NumericMatrix y) {
+  
+  int size = y.nrow();
+  NumericMatrix out(size,size);
+
+  arma::mat T = arma::zeros(size, size);
+  for(int i=0;i<size;i++)
+  {
+    for(int j=0;j<size;j++)
+    {
+      T(i,j) = y(i,j);
+    }
+  }
+  T = expmat(T);
+  for(int i=0;i<size;i++)
+  {
+    for(int j=0;j<size;j++)
+    {
+      out(i,j) = T(i,j);
+    }
+  }
   return out;
 }
 

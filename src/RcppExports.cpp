@@ -88,6 +88,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// probabilityatTRCpp
+NumericMatrix probabilityatTRCpp(NumericMatrix y);
+RcppExport SEXP markovchain_probabilityatTRCpp(SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(probabilityatTRCpp(y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // seq2freqProb
 NumericVector seq2freqProb(CharacterVector sequence);
 RcppExport SEXP markovchain_seq2freqProb(SEXP sequenceSEXP) {

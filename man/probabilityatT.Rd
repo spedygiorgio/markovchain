@@ -4,7 +4,7 @@
 \alias{probabilityatT}
 \title{Calculating probability from a ctmc object}
 \usage{
-probabilityatT(C,t,x0)
+probabilityatT(C,t,x0,useRCpp)
 }
 \arguments{
 \item{C}{A CTMC S4 object}
@@ -12,6 +12,8 @@ probabilityatT(C,t,x0)
 \item{t}{final time t}
 
 \item{x0}{initial state}
+
+\item{useRCpp}{logical whether to use RCpp implementation}
 }
 \value{
 returns a vector or a matrix in case \code{x0} is provided or not respectively.
@@ -30,7 +32,7 @@ byRow <- TRUE
 gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
 nrow = 4,byrow = byRow, dimnames = list(states,states))
 ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-probabilityatT(ctmc,1)
+probabilityatT(ctmc,1,useRcpp = TRUE)
 
 }
 \references{

@@ -33,6 +33,7 @@ extern SEXP markovchain_multinomialCIForRow(SEXP, SEXP);
 extern SEXP markovchain_period(SEXP);
 extern SEXP markovchain_predictiveDistribution(SEXP, SEXP, SEXP);
 extern SEXP markovchain_priorDistribution(SEXP, SEXP);
+extern SEXP markovchain_probabilityatTRCpp(SEXP);
 extern SEXP markovchain_recurrentClasses(SEXP);
 extern SEXP markovchain_seq2freqProb(SEXP);
 extern SEXP markovchain_seq2matHigh(SEXP, SEXP);
@@ -65,6 +66,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_period",                          (DL_FUNC) &markovchain_period,                           1},
     {"markovchain_predictiveDistribution",          (DL_FUNC) &markovchain_predictiveDistribution,           3},
     {"markovchain_priorDistribution",               (DL_FUNC) &markovchain_priorDistribution,                2},
+    {"markovchain_probabilityatTRCpp",              (DL_FUNC) &markovchain_probabilityatTRCpp,               1},
     {"markovchain_recurrentClasses",                (DL_FUNC) &markovchain_recurrentClasses,                 1},
     {"markovchain_seq2freqProb",                    (DL_FUNC) &markovchain_seq2freqProb,                     1},
     {"markovchain_seq2matHigh",                     (DL_FUNC) &markovchain_seq2matHigh,                      2},

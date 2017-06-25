@@ -1,2 +1,2 @@
-31-04-2017 Version 0.6.9.1
-Possible to coerce from and to sparseMatrix
+26-06-2017
+Various additions from GSOC 2017 (see the new vignette)

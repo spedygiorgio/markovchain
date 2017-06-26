@@ -84,6 +84,11 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #' 
 #' @return returns a generator matix with same dimnames
 #' 
+#' @examples
+#' sample <- matrix(c(150,2,1,1,1,200,2,1,2,1,175,1,1,1,1,150),nrow = 4,byrow = TRUE)
+#' sample_rel = rbind((sample/rowSums(sample))[1:dim(sample)[1]-1,],c(rep(0,dim(sample)[1]-1),1)) 
+#' freq2Generator(sample_rel,1)
+#' 
 #' @export
 #' 
 freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){

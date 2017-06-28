@@ -263,6 +263,7 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
 #' @param t initial time t. Default value = 0
 #' @param s final time
 #' @param error error rate. Default value = 0.001
+#' @param useRCpp logical whether to use RCpp implementation; by default TRUE
 #' 
 #' @references Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
 #' 
@@ -274,9 +275,9 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
 #' range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
 #' name <- "testictmc"
 #' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-#' impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3)
+#' impreciseProbabilityatT(ictmc,i=2,t=0,s=1,error = 10^-3,useRCpp = TRUE)
 #'
-impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
+impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3,useRCpp = TRUE){
   ##  input validity checking
   if(s<=t){
     stop("Please provide time points such that initial time is greater than or equal to end point")
@@ -291,7 +292,9 @@ impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
     stop("Please provide a valid initial state")
   }
   ### validity checking ends
-  
+  if(useRCpp == TRUE) {
+    Qgx <- .impreciseProbabilityatTRCpp(C,i,t,s,error)
+  } else {
   ## extract values from ictmc object 
   Q <- C@Q
   range <- C@range
@@ -337,6 +340,7 @@ impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3){
     }
     Qgx <- delta*Qgx
     Qgx <- temp + Qgx
+  }
   }
   return(Qgx)
 }

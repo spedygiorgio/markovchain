@@ -6,10 +6,8 @@ output:
   pdf_document: default
   html_document: default
 bibliography: markovchainBiblio.bib
-vignette: >
-  %\VignetteIndexEntry{GSoC-2017_Additions}  
-  %\VignetteEngine{knitr::rmarkdown}   
-  %VignetteEncoding{UTF-8}
+vignette: |
+  %\VignetteIndexEntry{GSoC-2017_Additions}  %\VignetteEngine{knitr::rmarkdown}   %VignetteEncoding{UTF-8}
 ---
 
 # Expected Hittting Time using CTMC
@@ -126,7 +124,7 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 # Imprecise Conitnuous-Time Markovchains
-Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration[@ictmcpaper].
+Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
 
 
 More technically, an ICTMC is a set of “precise” continuous-time finite-state stochastic processes, and rather than computing expected values of functions, we seek to compute lower expectations, which are tight lower bounds on the expectations that correspond to such a set of “precise” models.
@@ -257,4 +255,4 @@ freq2Generator(sample_rel,1)
 
 
 # References
-
+\bibliography{markovchainBiblio}

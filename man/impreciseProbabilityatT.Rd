@@ -16,6 +16,8 @@ impreciseProbabilityatT(C,i,t,s,error)
 \item{s}{final time}
 
 \item{error}{error rate. Default value = 0.001}
+
+\item{useRCpp}{logical whether to use RCpp implementation; by default TRUE}
 }
 \description{
 This function calculates full conditional probability at given 
@@ -27,7 +29,7 @@ Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = TRUE,dimnames = list(states,states))
 range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
 name <- "testictmc"
 ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3)
+impreciseProbabilityatT(ictmc,i=2,t=0,s=1,error = 10^-3,useRCpp = TRUE)
 
 }
 \references{

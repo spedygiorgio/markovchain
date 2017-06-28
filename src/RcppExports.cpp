@@ -99,6 +99,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// impreciseProbabilityatTRCpp
+NumericVector impreciseProbabilityatTRCpp(S4 C, int i, int t, int s, double error);
+RcppExport SEXP markovchain_impreciseProbabilityatTRCpp(SEXP CSEXP, SEXP iSEXP, SEXP tSEXP, SEXP sSEXP, SEXP errorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type C(CSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type t(tSEXP);
+    Rcpp::traits::input_parameter< int >::type s(sSEXP);
+    Rcpp::traits::input_parameter< double >::type error(errorSEXP);
+    rcpp_result_gen = Rcpp::wrap(impreciseProbabilityatTRCpp(C, i, t, s, error));
+    return rcpp_result_gen;
+END_RCPP
+}
 // seq2freqProb
 NumericVector seq2freqProb(CharacterVector sequence);
 RcppExport SEXP markovchain_seq2freqProb(SEXP sequenceSEXP) {

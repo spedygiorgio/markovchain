@@ -212,24 +212,128 @@ recurrentClasses <- function(object) {
 }
 
 
-#' @title Check if a DTMC is regular
+
+#' @title Calculates committor of a markovchain object with respect to set A, B
 #' 
-#' @description Function to check wether a DTCM is regular
+#' @description Returns the probability of hitting states rom set A before set B 
+#' with different initial states
 #' 
-#' @details A regular Markov chain has $A^n$ strictly positive for some n. 
-#' So we check: if there is only one eigenvector; if the steadystate vector is striclty positive.
+#' @usage committorAB(object,A,B,p)
 #' 
-#' @param object a markovchain object
+#' @param object a markovchain class object
+#' @param A a set of states
+#' @param B a set of states
+#' @param p initial state (default value : 1)
 #' 
-#' @return A boolean value
+#' @details The function solves a system of linear equations to calculate probaility that the process hits
+#' a state from set A before any state from set B
+#' 
+#' @return Return a vector of probabilities in case initial state is not provided else returns a number
 #' 
 #' @examples 
-#' P=matrix(c(0.5,.25,.25,.5,0,.5,.25,.25,.5),nrow = 3)
-#' colnames(P)<-rownames(P)<-c("R","N","S")
-#' ciao<-as(P,"markovchain")
-#' is.regular(ciao)
+#' transMatr <- matrix(c(0,0,0,1,0.5,0.5,0,0,0,0,0.5,0,0,0,0,0,0.2,0.4,0,0,0,0.8,0.6,0,0.5),nrow = 5)
+#' object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr, name="simpleMc")
+#' committorAB(object,c(5),c(3))
 #' 
-#' @seealso \code{\link{is.irreducible}}
+#' @export
+committorAB <- function(object,A,B,p=1) {
+  
+  if(!class(object) == "markovchain")
+    stop("please provide a valid markovchain object")
+  
+  matrix <- object@transitionMatrix
+  
+  noofstates <- length(object@states)
+  
+  for(i in length(A))
+  {
+    if(A[i] <= 0 || A[i] > noofstates)
+      stop("please provide a valid set A")
+  }
+  
+  for(i in length(B))
+  {
+    if(B[i] <= 0 || B[i] > noofstates)
+      stop("please provide a valid set B")
+  }
+  
+  for(i in 1:noofstates)
+  {
+    if(i %in% A && i %in% B)
+      stop("intersection of set A and B in not null")
+  }
+  
+  if(p <=0 || p > noofstates)
+    stop("please provide a valid initial state")
+  
+  I <- diag(noofstates)
+  
+  matrix <- matrix - I
+  
+  A_size = length(A)
+  B_size = length(B)
+  
+  for(i in 1:A_size)
+  {
+    for(j in 1:noofstates)
+    {
+      if(A[i]==j)
+        matrix[A[i],j] = 1
+      else
+        matrix[A[i],j] = 0
+    }
+  }
+  
+  for(i in 1:B_size)
+  {
+    for(j in 1:noofstates)
+    {
+      if(B[i]==j)
+        matrix[B[i],j] = 1
+      else
+        matrix[B[i],j] = 0
+    }
+  }
+  
+  b <- rep(0,noofstates)
+  
+  
+  for(i in 1:A_size)
+  {
+    b[A[i]] = 1
+  }
+  
+  out <- solve(matrix,b)
+  
+  if(missing(p))
+    return(out)
+  else
+    return(out[p])
+}
+
+
+
+
+
+
+# @title Check if a DTMC is regular
+# 
+# @description Function to check wether a DTCM is regular
+# 
+# @details A regular Markov chain has $A^n$ strictly positive for some n. 
+# So we check: if there is only one eigenvector; if the steadystate vector is striclty positive.
+# 
+# @param object a markovchain object
+# 
+# @return A boolean value
+# 
+# @examples 
+# P=matrix(c(0.5,.25,.25,.5,0,.5,.25,.25,.5),nrow = 3)
+# colnames(P)<-rownames(P)<-c("R","N","S")
+# ciao<-as(P,"markovchain")
+# is.regular(ciao)
+# 
+# @seealso \code{\link{is.irreducible}}
 
 
 # is.regular<-function(object) {
@@ -238,3 +342,5 @@ recurrentClasses <- function(object) {
 #   out <- minDim==1 & all(eigenValues>0)
 #   return(out)
 # }
+
+

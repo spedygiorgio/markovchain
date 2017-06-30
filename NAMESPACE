@@ -1,7 +1,7 @@
 useDynLib(markovchain, .registration = TRUE)
 #useDynLib(markovchain)
 #exportPattern("^[[:alpha:]]+")
-export("absorbingStates","assessOrder","assessStationarity","canonicForm","communicatingClasses","conditionalDistribution",
+export("absorbingStates","assessOrder","assessStationarity","canonicForm","committorAB","communicatingClasses","conditionalDistribution",
        "createSequenceMatrix","ctmcFit","ExpectedTime","firstPassage","fitHigherOrder","fitHighOrderMultivarMC","freq2Generator","generatorToTransitionMatrix",
        "hommc","impreciseProbabilityatT","inferHyperparam","is.accessible","is.irreducible","markovchainFit","markovchainListFit","markovchainSequence",
        "multinomialConfidenceIntervals","name","name<-","period","predict","predictiveDistribution","priorDistribution","probabilityatT","rctmc",

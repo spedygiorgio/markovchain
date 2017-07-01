@@ -254,5 +254,35 @@ freq2Generator(sample_rel,1)
 ```
 
 
+# Committor of a markovchain
+
+Consider set of states A,B comprising of states from a markovchain with transition matrix P. The committor vector of a markovchain with respect to sets A and B gives the probability that the process will hit a state from set A before any state from set B.
+
+Committor vector u can be calculated by solving the following system of linear equations[@committorlink]:
+
+$$
+  \begin{array}{l}
+  Lu(x) = 0,  x \notin A \cup B \\
+  u(x) = 1,   x \in A \\
+  u(x) = 0,   x \in B
+  \end{array}
+$$
+where $L = P -I$.
+
+Now we apply the method to an example:
+
+``` {r}
+transMatr <- matrix(c(0,0,0,1,0.5,0.5,0,0,0,0,0.5,0,0,0,0,0,0.2,0.4,0,0,0,0.8,0.6,0,0.5),nrow = 5)
+object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr, name="simpleMc")
+committorAB(object,c(5),c(3))
+```
+
+Here we get probability that the process will hit state "e" before state "c" given different initial states.
+
+
 # References
 \bibliography{markovchainBiblio}
+
+
+
+

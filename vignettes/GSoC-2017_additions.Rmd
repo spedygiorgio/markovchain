@@ -291,6 +291,29 @@ committorAB(object,c(5),c(3))
 Here we get probability that the process will hit state "e" before state "c" given different initial states.
 
 
+# First Passage probability for set of States
+Currently computation of the first passage time for individual states has been implemented in the package. `firstPassageMultiple` function provides a method to get first passage probability for given provided set of states. 
+
+Consider this example markovchain object:
+``` {r}
+statesNames <- c("a", "b", "c")
+testmarkov <- new("markovchain", states = statesNames, transitionMatrix =
+matrix(c(0.2, 0.5, 0.3,
+0.5, 0.1, 0.4,
+0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+dimnames = list(statesNames, statesNames)
+))
+```
+
+Now we apply `firstPassageMultiple` function to calculate first passage probabilities for set of states $"b", "c"$ when intial state is $"a"$.
+
+``` {r}
+firstPassageMultiple(testmarkov,"a",c("b","c"),4)
+```
+
+This shows us the probability that the process will hit any of the state from the set after n number of steps for instance, as shown, the probability of the process to hit any of the states among $"b", "c"$ after $2$ steps is $0.6000$.
+
+
 # References
 \bibliography{markovchainBiblio}
 

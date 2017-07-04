@@ -234,6 +234,17 @@ The conditional probability vector after time $t$ with error $\epsilon$. Hence, 
 
 $ g_{n} = 0.0083$ if final state is $healthy$ and $g_{n} = 0.141$ if the final state is $sick$. The probability calculated is with an error equal to $\epsilon$ i.e. $0.001$.
 
+Now we run the algorithm on the example through R code.
+``` {r}
+states <- c("n","y")
+Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = TRUE,dimnames = list(states,states))
+range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
+name <- "testictmc"
+ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
+impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
+```
+
+The probabilites we get are with an error of $10^{-3}$
 
 # Continuous time markovchain generator using frequency Matrix
 

@@ -4,7 +4,7 @@
 \alias{impreciseProbabilityatT}
 \title{Calculating full conditional probability using lower rate transition matrix}
 \usage{
-impreciseProbabilityatT(C,i,t,s,error)
+impreciseProbabilityatT(C,i,t,s,error,useRCpp)
 }
 \arguments{
 \item{C}{a ictmc class object}
@@ -29,7 +29,7 @@ Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = TRUE,dimnames = list(states,states))
 range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
 name <- "testictmc"
 ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-impreciseProbabilityatT(ictmc,i=2,t=0,s=1,error = 10^-3,useRCpp = TRUE)
+impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 
 }
 \references{

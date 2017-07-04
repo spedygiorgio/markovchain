@@ -282,8 +282,13 @@ recurrentClasses <- function(object) {
 #' @return Return a vector of probabilities in case initial state is not provided else returns a number
 #' 
 #' @examples 
-#' transMatr <- matrix(c(0,0,0,1,0.5,0.5,0,0,0,0,0.5,0,0,0,0,0,0.2,0.4,0,0,0,0.8,0.6,0,0.5),nrow = 5)
-#' object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr, name="simpleMc")
+#' transMatr <- matrix(c(0,0,0,1,0.5,
+#'                       0.5,0,0,0,0,
+#'                       0.5,0,0,0,0,
+#'                       0,0.2,0.4,0,0,
+#'                       0,0.8,0.6,0,0.5),
+#'                       nrow = 5)
+#' object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr)
 #' committorAB(object,c(5),c(3))
 #' 
 #' @export

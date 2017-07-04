@@ -256,7 +256,7 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
 #' This function calculates full conditional probability at given 
 #' time s using lower rate transition matrix
 #' 
-#' @usage impreciseProbabilityatT(C,i,t,s,error)
+#' @usage impreciseProbabilityatT(C,i,t,s,error,useRCpp)
 #' 
 #' @param C a ictmc class object
 #' @param i initial state at time t
@@ -275,7 +275,7 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
 #' range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
 #' name <- "testictmc"
 #' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-#' impreciseProbabilityatT(ictmc,i=2,t=0,s=1,error = 10^-3,useRCpp = TRUE)
+#' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 #'
 impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3,useRCpp = TRUE){
   ##  input validity checking

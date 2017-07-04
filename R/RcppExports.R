@@ -213,6 +213,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(markovchain_firstpassageKernel, P, i, n)
 }
 
+.firstPassageMultipleRCpp <- function(P, i, setno, n) {
+    .Call(markovchain_firstPassageMultipleRCpp, P, i, setno, n)
+}
+
 .gcdRcpp <- function(a, b) {
     .Call(markovchain_gcd, a, b)
 }

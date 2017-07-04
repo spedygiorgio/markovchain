@@ -314,6 +314,33 @@ NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
   return R;
 }
 
+
+
+// [[Rcpp::export(.firstPassageMultipleRCpp)]]
+NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setno, int n)
+{
+  arma::mat G = as<arma::mat>(P);
+  arma::mat Pa = G;
+  arma::vec H = arma::zeros(n); //here Thoralf suggestion
+  unsigned int size = setno.size();
+  //initializing the first row
+  for(unsigned int k = 0; k < size; k++){
+      H[0] += G(i-1, setno[k]-1);
+    }
+    
+  
+  arma::mat E = 1 - arma::eye(P.ncol(), P.ncol());
+  
+  for (int m = 1; m < n; m++) {
+    G = Pa * (G%E);
+    for(unsigned int k = 0; k < size; k++){
+      H[m] += G(i-1, setno[k]-1);
+    }
+  }
+  NumericVector R = wrap(H);
+  return R;
+}
+
 // greatest common denominator
 // [[Rcpp::export(.gcdRcpp)]]
 int gcd (int a, int b) {

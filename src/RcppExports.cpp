@@ -334,6 +334,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// firstPassageMultipleRCpp
+NumericVector firstPassageMultipleRCpp(NumericMatrix P, int i, NumericVector setno, int n);
+RcppExport SEXP markovchain_firstPassageMultipleRCpp(SEXP PSEXP, SEXP iSEXP, SEXP setnoSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type setno(setnoSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(firstPassageMultipleRCpp(P, i, setno, n));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gcd
 int gcd(int a, int b);
 RcppExport SEXP markovchain_gcd(SEXP aSEXP, SEXP bSEXP) {

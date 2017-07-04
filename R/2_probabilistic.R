@@ -138,6 +138,57 @@ firstPassage <- function(object, state, n) {
   return(outMatr)
 }
 
+
+
+
+#' returns first passage probabilities for a set of state given initial state
+#' 
+#' @description The function calculates first passage probability given an initial state
+#' 
+#' @param object a markovchain-class object
+#' @param state intital state of the process (charactervector)
+#' @param set set of states A, first passage of which is to be calculated
+#' @param n Number of rows on which compute the distribution
+#' 
+#' @return A vector of size n showing the first time proability 
+#' @references
+#' Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains;
+#' MIT OCW, course - 6.262, Discrete Stochastic Processes, course-notes, chap -05
+#' 
+#' @author Vandit Jain
+#' 
+#' @seealso \code{\link{firstPassage}}
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#' matrix(c(0.2, 0.5, 0.3,
+#'          0, 1, 0,
+#'          0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+#'        dimnames = list(statesNames, statesNames)
+#' ))
+#'  
+#' @export 
+firstPassageMultiple <- function(object,state,set, n){
+  P <- object@transitionMatrix
+  stateNames <- states(object)
+  
+  k <- which(stateNames == state)
+  
+  setno <- rep(0,length(set))
+  for(i in 1:length(set))
+  {
+    setno[i] = which(set[i] == stateNames)
+  }
+  
+  outMatr <- .firstPassageMultipleRCpp(P,k,setno,n)
+  colnames(outMatr) <- "set"
+  rownames(outMatr) <- 1:n
+  return(outMatr)
+}
+
+
+
+
 # return a list of communicating classes
 
 #' @name communicatingClasses

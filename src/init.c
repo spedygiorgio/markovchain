@@ -18,6 +18,7 @@ extern SEXP markovchain_createSequenceMatrix(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_ctmcFit(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_ExpectedTimeRcpp(SEXP,SEXP);
 extern SEXP markovchain_firstpassageKernel(SEXP, SEXP, SEXP);
+extern SEXP markovchain_firstPassageMultipleRCpp(SEXP,SEXP,SEXP,SEXP);
 extern SEXP markovchain_gcd(SEXP, SEXP);
 extern SEXP markovchain_generatorToTransitionMatrix(SEXP, SEXP);
 extern SEXP markovchain_impreciseProbabilityatTRCpp(SEXP,SEXP,SEXP,SEXP,SEXP);
@@ -52,6 +53,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_ctmcFit",                         (DL_FUNC) &markovchain_ctmcFit,                          4},
     {"markovchain_ExpectedTimeRcpp",                (DL_FUNC) &markovchain_ExpectedTimeRcpp,                 2},
     {"markovchain_firstpassageKernel",              (DL_FUNC) &markovchain_firstpassageKernel,               3},
+    {"markovchain_firstPassageMultipleRCpp",        (DL_FUNC) &markovchain_firstPassageMultipleRCpp,         4},
     {"markovchain_gcd",                             (DL_FUNC) &markovchain_gcd,                              2},
     {"markovchain_generatorToTransitionMatrix",     (DL_FUNC) &markovchain_generatorToTransitionMatrix,      2},
     {"markovchain_impreciseProbabilityatTRCpp",     (DL_FUNC) &markovchain_impreciseProbabilityatTRCpp,      5},

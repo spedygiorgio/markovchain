@@ -1,20 +1,20 @@
-#load required libraries
+﻿#load required libraries
 library(parallel)
 require(MCMCpack)
 require(markovchain)
 dimensions2Test<-2:32
-numSim=10000
-
-#helper function to create a random stochastic matrix
-
-createMatrix<-function(matr_size) {
-  out<-matrix(0, nrow=matr_size, ncol = matr_size)
-  for (i in 1:matr_size) {
-    priors.dirichlet<-runif(n=matr_size)
-    myStochasticRow<-rdirichlet(n=1,alpha=priors.dirichlet)
-    out[i,]<-myStochasticRow
-  }
-  return(out)
+numSim=10000 
+ 
+#helper function to create a random stochastic matrix 
+ 
+createMatrix<-function(matr_size) { 
+  out<-matrix(0, nrow=matr_size, ncol = matr_size) 
+  for (i in 1:matr_size) { 
+    priors.dirichlet<-runif(n=matr_size) 
+    myStochasticRow<-rdirichlet(n=1,alpha=priors.dirichlet) 
+    out[i,]<-myStochasticRow 
+  } 
+  return(out) 
 }
 
 
@@ -74,10 +74,9 @@ for (dimension in dimensions2Test){
 }
 stopCluster(cl)
 #summarising first test:
-#png("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability1.png")
-plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate")
-abline(h=0.5,col="red")
-text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
+#plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate")
+#abline(h=0.5,col="red")
+#text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
 #dev.off()
 
 dimensions2Test = 2^seq(from=3, to=8)
@@ -97,11 +96,11 @@ for (dimension in dimensions2Test){
   k=k+1
 }
 stopCluster(cl)
-
-
-plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate − sparse matrices")
-abline(h=0.5,col="red")
-text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
+# 
+# 
+# plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate ??? sparse matrices")
+# abline(h=0.5,col="red")
+# text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
 
 
 
@@ -138,14 +137,14 @@ for (dimension in dimensions2Test){
 stopCluster(cl)
 #summarising first test:
 
-#png("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability2.png")
+
 #par(mfrow=c(1,2))
-pdf("C:\\Users\\Giorgio\\Google Drive\\Research\\RJournal\\spedicato_images\\reliability.pdf")
-plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate")
-abline(h=0.5,col="red")
-text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
-dev.off()
-#dev.off()
+
+# plot(x=dimensions2Test,y=successRate,type="l",xlab="matrix size",ylab="success rate",main="Steady state computation success rate")
+# abline(h=0.5,col="red")
+# text(x=dimensions2Test,y=successRate,labels=round(successRate,digits=2),col="darkred",cex=0.7)
+
+
 
 # plot(x=dimensions2Test,y=successRate2,type="l",xlab="matrix sixe",ylab="success rate",main="Exponentiation computation success rate")
 # abline(h=0.5,col="red")

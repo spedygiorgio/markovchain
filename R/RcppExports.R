@@ -189,6 +189,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(markovchain_markovchainFit, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 
+.noofVisitsDistRCpp <- function(matrix, i, N) {
+    .Call(markovchain_noofVisitsDistRCpp, matrix, i, N)
+}
+
 .commclassesKernelRcpp <- function(P) {
     .Call(markovchain_commclassesKernel, P)
 }

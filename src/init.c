@@ -32,6 +32,7 @@ extern SEXP markovchain_markovchainSequenceRcpp(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_mcListFitForList(SEXP);
 extern SEXP markovchain_multinomCI(SEXP, SEXP, SEXP);
 extern SEXP markovchain_multinomialCIForRow(SEXP, SEXP);
+extern SEXP markovchain_noofVisitsDistRCpp(SEXP,SEXP,SEXP);
 extern SEXP markovchain_period(SEXP);
 extern SEXP markovchain_predictiveDistribution(SEXP, SEXP, SEXP);
 extern SEXP markovchain_priorDistribution(SEXP, SEXP);
@@ -67,6 +68,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_mcListFitForList",                (DL_FUNC) &markovchain_mcListFitForList,                 1},
     {"markovchain_multinomCI",                      (DL_FUNC) &markovchain_multinomCI,                       3},
     {"markovchain_multinomialCIForRow",             (DL_FUNC) &markovchain_multinomialCIForRow,              2},
+    {"markovchain_noofVisitsDistRCpp",              (DL_FUNC) &markovchain_noofVisitsDistRCpp,               3},
     {"markovchain_period",                          (DL_FUNC) &markovchain_period,                           1},
     {"markovchain_predictiveDistribution",          (DL_FUNC) &markovchain_predictiveDistribution,           3},
     {"markovchain_priorDistribution",               (DL_FUNC) &markovchain_priorDistribution,                2},

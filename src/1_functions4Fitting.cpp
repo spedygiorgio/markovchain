@@ -15,7 +15,7 @@ using namespace std;
 #include "mapFitFunctionsSAI.h"
 #include "sampler.h"   
 #include <math.h>
-
+#include <armadillo>
 
 // [[Rcpp::export(.markovchainSequenceRcpp)]]
 CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0,
@@ -1658,3 +1658,28 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   
   return out;
 }
+
+          
+// [[Rcpp::export(.noofVisitsDistRCpp)]]
+NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i,int N){
+  
+    int noOfStates = matrix.ncol();
+    arma::vec out = arma::zeros(noOfStates);
+    arma::mat Tmatrix = as<arma::mat>(matrix);
+    arma::mat temp = Tmatrix;
+    
+    for(int j=0;j<noOfStates;j++){
+      out[j] = Tmatrix(i-1,j);
+    }
+    for(int p=0;p<N-1;p++)
+    {
+      temp = temp*Tmatrix;
+      for(int j=0;j<noOfStates;j++){
+        out[j] += temp(i-1,j);
+      }
+    }
+    out = out/N;
+    NumericVector R = wrap(out);
+    return R;
+}
+

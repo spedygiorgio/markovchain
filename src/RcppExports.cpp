@@ -266,6 +266,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// noofVisitsDistRCpp
+NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i, int N);
+RcppExport SEXP markovchain_noofVisitsDistRCpp(SEXP matrixSEXP, SEXP iSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(noofVisitsDistRCpp(matrix, i, N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // commclassesKernel
 SEXP commclassesKernel(NumericMatrix P);
 RcppExport SEXP markovchain_commclassesKernel(SEXP PSEXP) {

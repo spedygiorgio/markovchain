@@ -692,4 +692,46 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)
   return(out)
 
-  }
+}
+
+
+#' return a joint pdf of the number of visits to the various states of the DTMC
+#' 
+#' @description This function would return a joint pdf of the number of visits to
+#' the various states of the DTMC during the first N steps.
+#' 
+#' @usage noofVisitsDist(markovchain,N,state)
+#' 
+#' @param markovchain a markovchain-class object
+#' @param N no of steps
+#' @param state the initial state
+#' 
+#' @details 
+#' This function would return a joint pdf of the number of visits to
+#' the various states of the DTMC during the first N steps.
+#' 
+#' @return a numeric vector depicting the above described probability density function.
+#' 
+#' @author Vandit Jain
+#' 
+#' @examples 
+#' transMatr<-matrix(c(0.4,0.6,.3,.7),nrow=2,byrow=TRUE)
+#' simpleMc<-new("markovchain", states=c("a","b"),
+#'              transitionMatrix=transMatr, 
+#'              name="simpleMc")   
+#' noofVisitsDist(simpleMc,5,"a")
+#' 
+#' @export
+noofVisitsDist <- function(markovchain,N = 5,state) {
+  
+  Tmatrix <- markovchain@transitionMatrix
+  stateNames <- states(markovchain)
+  
+  i <- which(stateNames == state)
+  
+  out <- .noofVisitsDistRCpp(Tmatrix,i,N)
+  names(out) <- stateNames
+  
+  return(out)
+  
+}

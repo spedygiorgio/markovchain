@@ -401,12 +401,6 @@ setMethod("steadyStates","markovchain",
 
 
 
-#' @title steadyStatesByRecurrent classes
-#' 
-#' @description Function to extract steady states when needed
-#' Only recurrent closed classes are considered 
-#' @author Christope Dutang and Giorgio Spedicato
-#' @return A matrix
 .steadyStatesByRecurrentClasses<-function(object) {
   #initialization
   M<-object@transitionMatrix

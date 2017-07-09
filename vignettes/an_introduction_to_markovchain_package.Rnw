@@ -1514,6 +1514,78 @@ mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="
 mcWeatherHalfDay
 @
 
+
+\subsection{Pseudo - Bayesian Estimation}
+
+\cite{Hu2002} shows an empirical quasi-bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha*Q+\left(1-1alpha\right)*P$, where $\alpha$ is defined for each row as Equation~\ref{eq:pseudobayes} shows
+
+\begin{equation}
+\left\{\begin{matrix}
+\hat{\alpha_i}=\frac{\hat{K_i}}{v\left(i \right )+\hat{K_i}}\\ 
+\hat{K_i}=\frac{v\left(i \right)^2 - \sum_{j}Y_{ij}^2}{\sum_{j}(Y_{ij}-v\left(i \right)*q_{ij})^2}
+\end{matrix}\right.
+\label{eq:pseudobayes}
+\end{equation}
+
+The following code returns the pseudo bayesian estimate of the transition matrix:
+
+<<pseudobayes, keep.source=TRUE>>=
+
+pseudoBayesEstimator <- function(raw, apriori){
+  v_i <- rowSums(raw) 
+  K_i <- numeric(nrow(raw))
+  sumSquaredY <- rowSums(raw^2)
+  #get numerator
+  K_i_num <- v_i^2-sumSquaredY
+  #get denominator
+  VQ <- matrix(0,nrow= nrow(apriori),ncol=ncol(apriori))
+  for (i in 1:nrow(VQ)) {
+    VQ[i,]<-v_i[i]*apriori[i,]
+  }
+  
+  K_i_den<-rowSums((raw - VQ)^2)
+  
+  K_i <- K_i_num/K_i_den
+  
+  #get the alpha vector
+  alpha <- K_i / (v_i+K_i)
+  
+  #empirical transition matrix
+  Emp<-raw/rowSums(raw)
+  
+  #get the estimate
+  out<-matrix(0, nrow= nrow(raw),ncol=ncol(raw))
+  for (i in 1:nrow(out)) {
+    out[i,]<-alpha[i]*apriori[i,]+(1-alpha[i])*Emp[i,]
+  }
+  return(out)
+}
+@
+
+We then apply it to the weather example:
+
+<<pseudobayes2, keep.source=TRUE>>=
+
+trueMc<-as(matrix(c(0.1, .9,.7,.3),nrow = 2, byrow = 2),"markovchain")
+aprioriMc<-as(matrix(c(0.5, .5,.5,.5),nrow = 2, byrow = 2),"markovchain")
+
+smallSample<-rmarkovchain(n=20,object = trueMc)
+smallSampleRawTransitions<-createSequenceMatrix(stringchar = smallSample)
+pseudoBayesEstimator(raw = smallSampleRawTransitions,apriori = aprioriMc@transitionMatrix)-trueMc@transitionMatrix
+
+biggerSample<-rmarkovchain(n=100,object = trueMc)
+biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample)
+pseudoBayesEstimator(raw = biggerSampleRawTransitions,apriori = aprioriMc@transitionMatrix)-trueMc@transitionMatrix
+
+bigSample<-rmarkovchain(n=1000,object = trueMc)
+bigSampleRawTransitions<-createSequenceMatrix(stringchar = bigSample)
+pseudoBayesEstimator(raw = bigSampleRawTransitions,apriori = aprioriMc@transitionMatrix)-trueMc@transitionMatrix
+
+
+@
+
+
+
 \subsection{Bayesian Estimation}
 
 The \pkg{markovchain} package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters (at the time of writing this document, only first order models are supported) by Bayesian inference. It also computes the probability of observing a new data set, given a (different) data set. This vignette provides the mathematical description for the methods employed by the package. 

@@ -1,3 +1,6 @@
+10-07-2017 0.6.9.5
+Added empirical bayesian estimate
+Various additions from GSOC 2017 (see the new vignette)
 31-03-2014 Version 0.6.9
 Added sort method
 Revised numeric tolerance when creating markovchains

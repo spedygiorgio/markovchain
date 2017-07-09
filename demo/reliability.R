@@ -1,24 +1,24 @@
-﻿#load required libraries
+#load required libraries
 library(parallel)
 require(MCMCpack)
 require(markovchain)
 dimensions2Test<-2:32
 numSim=10000 
- 
-#helper function to create a random stochastic matrix 
- 
-createMatrix<-function(matr_size) { 
-  out<-matrix(0, nrow=matr_size, ncol = matr_size) 
-  for (i in 1:matr_size) { 
+
+#helper function to create a random stochastic matrix
+
+createMatrix<-function(matr_size) {
+  out<-matrix(0, nrow=matr_size, ncol = matr_size)
+  for (i in 1:matr_size) {
     priors.dirichlet<-runif(n=matr_size) 
-    myStochasticRow<-rdirichlet(n=1,alpha=priors.dirichlet) 
-    out[i,]<-myStochasticRow 
-  } 
-  return(out) 
+    myStochasticRow<-rdirichlet(n=1,alpha=priors.dirichlet)
+    out[i,]<-myStochasticRow
+  }
+  return(out)
 }
 
 
-createSparseMatrix<-function(matr_size, sparsity=0.75) {
+createSparseMatrix<-function(matr_size, sparsity=0.75){
   out <- matrix(0, nrow=matr_size, ncol = matr_size)
   nonzeroitems<-ceiling(matr_size*(1-sparsity))
   for (i in 1:matr_size) {

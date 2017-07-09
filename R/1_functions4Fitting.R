@@ -668,13 +668,14 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   return(out)
 }  
 
-#' Return MultinomialWise Confidence intervals.
+#' A function to compute multinomial confidence intervals of DTMC
 #' 
 #' @description Return estimated transition matrix assuming a Multinomial Distribution
 #' 
 #' @param transitionMatrix An estimated transition matrix.
 #' @param countsTransitionMatrix Empirical (conts) transition matrix, on which the \code{transitionMatrix} was performed.
 #' @param confidencelevel confidence interval level.
+#' 
 #' @return Two matrices containing the confidence intervals.
 #' 
 #' @seealso \code{markovchainFit}
@@ -683,10 +684,12 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' for multinomial proportions for small counts in a large number of cells. 
 #' Journal of Statistical Software 5(6) (2000)
 #'
+#' @seealso \code{\link{markovchain}}
 #' @examples 
-#' myletterseq<-sample(x = letters[1:3],size = 120,replace=TRUE)
-#' myMcFit<-markovchainFit(data=myletterseq)
-#' myMultinomialCI=multinomialConfidenceIntervals(transitionMatrix=myMcFit$estimate,countsTransitionMatrix=createSequenceMatrix(stringChar = myletterseq))
+#' seq<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+#' mcfit<-markovchainFit(data=seq,byrow=TRUE)
+#' seqmat<-createSequenceMatrix(seq)
+#' multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)

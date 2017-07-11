@@ -1,4 +1,4 @@
-﻿---
+---
 title: "GSoC-2017_Additions"
 author: "Vandit Jain"
 date: "June 2017"
@@ -314,6 +314,23 @@ firstPassageMultiple(testmarkov,"a",c("b","c"),4)
 ```
 
 This shows us the probability that the process will hit any of the state from the set after n number of steps for instance, as shown, the probability of the process to hit any of the states among $"b", "c"$ after $2$ steps is $0.6000$.
+
+
+# Joint PDF of number of visits to the various states of a markovchain
+
+The package provides a function `noofVisitsDist` that returns the PDF of the number of visits to the various states of the discrete time markovchain during the first N steps, given intial state of the process.  
+
+We will take an example to see how to use the function on a `markovchain-class` object:
+
+``` {r}
+transMatr<-matrix(c(0.4,0.6,.3,.7),nrow=2,byrow=TRUE)
+simpleMc<-new("markovchain", states=c("a","b"),
+              transitionMatrix=transMatr, 
+              name="simpleMc")   
+noofVisitsDist(simpleMc,5,"a")
+```
+
+The output clearly shows the probabilities related to various states of the process. 
 
 
 # References

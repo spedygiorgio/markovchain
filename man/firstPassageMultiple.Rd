@@ -29,7 +29,8 @@ matrix(c(0.2, 0.5, 0.3,
          0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
        dimnames = list(statesNames, statesNames)
 ))
- 
+firstPassageMultiple(markovB,"a",c("b","c"),4)  
+
 }
 \references{
 Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains;

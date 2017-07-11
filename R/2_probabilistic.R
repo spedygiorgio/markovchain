@@ -166,21 +166,35 @@ firstPassage <- function(object, state, n) {
 #'          0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
 #'        dimnames = list(statesNames, statesNames)
 #' ))
-#'  
+#' firstPassageMultiple(markovB,"a",c("b","c"),4)  
+#' 
 #' @export 
 firstPassageMultiple <- function(object,state,set, n){
+  
+  # gets the transition matrix
   P <- object@transitionMatrix
+  
+  # character vector of states of the markovchain
   stateNames <- states(object)
   
+  k <- -1
   k <- which(stateNames == state)
+  if(k==-1)
+    stop("please provide a valid initial state")
   
+  # gets the set in numeric vector
   setno <- rep(0,length(set))
   for(i in 1:length(set))
   {
     setno[i] = which(set[i] == stateNames)
+    if(setno[i] == 0)
+      stop("please provide proper set of states")
   }
   
+  # calls Rcpp implementation
   outMatr <- .firstPassageMultipleRCpp(P,k,setno,n)
+  
+  #sets column and row names of output
   colnames(outMatr) <- "set"
   rownames(outMatr) <- 1:n
   return(outMatr)

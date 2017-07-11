@@ -727,12 +727,31 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' @export
 noofVisitsDist <- function(markovchain,N = 5,state) {
   
+  if(class(markovchain)!="markovchain")
+    stop("please provide a valid markovchain-class object")
+  
+  if(N <= 0)
+    stop("please enter positive number of steps")
+  
+  # the transition matrix
   Tmatrix <- markovchain@transitionMatrix
+  
+  # character vector of states of the markovchain
   stateNames <- states(markovchain)
   
+  i<--1
+  
+  # initial state
   i <- which(stateNames == state)
   
+  if(i==-1)
+    stop("please provide a valid inital state")
+  
+  
+  # call to Rcpp implementation of the function
   out <- .noofVisitsDistRCpp(Tmatrix,i,N)
+  
+  # adds state names names to the output vector
   names(out) <- stateNames
   
   return(out)

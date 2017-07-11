@@ -1662,15 +1662,21 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
           
 // [[Rcpp::export(.noofVisitsDistRCpp)]]
 NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i,int N){
-  
+    
+    // no of states in the process
     int noOfStates = matrix.ncol();
     arma::vec out = arma::zeros(noOfStates);
     arma::mat Tmatrix = as<arma::mat>(matrix);
     arma::mat temp = Tmatrix;
     
+    // initial distribution is in the transition matrix itself
     for(int j=0;j<noOfStates;j++){
       out[j] = Tmatrix(i-1,j);
     }
+    
+    //The distribution for Nth step is calculates after N multiplication of the transition matrix
+    // and adding everytime the coresponding ratios
+    // finally dividing by N
     for(int p=0;p<N-1;p++)
     {
       temp = temp*Tmatrix;

@@ -67,7 +67,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   arma::mat Q = arma::zeros(noOfstates,noOfstates);
   arma::mat range = arma::zeros(noOfstates,2);
   
-  
+  // initialises armadillo matrices
   for(int p=0;p<noOfstates;p++)
   {
     for(int q=0;q<noOfstates;q++)
@@ -76,6 +76,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
     }
   }
   
+  // initialises armadillo matrices
   for(int p=0;p<noOfstates;p++)
   {
     for(int q=0;q<2;q++)
@@ -84,8 +85,10 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
     }
   }
   
+  // initialses value of norm of Q
   double QNorm = -1.0;
   
+  // calculates norm of Q
   for(int p =0;p < noOfstates;p++)
   {
     float sum = 0.0;
@@ -99,14 +102,18 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
     if(sum*range(p,1) > QNorm)
       QNorm = sum*range(p,1);
   }
+  
+  // calculates no. of iterations according to error rate, QNorm and other parameters
   int n;
   if((s-t)*QNorm > (s-t)*(s-t)*QNorm*QNorm*1/(2*error))
     n = (int)(s-t)*QNorm;
   else
     n = (int)(s-t)*(s-t)*QNorm*QNorm*1/(2*error);
   
+  // sets delta value
   float delta = (s-t)*1.0/n;
   
+  // declares and initialises initial f
   arma::vec Ii(noOfstates);
   
   for(int p=0;p<noOfstates;p++)
@@ -114,6 +121,8 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   
   Ii[i-1] = 1;
   
+  
+  // calculation of Qgx vector
   arma::vec values =  Q*Ii;
   arma::vec Qgx(noOfstates);
   
@@ -129,6 +138,9 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   }
   
   Qgx = delta*Qgx;
+  
+  // runs n-1 iterations according to the algorithm
+  // Qgx_i = Qgx_{i-1} + delta*Q*Qgx_{i-1}
   Qgx = Qgx + Ii;
   for(int iter =0;iter < n-1;iter++)
   {
@@ -136,6 +148,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
     values = Q*Qgx;
     for(int p=0;p<noOfstates;p++)
     {
+      // calculating keeping in mind the lower opertaotr values
       if(values[p]*range(p,0) < values[p]*range(p,1))
         Qgx[p] = values[p]*range(p,0);
       else

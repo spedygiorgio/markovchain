@@ -343,6 +343,7 @@ committorAB <- function(object,A,B,p=1) {
   A_size = length(A)
   B_size = length(B)
   
+  # sets the matrix according to the provided states
   for(i in 1:A_size)
   {
     for(j in 1:noofstates)
@@ -354,6 +355,7 @@ committorAB <- function(object,A,B,p=1) {
     }
   }
   
+  # sets the matrix according to the provided states
   for(i in 1:B_size)
   {
     for(j in 1:noofstates)
@@ -365,6 +367,7 @@ committorAB <- function(object,A,B,p=1) {
     }
   }
   
+  # initialises b in the equation the system of equation AX =b
   b <- rep(0,noofstates)
   
   
@@ -373,7 +376,9 @@ committorAB <- function(object,A,B,p=1) {
     b[A[i]] = 1
   }
   
+  # solve AX = b according using solve function from base package
   out <- solve(matrix,b)
+  
   
   if(missing(p))
     return(out)

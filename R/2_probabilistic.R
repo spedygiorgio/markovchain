@@ -387,6 +387,46 @@ committorAB <- function(object,A,B,p=1) {
 }
 
 
+#' Expected Rewards for a markovchain
+#' 
+#' @description The function returns the value of expected rewards given 
+#' rewards coressponding to every state
+#' 
+#' @usage expectedRewards(markovchain,n,rewards)
+#' 
+#' @param markovchain the markovchain-class object
+#' @param n no of steps of the process
+#' @param rewards vector depicting rewards coressponding to states
+#' 
+#' @details the function uses a dynamic programming to solve a recursive equation
+#' described in reference.
+#' 
+#' 
+#' @return
+#' returns a vector of expected rewards for diffrent initial states
+#' 
+#' @author Vandit Jain
+#' 
+#' @references Stochastic Processes: Theory for Applications, Robert G. Gallager,
+#' Cambridge University Press
+#' 
+#' @examples 
+#' transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)
+#' simpleMc<-new("markovchain", states=c("a","b"),
+#'              transitionMatrix=transMatr)
+#' expectedRewards(simpleMc,1,c(0,1))
+#' @export
+expectedRewards <- function(markovchain, n, rewards) {
+  
+  # gets the transition matrix
+  matrix <- markovchain@transitionMatrix
+  
+  # Rcpp implementation of the function
+  out <- .expectedRewardsRCpp(matrix,n, rewards)
+  
+  return(out)
+}
+
 
 
 

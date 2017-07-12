@@ -361,6 +361,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// expectedRewardsRCpp
+NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards);
+RcppExport SEXP markovchain_expectedRewardsRCpp(SEXP matrixSEXP, SEXP nSEXP, SEXP rewardsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type rewards(rewardsSEXP);
+    rcpp_result_gen = Rcpp::wrap(expectedRewardsRCpp(matrix, n, rewards));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gcd
 int gcd(int a, int b);
 RcppExport SEXP markovchain_gcd(SEXP aSEXP, SEXP bSEXP) {

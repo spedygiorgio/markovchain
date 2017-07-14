@@ -403,7 +403,7 @@ committorAB <- function(object,A,B,p=1) {
 #' 
 #' 
 #' @return
-#' returns a vector of expected rewards for diffrent initial states
+#' returns a vector of expected rewards for different initial states
 #' 
 #' @author Vandit Jain
 #' 

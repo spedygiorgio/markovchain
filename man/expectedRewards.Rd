@@ -14,7 +14,7 @@ expectedRewards(markovchain,n,rewards)
 \item{rewards}{vector depicting rewards coressponding to states}
 }
 \value{
-returns a vector of expected rewards for diffrent initial states
+returns a vector of expected rewards for different initial states
 }
 \description{
 The function returns the value of expected rewards given 

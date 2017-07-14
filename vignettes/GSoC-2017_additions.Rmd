@@ -333,6 +333,25 @@ noofVisitsDist(simpleMc,5,"a")
 The output clearly shows the probabilities related to various states of the process. 
 
 
+# Expected Rewards for a markovchain
+
+The package provides a function `expectedRewards` that returns a vector of expected rewards for different initial states. The user provides reward values, a vector $r$ of size equal to number of states having a value corresponding to every state. Given a transition matrix $[P]$, we get the vector of expected rewards $v$ after $n$ transitions according to the equation as follows[@GallagerBook]:
+
+
+$v[n] = r + [P]*v[n-1]$
+
+
+Applying this equation on a markovchain-class object
+
+``` {r}
+transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)
+simpleMc<-new("markovchain", states=c("a","b"),
+             transitionMatrix=transMatr)
+expectedRewards(simpleMc,1,c(0,1))
+```
+
+
+
 # References
 \bibliography{markovchainBiblio}
 

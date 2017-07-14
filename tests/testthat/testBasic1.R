@@ -359,3 +359,22 @@ test_that("steadyStates must satisfy", {
   expect_identical(steadyStates(molecularCTMC), 
                    matrix(c(1/4, 3/4), nrow = 1, dimnames = list(c(), energyStates)))
 })
+
+
+
+
+### Tests for expectedRewards function
+
+### Examples taken from Stochastic Processes: Theory for Applications, Robert G. Gallager,Cambridge University Press
+
+transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)
+simpleMc<-new("markovchain", states=c("a","b"),
+              transitionMatrix=transMatr)
+
+test_that("expectedRewards must satisfy", {
+  expect_equal(expectedRewards(simpleMc,1,c(0,1)),c(0.01,1.99))
+  expect_equal(expectedRewards(simpleMc,2,c(0,1)),c(0.0298,2.9702))
+})
+
+
+

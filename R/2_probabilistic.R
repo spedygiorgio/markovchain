@@ -424,7 +424,15 @@ expectedRewards <- function(markovchain, n, rewards) {
   # Rcpp implementation of the function
   out <- .expectedRewardsRCpp(matrix,n, rewards)
   
-  return(out)
+  noofStates <- length(states(markovchain))
+  
+  result <- rep(0,noofStates)
+  
+  for(i in 1:noofStates)
+    result[i] = out[i]
+  
+  #names(result) <- states(markovchain)
+  return(result)
 }
 
 

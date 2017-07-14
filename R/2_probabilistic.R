@@ -435,7 +435,56 @@ expectedRewards <- function(markovchain, n, rewards) {
   return(result)
 }
 
-
+#' Expected first passage Rewards for a set of states in a markovchain
+#' 
+#'  @description The function returns the value of expected first passage 
+#'  rewards given rewards coressponding to every state, an initial state
+#'  
+#'  @usage expectedRewards(markovchain,n,rewards)
+#'  
+#'  @param markovchain the markovchain-class object
+#'  @param A set of states for first passage expected reward
+#'  @param state initial state
+#'  @param rewards vector depicting rewards coressponding to states
+#'  @param n no of steps of the process
+#'  
+#'  @details The function returns the value of expected first passage 
+#'  rewards given rewards coressponding to every state, an initial state
+#'  
+#'  @return returns a expected reward (numerical value) as described above
+#'  
+#'  @author Sai Bhargav Yalamanchi, Vandit Jain
+#'  
+#'  @export
+expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
+  
+  matrix <- markovchain@transitionMatrix
+  stateNames <- states(markovchain)
+  S <- length(stateNames)
+  
+  SAno <- rep(0,S-length(A))
+  rewardsSA <- rep(0,S-length(A))
+  
+  i=1
+  ini = -1
+  for(j in 1:length(stateNames))
+  {
+    if(!(stateNames[j] %in% A)){
+      SAno[i] = j
+      rewardsSA[i] = rewards[j]
+      if(stateNames[j] == state)
+        ini = i
+      i = i+1
+    }
+  }
+  
+  matrix <- matrix[SAno,SAno]
+  
+  out <- .expectedRewardsforARCpp(matrix, ini, rewardsSA, n)
+  
+  return(out)
+  
+}
 
 
 

@@ -17,6 +17,7 @@ extern SEXP markovchain_communicatingClasses(SEXP);
 extern SEXP markovchain_createSequenceMatrix(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_ctmcFit(SEXP, SEXP, SEXP, SEXP);
 extern SEXP markovchain_expectedRewardsRCpp(SEXP,SEXP,SEXP);
+extern SEXP markovchain_expectedRewardsforARCpp(SEXP,SEXP,SEXP,SEXP);
 extern SEXP markovchain_ExpectedTimeRcpp(SEXP,SEXP);
 extern SEXP markovchain_firstpassageKernel(SEXP, SEXP, SEXP);
 extern SEXP markovchain_firstPassageMultipleRCpp(SEXP,SEXP,SEXP,SEXP);
@@ -55,6 +56,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"markovchain_ctmcFit",                         (DL_FUNC) &markovchain_ctmcFit,                          4},
     {"markovchain_ExpectedTimeRcpp",                (DL_FUNC) &markovchain_ExpectedTimeRcpp,                 2},
     {"markovchain_expectedRewardsRCpp",             (DL_FUNC) &markovchain_expectedRewardsRCpp,              3},
+    {"markovchain_expectedRewardsforARCpp",         (DL_FUNC) &markovchain_expectedRewardsforARCpp,          4},
     {"markovchain_firstpassageKernel",              (DL_FUNC) &markovchain_firstpassageKernel,               3},
     {"markovchain_firstPassageMultipleRCpp",        (DL_FUNC) &markovchain_firstPassageMultipleRCpp,         4},
     {"markovchain_gcd",                             (DL_FUNC) &markovchain_gcd,                              2},

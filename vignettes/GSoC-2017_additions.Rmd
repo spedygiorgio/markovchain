@@ -351,6 +351,15 @@ expectedRewards(simpleMc,1,c(0,1))
 ```
 
 
+## Expected Rewards for a set of states in a markovchain process
+
+The package provides a function `expectedRewardsforA` that returns the value of expected first passage rewards $E$ given rewards coressponding to every state, an initial state. This means the function returns expected reward for given initial state $s_{0}$, number of transitions $n$ and for a set of states $A$ with a constraint such that the process does not hit any of the states that belong to state $A$. $S$ is the set of all possible states.
+
+The function uses an equation which is as follows:
+
+$$E = \sum_{i=1}^{n}{1_{s_{0}}P_{S-A}^{i}R_{S-A}}$$
+here $1_{s_{0}} = [0,0,...0,1,0,...,0,0,0]$, 1 being on $s_{0}$ position and $R_{S-A}$ being the rewards vector for $S-A$ state. 
+
 
 # References
 \bibliography{markovchainBiblio}

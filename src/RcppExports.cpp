@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // isProb
 bool isProb(double prob);
-RcppExport SEXP markovchain_isProb(SEXP probSEXP) {
+RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // isGen
 bool isGen(NumericMatrix gen);
-RcppExport SEXP markovchain_isGen(SEXP genSEXP) {
+RcppExport SEXP _markovchain_isGen(SEXP genSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -30,7 +30,7 @@ END_RCPP
 }
 // canonicForm
 SEXP canonicForm(S4 object);
-RcppExport SEXP markovchain_canonicForm(SEXP objectSEXP) {
+RcppExport SEXP _markovchain_canonicForm(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -41,7 +41,7 @@ END_RCPP
 }
 // lexicographicalSort
 SEXP lexicographicalSort(SEXP y);
-RcppExport SEXP markovchain_lexicographicalSort(SEXP ySEXP) {
+RcppExport SEXP _markovchain_lexicographicalSort(SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,7 +52,7 @@ END_RCPP
 }
 // generatorToTransitionMatrix
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow);
-RcppExport SEXP markovchain_generatorToTransitionMatrix(SEXP genSEXP, SEXP byrowSEXP) {
+RcppExport SEXP _markovchain_generatorToTransitionMatrix(SEXP genSEXP, SEXP byrowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,7 +64,7 @@ END_RCPP
 }
 // ctmcFit
 List ctmcFit(List data, bool byrow, String name, double confidencelevel);
-RcppExport SEXP markovchain_ctmcFit(SEXP dataSEXP, SEXP byrowSEXP, SEXP nameSEXP, SEXP confidencelevelSEXP) {
+RcppExport SEXP _markovchain_ctmcFit(SEXP dataSEXP, SEXP byrowSEXP, SEXP nameSEXP, SEXP confidencelevelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -78,7 +78,7 @@ END_RCPP
 }
 // ExpectedTimeRcpp
 NumericVector ExpectedTimeRcpp(NumericMatrix x, NumericVector y);
-RcppExport SEXP markovchain_ExpectedTimeRcpp(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _markovchain_ExpectedTimeRcpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -90,7 +90,7 @@ END_RCPP
 }
 // probabilityatTRCpp
 NumericMatrix probabilityatTRCpp(NumericMatrix y);
-RcppExport SEXP markovchain_probabilityatTRCpp(SEXP ySEXP) {
+RcppExport SEXP _markovchain_probabilityatTRCpp(SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -101,7 +101,7 @@ END_RCPP
 }
 // impreciseProbabilityatTRCpp
 NumericVector impreciseProbabilityatTRCpp(S4 C, int i, int t, int s, double error);
-RcppExport SEXP markovchain_impreciseProbabilityatTRCpp(SEXP CSEXP, SEXP iSEXP, SEXP tSEXP, SEXP sSEXP, SEXP errorSEXP) {
+RcppExport SEXP _markovchain_impreciseProbabilityatTRCpp(SEXP CSEXP, SEXP iSEXP, SEXP tSEXP, SEXP sSEXP, SEXP errorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -116,7 +116,7 @@ END_RCPP
 }
 // seq2freqProb
 NumericVector seq2freqProb(CharacterVector sequence);
-RcppExport SEXP markovchain_seq2freqProb(SEXP sequenceSEXP) {
+RcppExport SEXP _markovchain_seq2freqProb(SEXP sequenceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -127,7 +127,7 @@ END_RCPP
 }
 // seq2matHigh
 NumericMatrix seq2matHigh(CharacterVector sequence, int order);
-RcppExport SEXP markovchain_seq2matHigh(SEXP sequenceSEXP, SEXP orderSEXP) {
+RcppExport SEXP _markovchain_seq2matHigh(SEXP sequenceSEXP, SEXP orderSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -139,7 +139,7 @@ END_RCPP
 }
 // markovchainSequenceRcpp
 CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0, bool include_t0);
-RcppExport SEXP markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
+RcppExport SEXP _markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -153,7 +153,7 @@ END_RCPP
 }
 // markovchainListRcpp
 List markovchainListRcpp(int n, List object, bool include_t0, CharacterVector t0);
-RcppExport SEXP markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP, SEXP t0SEXP) {
+RcppExport SEXP _markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP, SEXP t0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -167,7 +167,7 @@ END_RCPP
 }
 // markovchainSequenceParallelRcpp
 List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0, CharacterVector init_state);
-RcppExport SEXP markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP, SEXP init_stateSEXP) {
+RcppExport SEXP _markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP, SEXP init_stateSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -181,7 +181,7 @@ END_RCPP
 }
 // createSequenceMatrix
 NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+RcppExport SEXP _markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -195,7 +195,7 @@ END_RCPP
 }
 // mcListFitForList
 List mcListFitForList(List data);
-RcppExport SEXP markovchain_mcListFitForList(SEXP dataSEXP) {
+RcppExport SEXP _markovchain_mcListFitForList(SEXP dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -206,7 +206,7 @@ END_RCPP
 }
 // _matr2Mc
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+RcppExport SEXP _markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -220,7 +220,7 @@ END_RCPP
 }
 // _list2Mc
 S4 _list2Mc(List data, double laplacian, bool sanitize);
-RcppExport SEXP markovchain__list2Mc(SEXP dataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
+RcppExport SEXP _markovchain__list2Mc(SEXP dataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -233,7 +233,7 @@ END_RCPP
 }
 // inferHyperparam
 List inferHyperparam(NumericMatrix transMatr, NumericVector scale, CharacterVector data);
-RcppExport SEXP markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {
+RcppExport SEXP _markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -246,7 +246,7 @@ END_RCPP
 }
 // markovchainFit
 List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, bool confint, NumericMatrix hyperparam, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+RcppExport SEXP _markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -268,7 +268,7 @@ END_RCPP
 }
 // noofVisitsDistRCpp
 NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i, int N);
-RcppExport SEXP markovchain_noofVisitsDistRCpp(SEXP matrixSEXP, SEXP iSEXP, SEXP NSEXP) {
+RcppExport SEXP _markovchain_noofVisitsDistRCpp(SEXP matrixSEXP, SEXP iSEXP, SEXP NSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -281,7 +281,7 @@ END_RCPP
 }
 // commclassesKernel
 SEXP commclassesKernel(NumericMatrix P);
-RcppExport SEXP markovchain_commclassesKernel(SEXP PSEXP) {
+RcppExport SEXP _markovchain_commclassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -292,7 +292,7 @@ END_RCPP
 }
 // communicatingClasses
 List communicatingClasses(S4 object);
-RcppExport SEXP markovchain_communicatingClasses(SEXP objectSEXP) {
+RcppExport SEXP _markovchain_communicatingClasses(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -303,7 +303,7 @@ END_RCPP
 }
 // recurrentClasses
 List recurrentClasses(S4 object);
-RcppExport SEXP markovchain_recurrentClasses(SEXP objectSEXP) {
+RcppExport SEXP _markovchain_recurrentClasses(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -314,7 +314,7 @@ END_RCPP
 }
 // commStatesFinder
 NumericMatrix commStatesFinder(NumericMatrix matr);
-RcppExport SEXP markovchain_commStatesFinder(SEXP matrSEXP) {
+RcppExport SEXP _markovchain_commStatesFinder(SEXP matrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -325,7 +325,7 @@ END_RCPP
 }
 // summaryKernel
 List summaryKernel(S4 object);
-RcppExport SEXP markovchain_summaryKernel(SEXP objectSEXP) {
+RcppExport SEXP _markovchain_summaryKernel(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -336,7 +336,7 @@ END_RCPP
 }
 // firstpassageKernel
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n);
-RcppExport SEXP markovchain_firstpassageKernel(SEXP PSEXP, SEXP iSEXP, SEXP nSEXP) {
+RcppExport SEXP _markovchain_firstpassageKernel(SEXP PSEXP, SEXP iSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -349,7 +349,7 @@ END_RCPP
 }
 // firstPassageMultipleRCpp
 NumericVector firstPassageMultipleRCpp(NumericMatrix P, int i, NumericVector setno, int n);
-RcppExport SEXP markovchain_firstPassageMultipleRCpp(SEXP PSEXP, SEXP iSEXP, SEXP setnoSEXP, SEXP nSEXP) {
+RcppExport SEXP _markovchain_firstPassageMultipleRCpp(SEXP PSEXP, SEXP iSEXP, SEXP setnoSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -363,7 +363,7 @@ END_RCPP
 }
 // expectedRewardsRCpp
 NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards);
-RcppExport SEXP markovchain_expectedRewardsRCpp(SEXP matrixSEXP, SEXP nSEXP, SEXP rewardsSEXP) {
+RcppExport SEXP _markovchain_expectedRewardsRCpp(SEXP matrixSEXP, SEXP nSEXP, SEXP rewardsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -376,7 +376,7 @@ END_RCPP
 }
 // expectedRewardsforARCpp
 double expectedRewardsforARCpp(NumericMatrix matrix, int s0, NumericVector rewards, int n);
-RcppExport SEXP markovchain_expectedRewardsforARCpp(SEXP matrixSEXP, SEXP s0SEXP, SEXP rewardsSEXP, SEXP nSEXP) {
+RcppExport SEXP _markovchain_expectedRewardsforARCpp(SEXP matrixSEXP, SEXP s0SEXP, SEXP rewardsSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -390,7 +390,7 @@ END_RCPP
 }
 // gcd
 int gcd(int a, int b);
-RcppExport SEXP markovchain_gcd(SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _markovchain_gcd(SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -402,7 +402,7 @@ END_RCPP
 }
 // period
 int period(S4 object);
-RcppExport SEXP markovchain_period(SEXP objectSEXP) {
+RcppExport SEXP _markovchain_period(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -413,7 +413,7 @@ END_RCPP
 }
 // predictiveDistribution
 double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam);
-RcppExport SEXP markovchain_predictiveDistribution(SEXP stringcharSEXP, SEXP newDataSEXP, SEXP hyperparamSEXP) {
+RcppExport SEXP _markovchain_predictiveDistribution(SEXP stringcharSEXP, SEXP newDataSEXP, SEXP hyperparamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -426,7 +426,7 @@ END_RCPP
 }
 // priorDistribution
 NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam);
-RcppExport SEXP markovchain_priorDistribution(SEXP transMatrSEXP, SEXP hyperparamSEXP) {
+RcppExport SEXP _markovchain_priorDistribution(SEXP transMatrSEXP, SEXP hyperparamSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -438,7 +438,7 @@ END_RCPP
 }
 // multinomialCIForRow
 NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
-RcppExport SEXP markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
+RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -450,7 +450,7 @@ END_RCPP
 }
 // multinomCI
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
-RcppExport SEXP markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
+RcppExport SEXP _markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -460,4 +460,49 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
+    {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
+    {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
+    {"_markovchain_lexicographicalSort", (DL_FUNC) &_markovchain_lexicographicalSort, 1},
+    {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
+    {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},
+    {"_markovchain_ExpectedTimeRcpp", (DL_FUNC) &_markovchain_ExpectedTimeRcpp, 2},
+    {"_markovchain_probabilityatTRCpp", (DL_FUNC) &_markovchain_probabilityatTRCpp, 1},
+    {"_markovchain_impreciseProbabilityatTRCpp", (DL_FUNC) &_markovchain_impreciseProbabilityatTRCpp, 5},
+    {"_markovchain_seq2freqProb", (DL_FUNC) &_markovchain_seq2freqProb, 1},
+    {"_markovchain_seq2matHigh", (DL_FUNC) &_markovchain_seq2matHigh, 2},
+    {"_markovchain_markovchainSequenceRcpp", (DL_FUNC) &_markovchain_markovchainSequenceRcpp, 4},
+    {"_markovchain_markovchainListRcpp", (DL_FUNC) &_markovchain_markovchainListRcpp, 4},
+    {"_markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &_markovchain_markovchainSequenceParallelRcpp, 4},
+    {"_markovchain_createSequenceMatrix", (DL_FUNC) &_markovchain_createSequenceMatrix, 4},
+    {"_markovchain_mcListFitForList", (DL_FUNC) &_markovchain_mcListFitForList, 1},
+    {"_markovchain__matr2Mc", (DL_FUNC) &_markovchain__matr2Mc, 4},
+    {"_markovchain__list2Mc", (DL_FUNC) &_markovchain__list2Mc, 3},
+    {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
+    {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
+    {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
+    {"_markovchain_commclassesKernel", (DL_FUNC) &_markovchain_commclassesKernel, 1},
+    {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
+    {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
+    {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
+    {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},
+    {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},
+    {"_markovchain_firstPassageMultipleRCpp", (DL_FUNC) &_markovchain_firstPassageMultipleRCpp, 4},
+    {"_markovchain_expectedRewardsRCpp", (DL_FUNC) &_markovchain_expectedRewardsRCpp, 3},
+    {"_markovchain_expectedRewardsforARCpp", (DL_FUNC) &_markovchain_expectedRewardsforARCpp, 4},
+    {"_markovchain_gcd", (DL_FUNC) &_markovchain_gcd, 2},
+    {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
+    {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
+    {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
+    {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
+    {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_markovchain(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

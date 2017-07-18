@@ -2,78 +2,78 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .isProbRcpp <- function(prob) {
-    .Call(markovchain_isProb, prob)
+    .Call(`_markovchain_isProb`, prob)
 }
 
 .isGenRcpp <- function(gen) {
-    .Call(markovchain_isGen, gen)
+    .Call(`_markovchain_isGen`, gen)
 }
 
 .canonicFormRcpp <- function(object) {
-    .Call(markovchain_canonicForm, object)
+    .Call(`_markovchain_canonicForm`, object)
 }
 
 .lexicographical_sort <- function(y) {
-    .Call(markovchain_lexicographicalSort, y)
+    .Call(`_markovchain_lexicographicalSort`, y)
 }
 
 generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
-    .Call(markovchain_generatorToTransitionMatrix, gen, byrow)
+    .Call(`_markovchain_generatorToTransitionMatrix`, gen, byrow)
 }
 
 ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
-    .Call(markovchain_ctmcFit, data, byrow, name, confidencelevel)
+    .Call(`_markovchain_ctmcFit`, data, byrow, name, confidencelevel)
 }
 
 .ExpectedTimeRCpp <- function(x, y) {
-    .Call(markovchain_ExpectedTimeRcpp, x, y)
+    .Call(`_markovchain_ExpectedTimeRcpp`, x, y)
 }
 
 .probabilityatTRCpp <- function(y) {
-    .Call(markovchain_probabilityatTRCpp, y)
+    .Call(`_markovchain_probabilityatTRCpp`, y)
 }
 
 .impreciseProbabilityatTRCpp <- function(C, i, t, s, error) {
-    .Call(markovchain_impreciseProbabilityatTRCpp, C, i, t, s, error)
+    .Call(`_markovchain_impreciseProbabilityatTRCpp`, C, i, t, s, error)
 }
 
 seq2freqProb <- function(sequence) {
-    .Call(markovchain_seq2freqProb, sequence)
+    .Call(`_markovchain_seq2freqProb`, sequence)
 }
 
 seq2matHigh <- function(sequence, order) {
-    .Call(markovchain_seq2matHigh, sequence, order)
+    .Call(`_markovchain_seq2matHigh`, sequence, order)
 }
 
 .markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
-    .Call(markovchain_markovchainSequenceRcpp, n, markovchain, t0, include_t0)
+    .Call(`_markovchain_markovchainSequenceRcpp`, n, markovchain, t0, include_t0)
 }
 
 .markovchainListRcpp <- function(n, object, include_t0 = FALSE, t0 = character()) {
-    .Call(markovchain_markovchainListRcpp, n, object, include_t0, t0)
+    .Call(`_markovchain_markovchainListRcpp`, n, object, include_t0, t0)
 }
 
 .markovchainSequenceParallelRcpp <- function(listObject, n, include_t0 = FALSE, init_state = character()) {
-    .Call(markovchain_markovchainSequenceParallelRcpp, listObject, n, include_t0, init_state)
+    .Call(`_markovchain_markovchainSequenceParallelRcpp`, listObject, n, include_t0, init_state)
 }
 
 #' @rdname markovchainFit
 #' 
 #' @export
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
-    .Call(markovchain_createSequenceMatrix, stringchar, toRowProbs, sanitize, possibleStates)
+    .Call(`_markovchain_createSequenceMatrix`, stringchar, toRowProbs, sanitize, possibleStates)
 }
 
 .mcListFitForList <- function(data) {
-    .Call(markovchain_mcListFitForList, data)
+    .Call(`_markovchain_mcListFitForList`, data)
 }
 
 .matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE, possibleStates = character()) {
-    .Call(markovchain__matr2Mc, matrData, laplacian, sanitize, possibleStates)
+    .Call(`_markovchain__matr2Mc`, matrData, laplacian, sanitize, possibleStates)
 }
 
 .list2Mc <- function(data, laplacian = 0, sanitize = FALSE) {
-    .Call(markovchain__list2Mc, data, laplacian, sanitize)
+    .Call(`_markovchain__list2Mc`, data, laplacian, sanitize)
 }
 
 #' @name inferHyperparam
@@ -117,7 +117,7 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
 #' @export
 #'  
 inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {
-    .Call(markovchain_inferHyperparam, transMatr, scale, data)
+    .Call(`_markovchain_inferHyperparam`, transMatr, scale, data)
 }
 
 #' @name markovchainFit
@@ -186,51 +186,51 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' @export
 #' 
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
-    .Call(markovchain_markovchainFit, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
+    .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 
 .noofVisitsDistRCpp <- function(matrix, i, N) {
-    .Call(markovchain_noofVisitsDistRCpp, matrix, i, N)
+    .Call(`_markovchain_noofVisitsDistRCpp`, matrix, i, N)
 }
 
 .commclassesKernelRcpp <- function(P) {
-    .Call(markovchain_commclassesKernel, P)
+    .Call(`_markovchain_commclassesKernel`, P)
 }
 
 .communicatingClassesRcpp <- function(object) {
-    .Call(markovchain_communicatingClasses, object)
+    .Call(`_markovchain_communicatingClasses`, object)
 }
 
 .recurrentClassesRcpp <- function(object) {
-    .Call(markovchain_recurrentClasses, object)
+    .Call(`_markovchain_recurrentClasses`, object)
 }
 
 .commStatesFinderRcpp <- function(matr) {
-    .Call(markovchain_commStatesFinder, matr)
+    .Call(`_markovchain_commStatesFinder`, matr)
 }
 
 .summaryKernelRcpp <- function(object) {
-    .Call(markovchain_summaryKernel, object)
+    .Call(`_markovchain_summaryKernel`, object)
 }
 
 .firstpassageKernelRcpp <- function(P, i, n) {
-    .Call(markovchain_firstpassageKernel, P, i, n)
+    .Call(`_markovchain_firstpassageKernel`, P, i, n)
 }
 
 .firstPassageMultipleRCpp <- function(P, i, setno, n) {
-    .Call(markovchain_firstPassageMultipleRCpp, P, i, setno, n)
+    .Call(`_markovchain_firstPassageMultipleRCpp`, P, i, setno, n)
 }
 
 .expectedRewardsRCpp <- function(matrix, n, rewards) {
-    .Call(markovchain_expectedRewardsRCpp, matrix, n, rewards)
+    .Call(`_markovchain_expectedRewardsRCpp`, matrix, n, rewards)
 }
 
 .expectedRewardsforARCpp <- function(matrix, s0, rewards, n) {
-    .Call(markovchain_expectedRewardsforARCpp, matrix, s0, rewards, n)
+    .Call(`_markovchain_expectedRewardsforARCpp`, matrix, s0, rewards, n)
 }
 
 .gcdRcpp <- function(a, b) {
-    .Call(markovchain_gcd, a, b)
+    .Call(`_markovchain_gcd`, a, b)
 }
 
 #' @rdname absorbingStates
@@ -238,22 +238,22 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 #' @export
 #' 
 period <- function(object) {
-    .Call(markovchain_period, object)
+    .Call(`_markovchain_period`, object)
 }
 
 predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
-    .Call(markovchain_predictiveDistribution, stringchar, newData, hyperparam)
+    .Call(`_markovchain_predictiveDistribution`, stringchar, newData, hyperparam)
 }
 
 priorDistribution <- function(transMatr, hyperparam = matrix()) {
-    .Call(markovchain_priorDistribution, transMatr, hyperparam)
+    .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
 .multinomialCIForRowRcpp <- function(x, confidencelevel) {
-    .Call(markovchain_multinomialCIForRow, x, confidencelevel)
+    .Call(`_markovchain_multinomialCIForRow`, x, confidencelevel)
 }
 
 .multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
-    .Call(markovchain_multinomCI, transMat, seqMat, confidencelevel)
+    .Call(`_markovchain_multinomCI`, transMat, seqMat, confidencelevel)
 }
 

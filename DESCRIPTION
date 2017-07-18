@@ -43,7 +43,7 @@ LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make
 LazyLoad: yes
 ByteCompile: yes
-Encoding: latin1
+Encoding: UTF-8
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
 RoxygenNote: 6.0.1

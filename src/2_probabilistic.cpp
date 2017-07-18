@@ -387,19 +387,12 @@ double expectedRewardsforARCpp(NumericMatrix matrix,int s0,
   arma::vec r = as<arma::vec>(rewards);
   arma::mat I = arma::zeros(1,size);
   
-  //cout <<matrix <<endl;
-  //cout << rewards<<endl;
   
   I(0,s0-1) = 1;
   
   for(int j=0;j<n;j++)
   {
-    cout << I <<endl;
-    cout << temp <<endl;
-    cout << rewards << endl;
     arma::mat res = I*(temp*r);
-    cout <<res;
-    cout << res(0,0) <<endl;
     result = result + res(0,0);
     temp = temp*matr;
   }

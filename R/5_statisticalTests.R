@@ -560,18 +560,5 @@ verifyHomogeneity<-function(inputList, verbose=TRUE) {
   
   #return output
   out <- list(statistic=statistic, dof=degrees_of_freedom,pvalue=p.value)
-  
   return(out)
-  
-  
 }
-
-
-#' Example from Kullback and Kupperman Tests for Contingency Tables
-#' 
-#' A list of two matrices representing raw transitions between two states
-#' 
-#' @format A list containing two 6x6 non - negative integer matrices
-#' 
-#' @source Kullback, Kupperman Tests for Contingency Tables Technometrics
-"kullback"

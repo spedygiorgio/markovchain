@@ -440,7 +440,7 @@ expectedRewards <- function(markovchain, n, rewards) {
 #'  @description The function returns the value of expected first passage 
 #'  rewards given rewards coressponding to every state, an initial state
 #'  
-#'  @usage expectedRewards(markovchain,n,rewards)
+#'  @usage expectedRewardsforA(markovchain, A, state, rewards, n)
 #'  
 #'  @param markovchain the markovchain-class object
 #'  @param A set of states for first passage expected reward

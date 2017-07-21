@@ -4,9 +4,9 @@ setClass("markovchain", # class name
   slots = list(states = "character", byrow = "logical",
   transitionMatrix = "matrix", name = "character"),
   # Set the default values for the slots
-  prototype = list(states = c("a","b"), byrow = TRUE, 
-  transitionMatrix = matrix(data = c(0,1,1,0),
-  nrow = 2, byrow = TRUE, dimnames = list(c("a","b"), c("a","b"))), name = "Unnamed Markov chain")
+  prototype = list(states = c("a", "b"), byrow = TRUE,
+  transitionMatrix = matrix(data = c(0, 1, 1, 0),
+  nrow = 2, byrow = TRUE, dimnames = list(c("a", "b"), c("a", "b"))), name = "Unnamed Markov chain")
 )
 
 # initializing method for markovchain objects
@@ -16,7 +16,7 @@ setMethod("initialize",
   states,
   byrow,
   transitionMatrix,
-  name,...) {
+  name, ...) {
   # put the standard markovchain
   if (missing(transitionMatrix)) {
     transitionMatrix <- matrix(
@@ -25,7 +25,7 @@ setMethod("initialize",
     byrow = TRUE,
     dimnames = list(c("a", "b"), c("a", "b")))
             }
-            
+
             # check names of transition matrix
             # if all names are missing it initializes them to "1", "2", ....
             
@@ -81,8 +81,8 @@ setMethod("initialize",
           })
 
 # define Markov Chain List class
-setClass("markovchainList", 
-         slots = list(markovchains = "list", 
+setClass("markovchainList",
+         slots = list(markovchains = "list",
 		                  name = "character")
 )
 
@@ -92,11 +92,11 @@ setValidity("markovchainList",
 		           check <- FALSE 
 		           for(i in 1:length(object@markovchains)) {
 			            if(class(object@markovchains[[i]]) != "markovchain") {
-			              # All elements in the list should be a markovchain object 
-			              check <- "Error! All elements should be of class 'markovchain'" 
+			              # All elements in the list should be a markovchain object
+			              check <- "Error! All elements should be of class 'markovchain'"
 			            }
 		           }
-		           
+
 		           if(check == FALSE) check <- TRUE
 		           return(check)
 	           }

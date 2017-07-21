@@ -6,24 +6,28 @@
 \usage{
 expectedRewardsforA(markovchain, A, state, rewards, n)
 }
+\arguments{
+\item{markovchain}{the markovchain-class object}
+
+\item{A}{set of states for first passage expected reward}
+
+\item{state}{initial state}
+
+\item{rewards}{vector depicting rewards coressponding to states}
+
+\item{n}{no of steps of the process}
+}
+\value{
+returns a expected reward (numerical value) as described above
+}
 \description{
-@description The function returns the value of expected first passage 
- rewards given rewards coressponding to every state, an initial state
- 
- @usage expectedRewardsforA(markovchain, A, state, rewards, n)
- 
- @param markovchain the markovchain-class object
- @param A set of states for first passage expected reward
- @param state initial state
- @param rewards vector depicting rewards coressponding to states
- @param n no of steps of the process
- 
- @details The function returns the value of expected first passage 
- rewards given rewards coressponding to every state, an initial state
- 
- @return returns a expected reward (numerical value) as described above
- 
- @author Sai Bhargav Yalamanchi, Vandit Jain
- 
- @export
+The function returns the value of expected first passage 
+rewards given rewards coressponding to every state, an initial state
+}
+\details{
+The function returns the value of expected first passage 
+rewards given rewards coressponding to every state, an initial state
+}
+\author{
+Sai Bhargav Yalamanchi, Vandit Jain
 }

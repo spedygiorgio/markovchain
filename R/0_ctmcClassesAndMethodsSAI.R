@@ -11,13 +11,12 @@ setClass("ctmc",
 
 setMethod("initialize",
           signature(.Object = "ctmc"),
-          function (.Object, states, byrow, generator,name,...) 
-          {
+          function (.Object, states, byrow, generator,name,...) {
             # put the standard markovchain 
-            if(missing(generator)) generator=matrix(data=c(-1,1,1,-1), #create a naive matrix
+            if(missing(generator)) generator=matrix(data=c(-1, 1, 1, -1), #create a naive matrix
                                                     nrow=2,
                                                     byrow=TRUE, 
-                                                    dimnames=list(c("a","b"), c("a","b"))
+                                                    dimnames=list(c("a", "b"), c("a", "b"))
             )
             
             # check names of transition matrix
@@ -146,7 +145,6 @@ setMethod("steadyStates","ctmc",
 
 # internal function for plotting ctmc object using igraph
 .getNetctmc <- function(object, round = FALSE) {
-  
   # function to get the graph adjacency object to plot and export to igraph
   #
   # Args: 
@@ -162,7 +160,7 @@ setMethod("steadyStates","ctmc",
   }
   
   #gets the generator matrix
-  matr <- object@generator*100
+  matr <- object@generator * 100
   if(round == TRUE) {
     matr <- round(matr, 2)
   }
@@ -221,21 +219,21 @@ ictmc <- setClass("ictmc",
 
 setMethod("initialize",
           signature(.Object = "ictmc"),
-          function (.Object, states, Q, range,name,...) {
+          function (.Object, states, Q, range, name, ...) {
             
             
-            if(missing(Q)) Q=matrix(data=c(-1,1,1,-1), #create a naive matrix
+            if(missing(Q)) Q=matrix(data=c(-1, 1, 1, -1), #create a naive matrix
                                                     nrow=2,
                                                     byrow=TRUE, 
-                                                    dimnames=list(c("n","y"), c("n","y"))
+                                                    dimnames=list(c("n", "y"), c("n", "y"))
             )
             
             
-            if(missing(range)) range = matrix(c(1/52,3/52,1/2,2),
+            if(missing(range)) range = matrix(c(1/52, 3/52, 1/2, 2),
                                               nrow = 2,
                                               byrow = 2)
-            
-            if(all(is.null(rownames(Q)), is.null(colnames(Q)))==TRUE) { #if all names are missing it initializes them to "1", "2",...
+            #if all names are missing it initializes them to "1", "2",...
+            if(all(is.null(rownames(Q)), is.null(colnames(Q)))==TRUE) { 
               if(missing(states)) {
                 nr=nrow(Q)
                 stateNames<-as.character(seq(1:nr))
@@ -265,14 +263,14 @@ setValidity("ictmc",
               # performs a set of check whose results are saved in check
               if (.isGenRcpp(object@Q)==FALSE) check <- "Error! Not a generator matrix" 
               if(any(round(rowSums(object@Q),5)!=0)) check <- "Error! Row sums not equal to zero"
-              if (nrow(object@Q)!=ncol(object@Q)) check <- "Error! Not squared matrix" #check if square matrix
-              if (!setequal(colnames(object@Q),object@states)) check <- "Error! Colnames <> states" 
-              if (!setequal(rownames(object@Q),object@states)) check <- "Error! Rownames <> states"
+              if ( nrow(object@Q) != ncol(object@Q )) check <- "Error! Not squared matrix" #check if square matrix
+              if ( !setequal(colnames(object@Q),object@states )) check <- "Error! Colnames <> states" 
+              if ( !setequal(rownames(object@Q),object@states )) check <- "Error! Rownames <> states"
               
               
-              if(nrow(object@range)!=nrow(object@Q) && ncol(object@range)!=2) check <- "Error! dimension of range matrix not correct."
+              if(nrow(object@range) != nrow(object@Q) && ncol(object@range) != 2) check <- "Error! dimension of range matrix not correct."
               for(i in 1:nrow(object@Q)){
-                if(object@range[i,1] > object@range[i,2]){
+                if( object@range[i,1] > object@range[i,2] ){
                   check <- "Error, improper values set in range matrix."
                 }
                   

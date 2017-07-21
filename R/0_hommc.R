@@ -52,7 +52,7 @@ hommc <- setClass("hommc",
   
   for(i in 1:s) {
     for(j in 1:s) {
-      t <- n*s*(i-1) + (j-1)*n
+      t <- n * s * (i-1) + (j-1) * n
       for(k in 1:n) {
         cat("Lambda", k, "(", i, ",", j, ") : ", object@Lambda[t+k],"\n", sep = "")
         cat("P", k, "(", i, ",", j, ") : \n", sep = "")
@@ -100,8 +100,9 @@ setMethod("show", "hommc",
       # jumps
       for(h in 1:n) {
         # column wise
-        allTmat[ , , t] <- t(createSequenceMatrix(matrix(c(x[1:(lseq-h)], y[-(1:h)]), ncol = 2, byrow = FALSE), 
-                                                  toRowProbs = TRUE, possibleStates = uelement, sanitize = TRUE))
+        allTmat[ , , t] <- t(createSequenceMatrix(matrix(c(x[1:(lseq-h)], y[-(1:h)]),
+                            ncol = 2, byrow = FALSE), toRowProbs = TRUE, 
+                            possibleStates = uelement, sanitize = TRUE))
         t <- t + 1
       }
     }
@@ -252,10 +253,9 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   
   lmbda <- rep(1 / (n * s), n * s * s)
   
-  fit <- Rsolnp::solnp(pars = lmbda, fun =  .fn3, eqfun = .eqn3, eqB = rep(1, s), LB = rep(0, n * s * s), 
-                       control = list(trace = 0), allTmat = allTmat, freqMat = freqMat, n = n, m = m,
-                       s = s, Norm = Norm)
-  
+  fit <- Rsolnp::solnp(pars = lmbda, fun =  .fn3, eqfun = .eqn3, eqB = rep(1, s),
+                       LB = rep(0, n * s * s), control = list(trace = 0), 
+                       allTmat = allTmat, freqMat = freqMat, n = n, m = m, s = s, Norm = Norm)
   
   
   return(new("hommc", order = order, Lambda = fit$pars, P = allTmat, states = uelement, byrow = FALSE))

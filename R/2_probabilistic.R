@@ -437,25 +437,25 @@ expectedRewards <- function(markovchain, n, rewards) {
 
 #' Expected first passage Rewards for a set of states in a markovchain
 #' 
-#'  @description The function returns the value of expected first passage 
-#'  rewards given rewards coressponding to every state, an initial state
+#' @description The function returns the value of expected first passage 
+#' rewards given rewards coressponding to every state, an initial state
 #'  
-#'  @usage expectedRewardsforA(markovchain, A, state, rewards, n)
+#' @usage expectedRewardsforA(markovchain, A, state, rewards, n)
 #'  
-#'  @param markovchain the markovchain-class object
-#'  @param A set of states for first passage expected reward
-#'  @param state initial state
-#'  @param rewards vector depicting rewards coressponding to states
-#'  @param n no of steps of the process
+#' @param markovchain the markovchain-class object
+#' @param A set of states for first passage expected reward
+#' @param state initial state
+#' @param rewards vector depicting rewards coressponding to states
+#' @param n no of steps of the process
 #'  
-#'  @details The function returns the value of expected first passage 
-#'  rewards given rewards coressponding to every state, an initial state
+#' @details The function returns the value of expected first passage 
+#' rewards given rewards coressponding to every state, an initial state
 #'  
-#'  @return returns a expected reward (numerical value) as described above
+#' @return returns a expected reward (numerical value) as described above
 #'  
-#'  @author Sai Bhargav Yalamanchi, Vandit Jain
+#' @author Sai Bhargav Yalamanchi, Vandit Jain
 #'  
-#'  @export
+#' @export
 expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
   
   matrix <- markovchain@transitionMatrix

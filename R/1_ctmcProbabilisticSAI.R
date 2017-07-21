@@ -1,8 +1,9 @@
 # function to simulate a ctmc
-rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.type = "list"){
-  if(identical(initDist, numeric()))
+rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, 
+                  out.type = "list") {
+  if (identical(initDist, numeric()))
     state <- sample(ctmc@states, 1) # sample state randomly
-  else if(length(initDist) != dim(ctmc) | round(sum(initDist), 5) != 1)
+  else if (length(initDist) != dim(ctmc) | round(sum(initDist), 5) != 1)
     stop("Error! Provide a valid initial state probability distribution")
   else 
     state <- sample(ctmc@states, 1, prob = initDist) # if valid probability distribution,
@@ -64,9 +65,9 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, out.t
 #' expm::expm(Q)
 #'  
 #' @seealso \code{\link{rctmc}}
-transition2Generator<-function(P, t=1,method="logarithm") {
-  if (method=="logarithm") {
-    Q=logm(P)/t
+transition2Generator<-function(P, t = 1,method = "logarithm") {
+  if (method == "logarithm") {
+    Q = logm(P)/t
   } #else 
   return(Q)
 }
@@ -98,11 +99,11 @@ transition2Generator<-function(P, t=1,method="logarithm") {
 #' 
 freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
   if(method == "QO"){
-    out <- ctmcd::gmQO(P,t,logmethod)
+    out <- ctmcd::gmQO(P, t, logmethod)
   } else if(method == "WA") {
-    out <- ctmcd::gmWA(P,t,logmethod)
+    out <- ctmcd::gmWA(P, t, logmethod)
   } else if(method == "DA") {
-    out <- ctmcd::gmDA(P,t,logmethod)
+    out <- ctmcd::gmDA(P, t, logmethod)
   }
   return(out)
 }
@@ -137,20 +138,20 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' @export
 ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   # take generator from ctmc-class object
-  Q = C@generator
+  Q <- C@generator
   
   # in case where generator is written column wise
   if(C@byrow==FALSE){
-    Q = t(Q)
+    Q <- t(Q)
   }
-  NoofStates = dim(C)
+  NoofStates <- dim(C)
   
-  Exceptj = c(1:NoofStates)
+  Exceptj <- c(1:NoofStates)
   # create vector with all values from 1:NoofStates except j 
-  Exceptj = which(Exceptj!=j)
+  Exceptj <- which(Exceptj!=j)
   
   # build matrix with vlaues from Q such that row!=j or column!=j
-  Q_Exceptj = Q[Exceptj,Exceptj]
+  Q_Exceptj <- Q[Exceptj,Exceptj]
   
   # check for positivity of holding times except for state j
   if(!all(diag(Q_Exceptj)!=0)){
@@ -164,17 +165,14 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   if(useRCpp == TRUE){
     out <- .ExpectedTimeRCpp(Q_Exceptj,b)
   } else {
-    out <-solve(Q_Exceptj,b)
+    out <- solve(Q_Exceptj,b)
   }
   
   # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
   if(i<j){
-    
     return(out[[i]])
-    
-  } else if(i==j) {
-    return(0);
-    
+  } else if(i == j) {
+    return(0)
   } else {
     return(out[[i-1]])
   }
@@ -211,12 +209,12 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
 #' probabilityatT(ctmc,1,useRCpp = TRUE)
 #' 
 #' @export
-probabilityatT <- function(C,t,x0,useRCpp = TRUE){
+probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   
-  if(class(C)!="ctmc"){
+  if(class(C) != "ctmc"){
     stop("Provided object is not a ctmc object")
   }
-  if(t<0){
+  if(t < 0){
     stop("Time provided should be greater than equal to 0")
   }
   # take generator from ctmc-class object
@@ -224,9 +222,9 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
   
   # in case where generator is written column wise
   if(C@byrow==FALSE){
-    Q = t(Q)
+    Q <- t(Q)
   }
-  NoofStates = dim(C)
+  NoofStates <- dim(C)
   
   
   # calculate transition functoin at time t using Kolmogorov backward equation
@@ -243,7 +241,7 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
   # hence returns probability of being at state j at time t if state at t =0 is x0
   # where j is from 1:noofStates
   if(missing(x0)){
-    P <- matrix(P,nrow = NoofStates,dimnames = list(C@states,C@states))
+    P <- matrix(P, nrow = NoofStates, dimnames = list(C@states,C@states))
     return(P)
   } else {
     if(x0 > NoofStates || x0 < 1){
@@ -282,16 +280,16 @@ probabilityatT <- function(C,t,x0,useRCpp = TRUE){
 #' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 #' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 #'
-impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3,useRCpp = TRUE){
+impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE){
   ##  input validity checking
-  if(s<=t){
+  if(s <= t){
     stop("Please provide time points such that initial time is greater than or equal to end point")
   }
   
   if(!class(C) == 'ictmc'){
     stop("Please provide a valid ictmc-class object")
   }
-  noOfstates<-length(C@states)
+  noOfstates <-length(C@states)
   
   if(i <= 0 || i > noOfstates){
     stop("Please provide a valid initial state")
@@ -319,21 +317,21 @@ impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3,useRCpp = TRUE){
   
   ### calculate no of iterations
   # The 1 is for norm of I_s i.e. ||I_s|| which equals 1
-  n <- max((s-t)*QNorm,(s-t)*(s-t)*QNorm*QNorm*1/(2*error))
+  n <- max((s-t)*QNorm, (s-t)*(s-t)*QNorm*QNorm*1/(2*error))
   
   ### calculate delta
   delta <- (s-t)/n
   
   ### build I_i vector
-  Ii <- rep(0,noOfstates)
+  Ii <- rep(0, noOfstates)
   Ii[i] <- 1
   
   
   ### calculate value of lower operator _QI_i(x) for all x belongs to no ofStates
   values <- Q%*%Ii
-  Qgx <- rep(0,noOfstates)
+  Qgx <- rep(0, noOfstates)
   for(i in 1:noOfstates){
-    Qgx[i] <- min(values[i]*range[i,1],values[i]*range[i,2])
+    Qgx[i] <- min(values[i]*range[i,1], values[i]*range[i,2])
   }
   Qgx <- delta*Qgx
   Qgx <- Ii + Qgx
@@ -341,7 +339,7 @@ impreciseProbabilityatT <- function(C,i,t=0,s,error = 10^-3,useRCpp = TRUE){
     temp <- Qgx
     values <- Q%*%Qgx
     for(i in 1:noOfstates){
-      Qgx[i] <- min(values[i]*range[i,1],values[i]*range[i,2])
+      Qgx[i] <- min(values[i]*range[i,1], values[i]*range[i,2])
     }
     Qgx <- delta*Qgx
     Qgx <- temp + Qgx

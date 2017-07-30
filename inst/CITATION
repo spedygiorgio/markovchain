@@ -3,9 +3,10 @@ citHeader("To cite package markovchain in publications use:")
 citEntry(entry="Article",
          title = "Discrete Time Markov Chains with R",
          author = person(given="Giorgio Alfredo", family="Spedicato"),
-         month="06",
+         month="07",
          year="2017",
          journal="The R Journal",
+         url="https://journal.r-project.org/archive/2017/RJ-2017-036/index.html",
          note="R package version 0.6.9.7",
          textVersion = "Discrete Time Markov Chains with R"
          )

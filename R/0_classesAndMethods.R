@@ -415,7 +415,6 @@ setMethod("steadyStates","markovchain",
   M<-object@transitionMatrix
   #transpose bycol matrices
   if (object@byrow==FALSE) M <- t(M)
-  namesSequence<-names(object)
   #characterizing recurrent classes
   recClasses<-recurrentClasses(object)
   numRecClasses<-length(recClasses)
@@ -615,7 +614,6 @@ setMethod("print", "markovchain",
 }
 
 getColorVector <- function(object){
-  mat <- object@transitionMatrix
   list <- .communicatingClassesRcpp(object)
   sections <- length(list)
   colorList <- grDevices::colors()

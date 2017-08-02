@@ -458,13 +458,20 @@ expectedRewards <- function(markovchain, n, rewards) {
 #' @export
 expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
   
+  ## gets the markovchain matrix
   matrix <- markovchain@transitionMatrix
+  
+  # gets the names of states
   stateNames <- states(markovchain)
+  
+  # no of states
   S <- length(stateNames)
   
+  # vectors for states in S-A
   SAno <- rep(0,S-length(A))
   rewardsSA <- rep(0,S-length(A))
   
+  # for initialisation for set S-A 
   i=1
   ini = -1
   for(j in 1:length(stateNames))
@@ -478,8 +485,10 @@ expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
     }
   }
   
+  ## get the matrix coressponding to S-A
   matrix <- matrix[SAno,SAno]
   
+  ## cals the cpp implementation
   out <- .expectedRewardsforARCpp(matrix, ini, rewardsSA, n)
   
   return(out)

@@ -753,7 +753,7 @@ noofVisitsDist <- function(markovchain,N = 5,state) {
   
   # adds state names names to the output vector
   names(out) <- stateNames
-  
+  out <- c(out)
   return(out)
   
 }

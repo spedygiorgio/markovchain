@@ -377,4 +377,41 @@ test_that("expectedRewards must satisfy", {
 })
 
 
+### Tests for committorAB function
+
+transMatr <- matrix(c(0,0,0,1,0.5,
+                      0.5,0,0,0,0,
+                      0.5,0,0,0,0,
+                      0,0.2,0.4,0,0,
+                      0,0.8,0.6,0,0.5),nrow = 5)
+object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr, name="simpleMc")
+answer <- c(0.444,0.889,0.000,0.444,1.000)
+names <- c("a","b","c","d","e")
+names(answer) <- names
+test_that("committorAB must satisfy", {
+  expect_equal(round(committorAB(object,c(5),c(3)),3),answer)
+})
+
+
+### Tests for firstPassageMultiple function
+
+
+statesNames <- c("a", "b", "c")
+testmarkov <- new("markovchain", states = statesNames, transitionMatrix =
+                    matrix(c(0.2, 0.5, 0.3,
+                             0.5, 0.1, 0.4,
+                             0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+                           dimnames = list(statesNames, statesNames)
+                    ))
+answer <- matrix(c(.8000,
+                   0.6000,
+                   0.2540
+                   ),nrow = 3,dimnames = list(c("1","2","3"),"set"))
+test_that("firstPassageMultiple function satisfies", {
+  expect_equal(firstPassageMultiple(testmarkov,"a",c("b","c"),3),answer)
+})
+                          
+
+
+
 

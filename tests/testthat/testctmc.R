@@ -55,3 +55,21 @@ ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 test_that("Check impreciseProbabilityatT function using an ictmc object:",{
   expect_equal(round(impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3),4),c(0.0083,0.1410))
 })
+
+
+### Adds tests for freq2Generator function
+
+sample <- matrix(c(150,2,1,1,1,200,2,1,2,1,175,1,1,1,1,150),nrow = 4,byrow = TRUE)
+sample_rel = rbind((sample/rowSums(sample))[1:dim(sample)[1]-1,],c(rep(0,dim(sample)[1]-1),1)) 
+
+answer <- matrix(c(
+  -0.024,  0.015,  0.009,    0,
+  0.007, -0.018,  0.012,    0,
+  0.013 , 0.007, -0.021,    0,
+  0.000,  0.000,  0.000,    0
+),nrow = 4,byrow = TRUE)
+
+test_that("Check if ",{
+  expect_equal(round(freq2Generator(sample_rel,1),3),answer)
+})
+

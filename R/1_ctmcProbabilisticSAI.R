@@ -350,6 +350,50 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 
 
 
+#' Function to check if CTMC is irreducible
+#' 
+#' @description 
+#' This function verifies whether a CTMC object is irreducible
+#' 
+#' @usage is.CTMCirreducible(ctmc)
+#' 
+#' @param ctmc a ctmc-class object
+#' 
+#' @references 
+#' Continuous-Time Markov Chains, Karl Sigman, Columbia University
+#' 
+#' @author Vandit Jain
+#' 
+#' @examples 
+#' energyStates <- c("sigma", "sigma_star")
+#' byRow <- TRUE
+#' gen <- matrix(data = c(-3, 3,
+#'                        1, -1), nrow = 2,
+#'               byrow = byRow, dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, 
+#'                      byrow = byRow, generator = gen, 
+#'                      name = "Molecular Transition Model")
+#' is.CTMCirreducible(molecularCTMC)
+#' 
+#' @export
+is.CTMCirreducible <- function(ctmc) {
+  
+  if(!class(ctmc) == 'ctmc') {
+    stop("please provide a valid ctmc class object")
+  }
+  
+  ## gets the embeded chain matrix
+  embeddedChainMatrix <- generatorToTransitionMatrix(ctmc@generator)
+  
+  
+  ## forms a markovchain object related to embedded transition matrix
+  markovchainObject <- new("markovchain",states = ctmc@states,
+                           transitionMatrix = embeddedChainMatrix)
+  
+  ## returns result using is.irreducible function on embedded chain transition matrix
+  return(is.irreducible(markovchainObject))
+  
+}
 
 
 

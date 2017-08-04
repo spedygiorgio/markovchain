@@ -361,6 +361,27 @@ $$E = \sum_{i=1}^{n}{1_{s_{0}}P_{S-A}^{i}R_{S-A}}$$
 here $1_{s_{0}} = [0,0,...0,1,0,...,0,0,0]$, 1 being on $s_{0}$ position and $R_{S-A}$ being the rewards vector for $S-A$ state. 
 
 
+
+## Checking Irreducibility of a CTMC
+
+The package provides a function `is.CTMCirreducible` that returns a boolean value stating whether the ctmc object is irreducible.
+We know that a continuous time markovchain is irreducible if and only if its embedded chain is irreducible[@Sigman].
+
+We demonstrate an example running the function:
+
+``` {r}
+energyStates <- c("sigma", "sigma_star")
+byRow <- TRUE
+gen <- matrix(data = c(-3, 3,
+                      1, -1), nrow = 2,
+             byrow = byRow, dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, 
+                    byrow = byRow, generator = gen, 
+                    name = "Molecular Transition Model")
+is.CTMCirreducible(molecularCTMC)
+```
+
+
 # References
 \bibliography{markovchainBiblio}
 

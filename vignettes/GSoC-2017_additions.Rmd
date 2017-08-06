@@ -362,7 +362,7 @@ here $1_{s_{0}} = [0,0,...0,1,0,...,0,0,0]$, 1 being on $s_{0}$ position and $R_
 
 
 
-## Checking Irreducibility of a CTMC
+# Checking Irreducibility of a CTMC
 
 The package provides a function `is.CTMCirreducible` that returns a boolean value stating whether the ctmc object is irreducible.
 We know that a continuous time markovchain is irreducible if and only if its embedded chain is irreducible[@Sigman].
@@ -379,6 +379,36 @@ molecularCTMC <- new("ctmc", states = energyStates,
                     byrow = byRow, generator = gen, 
                     name = "Molecular Transition Model")
 is.CTMCirreducible(molecularCTMC)
+```
+
+
+# Simulation of Higher Order Multivariate Markovchains
+
+The package provides `predictHommc` function. This function provides a simulation system for higher order multivariate markovchains. The function assumes that the state probability distribution of the jth sequence at time $r+1$ depends on the state probability distribution of all the sequences at n previous mon=ments of time i.e. $t = r$ to $t = r-n+1$ . Hence the proposed model takes the form mathematically as:[@ching2008higher]
+
+$$
+  X_{r+1}^{j} = \sum_{k=1}^{s}\sum_{h=1}^n{\lambda_{jk}^{(h)}P_{h}^{(jk)}X_{r-h+1}^{(k)}}, \ \ \ j =  1,2,....s, \ \ r = n-1,n,...
+$$
+with initals $X_{0}^{(k)},X_{1}^{(k)},......,X_{n-1}^{(k)} \ (k = 1,2,...s)$. Here,
+
+$\lambda_{jk}^{(k)}, \ 1 \leq j,k \leq s, \ 1 \leq h \leq n \ \ \  and \ \ \  \sum_{k=1}^{s}\sum_{h=1}^{n}{\lambda_{jk}^{(h)} = 1}, \ \ \ j = 1,2,....s.$
+
+
+Now we run an example on sample hommc object for simulating next 3 steps usinf `predictHommc` function. THe function provides a choice of entering inital states according to the hommc object. In case the user does not enter inital states, the function takes all initial states to be the first state from the set of states.
+
+
+``` {r}
+statesName <- c("a", "b")
+P <- array(0, dim = c(2, 2, 4), dimnames = list(statesName, statesName))
+P[,,1] <- matrix(c(0, 1, 1/3, 2/3), byrow = FALSE, nrow = 2)
+P[,,2] <- matrix(c(1/4, 3/4, 0, 1), byrow = FALSE, nrow = 2)
+P[,,3] <- matrix(c(1, 0, 1/3, 2/3), byrow = FALSE, nrow = 2)
+P[,,4] <- matrix(c(3/4, 1/4, 0, 1), byrow = FALSE, nrow = 2)
+Lambda <- c(0.8, 0.2, 0.3, 0.7)
+ob <- new("hommc", order = 1, states = statesName, P = P, 
+         Lambda = Lambda, byrow = FALSE, name = "FOMMC")
+
+predictHommc(ob,3)
 ```
 
 

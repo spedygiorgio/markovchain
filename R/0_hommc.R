@@ -305,7 +305,7 @@ predictHommc <- function(hommc, t, init) {
     init <- matrix(rep(states[1],s*n),nrow = s,byrow = TRUE)
   }
   
-  if(dim(init)!= c(s,n)){
+  if(!all(dim(init) == c(s,n))){
     stop("Please provide sufficient number of previous states")
   }
   

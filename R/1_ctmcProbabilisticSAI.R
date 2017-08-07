@@ -397,6 +397,73 @@ is.CTMCirreducible <- function(ctmc) {
 
 
 
+#' checks if ctmc object is time reversible
+#' 
+#' @description 
+#' The function returns checks if provided function is time reversible
+#' 
+#' @usage is.TimeReversible(ctmc)
+#' 
+#' @param ctmc a ctmc-class object
+#' 
+#' @return Returns a boolean value stating whether ctmc object is time reversible
+#' 
+#' @author Vandit Jain
+#' 
+#' @references 
+#' INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
+#' 
+#' @examples 
+#' energyStates <- c("sigma", "sigma_star")
+#' byRow <- TRUE
+#' gen <- matrix(data = c(-3, 3,
+#'                        1, -1), nrow = 2,
+#'               byrow = byRow, dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, 
+#'                      byrow = byRow, generator = gen, 
+#'                      name = "Molecular Transition Model")
+#' is.TimeReversible(molecularCTMC)
+#' 
+#' @export
+is.TimeReversible <- function(ctmc) {
+  
+  if(!class(ctmc) == "ctmc") {
+    stop("please provide a valid ctmc-class object")
+  }
+  
+  ## get steady state probabilities
+  Pi <- steadyStates(ctmc)
+  
+  ## initialise boolean result
+  check <- TRUE
+  
+  ## no of states
+  m <- length(ctmc@states)
+  
+  ## checks for byrow
+  if(ctmc@byrow == FALSE)
+    gen <- t(ctmc@generator)
+  else
+    gen <- ctmc@generator
+  
+  ## iterates for every state
+  for( i in 1:m)
+  {
+    for(j in 1:m)
+    {
+      if(Pi[i]*gen[i,j] != Pi[j]*gen[j,i]) {
+        check <- FALSE
+        break
+      }
+    }
+  }
+  
+  return(check)
+  
+}
+
+
+
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

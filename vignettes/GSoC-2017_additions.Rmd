@@ -3,8 +3,8 @@ title: "GSoC-2017_Additions"
 author: "Vandit Jain"
 date: "August 2017"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 bibliography: markovchainBiblio.bib
 vignette: |
   %\VignetteIndexEntry{GSoC-2017_Additions}   %\VignetteEngine{knitr::rmarkdown}    %VignetteEncoding{UTF-8}
@@ -407,6 +407,34 @@ ob <- new("hommc", order = 1, states = statesName, P = P,
          Lambda = Lambda, byrow = FALSE, name = "FOMMC")
 
 predictHommc(ob,3)
+```
+
+
+
+# Check Time Reversibility of Continuous-time markovchains
+
+A Continuous-time markovchain with generator $Q$ and stationary distribution $\pi$ is said to be time reversible if:[@dobrow2016introduction]
+
+$$
+\pi_{i}q_{ij} = \pi_{j}q_{ji}
+$$
+
+Intuitively, a continuous-time Markov chain is time reversible if the process in forward time is indistinguishable from the process in reversed time. A consequence is that for all states i and j, the long-term forward transition rate from i to j is equal to the long-term backward rate from j to i.
+
+The package provides `is.TimeReversible` function to check if a `ctmc` object is time-reversible.
+We follow with an example run on a `ctmc` object.
+
+
+``` {r}
+energyStates <- c("sigma", "sigma_star")
+byRow <- TRUE
+gen <- matrix(data = c(-3, 3,
+                        1, -1), nrow = 2,
+             byrow = byRow, dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, 
+                    byrow = byRow, generator = gen, 
+                    name = "Molecular Transition Model")
+is.TimeReversible(molecularCTMC)
 ```
 
 

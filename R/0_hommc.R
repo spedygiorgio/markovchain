@@ -52,7 +52,9 @@ hommc <- setClass("hommc",
   
   for(i in 1:s) {
     for(j in 1:s) {
-      t <- n * s * (i-1) + (j-1) * n
+      # t is the index of transition matrix for transition from i sequence to j sequence
+      # order of transition matrices in P is P1{1,1},P2{1,1}..Pn{1,1},P1{1,2}....Pn{s,s}
+      t <- n * s * (i-1) + (j-1) * n 
       for(k in 1:n) {
         cat("Lambda", k, "(", i, ",", j, ") : ", object@Lambda[t+k],"\n", sep = "")
         cat("P", k, "(", i, ",", j, ") : \n", sep = "")
@@ -340,6 +342,8 @@ predictHommc <- function(hommc, t, init) {
       for(k in 1:s)
       {
         ## gets index of coressponding in the 3-D array P 
+        # index is the index of transition matrix for transition from i sequence to j sequence
+        # order of transition matrices in P is P1{1,1},P2{1,1}..Pn{1,1},P1{1,2}....Pn{s,s}
         index <- n * s * (j-1) + n * (k-1)
         
         ## iterates for all order 1 to n

@@ -1514,6 +1514,32 @@ mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="
 mcWeatherHalfDay
 @
 
+The \pkg{ctmcd} package \citep{pkg:ctmcd} provides various functions to estimate the generator matrix (GM) of a CTMC process using different methods. The following code provides a way to join \pkg{markovchain} and \pkg{ctmcd} computations.
+
+<<ctmcd1, keep.source=TRUE>>=
+require(ctmcd)
+require(expm)
+#defines a function to transform a GM into a TM
+gm_to_markovchain<-function(object, t=1) {
+  if(!(class(object) %in% c("gm","matrix","Matrix")))
+    stop("Error! Expecting either a matrix or a gm object")
+  if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
+  #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
+  #must add importFrom(expm, "expm")
+  transitionMatrix<-expm(generator_matrix*t)
+  out<-as(transitionMatrix,"markovchain")
+  return(out)
+}
+#loading ctmcd dataset
+data(tm_abs)
+gm0=matrix(1,8,8) #initializing
+diag(gm0)=0
+diag(gm0)=-rowSums(gm0)
+gm0[8,]=0
+gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
+mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
+@
+
 
 \subsection{Pseudo - Bayesian Estimation}
 

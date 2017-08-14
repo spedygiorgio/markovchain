@@ -6,8 +6,10 @@ output:
   pdf_document: default
   html_document: default
 bibliography: markovchainBiblio.bib
-vignette: |
-  %\VignetteIndexEntry{GSoC-2017_Additions}   %\VignetteEngine{knitr::rmarkdown}    %VignetteEncoding{UTF-8}
+vignette: >
+  %\VignetteIndexEntry{GSoC-2017_Additions} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %VignetteEncoding{UTF-8}
 ---
 
 # Expected Hittting Time using CTMC

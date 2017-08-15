@@ -21,12 +21,14 @@ expectedRewardsforA(markovchain, A, state, rewards, n)
 returns a expected reward (numerical value) as described above
 }
 \description{
-The function returns the value of expected first passage 
-rewards given rewards coressponding to every state, an initial state
+Given a markovchain object and reward values for every state,
+function calculates expected reward value for a set A of states after n 
+steps.
 }
 \details{
 The function returns the value of expected first passage 
 rewards given rewards coressponding to every state, an initial state
+and number of steps.
 }
 \author{
 Sai Bhargav Yalamanchi, Vandit Jain

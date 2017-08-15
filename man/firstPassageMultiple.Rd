@@ -2,7 +2,7 @@
 % Please edit documentation in R/2_probabilistic.R
 \name{firstPassageMultiple}
 \alias{firstPassageMultiple}
-\title{returns first passage probabilities for a set of state given initial state}
+\title{function to calculate first passage probabilities}
 \usage{
 firstPassageMultiple(object, state, set, n)
 }
@@ -16,10 +16,11 @@ firstPassageMultiple(object, state, set, n)
 \item{n}{Number of rows on which compute the distribution}
 }
 \value{
-A vector of size n showing the first time proability
+A vector of size n showing the first time proabilities
 }
 \description{
-The function calculates first passage probability given an initial state
+The function calculates first passage probability for a subset of
+states given an initial state.
 }
 \examples{
 statesNames <- c("a", "b", "c")

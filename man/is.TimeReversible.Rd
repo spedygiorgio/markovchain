@@ -11,6 +11,8 @@ is.TimeReversible(ctmc)
 }
 \value{
 Returns a boolean value stating whether ctmc object is time reversible
+
+a boolean value as described above
 }
 \description{
 The function returns checks if provided function is time reversible

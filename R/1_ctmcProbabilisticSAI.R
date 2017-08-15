@@ -350,7 +350,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 
 
 
-#' Function to check if CTMC is irreducible
+#' Check if CTMC is irreducible
 #' 
 #' @description 
 #' This function verifies whether a CTMC object is irreducible
@@ -363,6 +363,8 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 #' Continuous-Time Markov Chains, Karl Sigman, Columbia University
 #' 
 #' @author Vandit Jain
+#' 
+#' @return a boolean value as described above.
 #' 
 #' @examples 
 #' energyStates <- c("sigma", "sigma_star")
@@ -409,6 +411,8 @@ is.CTMCirreducible <- function(ctmc) {
 #' @return Returns a boolean value stating whether ctmc object is time reversible
 #' 
 #' @author Vandit Jain
+#' 
+#' @return a boolean value as described above
 #' 
 #' @references 
 #' INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley

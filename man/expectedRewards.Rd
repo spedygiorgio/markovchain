@@ -17,12 +17,12 @@ expectedRewards(markovchain,n,rewards)
 returns a vector of expected rewards for different initial states
 }
 \description{
-The function returns the value of expected rewards given 
-rewards coressponding to every state
+Given a markovchain object and reward values for every state,
+function calculates expected reward value after n steps.
 }
 \details{
-the function uses a dynamic programming to solve a recursive equation
-described in reference.
+the function uses a dynamic programming approach to solve a 
+recursive equation described in reference.
 }
 \examples{
 transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)

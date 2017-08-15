@@ -2,12 +2,15 @@
 % Please edit documentation in R/1_ctmcProbabilisticSAI.R
 \name{is.CTMCirreducible}
 \alias{is.CTMCirreducible}
-\title{Function to check if CTMC is irreducible}
+\title{Check if CTMC is irreducible}
 \usage{
 is.CTMCirreducible(ctmc)
 }
 \arguments{
 \item{ctmc}{a ctmc-class object}
+}
+\value{
+a boolean value as described above.
 }
 \description{
 This function verifies whether a CTMC object is irreducible

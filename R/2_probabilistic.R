@@ -141,16 +141,17 @@ firstPassage <- function(object, state, n) {
 
 
 
-#' returns first passage probabilities for a set of state given initial state
+#' function to calculate first passage probabilities
 #' 
-#' @description The function calculates first passage probability given an initial state
+#' @description The function calculates first passage probability for a subset of
+#' states given an initial state.
 #' 
 #' @param object a markovchain-class object
 #' @param state intital state of the process (charactervector)
 #' @param set set of states A, first passage of which is to be calculated
 #' @param n Number of rows on which compute the distribution
 #' 
-#' @return A vector of size n showing the first time proability 
+#' @return A vector of size n showing the first time proabilities
 #' @references
 #' Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains;
 #' MIT OCW, course - 6.262, Discrete Stochastic Processes, course-notes, chap -05
@@ -389,8 +390,8 @@ committorAB <- function(object,A,B,p=1) {
 
 #' Expected Rewards for a markovchain
 #' 
-#' @description The function returns the value of expected rewards given 
-#' rewards coressponding to every state
+#' @description Given a markovchain object and reward values for every state,
+#' function calculates expected reward value after n steps.
 #' 
 #' @usage expectedRewards(markovchain,n,rewards)
 #' 
@@ -398,9 +399,8 @@ committorAB <- function(object,A,B,p=1) {
 #' @param n no of steps of the process
 #' @param rewards vector depicting rewards coressponding to states
 #' 
-#' @details the function uses a dynamic programming to solve a recursive equation
-#' described in reference.
-#' 
+#' @details the function uses a dynamic programming approach to solve a 
+#' recursive equation described in reference.
 #' 
 #' @return
 #' returns a vector of expected rewards for different initial states
@@ -437,8 +437,9 @@ expectedRewards <- function(markovchain, n, rewards) {
 
 #' Expected first passage Rewards for a set of states in a markovchain
 #' 
-#' @description The function returns the value of expected first passage 
-#' rewards given rewards coressponding to every state, an initial state
+#' @description Given a markovchain object and reward values for every state,
+#' function calculates expected reward value for a set A of states after n 
+#' steps. 
 #'  
 #' @usage expectedRewardsforA(markovchain, A, state, rewards, n)
 #'  
@@ -450,6 +451,7 @@ expectedRewards <- function(markovchain, n, rewards) {
 #'  
 #' @details The function returns the value of expected first passage 
 #' rewards given rewards coressponding to every state, an initial state
+#' and number of steps.
 #'  
 #' @return returns a expected reward (numerical value) as described above
 #'  

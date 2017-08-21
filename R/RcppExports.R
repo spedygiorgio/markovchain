@@ -225,8 +225,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_expectedRewardsRCpp`, matrix, n, rewards)
 }
 
-.expectedRewardsforARCpp <- function(matrix, s0, rewards, n) {
-    .Call(`_markovchain_expectedRewardsforARCpp`, matrix, s0, rewards, n)
+.expectedRewardsBeforeHittingARCpp <- function(matrix, s0, rewards, n) {
+    .Call(`_markovchain_expectedRewardsBeforeHittingARCpp`, matrix, s0, rewards, n)
 }
 
 .gcdRcpp <- function(a, b) {

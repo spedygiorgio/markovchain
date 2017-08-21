@@ -441,7 +441,7 @@ expectedRewards <- function(markovchain, n, rewards) {
 #' function calculates expected reward value for a set A of states after n 
 #' steps. 
 #'  
-#' @usage expectedRewardsforA(markovchain, A, state, rewards, n)
+#' @usage expectedRewardsBeforeHittingA(markovchain, A, state, rewards, n)
 #'  
 #' @param markovchain the markovchain-class object
 #' @param A set of states for first passage expected reward
@@ -458,7 +458,7 @@ expectedRewards <- function(markovchain, n, rewards) {
 #' @author Sai Bhargav Yalamanchi, Vandit Jain
 #'  
 #' @export
-expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
+expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
   
   ## gets the markovchain matrix
   matrix <- markovchain@transitionMatrix
@@ -491,7 +491,7 @@ expectedRewardsforA <- function(markovchain, A, state, rewards, n) {
   matrix <- matrix[SAno,SAno]
   
   ## cals the cpp implementation
-  out <- .expectedRewardsforARCpp(matrix, ini, rewardsSA, n)
+  out <- .expectedRewardsBeforeHittingARCpp(matrix, ini, rewardsSA, n)
   
   return(out)
   

@@ -374,9 +374,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// expectedRewardsforARCpp
-double expectedRewardsforARCpp(NumericMatrix matrix, int s0, NumericVector rewards, int n);
-RcppExport SEXP _markovchain_expectedRewardsforARCpp(SEXP matrixSEXP, SEXP s0SEXP, SEXP rewardsSEXP, SEXP nSEXP) {
+// expectedRewardsBeforeHittingARCpp
+double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix, int s0, NumericVector rewards, int n);
+RcppExport SEXP _markovchain_expectedRewardsBeforeHittingARCpp(SEXP matrixSEXP, SEXP s0SEXP, SEXP rewardsSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -384,7 +384,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type s0(s0SEXP);
     Rcpp::traits::input_parameter< NumericVector >::type rewards(rewardsSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(expectedRewardsforARCpp(matrix, s0, rewards, n));
+    rcpp_result_gen = Rcpp::wrap(expectedRewardsBeforeHittingARCpp(matrix, s0, rewards, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -492,7 +492,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},
     {"_markovchain_firstPassageMultipleRCpp", (DL_FUNC) &_markovchain_firstPassageMultipleRCpp, 4},
     {"_markovchain_expectedRewardsRCpp", (DL_FUNC) &_markovchain_expectedRewardsRCpp, 3},
-    {"_markovchain_expectedRewardsforARCpp", (DL_FUNC) &_markovchain_expectedRewardsforARCpp, 4},
+    {"_markovchain_expectedRewardsBeforeHittingARCpp", (DL_FUNC) &_markovchain_expectedRewardsBeforeHittingARCpp, 4},
     {"_markovchain_gcd", (DL_FUNC) &_markovchain_gcd, 2},
     {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},

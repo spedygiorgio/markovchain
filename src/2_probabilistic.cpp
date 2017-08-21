@@ -376,8 +376,8 @@ NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rew
   return out;
 }
 
-// [[Rcpp::export(.expectedRewardsforARCpp)]]
-double expectedRewardsforARCpp(NumericMatrix matrix,int s0,
+// [[Rcpp::export(.expectedRewardsBeforeHittingARCpp)]]
+double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
                                NumericVector rewards, int n )
 {
   float result = 0.0;

@@ -1,3 +1,2 @@
 14-08-2017
-Added is.TimeReversible function
-added gm_to_markovchain example
+Changed name of expectedrewardsforA to expectedRewardsBeforeHittingA 

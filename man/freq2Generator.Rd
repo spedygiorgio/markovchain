@@ -33,3 +33,7 @@ tm_rel=rbind((tm_abs/rowSums(tm_abs))[1:7,],c(rep(0,7),1))
 freq2Generator(tm_rel,1)
 
 }
+\references{
+E. Kreinin and M. Sidelnikova: Regularization Algorithms for
+Transition Matrices. Algo Research Quarterly 4(1):23-40, 2001
+}

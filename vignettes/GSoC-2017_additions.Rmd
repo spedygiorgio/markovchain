@@ -250,13 +250,15 @@ The probabilites we get are with an error of $10^{-3}$
 
 # Continuous time markovchain generator using frequency Matrix
 
-The package provides `freq2Generator` function. It takes in a matrix representing relative frequency values along with time taken to provide a continuous time markovchain generator matrix. The function also allows to chose among three methods for calculation of the generator matrix.
+The package provides `freq2Generator` function. It takes in a matrix representing relative frequency values along with time taken to provide a continuous time markovchain generator matrix. Here, frequency matrix is a 2-D matrix of dimensions equal to relative number of possible states describing the number of transitions from a state $i$ to $j$ in time $t$, which is another parameter to be provided to the function. The function also allows to chose among three methods for calculation of the generator matrix.[@freqArticle]
 
 Three methods are as follows:
 
 1. Quasi Optimisation - "QO" 
 2. Diagonal Adjustment - "DA"
 3. Weighted Adjustment - "WA"
+
+See reference for details about the methods.
 
 
 Here is an example matrix on which `freq2Generator` function is run:

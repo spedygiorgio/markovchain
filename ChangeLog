@@ -1,3 +1,5 @@
+20-04-2018 0.6.9.9
+Fixed typo in vignette
 14-08-2017 0.6.9.8-1
 Added is.TimeReversible function
 added gm_to_markovchain example

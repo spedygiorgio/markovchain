@@ -2093,7 +2093,7 @@ rmarkovchain(n=10, object=transitionsSince100,what="matrix",t0="A",include.t0=TR
 @
 
 
-Lets consider 1000 simulated live trajectories, for a healty guy aged 80. We can compute the expected time a guy will be disabled starting active at age 100.
+Lets consider 1000 simulated live trajectories, for a healty guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
 
 
 <<healthIns10, keep.source=TRUE>>=

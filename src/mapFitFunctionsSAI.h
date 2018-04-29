@@ -13,20 +13,31 @@ CharacterVector clean_nas(CharacterVector elements_na){
 }
   
 
-List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
+List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
                bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
-  // vector that could contain NA values
-  CharacterVector elements_na = stringchar;
-  elements_na = unique(union_(elements_na, possibleStates)).sort();
-  // vector to store unique states in sorted order
-  CharacterVector elements = clean_nas(elements_na);
+  if(TYPEOF(data) != VECSXP)  {
+    data = List::create(as<CharacterVector>(data));
+  }
+  
+  List seqs = as<List>(data);
+  CharacterVector elements;
+  
+  for(int i = 0;i < (int)seqs.size();i++) {
+    CharacterVector tseq = unique(as<CharacterVector>(seqs[i]));
+    for(int j = 0;j < (int)tseq.size();j++) {
+      if(tseq[j] != "NA") {
+        elements.push_back(tseq[j]);
+      }
+    }
+  }
+
+  elements = unique(union_(elements, possibleStates)).sort();
   // number of unique states
   int sizeMatr = elements.size();
   
   // if no hyperparam argument provided, use default value of 1 for all 
   if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
-    
     // matrix with all entries 1
     NumericMatrix temp(sizeMatr, sizeMatr);
     temp.attr("dimnames") = List::create(elements, elements);
@@ -132,16 +143,19 @@ List _mcFitMap(CharacterVector stringchar, bool byrow, double confidencelevel, N
   NumericMatrix upperEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
   NumericMatrix stdError = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
 
-  // populate frequeny matrix for old data; this is used for inference 
-  int posFrom = 0, posTo = 0;
-  for(long int i = 0; i < stringchar.size() - 1; i ++) {
-    if(stringchar[i] != "NA" && stringchar[i+1] != "NA"){
-      for (int j = 0; j < sizeMatr; j ++) {
-        if(stringchar[i] == elements[j]) posFrom = j;
-        if(stringchar[i + 1] == elements[j]) posTo = j;
+  // populate frequeny matrix for old data; this is used for inference
+  for(int k = 0;k < seqs.size();k++) {
+    CharacterVector stringchar  = as<CharacterVector>(seqs[k]);
+    int posFrom = 0, posTo = 0;
+    for(long int i = 0; i < stringchar.size() - 1; i ++) {
+      if(stringchar[i] != "NA" && stringchar[i+1] != "NA"){
+        for (int j = 0; j < sizeMatr; j ++) {
+          if(stringchar[i] == elements[j]) posFrom = j;
+          if(stringchar[i + 1] == elements[j]) posTo = j;
+        }
+        freqMatr(posFrom,posTo)++;
       }
-      freqMatr(posFrom,posTo)++;
-    }
+    }  
   }
  
   // sanitize and to row probs

@@ -1620,7 +1620,11 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	}
   }
   else if(TYPEOF(data) == VECSXP) { 
-    out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
+    if(method == "mle") {
+      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);  
+    } else if(method == "map") {
+      out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize, possibleStates);
+    }
   }
   else {
     if(method == "mle") {

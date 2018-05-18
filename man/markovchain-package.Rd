@@ -12,10 +12,10 @@ The package contains classes and method to create and manage (plot, print, expor
 \tabular{ll}{
 Package: \tab markovchain\cr
 Type: \tab Package\cr
-Version: \tab 0.6.5.2\cr
-Date: \tab 2016-12-08\cr
+Version: \tab 0.6.9.10\cr
+Date: \tab 2018-05-30\cr
 License: \tab GPL-2\cr
-Depends: \tab R (>= 3.2.0), methods, expm, matlab, igraph, Matrix\cr
+Depends: \tab R (>= 3.4.0), methods, expm, matlab, igraph, Matrix\cr
 }
 }
 \author{

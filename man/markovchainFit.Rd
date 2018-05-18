@@ -14,7 +14,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   possibleStates = character())
 }
 \arguments{
-\item{stringchar}{Equivalent to data. It can be a nx2 matrix or a character vector or a list}
+\item{stringchar}{It can be a nx2 matrix or a character vector or a list}
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 
@@ -22,7 +22,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 \item{possibleStates}{Possible states which are not present in the given sequence}
 
-\item{data}{A character list.}
+\item{data}{It can be a character vector or a nx2 matrix or a nx2 data frame or a list}
 
 \item{method}{Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"}
 
@@ -80,6 +80,11 @@ na.sequence <- c("a", NA, "a", "b")
 # There will be only a (a,b) transition        
 na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
 mcFitMLE <- markovchainFit(data = na.sequence)
+
+# data can be a list of character vectors
+sequences <- list(x = c("a", "b", "a"), y = c("b", "a", "b", "a", "c"))
+mcFitMap <- markovchainFit(sequences, method = "map")
+mcFitMle <- markovchainFit(sequences, method = "mle")
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010

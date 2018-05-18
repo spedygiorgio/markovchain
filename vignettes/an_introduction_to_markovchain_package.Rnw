@@ -1267,7 +1267,9 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}
 
-In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}). Most of such tests are based on the $\chi ^2$ statistics. Relevand references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the Markov property (\code{verifyMarkovProperty}), the order (\code{assessOrder}), the statinarity (\code{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\code{divergenceTest}). Most of such tests are based on the $\chi ^2$ statistics. Relevand references are \cite{kullback1962tests} and \cite{anderson1957statistical}.\\
+
+All such tests have been designed for small samples, since it is easy to detect departures from Markov property as long as the sample size increases.
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}
 

@@ -194,7 +194,7 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
 
 # check if sequence is of first order or of second order
 assessOrder <- function(sequence, verbose = TRUE) {
-  
+  warning("The correctes of this function is in question. It will be deeply revised in the forthcoming versions.")
   # length of sequence
   n <- length(sequence)
   
@@ -242,7 +242,7 @@ assessOrder <- function(sequence, verbose = TRUE) {
 
 # check if sequence is stationary
 assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
-  
+  warning("The correctes of this function is in question. It will be deeply revised in the forthcoming versions.")
   # length of sequence
   n <- length(sequence)
   

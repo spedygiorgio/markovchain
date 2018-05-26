@@ -65,6 +65,7 @@
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 %\SweaveOpts{concordance=TRUE}
 
 <<setup,echo=FALSE, results=hide>>=
@@ -80,7 +81,19 @@
 Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.\\
 
 An experimental \code{fitHigherOrder} function has been written in order to fit a higher order Markov chain (\cite{ching2013higher, ching2008higher}). 
-It takes a sequence and the order as arguments and returns the frequency probability vector X of the given sequence and the parameters $\lambda_i$ with the transition probability matrices $Q_i$ for each order $i$.
+\code{fitHigherOrder} takes two inputs
+\begin{enumerate}
+  \item {sequence}: a categorical data sequence.
+  \item {order}: order of Markov chain to fit with default value 2.
+\end{enumerate}
+
+The output will be a \code{list} which consists of
+\begin{enumerate}
+  \item {lambda}: model parameter(s).
+  \item {Q}: a list of transition matrices. $Q_i$ is the $ith$ step transition matrix stored column-wise.
+  \item{X}: frequency probability vector of the given sequence.
+\end{enumerate}
+
 Its quadratic programming problem is solved using \code{solnp} function of \pkg{Rsolnp}, \cite{pkg:Rsolnp}. 
 
 <<higherOrder, keep.source=TRUE>>=

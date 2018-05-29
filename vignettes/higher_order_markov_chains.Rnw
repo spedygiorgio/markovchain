@@ -65,8 +65,7 @@
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-%\SweaveOpts{concordance=TRUE}
+
 
 <<setup,echo=FALSE, results=hide>>=
 	options(prompt = "R> ", continue = "+  ", 

@@ -429,35 +429,38 @@ int period(S4 object) {
   } else {
     NumericMatrix P = object.slot("transitionMatrix");
     int n = P.ncol();
-    arma::vec v(n);
     std::vector<double> r, T(1), w;
-    v[0] = 1;
     int d = 0, m = T.size(), i = 0, j = 0;
-    while(m>0 && d!=1) {
-      i = T[0];
-      T.erase(T.begin());
-      w.push_back(i);
-      j = 0;
-      while(j < n) {
-        if(P(i,j) > 0) {
-          r.insert(r.end(), w.begin(), w.end());
-          r.insert(r.end(), T.begin(), T.end());
-          double k = 0;
-          for(std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
-            if(*it == j) k ++;
-          if(k > 0) {
-             int b = v[i] + 1 - v[j];
-             d = gcd(d, b);
-          } else {
-            T.push_back(j);
-            v[j] = v[i] + 1;
+    
+    if (n > 0) {
+      arma::vec v(n);
+      v[0] = 1;
+      while(m>0 && d!=1) {
+        i = T[0];
+        T.erase(T.begin());
+        w.push_back(i);
+        j = 0;
+        while(j < n) {
+          if(P(i,j) > 0) {
+            r.insert(r.end(), w.begin(), w.end());
+            r.insert(r.end(), T.begin(), T.end());
+            double k = 0;
+            for(std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
+              if(*it == j) k ++;
+            if(k > 0) {
+               int b = v[i] + 1 - v[j];
+               d = gcd(d, b);
+            } else {
+              T.push_back(j);
+              v[j] = v[i] + 1;
+            }
           }
+          j ++;
         }
-        j ++;
+        m = T.size();
       }
-      m = T.size();
     }
-    v = v - floor(v/d)*d;
+    // v = v - floor(v/d)*d;
     return d;
   }
 }

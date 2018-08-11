@@ -1,3 +1,5 @@
+12-08-2018 0.6.9.11
+Improved Rcpp performance as suggested by https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/
 20-04-2018 0.6.9.9
 Fixed typo in vignette
 MAP method now works also with lists (issue #141)

@@ -9,9 +9,9 @@ createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE,
   possibleStates = character())
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
-  laplacian = 0, name = "", parallel = FALSE,
-  confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(),
-  sanitize = FALSE, possibleStates = character())
+  laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
+  confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
+  possibleStates = character())
 }
 \arguments{
 \item{stringchar}{It can be a nx2 matrix or a character vector or a list}

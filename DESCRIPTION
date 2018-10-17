@@ -3,9 +3,15 @@ Type: Package
 Title: Easy Handling Discrete Time Markov Chains
 Version: 0.6.9.12
 Date: 2018-08-13
-Author: Giorgio Alfredo Spedicato [aut,cre], Tae Seung Kang [aut], Sai Bhargav
-    Yalamanchi [aut], Mildenberger Thoralf [ctb], Deepak Yadav [ctb], Nacho Cordón
-    Castillo [ctb], Vandit Jain [ctb]
+Authors@R: c(
+   person("Giorgio Alfredo", "Spedicato", email = "spedicato_giorgio@yahoo.it", role = c("aut", "cre")),
+   person("Tae", "Seung Kang", role = "aut"),
+   person("Sai", "Bhargav Yalamanchi", role = "aut"),
+   person("Mildenberger", "Thoralf", role = "ctb"),
+   person("Deepak", "Yadav", role = "ctb"),
+   person("Ignacio", "Cordón", role = "ctb"),
+   person("Vandit", "Jean", role = "ctb")
+ )
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov
     chains more easily. In addition functions to perform statistical (fitting

@@ -6,6 +6,9 @@ dist: trusty
 
 warnings_are_errors: true
 
+r_packages:
+  - pkgdown
+
 apt_packages:
   - qpdf
 r_github_packages: hadley/devtools
@@ -16,13 +19,28 @@ before_install:
 script:
   - R CMD build . ${R_BUILD_ARGS}
   - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
+  - R CMD INSTALL `ls -1t *.tar.gz | head -n 1`
 
 notifications:
   email: false
 
+after_success:
+  - Rscript -e 'pkgdown::build_site()'
+  - mv docs ..
+  - rm -r *
+  - mv ../docs/* .
+  
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_API_TOKEN
+  on:
+    branch: web-docs
+  target_branch: gh-pages
+  
 env:
    global:
-     - R_BUILD_ARGS="--no-build-vignettes --no-manual --compact-vignettes=gs+qpdf" 
+     - R_BUILD_ARGS="" 
      - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
 
 cran: http://cran.rstudio.com

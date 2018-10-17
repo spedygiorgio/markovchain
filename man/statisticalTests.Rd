@@ -83,4 +83,3 @@ Anderson and Goodman.
 \author{
 Tae Seung Kang, Giorgio Alfredo Spedicato
 }
-\concept{statisticalTests}

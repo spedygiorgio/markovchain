@@ -1,0 +1,73 @@
+---
+author:
+  - name: "Giorgio Alfredo Spedicato"
+    affiliation: Ph.D C.Stat ACAS, UnipolSai R\&D
+    address: >
+      Via Firenze 11
+      Paderno Dugnano 20037 Italy
+    email: \email{spedygiorgio@gmail.com}
+    url: www.statisticaladvisor.com
+  - name: "Tae Seung Kang"
+    affiliation: Ph.D student, Computer \& Information Science \& Engineering
+    address: >
+      University of Florida
+      Gainesville, FL, USA
+    email: \email{tskang3@gmail.com}
+  - name: "Sai Bhargav Yalamanchi"
+    affiliation: B-Tech student, Electrical Engineering
+    address: >
+      Indian Institute of Technology, Bombay
+      Mumbai - 400 076, India
+    email: \email{bhargavcoolboy@gmail.com}
+  - name: "Deepak Yadav"
+    affiliation: B-Tech student, Computer Science and Engineering
+    address: >
+      Indian Institute of Technology, Varanasi 
+      Uttar Pradesh - 221 005, India
+    email: \email{deepakyadav.iitbhu@gmail.com}
+title:
+  plain:     "The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R"
+  formatted: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
+  short:     "The \\pkg{markovchain} Package"
+pagetitle: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
+geometry: margin=3.8cm
+preamble: >
+  \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav}
+papersize: A4
+vignette: >
+  %\VignetteIndexEntry{The \texttt{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+abstract: >
+  The `markovchain` package aims to fill a gap within the R framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
+output: rticles::jss_article
+keywords:
+  plain: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
+  formatted: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
+classoption: nojss
+bibliography: markovchainBiblio.bib
+---
+
+
+# Introduction
+
+Markov chains represent a class of stochastic processes of great interest for the wide spectrum of practical applications. In particular, discrete time Markov chains (DTMC) permit to model the transition probabilities between discrete states by the aid of matrices.Various \proglang{R} packages deal with models that are based on Markov chains:
+
+* \pkg{msm} [@msmR] handles Multi-State Models for panel data.
+* \pkg{mcmcR} [@mcmcR] implements Monte Carlo Markov Chain approach.
+* \pkg{hmm} [@hmmR] fits hidden Markov models with covariates.
+* \pkg{mstate} fits `Multi-State Models based on Markov chains for survival analysis [@mstateR].
+
+Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} [@DTMCPackR] the first one. Notwithstanding, \pkg{markovchain} package [@markovchainR] aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and non-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
+
+The \pkg{markovchain} package depends on the following \proglang{R} packages: \pkg{expm} [@expmR] to perform efficient matrices powers; \pkg{igraph} [@pkg:igraph] to perform pretty plotting of \code{markovchain} objects and \pkg{matlab} [@pkg:matlab], that contains functions for matrix management and calculations that emulate those within \proglang{MATLAB} environment. Moreover, other scientific softwares provide functions specifically designed to analyze DTMC, as \proglang{Mathematica} 9 [@mathematica9].
+
+The paper is structured as follows: Section \@ref(sec:mathematic) briefly reviews mathematics and definitions regarding DTMC, Section~\ref{sec:structure} discusses how to handle and manage Markov chain objects within the package, Section~\ref{sec:probability} and Section~\ref{sec:statistics} show how to perform probabilistic and statistical modelling, while Section~\ref{sec:applications} presents some applied examples from various fields analyzed by means of the \pkg{markovchain} package. 
+
+# Review of core mathematical concepts {#sec:mathematic}
+
+## General Definitions
+
+
+\newpage
+# References # 

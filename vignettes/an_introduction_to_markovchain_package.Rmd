@@ -1,4 +1,8 @@
 ---
+title:
+  plain:     "The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R"
+  formatted: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
+  short:     "\\pkg{markovchain} package: discrete Markov chains in \\proglang{R}"
 author:
   - name: "Giorgio Alfredo Spedicato"
     affiliation: Ph.D C.Stat ACAS, UnipolSai R\&D
@@ -25,22 +29,16 @@ author:
       Indian Institute of Technology, Varanasi 
       Uttar Pradesh - 221 005, India
     email: \email{deepakyadav.iitbhu@gmail.com}
-title:
-  plain:     "The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R"
-  formatted: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
-  short:     "The \\pkg{markovchain} Package"
-pagetitle: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
-geometry: margin=3.8cm
 preamble: >
   \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav}
-papersize: A4
-vignette: >
-  %\VignetteIndexEntry{The \texttt{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in R}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-abstract: >
-  The `markovchain` package aims to fill a gap within the R framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
-output: rticles::jss_article
+  \usepackage{graphicx}
+  \usepackage{amsmath}
+  \setkeys{Gin}{width=0.8\textwidth}
+abstract:
+  The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
+output: 
+  bookdown::pdf_book:
+    base_format: rticles::jss_article
 keywords:
   plain: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
   formatted: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
@@ -48,6 +46,10 @@ classoption: nojss
 bibliography: markovchainBiblio.bib
 ---
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=8.5, fig.height=6, out.width = "70%")
+set.seed(123)
+```
 
 # Introduction
 
@@ -62,12 +64,495 @@ Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lac
 
 The \pkg{markovchain} package depends on the following \proglang{R} packages: \pkg{expm} [@expmR] to perform efficient matrices powers; \pkg{igraph} [@pkg:igraph] to perform pretty plotting of \code{markovchain} objects and \pkg{matlab} [@pkg:matlab], that contains functions for matrix management and calculations that emulate those within \proglang{MATLAB} environment. Moreover, other scientific softwares provide functions specifically designed to analyze DTMC, as \proglang{Mathematica} 9 [@mathematica9].
 
-The paper is structured as follows: Section \@ref(sec:mathematic) briefly reviews mathematics and definitions regarding DTMC, Section~\ref{sec:structure} discusses how to handle and manage Markov chain objects within the package, Section~\ref{sec:probability} and Section~\ref{sec:statistics} show how to perform probabilistic and statistical modelling, while Section~\ref{sec:applications} presents some applied examples from various fields analyzed by means of the \pkg{markovchain} package. 
+The paper is structured as follows: Section \@ref(sec:mathematic) briefly reviews mathematics and definitions regarding DTMC, Section \@ref(sec:structure) discusses how to handle and manage Markov chain objects within the package, Section \@ref(sec:probability) and Section \@ref(sec:statistics) show how to perform probabilistic and statistical modelling, while Section \@ref(sec:applications) presents some applied examples from various fields analyzed by means of the \pkg{markovchain} package.
 
 # Review of core mathematical concepts {#sec:mathematic}
 
 ## General Definitions
 
+A DTMC is a sequence of random variables $X_{1},\: X_{2}\: ,\ldots,\:X_{n},\ldots$ characterized by the Markov property (also known as memoryless property, see Equation \ref{eq:markovProp}). The Markov property states that the distribution of the forthcoming state $X_{n+1}$ depends only on the current state $X_{n}$ and doesn't depend on the previous ones $X_{n-1},\: X_{n-2},\ldots,\: X_{1}$.
+
+\begin{equation}
+Pr\left(X_{n+1}=x_{n+1}\left|X_{1}=x_{1},X_{2}=x_{2,}...,X_{n}=x_{n}\right.\right)=Pr\left(X_{n+1}=x_{n+1}\left|X_{n}=x_{n}\right.\right).
+\label{eq:markovProp}
+\end{equation}
+
+The set of possible states $S=\left\{ s_{1},s_{2},...,s_{r}\right\}$ of $X_{n}$ can be finite or countable and it is named the state space of the chain.
+
+The chain moves  from one state to another (this change
+is named either 'transition' or 'step') and the probability $p_{ij}$ to move
+from state $s_{i}$ to state $s_{j}$ in one step is named transition probability:
+
+\begin{equation}
+p_{ij}=Pr\left(X_{1}=s_{j}\left|X_{0}=s_{i}\right.\right).
+\label{eq:trProp}
+\end{equation}
+
+The probability of moving from state $i$ to $j$ in $n$ steps is denoted by
+$p_{ij}^{(n)}=Pr\left(X_{n}=s_{j}\left|X_{0}=s_{i}\right.\right)$. 
+
+A DTMC is called time-homogeneous if the property shown in Equation \ref{eq:mcHom} holds. Time homogeneity implies no change in the underlying transition probabilities as time goes on.
+\begin{equation}
+Pr\left(X_{n+1}=s_{j}\left|X_{n}=s_{i}\right.\right)=Pr\left(X_{n}=s_{j}\left|X_{n-1}=s_{i}\right.\right).
+\label{eq:mcHom}
+\end{equation}
+
+If the Markov chain is time-homogeneous, then $p_{ij}=Pr\left(X_{k+1}=s_{j}\left|X_{k}=s_{i}\right.\right)$
+and \newline $p_{ij}^{(n)}=Pr\left(X_{n+k}=s_{j}\left|X_{k}=s_{i}\right.\right)$,
+where $k>0$.
+
+The probability distribution of transitions from one state to another
+can be represented into a transition matrix $P=(p_{ij})_{i,j}$, where each element
+of position $(i,j)$ represents the transition probability $p_{ij}$. E.g., if
+$r=3$ the transition matrix $P$ is shown in Equation \ref{eq:trPropEx}
+
+\begin{equation}
+P=\left[\begin{array}{ccc}
+p_{11} & p_{12} & p_{13}\\
+p_{21} & p_{22} & p_{23}\\
+p_{31} & p_{32} & p_{33}
+\end{array}\right].
+\label{eq:trPropEx}
+\end{equation}
+
+
+The distribution over the states can be written in the form of a stochastic row
+vector $x$ (the term stochastic means that $\sum_{i}x_{i}=1, x_{i} \geq 0$): e.g., if the current state of $x$ is $s_{2}$, $x=\left(0\:1\:0\right)$.
+As a consequence, the relation between $x^{(1)}$ and $x^{(0)}$
+is $x^{(1)}=x^{(0)}P$ and, recursively, we get $x^{(2)}=x^{(0)}P^{2}$ and
+$x^{(n)}=x^{(0)}P^{n},\, n>0$.
+
+DTMC are explained in most theory books on stochastic processes, see \cite{bremaud1999discrete} and \cite{dobrow2016introduction} for example. Valuable references online available are: \cite{konstantopoulos2009markov}, \cite{probBook} and \cite{bardPpt}.
+
+## Properties and classification of states {#sec:properties}
+
+A state $s_{j}$ is said accessible from state $s_{i}$ (written $s_{i}\rightarrow s_{j}$) if a system started in state $s_{i}$ has
+a positive probability to reach the state $s_{j}$ at a certain
+point, i.e., $\exists n>0:\: p_{ij}^{n}>0$. If both $s_{i}\rightarrow s_{j}$ and $s_{j}\rightarrow s_{i}$, then
+$s_{i}$ and $s_{j}$ are said to communicate.
+
+A communicating class is defined to be a set of states that communicate. 
+A DTMC can be composed by one or more communicating classes.  If the DTMC is
+composed by only one communicating class (i.e., if all states in the chain communicate), then
+it is said irreducible. A communicating class is said to be closed if no states outside of the class can be reached from any state inside it.
+
+If $p_{ii}=1$, $s_{i}$ is defined as absorbing
+state: an absorbing state corresponds to a closed communicating class composed by one state only.
+
+The canonic form of a DTMC transition matrix is a matrix having a
+block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
+
+A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$
+must occur in multiplies of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where
+$gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said
+to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
+
+If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  It is possible to classify states according to their periodicity. Let $T^{x\rightarrow x}$ is the number of periods to go back to state $x$ knowing that the chain starts in $x$.  
+
+\begin{itemize}
+
+\item A state $x$ is recurrent if $P(T^{x\rightarrow x}<+\infty)=1$ (equivalently $P(T^{x\rightarrow x}=+\infty)=0$). In addition: 
+\begin{enumerate}
+    \item A state $x$ is null recurrent if in addition $E(T^{x\rightarrow x})=+\infty$.
+    \item A state $x$ is positive recurrent if in addition $E(T^{x\rightarrow x})<+\infty$.
+    \item A state $x$ is absorbing if in addition  $P(T^{x\rightarrow x}=1)=1$.
+\end{enumerate}
+
+\item A state $x$ is transient if $P(T^{x\rightarrow x}<+\infty)<1$ (equivalently $P(T^{x\rightarrow x}=+\infty)>0$).
+
+\end{itemize}
+
+
+It is possible to analyze the timing to reach a certain state. The first passage time from state $s_{i}$ to state $s_{j}$ is the number $T_{ij}$ of steps taken by the chain until it arrives for the first time to state $s_{j}$, given that $X_{0} = s_{i}$. The probability distribution of $T_{ij}$ is defined by Equation \ref{eq:fpt1}
+
+\begin{equation}
+{h_{ij}}^{\left( n \right)} = Pr\left( {{T_{ij}} = n} \right) = Pr\left( {{X_n} = s_{j},{X_{n - 1}} \ne s_{j}, \ldots ,{X_1} \ne s_{j}|{X_0} = s_{i}} \right)
+\label{eq:fpt1}
+\end{equation}
+
+and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^{\left( n \right)} = p_{ij}$.
+
+\begin{equation}
+{h_{ij}}^{\left( n \right)} = \sum\limits_{k \in S - \left\{ s_{j} \right\}}^{} {{p_{ik}}{h_{kj}}^{\left( {n - 1} \right)}}.
+\label{eq:ftp2}
+\end{equation}
+
+If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
+
+Given a time homogeneous Markov chain with transition matrix \emph{P},
+a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and
+$\sum_{j}z_{j}=1$.
+
+If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$
+is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
+
+\begin{equation}
+  \underset{n\rightarrow\infty}{lim}P^{n}=Z,
+  \label{eq:limMc}
+\end{equation}
+
+where $Z$ is the matrix having all rows equal to $z$. The stationary distribution of $\{X_{n}\}$ is represented by $z$.
+
+## A short example
+
+Consider the following numerical example. Suppose we have a DTMC with a set of 3 possible states $S=\{s_{1}, s_{2}, s_{3}\}$. Let the transition matrix be:
+\begin{equation}
+P=\left[\begin{array}{ccc}
+0.5 & 0.2 & 0.3\\
+0.15 & 0.45 & 0.4\\
+0.25 & 0.35 & 0.4
+\end{array}\right].
+\label{eq:trPropExEx1}
+\end{equation}
+
+In $P$, $p_{11}=0.5$ is the probability that $X_{1}=s_{1}$ given
+that we observed $X_{0}=s_{1}$ is 0.5, and so on. 
+It is easy to see that the chain is irreducible since all the states communicate (it is made by one communicating class only).
+
+Suppose that the current state of the chain is $X_{0}=s_{2}$, i.e., $x^{(0)}=(0\:1\:0)$, then the probability distribution of states after 1 and 2 steps can be computed as shown in Equations \@ref(eq:trPropExEx2) and
+\@ref(eq:trPropExEx3).
+
+\begin{equation}
+x^{(1)}=\left(0\:1\:0\right)\left[\begin{array}{ccc}
+0.5 & 0.2 & 0.3\\
+0.15 & 0.45 & 0.4\\
+0.25 & 0.35 & 0.4
+\end{array}\right]=\left(0.15\:0.45\:0.4\right).
+\label{eq:trPropExEx2}
+\end{equation}
+
+\begin{equation}
+x^{(n)}=x^{(n-1)}P \to \left(0.15\:0.45\:0.4\right)\left[\begin{array}{ccc}
+0.5 & 0.2 & 0.3\\
+0.15 & 0.45 & 0.4\\
+0.25 & 0.35 & 0.4
+\end{array}\right]=\left(0.2425\:0.3725\:0.385\right).
+\label{eq:trPropExEx3}
+\end{equation}
+
+If, f.e., we are interested in the probability of reaching the state $s_{3}$ in two steps, then $Pr\left(X_{2}=s_{3}\left|X_{0}=s_{2}\right.\right)=0.385$.
 
 \newpage
-# References # 
+
+# The structure of the package {#sec:structure}
+
+## Creating markovchain objects
+
+The package is loaded within the \proglang{R} command line as follows:
+
+```{r, load, results='hide', message=FALSE}
+library("markovchain")
+```
+
+The \code{markovchain} and \code{markovchainList} S4 classes [@chambers] are defined within the \pkg{markovchain} package as displayed:
+
+```{r, showClass, echo=FALSE}
+showClass("markovchain")
+showClass("markovchainList")
+```
+
+The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of \code{markovchain} objects) has been designed to handle non-homogeneous Markov chains processes.
+
+Any element of \code{markovchain} class is comprised by following slots:
+
+  1. \code{states}: a character vector, listing the states for which transition probabilities are defined.
+  2. \code{byrow}: a logical element, indicating whether transition probabilities are shown by row or by column.
+  3. \code{transitionMatrix}: the probabilities of the transition matrix.
+  4. \code{name}: optional character element to name the DTMC.
+
+The \code{markovchainList} objects are defined by following slots:
+
+  1. \code{markovchains}: a list of \code{markovchain} objects.
+  2. \code{name}: optional character element to name the DTMC.
+
+The \code{markovchain} objects can be created either in a long way, as the following code shows
+
+```{r mcInitLong}
+weatherStates <- c("sunny", "cloudy", "rain")
+byRow <- TRUE
+weatherMatrix <- matrix(data = c(0.70, 0.2, 0.1,
+                       0.3, 0.4, 0.3,
+                       0.2, 0.45, 0.35), byrow = byRow, nrow = 3,
+                     dimnames = list(weatherStates, weatherStates))
+mcWeather <- new("markovchain", states = weatherStates, byrow = byRow, 
+               transitionMatrix = weatherMatrix, name = "Weather")
+```
+
+or in a shorter way, displayed below
+
+```{r mcInitShort}
+mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
+                 transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
+                       0.3, 0.4, 0.3,
+                       0.2, 0.45, 0.35), byrow = byRow, nrow = 3), 
+                 name = "Weather")
+```
+
+When \code{new("markovchain")} is called alone, a default Markov chain is created.
+
+```{r defaultMc}
+defaultMc <- new("markovchain")
+```
+
+The quicker way to create \code{markovchain} objects is made possible thanks to the implemented \code{initialize} S4 method that checks that:
+
+  * the \code{transitionMatrix} to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
+  * the columns and rows names of \code{transitionMatrix} to be defined and to coincide with \code{states} vector slot. 
+
+The \code{markovchain} objects can be collected in a list within \code{markovchainList} S4 objects as following example shows.
+
+```{r intromcList}
+mcList <- new("markovchainList", markovchains = list(mcWeather, defaultMc), 
+		          name = "A list of Markov chains")
+```
+
+## Handling markovchain objects
+
+Table \@ref(tab:methodsToHandleMc) lists which methods handle and 
+manipulate \code{markovchain} objects.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lll}
+    \hline
+  Method & Purpose \\
+    \hline  \hline
+  \code{*} & Direct multiplication for transition matrices.\\
+% $\^$ & Integer power of a markov chain.\\
+  \code{[} & Direct access to the elements of the transition matrix.\\
+  \code{==} & Equality operator between two transition matrices.\\
+  \code{as} & Operator to convert \code{markovchain} objects into \code{data.frame} and\\
+  & \code{table} object.\\
+\code{dim} & Dimension of the transition matrix.\\
+\code{names} & Equal to \code{states}.\\
+\code{names<-} & Change the \code{states} name.\\
+\code{name} & Get the name of \code{markovchain object}.\\
+\code{name<-} & Change the name of \code{markovchain object}.\\
+\code{plot} & \code{plot} method for \code{markovchain} objects.\\
+\code{print} & \code{print} method for \code{markovchain} objects.\\
+\code{show} & \code{show} method for \code{markovchain} objects.\\
+\code{sort} & \code{sort} method for \code{markovchain} objects.\\
+  \code{states} & Name of the transition states.\\
+  \code{t} & Transposition operator (which switches byrow slot value and modifies \\
+ &  the transition matrix coherently).\\
+  \hline
+\end{tabular}
+\caption{\pkg{markovchain} methods for handling \code{markovchain} objects.}
+\label{tab:methodsToHandleMc}
+\end{table}  
+
+The examples that follow shows how operations on \code{markovchain} objects can be easily performed. For example, using the previously defined matrix we can find what is the probability distribution of expected weather states in two and  seven days, given the actual state to be cloudy. 
+
+```{r operations}
+initialState <- c(0, 1, 0)
+after2Days <- initialState * (mcWeather * mcWeather)
+after7Days <- initialState * (mcWeather ^ 7)
+after2Days
+round(after7Days, 3)
+```
+
+A similar answer could have been obtained defining the vector of probabilities as a column vector. A column - defined probability matrix could be set up either creating a new matrix or transposing an existing \code{markovchain} object thanks to the \code{t} method.
+
+```{r operations2}
+initialState <- c(0, 1, 0)
+after2Days <- (t(mcWeather) * t(mcWeather)) * initialState
+after7Days <- (t(mcWeather) ^ 7) * initialState
+after2Days
+round(after7Days, 3)
+```
+
+The initial state vector previously shown can not necessarily be a probability vector, as the code that follows shows: 
+
+```{r fval}
+fvals<-function(mchain,initialstate,n) {
+  out<-data.frame()
+  names(initialstate)<-names(mchain)
+  for (i in 0:n)
+  {
+    iteration<-initialstate*mchain^(i)
+    out<-rbind(out,iteration)
+  }
+  out<-cbind(out, i=seq(0,n))
+  out<-out[,c(4,1:3)]
+  return(out)
+}
+fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
+```
+
+Basic methods have been defined for \code{markovchain} objects to
+quickly get states and transition matrix dimension.
+
+```{r otherMethods}
+states(mcWeather)
+names(mcWeather)
+dim(mcWeather)
+```
+
+Methods are available to set and get the name of \code{markovchain} object.
+
+```{r otherMethods2}
+name(mcWeather)
+name(mcWeather) <- "New Name"
+name(mcWeather)
+```
+
+Also it is possible to alphabetically sort the transition matrix:
+
+```{r sortMethod}
+markovchain:::sort(mcWeather)
+```
+
+A direct access to transition probabilities is provided both by \code{transitionProbability} method and `"["` method.
+
+```{r transProb}
+transitionProbability(mcWeather, "cloudy", "rain")
+mcWeather[2,3]
+```
+
+The transition matrix of a \code{markovchain} object can be displayed using \code{print} or \code{show} methods (the latter being less laconic). Similarly, the underlying transition probability diagram can be plotted by the use of \code{plot} method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. \code{plot} method for \code{markovchain} objects is a wrapper of \code{plot.igraph} for \code{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \code{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram).
+The \code{plot} function also uses \code{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same colour.
+
+```{r printAndShow}
+print(mcWeather)
+show(mcWeather)
+```
+
+```{r mcPlot, echo=FALSE, fig.cap="Weather example. Markov chain plot"}
+library("igraph")
+plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition matrix")
+```
+
+```{r mcPlotdiagram, echo=FALSE, fig.cap="Weather example. Markov chain plot with diagram"}
+plot(mcWeather, package="diagram", box.size = 0.04)
+```
+
+Import and export from some specific classes is possible, as shown in
+Figure \@ref(fig:fromAndTo) and in the following code.
+
+```{r exportImport1}
+mcDf <- as(mcWeather, "data.frame")
+mcNew <- as(mcDf, "markovchain")
+mcDf
+mcIgraph <- as(mcWeather, "igraph")
+```
+
+```{r exportImport2}
+require(msm)
+Q <- rbind ( c(0, 0.25, 0, 0.25),
+             c(0.166, 0, 0.166, 0.166),
+             c(0, 0.25, 0, 0.25),
+             c(0, 0, 0, 0) )
+cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
+msmMc <- as(cavmsm, "markovchain")
+msmMc
+```
+
+```{r exporImport3}
+library(etm)
+data(sir.cont)
+sir.cont <- sir.cont[order(sir.cont$id, sir.cont$time), ]
+for (i in 2:nrow(sir.cont)) {
+  if (sir.cont$id[i]==sir.cont$id[i-1]) {
+    if (sir.cont$time[i]==sir.cont$time[i-1]) {
+      sir.cont$time[i-1] <- sir.cont$time[i-1] - 0.5
+    }
+  }
+}
+tra <- matrix(ncol=3,nrow=3,FALSE)
+tra[1, 2:3] <- TRUE
+tra[2, c(1, 3)] <- TRUE
+tr.prob <- etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
+tr.prob
+etm2mc<-as(tr.prob, "markovchain")
+etm2mc
+```
+
+```{r fromAndTo, echo=FALSE, fig.cap="The markovchain methods for import and export"}
+library(igraph)
+importExportGraph<-graph.formula(dataframe++markovchain,markovchain-+igraph,
+                                 markovchain++matrix,table-+markovchain,msm-+markovchain,etm-+markovchain,
+                                 markovchain++sparseMatrix)
+plot(importExportGraph,main="Import - Export from and to markovchain objects")
+```
+
+Coerce from \code{matrix} method, as the code below shows, represents another approach to create a \code{markovchain} method starting from a given squared probability matrix.
+
+```{r exportImport4}
+myMatr<-matrix(c(.1,.8,.1,.2,.6,.2,.3,.4,.3), byrow=TRUE, ncol=3)
+myMc<-as(myMatr, "markovchain")
+myMc
+```
+
+Non-homogeneous Markov chains can be created with the aid of \code{markovchainList} object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modelled by a non-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for \code{markovchainList} objects are: \code{print}, \code{show},  \code{dim} and \code{[}.
+
+```{r cchcMcList}
+stateNames = c("H", "I", "D")
+Q0 <- new("markovchain", states = stateNames, 
+        transitionMatrix =matrix(c(0.7, 0.2, 0.1,0.1, 0.6, 0.3,0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t0")
+Q1 <- new("markovchain", states = stateNames, 
+        transitionMatrix = matrix(c(0.5, 0.3, 0.2,0, 0.4, 0.6,0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t1")
+Q2 <- new("markovchain", states = stateNames, 
+        transitionMatrix = matrix(c(0.3, 0.2, 0.5,0, 0.2, 0.8,0, 0, 1), 
+        byrow = TRUE,nrow = 3), name = "state t2")
+Q3 <- new("markovchain", states = stateNames, 
+          transitionMatrix = matrix(c(0, 0, 1, 0, 0, 1, 0, 0, 1), 
+        byrow = TRUE, nrow = 3), name = "state t3")
+mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3), 
+      name = "Continuous Care Health Community")
+print(mcCCRC)
+```
+
+It is possible to perform direct access to \code{markovchainList} elements, as well as to determine the number of \code{markovchain} objects by which a \code{markovchainList} object is composed.
+
+```{r cchcMcList2}
+mcCCRC[[1]]
+dim(mcCCRC)
+```
+
+The \code{markovchain} package contains some data found in the
+literature related to DTMC models (see Section \@ref(sec:applications).
+Table \@ref(tab:datasets) lists datasets and tables included within the current release of
+the package.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  Dataset & Description \\
+ \hline  \hline
+  \code{blanden} & Mobility across income quartiles, \cite{blandenEtAlii}.\\
+  \code{craigsendi} & CD4 cells, \cite{craigSendi}.\\
+  \code{kullback} & raw transition matrices for testing homogeneity, \cite{kullback1962tests}.\\
+  \code{preproglucacon} & Preproglucacon DNA basis, \cite{averyHenderson}.\\
+  \code{rain} & Alofi Island rains, \cite{averyHenderson}.\\
+  \code{holson} & Individual states trajectiories.\\
+  \code{sales} & Sales of six beverages in Hong Kong.\\ \cite{ching2008higher}. \\
+\hline
+\end{tabular}
+\caption{The \pkg{markovchain} \code{data.frame} and \code{table}.}
+\label{tab:datasets}
+\end{table}
+
+Finally, Table \@ref(tab:demos) lists the demos included in the demo directory of the package.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lll}
+    \hline
+  R Code Filee & Description \\
+    \hline  \hline
+    \code{bard.R} & Structural analysis of Markov chains from Bard PPT.\\
+    \code{examples.R} & Notable Markov chains, e.g., The Gambler Ruin chain.\\
+    \code{quickStart.R} & Generic examples.\\
+    \code{extractMatrices.R} & Generic examples.\\
+\hline
+\end{tabular}
+\caption{The \pkg{markovchain} demos.}
+\label{tab:demos}
+\end{table}
+
+
+\clearpage
+# References #

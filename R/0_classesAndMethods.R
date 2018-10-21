@@ -1,105 +1,109 @@
-# define Markov Chain class
-setClass("markovchain", # class name
+# Define Markov Chain class
+setClass(
+  # Class name
+  "markovchain",
   # Define the slots
   slots = list(states = "character", byrow = "logical",
   transitionMatrix = "matrix", name = "character"),
   # Set the default values for the slots
-  prototype = list(states = c("a", "b"), byrow = TRUE,
-  transitionMatrix = matrix(data = c(0, 1, 1, 0),
-  nrow = 2, byrow = TRUE, dimnames = list(c("a", "b"), c("a", "b"))), name = "Unnamed Markov chain")
-)
-
-# initializing method for markovchain objects
-setMethod("initialize",
-  signature(.Object = "markovchain"),
-  function (.Object,
-  states,
-  byrow,
-  transitionMatrix,
-  name, ...) {
-  # put the standard markovchain
-  if (missing(transitionMatrix)) {
-    transitionMatrix <- matrix(
-    data = c(0, 1, 1, 0),
-    nrow = 2,
+  prototype = list(
+    states = c("a", "b"), 
     byrow = TRUE,
-    dimnames = list(c("a", "b"), c("a", "b")))
-            }
-
-            # check names of transition matrix
-            # if all names are missing it initializes them to "1", "2", ....
-            
-            if (all(is.null(rownames(transitionMatrix)), is.null(colnames(transitionMatrix))) == TRUE) {
-              if (missing(states)) {
-                nr <- nrow(transitionMatrix)
-                stateNames <- as.character(seq(1:nr))
-              } else {
-                stateNames <- states
-              }
-              
-              rownames(transitionMatrix) <- stateNames
-              colnames(transitionMatrix) <- stateNames
-              
-            } else if (is.null(rownames(transitionMatrix))) {
-              # fix when rownames null
-              
-              rownames(transitionMatrix) <-
-                colnames(transitionMatrix)
-              
-            } else if (is.null(colnames(transitionMatrix))) {
-              # fix when colnames null
-              
-              colnames(transitionMatrix) <-
-                rownames(transitionMatrix)
-              
-            } else if (!setequal(rownames(transitionMatrix), colnames(transitionMatrix)))  {
-              colnames(transitionMatrix) <-
-                rownames(transitionMatrix) # fix when different
-              
-            }
-            
-            if (missing(states)) {
-              states <- rownames(transitionMatrix)
-            }
-            
-            if (missing(byrow)) {
-              byrow <- TRUE
-            }
-            
-            if (missing(name)) {
-              name <- "Unnamed Markov chain"
-            }
-            
-            callNextMethod(
-              .Object,
-              states = states,
-              byrow = byrow,
-              transitionMatrix = transitionMatrix,
-              name = name,
-              ...
-            )
-          })
-
-# define Markov Chain List class
-setClass("markovchainList",
-         slots = list(markovchains = "list",
-		                  name = "character")
+    transitionMatrix = matrix(
+      data = c(0, 1, 1, 0), 
+      nrow = 2, 
+      byrow = TRUE, 
+      dimnames = list(c("a", "b"), c("a", "b"))), 
+    name = "Unnamed Markov chain")
 )
 
-# verifies if a markovchainList object is valid or not
-setValidity("markovchainList",
-		         function(object) {
-		           check <- FALSE 
-		           for(i in 1:length(object@markovchains)) {
-			            if(class(object@markovchains[[i]]) != "markovchain") {
-			              # All elements in the list should be a markovchain object
-			              check <- "Error! All elements should be of class 'markovchain'"
-			            }
-		           }
+# Initializing method for markovchain objects
+setMethod(
+  "initialize",
+  signature(.Object = "markovchain"),
+  function (.Object, states, byrow, transitionMatrix, name, ...) {
+    # Put the standard markovchain
+    if (missing(transitionMatrix)) {
+      transitionMatrix <- matrix(
+        data = c(0, 1, 1, 0),
+        nrow = 2,
+        byrow = TRUE,
+        dimnames = list(c("a", "b"), c("a", "b")))
+    }
+    
+    rowNames <- rownames(transitionMatrix)
+    colNames <- colnames(transitionMatrix)
+    
+    # Check names of transition matrix
+    # if all names are missing it initializes them to "1", "2", ....
+    if (all(is.null(rowNames), is.null(colNames)) == TRUE) {
+      if (missing(states)) {
+        numRows <- nrow(transitionMatrix)
+        stateNames <- as.character(seq(1:numRows))
+      } else {
+        stateNames <- states
+      }
+      
+      rownames(transitionMatrix) <- stateNames
+      colnames(transitionMatrix) <- stateNames
+      
+    # Fix when rownames null
+    } else if (is.null(rowNames)) {
+      rownames(transitionMatrix) <- colNames
+    # Fix when colnames null
+    } else if (is.null(colNames)) {
+      colnames(transitionMatrix) <- rowNames
+    # Fix when different
+    } else if (! setequal(rowNames, colNames)) {
+      colnames(transitionMatrix) <- rowNames
+    }
+    
+    if (missing(states))
+      states <- rownames(transitionMatrix)
+    
+    if (missing(byrow))
+      byrow <- TRUE
+    
+    if (missing(name))
+      name <- "Unnamed Markov chain"
+    
+    callNextMethod(
+      .Object,
+      states = states,
+      byrow = byrow,
+      transitionMatrix = transitionMatrix,
+      name = name,
+      ...
+    )
+  }
+)
 
-		           if(check == FALSE) check <- TRUE
-		           return(check)
-	           }
+# Define Markov Chain List class
+setClass(
+  "markovchainList",
+  slots = list(
+    markovchains = "list",
+    name = "character")
+)
+
+# Verifies whether a markovchainList object is valid or not
+# A markovchainList is valid iff all the slots are markovchain objects
+# Returns true if the markovchainList is valid, the indexes of the
+# wrong slots otherwise
+setValidity(
+  "markovchainList",
+  function(object) {
+    check <- FALSE
+    markovchains <- object@markovchains
+    
+    classes <- sapply(markovchains, class)
+    nonMarkovchain <- which(classes != "markovchain")
+    errors <- sapply(nonMarkovchain, function(i) {
+      paste(i, "th element class is not 'markovchain'")
+    })
+    
+    if (length(errors) == 0) TRUE else errors
+  }
 )
 
 # generic method to print out states

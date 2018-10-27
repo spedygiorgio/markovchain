@@ -99,7 +99,7 @@ setValidity(
     classes <- sapply(markovchains, class)
     nonMarkovchain <- which(classes != "markovchain")
     errors <- sapply(nonMarkovchain, function(i) {
-      paste(i, "th element class is not 'markovchain'")
+      paste(i, "-th element class is not 'markovchain'")
     })
     
     if (length(errors) == 0) TRUE else errors
@@ -128,7 +128,7 @@ setValidity(
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' states(markovB)
 #' 
@@ -138,18 +138,19 @@ setValidity(
 setGeneric("states", function(object) standardGeneric("states"))
 
 #' @rdname states
-setMethod("states","markovchain", 
-          function(object) {
-            out <- object@states
-            return(out)
-          }
+setMethod(
+  "states",
+  "markovchain", 
+  function(object) {
+    object@states
+  }
 )
 
 #' @title Method to retrieve name of markovchain object  
 #' 
 #' @name name
 #' 
-#' @description This method returns the name of markovchain object
+#' @description This method returns the name of a markovchain object
 #' 
 #' @param object A markovchain object
 #' @rdname getName
@@ -160,7 +161,7 @@ setMethod("states","markovchain",
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' name(markovB)
 #' 
@@ -169,16 +170,18 @@ setGeneric("name", function(object) standardGeneric("name"))
 
 
 #' @rdname getName
-setMethod("name", "markovchain", function(object) {
-  out <- object@name
-  return(out)
+setMethod(
+  "name", 
+  "markovchain", 
+  function(object) {
+    object@name
 })
 
 #' @title Method to set name of markovchain object
 #' 
 #' @name name<-
 #' 
-#' @description This method modify the existing name of markovchain object
+#' @description This method modifies the existing name of markovchain object
 #' 
 #' @param object A markovchain object
 #' @param value New name of markovchain object
@@ -190,7 +193,7 @@ setMethod("name", "markovchain", function(object) {
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' name(markovB) <- "dangerous mc"
 #' 
@@ -198,121 +201,133 @@ setMethod("name", "markovchain", function(object) {
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))
 
 #' @rdname setName
-setMethod("name<-", "markovchain", 
-          function(object, value) {
-            object@name <- value
-            object
-          }
+setMethod(
+  "name<-", 
+  "markovchain", 
+  function(object, value) {
+    object@name <- value
+    object
+  }
 )
 
 # adding a method names: to get names
-setMethod("names","markovchain", 
-          function(x) {
-            out <- x@states
-            return(out)
-          }
+setMethod(
+  "names",
+  "markovchain", 
+  function(object) {
+    object@states
+  }
 )
 
 # adding a method names: to set names
-setMethod("names<-", "markovchain", 
-          function(x, value) {
-            rownames(x@transitionMatrix) <- value
-            colnames(x@transitionMatrix) <- value
-            x@states <- value
-            return(x)
-          }
+setMethod(
+  "names<-", 
+  "markovchain", 
+  function(object, value) {
+    rownames(object@transitionMatrix) <- value
+    colnames(object@transitionMatrix) <- value
+    object@states <- value
+    object
+  }
 )
 
 
 # generic methods to get the dim of a markovchain and markovchainList
 
-setMethod("dim", "markovchain", 
-		function(x) {
-			out <- nrow(x@transitionMatrix)
-			return(out)
-		}
+setMethod(
+  "dim",
+  "markovchain", 
+  function(object) {
+    out <- nrow(object@transitionMatrix)
+    object
+  }
 )
 
-setMethod("dim", "markovchainList", 
-		function(x) {
-			  out <- length(x@markovchains)
-			  return(out)
-		  }
+setMethod(
+  "dim",
+  "markovchainList", 
+  function(object) {
+    object <- length(object@markovchains)
+    object
+  }
 )
 
 
 # method  to set the validity of a markovchain object
-setValidity("markovchain",
-		function(object) {
-			check <- FALSE
-			
-			# performs a set of check whose results are saved in check
-			
-			# check all values of transition matrix belongs to [0, 1]
-			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp)) == FALSE) {
-			  check <- "Error! Some elements are not probabilities"
-			}
-			
-			# rows sum or columns sum = 1
-			if (object@byrow == TRUE) {
-			  
-			  # absolute difference
-			  absdiff <- abs(1-zapsmall(rowSums(object@transitionMatrix)))
-				
-			  if(any(absdiff > .Machine$double.eps*100)) {
-			    pos2check<-which(absdiff > .Machine$double.eps*100)
-				  check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
-				}
-			} else {
-			  
-			  # absolute difference
-			  absdiff <- abs(1-zapsmall(colSums(object@transitionMatrix)))
-			  
-			  if(any(absdiff > .Machine$double.eps*100)) {
-			    pos2check<-which(absdiff > .Machine$double.eps*100)
-			    check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
-				}
-			}
-			
-			
-			# check whether matrix is square matrix or not
-			if (nrow(object@transitionMatrix) != ncol(object@transitionMatrix)) {
-			  check <- "Error! Not squared matrix" #check if squalre matrix
-			}
-      
-			# check whether column names or rows names equal to state names or not
-			if (!setequal(colnames(object@transitionMatrix), object@states)) {
-			  check <- "Error! Colnames <> states" 
-			}
-      if (!setequal(rownames(object@transitionMatrix), object@states)) {
-        check <- "Error! Rownames <> states"
-      }
-			
-      if (check == FALSE) {
-        return(TRUE)
-      }  else {
-        return(check)
-      }
-		}
+setValidity(
+  "markovchain",
+  function(object) {
+    errors <- character()
+    transitionMatrix <- object@transitionMatrix
+    states           <- object@states
+    
+    # Performs a set of checks. If any error arises, it ends up concatenated to errors
+    
+    # Check all values of transition matrix belongs to [0, 1]
+    maybeProbabilities <- sapply(as.numeric(transitionMatrix), .isProbability)
+    
+    if (any(maybeProbabilities) == FALSE) {
+      msg    <- "Error! Some elements of transitionMatrix are not probabilities"
+      errors <- c(errors, msg)
+    }
+    
+    # Rows sum or columns sum = 1
+    if (object@byrow) {
+      absdiff     <- abs(1 - zapsmall(rowSums(transitionMatrix)))
+      matrixShape <- "rows"
+    } else { 
+      absdiff     <- abs(1-zapsmall(colSums(transitionMatrix)))
+      matrixShape <- "columns"
+    }
+
+    if(any(absdiff > .Machine$double.eps*100)) {
+      wrongIndexes <- which(absdiff > .Machine$double.eps*100)
+      msg <- paste("Error! Following", matrixShape,
+                   "of transitionMatrix do not sum one: ",
+                   toString(wrongIndexes))
+      errors <- c(errors, msg)
+    }
+
+    # Check whether matrix is square matrix or not
+    if (nrow(transitionMatrix) != ncol(transitionMatrix)) {
+      msg    <- "Error! transitionMatrix is not a square matrix"
+      errors <- c(errors, msg)
+    }
+    
+    # Check whether column names or rows names equal to state names or not
+    if (! setequal(colnames(transitionMatrix), states)) {
+      msg    <- "Error! Colnames of transitionMatrix do not match states"
+      errors <- c(errors, msg)
+    }
+    if (! setequal(rownames(transitionMatrix), states)) {
+      msg    <- "Error! Rownames of transitionMatrix do not match states"
+      errors <- c(errors, msg)
+    }
+    
+    if (length(errors) > 0) errors else TRUE
+  }
 )
 
 # matr : matrix
 # transpose : boolean indicating whether the matrix shall be transposed or not
 # output : a matrix / vector
-
 .mcEigen <- function(matr, transpose = TRUE) {
-  
-  if (transpose) {
-    tMatr <- t(matr) 
-  } else {
-    tMatr <- matr
-  }
+
+  if (transpose)
+    matr <- t(matr) 
   
   # perform the eigenvalue extraction
-  eigenResults <- eigen(x = tMatr, symmetric = FALSE) 
+  eigenResults <- eigen(x = matr, symmetric = FALSE) 
   
   # takes the one eigenvalues
-  onesIndex <- which( sapply (eigenResults$values, function(e){ isTRUE(all.equal( as.complex(e),1+0i)) } ))
+  onesIndex <- which(
+    sapply(
+      eigenResults$values,
+      function(e){
+        isTRUE(all.equal(as.complex(e), 1+0i))
+      }
+    )
+  )
   
   # do the following: 
   # 1 : get eigenvectors whose eigenvalues == 1
@@ -326,7 +341,7 @@ setValidity("markovchain",
   # Gives always a norm-based order to eigenvectors
   eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
 
-  if (transpose == TRUE) {
+  if (transpose) {
     eigenTake <- as.matrix(t(eigenvectors)) 
     out <- eigenTake / rowSums(eigenTake) # normalize
   } else {
@@ -886,7 +901,7 @@ setMethod("summary", signature(object = "markovchain"),
 	# second check: all elements are probs
 	for(i in 1:nrow(matr)) {
 		for(j in 1:ncol(matr)){
-			if(!(.isProbRcpp(matr[i, j]))) {
+			if(!(.isProbability(matr[i, j]))) {
 			  myMessage<-paste("Error!","Element",i,j,"is not a probability")
 				if(verbose) stop(myMessage)
 				  return(FALSE)
@@ -1015,7 +1030,7 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 	for(i in 1:ncol(df)) {
 	    
 	  # when found the first numeric and probability col
-			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbRcpp) == TRUE))) {
+			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbability) == TRUE))) {
 					out <- i
 					break
 			}

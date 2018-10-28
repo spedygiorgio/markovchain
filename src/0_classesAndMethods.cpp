@@ -5,7 +5,7 @@ using namespace Rcpp;
 // check if prob is probability or not
 // [[Rcpp::export(.isProbability)]]
 bool isProb(double prob) {
-  prob >= 0 && prob <= 1;
+  return (prob >= 0 && prob <= 1);
 }
 // doubt
 // [[Rcpp::export(.isGenRcpp)]]

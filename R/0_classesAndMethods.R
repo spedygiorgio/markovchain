@@ -131,6 +131,7 @@ setValidity(
 #'                 name = "A markovchain Object" 
 #' )
 #' states(markovB)
+#' names(markovB)
 #' 
 #' @rdname states
 #' 
@@ -143,6 +144,15 @@ setMethod(
   "markovchain", 
   function(object) {
     object@states
+  }
+)
+
+#' @rdname names
+setMethod(
+  "names",
+  "markovchain", 
+  function(x) {
+    x@states
   }
 )
 
@@ -210,45 +220,33 @@ setMethod(
   }
 )
 
-# adding a method names: to get names
-setMethod(
-  "names",
-  "markovchain", 
-  function(object) {
-    object@states
-  }
-)
-
-# adding a method names: to set names
 setMethod(
   "names<-", 
   "markovchain", 
-  function(object, value) {
-    rownames(object@transitionMatrix) <- value
-    colnames(object@transitionMatrix) <- value
-    object@states <- value
-    object
+  function(x, value) {
+    rownames(x@transitionMatrix) <- value
+    colnames(x@transitionMatrix) <- value
+    x@states <- value
+    x
   }
 )
 
 
-# generic methods to get the dim of a markovchain and markovchainList
+# Generic methods to get the dim of a markovchain and markovchainList
 
 setMethod(
   "dim",
   "markovchain", 
-  function(object) {
-    out <- nrow(object@transitionMatrix)
-    object
+  function(x) {
+    nrow(x@transitionMatrix)
   }
 )
 
 setMethod(
   "dim",
   "markovchainList", 
-  function(object) {
-    object <- length(object@markovchains)
-    object
+  function(x) {
+    length(x@markovchains)
   }
 )
 
@@ -317,7 +315,7 @@ setValidity(
     matr <- t(matr) 
   
   # perform the eigenvalue extraction
-  eigenResults <- eigen(x = matr, symmetric = FALSE) 
+  eigenResults <- eigen(x = matr) 
   
   # takes the one eigenvalues
   onesIndex <- which(
@@ -333,36 +331,37 @@ setValidity(
   # 1 : get eigenvectors whose eigenvalues == 1
   # 2 : normalize
   
-  if (length(onesIndex) == 0) {
-    warning("No eigenvalue = 1 found")
-    return(NULL)
-  }
-  
-  # Gives always a norm-based order to eigenvectors
-  eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
+  if (length(onesIndex) > 0) {
+    # Gives always a norm-based order to eigenvectors
+    eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
 
-  if (transpose) {
-    eigenTake <- as.matrix(t(eigenvectors)) 
-    out <- eigenTake / rowSums(eigenTake) # normalize
+    if (transpose) {
+      eigenTake <- as.matrix(t(eigenvectors)) 
+      out <- eigenTake / rowSums(eigenTake) # normalize
+    } else {
+      eigenTake <- as.matrix(eigenvectors) 
+      out <- eigenTake / colSums(eigenTake) # normalize
+    }
+    
+    # subset the eigenvectors
+    # normalize
+    # take the real part: need to be sanitized
+    # @DEEPAK: later we have to see and optimize this part. I am not sure taking
+    #       the real part is most appropriate.
+  
+    Re(out)
   } else {
-    eigenTake <- as.matrix(eigenvectors) 
-    out <- eigenTake / colSums(eigenTake) # normalize
+    warning("No eigenvalue = 1 found")
+  
+    # Return NULL
+    NULL
   }
-  
-  # subset the eigenvectors
-  # normalize
-  # take the real part: need to be sanitized
-	# @DEEPAK: later we have to see and optimize this part. I am not sure taking
-	#       the real part is most appropriate.
-  
-  out <- Re(out)
-  return(out)
 }
 
 # method to get stationary states
 
 #' @name steadyStates
-#' @title Stationary states of a \code{markovchain} objeect
+#' @title Stationary states of a \code{markovchain} object
 #' 
 #' @description This method returns the stationary vector in matricial form of a markovchain object.
 #' @param object A discrete \code{markovchain} object
@@ -391,65 +390,75 @@ setValidity(
 setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
 
 #' @rdname steadyStates
-setMethod("steadyStates","markovchain", 
-		function(object) {
-			transposeYN <- FALSE
-			if(object@byrow == TRUE) {
-			  transposeYN <- TRUE		
-			}
+setMethod(
+  "steadyStates",
+  "markovchain", 
+  function(object) {
+    transitions <- object@transitionMatrix
+    byrow <- object@byrow
+    
+    steady <- .mcEigen(transitions, byrow)
+    
+    if (min(steady) < 0) {
+      warning("Negative elements in steady states, working on closed classes submatrix")
+      steady <- .steadyStatesByRecurrentClasses(object)
+    }
+    
+    if (length(steady) > 0) {
+      steady <- .mcLexSort(steady)
       
-			out <- .mcEigen(matr = object@transitionMatrix, transpose = transposeYN)
-			
-			# if any element negative
-			if (min(out)<0) {
-			  warning("Negative elements in steady states, working on closed classes submatrix")
-			  if(object@byrow==TRUE) myObject=object else myObject=t(object)
-			  out <- .steadyStatesByRecurrentClasses(object=myObject)
-			}
+      colnames(steady) <- object@states
+      # Normalize each row
       
-			if(is.null(out)) {
-				warning("Warning! No steady state")
-				return(NULL)
-			} else{
-			  # order vectors lexicographically
-			  out <- .mcLexSort(out)
-		    if (object@byrow==FALSE) out<-t(out)
-		  }
-			
-			if(transposeYN == TRUE) { 
-				colnames(out) <- object@states
-			} else {
-				rownames(out) <- object@states
-			}
-      return(out)
-	
-		  }
+      if (! byrow)
+        steady <- t(steady)
+        
+      steady
+    } else {
+      warning("Warning! No steady states")
+    }
+  }
 )
-
-
 
 
 .steadyStatesByRecurrentClasses<-function(object) {
   #initialization
-  M<-object@transitionMatrix
-  #transpose bycol matrices
-  if (object@byrow==FALSE) M <- t(M)
-  #characterizing recurrent classes
-  recClasses<-recurrentClasses(object)
-  numRecClasses<-length(recClasses)
-  recurrentClassesNames<-unlist(recClasses)
-  #extracting recurrent classes
-  Msub <- M[rownames(M) %in% recurrentClassesNames, colnames(M) %in% recurrentClassesNames]
+  transitions <- object@transitionMatrix
+  byrow <- object@byrow
   
-  out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
-  colnames(out)<-names(object)
+  #transpose bycol matrices
+  if (byrow) 
+    transitions <- t(transitions)
+  
+  #characterizing recurrent classes
+  recClasses <- recurrentClasses(object)
+  numRecClasses <- length(recClasses)
+  recurrentClassesNames <- unlist(recClasses)
+  
+  #extracting recurrent classes
+  transitionsSub <- transitions[rownames(transitions) %in% recurrentClassesNames, 
+                                colnames(transitions) %in% recurrentClassesNames]
+  
+  steady <- matrix(0, nrow = numRecClasses, ncol = dim(object))
+  colnames(steady) <- names(object)
+  
   #getting their steady states, calculating first indexes of eigenvalues equal to 1
-  onesIndex <- which( sapply (eigen(Msub)$values, function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }) )
-  partialOutput<-t(eigen(Msub)$vectors[, onesIndex]) / colSums(eigen(Msub)$vectors[, onesIndex])
-  colnames(partialOutput)<-recurrentClassesNames
+  onesIndex <- which(
+    sapply(
+      eigen(transitionsSub)$values, 
+      function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }
+    ) 
+  )
+  
+  eigenvectors <- eigen(transitionsSub)$vectors[, onesIndex, drop = FALSE]
+  eigenvectors <- t(eigenvectors)
+  partialOutput <- eigenvectors / rowSums(eigenvectors)
+  colnames(partialOutput) <- recurrentClassesNames
+  
   #allocating to their columns
-  out[,colnames(out) %in% recurrentClassesNames]<-partialOutput
-  return(out)
+  steady[, colnames(steady) %in% recurrentClassesNames] <- partialOutput
+  
+  steady
 }
 
 

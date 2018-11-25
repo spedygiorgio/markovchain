@@ -37,7 +37,9 @@ preamble: >
   \setkeys{Gin}{width=0.8\textwidth}
 abstract:
   The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
-output: rticles::jss_article
+output: 
+  bookdown::pdf_book:
+    base_format: rticles::jss_article
 keywords:
   plain: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
   formatted: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
@@ -81,17 +83,14 @@ Pr\left(X_{n+1}=x_{n+1}\left|X_{1}=x_{1},X_{2}=x_{2,}...,X_{n}=x_{n}\right.\righ
 
 The set of possible states $S=\left\{ s_{1},s_{2},...,s_{r}\right\}$ of $X_{n}$ can be finite or countable and it is named the state space of the chain.
 
-The chain moves  from one state to another (this change
-is named either 'transition' or 'step') and the probability $p_{ij}$ to move
-from state $s_{i}$ to state $s_{j}$ in one step is named transition probability:
+The chain moves  from one state to another (this change is named either 'transition' or 'step') and the probability $p_{ij}$ to move from state $s_{i}$ to state $s_{j}$ in one step is named transition probability:
 
 \begin{equation}
 p_{ij}=Pr\left(X_{1}=s_{j}\left|X_{0}=s_{i}\right.\right).
 \label{eq:trProp}
 \end{equation}
 
-The probability of moving from state $i$ to $j$ in $n$ steps is denoted by
-$p_{ij}^{(n)}=Pr\left(X_{n}=s_{j}\left|X_{0}=s_{i}\right.\right)$. 
+The probability of moving from state $i$ to $j$ in $n$ steps is denoted by $p_{ij}^{(n)}=Pr\left(X_{n}=s_{j}\left|X_{0}=s_{i}\right.\right)$. 
 
 A DTMC is called time-homogeneous if the property shown in Equation \ref{eq:mcHom} holds. Time homogeneity implies no change in the underlying transition probabilities as time goes on.
 \begin{equation}
@@ -99,14 +98,9 @@ Pr\left(X_{n+1}=s_{j}\left|X_{n}=s_{i}\right.\right)=Pr\left(X_{n}=s_{j}\left|X_
 \label{eq:mcHom}
 \end{equation}
 
-If the Markov chain is time-homogeneous, then $p_{ij}=Pr\left(X_{k+1}=s_{j}\left|X_{k}=s_{i}\right.\right)$
-and \newline $p_{ij}^{(n)}=Pr\left(X_{n+k}=s_{j}\left|X_{k}=s_{i}\right.\right)$,
-where $k>0$.
+If the Markov chain is time-homogeneous, then $p_{ij}=Pr\left(X_{k+1}=s_{j}\left|X_{k}=s_{i}\right.\right)$ and \newline $p_{ij}^{(n)}=Pr\left(X_{n+k}=s_{j}\left|X_{k}=s_{i}\right.\right)$, where $k>0$.
 
-The probability distribution of transitions from one state to another
-can be represented into a transition matrix $P=(p_{ij})_{i,j}$, where each element
-of position $(i,j)$ represents the transition probability $p_{ij}$. E.g., if
-$r=3$ the transition matrix $P$ is shown in Equation \ref{eq:trPropEx}
+The probability distribution of transitions from one state to another can be represented into a transition matrix $P=(p_{ij})_{i,j}$, where each element of position $(i,j)$ represents the transition probability $p_{ij}$. E.g., if $r=3$ the transition matrix $P$ is shown in Equation \ref{eq:trPropEx}
 
 \begin{equation}
 P=\left[\begin{array}{ccc}
@@ -117,37 +111,22 @@ p_{31} & p_{32} & p_{33}
 \label{eq:trPropEx}
 \end{equation}
 
-
-The distribution over the states can be written in the form of a stochastic row
-vector $x$ (the term stochastic means that $\sum_{i}x_{i}=1, x_{i} \geq 0$): e.g., if the current state of $x$ is $s_{2}$, $x=\left(0\:1\:0\right)$.
-As a consequence, the relation between $x^{(1)}$ and $x^{(0)}$
-is $x^{(1)}=x^{(0)}P$ and, recursively, we get $x^{(2)}=x^{(0)}P^{2}$ and
-$x^{(n)}=x^{(0)}P^{n},\, n>0$.
+The distribution over the states can be written in the form of a stochastic row vector $x$ (the term stochastic means that $\sum_{i}x_{i}=1, x_{i} \geq 0$): e.g., if the current state of $x$ is $s_{2}$, $x=\left(0\:1\:0\right)$. As a consequence, the relation between $x^{(1)}$ and $x^{(0)}$ is $x^{(1)}=x^{(0)}P$ and, recursively, we get $x^{(2)}=x^{(0)}P^{2}$ and $x^{(n)}=x^{(0)}P^{n},\, n>0$.
 
 DTMC are explained in most theory books on stochastic processes, see \cite{bremaud1999discrete} and \cite{dobrow2016introduction} for example. Valuable references online available are: \cite{konstantopoulos2009markov}, \cite{probBook} and \cite{bardPpt}.
 
 ## Properties and classification of states {#sec:properties}
 
-A state $s_{j}$ is said accessible from state $s_{i}$ (written $s_{i}\rightarrow s_{j}$) if a system started in state $s_{i}$ has
-a positive probability to reach the state $s_{j}$ at a certain
-point, i.e., $\exists n>0:\: p_{ij}^{n}>0$. If both $s_{i}\rightarrow s_{j}$ and $s_{j}\rightarrow s_{i}$, then
+A state $s_{j}$ is said accessible from state $s_{i}$ (written $s_{i}\rightarrow s_{j}$) if a system started in state $s_{i}$ has a positive probability to reach the state $s_{j}$ at a certain point, i.e., $\exists n>0:\: p_{ij}^{n}>0$. If both $s_{i}\rightarrow s_{j}$ and $s_{j}\rightarrow s_{i}$, then
 $s_{i}$ and $s_{j}$ are said to communicate.
 
-A communicating class is defined to be a set of states that communicate. 
-A DTMC can be composed by one or more communicating classes.  If the DTMC is
-composed by only one communicating class (i.e., if all states in the chain communicate), then
-it is said irreducible. A communicating class is said to be closed if no states outside of the class can be reached from any state inside it.
+A communicating class is defined to be a set of states that communicate. A DTMC can be composed by one or more communicating classes.  If the DTMC is composed by only one communicating class (i.e., if all states in the chain communicate), then it is said irreducible. A communicating class is said to be closed if no states outside of the class can be reached from any state inside it.
 
-If $p_{ii}=1$, $s_{i}$ is defined as absorbing
-state: an absorbing state corresponds to a closed communicating class composed by one state only.
+If $p_{ii}=1$, $s_{i}$ is defined as absorbing state: an absorbing state corresponds to a closed communicating class composed by one state only.
 
-The canonic form of a DTMC transition matrix is a matrix having a
-block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
+The canonic form of a DTMC transition matrix is a matrix having a block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
 
-A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$
-must occur in multiplies of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where
-$gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said
-to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
+A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiplies of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
 
 If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  It is possible to classify states according to their periodicity. Let $T^{x\rightarrow x}$ is the number of periods to go back to state $x$ knowing that the chain starts in $x$.  
 
@@ -181,12 +160,9 @@ and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^
 
 If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
 
-Given a time homogeneous Markov chain with transition matrix \emph{P},
-a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and
-$\sum_{j}z_{j}=1$.
+Given a time homogeneous Markov chain with transition matrix \emph{P}, a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and $\sum_{j}z_{j}=1$.
 
-If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$
-is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
+If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$ is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
 
 \begin{equation}
   \underset{n\rightarrow\infty}{lim}P^{n}=Z,
@@ -207,12 +183,9 @@ P=\left[\begin{array}{ccc}
 \label{eq:trPropExEx1}
 \end{equation}
 
-In $P$, $p_{11}=0.5$ is the probability that $X_{1}=s_{1}$ given
-that we observed $X_{0}=s_{1}$ is 0.5, and so on. 
-It is easy to see that the chain is irreducible since all the states communicate (it is made by one communicating class only).
+In $P$, $p_{11}=0.5$ is the probability that $X_{1}=s_{1}$ given that we observed $X_{0}=s_{1}$ is 0.5, and so on.It is easy to see that the chain is irreducible since all the states communicate (it is made by one communicating class only).
 
-Suppose that the current state of the chain is $X_{0}=s_{2}$, i.e., $x^{(0)}=(0\:1\:0)$, then the probability distribution of states after 1 and 2 steps can be computed as shown in Equations \@ref(eq:trPropExEx2) and
-\@ref(eq:trPropExEx3).
+Suppose that the current state of the chain is $X_{0}=s_{2}$, i.e., $x^{(0)}=(0\:1\:0)$, then the probability distribution of states after 1 and 2 steps can be computed as shown in Equations \@ref(eq:trPropExEx2) and \@ref(eq:trPropExEx3).
 
 \begin{equation}
 x^{(1)}=\left(0\:1\:0\right)\left[\begin{array}{ccc}
@@ -310,8 +283,7 @@ mcList <- new("markovchainList", markovchains = list(mcWeather, defaultMc),
 
 ## Handling markovchain objects
 
-Table \@ref(tab:methodsToHandleMc) lists which methods handle and 
-manipulate \code{markovchain} objects.
+Table \@ref(tab:methodsToHandleMc) lists which methods handle and manipulate \code{markovchain} objects.
 
 \begin{table}[h]
   \centering
@@ -381,8 +353,7 @@ fvals<-function(mchain,initialstate,n) {
 fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
 ```
 
-Basic methods have been defined for \code{markovchain} objects to
-quickly get states and transition matrix dimension.
+Basic methods have been defined for \code{markovchain} objects to quickly get states and transition matrix dimension.
 
 ```{r otherMethods}
 states(mcWeather)
@@ -411,8 +382,7 @@ transitionProbability(mcWeather, "cloudy", "rain")
 mcWeather[2,3]
 ```
 
-The transition matrix of a \code{markovchain} object can be displayed using \code{print} or \code{show} methods (the latter being less laconic). Similarly, the underlying transition probability diagram can be plotted by the use of \code{plot} method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. \code{plot} method for \code{markovchain} objects is a wrapper of \code{plot.igraph} for \code{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \code{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram).
-The \code{plot} function also uses \code{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same colour.
+The transition matrix of a \code{markovchain} object can be displayed using \code{print} or \code{show} methods (the latter being less laconic). Similarly, the underlying transition probability diagram can be plotted by the use of \code{plot} method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. \code{plot} method for \code{markovchain} objects is a wrapper of \code{plot.igraph} for \code{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \code{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The \code{plot} function also uses \code{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same colour.
 
 ```{r printAndShow}
 print(mcWeather)
@@ -428,8 +398,7 @@ plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition mat
 plot(mcWeather, package="diagram", box.size = 0.04)
 ```
 
-Import and export from some specific classes is possible, as shown in
-Figure \@ref(fig:fromAndTo) and in the following code.
+Import and export from some specific classes is possible, as shown in Figure \@ref(fig:fromAndTo) and in the following code.
 
 ```{r exportImport1}
 mcDf <- as(mcWeather, "data.frame")
@@ -513,10 +482,7 @@ mcCCRC[[1]]
 dim(mcCCRC)
 ```
 
-The \code{markovchain} package contains some data found in the
-literature related to DTMC models (see Section \@ref(sec:applications).
-Table \@ref(tab:datasets) lists datasets and tables included within the current release of
-the package.
+The \code{markovchain} package contains some data found in the literature related to DTMC models (see Section \@ref(sec:applications). Table \@ref(tab:datasets) lists datasets and tables included within the current release of the package.
 
 \begin{table}[h]
   \centering
@@ -554,6 +520,8 @@ Finally, Table \@ref(tab:demos) lists the demos included in the demo directory o
 \caption{The \pkg{markovchain} demos.}
 \label{tab:demos}
 \end{table}
+
+
 
 
 \clearpage

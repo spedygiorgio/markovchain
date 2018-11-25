@@ -333,14 +333,13 @@ setValidity(
   
   if (length(onesIndex) > 0) {
     # Gives always a norm-based order to eigenvectors
-    eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
+    eigenVectors <- as.matrix( eigenResults$vectors[, onesIndex] )
 
     if (transpose) {
-      eigenTake <- as.matrix(t(eigenvectors)) 
-      out <- eigenTake / rowSums(eigenTake) # normalize
+      eigenVectors <- as.matrix(t(eigenVectors)) 
+      out <- eigenVectors / rowSums(eigenVectors) # normalize
     } else {
-      eigenTake <- as.matrix(eigenvectors) 
-      out <- eigenTake / colSums(eigenTake) # normalize
+      out <- eigenVectors / colSums(eigenVectors) # normalize
     }
     
     # subset the eigenvectors

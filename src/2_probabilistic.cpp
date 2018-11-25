@@ -2,6 +2,8 @@
 
 #include <RcppArmadillo.h>
 #include <math.h>
+#include <algorithm>
+#include <stack>
 
 using namespace Rcpp;
 using namespace std;
@@ -15,80 +17,63 @@ bool _intersected(CharacterVector v1, CharacterVector v2) {
   CharacterVector::iterator last1 = v1.end();
   CharacterVector::iterator first2 = v2.begin();
   CharacterVector::iterator last2 = v2.end();
-  while(first1!=last1 && first2!=last2) {
+
+  while (first1!=last1 && first2!=last2) {
     if(*first1 == *first2) return true;
     else if(*first1 < *first2) ++first1;
     else ++first2;    
   }
+  
   return false;
 }
 
 // communicating classes kernel
 // [[Rcpp::export(.commclassesKernelRcpp)]]
-SEXP commclassesKernel(NumericMatrix P){
-  unsigned int m = P.ncol(), n;
+SEXP commclassesKernel(NumericMatrix P) {
+  unsigned int numStates = P.ncol();
   CharacterVector stateNames = rownames(P);
-  std::vector<int> a;
-  arma::vec b, c, d;
-  arma::mat T = arma::zeros(m, m);
-  unsigned int i = 0;
-  int oldSum, newSum;
-  while(i < m) {
-    a.resize(0);
-    a.push_back(i);
-    b = arma::zeros<arma::vec>(m);
-    b[i] = 1;
-    newSum = 0;
-    oldSum = 1;
-    while(oldSum != newSum) {
-      oldSum = 0;
-      for(unsigned int j = 0; j < b.size(); j ++)
-        if(b[j] > 0) oldSum += (j + 1);
-      n = a.size();
-      NumericVector temp; 
-      NumericMatrix matr(n, m);
-      c = arma::zeros<arma::vec>(m);
-      for(unsigned int j = 0; j < n; j ++) {
-        temp = P.row(a[j]);
-        for(int k = 0; k < temp.size(); k++)  {
-          matr(j, k) = temp[k];
-          c[k] += matr(j, k);
-        }
-      }
-      newSum = 0;
-      a.resize(0);
-      for(unsigned int j = 0; j < b.size(); j++) {
-        if(c[j] > 0) {
-          b[j] = 1; a.push_back(j);
-        }
-        if(b[j] > 0) newSum += (j + 1);
+  
+  // The entry (i,j) of this matrix is true iff we can reach j from i
+  vector<vector<bool>> canReach(numStates, vector<bool>(numStates, false));
+  vector<list<int>> adjacencies(numStates);
+  
+  // We fill the adjacencies matrix for the graph
+  // A state j is in the adjacency of i iff P(i, j) > 0
+  for (int i = 0; i < numStates; ++i) {
+    for (int j = 0; j < numStates; ++j) {
+      if (P(i, j) > 0)
+        adjacencies[i].push_back(j);
+    }
+  }
+  
+  for (int i = 0; i < numStates; ++i) {
+    stack<int> notVisited = {i};
+    canReach[i][i] = true;
+    
+    while (notVisited.empty()) {
+      int j = notVisited.front();
+      canReach[i][j] = true;
+      notVisited.pop();
+      
+      for (int k: adjacencies[j]) {
+        if (!canReach[i][k])
+          notVisited.push(k);
       }
     }
-    for(unsigned int j = 0; j < b.size(); j ++)
-      T(i, j) = b[j];
-    i++;
   }
-  arma::mat F = arma::trans(T);
-  LogicalMatrix C;
-  arma::mat Ca(T.n_rows, T.n_cols);
-  for(i = 0; i < T.n_rows; i ++) {
-   for(unsigned int j = 0; j < T.n_cols; j++) {
-      Ca(i, j) = (T(i, j) > 0 && F(i, j) > 0);
-   }
+  
+  arma::mat commClass(numStates, numStates);
+  
+  for(int i = 0; i < numStates; ++i) {
+    for(int j = 0; j < T.n_cols; ++j) {
+      commClass(i, j) = canReach(i, j) && canReach(j, i)
+    }
   }
-  LogicalVector v(T.n_cols);
-  arma::mat tC = Ca.t();
-  arma::mat tT = T.t();
-  IntegerVector sums(tC.n_cols);
-  for(unsigned int j = 0; j < T.n_cols; j++) {
-    sums[j] = 0;
-    for(i = 0; i < T.n_rows; i ++)
-      if(tC(i, j) == tT(i, j)) sums[j] ++;
-    v[j] = (sums[j] == (int)m);
-  }
-  C = as<LogicalMatrix>(wrap(Ca));
+  
+  C = as<LogicalMatrix>(comClasses);
   C.attr("dimnames") = List::create(stateNames, stateNames);
   v.names() = stateNames;
+  
   return List::create(_["C"] = C, _["v"] = v);
 }
 
@@ -159,66 +144,6 @@ List recurrentClasses(S4 object)
       recurrentClassesList.push_back(class2Test);
   }
   return recurrentClassesList;
-  /*
-  NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
-  LogicalMatrix adjMatr = temp["C"];
-  int len = adjMatr.nrow();
-  List classesList;
-  CharacterVector rnames = rownames(adjMatr);
-  for(int i = 0; i < len; i ++) {
-    Rcout << i << std::endl;
-    bool isNull = false;
-    LogicalVector row2Check = adjMatr(i, _);
-    CharacterVector proposedCommClass;
-    for(int j = 0; j < row2Check.size(); j++) {
-      if(row2Check[j] == true) {
-        String rname = rnames[j];
-        proposedCommClass.push_back(rname);
-      } else if(matr(i, j) > 0) {
-        isNull = true;
-        break;
-      }
-    }
-    Rcout << isNull << std::endl;
-    if (i > 0) {
-      for(int j = 0; j < classesList.size(); j ++) {
-        bool check = false;        
-        CharacterVector cv = classesList[j];
-        std::set<std::string> s1, s2;
-        for(int k = 0; k < cv.size(); k ++) {
-          s1.insert(as<std::string>(cv[k]));
-        }
-        // if(proposedCommClass.size() > k) {
-        for(int k = 0; k < proposedCommClass.size(); k ++) {
-            s2.insert(as<std::string>(proposedCommClass[k]));
-        }
-        if(!s1.empty() && !s2.empty()) {
-          Rcout << "s1" << " ";
-          for(std::set<std::string>::iterator it = s1.begin(); it != s1.end(); it ++)
-            Rcout << (*it) << " ";
-          Rcout << std::endl;
-          Rcout << "s2" << " ";
-          for(std::set<std::string>::iterator it = s2.begin(); it != s2.end(); it ++)
-            Rcout << (*it) << " ";
-          Rcout << std::endl;
-          check = std::equal(s1.begin(), s1.end(), s2.begin());
-        }
-        if(check) {
-          // Rf_PrintValue(proposedCommClass);
-          isNull = true;
-          break;
-        }
-      }
-    }
-    if(!isNull) {
-      // Rcout << proposedCommClass << std::endl;
-      Rf_PrintValue(proposedCommClass);
-      classesList.push_back(proposedCommClass);
-    }
-  }
-  return classesList;
-   */
 }
 
 // matrix power function

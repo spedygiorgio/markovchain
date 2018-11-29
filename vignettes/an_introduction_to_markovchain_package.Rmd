@@ -727,7 +727,7 @@ mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
                    name = "Mathematica MC", states = statesNames)
 ```
 
-```{r mcMathematics,fig=TRUE, echo=FALSE, fig.align='center', fig.cap="Mathematica 9 example. Markov chain plot."}
+```{r mcMathematics, fig=TRUE, echo=FALSE, fig.align='center', fig.cap="Mathematica 9 example. Markov chain plot."}
 plot(mathematicaMc, layout = layout.fruchterman.reingold)
 ```
 
@@ -1505,6 +1505,403 @@ MLEest$estimate
 MAPest$estimate
 ```
 
+# Applications {#sec:applications}
+
+This section shows applications of DTMC in various fields.
+
+## Weather forecasting {#app:weather}
+
+Markov chains provide a simple model to predict the next day's weather given the current meteorological condition. The first application herewith shown is the "Land of Oz example" from \cite{landOfOz}, the second is the "Alofi Island Rainfall" from \cite{averyHenderson}.
+
+## Land of Oz {#sec:wfLandOfOz}
+
+The Land of Oz is 
+acknowledged not to have ideal weather conditions at all: 
+the weather is snowy or rainy very often and, once more, there are never two
+nice days in a row. Consider three weather states: rainy, nice and snowy. Let the transition matrix be as in the following:
+
+```{r weatPred1}
+
+mcWP <- new("markovchain", states = c("rainy", "nice", "snowy"),
+         transitionMatrix = matrix(c(0.5, 0.25, 0.25,
+                                   0.5, 0, 0.5,
+                                   0.25,0.25,0.5), byrow = T, nrow = 3))
+```
+
+Given that today it is a nice day, the corresponding stochastic row vector is
+$w_{0}=(0\:,1\:,0)$ and the forecast after 1, 2 and 3 days are given by
+
+```{r weatPred2}
+W0 <- t(as.matrix(c(0, 1, 0)))
+W1 <- W0 * mcWP; W1
+
+W2 <- W0 * (mcWP ^ 2); W2
+
+W3 <- W0 * (mcWP ^ 3); W3
+```
+
+As can be seen from $w_{1}$, if in the Land of Oz today is a nice day, tomorrow it will rain or snow with probability 1. One week later, the prediction can be computed as
+
+```{r weatPred3}
+W7 <- W0 * (mcWP ^ 7)
+W7
+```
+
+The steady state of the chain can be computed by means of the \code{steadyStates} method.
+
+```{r weatPred4}
+q <- steadyStates(mcWP)
+q
+```
+
+Note that, from the seventh day on, the predicted probabilities are substantially equal to the steady state of the chain and they don't depend from the starting point, as the following code shows.
+
+```{r weatPred5}
+R0 <- t(as.matrix(c(1, 0, 0)))
+R7 <- R0 * (mcWP ^ 7); R7
+
+S0 <- t(as.matrix(c(0, 0, 1)))
+S7 <- S0 * (mcWP ^ 7); S7
+```
+
+## Alofi Island Rainfall {#sec:wfAlofi}
+
+Alofi Island daily rainfall
+data were recorded from January 1st, 1987 until December 31st, 1989 and
+classified into three states: "0" (no rain), "1-5" (from non zero until 5 mm) and "6+" (more than 5mm). The corresponding dataset is provided within the \pkg{markovchain} package.
+
+```{r Alofi1}
+data("rain", package = "markovchain")
+table(rain$rain)
+```
+
+The underlying transition matrix is estimated as follows.
+
+```{r Alofi2}
+mcAlofi <- markovchainFit(data = rain$rain, name = "Alofi MC")$estimate
+mcAlofi
+```
+
+The long term daily rainfall distribution is obtained by means of the \code{steadyStates} method.
+
+```{r Alofi3}
+steadyStates(mcAlofi)
+```
+
+## Finance and Economics {#app:fin}
+
+Other relevant applications of DTMC can be found in Finance and Economics.
+
+### Finance {#fin:fin}
+
+Credit ratings transitions have been successfully modelled with discrete time Markov chains. Some rating agencies publish transition matrices that show the empirical transition probabilities across credit ratings. The example that follows 
+comes from \pkg{CreditMetrics} \proglang{R} package \citep{CreditMetricsR},
+carrying Standard \& Poor's published data.
+
+```{r ratings1}
+rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
+creditMatrix <- matrix(c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
+0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
+0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
+0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
+0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
+0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
+0.21, 0, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
+0, 0, 0, 0, 0, 0, 0, 100
+)/100, 8, 8, dimnames = list(rc, rc), byrow = TRUE)
+```
+
+It is easy to convert such matrices into \code{markovchain} objects and to perform some analyses
+
+```{r ratings2}
+creditMc <- new("markovchain", transitionMatrix = creditMatrix, 
+                name = "S&P Matrix")
+absorbingStates(creditMc)
+```
+
+### Economics {#fin:ec}
+
+For a recent application of \pkg{markovchain} in Economic, see \cite{manchesterR}. 
+
+A dynamic system generates two kinds of economic effects \citep{bardPpt}:
+
+1. those incurred when the system is in a specified state, and
+2. those incurred when the system makes a transition from one state to another.
+
+Let the monetary amount of being in a particular state be represented as a m-dimensional column vector $c^{\rm{S}}$, while let the monetary amount of a transition be embodied in a $C^{R}$ matrix in which each component specifies the monetary amount of going from state i to state j in a single step. Henceforth, Equation \@ref(eq:cost) represents the monetary of being in state $i$.
+
+\begin{equation}
+{c_i} = c_i^{\rm{S}} + \sum\limits_{j = 1}^m {C_{ij}^{\rm{R}}} {p_{ij}}.
+\label{eq:cost}
+\end{equation}
+
+Let $\bar c = \left[ c_i \right]$ and let $e_i$ be the vector valued 1 in the initial state and 0 in all other, then, if $f_n$ is the random variable representing the economic return associated with the stochastic process at time $n$, Equation \@ref(eq:return) holds:
+
+\begin{equation}
+E\left[ {{f_n}\left( {{X_n}} \right)|{X_0} = i} \right] = {e_i}{P^n}\bar c.
+\label{eq:return}
+\end{equation}
+
+The following example assumes that a telephone company models the transition probabilities between customer/non-customer status by matrix $P$ and the cost associated to states by matrix $M$.
+
+```{r economicAnalysis1}
+statesNames <- c("customer", "non customer")
+P <- zeros(2); P[1, 1] <- .9; P[1, 2] <- .1; P[2, 2] <- .95; P[2, 1] <- .05;
+rownames(P) <- statesNames; colnames(P) <- statesNames
+mcP <- new("markovchain", transitionMatrix = P, name = "Telephone company")
+M <- zeros(2); M[1, 1] <- -20; M[1, 2] <- -30; M[2, 1] <- -40; M[2, 2] <- 0
+```
+
+If the average revenue for existing customer is +100, the cost per state is computed as follows.
+
+```{r economicAnalysis2}
+c1 <- 100 + conditionalDistribution(mcP, state = "customer") %*% M[1,]
+c2 <- 0 + conditionalDistribution(mcP, state = "non customer") %*% M[2,]
+```
+
+For an existing customer, the expected gain (loss) at the fifth year is given by the following code.
+
+```{r economicAnalysis3}
+as.numeric((c(1, 0)* mcP ^ 5) %*% (as.vector(c(c1, c2))))
+```
+
+## Actuarial science {#app:act}
+
+Markov chains are widely applied in the field of actuarial science. Two
+classical applications are policyholders' distribution across Bonus Malus
+classes in Motor Third Party Liability (MTPL) insurance (Section \@ref(sec:bm)) and health insurance pricing and reserving 
+(Section \@ref(sec:hi)).
+
+
+### MPTL Bonus Malus {#sec:bm}
+
+Bonus Malus (BM) contracts grant the policyholder a discount (enworsen) as a function of the number of claims in the experience period. The discount (enworsen) is applied on a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial} and it usually depends on vehicle, territory, the demographic profile of the policyholder, and policy coverages deep (deductible and policy limits).\\
+Since the proposed BM level depends on the claim on the previous period, it can be modelled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation~\ref{eq:BM}:
+
+\begin{equation}
+bm_{t + 1} = \max \left( {1,bm_{t} - 1} \right)*\left( {\tilde N = 0} \right) + \min \left( {5,bm_{t} + 2*\tilde N} \right)*\left( {\tilde N \ge 1} \right).
+\label{eq:BM}
+\end{equation}
+
+The number of claim $\tilde N$  is a random variable that is assumed
+to be Poisson distributed.
+
+```{r bonusMalus1}
+
+getBonusMalusMarkovChain <- function(lambda) {
+	bmMatr <- zeros(5)
+	bmMatr[1, 1] <- dpois(x = 0, lambda)
+	bmMatr[1, 3] <- dpois(x = 1, lambda)
+	bmMatr[1, 5] <- 1 - ppois(q = 1, lambda)
+	
+	bmMatr[2, 1] <- dpois(x = 0, lambda)
+	bmMatr[2, 4] <- dpois(x = 1, lambda)
+	bmMatr[2, 5] <- 1 - ppois(q = 1, lambda)
+	
+	bmMatr[3, 2] <- dpois(x = 0, lambda)
+	bmMatr[3, 5] <- 1 - dpois(x=0, lambda)
+ 
+	bmMatr[4, 3] <- dpois(x = 0, lambda)
+	bmMatr[4, 5] <- 1 - dpois(x = 0, lambda)
+  
+	bmMatr[5, 4] <- dpois(x = 0, lambda)
+	bmMatr[5, 5] <- 1 - dpois(x = 0, lambda)
+	stateNames <- as.character(1:5)
+	out <- new("markovchain", transitionMatrix = bmMatr, 
+             states = stateNames, name = "BM Matrix")
+	return(out)
+}
+```
+
+Assuming that the a-priori claim frequency per car-year is 0.05 in the class (being the class the group of policyholders that share the same common characteristics), the underlying BM transition matrix and its underlying steady state are as follows.
+
+```{r bonusMalus2}
+bmMc <- getBonusMalusMarkovChain(0.05)
+as.numeric(steadyStates(bmMc))
+```
+
+If the underlying BM coefficients of the class are 0.5, 0.7, 0.9, 1.0, 1.25, this means that the average BM coefficient applied on the long run to the class is given by
+
+```{r bonusMalus3}
+sum(as.numeric(steadyStates(bmMc)) * c(0.5, 0.7, 0.9, 1, 1.25))
+```
+
+This means that the average premium paid by policyholders in the portfolio almost halves in the long run.
+
+### Health insurance example {#sec:hi}
+
+Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts), see \cite{deshmukh2012multiple} for details.
+
+An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved in the \code{exdata} folder.
+
+```{r healthIns6}
+ltcDemoPath<-system.file("extdata", "ltdItaData.txt", package = "markovchain")
+ltcDemo<-read.table(file = ltcDemoPath, header=TRUE, sep=";",dec = ".")
+head(ltcDemo)
+```
+
+The data shows the probability of transition between the state of (A)ctive, to (I)ll and Dead. It is easy to complete the 
+transition matrix.
+
+```{r healthIns7}
+ltcDemo<-transform(ltcDemo,
+                   pIA=0,
+                   pII=1-pID,
+                   pDD=1,
+                   pDA=0,
+                   pDI=0)
+```
+
+Now we build a function that returns the transition during the $t+1$ th year, assuming that the subject has attained year $t$.
+
+```{r healthIns8}
+possibleStates<-c("A","I","D")
+getMc4Age<-function(age) {
+  transitionsAtAge<-ltcDemo[ltcDemo$age==age,]
+  
+  myTransMatr<-matrix(0, nrow=3,ncol = 3,dimnames = list(possibleStates,possibleStates))
+  myTransMatr[1,1]<-transitionsAtAge$pAA[1]
+  myTransMatr[1,2]<-transitionsAtAge$pAI[1]
+  myTransMatr[1,3]<-transitionsAtAge$pAD[1]
+  myTransMatr[2,2]<-transitionsAtAge$pII[1]
+  myTransMatr[2,3]<-transitionsAtAge$pID[1]
+  myTransMatr[3,3]<-1
+  
+  myMc<-new("markovchain",transitionMatrix=myTransMatr,states=possibleStates,name=paste("Age",age,"transition matrix"))
+  
+  return(myMc)
+
+}
+```
+
+Cause transitions are not homogeneous across ages, we use a \code{markovchainList} object to describe the transition probabilities for a guy starting at age 100.
+
+```{r healthIns8-prob}
+getFullTransitionTable<-function(age){
+  ageSequence<-seq(from=age, to=120)
+  k=1
+  myList=list()
+  for ( i in ageSequence) {
+    mc_age_i<-getMc4Age(age = i)
+    myList[[k]]<-mc_age_i
+    k=k+1
+  }
+  myMarkovChainList<-new("markovchainList",markovchains=myList,name=paste("TransitionsSinceAge",age,sep=""))
+  return(myMarkovChainList)
+}
+transitionsSince100<-getFullTransitionTable(age=100)
+```
+
+We can use such transition for simulating ten life trajectories for a guy that begins "active" (A) aged 100:
+
+```{r healthIns9}
+rmarkovchain(n=10, object=transitionsSince100,what="matrix",t0="A",include.t0=TRUE)
+```
+
+Lets consider 1000 simulated live trajectories, for a healty guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
+
+```{r healthIns10}
+transitionsSince80<-getFullTransitionTable(age=80)
+lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,what="matrix",t0="A",include.t0=TRUE)
+temp<-matrix(0,nrow=nrow(lifeTrajectories),ncol = ncol(lifeTrajectories))
+temp[lifeTrajectories=="I"]<-1
+expected_period_disabled<-mean(rowSums((temp)))
+expected_period_disabled
+```
+
+Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.
+
+```{r healthIns11}
+mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
+```
+
+## Sociology {#app:sociology}
+
+Markov chains have been actively used to model progressions and regressions between social classes. The first study was performed by \cite{glassHall}, while a more recent application can be found in \cite{blandenEtAlii}. The table that follows shows the income quartile of the father when the son was 16 (in 1984) and the income quartile of the son when aged 30 (in 2000) for the 1970 cohort.
+
+```{r blandenEtAlii}
+data("blanden")
+mobilityMc <- as(blanden, "markovchain")
+mobilityMc
+```
+
+The underlying transition graph is plotted in Figure \@ref(fig:mobility).
+
+```{r fig:mobility, fig=TRUE, echo=FALSE, fig.align='center', fig.cap="1970 UK cohort mobility data."}
+plot(mobilityMc, main = '1970 mobility',vertex.label.cex = 2,
+		layout = layout.fruchterman.reingold)
+```
+
+The steady state distribution is computed as follows. Since transition across quartiles are shown, the probability function is evenly 0.25.
+
+```{r blandenEtAlii3}
+round(steadyStates(mobilityMc), 2)
+```
+
+## Genetics and Medicine {#sec:gen}
+
+This section contains two examples: the first shows the use of Markov chain models in genetics, the second shows an application of Markov chains in modelling diseases' dynamics.
+
+
+### Genetics {#sec:genetics}
+
+\cite{averyHenderson} discusses the use of Markov chains in model Preprogucacon gene protein bases sequence. The \code{preproglucacon} dataset in \pkg{markovchain} contains the dataset shown in the package.
+
+```{r preproglucacon1}
+data("preproglucacon", package = "markovchain")
+```
+
+It is possible to model the transition probabilities between bases as shown in the following code.
+
+```{r preproglucacon2}
+mcProtein <- markovchainFit(preproglucacon$preproglucacon, 
+                          name = "Preproglucacon MC")$estimate
+mcProtein
+```
+
+### Medicine {#sec:medicine}
+
+Discrete-time Markov chains are also employed to study the progression of chronic diseases. The following example is taken from \cite{craigSendi}. Starting from six month follow-up data, the maximum likelihood estimation of the monthly transition matrix is obtained. This transition matrix aims to describe the monthly progression of CD4-cell counts of HIV infected subjects.
+
+```{r epid1}
+craigSendiMatr <- matrix(c(682, 33, 25,
+              154, 64, 47,
+              19, 19, 43), byrow = T, nrow = 3)
+hivStates <- c("0-49", "50-74", "75-UP")
+rownames(craigSendiMatr) <- hivStates
+colnames(craigSendiMatr) <- hivStates
+craigSendiTable <- as.table(craigSendiMatr)
+mcM6 <- as(craigSendiTable, "markovchain")
+mcM6@name <- "Zero-Six month CD4 cells transition"
+mcM6
+```
+
+As shown in the paper, the second passage consists in the decomposition of $M_{6}=V \cdot D \cdot V^{-1}$ in order to obtain $M_{1}$ as $M_{1}=V \cdot D^{1/6} \cdot V^{-1}$ .
+
+```{r epid2}
+eig <- eigen(mcM6@transitionMatrix)
+D <- diag(eig$values)
+```
+
+```{r epid3}
+V <- eig$vectors 
+V %*% D %*% solve(V)
+d <- D ^ (1/6)
+M <- V %*% d %*% solve(V)
+mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
+```
+
+# Discussion, issues and future plans
+
+The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
+
+Some numerical issues have been found when working with matrix algebra using \proglang{R} internal linear algebra kernel (the same calculations performed with \proglang{MATLAB} gave a more accurate result). Some temporary workarounds have been implemented. For example, the condition for row/column sums to be equal to one is valid up to fifth decimal. Similarly, when extracting the eigenvectors only the real part is taken.
+
+Such limitations are expected to be overcome in future releases. Similarly, future versions of the package are expected to improve the code in terms of numerical accuracy and rapidity. An intitial rewriting of internal function in \proglang{C++} by means of \pkg{Rcpp} package \citep{RcppR} has been started.
+
+# Aknowledgments {#sec:aknowledgements}
+
+The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.
 
 \clearpage
 # References #

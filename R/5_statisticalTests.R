@@ -181,7 +181,9 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
   
   if (verbose == TRUE) {
     cat("Testing markovianity property on given data sequence\n")
-    cat("Chi - square statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
+    cat("Chi - square statistic is:", statistic, "\n")
+    cat("Degrees of freedom are:", dof, "\n")
+    cat("And corresponding p-value is:", pvalue, "\n")  
   }
   
   invisible(out)
@@ -194,7 +196,7 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
 
 # check if sequence is of first order or of second order
 assessOrder <- function(sequence, verbose = TRUE) {
-  warning("The correctes of this function is in question. It will be deeply revised in the forthcoming versions.")
+  warning("The correctness of this function is in question. It will be deeply revised in the forthcoming versions.")
   # length of sequence
   n <- length(sequence)
   
@@ -231,7 +233,9 @@ assessOrder <- function(sequence, verbose = TRUE) {
   
   # returning the output
   if (verbose == TRUE) {
-    cat("The assessOrder test statistic is: ", TStat, " the Chi-Square d.f. are: ", df, " the p-value is: ", pvalue, "\n")
+    cat("The assessOrder test statistic is: ", TStat, "\n")
+    cat("The Chi-Square d.f. are: ", df, "\n")
+    cat("The p-value is: ", pvalue, "\n")
   }
   
   invisible(out)
@@ -309,7 +313,9 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
   # returning the output
   
   if (verbose==TRUE) {
-    cat("The assessStationarity test statistic is: ", TStat, " the Chi-Square d.f. are: ", df," the p-value is: ", pvalue,"\n")
+    cat("The assessStationarity test statistic is: ", TStat, "\n")
+    cat("The Chi-Square d.f. are: ", df, "\n")
+    cat("The p-value is: ", pvalue, "\n")
   }
   
   out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])

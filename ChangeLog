@@ -1,3 +1,6 @@
+09-12-2018 0.6.9.12
+Add orcid
+Add more warning to Statistical Inference Functions
 12-08-2018 0.6.9.12
 Improved Rcpp performance as suggested by https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/
 20-04-2018 0.6.9.9

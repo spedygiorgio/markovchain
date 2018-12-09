@@ -1,8 +1,8 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.6.9.13
-Date: 2018-08-13
+Version: 0.6.9.14
+Date: 2018-12-09
 Authors@R: c(person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
     email = "spedicato_giorgio@yahoo.it",comment = c(ORCID = "0000-0002-0315-8888")),
     person("Tae", "Seung Kang", role = "aut"),

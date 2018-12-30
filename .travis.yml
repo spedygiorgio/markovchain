@@ -10,22 +10,24 @@ notifications:
 
 apt_packages:
   - qpdf
-        
+
+r_packages:
+  - pkgdown
+  - bookdown
+  - rticles
+
 before_install:
   - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
   
 script:
   - R CMD build . ${R_BUILD_ARGS}
   - export PKG_TARBALL=`ls -1t *.tar.gz | head -n 1`
-  - R CMD check ${PKG_TARBALL} ${R_CHECK_ARGS}$
+  - R CMD check ${PKG_TARBALL} ${R_CHECK_ARGS}
 
 matrix:
   include:
   - r: devel  
   - r: release
-    before_deploy:
-      - Rscript -e 'remotes::install_cran(c("pkgdown", "bookdown", "rticles"))'
-
     deploy:
       provider: script
       script: Rscript -e 'pkgdown::deploy_site_github(verbose = TRUE)'

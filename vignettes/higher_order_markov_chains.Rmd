@@ -37,6 +37,10 @@ abstract: |
 output: 
   bookdown::pdf_book:
     base_format: rticles::jss_article
+vignette: >
+  %\VignetteIndexEntry{Higher order markov chains} 
+  %\VignetteEngine{knitr::rmarkdown}  
+  %VignetteEncoding{UTF-8}
 keywords:
   plain: [Higher order Markov chains]
   formatted: [Higher order Markov chains]

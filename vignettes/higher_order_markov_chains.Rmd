@@ -259,14 +259,14 @@ $\boldsymbol{x}_{r+1}^{(5)} = 0.2718\boldsymbol{P}_{8}^{(52)}\boldsymbol{x}_{r}^
 
 According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship is hardly to be obtained in conventional Markov model owing to huge amount of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.
 
-```{r hommcFit}
+```{r hommcFit, warning = FALSE, message = FALSE}
 # fit 8th order multivariate markov chain
 object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
 ```
 
 We choose to show only results shown in the paper. We see that $\lambda$ values are quite close, but not equal, to those shown in the original paper.
 
-```{r result}
+```{r result, echo = FALSE}
 i <- c(1, 2, 2, 3, 4, 4, 4, 5, 5, 5)
 j <- c(2, 2, 2, 5, 2, 5, 5, 2, 4, 5)
 k <- c(1, 1, 3, 1, 8, 1, 2, 8, 1, 2)

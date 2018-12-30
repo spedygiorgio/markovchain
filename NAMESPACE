@@ -1,4 +1,4 @@
-useDynLib(markovchain, .registration = TRUE)
+useDynLib(markovchain)
 #useDynLib(markovchain)
 #exportPattern("^[[:alpha:]]+")
 export("absorbingStates","assessOrder","assessStationarity","canonicForm","committorAB","communicatingClasses","conditionalDistribution",

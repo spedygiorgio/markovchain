@@ -18,6 +18,9 @@ vignette: >
   %\VignetteIndexEntry{Crash Introduction to markovchain R package} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
+pkgdown:
+  as_is: true
+  extension: pdf
 ---
 
 <style type="text/css">

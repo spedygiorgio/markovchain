@@ -815,7 +815,7 @@ A time homogeneous Markov chain can be fit from given data. Four methods have be
 Equation \ref{eq:MLE} shows the maximum likelihood estimator (MLE) of the $p_{ij}$ entry, where the $n_{ij}$ element consists in the number sequences $\left( X_{t}=s_{i}, X_{t+1}=s_{j}\right)$ found in the sample, that is
 
 \begin{equation}
-{\hat p^{MLE}}_{ij} = \frac{{{n_{ij}}}}{{\sum\limits_{u = 1}^k {{n_{iu}}} }}.
+{\hat p^{MLE}}_{ij} = \frac{n_{ij}}{\sum\limits_{u = 1}^k {n_{iu}}}.
 \label{eq:MLE}
 \end{equation}
 

@@ -1,24 +1,40 @@
-language: r
-r: devel
+language: R
 sudo: true
 cache: packages
 dist: trusty
 
 warnings_are_errors: true
 
-apt_packages:
-  - qpdf
-  
-before_install:
-  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
-
-script:
-  - R CMD build . ${R_BUILD_ARGS}
-  - R CMD check `ls -1t *.tar.gz | head -n 1` ${R_CHECK_ARGS}$
-
 notifications:
   email: false
 
+apt_packages:
+  - qpdf
+
+r_packages:
+  - pkgdown
+  - bookdown
+  - rticles
+
+before_install:
+  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
+  
+script:
+  - R CMD build . ${R_BUILD_ARGS}
+  - export PKG_TARBALL=`ls -1t *.tar.gz | head -n 1`
+  - R CMD check ${PKG_TARBALL} ${R_CHECK_ARGS}
+
+matrix:
+  include:
+  - r: devel  
+  - r: release
+    deploy:
+      provider: script
+      script: Rscript -e 'pkgdown::deploy_site_github(verbose = TRUE)'
+      skip_cleanup: true
+      on:
+        branch: master
+  
 env:
    global:
      - R_BUILD_ARGS="" 

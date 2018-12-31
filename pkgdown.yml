@@ -1,0 +1,10 @@
+pandoc: '2.2'
+pkgdown: 1.3.0
+pkgdown_sha: ~
+articles:
+  GSoC-2017_additions: GSoC-2017_additions.html
+  an_introduction_to_markovchain_package: an_introduction_to_markovchain_package.html
+  complicateSteadyStates: complicateSteadyStates.html
+  higher_order_markov_chains: higher_order_markov_chains.html
+  markovchainCrashIntro: markovchainCrashIntro.html
+

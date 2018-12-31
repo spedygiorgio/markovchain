@@ -147,7 +147,7 @@ If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they 
 It is possible to analyze the timing to reach a certain state. The first passage time from state $s_{i}$ to state $s_{j}$ is the number $T_{ij}$ of steps taken by the chain until it arrives for the first time to state $s_{j}$, given that $X_{0} = s_{i}$. The probability distribution of $T_{ij}$ is defined by Equation \ref{eq:fpt1}
 
 \begin{equation}
-{h_{ij}}^{\left( n \right)} = Pr\left( {{T_{ij}} = n} \right) = Pr\left( {{X_n} = s_{j},{X_{n - 1}} \ne s_{j}, \ldots ,{X_1} \ne s_{j}|{X_0} = s_{i}} \right)
+{h_{ij}}^{\left( n \right)} = Pr\left( {T_{ij} = n} \right) = Pr\left( X_n = s_j,X_{n - 1} \ne s_{j}, \ldots ,X_1 \ne s_j |X_0 = s_i \right)
 \label{eq:fpt1}
 \end{equation}
 

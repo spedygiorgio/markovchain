@@ -38,6 +38,7 @@ packrat/lib*/
 # pkgdown files
 docs/
 
+
 # Packrat and other files
 packrat/src
 packrat/src/

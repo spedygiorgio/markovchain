@@ -35,6 +35,7 @@ exportMethods(
     "show",
     "states",
     "steadyStates",
+	  "meanFirstPassageTime",
     "canonicForm",
     "t",
 	"[",

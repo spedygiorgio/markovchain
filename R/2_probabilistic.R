@@ -499,6 +499,76 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 
 
 
+
+#' Mean First Passage Time for markovchain
+#' 
+#' @description Given a markovchain object,
+#' this function calculates the expected steps to go from state i to j
+#' 
+#' @usage meanFirstPassageTime(markovchain,destination_set)
+#' 
+#' @param markovchain the markovchain-class object
+#' @param destination_set the set of destination states or NULL (all states)
+#' 
+#' @details if destination_set is one or more states, the mean first
+#' passage time from each remaining state to the given set is computed.
+#' If NULL, the full MFPT matrix is computed (with a different algorithm).
+#' 
+#' @return
+#' a vector (if destination_set given) or a matrix (otherwise) of mean passage times
+#' 
+#' @author Toni Giorgino
+#' 
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability. American Mathematical Soc., 2012.
+#' 
+#' @examples 
+#' Pmat <- matrix( c(6,3,1,  2,3,5, 4,1,5)/10, ncol=3, byrow=TRUE)
+#' P <- new("markovchain", states=c("s","c","r"), transitionMatrix=Pmat)
+#' meanFirstPassageTime(P,"r")
+#' meanFirstPassageTime(P)
+#' 
+#' # Grinstead and Snell's "Oz weather" worked out example
+#' Poz <- new("markovchain", states=c("s","c","r"), 
+#'            transitionMatrix=matrix(c(2,1,1, 2,0,2, 1,1,2)/4, byrow=TRUE, ncol=3)) 
+#' meanFirstPassageTime(Poz)  
+#' @export
+meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
+  
+  # gets the transition matrix
+  matrix <- markovchain@transitionMatrix
+
+  if(is.null(destination_set)) {
+    # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
+    d <- nrow(matrix)
+    w <- steadyStates(markovchain)
+    W <- w[rep(1,d),]  # Replicate w, d equal rows
+    Z <- solve(diag(d)-matrix+W)
+    M <- matrix(0,nrow=d,ncol=d)
+    for (i in 1:d) {
+      for (j in 1:d) {
+        M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
+      }
+    }
+    rownames(M) <- markovchain@states
+    colnames(M) <- markovchain@states
+    result <- M
+  } else {
+    # Drop absorbing states
+    Q <- matrix[!rownames(matrix) %in% destination_set,
+                !colnames(matrix) %in% destination_set,
+                drop = FALSE]
+    d <- nrow(Q)
+    cc <- rep(1,d)
+    Ninv <- diag(d)-Q
+    result <- solve(Ninv, cc) # Theorem 11.5
+  }
+
+  return(result)
+}
+
+
+
+
 # @title Check if a DTMC is regular
 # 
 # @description Function to check wether a DTCM is regular

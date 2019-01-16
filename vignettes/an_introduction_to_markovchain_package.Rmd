@@ -410,7 +410,7 @@ plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition mat
 plot(mcWeather, package="diagram", box.size = 0.04)
 ```
 
-If one would like to use the \pkg{MmgraphR} package [@pkg:] to plot the transition matric, the following code shows how to do:
+If one would like to use the \pkg{MmgraphR} package [@pkg:MmgraphR] to plot the transition matric, the following code shows how to do:
 
 ```{r MmgraphR_plot, echo=TRUE}
 stochastic_matrix_to_plot <- as(mcWeather,"matrix")

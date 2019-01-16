@@ -144,7 +144,7 @@ If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they 
 * A state $x$ is transient if $P(T^{x\rightarrow x}<+\infty)<1$ (equivalently $P(T^{x\rightarrow x}=+\infty)>0$).
 
 
-It is possible to analyze the timing to reach a certain state. The first passage time from state $s_{i}$ to state $s_{j}$ is the number $T_{ij}$ of steps taken by the chain until it arrives for the first time to state $s_{j}$, given that $X_{0} = s_{i}$. The probability distribution of $T_{ij}$ is defined by Equation \ref{eq:fpt1}
+It is possible to analyze the timing to reach a certain state. The first passage time (or hitting time) from state $s_{i}$ to state $s_{j}$ is the number $T_{ij}$ of steps taken by the chain until it arrives for the first time to state $s_{j}$, given that $X_{0} = s_{i}$. The probability distribution of $T_{ij}$ is defined by Equation \ref{eq:fpt1}
 
 \begin{equation}
 {h_{ij}}^{\left( n \right)} = Pr\left( {T_{ij} = n} \right) = Pr\left( X_n = s_j,X_{n - 1} \ne s_{j}, \ldots ,X_1 \ne s_j |X_0 = s_i \right)
@@ -158,7 +158,11 @@ and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^
 \label{eq:ftp2}
 \end{equation}
 
-If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
+A commonly used quantity related to $h$  is its average value, i.e.
+the \emph{mean first passage time} (also expected hitting time), namely
+$\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
+
+If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
 
 Given a time homogeneous Markov chain with transition matrix \emph{P}, a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and $\sum_{j}z_{j}=1$.
 
@@ -170,6 +174,13 @@ If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribu
 \end{equation}
 
 where $Z$ is the matrix having all rows equal to $z$. The stationary distribution of $\{X_{n}\}$ is represented by $z$.
+
+Given two absorbing states $s_A$ (source) and $s_B$ (sink), the \emph{committor probability} $q_j^{(AB)}$ is the probability that a process starting in state $s_i$ is absorbed in state $s_B$ (rather than $s_A$) [@noe_constructing_2009]. It can be computed via <!-- TONI -->
+
+\begin{equation}
+ q_j^{(AB)} = \sum_{k \ni {A, B}} P_{jk}q_k^{(AB)} \quad \mbox{with} \quad
+ q_A^{(AB)} = 0 \quad \mbox{and} \quad  q_B^{(AB)} = 1
+\end{equation}
 
 ## A short example
 
@@ -205,7 +216,8 @@ x^{(n)}=x^{(n-1)}P \to \left(0.15\:0.45\:0.4\right)\left[\begin{array}{ccc}
 \label{eq:trPropExEx3}
 \end{equation}
 
-If, f.e., we are interested in the probability of reaching the state $s_{3}$ in two steps, then $Pr\left(X_{2}=s_{3}\left|X_{0}=s_{2}\right.\right)=0.385$.
+If, f.e., we are interested in the probability of being in the state $s_{3}$ 
+in the second step, then $Pr\left(X_{2}=s_{3}\left|X_{0}=s_{2}\right.\right)=0.385$.
 
 \newpage
 
@@ -536,6 +548,8 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{absorbingStates} & the absorbing states of the transition
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form.\\
+  \code{meanFirstPassageTime} & matrix or vector of mean first passage times \\
+  \code{committorAB} & committor probabilities \\
   \code{communicatingClasses} & list of communicating classes. \\
    & $s_{j}$, given actual state $s_{i}$.\\
   \code{canonicForm} & the transition matrix into canonic form.\\
@@ -552,6 +566,8 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
 \end{table}
 
 
+## Conditional distributions
+
 The conditional distribution of weather states, given that current day's weather
 is sunny, is given by following code.
 
@@ -559,7 +575,10 @@ is sunny, is given by following code.
 conditionalDistribution(mcWeather, "sunny")
 ```
 
-A stationary (steady state) vector is a probability vector such that Equation \ref{eq:steadystat2}
+
+## Stationary states
+
+A stationary (steady state, or equilibrium) vector is a probability vector such that Equation \ref{eq:steadystat2} holds
 
 \begin{equation}
 \begin{matrix}
@@ -605,6 +624,9 @@ gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
 mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 steadyStates(mcGR4)
 ```
+
+
+## Classification of states
 
 Absorbing states are determined by means of `absorbingStates` method.
 
@@ -688,6 +710,8 @@ specific method has been written to elicit them.
 transientStates(probMc)
 ```
 
+
+
 Listings from \cite{renaldoMatlab} have been adapted into `canonicForm` method that turns a Markov chain into canonic form.
 
 ```{r probMc2Canonic}
@@ -743,7 +767,10 @@ plot(mathematicaMc, layout = layout.fruchterman.reingold)
 summary(mathematicaMc)
 ```
 
-\cite{renaldoMatlab} provides code to compute first passage time (within $1,2,\ldots, n$ steps) given the initial state to be $i$. The \proglang{MATLAB} listings translated into \proglang{R} on which the `firstPassage` function is based are
+
+## First passage time distributions and means
+
+\cite{renaldoMatlab} provides code to compute first passage time (within $1,2,\ldots, n$ steps) given the initial state to be $i$. The \proglang{MATLAB} listings translated into \proglang{R} on which the `firstPassage` function is based are:
 
 ```{r fpTime1, eval=FALSE}
 .firstpassageKernel <- function(P, i, n){
@@ -758,13 +785,49 @@ summary(mathematicaMc)
 }
 ```
 
-We conclude that the probability for the first rainy day to be the third one, given that the current state is sunny, is given by
+We conclude that the probability for the *first* rainy day to be the third one, given that the current state is sunny, is given by:
 
 ```{r fpTime2}
 firstPassagePdF <- firstPassage(object = mcWeather, state = "sunny", 
                                 n = 10)
 firstPassagePdF[3, 3]
 ```
+
+<!-- TONI (show before the PdF?) -->
+
+To compute the *mean* first passage times, i.e. the expected number of days before it rains
+given that today is sunny, we can use the `meanFirstPassageTime` function:
+
+
+```{r mfpt1}
+meanFirstPassageTime(mcWeather)
+```
+
+indicating e.g. that the average numer of days of sun or cloud before rain is 6.67 if we start 
+counting from a sunny day, and 5 if we start from a cloudy day. Note that
+we can also specify one or more destination states:
+
+```{r mfpt2}
+meanFirstPassageTime(mcWeather,"rain")
+```
+
+The implementation follows the matrix solutions  by [@GrinsteadSnell]. We can check the  result by averaging the first passage probability density function: 
+
+```{r mfpt3}
+firstPassagePdF.long <- firstPassage(object = mcWeather, state = "sunny",  n = 100)
+sum(firstPassagePdF.long[,"rain"] * 1:100)
+```
+
+## Committor probability
+
+The committor probability tells us the probability to reach a given state before another given.
+Suppose that we start in a cloudy day, the probabilities of experiencing a rainy day before 
+a sunny one is 0.5:
+
+```{r}
+committorAB(mcWeather,3,1)
+```
+
 
 
 # Statistical analysis {#sec:statistics}

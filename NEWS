@@ -1,2 +1,3 @@
 12-08-2018 0.6.9.12
 Improved Rcpp performance as suggested by https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/
+Added plot from MmgraphR

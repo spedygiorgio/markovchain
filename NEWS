@@ -1,3 +1,5 @@
-12-08-2018 0.6.9.12
-Improved Rcpp performance as suggested by https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/
+18-01-2019 0.6.9.13
 Added plot from MmgraphR
+Added meanFirstPassageTime (thanks to Toni Giorgino)
+Add orcid
+Add more warning to Statistical Inference Functions

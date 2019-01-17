@@ -45,7 +45,9 @@ Suggests:
     Rsolnp,
     knitcitations,
     rmarkdown,
-    ctmcd
+    ctmcd,
+    MmgraphR,
+    bookdown
 VignetteBuilder: utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make

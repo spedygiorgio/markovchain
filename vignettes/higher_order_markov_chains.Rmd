@@ -22,8 +22,7 @@ author:
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy
-    email: \email{spedygiorgio@gmail.com}
-    url: www.statisticaladvisor.com
+    email: \email{spedicato_giorgio@yahoo.it}
 preamble: >
   \author{Deepak Yadav, Tae Seung Kang, Giorgio Alfredo Spedicato}
   \usepackage{graphicx}
@@ -295,3 +294,5 @@ for(p in 1:10) {
   cat("\n")
 }
 ```
+
+# References

@@ -244,3 +244,5 @@ t(eigen(Msub)$vectors[,eigen(Msub)$values >= 1]) / colSums(eigen(Msub)$vectors[,
 ```
 
 The `steadyStates` function in [@pkg:markovchain] implements the abovementioned algorithm when negative values are found in the eigenvectors of the full matrix corresponding to unitary eigenvalues.
+
+# References

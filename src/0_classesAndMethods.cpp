@@ -3,15 +3,13 @@
 using namespace Rcpp;
 
 // check if prob is probability or not
-// [[Rcpp::export(.isProbRcpp)]]
-bool isProb(double prob)
-{
-	if (prob<0 || prob >1) return false;
-	return true;
+// [[Rcpp::export(.isProbability)]]
+bool isProb(double prob) {
+  return (prob >= 0 && prob <= 1);
 }
 // doubt
 // [[Rcpp::export(.isGenRcpp)]]
-bool isGen(NumericMatrix gen){
+bool isGen(NumericMatrix gen) {
   for(int i = 0; i < gen.nrow(); i++)
     for(int j = 0; j < gen.ncol(); j++)
       if((i == j && gen(i, j) > 0) || (i != j && gen(i, j) < 0))  

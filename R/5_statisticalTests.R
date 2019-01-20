@@ -57,7 +57,7 @@
 
 # check if the sequence holds the Markov property
 verifyMarkovProperty <- function(sequence, verbose = TRUE) {
-  
+  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
   #fitting the markovchain
   
   transMatrix <- markovchainFit(data = sequence)$estimate@transitionMatrix
@@ -181,7 +181,9 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
   
   if (verbose == TRUE) {
     cat("Testing markovianity property on given data sequence\n")
-    cat("Chi - square statistic is:",statistic," degrees of freedom are:",dof," and corresponding p-value is:",pvalue,"\n")  
+    cat("Chi - square statistic is:", statistic, "\n")
+    cat("Degrees of freedom are:", dof, "\n")
+    cat("And corresponding p-value is:", pvalue, "\n")  
   }
   
   invisible(out)
@@ -194,7 +196,7 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
 
 # check if sequence is of first order or of second order
 assessOrder <- function(sequence, verbose = TRUE) {
-  warning("The correctes of this function is in question. It will be deeply revised in the forthcoming versions.")
+  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
   # length of sequence
   n <- length(sequence)
   
@@ -231,7 +233,9 @@ assessOrder <- function(sequence, verbose = TRUE) {
   
   # returning the output
   if (verbose == TRUE) {
-    cat("The assessOrder test statistic is: ", TStat, " the Chi-Square d.f. are: ", df, " the p-value is: ", pvalue, "\n")
+    cat("The assessOrder test statistic is: ", TStat, "\n")
+    cat("The Chi-Square d.f. are: ", df, "\n")
+    cat("The p-value is: ", pvalue, "\n")
   }
   
   invisible(out)
@@ -242,7 +246,7 @@ assessOrder <- function(sequence, verbose = TRUE) {
 
 # check if sequence is stationary
 assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
-  warning("The correctes of this function is in question. It will be deeply revised in the forthcoming versions.")
+  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
   # length of sequence
   n <- length(sequence)
   
@@ -309,7 +313,9 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
   # returning the output
   
   if (verbose==TRUE) {
-    cat("The assessStationarity test statistic is: ", TStat, " the Chi-Square d.f. are: ", df," the p-value is: ", pvalue,"\n")
+    cat("The assessStationarity test statistic is: ", TStat, "\n")
+    cat("The Chi-Square d.f. are: ", df, "\n")
+    cat("The p-value is: ", pvalue, "\n")
   }
   
   out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
@@ -373,7 +379,7 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' 
 
 verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
-  
+  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
   if (!class(object) == 'markovchain') stop("Error! Object should belong to the markovchain class")
   if (missing(data) | missing(object)) stop("Error! Required inputs missing")
   if (!(class(data) %in% c("matrix","character","numeric"))) stop("Error! Data should be either a raw transition matrix or 
@@ -472,6 +478,7 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
 #' verifyHomogeneity(inputList=kullback,verbose=TRUE)
 #' 
 verifyHomogeneity<-function(inputList, verbose = TRUE) {
+  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
   if (class(inputList) != "list") stop("Error! inputList should be a string")
   if (length(inputList) < 2) stop("Error! inputList length lower than 2")
   

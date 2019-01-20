@@ -18,6 +18,9 @@ vignette: >
   %\VignetteIndexEntry{Crash Introduction to markovchain R package} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
+pkgdown:
+  as_is: true
+  extension: pdf
 ---
 
 <style type="text/css">
@@ -42,7 +45,7 @@ rm(list=ls())
 ```
 
 
-- The markovchain package [@markovchainR] will be introduced.
+- The markovchain package [@pkg:markovchain] will be introduced.
 - The package is intended to provide S4 classes to perform probabilistic and statistical analysis of Discrete Time Markov Chains (DTMC). See [@bremaud1999discrete] for a theoretical review of the mathematics underlying the DTMC models.
 - The vignette will show: how to load the package and create a DTMC, how to manage a DTMC, how to perform basic probabilistic analysis, how to fit a DTMC.
 

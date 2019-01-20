@@ -187,14 +187,14 @@ M = \left(\begin{matrix}
 <li>
 <span class="math inline">\(P^{WM}_{L,M}\)</span> is the consistent set of all well-behaved Markov chains;</li>
 <li>
-<span class="math inline">\(P^{WHM}_{L,M}\)</span> is the consistent set of all well-behaved homogeneous Markov chains<span class="citation">(Thomas Krak 2016)</span>.</li>
+<span class="math inline">\(P^{WHM}_{L,M}\)</span> is the consistent set of all well-behaved homogeneous Markov chains<span class="citation">(Thomas Krak 2017)</span>.</li>
 </ul>
 <p>From a practical point of view, after having specified a (precise) stochastic process, one is typically interested in the expected value of some function of interest, or the probability of some event. Similarly, in this work, our main objects of consideration will be the lower probabilities that correspond to the ICTMCs.</p>
 </div>
 <div id="lower-transition-rate-operators-for-ictmcs" class="section level2">
 <h2 class="hasAnchor">
 <a href="#lower-transition-rate-operators-for-ictmcs" class="anchor"></a>Lower Transition Rate Operators for ICTMCs</h2>
-<p>A map <span class="math inline">\(Q_{l}\)</span> from <span class="math inline">\(L(X)\)</span> to <span class="math inline">\(L(X)\)</span> is called a lower transition rate operator if, for all <span class="math inline">\(f,g \in L(X)\)</span>, all <span class="math inline">\(\lambda \in R_{\geq 0}\)</span>, all <span class="math inline">\(\mu \in L(X)\)</span>, and all <span class="math inline">\(x \in X\)</span><span class="citation">(Thomas Krak 2016)</span>:</p>
+<p>A map <span class="math inline">\(Q_{l}\)</span> from <span class="math inline">\(L(X)\)</span> to <span class="math inline">\(L(X)\)</span> is called a lower transition rate operator if, for all <span class="math inline">\(f,g \in L(X)\)</span>, all <span class="math inline">\(\lambda \in R_{\geq 0}\)</span>, all <span class="math inline">\(\mu \in L(X)\)</span>, and all <span class="math inline">\(x \in X\)</span><span class="citation">(Thomas Krak 2017)</span>:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\([Q_{l}m](x) = 0\)</span></li>
 <li>
@@ -207,7 +207,7 @@ M = \left(\begin{matrix}
 <div id="lower-transition-operators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#lower-transition-operators" class="anchor"></a>Lower Transition Operators</h2>
-<p>A map <span class="math inline">\(T_{l}\)</span> from <span class="math inline">\(L (X )\)</span> to <span class="math inline">\(L (X )\)</span> is called a lower transition operator if, for all <span class="math inline">\(f,g \in L(X)\)</span>, all <span class="math inline">\(\lambda \in R_{\geq 0}\)</span>, all <span class="math inline">\(\mu \in L(X)\)</span>, and all <span class="math inline">\(x \in X\)</span><span class="citation">(Thomas Krak 2016)</span>:</p>
+<p>A map <span class="math inline">\(T_{l}\)</span> from <span class="math inline">\(L (X )\)</span> to <span class="math inline">\(L (X )\)</span> is called a lower transition operator if, for all <span class="math inline">\(f,g \in L(X)\)</span>, all <span class="math inline">\(\lambda \in R_{\geq 0}\)</span>, all <span class="math inline">\(\mu \in L(X)\)</span>, and all <span class="math inline">\(x \in X\)</span><span class="citation">(Thomas Krak 2017)</span>:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\([T_{l} f](x) \geq min(f(y) : y \in L)\)</span></li>
 <li><span class="math inline">\([T_{l}(f +g)](x) \geq [T_{l} f](x)+[T_{l}g](x)\)</span></li>
@@ -219,9 +219,9 @@ M = \left(\begin{matrix}
 <a href="#impreciseprobabilityatt-function" class="anchor"></a><code>ImpreciseprobabilityatT</code> function</h2>
 <p>Now I would like to come onto the practical purpose of using ICTMC classes. ICTMC classes in these package are defined to represent a generator that is defined in such a way that every row of the generator corresponding to every state in the process is governed by a separate variable. As defined earlier, an imprecise continuous time markovchain is a set of many precise CTMCs. Hence this representation of set of precise CTMCs can be used to calulate transition probability at some time in future. This can be seen as an analogy with <code>probabilityatT</code> function. It is used to calculate the transition function at some later time t using generatoe matrix.</p>
 <p>For every generator matrix, we have a corresponding transition function. Similarly, for every Lower Transition rate operator of an ICTMC, we have a corresponding lower transition operator denoted by <span class="math inline">\(L_{t}^{s}\)</span>. Here <span class="math inline">\(t\)</span> is the initial time and <span class="math inline">\(s\)</span> is the final time.</p>
-<p>Now we mention a proposition<span class="citation">(Thomas Krak 2016)</span> which states that: Let <span class="math inline">\(Q_{l}\)</span> be a lower transition rate operator, choose any time <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span> both greater than 0 such that <span class="math inline">\(t \leq s\)</span>, and let <span class="math inline">\(L_{t}^{s}\)</span> be the lower transition operator corresponding to <span class="math inline">\(Q_{l}\)</span>. Then for any <span class="math inline">\(f \in L(X)\)</span> and <span class="math inline">\(\epsilon \in R_{&gt;0}\)</span>, if we choose any <span class="math inline">\(n \in N\)</span> such that:</p>
+<p>Now we mention a proposition<span class="citation">(Thomas Krak 2017)</span> which states that: Let <span class="math inline">\(Q_{l}\)</span> be a lower transition rate operator, choose any time <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span> both greater than 0 such that <span class="math inline">\(t \leq s\)</span>, and let <span class="math inline">\(L_{t}^{s}\)</span> be the lower transition operator corresponding to <span class="math inline">\(Q_{l}\)</span>. Then for any <span class="math inline">\(f \in L(X)\)</span> and <span class="math inline">\(\epsilon \in R_{&gt;0}\)</span>, if we choose any <span class="math inline">\(n \in N\)</span> such that:</p>
 <p><span class="math display">\[n \geq max((s-t)*||Q||,\frac{1}{2\epsilon}(s-t)^{2}||Q||^{2}||f||_v)\]</span></p>
-<p>with <span class="math inline">\(||f||_{v}\)</span> := max <span class="math inline">\(f\)</span> - min <span class="math inline">\(f\)</span>, we are guaranteed that<span class="citation">(Thomas Krak 2016)</span></p>
+<p>with <span class="math inline">\(||f||_{v}\)</span> := max <span class="math inline">\(f\)</span> - min <span class="math inline">\(f\)</span>, we are guaranteed that<span class="citation">(Thomas Krak 2017)</span></p>
 <p><span class="math display">\[ ||L_{t}^{s} - \prod_{i=1}^{n}(I + \Delta Q_{l}) || \leq \epsilon\]</span></p>
 <p>with <span class="math inline">\(\Delta := \frac{s-t}{n}\)</span></p>
 <p>Simple put this equation tells us that, using <span class="math inline">\(Q_{l}g\)</span> for all <span class="math inline">\(g \in L(X)\)</span> then we can also approximate the quantity <span class="math inline">\(L_{t}^{s}\)</span> to arbitrary precision, for any given <span class="math inline">\(f \in L(X)\)</span>.</p>
@@ -246,7 +246,7 @@ I_{s} = \left(\begin{matrix}
 1 
 \end{matrix}\right)
 \]</span> We observe that the <span class="math inline">\(||I_{s}|| = 1\)</span>. Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator <span class="math inline">\(Q_{l}\)</span> Next we calculate the norm of the lower transition rate operator and use it in the preposition. Also we take value of <span class="math inline">\(\epsilon\)</span> to be 0.001.</p>
-<p>Using the preposition we can come upto an algorithm for calculating the probability at any time <span class="math inline">\(s\)</span> given state at initial time <span class="math inline">\(t\)</span> and a ICTMC generator<span class="citation">(Thomas Krak 2016)</span>.</p>
+<p>Using the preposition we can come upto an algorithm for calculating the probability at any time <span class="math inline">\(s\)</span> given state at initial time <span class="math inline">\(t\)</span> and a ICTMC generator<span class="citation">(Thomas Krak 2017)</span>.</p>
 <p>The algorithm is as follows:</p>
 <p><strong>Input</strong>: A lower transition rate operator <span class="math inline">\(Q\)</span>, two time points <span class="math inline">\(t,s\)</span> such that <span class="math inline">\(t \leq s\)</span>, a function <span class="math inline">\(f \in L(X )\)</span> and a maximum numerical error <span class="math inline">\(\epsilon \in R_{&gt;0}\)</span>.</p>
 <p><strong>Algorithm</strong>:</p>
@@ -406,7 +406,7 @@ I_{s} = \left(\begin{matrix}
 <a class="sourceLine" id="cb26-10" data-line-number="10"></a>
 <a class="sourceLine" id="cb26-11" data-line-number="11"><span class="kw"><a href="../reference/predictHommc.html">predictHommc</a></span>(ob,<span class="dv">3</span>)</a></code></pre></div>
 <pre><code>##      [,1] [,2] [,3]
-## [1,] "b"  "a"  "a" 
+## [1,] "b"  "a"  "b" 
 ## [2,] "a"  "a"  "a"</code></pre>
 </div>
 <div id="check-time-reversibility-of-continuous-time-markovchains" class="section level1">
@@ -429,13 +429,12 @@ I_{s} = \left(\begin{matrix}
 <a class="sourceLine" id="cb28-9" data-line-number="9"><span class="kw"><a href="../reference/is.TimeReversible.html">is.TimeReversible</a></span>(molecularCTMC)</a></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
-<div id="references" class="section level1">
+<div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
-
 <div id="refs" class="references">
 <div id="ref-freqArticle">
-<p>Alexander Kreinin, Marina Sidelnikova. 2001. “Regularization Algorithms for Transition Matrices” 4. ALGO RESEARCH QUARTERLY.</p>
+<p>Alexander Kreinin, Marina Sidelnikova. 2001. “Regularization Algorithms for Transition Matrices.” <em>Algo Research Quarterly</em> 4 (1/2). ALGO RESEARCH QUARTERLY: 23–40.</p>
 </div>
 <div id="ref-ching2008higher">
 <p>Ching, Wai-Ki, Michael K Ng, and Eric S Fung. 2008. “Higher-Order Multivariate Markov Chains and Their Applications.” <em>Linear Algebra and Its Applications</em> 428 (2). Elsevier: 492–507.</p>
@@ -456,7 +455,7 @@ I_{s} = \left(\begin{matrix}
 <p>StackOverflow. 2015. <a href="https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915" class="uri">https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915</a>.</p>
 </div>
 <div id="ref-ictmcpaper">
-<p>Thomas Krak, Arno Siebes, Jasper De Bock. 2016. “Imprecise Continuous-Time Markov Chains.” arXiv.</p>
+<p>Thomas Krak, Arno Siebes, Jasper De Bock. 2017. “Imprecise Continuous Time Markov Chains.” <em>International Journal of Approximate Reasoning</em> 88. arXiv: 452–528.</p>
 </div>
 </div>
 </div>

@@ -22,7 +22,7 @@ author:
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy
-    email: \email{spedicato_giorgio@yahoo.it}
+    email: \email{spedicato\_giorgio@yahoo.it}
 preamble: >
   \author{Deepak Yadav, Tae Seung Kang, Giorgio Alfredo Spedicato}
   \usepackage{graphicx}

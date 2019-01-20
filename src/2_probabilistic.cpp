@@ -47,13 +47,14 @@ SEXP commclassesKernel(NumericMatrix P) {
   }
   
   for (int i = 0; i < numStates; ++i) {
-    stack<int> notVisited = {i};
+    stack<int> notVisited;
+    notVisited.push(i);
     canReach[i][i] = true;
     
     while (notVisited.empty()) {
-      int j = notVisited.front();
-      canReach[i][j] = true;
+      int j = notVisited.top();
       notVisited.pop();
+      canReach[i][j] = true;
       
       for (int k: adjacencies[j]) {
         if (!canReach[i][k])
@@ -62,19 +63,18 @@ SEXP commclassesKernel(NumericMatrix P) {
     }
   }
   
-  arma::mat commClass(numStates, numStates);
+  arma::mat commClasses(numStates, numStates);
   
-  for(int i = 0; i < numStates; ++i) {
-    for(int j = 0; j < T.n_cols; ++j) {
-      commClass(i, j) = canReach(i, j) && canReach(j, i)
-    }
-  }
+  for(int i = 0; i < numStates; ++i)
+    for(int j = 0; j < numStates; ++j)
+      commClasses(i, j) = canReach[i][j] && canReach[j][i];
   
-  C = as<LogicalMatrix>(comClasses);
+  LogicalVector v(numStates);
+  LogicalMatrix C = as<LogicalMatrix>(wrap(commClasses));
   C.attr("dimnames") = List::create(stateNames, stateNames);
   v.names() = stateNames;
   
-  return List::create(_["C"] = C, _["v"] = v);
+  return List::create(_["C"] = commClasses, _["v"] = v);
 }
 
 //returns the underlying communicating classes

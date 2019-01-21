@@ -2,7 +2,7 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .isProbability <- function(prob) {
-    .Call(`_markovchain_isProb`, PACKAGE = 'markovchain', prob)
+    .Call('_markovchain_isProb', PACKAGE = 'markovchain', prob)
 }
 
 .isGenRcpp <- function(gen) {
@@ -198,8 +198,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call('_markovchain_noofVisitsDistRCpp', PACKAGE = 'markovchain', matrix, i, N)
 }
 
-.commclassesKernelRcpp <- function(P) {
-    .Call('_markovchain_commclassesKernel', PACKAGE = 'markovchain', P)
+.commClassesKernelRcpp <- function(P) {
+    .Call('_markovchain_commClassesKernel', PACKAGE = 'markovchain', P)
 }
 
 .communicatingClassesRcpp <- function(object) {

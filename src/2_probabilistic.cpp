@@ -11,7 +11,7 @@ using namespace std;
 template <typename T>
 T sortByDimNames(const T m);
 
-// check if two vectors are intersected
+// check if two sorted vectors are intersected
 bool _intersected(CharacterVector v1, CharacterVector v2) {
   CharacterVector::iterator first1 = v1.begin();
   CharacterVector::iterator last1 = v1.end();
@@ -27,11 +27,12 @@ bool _intersected(CharacterVector v1, CharacterVector v2) {
   return false;
 }
 
-// communicating classes kernel
-// [[Rcpp::export(.commclassesKernelRcpp)]]
-SEXP commclassesKernel(NumericMatrix P) {
+// [[Rcpp::export(.commClassesKernelRcpp)]]
+SEXP commClassesKernel(NumericMatrix P) {
   unsigned int numStates = P.ncol();
   CharacterVector stateNames = rownames(P);
+  int numReachable;
+  int classSize;
   
   // The entry (i,j) of this matrix is true iff we can reach j from i
   vector<vector<bool>> canReach(numStates, vector<bool>(numStates, false));
@@ -39,19 +40,17 @@ SEXP commclassesKernel(NumericMatrix P) {
   
   // We fill the adjacencies matrix for the graph
   // A state j is in the adjacency of i iff P(i, j) > 0
-  for (int i = 0; i < numStates; ++i) {
-    for (int j = 0; j < numStates; ++j) {
+  for (int i = 0; i < numStates; ++i)
+    for (int j = 0; j < numStates; ++j)
       if (P(i, j) > 0)
         adjacencies[i].push_back(j);
-    }
-  }
+
   
   for (int i = 0; i < numStates; ++i) {
     stack<int> notVisited;
     notVisited.push(i);
-    canReach[i][i] = true;
     
-    while (notVisited.empty()) {
+    while (!notVisited.empty()) {
       int j = notVisited.top();
       notVisited.pop();
       canReach[i][j] = true;
@@ -63,25 +62,45 @@ SEXP commclassesKernel(NumericMatrix P) {
     }
   }
   
-  arma::mat commClasses(numStates, numStates);
-  
-  for(int i = 0; i < numStates; ++i)
-    for(int j = 0; j < numStates; ++j)
-      commClasses(i, j) = canReach[i][j] && canReach[j][i];
-  
-  LogicalVector v(numStates);
-  LogicalMatrix C = as<LogicalMatrix>(wrap(commClasses));
+  LogicalMatrix C(numStates, numStates);
   C.attr("dimnames") = List::create(stateNames, stateNames);
+  // v populated with FALSEs
+  LogicalVector v(numStates);
   v.names() = stateNames;
   
-  return List::create(_["C"] = commClasses, _["v"] = v);
+  for (int i = 0; i < numStates; ++i) {
+    numReachable = 0;
+    classSize = 0;
+    
+    /* We mark i and j as the same communicating class iff we can reach the
+       state j from i and the state i from j
+       We count the size of the communicating class of i (i is fixed here),
+       and if it matches the number of states that can be reached from i,
+       then the class is closed
+    */
+    for (int j = 0; j < numStates; ++j) {
+      C(i, j) = canReach[i][j] && canReach[j][i];
+      
+      if (C(i,j))
+        numReachable += 1;
+      
+      if (canReach[i][j])
+        classSize += 1;
+    }
+    
+    if (classSize == numReachable)
+      v(i) = true;
+  }
+  
+  return List::create(_["C"] = C, _["v"] = v);
 }
 
-//returns the underlying communicating classes
 // [[Rcpp::export(.communicatingClassesRcpp)]]
 List communicatingClasses(S4 object) {
+  //returns the underlying communicating classes
+  
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   LogicalMatrix adjMatr = temp["C"];
   int len = adjMatr.nrow();
   List classesList;
@@ -131,7 +150,7 @@ List communicatingClasses(S4 object) {
 // [[Rcpp::export(.recurrentClassesRcpp)]]
 List recurrentClasses(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   List v = temp["v"];
   CharacterVector ns = v.names();
@@ -182,7 +201,7 @@ NumericMatrix commStatesFinder(NumericMatrix matr) {
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   // List communicatingClassList = communicatingClasses(temp["C"]);
   List v = temp["v"];

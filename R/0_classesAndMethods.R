@@ -505,7 +505,7 @@ setMethod("transientStates", "markovchain",
 			        matr <- t(object@transitionMatrix)
 			      }
 			      
-			      temp <- .commclassesKernelRcpp(matr)
+			      temp <- .commClassesKernelRcpp(matr)
 			      index <- which(temp$v == FALSE)
 			      if(length(index) > 0) {
 			        out <- names(temp$v[index])
@@ -702,8 +702,8 @@ setMethod("canonicForm", "markovchain",
             # Obtain the canonical form Q of a stochastic matrix P
             P <- object@transitionMatrix
             
-            # Uses the internal function commclassesKernelRcpp
-            comclasList <- .commclassesKernelRcpp(P)
+            # Uses the internal function commClassesKernelRcpp
+            comclasList <- .commClassesKernelRcpp(P)
             
             # vu is a row vector of 0s and 1s. vu(i) = 1 if
             # the class C(i) is closed, and 0 otherwise
@@ -758,8 +758,8 @@ setMethod("canonicForm", "markovchain",
   # Obtain the canonical form Q of a stochastic matrix P
   P <- object@transitionMatrix
   
-  # Uses the internal function commclassesKernelRcpp
-  comclasList <- .commclassesKernelRcpp(P)
+  # Uses the internal function commClassesKernelRcpp
+  comclasList <- .commClassesKernelRcpp(P)
   
   # vu is a row vector of 0s and 1s. vu(i) = 1 if
   # the class C(i) is closed, and 0 otherwise

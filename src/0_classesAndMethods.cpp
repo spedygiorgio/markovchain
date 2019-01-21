@@ -17,14 +17,14 @@ bool isGen(NumericMatrix gen) {
   return true;
 }
 
-SEXP commclassesKernel(NumericMatrix P);
+SEXP commClassesKernel(NumericMatrix P);
 
 // method to convert into canonic form a markovchain object
 // [[Rcpp::export(.canonicFormRcpp)]]
 SEXP canonicForm (S4 object)
 {
   NumericMatrix P = object.slot("transitionMatrix");
-  List comclasList = commclassesKernel(P);
+  List comclasList = commClassesKernel(P);
   LogicalVector vu = comclasList["v"];
   NumericVector u, w; 
   for(int i = 0; i < vu.size(); i ++) {

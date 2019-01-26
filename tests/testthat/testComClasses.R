@@ -48,10 +48,24 @@ test_that("Communicating classes of identity matrix of size n are {1, ..., n}", 
   
   for (markovChain in diagonalMCs) {
     transitionMatrix <- attr(markovChain, "transitionMatrix")
-    expected <- apply(transitionMatrix, 1, function(x){ x == 1 })
+    states <- attr(markovChain, "states")
+    expected <- as.matrix(apply(transitionMatrix, 1, function(x){ x == 1 }))
+    colnames(expected) <- states
+    rownames(expected) <- states
     communicating <- .commClassesKernelRcpp(transitionMatrix)
     C <- communicating$C
     
     expect_equal(C, expected)
+  }
+})
+
+
+test_that("All clasess are closed for identity matrixes", {
+  
+  for (markovChain in diagonalMCs) {
+    transitionMatrix <- attr(markovChain, "transitionMatrix")
+    areClosed <- .commClassesKernelRcpp(transitionMatrix)$v
+    
+    expect_false(any(!areClosed))
   }
 })

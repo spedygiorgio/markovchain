@@ -47,7 +47,8 @@ Suggests:
     rmarkdown,
     ctmcd,
     MmgraphR,
-    bookdown
+    bookdown,
+    rticles
 VignetteBuilder: utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo
 SystemRequirements: GNU make

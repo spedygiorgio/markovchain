@@ -1523,10 +1523,10 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                        Used only when \code{method} equal to "mle".
 //' @param confint a boolean to decide whether to compute Confidence Interval or not.                       
 //' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
-//'                   default value of 1 is assigned to each parameter. This must be of size kxk 
-//'                   where k is the number of states in the chain and the values should typically 
-//'                   be non-negative integers.                        
-//' @param stringchar It can be a nx2 matrix or a character vector or a list
+//'                   default value of 1 is assigned to each parameter. This must be of size
+//'                   {k x k} where k is the number of states in the chain and the values
+//'                   should typically be non-negative integers.                        
+//' @param stringchar It can be a {n x n} matrix or a character vector or a list
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence
@@ -1549,7 +1549,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'             package version 0.2.5          
 //'             
 //' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
-//' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
+//' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
 //'       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
 //'       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
 //'       currently available.
@@ -1581,6 +1581,10 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
                     double confidencelevel = 0.95, bool confint = true, 
                     NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false, 
                     CharacterVector possibleStates = CharacterVector()) {
+
+  if (method != "mle" && method != "bootstrap" && method != "map" && method != "laplace") {
+     stop ("method should be one of \"mle\", \"bootsrap\", \"map\" or \"laplace\"");
+  }
   
   // list to store the output
   List out;
@@ -1607,20 +1611,19 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
   	
     // byrow assumes distinct observations (trajectiories) are per row
     // otherwise transpose
-    if (!byrow) {
-      mat = _transpose(mat); 
-    }
+    if (!byrow)
+      mat = _transpose(mat);
   	
-    S4 outMc =_matr2Mc(mat, laplacian, sanitize, possibleStates);
+    S4 outMc = _matr2Mc(mat, laplacian, sanitize, possibleStates);
   	
     // whether to compute confidence interval or not
     if (confint) {
       // convert matrix to list
       int nrows = mat.nrow();
       List manyseq(nrows);
-      for (int i = 0;i < nrows;i++) {
-        manyseq[i] = mat(i,_);
-      }
+      
+      for (int i = 0; i < nrows; i++)
+        manyseq[i] = mat(i, _);
   	  
       out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
       out[0] = outMc;
@@ -1628,34 +1631,30 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       out = List::create(_["estimate"] = outMc);
     }
   }
-  else if (TYPEOF(data) == VECSXP) { 
+  else if (TYPEOF(data) == VECSXP) {
     if (method == "mle") {
-      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);  
+      out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
     } else if (method == "map") {
       out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize, possibleStates);
-    }
+    } else
+      stop("method not available for a list");
   }
   else {
     if (method == "mle") {
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
-    }
-    
-    if (method == "bootstrap") {
+    } else if (method == "bootstrap") {
       out = _mcFitBootStrap(data, nboot, byrow, parallel,
                             confidencelevel, sanitize, possibleStates);
-    }
-  
-    if (method == "laplace") {
+    } else if (method == "laplace") {
       out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize, possibleStates);
-    }
-    
-    if (method == "map") {
+    } else if (method == "map") {
       out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize, possibleStates);
     }
   }
   
   // markovchain object
   S4 estimate = out["estimate"];
+  
   if (name != "") {
     estimate.slot("name") = name; 
   }

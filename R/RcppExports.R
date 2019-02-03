@@ -126,7 +126,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'  it fits the underlying Markov chain distribution using either MLE (also using a 
 #'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 #'  
-#' @param data It can be a character vector or a nx2 matrix or a nx2 data frame or a list
+#' @param data It can be a character vector or a {n x n} matrix or a {n x n} data frame or a list
 #' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
 #' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
 #' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
@@ -138,10 +138,10 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'                        Used only when \code{method} equal to "mle".
 #' @param confint a boolean to decide whether to compute Confidence Interval or not.                       
 #' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
-#'                   default value of 1 is assigned to each parameter. This must be of size kxk 
-#'                   where k is the number of states in the chain and the values should typically 
-#'                   be non-negative integers.                        
-#' @param stringchar It can be a nx2 matrix or a character vector or a list
+#'                   default value of 1 is assigned to each parameter. This must be of size
+#'                   {k x k} where k is the number of states in the chain and the values
+#'                   should typically be non-negative integers.                        
+#' @param stringchar It can be a {n x n} matrix or a character vector or a list
 #' @param toRowProbs converts a sequence matrix into a probability matrix
 #' @param sanitize put 1 in all rows having rowSum equal to zero
 #' @param possibleStates Possible states which are not present in the given sequence
@@ -164,7 +164,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'             package version 0.2.5          
 #'             
 #' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
-#' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
+#' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
 #'       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
 #'       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
 #'       currently available.

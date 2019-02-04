@@ -151,7 +151,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>stringchar</th>
-      <td><p>It can be a n x n matrix or a character vector or a list</p></td>
+      <td><p>It can be a nx2 matrix or a character vector or a list</p></td>
     </tr>
     <tr>
       <th>toRowProbs</th>
@@ -167,7 +167,7 @@
     </tr>
     <tr>
       <th>data</th>
-      <td><p>It can be a character vector or a n x n matrix or a n x n data frame or a list</p></td>
+      <td><p>It can be a character vector or a nx2 matrix or a nx2 data frame or a list</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -227,7 +227,7 @@ contain <code>NAs</code>, the related <code>NA</code> containing transitions wil
     
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
+    <p>This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
       When <code>data</code> is either a <code>data.frame</code> or a <code>matrix</code> object, only MLE fit is 
       currently available.</p>

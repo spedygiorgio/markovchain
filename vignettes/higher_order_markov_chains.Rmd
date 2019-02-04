@@ -70,7 +70,6 @@ The output will be a `list` which consists of
   1. lambda: model parameter(s).
   2. Q: a list of transition matrices. $Q_i$ is the $ith$ step transition matrix stored column-wise.
   3. X: frequency probability vector of the given sequence.
-\end{enumerate}
 
 Its quadratic programming problem is solved using `solnp` function of the Rsolnp package [@pkg:Rsolnp]. 
 

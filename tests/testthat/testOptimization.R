@@ -13,7 +13,7 @@ mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
                      name = "Mathematica MC", states = statesNames)
 
 # ####end creating DTMC
-# test .gcdRcpp function, .commClassesKernelRcpp function, .commStatesFinderRcpp function
+# test .gcdRcpp function, .commclassesKernelRcpp function, .commStatesFinderRcpp function
 context("Optimization of functions")
 
 test_that("Optimized functions should satisfy", 

@@ -4,7 +4,7 @@
 \name{steadyStates}
 \alias{steadyStates}
 \alias{steadyStates,markovchain-method}
-\title{Stationary states of a \code{markovchain} object}
+\title{Stationary states of a \code{markovchain} objeect}
 \usage{
 steadyStates(object)
 

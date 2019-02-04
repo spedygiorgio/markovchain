@@ -14,7 +14,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   sanitize = FALSE, possibleStates = character())
 }
 \arguments{
-\item{stringchar}{It can be a {n x n} matrix or a character vector or a list}
+\item{stringchar}{It can be a nx2 matrix or a character vector or a list}
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 
@@ -22,7 +22,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 \item{possibleStates}{Possible states which are not present in the given sequence}
 
-\item{data}{It can be a character vector or a {n x n} matrix or a {n x n} data frame or a list}
+\item{data}{It can be a character vector or a nx2 matrix or a nx2 data frame or a list}
 
 \item{method}{Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"}
 
@@ -64,7 +64,7 @@ Disabling confint would lower the computation time on large datasets. If \code{d
 contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 }
 \note{
-This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
+This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "euristically". 
       In addition, parallel facility is not complete, involving only a part of the bootstrap process.
       When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
       currently available.

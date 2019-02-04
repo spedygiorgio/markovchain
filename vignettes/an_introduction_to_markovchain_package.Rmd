@@ -648,7 +648,7 @@ absorbingStates(mcWeather)
 The key function used within \cite{renaldoMatlab} (and \pkg{markovchain}'s derived functions) is `.commclassKernel`, that is called below.
 
 ```{r commclassKernel}
-.commclassesKernel <- function(P){
+.commClassesKernel <- function(P){
   m <- ncol(P)
 	stateNames <- rownames(P)
 	T <- zeros(m) 
@@ -709,7 +709,7 @@ rownames(P) <- letters[1:10]
 colnames(P) <- letters[1:10]
 probMc <- new("markovchain", transitionMatrix = P, 
               name = "Probability MC")
-.commclassesKernel(P)
+.commClassesKernel(P)
 summary(probMc)
 ```
 

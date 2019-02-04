@@ -1,4 +1,4 @@
-context("Checking that steadyStates works ad expected")
+context("Checking that steadyStates works as expected")
 
 #load & prepare data
 data(rain)

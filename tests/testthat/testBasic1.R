@@ -201,7 +201,7 @@ test_that("createSequenceMatrix : Permutation of parameters",{
                       byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
 })
 
-### Test for createSequenceMatrix : input nx2 matrix
+### Test for createSequenceMatrix : input {n x n} matrix
 data <- matrix(c("a", "a", "b", "a", "b", "a", "b", "a", NA, "a", "a", "a", "a", "b", NA, "b"), ncol = 2,
                byrow = TRUE)
 

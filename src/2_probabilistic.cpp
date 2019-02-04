@@ -2,6 +2,8 @@
 
 #include <RcppArmadillo.h>
 #include <math.h>
+#include <algorithm>
+#include <stack>
 
 using namespace Rcpp;
 using namespace std;
@@ -9,128 +11,136 @@ using namespace std;
 template <typename T>
 T sortByDimNames(const T m);
 
-// check if two vectors are intersected
+// check if two sorted vectors are intersected
 bool _intersected(CharacterVector v1, CharacterVector v2) {
   CharacterVector::iterator first1 = v1.begin();
   CharacterVector::iterator last1 = v1.end();
   CharacterVector::iterator first2 = v2.begin();
   CharacterVector::iterator last2 = v2.end();
-  while(first1!=last1 && first2!=last2) {
-    if(*first1 == *first2) return true;
-    else if(*first1 < *first2) ++first1;
+
+  while (first1!=last1 && first2!=last2) {
+    if (*first1 == *first2) return true;
+    else if (*first1 < *first2) ++first1;
     else ++first2;    
   }
+  
   return false;
 }
 
-// communicating classes kernel
-// [[Rcpp::export(.commclassesKernelRcpp)]]
-SEXP commclassesKernel(NumericMatrix P){
-  unsigned int m = P.ncol(), n;
+// [[Rcpp::export(.commClassesKernelRcpp)]]
+SEXP commClassesKernel(NumericMatrix P) {
+  unsigned int numStates = P.ncol();
   CharacterVector stateNames = rownames(P);
-  std::vector<int> a;
-  arma::vec b, c, d;
-  arma::mat T = arma::zeros(m, m);
-  unsigned int i = 0;
-  int oldSum, newSum;
-  while(i < m) {
-    a.resize(0);
-    a.push_back(i);
-    b = arma::zeros<arma::vec>(m);
-    b[i] = 1;
-    newSum = 0;
-    oldSum = 1;
-    while(oldSum != newSum) {
-      oldSum = 0;
-      for(unsigned int j = 0; j < b.size(); j ++)
-        if(b[j] > 0) oldSum += (j + 1);
-      n = a.size();
-      NumericVector temp; 
-      NumericMatrix matr(n, m);
-      c = arma::zeros<arma::vec>(m);
-      for(unsigned int j = 0; j < n; j ++) {
-        temp = P.row(a[j]);
-        for(int k = 0; k < temp.size(); k++)  {
-          matr(j, k) = temp[k];
-          c[k] += matr(j, k);
-        }
-      }
-      newSum = 0;
-      a.resize(0);
-      for(unsigned int j = 0; j < b.size(); j++) {
-        if(c[j] > 0) {
-          b[j] = 1; a.push_back(j);
-        }
-        if(b[j] > 0) newSum += (j + 1);
+  int numReachable;
+  int classSize;
+  
+  // The entry (i,j) of this matrix is true iff we can reach j from i
+  vector<vector<bool>> canReach(numStates, vector<bool>(numStates, false));
+  vector<list<int>> adjacencies(numStates);
+  
+  // We fill the adjacencies matrix for the graph
+  // A state j is in the adjacency of i iff P(i, j) > 0
+  for (int i = 0; i < numStates; ++i)
+    for (int j = 0; j < numStates; ++j)
+      if (P(i, j) > 0)
+        adjacencies[i].push_back(j);
+
+  
+  for (int i = 0; i < numStates; ++i) {
+    stack<int> notVisited;
+    notVisited.push(i);
+    
+    while (!notVisited.empty()) {
+      int j = notVisited.top();
+      notVisited.pop();
+      canReach[i][j] = true;
+      
+      for (int k: adjacencies[j]) {
+        if (!canReach[i][k])
+          notVisited.push(k);
       }
     }
-    for(unsigned int j = 0; j < b.size(); j ++)
-      T(i, j) = b[j];
-    i++;
   }
-  arma::mat F = arma::trans(T);
-  LogicalMatrix C;
-  arma::mat Ca(T.n_rows, T.n_cols);
-  for(i = 0; i < T.n_rows; i ++) {
-   for(unsigned int j = 0; j < T.n_cols; j++) {
-      Ca(i, j) = (T(i, j) > 0 && F(i, j) > 0);
-   }
-  }
-  LogicalVector v(T.n_cols);
-  arma::mat tC = Ca.t();
-  arma::mat tT = T.t();
-  IntegerVector sums(tC.n_cols);
-  for(unsigned int j = 0; j < T.n_cols; j++) {
-    sums[j] = 0;
-    for(i = 0; i < T.n_rows; i ++)
-      if(tC(i, j) == tT(i, j)) sums[j] ++;
-    v[j] = (sums[j] == (int)m);
-  }
-  C = as<LogicalMatrix>(wrap(Ca));
+  
+  LogicalMatrix C(numStates, numStates);
   C.attr("dimnames") = List::create(stateNames, stateNames);
+  // v populated with FALSEs
+  LogicalVector v(numStates);
   v.names() = stateNames;
+  
+  for (int i = 0; i < numStates; ++i) {
+    numReachable = 0;
+    classSize = 0;
+    
+    /* We mark i and j as the same communicating class iff we can reach the
+       state j from i and the state i from j
+       We count the size of the communicating class of i (i is fixed here),
+       and if it matches the number of states that can be reached from i,
+       then the class is closed
+    */
+    for (int j = 0; j < numStates; ++j) {
+      C(i, j) = canReach[i][j] && canReach[j][i];
+      
+      if (C(i,j))
+        numReachable += 1;
+      
+      if (canReach[i][j])
+        classSize += 1;
+    }
+    
+    if (classSize == numReachable)
+      v(i) = true;
+  }
+  
   return List::create(_["C"] = C, _["v"] = v);
 }
 
-//returns the underlying communicating classes
 // [[Rcpp::export(.communicatingClassesRcpp)]]
-List communicatingClasses(S4 object)
-{
+List communicatingClasses(S4 object) {
+  //returns the underlying communicating classes
+  
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   LogicalMatrix adjMatr = temp["C"];
   int len = adjMatr.nrow();
   List classesList;
   CharacterVector rnames = rownames(adjMatr);
-  for(int i = 0; i < len; i ++) {
+  
+  for (int i = 0; i < len; i ++) {
     bool isNull = false;
     LogicalVector row2Check = adjMatr(i, _);
     CharacterVector proposedCommClass;
-    for(int j = 0; j < row2Check.size(); j++) {
-      if(row2Check[j] == true) {
+    
+    for (int j = 0; j < row2Check.size(); j++) {
+      if (row2Check[j] == true) {
         String rname = rnames[j];
         proposedCommClass.push_back(rname);
       }
     }
+    
     if (i > 0) {
-      for(int j = 0; j < classesList.size(); j ++) {
+      for (int j = 0; j < classesList.size(); j ++) {
         bool check = false;        
         CharacterVector cv = classesList[j];
         std::set<std::string> s1, s2;
-        for(int k = 0; k < cv.size(); k ++) {
+        
+        for (int k = 0; k < cv.size(); k ++) {
           s1.insert(as<std::string>(cv[k]));
-          if(proposedCommClass.size() > k) {
+          if (proposedCommClass.size() > k) {
             s2.insert(as<std::string>(proposedCommClass[k]));
           }
         }
+        
         check = std::equal(s1.begin(), s1.end(), s2.begin());
-        if(check) {
+        
+        if (check) {
           isNull = true;
           break;
         }
       }
     }
-    if(!isNull) 
+    
+    if (!isNull) 
       classesList.push_back(proposedCommClass);
   }
   return classesList;
@@ -138,101 +148,44 @@ List communicatingClasses(S4 object)
 
 // returns the recurrent classes
 // [[Rcpp::export(.recurrentClassesRcpp)]]
-List recurrentClasses(S4 object)
-{
+List recurrentClasses(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   List v = temp["v"];
   CharacterVector ns = v.names();
-  CharacterVector transientStates; 
-  for(int i = 0; i < v.size(); i++) {
-    if(bool(v[i]) == false)
+  CharacterVector transientStates;
+  
+  for (int i = 0; i < v.size(); i++) {
+    if (bool(v[i]) == false)
       transientStates.push_back(ns[i]);
   }
+  
   List recurrentClassesList;
   
-  for(int i = 0; i < communicatingClassList.size(); i ++)
-  {
+  for (int i = 0; i < communicatingClassList.size(); i ++) {
     CharacterVector class2Test = communicatingClassList[i];
-    if(!_intersected(class2Test,transientStates)) 
+    
+    if (!_intersected(class2Test,transientStates)) 
       recurrentClassesList.push_back(class2Test);
   }
+  
   return recurrentClassesList;
-  /*
-  NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
-  LogicalMatrix adjMatr = temp["C"];
-  int len = adjMatr.nrow();
-  List classesList;
-  CharacterVector rnames = rownames(adjMatr);
-  for(int i = 0; i < len; i ++) {
-    Rcout << i << std::endl;
-    bool isNull = false;
-    LogicalVector row2Check = adjMatr(i, _);
-    CharacterVector proposedCommClass;
-    for(int j = 0; j < row2Check.size(); j++) {
-      if(row2Check[j] == true) {
-        String rname = rnames[j];
-        proposedCommClass.push_back(rname);
-      } else if(matr(i, j) > 0) {
-        isNull = true;
-        break;
-      }
-    }
-    Rcout << isNull << std::endl;
-    if (i > 0) {
-      for(int j = 0; j < classesList.size(); j ++) {
-        bool check = false;        
-        CharacterVector cv = classesList[j];
-        std::set<std::string> s1, s2;
-        for(int k = 0; k < cv.size(); k ++) {
-          s1.insert(as<std::string>(cv[k]));
-        }
-        // if(proposedCommClass.size() > k) {
-        for(int k = 0; k < proposedCommClass.size(); k ++) {
-            s2.insert(as<std::string>(proposedCommClass[k]));
-        }
-        if(!s1.empty() && !s2.empty()) {
-          Rcout << "s1" << " ";
-          for(std::set<std::string>::iterator it = s1.begin(); it != s1.end(); it ++)
-            Rcout << (*it) << " ";
-          Rcout << std::endl;
-          Rcout << "s2" << " ";
-          for(std::set<std::string>::iterator it = s2.begin(); it != s2.end(); it ++)
-            Rcout << (*it) << " ";
-          Rcout << std::endl;
-          check = std::equal(s1.begin(), s1.end(), s2.begin());
-        }
-        if(check) {
-          // Rf_PrintValue(proposedCommClass);
-          isNull = true;
-          break;
-        }
-      }
-    }
-    if(!isNull) {
-      // Rcout << proposedCommClass << std::endl;
-      Rf_PrintValue(proposedCommClass);
-      classesList.push_back(proposedCommClass);
-    }
-  }
-  return classesList;
-   */
 }
 
 // matrix power function
 arma::mat _pow(arma::mat A, int n) {
   arma::mat R = arma::eye(A.n_rows, A.n_rows);
-  for(int i = 0; i < n; i ++) 
+  
+  for (int i = 0; i < n; i ++) 
     R = A*R;
+  
   return R;
 }
 
 //communicating states
 // [[Rcpp::export(.commStatesFinderRcpp)]]
-NumericMatrix commStatesFinder(NumericMatrix matr)
-{
+NumericMatrix commStatesFinder(NumericMatrix matr) {
   //Reachability matrix
   int dimMatr = matr.nrow();
   arma::mat X(matr.begin(), dimMatr, dimMatr, false);
@@ -240,50 +193,54 @@ NumericMatrix commStatesFinder(NumericMatrix matr)
   temp = _pow(temp, dimMatr - 1);
   NumericMatrix R = wrap(arma::sign(temp));
   R.attr("dimnames") = matr.attr("dimnames");
+  
   return R;
 }
 
 // summary of markovian object
 // [[Rcpp::export(.summaryKernelRcpp)]]
-List summaryKernel(S4 object)
-{
+List summaryKernel(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
-  List temp = commclassesKernel(matr);
+  List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   // List communicatingClassList = communicatingClasses(temp["C"]);
   List v = temp["v"];
   CharacterVector ns = v.names();
-  CharacterVector transientStates; 
-  for(int i = 0; i < v.size(); i++) {
-    if(bool(v[i]) == false)
+  CharacterVector transientStates;
+  
+  for (int i = 0; i < v.size(); i++) {
+    if (bool(v[i]) == false)
       transientStates.push_back(ns[i]);
   }
   List closedClasses, transientClasses, recurrentClassesList;
 
-  for(int i = 0; i < communicatingClassList.size(); i ++)
-  {
+  for (int i = 0; i < communicatingClassList.size(); i ++) {
     CharacterVector class2Test = communicatingClassList[i];
-    if(_intersected(class2Test,transientStates)) 
+    
+    if (_intersected(class2Test,transientStates)) 
         transientClasses.push_back(class2Test); 
       else {
         bool isClosed = true;
-        for(int j = 0; j < class2Test.size(); j ++) {
-          for(int from = 0; from < ns.size(); from ++) {
+        
+        for (int j = 0; j < class2Test.size(); j ++) {
+          for (int from = 0; from < ns.size(); from ++) {
             bool inclass = false;
-            if(ns[from] != class2Test[j]) continue;
-            for(int to = 0; to < matr.cols(); to ++) {
-              for(int k = 0; k < class2Test.size(); k ++) {
-                if(class2Test[k] == ns[to]) inclass = true;
+            
+            if (ns[from] != class2Test[j]) continue;
+            
+            for (int to = 0; to < matr.cols(); to ++) {
+              for (int k = 0; k < class2Test.size(); k ++) {
+                if (class2Test[k] == ns[to]) inclass = true;
               }
-              if(from == to || inclass) continue;
-              if(matr(from, to) != 0) {
+              if (from == to || inclass) continue;
+              if (matr(from, to) != 0) {
                 isClosed = false;
                 break;
               }
             }
           }
         }
-        if(isClosed)
+        if (isClosed)
           closedClasses.push_back(class2Test);
         // recurrentClassesList.push_back(class2Test);
       }
@@ -292,94 +249,97 @@ List summaryKernel(S4 object)
   List summaryMc = List::create(_["closedClasses"] = closedClasses,
                                 _["recurrentClasses"] = recurrentClassesList,
                                 _["transientClasses"] = transientClasses);
+  
   return(summaryMc);
 }
 
 //here the kernel function to compute the first passage
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
-NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n){
+NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n) {
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
-  arma::mat H(n, P.ncol()); //here Thoralf suggestion
+  arma::mat H(n, P.ncol()); 
+  
+  //here Thoralf suggestion
   //initializing the first row
-  for(unsigned int j = 0; j < G.n_cols; j++)
+  for (unsigned int j = 0; j < G.n_cols; j++)
     H(0, j) = G(i-1, j);
+  
   arma::mat E = 1 - arma::eye(P.ncol(), P.ncol());
 
   for (int m = 1; m < n; m++) {
     G = Pa * (G%E);
-    for(unsigned int j = 0; j < G.n_cols; j ++) 
+    
+    for (unsigned int j = 0; j < G.n_cols; j ++) 
       H(m, j) = G(i-1, j);
   }
+  
   NumericMatrix R = wrap(H);
+  
   return R;
 }
 
 
 
 // [[Rcpp::export(.firstPassageMultipleRCpp)]]
-NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setno, int n)
-{
+NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setno, int n) {
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::vec H = arma::zeros(n); //here Thoralf suggestion
   unsigned int size = setno.size();
   //initializing the first row
-  for(unsigned int k = 0; k < size; k++){
-      H[0] += G(i-1, setno[k]-1);
-    }
-    
+  for (unsigned int k = 0; k < size; k++) {
+    H[0] += G(i-1, setno[k]-1);
+  }
   
   arma::mat E = 1 - arma::eye(P.ncol(), P.ncol());
   
   for (int m = 1; m < n; m++) {
     G = Pa * (G%E);
-    for(unsigned int k = 0; k < size; k++){
+    
+    for (unsigned int k = 0; k < size; k++) {
       H[m] += G(i-1, setno[k]-1);
     }
   }
+  
   NumericVector R = wrap(H);
+  
   return R;
 }
 
 // [[Rcpp::export(.expectedRewardsRCpp)]]
-NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards)
-{
+NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards) {
   // initialises output vector
   NumericVector out;
   
   // gets no of states
-  int no_of_states = matrix.ncol(); 
-  
+  int no_of_states = matrix.ncol();
   
   // initialises armadillo matrices and vectors
   arma::vec temp = arma::zeros(no_of_states);
   arma::mat matr = as<arma::mat>(matrix);
   arma::vec v = arma::zeros(no_of_states);
   
-  
   // initialses the vector for the base case of dynamic programming expression
-  for(int i=0;i<no_of_states;i++)
-  {
+  for (int i=0;i<no_of_states;i++) {
     temp[i] = rewards[i];
     v[i] = rewards[i];
   }
   
   // v(n, u) = r + [P]v(n−1, u);
-  for(int i=0;i<n;i++)
-  {
+  for (int i=0;i<n;i++) {
     temp = v + matr*temp;
   }
   
   // gets output in form of NumericVector
   out = wrap(temp);
+  
   return out;
 }
 
 // [[Rcpp::export(.expectedRewardsBeforeHittingARCpp)]]
 double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
-                               NumericVector rewards, int n )
-{
+                               NumericVector rewards, int n ) {
   float result = 0.0;
   int size = rewards.size();
   arma::mat matr = as<arma::mat>(matrix);
@@ -387,19 +347,17 @@ double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
   arma::vec r = as<arma::vec>(rewards);
   arma::mat I = arma::zeros(1,size);
   
-  
   I(0,s0-1) = 1;
   
-  for(int j=0;j<n;j++)
-  {
+  for (int j = 0; j < n; j++) {
     arma::mat res = I*(temp*r);
     result = result + res(0,0);
     temp = temp*matr;
   }
+  
   return result;
 }
   
-
 
 // greatest common denominator
 // [[Rcpp::export(.gcdRcpp)]]
@@ -407,9 +365,11 @@ int gcd (int a, int b) {
   int c;
   a = abs(a);
   b = abs(b);
+
   while ( a != 0 ) {
     c = a; a = b%a;  b = c;
   }
+  
   return b;
 }
 
@@ -423,7 +383,8 @@ int gcd (int a, int b) {
 int period(S4 object) {
   Function isIrreducible("is.irreducible");
   List res = isIrreducible(object);
-  if(!res[0]) {
+  
+  if (!res[0]) {
     warning("The matrix is not irreducible");
     return 0;
   } else {
@@ -435,19 +396,23 @@ int period(S4 object) {
     if (n > 0) {
       arma::vec v(n);
       v[0] = 1;
-      while(m>0 && d!=1) {
+      
+      while (m>0 && d!=1) {
         i = T[0];
         T.erase(T.begin());
         w.push_back(i);
         j = 0;
-        while(j < n) {
-          if(P(i,j) > 0) {
+        
+        while (j < n) {
+          if (P(i,j) > 0) {
             r.insert(r.end(), w.begin(), w.end());
             r.insert(r.end(), T.begin(), T.end());
             double k = 0;
-            for(std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
-              if(*it == j) k ++;
-            if(k > 0) {
+            
+            for (std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
+              if (*it == j) k ++;
+            
+            if (k > 0) {
                int b = v[i] + 1 - v[j];
                d = gcd(d, b);
             } else {
@@ -455,11 +420,12 @@ int period(S4 object) {
               v[j] = v[i] + 1;
             }
           }
-          j ++;
+          j++;
         }
         m = T.size();
       }
     }
+    
     // v = v - floor(v/d)*d;
     return d;
   }
@@ -469,27 +435,30 @@ int period(S4 object) {
 double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix()) {
   // construct list of states
   CharacterVector elements = stringchar;
-  for(int i = 0; i < newData.size(); i++)
+  
+  for (int i = 0; i < newData.size(); i++)
     elements.push_back(newData[i]);
   
   elements = unique(elements).sort();
   int sizeMatr = elements.size();
   
   // if no hyperparam argument provided, use default value of 1 for all 
-  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
+  if (hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
     NumericMatrix temp(sizeMatr, sizeMatr);
     temp.attr("dimnames") = List::create(elements, elements);
-    for(int i = 0; i < sizeMatr; i++)
-      for(int j = 0; j < sizeMatr; j++)
+    
+    for (int i = 0; i < sizeMatr; i++)
+      for (int j = 0; j < sizeMatr; j++)
         temp(i, j) = 1;
+    
     hyperparam = temp;
   }
   
   // validity check
-  if(hyperparam.nrow() != hyperparam.ncol())
+  if (hyperparam.nrow() != hyperparam.ncol())
     stop("Dimensions of the hyperparameter matrix are inconsistent");
     
-  if(hyperparam.nrow() < sizeMatr)
+  if (hyperparam.nrow() < sizeMatr)
     stop("Hyperparameters for all state transitions must be provided");
     
   List dimNames = hyperparam.attr("dimnames");
@@ -497,40 +466,46 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   CharacterVector rowNames = dimNames[0];
   int sizeHyperparam = hyperparam.ncol();
   CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
-  for(int i = 0; i < sizeHyperparam; i++)
+  
+  for (int i = 0; i < sizeHyperparam; i++)
     sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+
   sortedColNames.sort();
   sortedRowNames.sort();
   
-  for(int i = 0; i < sizeHyperparam; i++){
-    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+  for (int i = 0; i < sizeHyperparam; i++) {
+    if (i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
       stop("The states must all be unique");
-    else if(sortedColNames(i) != sortedRowNames(i))
+    else if (sortedColNames(i) != sortedRowNames(i))
       stop("The set of row names must be the same as the set of column names");
+    
     bool found = false;
-    for(int j = 0; j < sizeMatr; j++)
-      if(elements(j) == sortedColNames(i))
+    
+    for (int j = 0; j < sizeMatr; j++)
+      if (elements(j) == sortedColNames(i))
         found = true;
     // hyperparam may contain states not in stringchar
-    if(!found)  elements.push_back(sortedColNames(i));
+    if (!found)  elements.push_back(sortedColNames(i));
   }
   
   // check for the case where hyperparam has missing data
-  for(int i = 0; i < sizeMatr; i++){
+  for (int i = 0; i < sizeMatr; i++) {
     bool found = false;
-    for(int j = 0; j < sizeHyperparam; j++)
-      if(sortedColNames(j) == elements(i))
+    
+    for (int j = 0; j < sizeHyperparam; j++)
+      if (sortedColNames(j) == elements(i))
         found = true;
-    if(!found)
+    
+    if (!found)
       stop("Hyperparameters for all state transitions must be provided");
   }   
       
   elements = elements.sort();
   sizeMatr = elements.size();
   
-  for(int i = 0; i < sizeMatr; i++)
-    for(int j = 0; j < sizeMatr; j++)
-      if(hyperparam(i, j) < 1.)
+  for (int i = 0; i < sizeMatr; i++)
+    for (int j = 0; j < sizeMatr; j++)
+      if (hyperparam(i, j) < 1.)
         stop("The hyperparameter elements must all be greater than or equal to 1");
   
   // permute the elements of hyperparam such that the row, column names are sorted
@@ -542,26 +517,28 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
 
   // populate frequeny matrix for old data; this is used for inference 
   int posFrom = 0, posTo = 0;
-  for(int i = 0; i < stringchar.size() - 1; i ++) {
+  
+  for (int i = 0; i < stringchar.size() - 1; i ++) {
     for (int j = 0; j < sizeMatr; j ++) {
-      if(stringchar[i] == elements[j]) posFrom = j;
-      if(stringchar[i + 1] == elements[j]) posTo = j;
+      if (stringchar[i] == elements[j]) posFrom = j;
+      if (stringchar[i + 1] == elements[j]) posTo = j;
     }
     freqMatr(posFrom,posTo)++;
   }
   
   // frequency matrix for new data
-  for(int i = 0; i < newData.size() - 1; i ++) {
+  for (int i = 0; i < newData.size() - 1; i ++) {
     for (int j = 0; j < sizeMatr; j ++) {
-      if(newData[i] == elements[j]) posFrom = j;
-      if(newData[i + 1] == elements[j]) posTo = j;
+      if (newData[i] == elements[j]) posFrom = j;
+      if (newData[i + 1] == elements[j]) posTo = j;
     }
     newFreqMatr(posFrom,posTo)++;
   }
  
   for (int i = 0; i < sizeMatr; i++) {
     double rowSum = 0, newRowSum = 0, paramRowSum = 0;
-    for (int j = 0; j < sizeMatr; j++){ 
+    
+    for (int j = 0; j < sizeMatr; j++) { 
       rowSum += freqMatr(i, j), newRowSum += newFreqMatr(i, j), paramRowSum += hyperparam(i, j);
       predictiveDist += lgamma(freqMatr(i, j) + newFreqMatr(i, j) + hyperparam(i, j)) -
                         lgamma(freqMatr(i, j) + hyperparam(i, j));
@@ -574,91 +551,107 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
 
 
 // [[Rcpp::export]]
-NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam = NumericMatrix()){
+NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam = NumericMatrix()) {
   // begin validity checks for the transition matrix
-  if(transMatr.nrow() != transMatr.ncol())
+  if (transMatr.nrow() != transMatr.ncol())
     stop("Transition matrix dimensions are inconsistent");
     
   int sizeMatr = transMatr.nrow();
-  for(int i = 0; i < sizeMatr; i++){
+  
+  for (int i = 0; i < sizeMatr; i++) {
     double rowSum = 0., eps = 1e-10;
-    for(int j = 0; j < sizeMatr; j++)
-      if(transMatr(i, j) < 0. || transMatr(i, j) > 1.)
+    
+    for (int j = 0; j < sizeMatr; j++)
+      if (transMatr(i, j) < 0. || transMatr(i, j) > 1.)
         stop("The entries in the transition matrix must each belong to the interval [0, 1]");
       else
         rowSum += transMatr(i, j);
-    if(rowSum <= 1. - eps || rowSum >= 1. + eps)
+    
+    if (rowSum <= 1. - eps || rowSum >= 1. + eps)
       stop("The rows of the transition matrix must each sum to 1");
   }
   
   List dimNames = transMatr.attr("dimnames");
-  if(dimNames.size() == 0)
+  
+  if (dimNames.size() == 0)
     stop("Provide dimnames for the transition matrix");
+  
   CharacterVector colNames = dimNames[1];
   CharacterVector rowNames = dimNames[0];
   CharacterVector sortedColNames(sizeMatr), sortedRowNames(sizeMatr);
-  for(int i = 0; i < sizeMatr; i++)
+  
+  for (int i = 0; i < sizeMatr; i++)
     sortedColNames(i) = colNames(i), sortedRowNames(i) = rowNames(i);
+  
   sortedColNames.sort();
   sortedRowNames.sort();
   
-  for(int i = 0; i < sizeMatr; i++) 
-    if(i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
+  for (int i = 0; i < sizeMatr; i++) 
+    if (i > 0 && (sortedColNames(i) == sortedColNames(i-1) || sortedRowNames(i) == sortedRowNames(i-1)))  
       stop("The states must all be unique");
-    else if(sortedColNames(i) != sortedRowNames(i))
+    else if (sortedColNames(i) != sortedRowNames(i))
       stop("The set of row names must be the same as the set of column names");
   
   // if no hyperparam argument provided, use default value of 1 for all 
-  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1){
+  if (hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
     NumericMatrix temp(sizeMatr, sizeMatr);
     temp.attr("dimnames") = List::create(sortedColNames, sortedColNames);
-    for(int i = 0; i < sizeMatr; i++)
-      for(int j = 0; j < sizeMatr; j++)
+  
+    for (int i = 0; i < sizeMatr; i++)
+      for (int j = 0; j < sizeMatr; j++)
         temp(i, j) = 1;
+  
     hyperparam = temp;
   }
   
   // validity check for hyperparam
-  if(hyperparam.nrow() != hyperparam.ncol())
+  if (hyperparam.nrow() != hyperparam.ncol())
     stop("Dimensions of the hyperparameter matrix are inconsistent");
     
-  if(hyperparam.nrow() != sizeMatr)
+  if (hyperparam.nrow() != sizeMatr)
     stop("Hyperparameter and the transition matrices differ in dimensions");
     
   List _dimNames = hyperparam.attr("dimnames");
-  if(_dimNames.size() == 0)
+
+  if (_dimNames.size() == 0)
     stop("Provide dimnames for the hyperparameter matrix");
+  
   CharacterVector _colNames = _dimNames[1];
   CharacterVector _rowNames = _dimNames[0];
   int sizeHyperparam = hyperparam.ncol();
   CharacterVector _sortedColNames(sizeHyperparam), _sortedRowNames(sizeHyperparam);
-  for(int i = 0; i < sizeHyperparam; i++)
+  
+  for (int i = 0; i < sizeHyperparam; i++)
     _sortedColNames(i) = colNames(i), _sortedRowNames(i) = rowNames(i);
+  
   _sortedColNames.sort();
   _sortedRowNames.sort();
   
-  for(int i = 0; i < sizeHyperparam; i++)
-    if(sortedColNames(i) != _sortedColNames(i) || sortedRowNames(i) != _sortedRowNames(i))
+  for (int i = 0; i < sizeHyperparam; i++)
+    if (sortedColNames(i) != _sortedColNames(i) || sortedRowNames(i) != _sortedRowNames(i))
       stop("Hyperparameter and the transition matrices states differ");
   
-  for(int i = 0; i < sizeMatr; i++)
-    for(int j = 0; j < sizeMatr; j++)
-      if(hyperparam(i, j) < 1.)
+  for (int i = 0; i < sizeMatr; i++)
+    for (int j = 0; j < sizeMatr; j++)
+      if (hyperparam(i, j) < 1.)
         stop("The hyperparameter elements must all be greater than or equal to 1");
  
   transMatr = sortByDimNames(transMatr);
   hyperparam = sortByDimNames(hyperparam);
-  
   NumericVector logProbVec;
-  for(int i = 0; i < sizeMatr; i++){
+  
+  for (int i = 0; i < sizeMatr; i++) {
     double logProb_i = 0., hyperparamRowSum = 0;
-    for(int j = 0; j < sizeMatr; j++){
+  
+    for (int j = 0; j < sizeMatr; j++) {
       hyperparamRowSum += hyperparam(i, j);
       logProb_i += (hyperparam(i, j) - 1.) * log(transMatr(i, j)) - lgamma(hyperparam(i, j));
     }
+    
     logProb_i += lgamma(hyperparamRowSum);
     logProbVec.push_back(logProb_i);
   }
+  
   logProbVec.attr("names") = sortedColNames;
 
   return logProbVec;

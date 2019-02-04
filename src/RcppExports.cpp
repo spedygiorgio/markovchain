@@ -279,14 +279,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// commclassesKernel
-SEXP commclassesKernel(NumericMatrix P);
-RcppExport SEXP _markovchain_commclassesKernel(SEXP PSEXP) {
+// commClassesKernel
+SEXP commClassesKernel(NumericMatrix P);
+RcppExport SEXP _markovchain_commClassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
-    rcpp_result_gen = Rcpp::wrap(commclassesKernel(P));
+    rcpp_result_gen = Rcpp::wrap(commClassesKernel(P));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -484,7 +484,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
     {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
-    {"_markovchain_commclassesKernel", (DL_FUNC) &_markovchain_commclassesKernel, 1},
+    {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},
     {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
     {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},

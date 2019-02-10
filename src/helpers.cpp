@@ -34,17 +34,19 @@ double lbeta(double p, double q){
 }
 
 template <typename T>
-T _transpose(T & m) {      
-  int k = m.rows(), n = m.cols();
-  T z(n, k);
-  z.attr("dimnames") = List::create(colnames(m), rownames(m)); 
-  int sz1 = n*k-1;
-  typename T::iterator mit, zit;
-  for (mit = m.begin(), zit = z.begin(); mit != m.end(); mit++, zit += n) {
-    if (zit >= z.end()) zit -= sz1;
-        *zit = *mit;
+T _transpose(T & mat) {      
+  int numRows = mat.nrow();
+  int numCols = mat.ncol();
+  
+  T transpose(numCols, numRows);
+  // Assign dim names transposed (rows to cols and viceversa)
+  transpose.attr("dimnames") = List::create(colnames(mat), rownames(mat));
+
+  for (int i = 0; i < numCols; ++i) {
+    transpose(i, _) = mat(_, i);
   }
-  return (z);
+  
+  return transpose;
 }
 
 //****************************************************************************80

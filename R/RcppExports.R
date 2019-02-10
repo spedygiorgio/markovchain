@@ -45,6 +45,70 @@ seq2matHigh <- function(sequence, order) {
     .Call('_markovchain_seq2matHigh', PACKAGE = 'markovchain', sequence, order)
 }
 
+.commClassesKernelRcpp <- function(P) {
+    .Call('_markovchain_commClassesKernel', PACKAGE = 'markovchain', P)
+}
+
+.communicatingClassesRcpp <- function(object) {
+    .Call('_markovchain_communicatingClasses', PACKAGE = 'markovchain', object)
+}
+
+.recurrentClassesRcpp <- function(object) {
+    .Call('_markovchain_recurrentClasses', PACKAGE = 'markovchain', object)
+}
+
+.commStatesFinderRcpp <- function(matr) {
+    .Call('_markovchain_commStatesFinder', PACKAGE = 'markovchain', matr)
+}
+
+.summaryKernelRcpp <- function(object) {
+    .Call('_markovchain_summaryKernel', PACKAGE = 'markovchain', object)
+}
+
+.firstpassageKernelRcpp <- function(P, i, n) {
+    .Call('_markovchain_firstpassageKernel', PACKAGE = 'markovchain', P, i, n)
+}
+
+.firstPassageMultipleRCpp <- function(P, i, setno, n) {
+    .Call('_markovchain_firstPassageMultipleRCpp', PACKAGE = 'markovchain', P, i, setno, n)
+}
+
+.expectedRewardsRCpp <- function(matrix, n, rewards) {
+    .Call('_markovchain_expectedRewardsRCpp', PACKAGE = 'markovchain', matrix, n, rewards)
+}
+
+.expectedRewardsBeforeHittingARCpp <- function(matrix, s0, rewards, n) {
+    .Call('_markovchain_expectedRewardsBeforeHittingARCpp', PACKAGE = 'markovchain', matrix, s0, rewards, n)
+}
+
+.gcdRcpp <- function(a, b) {
+    .Call('_markovchain_gcd', PACKAGE = 'markovchain', a, b)
+}
+
+#' @rdname absorbingStates
+#' 
+#' @export
+#' 
+period <- function(object) {
+    .Call('_markovchain_period', PACKAGE = 'markovchain', object)
+}
+
+predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
+    .Call('_markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
+}
+
+priorDistribution <- function(transMatr, hyperparam = matrix()) {
+    .Call('_markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
+}
+
+.multinomialCIForRowRcpp <- function(x, confidencelevel) {
+    .Call('_markovchain_multinomialCIForRow', PACKAGE = 'markovchain', x, confidencelevel)
+}
+
+.multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
+    .Call('_markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
+}
+
 .markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
     .Call('_markovchain_markovchainSequenceRcpp', PACKAGE = 'markovchain', n, markovchain, t0, include_t0)
 }
@@ -196,69 +260,5 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 
 .noofVisitsDistRCpp <- function(matrix, i, N) {
     .Call('_markovchain_noofVisitsDistRCpp', PACKAGE = 'markovchain', matrix, i, N)
-}
-
-.commClassesKernelRcpp <- function(P) {
-    .Call('_markovchain_commClassesKernel', PACKAGE = 'markovchain', P)
-}
-
-.communicatingClassesRcpp <- function(object) {
-    .Call('_markovchain_communicatingClasses', PACKAGE = 'markovchain', object)
-}
-
-.recurrentClassesRcpp <- function(object) {
-    .Call('_markovchain_recurrentClasses', PACKAGE = 'markovchain', object)
-}
-
-.commStatesFinderRcpp <- function(matr) {
-    .Call('_markovchain_commStatesFinder', PACKAGE = 'markovchain', matr)
-}
-
-.summaryKernelRcpp <- function(object) {
-    .Call('_markovchain_summaryKernel', PACKAGE = 'markovchain', object)
-}
-
-.firstpassageKernelRcpp <- function(P, i, n) {
-    .Call('_markovchain_firstpassageKernel', PACKAGE = 'markovchain', P, i, n)
-}
-
-.firstPassageMultipleRCpp <- function(P, i, setno, n) {
-    .Call('_markovchain_firstPassageMultipleRCpp', PACKAGE = 'markovchain', P, i, setno, n)
-}
-
-.expectedRewardsRCpp <- function(matrix, n, rewards) {
-    .Call('_markovchain_expectedRewardsRCpp', PACKAGE = 'markovchain', matrix, n, rewards)
-}
-
-.expectedRewardsBeforeHittingARCpp <- function(matrix, s0, rewards, n) {
-    .Call('_markovchain_expectedRewardsBeforeHittingARCpp', PACKAGE = 'markovchain', matrix, s0, rewards, n)
-}
-
-.gcdRcpp <- function(a, b) {
-    .Call('_markovchain_gcd', PACKAGE = 'markovchain', a, b)
-}
-
-#' @rdname absorbingStates
-#' 
-#' @export
-#' 
-period <- function(object) {
-    .Call('_markovchain_period', PACKAGE = 'markovchain', object)
-}
-
-predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
-    .Call('_markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
-}
-
-priorDistribution <- function(transMatr, hyperparam = matrix()) {
-    .Call('_markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
-}
-
-.multinomialCIForRowRcpp <- function(x, confidencelevel) {
-    .Call('_markovchain_multinomialCIForRow', PACKAGE = 'markovchain', x, confidencelevel)
-}
-
-.multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
-    .Call('_markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
 }
 

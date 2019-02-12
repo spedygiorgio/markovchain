@@ -1,3 +1,4 @@
+#ifndef STRICT_R_HEADERS
 #define STRICT_R_HEADERS
 
 // [[Rcpp::depends(RcppParallel)]]
@@ -11,7 +12,7 @@ using namespace RcppArmadillo;
 using namespace RcppParallel;
 using namespace std;
 
-#include "mathHelperFunctions.h"
+#include "helpers.h"
 #include "mapFitFunctionsSAI.h"
 #include "sampler.h"   
 #include <math.h>
@@ -793,7 +794,7 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
 
   // transpose the matrix if byrow is false
   if (byrow == false) {
-    initialMatr = _transpose(initialMatr); 
+    initialMatr = transposeMatrix(initialMatr); 
   }
   
   // create markov chain object
@@ -845,7 +846,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   
   // transpose transition matrix = columnwise storage 
   if (byrow == false) {
-    origNum = _transpose(origNum);  
+    origNum = transposeMatrix(origNum);  
   }
  
   // create markovchain object
@@ -1612,7 +1613,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     // byrow assumes distinct observations (trajectiories) are per row
     // otherwise transpose
     if (!byrow)
-      mat = _transpose(mat);
+      mat = transposeMatrix(mat);
   	
     S4 outMc = _matr2Mc(mat, laplacian, sanitize, possibleStates);
   	
@@ -1702,3 +1703,4 @@ NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i,int N) {
   return R;
 }
 
+#endif

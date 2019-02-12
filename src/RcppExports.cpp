@@ -137,6 +137,173 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// markovchainSequenceRcpp
+CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0, bool include_t0);
+RcppExport SEXP _markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< S4 >::type markovchain(markovchainSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    rcpp_result_gen = Rcpp::wrap(markovchainSequenceRcpp(n, markovchain, t0, include_t0));
+    return rcpp_result_gen;
+END_RCPP
+}
+// markovchainListRcpp
+List markovchainListRcpp(int n, List object, bool include_t0, CharacterVector t0);
+RcppExport SEXP _markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP, SEXP t0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
+    rcpp_result_gen = Rcpp::wrap(markovchainListRcpp(n, object, include_t0, t0));
+    return rcpp_result_gen;
+END_RCPP
+}
+// markovchainSequenceParallelRcpp
+List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0, CharacterVector init_state);
+RcppExport SEXP _markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP, SEXP init_stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type listObject(listObjectSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type init_state(init_stateSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovchainSequenceParallelRcpp(listObject, n, include_t0, init_state));
+    return rcpp_result_gen;
+END_RCPP
+}
+// createSequenceMatrix
+NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
+RcppExport SEXP _markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type stringchar(stringcharSEXP);
+    Rcpp::traits::input_parameter< bool >::type toRowProbs(toRowProbsSEXP);
+    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize, possibleStates));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mcListFitForList
+List mcListFitForList(List data);
+RcppExport SEXP _markovchain_mcListFitForList(SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(mcListFitForList(data));
+    return rcpp_result_gen;
+END_RCPP
+}
+// _matr2Mc
+S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize, CharacterVector possibleStates);
+RcppExport SEXP _markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type matrData(matrDataSEXP);
+    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
+    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize, possibleStates));
+    return rcpp_result_gen;
+END_RCPP
+}
+// _list2Mc
+S4 _list2Mc(List data, double laplacian, bool sanitize);
+RcppExport SEXP _markovchain__list2Mc(SEXP dataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
+    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(_list2Mc(data, laplacian, sanitize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// inferHyperparam
+List inferHyperparam(NumericMatrix transMatr, NumericVector scale, CharacterVector data);
+RcppExport SEXP _markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMatr(transMatrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(inferHyperparam(transMatr, scale, data));
+    return rcpp_result_gen;
+END_RCPP
+}
+// markovchainFit
+List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, bool confint, NumericMatrix hyperparam, bool sanitize, CharacterVector possibleStates);
+RcppExport SEXP _markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    Rcpp::traits::input_parameter< int >::type nboot(nbootSEXP);
+    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
+    Rcpp::traits::input_parameter< String >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    Rcpp::traits::input_parameter< bool >::type confint(confintSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
+    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates));
+    return rcpp_result_gen;
+END_RCPP
+}
+// noofVisitsDistRCpp
+NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i, int N);
+RcppExport SEXP _markovchain_noofVisitsDistRCpp(SEXP matrixSEXP, SEXP iSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(noofVisitsDistRCpp(matrix, i, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multinomialCIForRow
+NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
+RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomialCIForRow(x, confidencelevel));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multinomCI
+List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
+RcppExport SEXP _markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMat(transMatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
+    return rcpp_result_gen;
+END_RCPP
+}
 // commClassesKernel
 SEXP commClassesKernel(NumericMatrix P);
 RcppExport SEXP _markovchain_commClassesKernel(SEXP PSEXP) {
@@ -294,173 +461,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// multinomialCIForRow
-NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
-RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinomialCIForRow(x, confidencelevel));
-    return rcpp_result_gen;
-END_RCPP
-}
-// multinomCI
-List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
-RcppExport SEXP _markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type transMat(transMatSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
-    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
-    return rcpp_result_gen;
-END_RCPP
-}
-// markovchainSequenceRcpp
-CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0, bool include_t0);
-RcppExport SEXP _markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< S4 >::type markovchain(markovchainSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
-    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
-    rcpp_result_gen = Rcpp::wrap(markovchainSequenceRcpp(n, markovchain, t0, include_t0));
-    return rcpp_result_gen;
-END_RCPP
-}
-// markovchainListRcpp
-List markovchainListRcpp(int n, List object, bool include_t0, CharacterVector t0);
-RcppExport SEXP _markovchain_markovchainListRcpp(SEXP nSEXP, SEXP objectSEXP, SEXP include_t0SEXP, SEXP t0SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< List >::type object(objectSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type t0(t0SEXP);
-    rcpp_result_gen = Rcpp::wrap(markovchainListRcpp(n, object, include_t0, t0));
-    return rcpp_result_gen;
-END_RCPP
-}
-// markovchainSequenceParallelRcpp
-List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0, CharacterVector init_state);
-RcppExport SEXP _markovchain_markovchainSequenceParallelRcpp(SEXP listObjectSEXP, SEXP nSEXP, SEXP include_t0SEXP, SEXP init_stateSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type listObject(listObjectSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< bool >::type include_t0(include_t0SEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type init_state(init_stateSEXP);
-    rcpp_result_gen = Rcpp::wrap(markovchainSequenceParallelRcpp(listObject, n, include_t0, init_state));
-    return rcpp_result_gen;
-END_RCPP
-}
-// createSequenceMatrix
-NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP _markovchain_createSequenceMatrix(SEXP stringcharSEXP, SEXP toRowProbsSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type stringchar(stringcharSEXP);
-    Rcpp::traits::input_parameter< bool >::type toRowProbs(toRowProbsSEXP);
-    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(createSequenceMatrix(stringchar, toRowProbs, sanitize, possibleStates));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mcListFitForList
-List mcListFitForList(List data);
-RcppExport SEXP _markovchain_mcListFitForList(SEXP dataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcListFitForList(data));
-    return rcpp_result_gen;
-END_RCPP
-}
-// _matr2Mc
-S4 _matr2Mc(CharacterMatrix matrData, double laplacian, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP _markovchain__matr2Mc(SEXP matrDataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterMatrix >::type matrData(matrDataSEXP);
-    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
-    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(_matr2Mc(matrData, laplacian, sanitize, possibleStates));
-    return rcpp_result_gen;
-END_RCPP
-}
-// _list2Mc
-S4 _list2Mc(List data, double laplacian, bool sanitize);
-RcppExport SEXP _markovchain__list2Mc(SEXP dataSEXP, SEXP laplacianSEXP, SEXP sanitizeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
-    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(_list2Mc(data, laplacian, sanitize));
-    return rcpp_result_gen;
-END_RCPP
-}
-// inferHyperparam
-List inferHyperparam(NumericMatrix transMatr, NumericVector scale, CharacterVector data);
-RcppExport SEXP _markovchain_inferHyperparam(SEXP transMatrSEXP, SEXP scaleSEXP, SEXP dataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type transMatr(transMatrSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type data(dataSEXP);
-    rcpp_result_gen = Rcpp::wrap(inferHyperparam(transMatr, scale, data));
-    return rcpp_result_gen;
-END_RCPP
-}
-// markovchainFit
-List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, bool confint, NumericMatrix hyperparam, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP _markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
-    Rcpp::traits::input_parameter< int >::type nboot(nbootSEXP);
-    Rcpp::traits::input_parameter< double >::type laplacian(laplacianSEXP);
-    Rcpp::traits::input_parameter< String >::type name(nameSEXP);
-    Rcpp::traits::input_parameter< bool >::type parallel(parallelSEXP);
-    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    Rcpp::traits::input_parameter< bool >::type confint(confintSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
-    Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates));
-    return rcpp_result_gen;
-END_RCPP
-}
-// noofVisitsDistRCpp
-NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i, int N);
-RcppExport SEXP _markovchain_noofVisitsDistRCpp(SEXP matrixSEXP, SEXP iSEXP, SEXP NSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
-    Rcpp::traits::input_parameter< int >::type i(iSEXP);
-    Rcpp::traits::input_parameter< int >::type N(NSEXP);
-    rcpp_result_gen = Rcpp::wrap(noofVisitsDistRCpp(matrix, i, N));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
@@ -474,6 +474,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_impreciseProbabilityatTRCpp", (DL_FUNC) &_markovchain_impreciseProbabilityatTRCpp, 5},
     {"_markovchain_seq2freqProb", (DL_FUNC) &_markovchain_seq2freqProb, 1},
     {"_markovchain_seq2matHigh", (DL_FUNC) &_markovchain_seq2matHigh, 2},
+    {"_markovchain_markovchainSequenceRcpp", (DL_FUNC) &_markovchain_markovchainSequenceRcpp, 4},
+    {"_markovchain_markovchainListRcpp", (DL_FUNC) &_markovchain_markovchainListRcpp, 4},
+    {"_markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &_markovchain_markovchainSequenceParallelRcpp, 4},
+    {"_markovchain_createSequenceMatrix", (DL_FUNC) &_markovchain_createSequenceMatrix, 4},
+    {"_markovchain_mcListFitForList", (DL_FUNC) &_markovchain_mcListFitForList, 1},
+    {"_markovchain__matr2Mc", (DL_FUNC) &_markovchain__matr2Mc, 4},
+    {"_markovchain__list2Mc", (DL_FUNC) &_markovchain__list2Mc, 3},
+    {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
+    {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
+    {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
+    {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
+    {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
     {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},
     {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
@@ -487,18 +499,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
-    {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
-    {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
-    {"_markovchain_markovchainSequenceRcpp", (DL_FUNC) &_markovchain_markovchainSequenceRcpp, 4},
-    {"_markovchain_markovchainListRcpp", (DL_FUNC) &_markovchain_markovchainListRcpp, 4},
-    {"_markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &_markovchain_markovchainSequenceParallelRcpp, 4},
-    {"_markovchain_createSequenceMatrix", (DL_FUNC) &_markovchain_createSequenceMatrix, 4},
-    {"_markovchain_mcListFitForList", (DL_FUNC) &_markovchain_mcListFitForList, 1},
-    {"_markovchain__matr2Mc", (DL_FUNC) &_markovchain__matr2Mc, 4},
-    {"_markovchain__list2Mc", (DL_FUNC) &_markovchain__list2Mc, 3},
-    {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
-    {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
-    {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
     {NULL, NULL, 0}
 };
 

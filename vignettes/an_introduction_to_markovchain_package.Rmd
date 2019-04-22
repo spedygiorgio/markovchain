@@ -989,7 +989,7 @@ weatherFittedMLE$logLikelihood
 weatherFittedBOOT$logLikelihood
 ```
 
-Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The `confidenceInterval` is provided with the two matrices: `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level (CL) is 0.95 by default and can be given as an argument of the function `markovchainFit`. This is used to obtain the standard score (z-score).
+Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The `confidenceInterval` is provided with the two matrices: `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level (CL) is 0.95 by default and can be given as an argument of the function `markovchainFit`. This is used to obtain the standard score (z-score). From classical inference theory, if $ci$ is the level of confidence required assuming normal distribution the $zscore(ci)$ solves $\Phi \left ( 1-\left(\frac{1-ci}{2}\right) \right )$
 Equations \ref{eq:CIL} and \ref{eq:CIU} \citep{MSkuriat} show the `confidenceInterval` of a fitting. Note that each entry of the matrices is bounded between 0 and 1.
 
 \begin{align}

@@ -2,7 +2,8 @@
 
 #include <RcppArmadillo.h>
 #include <math.h>
-
+#include <unordered_set>
+#include <string>
 using namespace Rcpp;
 using namespace std;
 
@@ -10,17 +11,21 @@ template <typename T>
 T sortByDimNames(const T m);
 
 // check if two vectors are intersected
-bool _intersected(CharacterVector v1, CharacterVector v2) {
-  CharacterVector::iterator first1 = v1.begin();
-  CharacterVector::iterator last1 = v1.end();
-  CharacterVector::iterator first2 = v2.begin();
-  CharacterVector::iterator last2 = v2.end();
-  while(first1!=last1 && first2!=last2) {
-    if(*first1 == *first2) return true;
-    else if(*first1 < *first2) ++first1;
-    else ++first2;    
+bool _intersected(CharacterVector x, CharacterVector y) {
+  if (x.size() < y.size())
+    return _intersected(y, x);
+  else {
+    unordered_set<string> values;
+    bool intersect = false;
+    
+    for (auto value : x)
+      values.insert(as<string>(value));
+   
+    for (auto it = y.begin(); it != y.end() && !intersect; ++it)
+      intersect = values.count(as<string>(*it)) > 0;
+  
+    return intersect;
   }
-  return false;
 }
 
 // communicating classes kernel

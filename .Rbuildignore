@@ -3,3 +3,5 @@
 ^\.travis\.yml$
 ^data-raw$
 vignettes/jss*
+^TAGS$
+^.*\.tar\.gz$

@@ -678,6 +678,8 @@ List mcListFitForList(List data) {
 
 List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   int sizeMatr = freqMatr.nrow();
+  // the true confidence level is 1-(1-alpha)/2
+  float true_confidence_level = 1-(1-confidencelevel)/2.0;
   // transition matrix
   NumericMatrix initialMatr(sizeMatr, sizeMatr);
   
@@ -706,7 +708,8 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   NumericMatrix standardError(sizeMatr, sizeMatr);
   
   // z score for given confidence interval
-  double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
+  // double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
+  double zscore = stats::qnorm_0(true_confidence_level, 1.0, 0.0);
   
   // populate above defined matrix 
   double marginOfError, lowerEndpoint, upperEndpoint;

@@ -412,6 +412,25 @@ test_that("firstPassageMultiple function satisfies", {
 })
                           
 
+# See https://github.com/spedygiorgio/markovchain/issues/171 for context
+# Test that closed classes = recurrent classes
+M <- matrix(0,nrow=10,ncol=10,byrow=TRUE)
+M[1,2]<- 0.7  
+M[1,3]<- 0.3
+M[2,3]<- 1
+M[3,4]<- 1
+M[4,1]<- 1
+M[5,6]<- 1
+M[6,7]<- 1
+M[7,8]<- 1
+M[8,9]<- 1
+M[9,10]<- 1
+M[10,1]<- 1
+markovChain <- new("markovchain",transitionMatrix=M)
+mcSummary <- summary(markovChain)
+closedClases <- mcSummary$closedClasses
+recurrentClasses <- mcSummary$recurrentClasses
 
-
-
+test_that("closed classes == recurrent classes", {
+  expect_equal(closedClases, recurrentClasses)
+})

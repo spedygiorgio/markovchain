@@ -25,7 +25,7 @@ test_that("Communicating classes matrix is symmetric", {
   for (markovChain in MCs) {
     transitionMatrix <- attr(markovChain, "transitionMatrix")
     communicating <- .commClassesKernelRcpp(transitionMatrix)
-    C <- communicating$C
+    C <- communicating$classes
     
     expect_equal(C, t(C))
   }
@@ -37,7 +37,7 @@ test_that("Rows of the same class are interchangeable in a communicating classes
   for (markovChain in MCs) {
     transitionMatrix <- attr(markovChain, "transitionMatrix")
     communicating <- .commClassesKernelRcpp(transitionMatrix)
-    C <- communicating$C
+    C <- communicating$classes
     
     expect_equal(checkInterchangeability(C), TRUE)
   }
@@ -53,7 +53,7 @@ test_that("Communicating classes of identity matrix of size n are {1, ..., n}", 
     colnames(expected) <- states
     rownames(expected) <- states
     communicating <- .commClassesKernelRcpp(transitionMatrix)
-    C <- communicating$C
+    C <- communicating$classes
     
     expect_equal(C, expected)
   }
@@ -64,7 +64,7 @@ test_that("All clasess are closed for identity matrixes", {
   
   for (markovChain in diagonalMCs) {
     transitionMatrix <- attr(markovChain, "transitionMatrix")
-    areClosed <- .commClassesKernelRcpp(transitionMatrix)$v
+    areClosed <- .commClassesKernelRcpp(transitionMatrix)$closed
     
     expect_false(any(!areClosed))
   }

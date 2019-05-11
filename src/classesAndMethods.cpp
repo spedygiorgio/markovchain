@@ -26,7 +26,7 @@ SEXP commClassesKernel(NumericMatrix P);
 SEXP canonicForm(S4 object) {
   NumericMatrix P = object.slot("transitionMatrix");
   List comclasList = commClassesKernel(P);
-  LogicalVector vu = comclasList["v"];
+  LogicalVector vu = comclasList["closed"];
   NumericVector u, w; 
 
   for (int i = 0; i < vu.size(); i ++) {
@@ -34,7 +34,7 @@ SEXP canonicForm(S4 object) {
     else w.push_back(i);
   }
   
-  LogicalMatrix Cmatr = comclasList["C"];
+  LogicalMatrix Cmatr = comclasList["classes"];
   NumericVector R, p;
   LogicalVector crow;
   

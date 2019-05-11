@@ -39,7 +39,7 @@ SEXP commClassesKernel(NumericMatrix P) {
   int classSize;
   
   // The entry (i,j) of this matrix is true iff we can reach j from i
-  vector<vector<bool>> canReach(numStates, vector<bool>(numStates, false));
+  vector<vector<bool>> communicates(numStates, vector<bool>(numStates, false));
   vector<list<int>> adjacencies(numStates);
   
   // We fill the adjacencies matrix for the graph
@@ -49,7 +49,10 @@ SEXP commClassesKernel(NumericMatrix P) {
       if (P(i, j) > 0)
         adjacencies[i].push_back(j);
 
-  
+
+  // Backtrack from all the states to find which
+  // states communicate with a given on
+  // O(n³) where n is the number of states
   for (int i = 0; i < numStates; ++i) {
     stack<int> notVisited;
     notVisited.push(i);
@@ -57,20 +60,19 @@ SEXP commClassesKernel(NumericMatrix P) {
     while (!notVisited.empty()) {
       int j = notVisited.top();
       notVisited.pop();
-      canReach[i][j] = true;
+      communicates[i][j] = true;
       
-      for (int k: adjacencies[j]) {
-        if (!canReach[i][k])
+      for (int k: adjacencies[j])
+        if (!communicates[i][k])
           notVisited.push(k);
-      }
     }
   }
   
-  LogicalMatrix C(numStates, numStates);
-  C.attr("dimnames") = List::create(stateNames, stateNames);
+  LogicalMatrix classes(numStates, numStates);
+  classes.attr("dimnames") = List::create(stateNames, stateNames);
   // v populated with FALSEs
-  LogicalVector v(numStates);
-  v.names() = stateNames;
+  LogicalVector closed(numStates);
+  closed.names() = stateNames;
   
   for (int i = 0; i < numStates; ++i) {
     numReachable = 0;
@@ -83,20 +85,21 @@ SEXP commClassesKernel(NumericMatrix P) {
        then the class is closed
     */
     for (int j = 0; j < numStates; ++j) {
-      C(i, j) = canReach[i][j] && canReach[j][i];
+      classes(i, j) = communicates[i][j] && communicates[j][i];
       
-      if (C(i,j))
-        numReachable += 1;
-      
-      if (canReach[i][j])
+      if (classes(i,j))
         classSize += 1;
+
+      // Number of states reachable from i
+      if (communicates[i][j])
+        numReachable += 1;
     }
     
     if (classSize == numReachable)
-      v(i) = true;
+      closed(i) = true;
   }
   
-  return List::create(_["C"] = C, _["v"] = v);
+  return List::create(_["classes"] = classes, _["closed"] = closed);
 }
 
 // [[Rcpp::export(.communicatingClassesRcpp)]]
@@ -105,7 +108,7 @@ List communicatingClasses(S4 object) {
   
   NumericMatrix matr = object.slot("transitionMatrix");
   List temp = commClassesKernel(matr);
-  LogicalMatrix adjMatr = temp["C"];
+  LogicalMatrix adjMatr = temp["classes"];
   int len = adjMatr.nrow();
   List classesList;
   CharacterVector rnames = rownames(adjMatr);
@@ -156,7 +159,7 @@ List recurrentClasses(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
   List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
-  List v = temp["v"];
+  List v = temp["closed"];
   CharacterVector ns = v.names();
   CharacterVector transientStates;
   
@@ -208,7 +211,7 @@ List summaryKernel(S4 object) {
   List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   // List communicatingClassList = communicatingClasses(temp["C"]);
-  List v = temp["v"];
+  List v = temp["closed"];
   CharacterVector ns = v.names();
   CharacterVector transientStates;
   

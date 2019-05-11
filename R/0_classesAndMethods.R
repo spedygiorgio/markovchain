@@ -506,9 +506,9 @@ setMethod("transientStates", "markovchain",
 			      }
 			      
 			      temp <- .commClassesKernelRcpp(matr)
-			      index <- which(temp$v == FALSE)
+			      index <- which(temp$closed == FALSE)
 			      if(length(index) > 0) {
-			        out <- names(temp$v[index])
+			        out <- names(temp$closed[index])
 			      }
 			      
 			      return(out)
@@ -707,7 +707,7 @@ setMethod("canonicForm", "markovchain",
             
             # vu is a row vector of 0s and 1s. vu(i) = 1 if
             # the class C(i) is closed, and 0 otherwise
-            vu <- comclasList$v
+            vu <- comclasList$closed
 			
             # find index of closed communicating classes
             u <- matlab::find(vu == TRUE)
@@ -717,7 +717,7 @@ setMethod("canonicForm", "markovchain",
             
             # Cmatr(i,j) is 1 if and only if j is in the
             # communicating class of i.
-            Cmatr <- comclasList$C
+            Cmatr <- comclasList$classes
             
             # R is now the set of representatives of closed classes
             # Each closed class has a unique representative in R.
@@ -763,7 +763,7 @@ setMethod("canonicForm", "markovchain",
   
   # vu is a row vector of 0s and 1s. vu(i) = 1 if
   # the class C(i) is closed, and 0 otherwise
-  vu <- comclasList$v
+  vu <- comclasList$closed
   
   # find index of closed communicating classes
   u <- matlab::find(vu == TRUE)
@@ -773,7 +773,7 @@ setMethod("canonicForm", "markovchain",
   
   # Cmatr(i,j) is 1 if and only if j is in the
   # communicating class of i.
-  Cmatr <- comclasList$C
+  Cmatr <- comclasList$classes
   
   # R is now the set of representatives of closed classes
   # Each closed class has a unique representative in R.

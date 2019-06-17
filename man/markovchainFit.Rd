@@ -43,9 +43,9 @@ Used only when \code{method} equal to "mle".}
 \item{confint}{a boolean to decide whether to compute Confidence Interval or not.}
 
 \item{hyperparam}{Hyperparameter matrix for the a priori distribution. If none is provided, 
-default value of 1 is assigned to each parameter. This must be of size kxk 
-where k is the number of states in the chain and the values should typically 
-be non-negative integers.}
+default value of 1 is assigned to each parameter. This must be of size
+{k x k} where k is the number of states in the chain and the values
+should typically be non-negative integers.}
 }
 \value{
 A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 

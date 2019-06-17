@@ -461,6 +461,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// hittingProbabilities
+NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix);
+RcppExport SEXP _markovchain_hittingProbabilities(SEXP transitionMatrixSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transitionMatrix(transitionMatrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(transitionMatrix));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
@@ -499,6 +510,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
+    {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {NULL, NULL, 0}
 };
 

@@ -596,4 +596,9 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #   return(out)
 # }
 
-
+hittingProbabilities <- function(markovchain) {
+  matrix <- markovchain@transitionMatrix
+  result <- .hittingProbabilitiesRcpp(matrix)
+  
+  result
+}

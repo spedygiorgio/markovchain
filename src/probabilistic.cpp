@@ -663,3 +663,36 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
 
   return logProbVec;
 }
+
+// [[Rcpp::export(.hittingProbabilitiesRcpp)]]
+NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
+  int numStates = transitionMatrix.nrow();
+  arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
+  arma::mat result(numStates, numStates);
+  vector<bool> absorbing(numStates, false);
+  
+  for (int i = 0; i < numStates; ++i)
+    if (transitionProbs(i, i) == 1)
+      absorbing[i] = true;
+
+
+  for (int j = 0; j < numStates; ++j) {
+    arma::mat to_invert = as<arma::mat>(transitionMatrix);
+    arma::vec right_part = -transitionProbs.col(j);
+    
+    for (int i = 0; i < numStates; ++i) {
+      to_invert(i, j) = 0;
+      to_invert(i, i) -= 1;
+      
+      if (j != i && absorbing[i]) {
+        right_part(i) = 0;
+        to_invert(i, i) = 1;
+      }
+    }
+    
+    arma::mat inverse = arma::inv(to_invert);
+    result.col(j) = inverse * right_part;
+  }
+  
+  return wrap(result);
+}

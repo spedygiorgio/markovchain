@@ -262,3 +262,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call('_markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
 }
 
+.hittingProbabilitiesRcpp <- function(transitionMatrix) {
+    .Call('_markovchain_hittingProbabilities', PACKAGE = 'markovchain', transitionMatrix)
+}
+

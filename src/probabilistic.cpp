@@ -669,13 +669,12 @@ NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
   int numStates = transitionMatrix.nrow();
   arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
   arma::mat result(numStates, numStates);
-  vector<bool> absorbing(numStates, false);
+  // Compute closed communicating classes
+  List commClasses = commClassesKernel(transitionMatrix);
+  List closedClass = commClasses["closed"];
+  LogicalMatrix communicating = commClasses["classes"];
+
   
-  for (int i = 0; i < numStates; ++i)
-    if (transitionProbs(i, i) == 1)
-      absorbing[i] = true;
-
-
   for (int j = 0; j < numStates; ++j) {
     arma::mat to_invert = as<arma::mat>(transitionMatrix);
     arma::vec right_part = -transitionProbs.col(j);
@@ -683,10 +682,20 @@ NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
     for (int i = 0; i < numStates; ++i) {
       to_invert(i, j) = 0;
       to_invert(i, i) -= 1;
-      
-      if (j != i && absorbing[i]) {
-        right_part(i) = 0;
-        to_invert(i, i) = 1;
+    }
+
+    for (int i = 0; i < numStates; ++i) {
+      if (closedClass(i)) {
+        for (int k = 0; k < numStates; ++k)
+          if (k != i)
+            to_invert(i, k) = 0;
+          else
+            to_invert(i, i) = 1;
+          
+        if (communicating(i, j))
+          right_part(i) = 1;
+        else
+          right_part(i) = 0;
       }
     }
     

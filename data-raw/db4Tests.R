@@ -57,6 +57,6 @@ steadyStates6<-steadyStates(mathematicaMc)
 
 #SAVING
 
-devtools::use_data(simpleMcCiaoFit,checksAlofiRawTransitions,checkmarkovchainFitList,
+usethis::use_data(simpleMcCiaoFit,checksAlofiRawTransitions,checkmarkovchainFitList,
                    steadyStates1,steadyStates2,steadyStates3,steadyStates4,steadyStates5,steadyStates6,
                    internal = TRUE,overwrite = TRUE)

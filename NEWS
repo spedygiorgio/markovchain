@@ -1,2 +1,2 @@
-24-04-2019 0.6.9.14
+2019-07-01 0.6.9.15
 Fixed confidence interval calculation: true confidence intervals are now 1-(1-confidence_interval)/2

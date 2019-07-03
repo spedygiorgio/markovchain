@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Stationary states of a <code>markovchain</code> object — steadyStates • markovchain</title>
+<title>Hitting probabilities for markovchain — hittingProbabilities • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Stationary states of a <code>markovchain</code> object — steadyStates" />
+<meta property="og:title" content="Hitting probabilities for markovchain — hittingProbabilities" />
 
-<meta property="og:description" content="This method returns the stationary vector in matricial form of a markovchain object." />
+<meta property="og:description" content="Given a markovchain object,
+this function calculates the probability of ever arriving from state i to j" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,60 +124,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Stationary states of a <code>markovchain</code> object</h1>
-    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/0_classesAndMethods.R'><code>R/0_classesAndMethods.R</code></a></small>
-    <div class="hidden name"><code>steadyStates.Rd</code></div>
+    <h1>Hitting probabilities for markovchain</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/2_probabilistic.R'><code>R/2_probabilistic.R</code></a></small>
+    <div class="hidden name"><code>hittingProbabilities.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This method returns the stationary vector in matricial form of a markovchain object.</p>
+    <p>Given a markovchain object,
+this function calculates the probability of ever arriving from state i to j</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>steadyStates</span>(<span class='no'>object</span>)
-
-<span class='co'># S4 method for markovchain</span>
-<span class='fu'>steadyStates</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>hittingProbabilities</span>(<span class='no'>markovchain</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>A discrete <code>markovchain</code> object</p></td>
+      <th>markovchain</th>
+      <td><p>the markovchain-class object</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix corresponding to the stationary states</p>
-    
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>The steady states are identified starting from which eigenvectors correspond 
-      to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
-      in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.</p>
+    <p>a matrix of hitting probabilities</p>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='markovchain-class.html'>markovchain</a></code></p></div>
+    <p>R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>statesNames</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
-<span class='no'>markovB</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
-                <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>statesNames</span>,<span class='no'>statesNames</span>)),
-               <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"A markovchain Object"</span>
-)
-<span class='fu'>steadyStates</span>(<span class='no'>markovB</span>)</div><div class='output co'>#&gt;      a b c
-#&gt; [1,] 0 1 0</div><div class='input'>
-</div></pre>
+    <pre class="examples"><div class='input'><span class='no'>M</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>matlab</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/matlab/topics/ones'>zeros</a></span>(<span class='fl'>5</span>, <span class='fl'>5</span>)
+<span class='no'>M</span>[<span class='fl'>1</span>,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>5</span>,<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>
+<span class='no'>M</span>[<span class='fl'>2</span>,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>2</span>,<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
+<span class='no'>M</span>[<span class='fl'>3</span>,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>3</span>,<span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
+<span class='no'>M</span>[<span class='fl'>4</span>,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>4</span>,<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
+
+<span class='no'>markovChain</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>M</span>)
+<span class='fu'>hittingProbabilities</span>(<span class='no'>markovChain</span>)</div><div class='output co'>#&gt;      [,1]  [,2]  [,3]      [,4] [,5]
+#&gt; [1,]  1.0 0.000 0.000 0.0000000  0.0
+#&gt; [2,]  0.8 0.375 0.500 0.3333333  0.2
+#&gt; [3,]  0.6 0.750 0.375 0.6666667  0.4
+#&gt; [4,]  0.4 0.500 0.250 0.1666667  0.6
+#&gt; [5,]  0.0 0.000 0.000 0.0000000  1.0</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -185,17 +178,13 @@
       
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#note">Note</a></li>
-
       <li><a href="#references">References</a></li>
-
-      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
 
     <h2>Author</h2>
-    <p>Giorgio Spedicato</p>
+    <p>Ignacio Cordón</p>
   </div>
 </div>
 

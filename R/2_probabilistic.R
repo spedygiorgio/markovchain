@@ -30,7 +30,6 @@
 #'                )
 #' is.accessible(markovB, "a", "c")
 #' @export
-
 is.accessible <- function(object, from, to) {
   # assume that it is not possible
   out <- FALSE
@@ -269,7 +268,6 @@ communicatingClasses <- function(object) {
 # Recurrent classes are subset of communicating classes
 
 #' @rdname absorbingStates
-#' 
 #' @export
 
 recurrentClasses <- function(object) {
@@ -596,6 +594,31 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #   return(out)
 # }
 
+#' Hitting probabilities for markovchain
+#' 
+#' @description Given a markovchain object,
+#' this function calculates the probability of ever arriving from state i to j
+#' 
+#' @usage hittingProbabilities(markovchain)
+#' 
+#' @param markovchain the markovchain-class object
+#' 
+#' @return a matrix of hitting probabilities
+#' 
+#' @author Ignacio Cordón
+#' 
+#' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
+#' 
+#' @examples
+#' M <- matlab::zeros(5, 5)
+#' M[1,1] <- M[5,5] <- 1
+#' M[2,1] <- M[2,3] <- 1/2
+#' M[3,2] <- M[3,4] <- 1/2
+#' M[4,2] <- M[4,5] <- 1/2
+#' 
+#' markovChain <- new("markovchain", transitionMatrix = M)
+#' hittingProbabilities(markovChain)
+#' @export
 hittingProbabilities <- function(markovchain) {
   matrix <- markovchain@transitionMatrix
   result <- .hittingProbabilitiesRcpp(matrix)

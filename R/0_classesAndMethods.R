@@ -139,6 +139,7 @@ setValidity(
 setGeneric("states", function(object) standardGeneric("states"))
 
 #' @rdname states
+#' @title states
 setMethod(
   "states",
   "markovchain", 
@@ -147,6 +148,10 @@ setMethod(
   }
 )
 
+#' @title Returns the states for a Markov chain object
+#'
+#' @param x object we want to return states for
+#' 
 #' @rdname names
 setMethod(
   "names",

@@ -29,7 +29,7 @@ normalizeMatrix <- function(matrix, byrow = TRUE) {
 # Returns a random stochastic matrix
 randomStochasticMatrix <- function(n, byrow = TRUE) {
   numRandom <- n * n
-  randomNums <- runif(numRandom)
+  randomNums <- stats::runif(numRandom)
   
   zeroProb <- 0.95
   remainProb <- (1 - zeroProb) / numRandom

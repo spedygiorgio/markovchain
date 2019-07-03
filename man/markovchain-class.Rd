@@ -27,7 +27,6 @@
 \alias{coerce,etm,markovchain-method}
 \alias{dim,markovchain-method}
 \alias{initialize,markovchain-method}
-\alias{names,markovchain-method}
 \alias{names<-,markovchain-method}
 \alias{plot,markovchain,missing-method}
 \alias{predict,markovchain-method}

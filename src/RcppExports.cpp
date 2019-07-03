@@ -279,14 +279,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// commclassesKernel
-SEXP commclassesKernel(NumericMatrix P);
-RcppExport SEXP _markovchain_commclassesKernel(SEXP PSEXP) {
+// multinomialCIForRow
+NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
+RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomialCIForRow(x, confidencelevel));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multinomCI
+List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
+RcppExport SEXP _markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type transMat(transMatSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
+    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
+    rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
+    return rcpp_result_gen;
+END_RCPP
+}
+// commClassesKernel
+SEXP commClassesKernel(NumericMatrix P);
+RcppExport SEXP _markovchain_commClassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
-    rcpp_result_gen = Rcpp::wrap(commclassesKernel(P));
+    rcpp_result_gen = Rcpp::wrap(commClassesKernel(P));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -436,28 +461,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// multinomialCIForRow
-NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
-RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
+// hittingProbabilities
+NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix);
+RcppExport SEXP _markovchain_hittingProbabilities(SEXP transitionMatrixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinomialCIForRow(x, confidencelevel));
-    return rcpp_result_gen;
-END_RCPP
-}
-// multinomCI
-List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel);
-RcppExport SEXP _markovchain_multinomCI(SEXP transMatSEXP, SEXP seqMatSEXP, SEXP confidencelevelSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type transMat(transMatSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type seqMat(seqMatSEXP);
-    Rcpp::traits::input_parameter< double >::type confidencelevel(confidencelevelSEXP);
-    rcpp_result_gen = Rcpp::wrap(multinomCI(transMat, seqMat, confidencelevel));
+    Rcpp::traits::input_parameter< NumericMatrix >::type transitionMatrix(transitionMatrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(transitionMatrix));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -484,7 +495,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
     {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
-    {"_markovchain_commclassesKernel", (DL_FUNC) &_markovchain_commclassesKernel, 1},
+    {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
+    {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
+    {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},
     {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
     {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
@@ -497,8 +510,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
-    {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
-    {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
+    {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {NULL, NULL, 0}
 };
 

@@ -1,105 +1,109 @@
-# define Markov Chain class
-setClass("markovchain", # class name
+# Define Markov Chain class
+setClass(
+  # Class name
+  "markovchain",
   # Define the slots
   slots = list(states = "character", byrow = "logical",
   transitionMatrix = "matrix", name = "character"),
   # Set the default values for the slots
-  prototype = list(states = c("a", "b"), byrow = TRUE,
-  transitionMatrix = matrix(data = c(0, 1, 1, 0),
-  nrow = 2, byrow = TRUE, dimnames = list(c("a", "b"), c("a", "b"))), name = "Unnamed Markov chain")
-)
-
-# initializing method for markovchain objects
-setMethod("initialize",
-  signature(.Object = "markovchain"),
-  function (.Object,
-  states,
-  byrow,
-  transitionMatrix,
-  name, ...) {
-  # put the standard markovchain
-  if (missing(transitionMatrix)) {
-    transitionMatrix <- matrix(
-    data = c(0, 1, 1, 0),
-    nrow = 2,
+  prototype = list(
+    states = c("a", "b"), 
     byrow = TRUE,
-    dimnames = list(c("a", "b"), c("a", "b")))
-            }
-
-            # check names of transition matrix
-            # if all names are missing it initializes them to "1", "2", ....
-            
-            if (all(is.null(rownames(transitionMatrix)), is.null(colnames(transitionMatrix))) == TRUE) {
-              if (missing(states)) {
-                nr <- nrow(transitionMatrix)
-                stateNames <- as.character(seq(1:nr))
-              } else {
-                stateNames <- states
-              }
-              
-              rownames(transitionMatrix) <- stateNames
-              colnames(transitionMatrix) <- stateNames
-              
-            } else if (is.null(rownames(transitionMatrix))) {
-              # fix when rownames null
-              
-              rownames(transitionMatrix) <-
-                colnames(transitionMatrix)
-              
-            } else if (is.null(colnames(transitionMatrix))) {
-              # fix when colnames null
-              
-              colnames(transitionMatrix) <-
-                rownames(transitionMatrix)
-              
-            } else if (!setequal(rownames(transitionMatrix), colnames(transitionMatrix)))  {
-              colnames(transitionMatrix) <-
-                rownames(transitionMatrix) # fix when different
-              
-            }
-            
-            if (missing(states)) {
-              states <- rownames(transitionMatrix)
-            }
-            
-            if (missing(byrow)) {
-              byrow <- TRUE
-            }
-            
-            if (missing(name)) {
-              name <- "Unnamed Markov chain"
-            }
-            
-            callNextMethod(
-              .Object,
-              states = states,
-              byrow = byrow,
-              transitionMatrix = transitionMatrix,
-              name = name,
-              ...
-            )
-          })
-
-# define Markov Chain List class
-setClass("markovchainList",
-         slots = list(markovchains = "list",
-		                  name = "character")
+    transitionMatrix = matrix(
+      data = c(0, 1, 1, 0), 
+      nrow = 2, 
+      byrow = TRUE, 
+      dimnames = list(c("a", "b"), c("a", "b"))), 
+    name = "Unnamed Markov chain")
 )
 
-# verifies if a markovchainList object is valid or not
-setValidity("markovchainList",
-		         function(object) {
-		           check <- FALSE 
-		           for(i in 1:length(object@markovchains)) {
-			            if(class(object@markovchains[[i]]) != "markovchain") {
-			              # All elements in the list should be a markovchain object
-			              check <- "Error! All elements should be of class 'markovchain'"
-			            }
-		           }
+# Initializing method for markovchain objects
+setMethod(
+  "initialize",
+  signature(.Object = "markovchain"),
+  function (.Object, states, byrow, transitionMatrix, name, ...) {
+    # Put the standard markovchain
+    if (missing(transitionMatrix)) {
+      transitionMatrix <- matrix(
+        data = c(0, 1, 1, 0),
+        nrow = 2,
+        byrow = TRUE,
+        dimnames = list(c("a", "b"), c("a", "b")))
+    }
+    
+    rowNames <- rownames(transitionMatrix)
+    colNames <- colnames(transitionMatrix)
+    
+    # Check names of transition matrix
+    # if all names are missing it initializes them to "1", "2", ....
+    if (all(is.null(rowNames), is.null(colNames)) == TRUE) {
+      if (missing(states)) {
+        numRows <- nrow(transitionMatrix)
+        stateNames <- as.character(seq(1:numRows))
+      } else {
+        stateNames <- states
+      }
+      
+      rownames(transitionMatrix) <- stateNames
+      colnames(transitionMatrix) <- stateNames
+      
+    # Fix when rownames null
+    } else if (is.null(rowNames)) {
+      rownames(transitionMatrix) <- colNames
+    # Fix when colnames null
+    } else if (is.null(colNames)) {
+      colnames(transitionMatrix) <- rowNames
+    # Fix when different
+    } else if (! setequal(rowNames, colNames)) {
+      colnames(transitionMatrix) <- rowNames
+    }
+    
+    if (missing(states))
+      states <- rownames(transitionMatrix)
+    
+    if (missing(byrow))
+      byrow <- TRUE
+    
+    if (missing(name))
+      name <- "Unnamed Markov chain"
+    
+    callNextMethod(
+      .Object,
+      states = states,
+      byrow = byrow,
+      transitionMatrix = transitionMatrix,
+      name = name,
+      ...
+    )
+  }
+)
 
-		           if(check == FALSE) check <- TRUE
-		           return(check)
-	           }
+# Define Markov Chain List class
+setClass(
+  "markovchainList",
+  slots = list(
+    markovchains = "list",
+    name = "character")
+)
+
+# Verifies whether a markovchainList object is valid or not
+# A markovchainList is valid iff all the slots are markovchain objects
+# Returns true if the markovchainList is valid, the indexes of the
+# wrong slots otherwise
+setValidity(
+  "markovchainList",
+  function(object) {
+    check <- FALSE
+    markovchains <- object@markovchains
+    
+    classes <- sapply(markovchains, class)
+    nonMarkovchain <- which(classes != "markovchain")
+    errors <- sapply(nonMarkovchain, function(i) {
+      paste(i, "-th element class is not 'markovchain'")
+    })
+    
+    if (length(errors) == 0) TRUE else errors
+  }
 )
 
 # generic method to print out states
@@ -124,9 +128,10 @@ setValidity("markovchainList",
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' states(markovB)
+#' names(markovB)
 #' 
 #' @rdname states
 #' 
@@ -134,18 +139,33 @@ setValidity("markovchainList",
 setGeneric("states", function(object) standardGeneric("states"))
 
 #' @rdname states
-setMethod("states","markovchain", 
-          function(object) {
-            out <- object@states
-            return(out)
-          }
+#' @title states
+setMethod(
+  "states",
+  "markovchain", 
+  function(object) {
+    object@states
+  }
+)
+
+#' @title Returns the states for a Markov chain object
+#'
+#' @param x object we want to return states for
+#' 
+#' @rdname names
+setMethod(
+  "names",
+  "markovchain", 
+  function(x) {
+    x@states
+  }
 )
 
 #' @title Method to retrieve name of markovchain object  
 #' 
 #' @name name
 #' 
-#' @description This method returns the name of markovchain object
+#' @description This method returns the name of a markovchain object
 #' 
 #' @param object A markovchain object
 #' @rdname getName
@@ -156,7 +176,7 @@ setMethod("states","markovchain",
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' name(markovB)
 #' 
@@ -165,16 +185,18 @@ setGeneric("name", function(object) standardGeneric("name"))
 
 
 #' @rdname getName
-setMethod("name", "markovchain", function(object) {
-  out <- object@name
-  return(out)
+setMethod(
+  "name", 
+  "markovchain", 
+  function(object) {
+    object@name
 })
 
 #' @title Method to set name of markovchain object
 #' 
 #' @name name<-
 #' 
-#' @description This method modify the existing name of markovchain object
+#' @description This method modifies the existing name of markovchain object
 #' 
 #' @param object A markovchain object
 #' @param value New name of markovchain object
@@ -186,7 +208,7 @@ setMethod("name", "markovchain", function(object) {
 #' markovB <- new("markovchain", states = statesNames, transitionMatrix =
 #'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
 #'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
+#'                 name = "A markovchain Object" 
 #' )
 #' name(markovB) <- "dangerous mc"
 #' 
@@ -194,156 +216,156 @@ setMethod("name", "markovchain", function(object) {
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))
 
 #' @rdname setName
-setMethod("name<-", "markovchain", 
-          function(object, value) {
-            object@name <- value
-            object
-          }
+setMethod(
+  "name<-", 
+  "markovchain", 
+  function(object, value) {
+    object@name <- value
+    object
+  }
 )
 
-# adding a method names: to get names
-setMethod("names","markovchain", 
-          function(x) {
-            out <- x@states
-            return(out)
-          }
-)
-
-# adding a method names: to set names
-setMethod("names<-", "markovchain", 
-          function(x, value) {
-            rownames(x@transitionMatrix) <- value
-            colnames(x@transitionMatrix) <- value
-            x@states <- value
-            return(x)
-          }
+setMethod(
+  "names<-", 
+  "markovchain", 
+  function(x, value) {
+    rownames(x@transitionMatrix) <- value
+    colnames(x@transitionMatrix) <- value
+    x@states <- value
+    x
+  }
 )
 
 
-# generic methods to get the dim of a markovchain and markovchainList
+# Generic methods to get the dim of a markovchain and markovchainList
 
-setMethod("dim", "markovchain", 
-		function(x) {
-			out <- nrow(x@transitionMatrix)
-			return(out)
-		}
+setMethod(
+  "dim",
+  "markovchain", 
+  function(x) {
+    nrow(x@transitionMatrix)
+  }
 )
 
-setMethod("dim", "markovchainList", 
-		function(x) {
-			  out <- length(x@markovchains)
-			  return(out)
-		  }
+setMethod(
+  "dim",
+  "markovchainList", 
+  function(x) {
+    length(x@markovchains)
+  }
 )
 
 
 # method  to set the validity of a markovchain object
-setValidity("markovchain",
-		function(object) {
-			check <- FALSE
-			
-			# performs a set of check whose results are saved in check
-			
-			# check all values of transition matrix belongs to [0, 1]
-			if (any(sapply(as.numeric(object@transitionMatrix),.isProbRcpp)) == FALSE) {
-			  check <- "Error! Some elements are not probabilities"
-			}
-			
-			# rows sum or columns sum = 1
-			if (object@byrow == TRUE) {
-			  
-			  # absolute difference
-			  absdiff <- abs(1-zapsmall(rowSums(object@transitionMatrix)))
-				
-			  if(any(absdiff > .Machine$double.eps*100)) {
-			    pos2check<-which(absdiff > .Machine$double.eps*100)
-				  check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
-				}
-			} else {
-			  
-			  # absolute difference
-			  absdiff <- abs(1-zapsmall(colSums(object@transitionMatrix)))
-			  
-			  if(any(absdiff > .Machine$double.eps*100)) {
-			    pos2check<-which(absdiff > .Machine$double.eps*100)
-			    check <- paste("Error! Row sums not equal to one","check positions:",pos2check)
-				}
-			}
-			
-			
-			# check whether matrix is square matrix or not
-			if (nrow(object@transitionMatrix) != ncol(object@transitionMatrix)) {
-			  check <- "Error! Not squared matrix" #check if squalre matrix
-			}
-      
-			# check whether column names or rows names equal to state names or not
-			if (!setequal(colnames(object@transitionMatrix), object@states)) {
-			  check <- "Error! Colnames <> states" 
-			}
-      if (!setequal(rownames(object@transitionMatrix), object@states)) {
-        check <- "Error! Rownames <> states"
-      }
-			
-      if (check == FALSE) {
-        return(TRUE)
-      }  else {
-        return(check)
-      }
-		}
+setValidity(
+  "markovchain",
+  function(object) {
+    errors <- character()
+    transitionMatrix <- object@transitionMatrix
+    states           <- object@states
+    
+    # Performs a set of checks. If any error arises, it ends up concatenated to errors
+    
+    # Check all values of transition matrix belongs to [0, 1]
+    maybeProbabilities <- sapply(as.numeric(transitionMatrix), .isProbability)
+    
+    if (any(maybeProbabilities) == FALSE) {
+      msg    <- "Error! Some elements of transitionMatrix are not probabilities"
+      errors <- c(errors, msg)
+    }
+    
+    # Rows sum or columns sum = 1
+    if (object@byrow) {
+      absdiff     <- abs(1 - zapsmall(rowSums(transitionMatrix)))
+      matrixShape <- "rows"
+    } else { 
+      absdiff     <- abs(1-zapsmall(colSums(transitionMatrix)))
+      matrixShape <- "columns"
+    }
+
+    if(any(absdiff > .Machine$double.eps*100)) {
+      wrongIndexes <- which(absdiff > .Machine$double.eps*100)
+      msg <- paste("Error! Following", matrixShape,
+                   "of transitionMatrix do not sum one: ",
+                   toString(wrongIndexes))
+      errors <- c(errors, msg)
+    }
+
+    # Check whether matrix is square matrix or not
+    if (nrow(transitionMatrix) != ncol(transitionMatrix)) {
+      msg    <- "Error! transitionMatrix is not a square matrix"
+      errors <- c(errors, msg)
+    }
+    
+    # Check whether column names or rows names equal to state names or not
+    if (! setequal(colnames(transitionMatrix), states)) {
+      msg    <- "Error! Colnames of transitionMatrix do not match states"
+      errors <- c(errors, msg)
+    }
+    if (! setequal(rownames(transitionMatrix), states)) {
+      msg    <- "Error! Rownames of transitionMatrix do not match states"
+      errors <- c(errors, msg)
+    }
+    
+    if (length(errors) > 0) errors else TRUE
+  }
 )
 
 # matr : matrix
 # transpose : boolean indicating whether the matrix shall be transposed or not
 # output : a matrix / vector
-
 .mcEigen <- function(matr, transpose = TRUE) {
-  
-  if (transpose) {
-    tMatr <- t(matr) 
-  } else {
-    tMatr <- matr
-  }
+
+  if (transpose)
+    matr <- t(matr) 
   
   # perform the eigenvalue extraction
-  eigenResults <- eigen(x = tMatr, symmetric = FALSE) 
+  eigenResults <- eigen(x = matr) 
   
   # takes the one eigenvalues
-  onesIndex <- which( sapply (eigenResults$values, function(e){ isTRUE(all.equal( as.complex(e),1+0i)) } ))
+  onesIndex <- which(
+    sapply(
+      eigenResults$values,
+      function(e){
+        isTRUE(all.equal(as.complex(e), 1+0i))
+      }
+    )
+  )
   
   # do the following: 
   # 1 : get eigenvectors whose eigenvalues == 1
   # 2 : normalize
   
-  if (length(onesIndex) == 0) {
-    warning("No eigenvalue = 1 found")
-    return(NULL)
-  }
-  
-  # Gives always a norm-based order to eigenvectors
-  eigenvectors <- as.matrix( eigenResults$vectors[, onesIndex] )
+  if (length(onesIndex) > 0) {
+    # Gives always a norm-based order to eigenvectors
+    eigenVectors <- as.matrix( eigenResults$vectors[, onesIndex] )
 
-  if (transpose == TRUE) {
-    eigenTake <- as.matrix(t(eigenvectors)) 
-    out <- eigenTake / rowSums(eigenTake) # normalize
+    if (transpose) {
+      eigenVectors <- as.matrix(t(eigenVectors)) 
+      out <- eigenVectors / rowSums(eigenVectors) # normalize
+    } else {
+      out <- eigenVectors / colSums(eigenVectors) # normalize
+    }
+    
+    # subset the eigenvectors
+    # normalize
+    # take the real part: need to be sanitized
+    # @DEEPAK: later we have to see and optimize this part. I am not sure taking
+    #       the real part is most appropriate.
+  
+    Re(out)
   } else {
-    eigenTake <- as.matrix(eigenvectors) 
-    out <- eigenTake / colSums(eigenTake) # normalize
+    warning("No eigenvalue = 1 found")
+  
+    # Return NULL
+    NULL
   }
-  
-  # subset the eigenvectors
-  # normalize
-  # take the real part: need to be sanitized
-	# @DEEPAK: later we have to see and optimize this part. I am not sure taking
-	#       the real part is most appropriate.
-  
-  out <- Re(out)
-  return(out)
 }
 
 # method to get stationary states
 
 #' @name steadyStates
-#' @title Stationary states of a \code{markovchain} objeect
+#' @title Stationary states of a \code{markovchain} object
 #' 
 #' @description This method returns the stationary vector in matricial form of a markovchain object.
 #' @param object A discrete \code{markovchain} object
@@ -372,65 +394,75 @@ setValidity("markovchain",
 setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
 
 #' @rdname steadyStates
-setMethod("steadyStates","markovchain", 
-		function(object) {
-			transposeYN <- FALSE
-			if(object@byrow == TRUE) {
-			  transposeYN <- TRUE		
-			}
+setMethod(
+  "steadyStates",
+  "markovchain", 
+  function(object) {
+    transitions <- object@transitionMatrix
+    byrow <- object@byrow
+    
+    steady <- .mcEigen(transitions, byrow)
+    
+    if (min(steady) < 0) {
+      warning("Negative elements in steady states, working on closed classes submatrix")
+      steady <- .steadyStatesByRecurrentClasses(object)
+    }
+    
+    if (length(steady) > 0) {
+      steady <- .mcLexSort(steady)
       
-			out <- .mcEigen(matr = object@transitionMatrix, transpose = transposeYN)
-			
-			# if any element negative
-			if (min(out)<0) {
-			  warning("Negative elements in steady states, working on closed classes submatrix")
-			  if(object@byrow==TRUE) myObject=object else myObject=t(object)
-			  out <- .steadyStatesByRecurrentClasses(object=myObject)
-			}
+      colnames(steady) <- object@states
+      # Normalize each row
       
-			if(is.null(out)) {
-				warning("Warning! No steady state")
-				return(NULL)
-			} else{
-			  # order vectors lexicographically
-			  out <- .mcLexSort(out)
-		    if (object@byrow==FALSE) out<-t(out)
-		  }
-			
-			if(transposeYN == TRUE) { 
-				colnames(out) <- object@states
-			} else {
-				rownames(out) <- object@states
-			}
-      return(out)
-	
-		  }
+      if (! byrow)
+        steady <- t(steady)
+        
+      steady
+    } else {
+      warning("Warning! No steady states")
+    }
+  }
 )
-
-
 
 
 .steadyStatesByRecurrentClasses<-function(object) {
   #initialization
-  M<-object@transitionMatrix
-  #transpose bycol matrices
-  if (object@byrow==FALSE) M <- t(M)
-  #characterizing recurrent classes
-  recClasses<-recurrentClasses(object)
-  numRecClasses<-length(recClasses)
-  recurrentClassesNames<-unlist(recClasses)
-  #extracting recurrent classes
-  Msub <- M[rownames(M) %in% recurrentClassesNames, colnames(M) %in% recurrentClassesNames]
+  transitions <- object@transitionMatrix
+  byrow <- object@byrow
   
-  out<-matrix(0, nrow=numRecClasses, ncol = dim(object))
-  colnames(out)<-names(object)
+  #transpose bycol matrices
+  if (byrow) 
+    transitions <- t(transitions)
+  
+  #characterizing recurrent classes
+  recClasses <- recurrentClasses(object)
+  numRecClasses <- length(recClasses)
+  recurrentClassesNames <- unlist(recClasses)
+  
+  #extracting recurrent classes
+  transitionsSub <- transitions[rownames(transitions) %in% recurrentClassesNames, 
+                                colnames(transitions) %in% recurrentClassesNames]
+  
+  steady <- matrix(0, nrow = numRecClasses, ncol = dim(object))
+  colnames(steady) <- names(object)
+  
   #getting their steady states, calculating first indexes of eigenvalues equal to 1
-  onesIndex <- which( sapply (eigen(Msub)$values, function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }) )
-  partialOutput<-t(eigen(Msub)$vectors[, onesIndex]) / colSums(eigen(Msub)$vectors[, onesIndex])
-  colnames(partialOutput)<-recurrentClassesNames
+  onesIndex <- which(
+    sapply(
+      eigen(transitionsSub)$values, 
+      function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }
+    ) 
+  )
+  
+  eigenvectors <- eigen(transitionsSub)$vectors[, onesIndex, drop = FALSE]
+  eigenvectors <- t(eigenvectors)
+  partialOutput <- eigenvectors / rowSums(eigenvectors)
+  colnames(partialOutput) <- recurrentClassesNames
+  
   #allocating to their columns
-  out[,colnames(out) %in% recurrentClassesNames]<-partialOutput
-  return(out)
+  steady[, colnames(steady) %in% recurrentClassesNames] <- partialOutput
+  
+  steady
 }
 
 
@@ -440,30 +472,23 @@ setMethod("steadyStates","markovchain",
 #' 
 #' @export
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
-setMethod("absorbingStates", "markovchain", 
-          function(object) {
-			      out <- character()
-			      matr <- object@transitionMatrix
-			      transposeYN <- FALSE
-			      if(object@byrow == TRUE) {
-			        transposeYN <- TRUE
-			      }
-			      steadyStates <- .mcEigen(matr = matr, transpose = transposeYN)
-			      if(is.null(steadyStates)) {
-			        return(character(0))
-			      }
-			      # identify which states are absorbing if they are diagonally one
-			      if(transposeYN == TRUE) {
-			        maxCols <- apply(steadyStates, 2, "max")
-			      } else {
-			        maxCols <- apply(steadyStates, 1, "max")  
-			      }
-			      index <- which(maxCols == 1)
-			      if(length(index) > 0) {
-			        out <- object@states[index] 
-			      }
-			      return(out)
-          } 
+setMethod(
+  "absorbingStates", 
+  "markovchain", 
+  function(object) {
+    n <- dim(object)
+    
+    whichAbsorbing <- which(
+      sapply(
+        1:n, 
+        function(i) { 
+          isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
+        }
+      )
+    )
+    
+    object@states[whichAbsorbing]
+  }
 )
 
 # generic method to extract transient states
@@ -485,10 +510,10 @@ setMethod("transientStates", "markovchain",
 			        matr <- t(object@transitionMatrix)
 			      }
 			      
-			      temp <- .commclassesKernelRcpp(matr)
-			      index <- which(temp$v == FALSE)
+			      temp <- .commClassesKernelRcpp(matr)
+			      index <- which(temp$closed == FALSE)
 			      if(length(index) > 0) {
-			        out <- names(temp$v[index])
+			        out <- names(temp$closed[index])
 			      }
 			      
 			      return(out)
@@ -682,12 +707,12 @@ setMethod("canonicForm", "markovchain",
             # Obtain the canonical form Q of a stochastic matrix P
             P <- object@transitionMatrix
             
-            # Uses the internal function commclassesKernelRcpp
-            comclasList <- .commclassesKernelRcpp(P)
+            # Uses the internal function commClassesKernelRcpp
+            comclasList <- .commClassesKernelRcpp(P)
             
             # vu is a row vector of 0s and 1s. vu(i) = 1 if
             # the class C(i) is closed, and 0 otherwise
-            vu <- comclasList$v
+            vu <- comclasList$closed
 			
             # find index of closed communicating classes
             u <- matlab::find(vu == TRUE)
@@ -697,7 +722,7 @@ setMethod("canonicForm", "markovchain",
             
             # Cmatr(i,j) is 1 if and only if j is in the
             # communicating class of i.
-            Cmatr <- comclasList$C
+            Cmatr <- comclasList$classes
             
             # R is now the set of representatives of closed classes
             # Each closed class has a unique representative in R.
@@ -738,12 +763,12 @@ setMethod("canonicForm", "markovchain",
   # Obtain the canonical form Q of a stochastic matrix P
   P <- object@transitionMatrix
   
-  # Uses the internal function commclassesKernelRcpp
-  comclasList <- .commclassesKernelRcpp(P)
+  # Uses the internal function commClassesKernelRcpp
+  comclasList <- .commClassesKernelRcpp(P)
   
   # vu is a row vector of 0s and 1s. vu(i) = 1 if
   # the class C(i) is closed, and 0 otherwise
-  vu <- comclasList$v
+  vu <- comclasList$closed
   
   # find index of closed communicating classes
   u <- matlab::find(vu == TRUE)
@@ -753,7 +778,7 @@ setMethod("canonicForm", "markovchain",
   
   # Cmatr(i,j) is 1 if and only if j is in the
   # communicating class of i.
-  Cmatr <- comclasList$C
+  Cmatr <- comclasList$classes
   
   # R is now the set of representatives of closed classes
   # Each closed class has a unique representative in R.
@@ -882,7 +907,7 @@ setMethod("summary", signature(object = "markovchain"),
 	# second check: all elements are probs
 	for(i in 1:nrow(matr)) {
 		for(j in 1:ncol(matr)){
-			if(!(.isProbRcpp(matr[i, j]))) {
+			if(!(.isProbability(matr[i, j]))) {
 			  myMessage<-paste("Error!","Element",i,j,"is not a probability")
 				if(verbose) stop(myMessage)
 				  return(FALSE)
@@ -1011,7 +1036,7 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 	for(i in 1:ncol(df)) {
 	    
 	  # when found the first numeric and probability col
-			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbRcpp) == TRUE))) {
+			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbability) == TRUE))) {
 					out <- i
 					break
 			}

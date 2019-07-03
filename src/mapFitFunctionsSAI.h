@@ -207,7 +207,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
 
   // transpose the matrix if columwise result is required
   if(byrow == false) {
-    mapEstMatr = _transpose(mapEstMatr); 
+    mapEstMatr = transposeMatrix(mapEstMatr); 
   }
 
   // markovchain object

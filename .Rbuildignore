@@ -3,5 +3,6 @@
 ^\.travis\.yml$
 ^data-raw$
 vignettes/jss*
+^.fuse_hidden*
 ^TAGS$
 ^.*\.tar\.gz$

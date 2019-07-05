@@ -282,7 +282,7 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
 #' name <- "testictmc"
 #' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 #' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
-#'
+#' @export
 impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE){
   ##  input validity checking
   if(s <= t){

@@ -1,4 +1,5 @@
 # Define Markov Chain class
+#' @export
 setClass(
   # Class name
   "markovchain",
@@ -79,6 +80,7 @@ setMethod(
 )
 
 # Define Markov Chain List class
+#' @export 
 setClass(
   "markovchainList",
   slots = list(

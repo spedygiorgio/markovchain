@@ -37,6 +37,7 @@ Lambda <- c(0.8, 0.2, 0.3, 0.7)
 
 ob <- new("hommc", order = 1, states = statesName, P = P, 
           Lambda = Lambda, byrow = FALSE, name = "FOMMC")
+          
 }
 \author{
 Giorgio Spedicato, Deepak Yadav

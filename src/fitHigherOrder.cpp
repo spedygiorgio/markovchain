@@ -2,6 +2,8 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
+
+//' @export
 // sequence to frequency probability vector
 // [[Rcpp::export]]
 NumericVector seq2freqProb(CharacterVector sequence) {
@@ -20,6 +22,7 @@ NumericVector seq2freqProb(CharacterVector sequence) {
   return out;
 }
 
+//' @export
 // sequence to transition matrix for higher order markov chain
 // [[Rcpp::export]]
 NumericMatrix seq2matHigh(CharacterVector sequence, int order) {

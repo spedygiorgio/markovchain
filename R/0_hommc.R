@@ -22,7 +22,8 @@
 #' 
 #' ob <- new("hommc", order = 1, states = statesName, P = P, 
 #'           Lambda = Lambda, byrow = FALSE, name = "FOMMC")
-
+#'           
+#'@export
 hommc <- setClass("hommc",
                       slots = list(order = "numeric", states  =  "character",
                       P = "array", Lambda = "numeric", byrow = "logical",

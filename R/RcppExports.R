@@ -90,15 +90,11 @@ ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
 }
 
 #' @export
-NULL
-
-#' @export
-NULL
-
 seq2freqProb <- function(sequence) {
     .Call(`_markovchain_seq2freqProb`, sequence)
 }
 
+#' @export
 seq2matHigh <- function(sequence, order) {
     .Call(`_markovchain_seq2matHigh`, sequence, order)
 }

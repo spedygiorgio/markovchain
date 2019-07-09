@@ -1,4 +1,8 @@
 # Define Markov Chain class
+#' @title Markov chain class
+#' @name markovchain-class
+#' @aliases markovchain-class * [ ^ == != coerce dim plot print show summary t
+#' @description The S4 class that describes \code{markovchain} objects.
 #' @export
 setClass(
   # Class name
@@ -1461,6 +1465,12 @@ setMethod("conditionalDistribution", "markovchain",
 	
 	return(names(out))
 }
+
+
+#' @export
+setGeneric("predict", function(object, ...) {
+  standardGeneric("predict", ...)
+})
 
 # predict method for markovchain objects
 # given initial state return a vector of next n.ahead states

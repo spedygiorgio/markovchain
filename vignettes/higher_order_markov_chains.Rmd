@@ -43,6 +43,7 @@ vignette: >
 keywords:
   plain: [Higher order Markov chains]
   formatted: [Higher order Markov chains]
+documentclass: jss
 classoption: nojss
 bibliography: markovchainBiblio.bib
 pkgdown:

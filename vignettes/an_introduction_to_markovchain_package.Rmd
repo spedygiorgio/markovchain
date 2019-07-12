@@ -50,6 +50,7 @@ vignette: >
 keywords:
   plain: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
   formatted: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
+documentclass: jss
 classoption: nojss
 bibliography: markovchainBiblio.bib
 pkgdown:

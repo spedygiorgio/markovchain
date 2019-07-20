@@ -3,7 +3,6 @@ title: "GSoC-2017_Additions"
 author: "Vandit Jain"
 date: "August 2017"
 output:
-  pdf_document: default
   html_document: default
 bibliography: markovchainBiblio.bib
 vignette: >

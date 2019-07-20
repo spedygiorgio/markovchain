@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   GSoC-2017_additions: GSoC-2017_additions.html
   an_introduction_to_markovchain_package: an_introduction_to_markovchain_package.html
-  complicateSteadyStates: complicateSteadyStates.html
+  complicate_steady_states_analysis: complicate_steady_states_analysis.html
   higher_order_markov_chains: higher_order_markov_chains.html
   markovchainCrashIntro: markovchainCrashIntro.html
 

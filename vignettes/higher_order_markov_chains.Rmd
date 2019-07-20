@@ -2,8 +2,7 @@
 title: "Higher order (multivariate) Markov chains"
 author: "Deepak Yadav, Tae Seung Kang, Giorgio Alfredo Spedicato"
 date: "August 2017"
-output:
-  html_document: default
+output: rmarkdown::html_vignette
 bibliography: markovchainBiblio.bib
 vignette: >
   %\VignetteIndexEntry{Higher order markov chains} 

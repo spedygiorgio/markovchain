@@ -2,8 +2,7 @@
 title: "GSoC-2017_Additions"
 author: "Vandit Jain"
 date: "August 2017"
-output:
-  html_document: default
+output: rmarkdown::html_vignette
 bibliography: markovchainBiblio.bib
 vignette: >
   %\VignetteIndexEntry{GSoC-2017_Additions} 

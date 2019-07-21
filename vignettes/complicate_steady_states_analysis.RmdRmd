@@ -2,10 +2,10 @@
 title: "Complicate Steady States Analysis"
 author: "Christope Dutang"
 date: "May 2016"
-output: rmarkdown::html_vignette
+output: pdf_document
 bibliography: markovchainBiblio.bib
 vignette: >
-  %\VignetteIndexEntry{complicate_steady_states_analysis} 
+  %\VignetteIndexEntry{Complicate Steady States Analysis} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
 ---

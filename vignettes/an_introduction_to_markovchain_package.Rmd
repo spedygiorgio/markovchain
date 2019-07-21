@@ -6,7 +6,7 @@ title:
 pagetitle: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
 author:
   - name: "Giorgio Alfredo Spedicato"
-    affiliation: Ph.D C.Stat FCAS, FSA, CSPA UnipolSai R\&D
+    affiliation: Ph.D C.Stat FCAS, FSA, CSPA Unipol Group
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy
@@ -2098,9 +2098,8 @@ mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
 
 The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
 
-Some numerical issues have been found when working with matrix algebra using \proglang{R} internal linear algebra kernel (the same calculations performed with \proglang{MATLAB} gave a more accurate result). Some temporary workarounds have been implemented. For example, the condition for row/column sums to be equal to one is valid up to fifth decimal. Similarly, when extracting the eigenvectors only the real part is taken.
+The package has known several improvements in the recent years: many functionalities added, porting the software in Rcpp \pkg{Rcpp} package \citep{RcppR} and many methodological improvements that have improved the software reliability.
 
-Such limitations are expected to be overcome in future releases. Similarly, future versions of the package are expected to improve the code in terms of numerical accuracy and rapidity. An intitial rewriting of internal function in \proglang{C++} by means of \pkg{Rcpp} package \citep{RcppR} has been started.
 
 # Aknowledgments {#sec:aknowledgements}
 

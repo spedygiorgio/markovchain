@@ -11,7 +11,8 @@ vignette: >
 ---
 
 # Expected Hittting Time using CTMC
-The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations[@NorrisBook]:
+
+The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations [@NorrisBook]:
 \begin{equation}
 \begin{cases}
       p_{k} = 0 & k = j \\
@@ -124,6 +125,7 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 # Imprecise Conitnuous-Time Markovchains
+
 Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
 
 
@@ -131,6 +133,7 @@ More technically, an ICTMC is a set of “precise” continuous-time finite-stat
 
 
 ## Types of ICTMCs
+
 For any non-empty bounded set of rate matrices $L$, and any non-empty set $M$ of probability mass functions on $X$, we define the following three sets of stochastic processes that are jointly consistent with $L$ and $M$:
 
 * $P^{W}_{L,M}$ is the consistent set of all well-behaved stochastic processes;
@@ -152,6 +155,7 @@ A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate operator i
 
 
 ## Lower Transition Operators
+
 A map $T_{l}$ from $L (X )$ to $L (X )$ is called a lower transition operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all $\mu \in L(X)$, and all $x \in X$[@ictmcpaper]: 
 
 1. $[T_{l} f](x) \geq min(f(y) : y \in L)$
@@ -441,7 +445,4 @@ is.TimeReversible(molecularCTMC)
 
 
 # References
-
-
-
 

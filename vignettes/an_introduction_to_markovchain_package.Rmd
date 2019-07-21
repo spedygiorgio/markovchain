@@ -6,7 +6,7 @@ title:
 pagetitle: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
 author:
   - name: "Giorgio Alfredo Spedicato"
-    affiliation: Ph.D C.Stat ACAS, UnipolSai R\&D
+    affiliation: Ph.D C.Stat FCAS, FSA, CSPA UnipolSai R\&D
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy

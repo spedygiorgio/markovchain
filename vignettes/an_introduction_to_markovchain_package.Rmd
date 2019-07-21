@@ -1,12 +1,8 @@
 ---
-title:
-  plain:     "The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R"
-  formatted: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
-  short:     "\\pkg{markovchain} package: discrete Markov chains in \\proglang{R}"
-pagetitle: "The \\pkg{markovchain} Package: A Package for Easily Handling Discrete Markov Chains in \\proglang{R}"
+title: "The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R"
 author:
   - name: "Giorgio Alfredo Spedicato"
-    affiliation: Ph.D C.Stat ACAS, UnipolSai R\&D
+    affiliation: Ph.D C.Stat FCAS, FSA, CSPA UnipolSai R\&D
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy
@@ -30,32 +26,12 @@ author:
       Indian Institute of Technology, Varanasi 
       Uttar Pradesh - 221 005, India
     email: \email{deepakyadav.iitbhu@gmail.com}
-preamble: >
-  \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav}
-  \usepackage{graphicx}
-  \usepackage{amsmath}
-  \usepackage{tabularx}
-  \usepackage{longtable}
-  \usepackage{booktabs}
-  \setkeys{Gin}{width=0.8\textwidth}
-abstract: |
-  The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
-output: 
-  bookdown::pdf_book:
-    base_format: rticles::jss_article
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{An introduction to markovchain package} 
   %\VignetteEngine{knitr::rmarkdown}
   %VignetteEncoding{UTF-8}
-keywords:
-  plain: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
-  formatted: [discrete time Markov chains, continuous time Markov chains, transition matrices, communicating classes, periodicity, first passage time, stationary distributions]
-documentclass: jss
-classoption: nojss
 bibliography: markovchainBiblio.bib
-pkgdown:
-  as_is: true
-  extension: pdf
 ---
 
 ```{r global_options, include=FALSE}

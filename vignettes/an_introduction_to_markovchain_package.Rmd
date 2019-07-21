@@ -30,8 +30,11 @@ author:
       Indian Institute of Technology, Varanasi 
       Uttar Pradesh - 221 005, India
     email: \email{deepakyadav.iitbhu@gmail.com}
+  - name: "Ignacio Cordón"
+    affiliation: Software Engineer
+    email: \email{nacho.cordon.castillo@gmail.com}
 preamble: >
-  \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav}
+  \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}
   \usepackage{graphicx}
   \usepackage{amsmath}
   \usepackage{longtable}

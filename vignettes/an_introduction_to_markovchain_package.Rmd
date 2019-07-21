@@ -61,6 +61,7 @@ pkgdown:
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=8.5, fig.height=6, out.width = "70%")
 set.seed(123)
+
 ```
 
 # Introduction

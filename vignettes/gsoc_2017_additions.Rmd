@@ -166,7 +166,7 @@ A map $T_{l}$ from $L (X )$ to $L (X )$ is called a lower transition operator if
 3. $[T_{l}(\lambda f)](x) = l [T_{l} f](x)$
 
 
-## `ImpreciseprobabilityatT` function
+## ImpreciseprobabilityatT function
 
 Now I would like to come onto the practical purpose of using ICTMC classes. ICTMC classes in these package are defined to represent a generator that is defined in such a way that every row of the generator corresponding to every state in the process is governed by a separate variable. As defined earlier, an imprecise continuous time markovchain is a set of many precise CTMCs. Hence this representation of set of precise CTMCs can be used to calulate transition probability at some time in future. This can be seen as an analogy with `probabilityatT` function. It is used to calculate the transition function at some later time t using generatoe matrix.
 
@@ -175,11 +175,11 @@ For every generator matrix, we have a corresponding transition function. Similar
 Now we mention a proposition[@ictmcpaper] which states that:
 Let $Q_{l}$ be a lower transition rate operator, choose any time $t$ and $s$ both greater than 0 such that $t \leq s$, and let $L_{t}^{s}$ be the lower transition operator corresponding to $Q_{l}$. Then for any $f \in L(X)$ and $\epsilon \in R_{>0}$, if we choose any $n \in N$ such that:
 
-$$n \geq max((s-t)*||Q||,\frac{1}{2\epsilon}(s-t)^{2}||Q||^{2}||f||_v)$$
+\[n \geq max((s-t)*||Q||,\frac{1}{2\epsilon}(s-t)^{2}||Q||^{2}||f||_v)\]
 
 with $||f||_{v}$ := max $f$ - min $f$, we are guaranteed that[@ictmcpaper]
 
-$$ ||L_{t}^{s} - \prod_{i=1}^{n}(I + \Delta Q_{l}) || \leq \epsilon$$
+\[ ||L_{t}^{s} - \prod_{i=1}^{n}(I + \Delta Q_{l}) || \leq \epsilon \]
 
 with $\Delta := \frac{s-t}{n}$
 
@@ -188,34 +188,34 @@ Simple put this equation tells us that, using $Q_{l}g$ for all $g \in L(X)$ then
 
 To explain this approximate calculation, I would take a detailed example of a process containing two states healthy and sick, hence $X = (healthy,sick)$. If we represent in form of an ICTMC, we get:
 
-$$
-Q = \left(\begin{matrix}
+\[
+Q = \left(\begin{array}{cc}
 -a & a \\
 b & -b
-\end{matrix}\right)
-$$
+\end{array}\right)
+\]
+
 for some $a,b \in R_{\geq 0}$.
 The parameter $a$ here is the rate at which a healthy person becomes sick. Technically, this means that if a person is healthy at time $t$, the probability that he or she will be sick at time $t +\Delta$, for small $\Delta$, is very close to $\Delta a$. More intuitively, if we take the time unit to be one week, it means that he or she will, on average, become sick after $\frac{1}{a}$ weeks. The parameter $b$ is the rate at which a sick person becomes healthy again, and has a similar interpretation. 
 
 Now to completely represent the ICTMC we take an example and write the generator as:
 
-
-$$
-Q = \left(\begin{matrix}
+\[
+Q = \left(\begin{array}{cc}
 -a & a \\
 b & -b
-\end{matrix}\right)
+\end{array}\right)
 : a \in [\frac{1}{52},\frac{3}{52}],b \in [\frac{1}{2},2]
-$$
+\]
 
 
 Now suppose we know the initial state of the patient to be sick, hence this is reprsented in the form of a function by: 
-$$
+\[
 I_{s} = \left(\begin{matrix}
 0 \\
 1 
 \end{matrix}\right)
-$$
+\]
 We observe that the $||I_{s}|| = 1$. 
 Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator $Q_{l}$ Next we calculate the norm of the lower transition rate operator and use it in the preposition. Also we take value of $\epsilon$ to be 0.001.
 

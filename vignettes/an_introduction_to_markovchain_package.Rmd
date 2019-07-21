@@ -34,15 +34,12 @@ preamble: >
   \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav}
   \usepackage{graphicx}
   \usepackage{amsmath}
-  \usepackage{tabularx}
   \usepackage{longtable}
   \usepackage{booktabs}
   \setkeys{Gin}{width=0.8\textwidth}
 abstract: |
   The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
-output: 
-  bookdown::pdf_book:
-    base_format: rticles::jss_article
+output: if (rmarkdown::pandoc_version() < 2.2) rmarkdown::pdf_document else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) }
 vignette: >
   %\VignetteIndexEntry{An introduction to markovchain package} 
   %\VignetteEngine{knitr::rmarkdown}
@@ -516,7 +513,7 @@ The `markovchain` package contains some data found in the literature related to 
 
 \begin{table}[h]
   \centering
-  \begin{tabularx}{\textwidth}{lll}
+  \begin{tabular}{p{0.2\textwidth}p{0.75\textwidth}}
   \hline
   Dataset & Description \\
  \hline  \hline
@@ -528,7 +525,7 @@ The `markovchain` package contains some data found in the literature related to 
   \code{holson} & Individual states trajectiories.\\
   \code{sales} & Sales of six beverages in Hong Kong \cite{ching2008higher}. \\
 \hline
-\end{tabularx}
+\end{tabular}
 \caption{The \pkg{markovchain} \code{data.frame} and \code{table}.}
 \label{tab:datasets}
 \end{table}

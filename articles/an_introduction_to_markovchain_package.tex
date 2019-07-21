@@ -55,7 +55,7 @@ The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framewo
 
 % Pandoc header
 
-\author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}
+\author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}
 
 \usepackage{graphicx} \usepackage{amsmath} \usepackage{longtable} \usepackage{booktabs} \setkeys{Gin}{width=0.8\textwidth}
 
@@ -638,7 +638,7 @@ The following object is masked from 'package:base':
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
 
 }
 
@@ -649,7 +649,7 @@ The following object is masked from 'package:base':
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
 
 }
 
@@ -692,7 +692,7 @@ R> trmatplot(stochastic_matrix_to_plot,main="Weather MC plot using MmgraphR")
 \end{CodeInput}
 
 
-\begin{center}\includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/MmgraphR_plot-1} \end{center}
+\begin{center}\includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/MmgraphR_plot-1} \end{center}
 
 \end{CodeChunk}
 
@@ -815,7 +815,7 @@ Unnamed Markov chain
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
 
 }
 
@@ -1434,7 +1434,7 @@ R+                    name = "Mathematica MC", states = statesNames)
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
 
 }
 
@@ -1728,10 +1728,10 @@ R> weathersOfDays[1:30]
 \end{CodeInput}
 
 \begin{CodeOutput}
- [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "cloudy"
- [8] "sunny"  "cloudy" "sunny"  "rain"   "rain"   "cloudy" "sunny" 
-[15] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "rain"   "sunny" 
-[22] "rain"   "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny" 
+ [1] "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "sunny"  "cloudy"
+ [8] "cloudy" "sunny"  "sunny"  "sunny"  "cloudy" "sunny"  "sunny" 
+[15] "sunny"  "sunny"  "sunny"  "cloudy" "sunny"  "sunny"  "sunny" 
+[22] "sunny"  "sunny"  "sunny"  "cloudy" "cloudy" "sunny"  "sunny" 
 [29] "sunny"  "sunny" 
 \end{CodeOutput}
 \end{CodeChunk}
@@ -1751,13 +1751,13 @@ R> patientStates[1:10,]
    iteration values
 1          1      H
 2          1      H
-3          1      I
+3          1      H
 4          1      D
 5          1      D
 6          2      H
 7          2      H
 8          2      H
-9          2      H
+9          2      I
 10         2      D
 \end{CodeOutput}
 \end{CodeChunk}
@@ -1796,9 +1796,9 @@ Weather MLE
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy      rain     sunny
-cloudy 0.4583333 0.2666667 0.2750000
-rain   0.4533333 0.3466667 0.2000000
-sunny  0.1893491 0.1005917 0.7100592
+cloudy 0.4140625 0.3437500 0.2421875
+rain   0.5212766 0.3085106 0.1702128
+sunny  0.1830986 0.1478873 0.6690141
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -1807,9 +1807,9 @@ R> weatherFittedMLE$standardError
 
 \begin{CodeOutput}
            cloudy       rain      sunny
-cloudy 0.06180165 0.04714045 0.04787136
-rain   0.07774603 0.06798693 0.05163978
-sunny  0.03347251 0.02439707 0.06481924
+cloudy 0.05687586 0.05182226 0.04349816
+rain   0.07446809 0.05728899 0.04255319
+sunny  0.03590859 0.03227166 0.06863940
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1837,9 +1837,9 @@ Weather LAPLACE
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy      rain     sunny
-cloudy 0.4583021 0.2666833 0.2750146
-rain   0.4532854 0.3466613 0.2000533
-sunny  0.1893747 0.1006330 0.7099923
+cloudy 0.4140436 0.3437476 0.2422089
+rain   0.5212166 0.3085186 0.1702648
+sunny  0.1831303 0.1479265 0.6689432
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1853,9 +1853,9 @@ R> createSequenceMatrix(stringchar = weathersOfDays)
 
 \begin{CodeOutput}
        cloudy rain sunny
-cloudy     55   32    33
-rain       34   26    15
-sunny      32   17   120
+cloudy     53   44    31
+rain       49   29    16
+sunny      26   21    95
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1909,9 +1909,9 @@ BootStrap Estimate
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy      rain     sunny
-cloudy 0.4523662 0.2677107 0.2799230
-rain   0.4580079 0.3521701 0.1898220
-sunny  0.1977192 0.1085366 0.6937442
+cloudy 0.4038437 0.3228779 0.2732785
+rain   0.5252344 0.3190724 0.1556932
+sunny  0.1799505 0.1502476 0.6698019
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -1920,9 +1920,9 @@ R> weatherFittedBOOT$standardError
 
 \begin{CodeOutput}
             cloudy        rain       sunny
-cloudy 0.009099191 0.008796023 0.010257053
-rain   0.011021211 0.010652496 0.006991035
-sunny  0.007972095 0.004177433 0.009346862
+cloudy 0.010203342 0.009389621 0.011660208
+rain   0.007384856 0.005947824 0.007214311
+sunny  0.007479625 0.005702181 0.006503240
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1968,7 +1968,7 @@ R> weatherFittedMLE$logLikelihood
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] -339.7772
+[1] -354.4976
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -1976,7 +1976,7 @@ R> weatherFittedBOOT$logLikelihood
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] -339.9254
+[1] -354.9205
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2009,15 +2009,15 @@ $confidenceLevel
 
 $lowerEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.4373994 0.2532426 0.2630517
-rain   0.4398797 0.3346483 0.1783228
-sunny  0.1846062 0.1016653 0.6783700
+cloudy 0.3870606 0.3074333 0.2540991
+rain   0.5130874 0.3092891 0.1438267
+sunny  0.1676477 0.1408683 0.6591050
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.4673331 0.2821789 0.2967944
-rain   0.4761362 0.3696919 0.2013212
-sunny  0.2108321 0.1154079 0.7091185
+cloudy 0.4206267 0.3383224 0.2924578
+rain   0.5373814 0.3288557 0.1675596
+sunny  0.1922534 0.1596268 0.6804988
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2037,15 +2037,15 @@ $confidenceLevel
 
 $lowerEndpointMatrix
           cloudy       rain      sunny
-cloudy 0.3666667 0.17500000 0.18333333
-rain   0.3466667 0.24000000 0.09333333
-sunny  0.1242604 0.03550296 0.64497041
+cloudy 0.3281250 0.25781250 0.15625000
+rain   0.4255319 0.21276596 0.07446809
+sunny  0.1126761 0.07746479 0.59859155
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5562271 0.3645604 0.3728938
-rain   0.5825267 0.4758601 0.3291934
-sunny  0.2571112 0.1683538 0.7778213
+cloudy 0.5131587 0.4428462 0.3412837
+rain   0.6326596 0.4198936 0.2815958
+sunny  0.2643266 0.2291153 0.7502420
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2646,10 +2646,10 @@ R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", in
 \end{CodeInput}
 
 \begin{CodeOutput}
-      states               time
-1 sigma_star 0.0721497052970032
-2      sigma  0.366752097469463
-3 sigma_star  0.529487878791386
+      states              time
+1      sigma 0.855589896398497
+2 sigma_star 0.893263870187315
+3      sigma  1.85434638615629
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2664,10 +2664,12 @@ R> rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 
 \begin{CodeOutput}
 [[1]]
-[1] "sigma"      "sigma_star"
+ [1] "sigma_star" "sigma"      "sigma_star" "sigma"      "sigma_star"
+ [6] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
 
 [[2]]
-[1] 0.00000 1.26039
+ [1] 0.00000000 0.09221053 0.12411441 0.17307940 0.37374746 0.90718664
+ [7] 1.31759937 1.44113191 1.65564452 1.73725174
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2905,9 +2907,9 @@ R+ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
-           s1        s2
-s1 -0.1000000 0.1000000
-s2 -0.1787234 0.1787234
+            s1          s2
+s1  0.31176471 -0.31176471
+s2 -0.06885246  0.06885246
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -2920,9 +2922,9 @@ R+ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
-            s1          s2
-s1 -0.05349327  0.05349327
-s2  0.06671408 -0.06671408
+            s1           s2
+s1 0.009017842 -0.009017842
+s2 0.135742588 -0.135742588
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -2935,9 +2937,9 @@ R+ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
-            s1         s2
-s1 -0.01424653 0.01424653
-s2 -0.03150257 0.03150257
+             s1          s2
+s1 -0.005164243 0.005164243
+s2 -0.034441653 0.034441653
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3101,22 +3103,22 @@ Bayesian Fit
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy       rain     sunny
-cloudy 0.3970588 0.33823529 0.2647059
-rain   0.4666667 0.31111111 0.2222222
-sunny  0.2021277 0.07446809 0.7234043
+cloudy 0.4035088 0.26315789 0.3333333
+rain   0.3636364 0.40909091 0.2272727
+sunny  0.1698113 0.09433962 0.7358491
 
 
 $expectedValue
-          cloudy       rain     sunny
-cloudy 0.3943662 0.33802817 0.2676056
-rain   0.4583333 0.31250000 0.2291667
-sunny  0.2061856 0.08247423 0.7113402
+          cloudy      rain     sunny
+cloudy 0.4000000 0.2666667 0.3333333
+rain   0.3617021 0.4042553 0.2340426
+sunny  0.1743119 0.1009174 0.7247706
 
 $standardError
            [,1]       [,2]       [,3]
-[1,] 0.05759551 0.05574808 0.05217397
-[2,] 0.07118012 0.06621606 0.06004238
-[3,] 0.04086727 0.02778787 0.04577399
+[1,] 0.06272500 0.05662004 0.06035716
+[2,] 0.06935322 0.07083328 0.06111237
+[3,] 0.03617222 0.02872014 0.04258448
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -3124,19 +3126,19 @@ $confidenceInterval$confidenceLevel
 
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.3083874 0.2500184 0.1781098
-[2,] 0.3583882 0.2066290 0.1182291
-[3,] 0.1292572 0.0000000 0.6455087
+[1,] 0.3080574 0.1695568 0.2383272
+[2,] 0.2575693 0.3030199 0.1223833
+[3,] 0.1015573 0.0000000 0.6635243
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.5226492 0.4485619 0.3598184
-[2,] 1.0000000 0.4403616 0.3272559
-[3,] 0.2725917 0.1239152 1.0000000
+[1,] 0.5470133 0.3665141 0.4533531
+[2,] 0.5128115 0.5875307 0.3347727
+[3,] 0.2306969 0.1433952 1.0000000
 
 
 $logLikelihood
-[1] -180.9848
+[1] -178.5651
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -3145,7 +3147,7 @@ R+                        weathersOfDays[201:365],hyperparam = hyperMatrix)
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] -146.1353
+[1] -155.4057
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3166,22 +3168,22 @@ Bayesian Fit
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy       rain     sunny
-cloudy 0.3970588 0.33823529 0.2647059
-rain   0.4666667 0.31111111 0.2222222
-sunny  0.2021277 0.07446809 0.7234043
+cloudy 0.4035088 0.26315789 0.3333333
+rain   0.3636364 0.40909091 0.2272727
+sunny  0.1698113 0.09433962 0.7358491
 
 
 $expectedValue
-          cloudy       rain     sunny
-cloudy 0.3943662 0.33802817 0.2676056
-rain   0.4583333 0.31250000 0.2291667
-sunny  0.2061856 0.08247423 0.7113402
+          cloudy      rain     sunny
+cloudy 0.4000000 0.2666667 0.3333333
+rain   0.3617021 0.4042553 0.2340426
+sunny  0.1743119 0.1009174 0.7247706
 
 $standardError
            [,1]       [,2]       [,3]
-[1,] 0.05759551 0.05574808 0.05217397
-[2,] 0.07118012 0.06621606 0.06004238
-[3,] 0.04086727 0.02778787 0.04577399
+[1,] 0.06272500 0.05662004 0.06035716
+[2,] 0.06935322 0.07083328 0.06111237
+[3,] 0.03617222 0.02872014 0.04258448
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -3189,19 +3191,19 @@ $confidenceInterval$confidenceLevel
 
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.3083874 0.2500184 0.1781098
-[2,] 0.3583882 0.2066290 0.1182291
-[3,] 0.1292572 0.0000000 0.6455087
+[1,] 0.3080574 0.1695568 0.2383272
+[2,] 0.2575693 0.3030199 0.1223833
+[3,] 0.1015573 0.0000000 0.6635243
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.5226492 0.4485619 0.3598184
-[2,] 1.0000000 0.4403616 0.3272559
-[3,] 0.2725917 0.1239152 1.0000000
+[1,] 0.5470133 0.3665141 0.4533531
+[2,] 0.5128115 0.5875307 0.3347727
+[3,] 0.2306969 0.1433952 1.0000000
 
 
 $logLikelihood
-[1] -180.9848
+[1] -178.5651
 \end{CodeOutput}
 
 \begin{CodeInput}
@@ -3210,7 +3212,7 @@ R+                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] -146.1353
+[1] -155.4057
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3243,9 +3245,9 @@ R> inferHyperparam(data = weathersOfDays[1:15])
 \begin{CodeOutput}
 $dataInference
        cloudy rain sunny
-cloudy      5    5     1
-rain        3    1     3
-sunny       2    1     2
+cloudy      1    1     2
+rain        2    2     1
+sunny       1    2    11
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3772,16 +3774,16 @@ R+              what = "matrix", t0 = "A", include.t0 = TRUE)
 
 \begin{CodeOutput}
       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
- [1,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [2,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [3,] "A"  "A"  "A"  "A"  "I"  "I"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [4,] "A"  "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [5,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [6,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [7,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [8,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [9,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-[10,] "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [1,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [2,] "A"  "A"  "I"  "I"  "I"  "I"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [3,] "A"  "A"  "I"  "I"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [4,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [5,] "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [6,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [7,] "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [8,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [9,] "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+[10,] "A"  "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
  [1,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
  [2,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
@@ -3811,7 +3813,7 @@ R> expected_period_disabled
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] 1.198
+[1] 1.152
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3824,7 +3826,7 @@ R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1))))
 \end{CodeInput}
 
 \begin{CodeOutput}
-[1] 11946.6
+[1] 11522.52
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3859,7 +3861,7 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpe0J5FH/file3e227bf5e6a7/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpvKHRgh/file3bc278e3ccee/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
 
 }
 

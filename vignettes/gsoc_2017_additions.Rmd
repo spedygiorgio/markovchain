@@ -1,23 +1,26 @@
 ---
-title: "GSoC-2017_Additions"
+title: "Google Summer of Code 2017 Additions"
 author: "Vandit Jain"
 date: "August 2017"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 bibliography: markovchainBiblio.bib
 vignette: >
-  %\VignetteIndexEntry{GSoC-2017_Additions} 
+  %\VignetteIndexEntry{Google Summer of Code 2017 Additions} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
+pkgdown:
+  as_is: true
+  extension: pdf
 ---
 
 # Expected Hittting Time using CTMC
 
 The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations [@NorrisBook]:
 \begin{equation}
-\begin{cases}
+\begin{array}{lcr}
       p_{k} = 0 & k = j \\
       -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
-\end{cases}
+\end{array}
 \label{eq:EHT}
 \end{equation}
 
@@ -36,14 +39,14 @@ ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "test
 
 
 The generator matrix of the ctmc is:
-$$
-M = \left(\begin{matrix}
--1 & 1/2 & 1/2 & 0\\
-1/4 & -1/2 & 1/4 & 1/6\\
-1/6 & 0 & -1/3 & 1/6\\
-0 & 0 & 0 & 0\\
-\end{matrix}\right)
-$$
+\[
+M = \left(\begin{array}{cccc}
+-1  &  1/2 & 1/2  & 0\\
+1/4 & -1/2 & 1/4  & 1/6\\
+1/6 &   0  & -1/3 & 1/6\\
+0   &   0  & 0    & 0
+\end{array}\right)
+\]
 
 
 Now if we have to calculate expected hitting time the process will take to hit state $d$ if we start from $a$, we apply the $ExpectedTime$ function. $ExpectedTime$ function takes four inputs namely a $ctmc$ class object, initial state $i$, the final state $j$ that we have to calculate expected hitting time and a logical parameter whether to use RCpp implementation. By default, the function uses RCpp as it is faster and takes lesser time.

@@ -8,6 +8,9 @@ vignette: >
   %\VignetteIndexEntry{Complicate Steady States Analysis} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
+pkgdown:
+  as_is: true
+  extension: pdf
 ---
 
 # Example 1 

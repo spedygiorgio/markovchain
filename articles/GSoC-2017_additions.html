@@ -104,7 +104,7 @@
 <div id="expected-hittting-time-using-ctmc" class="section level1">
 <h1 class="hasAnchor">
 <a href="#expected-hittting-time-using-ctmc" class="anchor"></a>Expected Hittting Time using CTMC</h1>
-<p>The package provides <code>ExpectedTime</code> function to calculate average hitting time from one state to another. Let the final state be j, then for every state <span class="math inline">\(i \in I\)</span>, where <span class="math inline">\(I\)</span> is the set of all possible states and holding time <span class="math inline">\(q_{i} &gt; 0\)</span> for every <span class="math inline">\(i \neq j\)</span>. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector <span class="math inline">\(p\)</span> to the system of linear equations<span class="citation">(Norris 1998)</span>: <span class="math display">\[\begin{equation}
+<p>The package provides <code>ExpectedTime</code> function to calculate average hitting time from one state to another. Let the final state be j, then for every state <span class="math inline">\(i \in I\)</span>, where <span class="math inline">\(I\)</span> is the set of all possible states and holding time <span class="math inline">\(q_{i} &gt; 0\)</span> for every <span class="math inline">\(i \neq j\)</span>. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector <span class="math inline">\(p\)</span> to the system of linear equations <span class="citation">(Norris 1998)</span>: <span class="math display">\[\begin{equation}
 \begin{cases}
       p_{k} = 0 &amp; k = j \\
       -\sum_{l \in I} q_{kl}p_{k} = 1 &amp; k \neq j
@@ -406,8 +406,8 @@ I_{s} = \left(\begin{matrix}
 <a class="sourceLine" id="cb26-10" data-line-number="10"></a>
 <a class="sourceLine" id="cb26-11" data-line-number="11"><span class="kw"><a href="../reference/predictHommc.html">predictHommc</a></span>(ob,<span class="dv">3</span>)</a></code></pre></div>
 <pre><code>##      [,1] [,2] [,3]
-## [1,] "a"  "b"  "b" 
-## [2,] "b"  "b"  "b"</code></pre>
+## [1,] "b"  "a"  "b" 
+## [2,] "a"  "a"  "a"</code></pre>
 </div>
 <div id="check-time-reversibility-of-continuous-time-markovchains" class="section level1">
 <h1 class="hasAnchor">

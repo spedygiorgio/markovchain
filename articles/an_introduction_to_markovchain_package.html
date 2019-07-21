@@ -913,24 +913,24 @@ Mathematica 9 example. Markov chain plot.
 <p>Simulating a random sequence from an underlying DTMC is quite easy thanks to the function <code>rmarkovchain</code>. The following code generates a year of weather states according to <code>mcWeather</code> underlying stochastic process.</p>
 <div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">weathersOfDays &lt;-<span class="st"> </span><span class="kw"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span>(<span class="dt">n =</span> <span class="dv">365</span>, <span class="dt">object =</span> mcWeather, <span class="dt">t0 =</span> <span class="st">"sunny"</span>)</a>
 <a class="sourceLine" id="cb121-2" data-line-number="2">weathersOfDays[<span class="dv">1</span><span class="op">:</span><span class="dv">30</span>]</a></code></pre></div>
-<pre><code>##  [1] "sunny"  "sunny"  "cloudy" "rain"   "cloudy" "cloudy" "sunny" 
-##  [8] "cloudy" "rain"   "sunny"  "cloudy" "sunny"  "rain"   "sunny" 
-## [15] "cloudy" "rain"   "rain"   "cloudy" "sunny"  "sunny"  "sunny" 
-## [22] "sunny"  "sunny"  "sunny"  "cloudy" "cloudy" "sunny"  "sunny" 
-## [29] "sunny"  "sunny"</code></pre>
+<pre><code>##  [1] "cloudy" "cloudy" "rain"   "rain"   "rain"   "rain"   "rain"  
+##  [8] "cloudy" "cloudy" "rain"   "cloudy" "cloudy" "sunny"  "cloudy"
+## [15] "rain"   "rain"   "cloudy" "cloudy" "sunny"  "sunny"  "cloudy"
+## [22] "cloudy" "rain"   "cloudy" "cloudy" "sunny"  "sunny"  "sunny" 
+## [29] "sunny"  "rain"</code></pre>
 <p>Similarly, it is possible to simulate one or more sequences from a non-homogeneous Markov chain, as the following code (applied on CCHC example) exemplifies.</p>
 <div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1">patientStates &lt;-<span class="st"> </span><span class="kw"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span>(<span class="dt">n =</span> <span class="dv">5</span>, <span class="dt">object =</span> mcCCRC, <span class="dt">t0 =</span> <span class="st">"H"</span>, </a>
 <a class="sourceLine" id="cb123-2" data-line-number="2">                              <span class="dt">include.t0 =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb123-3" data-line-number="3">patientStates[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>,]</a></code></pre></div>
 <pre><code>##    iteration values
 ## 1          1      H
-## 2          1      H
+## 2          1      I
 ## 3          1      D
 ## 4          1      D
 ## 5          1      D
 ## 6          2      H
 ## 7          2      H
-## 8          2      I
+## 8          2      H
 ## 9          2      D
 ## 10         2      D</code></pre>
 <p>Two advance parameters are availabe to the <code>rmarkovchain</code> method which helps you decide which implementation to use. There are four options available : ,  in parallel,  and  in parallel. Two boolean parameters <code>useRcpp</code> and <code>parallel</code> will decide which implementation will be used. Default is  and  i.e.  implementation. The  implementation is generally faster than the <code>R</code> implementation. If you have multicore processors then you can take advantage of <code>parallel</code> parameter by setting it to <code>TRUE</code>. When both <code>Rcpp=TRUE</code> and <code>parallel=TRUE</code> the parallelization has been carried out using  package .</p>
@@ -950,14 +950,14 @@ Mathematica 9 example. Markov chain plot.
 ##  cloudy, rain, sunny 
 ##  The transition matrix  (by rows)  is defined as follows: 
 ##           cloudy      rain     sunny
-## cloudy 0.3603604 0.3423423 0.2972973
-## rain   0.4375000 0.3000000 0.2625000
-## sunny  0.2080925 0.1040462 0.6878613</code></pre>
+## cloudy 0.4426230 0.3278689 0.2295082
+## rain   0.4772727 0.3636364 0.1590909
+## sunny  0.1688312 0.1038961 0.7272727</code></pre>
 <div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb127-1" data-line-number="1">weatherFittedMLE<span class="op">$</span>standardError</a></code></pre></div>
 <pre><code>##            cloudy       rain      sunny
-## cloudy 0.05697798 0.05553526 0.05175282
-## rain   0.07395100 0.06123724 0.05728220
-## sunny  0.03468208 0.02452393 0.06305614</code></pre>
+## cloudy 0.06023335 0.05184062 0.04337297
+## rain   0.07364478 0.06428243 0.04251883
+## sunny  0.03311052 0.02597403 0.06872081</code></pre>
 <p>The Laplace smoothing approach is a variation of the MLE, where the <span class="math inline">\(n_{ij}\)</span> is substituted by <span class="math inline">\(n_{ij}+\alpha\)</span> (see Equation ), being <span class="math inline">\(\alpha\)</span> an arbitrary positive stabilizing parameter.</p>
 
 <div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" data-line-number="1">weatherFittedLAPLACE &lt;-<span class="st"> </span><span class="kw"><a href="../reference/markovchainFit.html">markovchainFit</a></span>(<span class="dt">data =</span> weathersOfDays, </a>
@@ -969,15 +969,15 @@ Mathematica 9 example. Markov chain plot.
 ##  cloudy, rain, sunny 
 ##  The transition matrix  (by rows)  is defined as follows: 
 ##           cloudy      rain     sunny
-## cloudy 0.3603531 0.3423399 0.2973070
-## rain   0.4374610 0.3000125 0.2625266
-## sunny  0.2081142 0.1040860 0.6877998</code></pre>
+## cloudy 0.4425961 0.3278702 0.2295337
+## rain   0.4772237 0.3636260 0.1591503
+## sunny  0.1688632 0.1039408 0.7271960</code></pre>
 <p>(NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.) Both MLE and Laplace approach are based on the <code>createSequenceMatrix</code> functions that returns the raw counts transition matrix.</p>
 <div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" data-line-number="1"><span class="kw"><a href="../reference/markovchainFit.html">createSequenceMatrix</a></span>(<span class="dt">stringchar =</span> weathersOfDays)</a></code></pre></div>
 <pre><code>##        cloudy rain sunny
-## cloudy     40   38    33
-## rain       35   24    21
-## sunny      36   18   119</code></pre>
+## cloudy     54   40    28
+## rain       42   32    14
+## sunny      26   16   112</code></pre>
 <p><code>stringchar</code> could contain <code>NA</code> values, and the transitions containing <code>NA</code> would be ignored.</p>
 <p>An issue occurs when the sample contains only one realization of a state (say <span class="math inline">\(X_{\beta}\)</span>) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional distribution of the transition). In this case the estimated transition matrix is corrected assuming <span class="math inline">\(p_{\beta,j}=1/k\)</span>, being <span class="math inline">\(k\)</span> the possible states.</p>
 <p>Create sequence matrix can also be used to obtain raw count transition matrices from a given <span class="math inline">\(n*2\)</span> matrix as the following example shows:</p>
@@ -1000,14 +1000,14 @@ Mathematica 9 example. Markov chain plot.
 ##  cloudy, rain, sunny 
 ##  The transition matrix  (by rows)  is defined as follows: 
 ##           cloudy      rain     sunny
-## cloudy 0.3515103 0.3444988 0.3039908
-## rain   0.4250353 0.3153023 0.2596624
-## sunny  0.2163500 0.1016537 0.6819963</code></pre>
+## cloudy 0.4411058 0.3201912 0.2387030
+## rain   0.4736184 0.3656113 0.1607703
+## sunny  0.1699163 0.1013562 0.7287275</code></pre>
 <div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" data-line-number="1">weatherFittedBOOT<span class="op">$</span>standardError</a></code></pre></div>
 <pre><code>##             cloudy        rain       sunny
-## cloudy 0.010680720 0.009802248 0.011498131
-## rain   0.012587354 0.011195949 0.014145195
-## sunny  0.007391729 0.006491509 0.008451873</code></pre>
+## cloudy 0.009304804 0.009564172 0.008169906
+## rain   0.009996452 0.009191408 0.009179317
+## sunny  0.006736070 0.003866504 0.007432528</code></pre>
 <p>The bootstrapping process can be done in parallel thanks to  package . Parallelized implementation is definitively suggested when the data sample size or the required number of bootstrap runs is high.</p>
 <div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb139-1" data-line-number="1">weatherFittedBOOTParallel &lt;-<span class="st"> </span><span class="kw"><a href="../reference/markovchainFit.html">markovchainFit</a></span>(<span class="dt">data =</span> weathersOfDays, </a>
 <a class="sourceLine" id="cb139-2" data-line-number="2">                                    <span class="dt">method =</span> <span class="st">"bootstrap"</span>, <span class="dt">nboot =</span> <span class="dv">200</span>, </a>
@@ -1023,9 +1023,9 @@ LLH = \sum_{i,j} n_{ij} * log (p_{ij})
 \label{eq:LLH}
 \end{equation}\]</span> where <span class="math inline">\(n_{ij}\)</span> is the entry of the frequency matrix and <span class="math inline">\(p_{ij}\)</span> is the entry of the transition probability matrix.</p>
 <div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb141-1" data-line-number="1">weatherFittedMLE<span class="op">$</span>logLikelihood</a></code></pre></div>
-<pre><code>## [1] -349.2767</code></pre>
+<pre><code>## [1] -337.1486</code></pre>
 <div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb143-1" data-line-number="1">weatherFittedBOOT<span class="op">$</span>logLikelihood</a></code></pre></div>
-<pre><code>## [1] -349.3807</code></pre>
+<pre><code>## [1] -337.19</code></pre>
 <p>Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The <code>confidenceInterval</code> is provided with the two matrices: <code>lowerEndpointMatrix</code> and <code>upperEndpointMatrix</code>. The confidence level (CL) is 0.95 by default and can be given as an argument of the function <code>markovchainFit</code>. This is used to obtain the standard score (z-score). From classical inference theory, if <span class="math inline">\(ci\)</span> is the level of confidence required assuming normal distribution the <span class="math inline">\(zscore(ci)\)</span> solves <span class="math inline">\(\Phi \left ( 1-\left(\frac{1-ci}{2}\right) \right )\)</span> Equations  and   show the <code>confidenceInterval</code> of a fitting. Note that each entry of the matrices is bounded between 0 and 1.</p>
 
 <div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb145-1" data-line-number="1">weatherFittedMLE<span class="op">$</span>confidenceInterval</a></code></pre></div>
@@ -1036,15 +1036,15 @@ LLH = \sum_{i,j} n_{ij} * log (p_{ij})
 ## 
 ## $lowerEndpointMatrix
 ##           cloudy       rain     sunny
-## cloudy 0.3339421 0.32837557 0.2850781
-## rain   0.4043309 0.29688665 0.2363956
-## sunny  0.2041917 0.09097612 0.6680942
+## cloudy 0.4258008 0.30445950 0.2252647
+## rain   0.4571757 0.35049276 0.1456717
+## sunny  0.1588364 0.09499638 0.7165021
 ## 
 ## $upperEndpointMatrix
 ##           cloudy      rain     sunny
-## cloudy 0.3690785 0.3606221 0.3229036
-## rain   0.4457396 0.3337180 0.2829292
-## sunny  0.2285083 0.1123313 0.6958984</code></pre>
+## cloudy 0.4564108 0.3359228 0.2521413
+## rain   0.4900611 0.3807298 0.1758690
+## sunny  0.1809961 0.1077160 0.7409529</code></pre>
 <p>A special function, <code>multinomialConfidenceIntervals</code>, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package’s  functions  that were themselves based on the  paper.</p>
 <div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb149-1" data-line-number="1"><span class="kw"><a href="../reference/multinomialConfidenceIntervals.html">multinomialConfidenceIntervals</a></span>(<span class="dt">transitionMatrix =</span> </a>
 <a class="sourceLine" id="cb149-2" data-line-number="2">        weatherFittedMLE<span class="op">$</span>estimate<span class="op">@</span>transitionMatrix, </a>
@@ -1053,16 +1053,16 @@ LLH = \sum_{i,j} n_{ij} * log (p_{ij})
 ## [1] 0.95
 ## 
 ## $lowerEndpointMatrix
-##           cloudy       rain     sunny
-## cloudy 0.2612613 0.24324324 0.1981982
-## rain   0.3250000 0.18750000 0.1500000
-## sunny  0.1445087 0.04046243 0.6242775
+##           cloudy       rain      sunny
+## cloudy 0.3524590 0.23770492 0.13934426
+## rain   0.3750000 0.26136364 0.05681818
+## sunny  0.1038961 0.03896104 0.66233766
 ## 
 ## $upperEndpointMatrix
 ##           cloudy      rain     sunny
-## cloudy 0.4607567 0.4427386 0.3976936
-## rain   0.5559026 0.4184026 0.3809026
-## sunny  0.2798760 0.1758298 0.7596448</code></pre>
+## cloudy 0.5410195 0.4262654 0.3279048
+## rain   0.5920353 0.4783990 0.2738535
+## sunny  0.2393706 0.1744356 0.7978122</code></pre>
 <p>The functions for fitting DTMC have mostly been rewritten in  using   since version 0.2.</p>
 <p>It is also possible to fit a DTMC object from <code>matrix</code> or <code>data.frame</code> objects as shown in following code.</p>
 <div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb151-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(holson)</a>
@@ -1433,18 +1433,17 @@ A(i, j) = \begin{cases} \lambda(i, j) &amp; \mbox{if } i \neq j \\ -\lambda(i) &
 <div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb183-1" data-line-number="1">statesDist &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>)</a>
 <a class="sourceLine" id="cb183-2" data-line-number="2"><span class="kw"><a href="../reference/rctmc.html">rctmc</a></span>(<span class="dt">n =</span> <span class="dv">3</span>, <span class="dt">ctmc =</span> molecularCTMC, <span class="dt">initDist =</span> statesDist, <span class="dt">out.type =</span> <span class="st">"df"</span>, <span class="dt">include.T0 =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <pre><code>##       states             time
-## 1 sigma_star 1.58606335139813
-## 2      sigma 4.76816014547772
-## 3 sigma_star  4.8608654514539</code></pre>
+## 1      sigma 1.61416148572209
+## 2 sigma_star 2.37429100386613
+## 3      sigma 2.71893428144791</code></pre>
 <p><span class="math inline">\(n\)</span> represents the number of samples to generate. There is an optional argument <span class="math inline">\(T\)</span> for <code>rctmc</code>. It represents the time of termination of the simulation. To use this feature, set <span class="math inline">\(n\)</span> to a very high value, say <code>Inf</code> (since we do not know the number of transitions before hand) and set <span class="math inline">\(T\)</span> accordingly.</p>
 <div class="sourceCode" id="cb185"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb185-1" data-line-number="1">statesDist &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>)</a>
 <a class="sourceLine" id="cb185-2" data-line-number="2"><span class="kw"><a href="../reference/rctmc.html">rctmc</a></span>(<span class="dt">n =</span> <span class="ot">Inf</span>, <span class="dt">ctmc =</span> molecularCTMC, <span class="dt">initDist =</span> statesDist, <span class="dt">T =</span> <span class="dv">2</span>)</a></code></pre></div>
 <pre><code>## [[1]]
-## [1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
-## [6] "sigma_star"
+## [1] "sigma"      "sigma_star"
 ## 
 ## [[2]]
-## [1] 0.0000000 0.2605726 0.3874686 0.7683665 1.0622998 1.0638846</code></pre>
+## [1] 0.00000000 0.07123668</code></pre>
 <p>To obtain the stationary distribution simply invoke the <code>steadyStates</code> function</p>
 <div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb187-1" data-line-number="1"><span class="kw"><a href="../reference/steadyStates.html">steadyStates</a></span>(molecularCTMC)</a></code></pre></div>
 <pre><code>##      sigma sigma_star
@@ -1591,27 +1590,27 @@ A(i, j) = \begin{cases} \lambda(i, j) &amp; \mbox{if } i \neq j \\ -\lambda(i) &
 <a class="sourceLine" id="cb204-7" data-line-number="7">  <span class="dt">raw =</span> smallSampleRawTransitions, </a>
 <a class="sourceLine" id="cb204-8" data-line-number="8">  <span class="dt">apriori =</span> aprioriMc<span class="op">@</span>transitionMatrix</a>
 <a class="sourceLine" id="cb204-9" data-line-number="9">) <span class="op">-</span><span class="st"> </span>trueMc<span class="op">@</span>transitionMatrix</a></code></pre></div>
-<pre><code>##            s1         s2
-## s1  0.2181818 -0.2181818
-## s2 -0.1360190  0.1360190</code></pre>
+<pre><code>##           s1         s2
+## s1 0.2315364 -0.2315364
+## s2 0.1417722 -0.1417722</code></pre>
 <div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb206-1" data-line-number="1">biggerSample&lt;-<span class="kw"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span>(<span class="dt">n=</span><span class="dv">100</span>,<span class="dt">object =</span> trueMc)</a>
 <a class="sourceLine" id="cb206-2" data-line-number="2">biggerSampleRawTransitions&lt;-<span class="kw"><a href="../reference/markovchainFit.html">createSequenceMatrix</a></span>(<span class="dt">stringchar =</span> biggerSample)</a>
 <a class="sourceLine" id="cb206-3" data-line-number="3"><span class="kw">pseudoBayesEstimator</span>(</a>
 <a class="sourceLine" id="cb206-4" data-line-number="4">  <span class="dt">raw =</span> biggerSampleRawTransitions,</a>
 <a class="sourceLine" id="cb206-5" data-line-number="5">  <span class="dt">apriori =</span> aprioriMc<span class="op">@</span>transitionMatrix</a>
 <a class="sourceLine" id="cb206-6" data-line-number="6">) <span class="op">-</span><span class="st"> </span>trueMc<span class="op">@</span>transitionMatrix</a></code></pre></div>
-<pre><code>##              s1          s2
-## s1 -0.002212049 0.002212049
-## s2 -0.021078102 0.021078102</code></pre>
+<pre><code>##              s1           s2
+## s1  0.043578141 -0.043578141
+## s2 -0.007429331  0.007429331</code></pre>
 <div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb208-1" data-line-number="1">bigSample&lt;-<span class="kw"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span>(<span class="dt">n=</span><span class="dv">1000</span>,<span class="dt">object =</span> trueMc)</a>
 <a class="sourceLine" id="cb208-2" data-line-number="2">bigSampleRawTransitions&lt;-<span class="kw"><a href="../reference/markovchainFit.html">createSequenceMatrix</a></span>(<span class="dt">stringchar =</span> bigSample)</a>
 <a class="sourceLine" id="cb208-3" data-line-number="3"><span class="kw">pseudoBayesEstimator</span>(</a>
 <a class="sourceLine" id="cb208-4" data-line-number="4">  <span class="dt">raw =</span> bigSampleRawTransitions,</a>
 <a class="sourceLine" id="cb208-5" data-line-number="5">  <span class="dt">apriori =</span> aprioriMc<span class="op">@</span>transitionMatrix</a>
 <a class="sourceLine" id="cb208-6" data-line-number="6">) <span class="op">-</span><span class="st"> </span>trueMc<span class="op">@</span>transitionMatrix</a></code></pre></div>
-<pre><code>##             s1          s2
-## s1  0.03374693 -0.03374693
-## s2 -0.03265830  0.03265830</code></pre>
+<pre><code>##              s1          s2
+## s1 -0.006055722 0.006055722
+## s2 -0.020813063 0.020813063</code></pre>
 </div>
 <div id="bayesian-estimation" class="section level2">
 <h2 class="hasAnchor">
@@ -1716,45 +1715,45 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 ##  cloudy, rain, sunny 
 ##  The transition matrix  (by rows)  is defined as follows: 
 ##           cloudy       rain     sunny
-## cloudy 0.3913043 0.30434783 0.3043478
-## rain   0.4186047 0.30232558 0.2790698
-## sunny  0.2315789 0.08421053 0.6842105
+## cloudy 0.5000000 0.23076923 0.2692308
+## rain   0.4418605 0.37209302 0.1860465
+## sunny  0.2209302 0.09302326 0.6860465
 ## 
 ## 
 ## $expectedValue
-##           cloudy       rain     sunny
-## cloudy 0.3888889 0.30555556 0.3055556
-## rain   0.4130435 0.30434783 0.2826087
-## sunny  0.2346939 0.09183673 0.6734694
+##           cloudy      rain     sunny
+## cloudy 0.4938272 0.2345679 0.2716049
+## rain   0.4347826 0.3695652 0.1956522
+## sunny  0.2247191 0.1011236 0.6741573
 ## 
 ## $standardError
 ##            [,1]       [,2]       [,3]
-## [1,] 0.05705733 0.05391411 0.05391411
-## [2,] 0.07182108 0.06711696 0.06567830
-## [3,] 0.04259424 0.02902502 0.04713063
+## [1,] 0.05521155 0.04679298 0.04911853
+## [2,] 0.07230943 0.07040714 0.05786492
+## [3,] 0.04399753 0.03178008 0.04940414
 ## 
 ## $confidenceInterval
 ## $confidenceInterval$confidenceLevel
 ## [1] 0.92
 ## 
 ## $confidenceInterval$lowerEndpointMatrix
-##           [,1]      [,2]      [,3]
-## [1,] 0.3031829 0.2173233 0.2173233
-## [2,] 0.3116224 0.1960089 0.1731233
-## [3,] 0.1582427 0.0000000 0.6059676
+##           [,1]      [,2]       [,3]
+## [1,] 0.4160606 0.1503045 0.18767879
+## [2,] 0.3335994 0.2649939 0.07220123
+## [3,] 0.1443586 0.0000000 0.60331984
 ## 
 ## $confidenceInterval$upperEndpointMatrix
 ##           [,1]      [,2]      [,3]
-## [1,] 0.5139945 0.4067156 0.4067156
-## [2,] 0.6155949 0.4319525 0.4019689
-## [3,] 0.3067679 0.1349830 1.0000000
+## [1,] 1.0000000 0.3133456 0.3589474
+## [2,] 1.0000000 0.5272242 0.2832659
+## [3,] 0.2979271 0.1483464 1.0000000
 ## 
 ## 
 ## $logLikelihood
-## [1] -188.1507</code></pre>
+## [1] -185.5242</code></pre>
 <div class="sourceCode" id="cb213"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb213-1" data-line-number="1"><span class="kw"><a href="../reference/predictiveDistribution.html">predictiveDistribution</a></span>(weathersOfDays[<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>], </a>
 <a class="sourceLine" id="cb213-2" data-line-number="2">                       weathersOfDays[<span class="dv">201</span><span class="op">:</span><span class="dv">365</span>],<span class="dt">hyperparam =</span> hyperMatrix) </a></code></pre></div>
-<pre><code>## [1] -160.1415</code></pre>
+<pre><code>## [1] -145.9151</code></pre>
 <p>The results should not change after permuting the dimensions of the matrix.</p>
 <div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb215-1" data-line-number="1">hyperMatrix2&lt;-<span class="st"> </span>hyperMatrix[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>)]</a>
 <a class="sourceLine" id="cb215-2" data-line-number="2"><span class="kw"><a href="../reference/markovchainFit.html">markovchainFit</a></span>(weathersOfDays[<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>], <span class="dt">method =</span> <span class="st">"map"</span>, </a>
@@ -1765,45 +1764,45 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 ##  cloudy, rain, sunny 
 ##  The transition matrix  (by rows)  is defined as follows: 
 ##           cloudy       rain     sunny
-## cloudy 0.3913043 0.30434783 0.3043478
-## rain   0.4186047 0.30232558 0.2790698
-## sunny  0.2315789 0.08421053 0.6842105
+## cloudy 0.5000000 0.23076923 0.2692308
+## rain   0.4418605 0.37209302 0.1860465
+## sunny  0.2209302 0.09302326 0.6860465
 ## 
 ## 
 ## $expectedValue
-##           cloudy       rain     sunny
-## cloudy 0.3888889 0.30555556 0.3055556
-## rain   0.4130435 0.30434783 0.2826087
-## sunny  0.2346939 0.09183673 0.6734694
+##           cloudy      rain     sunny
+## cloudy 0.4938272 0.2345679 0.2716049
+## rain   0.4347826 0.3695652 0.1956522
+## sunny  0.2247191 0.1011236 0.6741573
 ## 
 ## $standardError
 ##            [,1]       [,2]       [,3]
-## [1,] 0.05705733 0.05391411 0.05391411
-## [2,] 0.07182108 0.06711696 0.06567830
-## [3,] 0.04259424 0.02902502 0.04713063
+## [1,] 0.05521155 0.04679298 0.04911853
+## [2,] 0.07230943 0.07040714 0.05786492
+## [3,] 0.04399753 0.03178008 0.04940414
 ## 
 ## $confidenceInterval
 ## $confidenceInterval$confidenceLevel
 ## [1] 0.92
 ## 
 ## $confidenceInterval$lowerEndpointMatrix
-##           [,1]      [,2]      [,3]
-## [1,] 0.3031829 0.2173233 0.2173233
-## [2,] 0.3116224 0.1960089 0.1731233
-## [3,] 0.1582427 0.0000000 0.6059676
+##           [,1]      [,2]       [,3]
+## [1,] 0.4160606 0.1503045 0.18767879
+## [2,] 0.3335994 0.2649939 0.07220123
+## [3,] 0.1443586 0.0000000 0.60331984
 ## 
 ## $confidenceInterval$upperEndpointMatrix
 ##           [,1]      [,2]      [,3]
-## [1,] 0.5139945 0.4067156 0.4067156
-## [2,] 0.6155949 0.4319525 0.4019689
-## [3,] 0.3067679 0.1349830 1.0000000
+## [1,] 1.0000000 0.3133456 0.3589474
+## [2,] 1.0000000 0.5272242 0.2832659
+## [3,] 0.2979271 0.1483464 1.0000000
 ## 
 ## 
 ## $logLikelihood
-## [1] -188.1507</code></pre>
+## [1] -185.5242</code></pre>
 <div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb217-1" data-line-number="1"><span class="kw"><a href="../reference/predictiveDistribution.html">predictiveDistribution</a></span>(weathersOfDays[<span class="dv">1</span><span class="op">:</span><span class="dv">200</span>], </a>
 <a class="sourceLine" id="cb217-2" data-line-number="2">                       weathersOfDays[<span class="dv">201</span><span class="op">:</span><span class="dv">365</span>],<span class="dt">hyperparam =</span> hyperMatrix2)</a></code></pre></div>
-<pre><code>## [1] -160.1415</code></pre>
+<pre><code>## [1] -145.9151</code></pre>
 <p>Note that the predictive probability is very small. However, this can be useful when comparing model orders. Suppose we have an idea of the (prior) transition matrix corresponding to the expected value of the parameters, and have a data set from which we want to deduce the MAP estimates. We can infer the hyperparameters from this known transition matrix itself, and use this to obtain our MAP estimates.</p>
 <div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb219-1" data-line-number="1"><span class="kw"><a href="../reference/inferHyperparam.html">inferHyperparam</a></span>(<span class="dt">transMatr =</span> weatherMatrix, <span class="dt">scale =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>))</a></code></pre></div>
 <pre><code>## $scaledInference
@@ -1814,9 +1813,10 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 <p>Alternatively, we can use a data sample to infer the hyperparameters.</p>
 <div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb221-1" data-line-number="1"><span class="kw"><a href="../reference/inferHyperparam.html">inferHyperparam</a></span>(<span class="dt">data =</span> weathersOfDays[<span class="dv">1</span><span class="op">:</span><span class="dv">15</span>])</a></code></pre></div>
 <pre><code>## $dataInference
-##        cloudy rain
-## cloudy      9    4
-## rain        4    1</code></pre>
+##        cloudy rain sunny
+## cloudy      5    4     1
+## rain        4    3     1
+## sunny       1    2     2</code></pre>
 <p>In order to use the inferred hyperparameter matrices, we do</p>
 <div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb223-1" data-line-number="1">hyperMatrix3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/inferHyperparam.html">inferHyperparam</a></span>(<span class="dt">transMatr =</span> weatherMatrix, </a>
 <a class="sourceLine" id="cb223-2" data-line-number="2">                                <span class="dt">scale =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>))</a>
@@ -2083,16 +2083,16 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 <div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb266-1" data-line-number="1"><span class="kw"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span>(<span class="dt">n =</span> <span class="dv">10</span>, <span class="dt">object =</span> transitionsSince100,</a>
 <a class="sourceLine" id="cb266-2" data-line-number="2">             <span class="dt">what =</span> <span class="st">"matrix"</span>, <span class="dt">t0 =</span> <span class="st">"A"</span>, <span class="dt">include.t0 =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 <pre><code>##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
-##  [1,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+##  [1,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
 ##  [2,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
 ##  [3,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-##  [4,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+##  [4,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "D"   "D"   "D"   "D"  
 ##  [5,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-##  [6,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-##  [7,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "D"  "D"   "D"   "D"   "D"  
-##  [8,] "A"  "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-##  [9,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-## [10,] "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+##  [6,] "A"  "A"  "A"  "A"  "A"  "I"  "I"  "I"  "D"  "D"   "D"   "D"   "D"  
+##  [7,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+##  [8,] "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+##  [9,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+## [10,] "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
 ##       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
 ##  [1,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
 ##  [2,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
@@ -2112,10 +2112,10 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 <a class="sourceLine" id="cb268-5" data-line-number="5">temp[lifeTrajectories<span class="op">==</span><span class="st">"I"</span>]&lt;-<span class="dv">1</span></a>
 <a class="sourceLine" id="cb268-6" data-line-number="6">expected_period_disabled&lt;-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowSums</a></span>((temp)))</a>
 <a class="sourceLine" id="cb268-7" data-line-number="7">expected_period_disabled</a></code></pre></div>
-<pre><code>## [1] 1.258</code></pre>
+<pre><code>## [1] 1.27</code></pre>
 <p>Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.</p>
 <div class="sourceCode" id="cb270"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb270-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">rowMeans</a></span>(<span class="dv">12000</span><span class="op">*</span>temp<span class="op">%*%</span>( <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>((<span class="dv">1</span><span class="fl">+0.02</span>)<span class="op">^-</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dt">from=</span><span class="dv">0</span>, <span class="dt">to=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(temp)<span class="op">-</span><span class="dv">1</span>)))))</a></code></pre></div>
-<pre><code>## [1] 12605.85</code></pre>
+<pre><code>## [1] 12708.74</code></pre>
 </div>
 </div>
 <div id="app:sociology" class="section level2">

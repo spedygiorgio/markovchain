@@ -34,7 +34,7 @@ author:
     affiliation: Software Engineer
     email: \email{nacho.cordon.castillo@gmail.com}
 preamble: >
-  \author{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}
+  \author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}
   \usepackage{graphicx}
   \usepackage{amsmath}
   \usepackage{longtable}

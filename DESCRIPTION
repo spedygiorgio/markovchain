@@ -30,7 +30,7 @@ Imports:
     expm,
     stats4,
     parallel,
-    Rcpp (>= 0.12.18),
+    Rcpp (>= 1.0.2),
     RcppParallel,
     utils,
     stats,
@@ -50,7 +50,7 @@ Suggests:
     bookdown,
     rticles
 VignetteBuilder: utils, knitr
-LinkingTo: Rcpp, RcppParallel, RcppArmadillo
+LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)
 SystemRequirements: GNU make
 LazyLoad: yes
 ByteCompile: yes

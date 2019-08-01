@@ -1,5 +1,6 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
+#include <functional>
 using namespace Rcpp;
 using namespace arma;
 
@@ -155,19 +156,67 @@ mat mcEigen(NumericMatrix t) {
       for (int i = 0; i < numRows; ++i)
         colSum += real_eigvecs(i, j);
       
-      colSums.push_back(colSum);
+      colSums.push_back((colSum == 0 ? colSum : 1));
     }
   }
 
   // Normalize eigen vectors
   int numCols = whichOnes.size();
   mat result(numRows, numCols);
+  bool negative_found;
   
-  for (int i = 0; i < numRows; ++i)
-    for (int j = 0; j < numCols; ++j)
-      result(i, j) = real_eigvecs(i, whichOnes[j]) / colSums[j];
-
+  for (int j = 0; j < numCols; ++j) {
+    negative_found = false;
+    
+    for (int i = 0; i < numRows; ++i) {
+        result(i, j) = real_eigvecs(i, whichOnes[j]) / colSums[j];
+    
+        if (result(i, j) < 0)
+          negative_found = true;
+    }
+   
+    // If some element in the column was negative, try 
+    // and change all the signs of the eigen vector
+    // The purpose of that is not having negative values
+    // in the steady states => they should be probabilities
+    // so we do not expect any of them to be positive
+    if (negative_found)
+      for (int i = 0; i < numRows; ++i)
+        result(i, j) = -result(i, j);
+  }
 
   return result;
 }
 
+
+bool anyElement(mat matrix, bool (*condition)(const double&)) {
+  int numRows = matrix.n_rows;
+  int numCols = matrix.n_cols;
+  bool found = false;
+  
+  for (int i = 0; i < numRows && !found; ++i)
+    for (int j = 0; j < numCols && !found; ++j)
+      found = condition(matrix(i, j));
+  
+  return found;
+}
+
+
+NumericMatrix steadyStates(S4 object) {
+  NumericMatrix transitions = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+    
+  mat steady = mcEigen(transitions);
+  auto isNegative = [](const double& x) { return x < 0; };
+  
+  if (anyElement(steady, isNegative)) {
+    warning("Negative elements in steady states, working on closed classes submatrix");
+  }
+
+  NumericMatrix result = wrap(steady);
+  
+  if (result.size() > 0)
+    colnames(result) = colnames(transitions);
+    
+  return result;
+}

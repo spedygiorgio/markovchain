@@ -119,13 +119,13 @@ inline bool approxEqual(const cx_double& a, const cx_double& b){
   return (x*x - y*y) <= 1E-14;
 }
 
-mat mcEigen(NumericMatrix t) {
+mat fundamentalMatrix(NumericMatrix t) {
   cx_mat transitionMatrix = as<cx_mat>(t);
   cx_vec eigvals;
   cx_mat eigvecs;
   // 1 + 0i
   cx_double cx_one(1.0, 0);
-
+  
   // If transition matrix is hermitian (symmetric in real case), use
   // more efficient implementation to get the eigenvalues and vectors
   if (transitionMatrix.is_hermitian()) {
@@ -137,15 +137,16 @@ mat mcEigen(NumericMatrix t) {
     // to perform the rest of the algorithm
     for (int i = 0; i < real_eigvals.size(); ++i)
       eigvals[i] = cx_double(real_eigvals[i], 0);
-  } else
+  } else {
     eig_gen(eigvals, eigvecs, transitionMatrix, "balance");
+  }
 
   std::vector<int> whichOnes;
   std::vector<double> colSums;
   double colSum;
   mat real_eigvecs = real(eigvecs);
   int numRows = real_eigvecs.n_rows;
-    
+  
   // Search for the eigenvalues which are 1 and store 
   // the sum of the corresponding eigenvector
   for (int j = 0; j < eigvals.size(); ++j) {
@@ -156,7 +157,7 @@ mat mcEigen(NumericMatrix t) {
       for (int i = 0; i < numRows; ++i)
         colSum += real_eigvecs(i, j);
       
-      colSums.push_back((colSum == 0 ? colSum : 1));
+      colSums.push_back((colSum != 0 ? colSum : 1));
     }
   }
 
@@ -202,21 +203,50 @@ bool anyElement(mat matrix, bool (*condition)(const double&)) {
 }
 
 
+// [[Rcpp::export(.steadyStatesRcpp)]]
 NumericMatrix steadyStates(S4 object) {
   NumericMatrix transitions = object.slot("transitionMatrix");
   bool byrow = object.slot("byrow");
-    
-  mat steady = mcEigen(transitions);
+  
+  if (byrow)
+    transitions = transpose(transitions);
+  
+  mat steady = fundamentalMatrix(transitions);
+  NumericMatrix result = wrap(steady);
+  rownames(result) = colnames(transitions);
+  
+  if (byrow)
+    result = transpose(result);
+  
   auto isNegative = [](const double& x) { return x < 0; };
   
   if (anyElement(steady, isNegative)) {
     warning("Negative elements in steady states, working on closed classes submatrix");
   }
 
-  NumericMatrix result = wrap(steady);
-  
-  if (result.size() > 0)
-    colnames(result) = colnames(transitions);
-    
   return result;
 }
+
+/*
+NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
+  NumericMatrix transitions = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+    
+  List recClasses = recurrentClasses(object)
+  int numRecClasses = length(recClasses)
+  CharacterVector recurrentClassesNames = unlist(recClasses);
+      
+  // Extracting recurrent classes
+  NumericMatrix transitionsSub = transitions[rownames(transitions) %in% recurrentClassesNames, 
+                                             colnames(transitions) %in% recurrentClassesNames]
+      
+  NumericMatrix steady = matrix(0, nrow = numRecClasses, ncol = dim(object))
+  colnames(steady) = colnames(transitions);
+        
+  mat partialOutput = wrap(mcEigen(transitions));
+          
+  // Allocating to their columns
+  steady[, colnames(steady) %in% recurrentClassesNames] = partialOutput;
+  return steady;
+}
+ */

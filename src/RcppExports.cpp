@@ -50,6 +50,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// steadyStates
+NumericMatrix steadyStates(S4 object);
+RcppExport SEXP _markovchain_steadyStates(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(steadyStates(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // generatorToTransitionMatrix
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow);
 RcppExport SEXP _markovchain_generatorToTransitionMatrix(SEXP genSEXP, SEXP byrowSEXP) {
@@ -478,6 +489,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
     {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
     {"_markovchain_lexicographicalSort", (DL_FUNC) &_markovchain_lexicographicalSort, 1},
+    {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
     {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
     {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},
     {"_markovchain_ExpectedTimeRcpp", (DL_FUNC) &_markovchain_ExpectedTimeRcpp, 2},

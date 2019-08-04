@@ -243,8 +243,10 @@ setMethod(
 )
 
 
-# Generic methods to get the dim of a markovchain and markovchainList
+#' @exportMethod dim
+setGeneric("dim")
 
+# Generic methods to get the dim of a markovchain and markovchainList
 setMethod(
   "dim",
   "markovchain", 
@@ -556,7 +558,7 @@ setMethod("transientStates", "markovchain",
 #' transitionProbability(markovB,"b", "c")
 #' @rdname transitionProbability
 #'      
-#' @export
+#' @exportMethod transitionProbability
 setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("transitionProbability"))
 
 #' @rdname transitionProbability
@@ -592,6 +594,8 @@ setMethod("transitionProbability", "markovchain",
 	cat("\n")
 }
 
+#' @exportMethod show
+setGeneric("show")
 
 # show methods for markovchain and markovchain list objects 
 setMethod("show", "markovchain",
@@ -609,6 +613,9 @@ setMethod("show", "markovchainList",
             }
           }
 )
+
+#' @exportMethod print
+setGeneric("print")
 
 # print methods
 setMethod("print", "markovchainList", function(x) show(x))
@@ -660,6 +667,9 @@ getColorVector <- function(object){
 }
 
 
+#' @exportMethod plot
+setGeneric("plot")
+
 # Plot methods for markovchain objects
 
 # plot method from stat5
@@ -706,7 +716,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 
 #' @rdname absorbingStates
 #' 
-#' @export
+#' @exportMethod canonicForm
 setGeneric("canonicForm", function(object) standardGeneric("canonicForm"))
 setMethod("canonicForm", "markovchain",
           function(object) {
@@ -819,6 +829,9 @@ setMethod("canonicForm", "markovchain",
   out <- new("markovchain", transitionMatrix = Q, name = object@name)
   return(out)
 }
+
+#' @exportMethod summary
+setGeneric("summary")
 
 # summary method for markovchain class
 # lists: closed, transient classes, irreducibility, absorbint, transient states
@@ -987,6 +1000,8 @@ setMethod("summary", signature(object = "markovchain"),
 	invisible(out)
 }
 
+#' @exportMethod coerce
+NULL
 
 # coerce matrix to markovchain object using internal method
 # example: as("some matrix", "markovchain")
@@ -1133,7 +1148,9 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
   return(out)
 }
 
+
 # coerce msm object to markovchain object
+setClass("msm")
 setAs(from = "msm", to = "markovchain", def = .msm2Mc)
 
 
@@ -1156,6 +1173,7 @@ setAs(from = "msm", to = "markovchain", def = .msm2Mc)
 }
 
 # coerce ms.est to markovchain object
+setClass("msm.est")
 setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
 
 
@@ -1203,6 +1221,7 @@ setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
 }
 
 # coerce etm object to markovchain object
+setClass("etm")
 setAs(from = "etm", to = "markovchain", def = .etm2Mc)
 
 
@@ -1248,7 +1267,12 @@ setAs(from = "markovchain", to = "matrix", def = .mc2matrix)
 }
 
 # coerce markovchain object to igraph
+setClass("igraph")
 setAs(from = "markovchain", to = "igraph", def = .mc2igraph)
+
+
+#' @exportMethod t
+setGeneric("t")
 
 
 # transposing method for markovchain objects
@@ -1261,6 +1285,8 @@ setMethod("t", "markovchain",
 		      } 
 )
 
+#' @exportMethod *
+setGeneric("*")
 
 # function to multiplicate two markov chains
 #
@@ -1343,6 +1369,9 @@ setMethod("*", c("markovchain", "numeric"),
 		      }
 )
 
+#' @exportMethod ==
+setGeneric("==")
+
 # compare two markovchain object
 setMethod("==", c("markovchain", "markovchain"),
           function(e1, e2) {
@@ -1352,6 +1381,9 @@ setMethod("==", c("markovchain", "markovchain"),
           }
 )
 
+#' @exportMethod !=
+setGeneric("!=")
+
 setMethod("!=", c("markovchain", "markovchain"),
           function(e1, e2) {
             out <- FALSE
@@ -1359,6 +1391,9 @@ setMethod("!=", c("markovchain", "markovchain"),
             return(out)
           }
 )
+
+#'@exportMethod ^
+setGeneric("^")
 
 # markovchain raise to some power
 setMethod("^", c("markovchain", "numeric"),
@@ -1372,6 +1407,8 @@ setMethod("^", c("markovchain", "numeric"),
           }
 )
 
+#' @exportMethod [
+setGeneric("[")
 
 # methods to directly access transition matrix elements
 setMethod("[", signature(x = "markovchain", i = "ANY", j = "ANY"),
@@ -1380,6 +1417,9 @@ setMethod("[", signature(x = "markovchain", i = "ANY", j = "ANY"),
             return(out)
           }
 )
+
+#' @exportMethod [[
+setGeneric("[[")
 
 # methods to directly access markovchain objects composing a markovchainList object
 setMethod("[[", signature(x = "markovchainList", i = "ANY"),
@@ -1417,7 +1457,7 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 #'                       
 #' conditionalDistribution(markovB, "b")                       
 #' 
-#' @export
+#' @exportMethod conditionalDistribution
 setGeneric("conditionalDistribution", function(object, state) standardGeneric("conditionalDistribution"))
 setMethod("conditionalDistribution", "markovchain",
           function(object, state) {
@@ -1467,10 +1507,8 @@ setMethod("conditionalDistribution", "markovchain",
 }
 
 
-#' @export
-setGeneric("predict", function(object, ...) {
-  standardGeneric("predict", ...)
-})
+#' @exportMethod predict
+setGeneric("predict")
 
 # predict method for markovchain objects
 # given initial state return a vector of next n.ahead states

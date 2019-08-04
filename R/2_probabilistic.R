@@ -79,18 +79,10 @@ is.accessible <- function(object, from, to) {
 #' @export
 
 is.irreducible <- function(object) {
-  # assuming markovchain chain has more than 1 communicating classes
-  out <- FALSE
-
-  # this function will return a list of communicating classes 
-  tocheck <- .communicatingClassesRcpp(object)
-  
-  # only one class implies irreducible markovchain
-  if(length(tocheck) == 1) {
-    out<-TRUE  
-  }
-  
-  return(out)
+  # This function will return a list of communicating classes 
+  commClasses <- .communicatingClassesRcpp(object)
+  # The markov chain is irreducible iff has only a single communicating class
+  return length(commClasses) == 1
 }
 
 # what this function will do?

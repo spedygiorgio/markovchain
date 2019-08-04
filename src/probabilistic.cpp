@@ -179,6 +179,25 @@ CharacterVector transientStates(S4 object) {
   return transitentStates;
 }
 
+// [[Rcpp::export(.recurrentStatesRcpp)]]
+CharacterVector recurrentStates(S4 object) {
+  CharacterVector states = object.slot("states");
+  CharacterVector transient = transientStates(object);
+  CharacterVector result;
+  unordered_set<string> transient_states;
+  
+  for (auto state : transient)
+    transient_states.insert((string) state);
+ 
+  // recurrent states are those which are not transient
+  for (auto state : states) {
+    if (transient_states.count((string) state) == 0)
+      result.push_back(state);
+  }
+  
+  return result;
+}
+
 // returns the recurrent classes
 // [[Rcpp::export(.recurrentClassesRcpp)]]
 List recurrentClasses(S4 object) {

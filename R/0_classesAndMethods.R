@@ -682,12 +682,25 @@ setMethod(
 #' @rdname absorbingStates
 #' 
 #' @export
-setGeneric("transientStates", function(object) standardGeneric("transientStates"))
+setGeneric("transientStates")
 
 #' @rdname absorbingStates
 setMethod("transientStates", "markovchain", 
  	function(object) {
  	  .transientStatesRcpp(object)
+  }
+)
+
+# generic method to extract recurrent states
+#' @rdname absorbingStates
+#' 
+#' @export
+setGeneric("recurrentStates")
+
+#' @rdname absorbingStates
+setMethod("transientStates", "markovchain", 
+  function(object) {
+    .recurrentStatesRcpp(object)
   }
 )
 

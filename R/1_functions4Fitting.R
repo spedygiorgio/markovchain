@@ -492,7 +492,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
   outMc <- new("markovchain", transitionMatrix = transMatr, name = "Laplacian Smooth Fit")
 
   # transpose the transition matrix
-  if (byrow == FALSE) {
+  if (!byrow) {
     outMc@transitionMatrix <- t(outMc@transitionMatrix)
     outMc@byrow <- FALSE
   }

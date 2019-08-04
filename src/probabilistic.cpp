@@ -33,6 +33,7 @@ bool _intersected(CharacterVector x, CharacterVector y) {
 
 // [[Rcpp::export(.commClassesKernelRcpp)]]
 SEXP commClassesKernel(NumericMatrix P) {
+  // The matrix must be stochastic by rows
   unsigned int numStates = P.ncol();
   CharacterVector stateNames = rownames(P);
   int numReachable;
@@ -107,6 +108,11 @@ List communicatingClasses(S4 object) {
   //returns the underlying communicating classes
   
   NumericMatrix matr = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+  
+  if (!byrow)
+    matr = transpose(matr);
+  
   List temp = commClassesKernel(matr);
   LogicalMatrix adjMatr = temp["classes"];
   int len = adjMatr.nrow();
@@ -157,6 +163,11 @@ List communicatingClasses(S4 object) {
 // [[Rcpp::export(.recurrentClassesRcpp)]]
 List recurrentClasses(S4 object) {
   NumericMatrix matr = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+  
+  if (!byrow)
+    matr = transpose(matr);
+  
   List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   List v = temp["closed"];
@@ -204,10 +215,15 @@ NumericMatrix commStatesFinder(NumericMatrix matr) {
   return R;
 }
 
-// summary of markovian object
+// summary of markovchain object
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object) {
+  bool byrow = object.slot("byrow");
   NumericMatrix matr = object.slot("transitionMatrix");
+  
+  if (!byrow)
+    matr = transpose(matr);
+  
   List temp = commClassesKernel(matr);
   List communicatingClassList = communicatingClasses(object);
   // List communicatingClassList = communicatingClasses(temp["C"]);
@@ -745,9 +761,16 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
 
 // [[Rcpp::export(.hittingProbabilitiesRcpp)]]
 NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
+  NumericMatrix transitionMatrix = object.slot("transitionMatrix");
+  CharacterVector states = object.slot("states");
+  bool byrow = object.slot("byrow");
+  
+  if (!byrow)
+    transitionMatrix = transpose(transitionMatrix);
+  
   int numStates = transitionMatrix.nrow();
   arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
-  arma::mat result(numStates, numStates);
+  arma::mat hittingProbs(numStates, numStates);
   // Compute closed communicating classes
   List commClasses = commClassesKernel(transitionMatrix);
   List closedClass = commClasses["closed"];
@@ -779,8 +802,15 @@ NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
     }
     
     arma::mat inverse = arma::inv(to_invert);
-    result.col(j) = inverse * right_part;
+    hittingProbs.col(j) = inverse * right_part;
   }
   
-  return wrap(result);
+  NumericMatrix result = wrap(hittingProbs);
+  colnames(result) = states;
+  rownames(result) = states;
+  
+  if (!byrow)
+    result = transpose(result);
+  
+  return result;
 }

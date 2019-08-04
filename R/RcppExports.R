@@ -269,6 +269,14 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_communicatingClasses`, object)
 }
 
+.transientStatesRcpp <- function(object) {
+    .Call('_markovchain_transientStates', PACKAGE = 'markovchain', object)
+}
+
+.recurrentStatesRcpp <- function(object) {
+    .Call('_markovchain_recurrentStates', PACKAGE = 'markovchain', object)
+}
+
 .recurrentClassesRcpp <- function(object) {
     .Call(`_markovchain_recurrentClasses`, object)
 }
@@ -396,7 +404,8 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
-.hittingProbabilitiesRcpp <- function(transitionMatrix) {
-    .Call(`_markovchain_hittingProbabilities`, transitionMatrix)
+
+.hittingProbabilitiesRcpp <- function(object) {
+    .Call('_markovchain_hittingProbabilities', PACKAGE = 'markovchain', object)
 }
 

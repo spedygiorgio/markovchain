@@ -169,14 +169,14 @@ CharacterVector transientStates(S4 object) {
   
   List commKernel = commClassesKernel(transitionProbabilities);
   List closed = commKernel["closed"];
-  CharacterVector states = objec.slot("states");
+  CharacterVector states = object.slot("states");
   CharacterVector transientStates;
   
   for (int i = 0; i < states.size(); i++)
     if (!closed[i])
       transientStates.push_back(states[i]);
   
-  return transitentStates;
+  return transientStates;
 }
 
 // [[Rcpp::export(.recurrentStatesRcpp)]]
@@ -799,7 +799,7 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
 }
 
 // [[Rcpp::export(.hittingProbabilitiesRcpp)]]
-NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix) {
+NumericMatrix hittingProbabilities(S4 object) {
   NumericMatrix transitionMatrix = object.slot("transitionMatrix");
   CharacterVector states = object.slot("states");
   bool byrow = object.slot("byrow");

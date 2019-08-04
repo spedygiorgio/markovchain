@@ -6,6 +6,8 @@
 \alias{absorbingStates}
 \alias{transientStates}
 \alias{transientStates,markovchain-method}
+\alias{recurrentStates}
+\alias{recurrentStates,markovchain-method}
 \alias{canonicForm}
 \alias{communicatingClasses}
 \alias{recurrentClasses}
@@ -17,6 +19,10 @@ absorbingStates(object)
 transientStates(object)
 
 \S4method{transientStates}{markovchain}(object)
+
+recurrentStates(object)
+
+\S4method{recurrentStates}{markovchain}(object)
 
 canonicForm(object)
 

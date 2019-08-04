@@ -82,7 +82,7 @@ is.irreducible <- function(object) {
   # This function will return a list of communicating classes 
   commClasses <- .communicatingClassesRcpp(object)
   # The markov chain is irreducible iff has only a single communicating class
-  return length(commClasses) == 1
+  return(length(commClasses) == 1)
 }
 
 # what this function will do?

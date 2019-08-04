@@ -337,6 +337,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// transientStates
+CharacterVector transientStates(S4 object);
+RcppExport SEXP _markovchain_transientStates(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(transientStates(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// recurrentStates
+CharacterVector recurrentStates(S4 object);
+RcppExport SEXP _markovchain_recurrentStates(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(recurrentStates(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // recurrentClasses
 List recurrentClasses(S4 object);
 RcppExport SEXP _markovchain_recurrentClasses(SEXP objectSEXP) {
@@ -473,13 +495,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // hittingProbabilities
-NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix);
-RcppExport SEXP _markovchain_hittingProbabilities(SEXP transitionMatrixSEXP) {
+NumericMatrix hittingProbabilities(S4 object);
+RcppExport SEXP _markovchain_hittingProbabilities(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type transitionMatrix(transitionMatrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(transitionMatrix));
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(object));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -511,6 +533,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
     {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},
     {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
+    {"_markovchain_transientStates", (DL_FUNC) &_markovchain_transientStates, 1},
+    {"_markovchain_recurrentStates", (DL_FUNC) &_markovchain_recurrentStates, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
     {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
     {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},

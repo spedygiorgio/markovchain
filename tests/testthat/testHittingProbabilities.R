@@ -5,9 +5,13 @@ context("Checking hitting probabilities method")
 test_that("Hitting probabilities of identity markov chain is identity", {
   
   for (markovChain in diagonalMCs) {
-    transitionMatrix <- attr(markovChain, "transitionMatrix")
+    transitionMatrix <- markovChain@transitionMatrix
+    states <- markovChain@states
     numStates <- nrow(transitionMatrix)
-    expect_equal(hittingProbabilities(markovChain), diag(numStates))
+    result <- diag(numStates)
+    rownames(result) <- states
+    colnames(result) <- states
+    expect_equal(hittingProbabilities(markovChain), result)
   }
 })
 
@@ -45,7 +49,7 @@ test_that("Hitting probabilities hold their characteristic system", {
   tolerance <- .Machine$double.eps ^ 0.5
   
   for (markovChain in MCs) {
-    probs <- attr(markovChain, "transitionMatrix")
+    probs <- markovChain@transitionMatrix
     hitting <- hittingProbabilities(markovChain)
     expect_true(checkHittingProbabilities(probs, hitting, tolerance))
   }
@@ -82,6 +86,8 @@ test_that("Hitting probabilities of known markov chain", {
   result[2,5] <- 1/5
   result[3,5] <- 2/5
   result[4,5] <- 3/5
+  rownames(result) <- markovChain@states
+  colnames(result) <- markovChain@states
   
   expect_equal(hittingProbabilities(markovChain), result)
 })

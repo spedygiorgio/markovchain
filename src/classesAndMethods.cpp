@@ -82,19 +82,15 @@ SEXP canonicForm(S4 object) {
     }
   }
   
-  if (!byrow) {
+  if (!byrow)
     Q = transpose(Q);
   
-  out.slot("transitionMatrix") = Q;
-  Q.attr("dimnames") = List::create(rnames, cnames);
   S4 out("markovchain"); 
+  Q.attr("dimnames") = List::create(rnames, cnames);
+  out.slot("transitionMatrix") = Q;
   out.slot("name") = object.slot("name");
-
-  if (!byrow)
-    transpose(out);
   
   return out;
-
 }
 
 
@@ -207,46 +203,19 @@ bool anyElement(mat matrix, bool (*condition)(const double&)) {
 NumericMatrix steadyStates(S4 object) {
   NumericMatrix transitions = object.slot("transitionMatrix");
   bool byrow = object.slot("byrow");
+  NumericMatrix result;
+  mat steady;
   
-  if (byrow)
-    transitions = transpose(transitions);
-  
-  mat steady = fundamentalMatrix(transitions);
-  NumericMatrix result = wrap(steady);
-  rownames(result) = colnames(transitions);
-  
-  if (byrow)
-    result = transpose(result);
+  steady = computeSteadyStates(transitions, byrow);
+  result = wrap(steady);
+  colnames(result) = colnames(transitions);
   
   auto isNegative = [](const double& x) { return x < 0; };
   
   if (anyElement(steady, isNegative)) {
     warning("Negative elements in steady states, working on closed classes submatrix");
+    //result = steadyStatesByRecurrentClasses(object);
   }
 
   return result;
 }
-
-/*
-NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
-  NumericMatrix transitions = object.slot("transitionMatrix");
-  bool byrow = object.slot("byrow");
-    
-  List recClasses = recurrentClasses(object)
-  int numRecClasses = length(recClasses)
-  CharacterVector recurrentClassesNames = unlist(recClasses);
-      
-  // Extracting recurrent classes
-  NumericMatrix transitionsSub = transitions[rownames(transitions) %in% recurrentClassesNames, 
-                                             colnames(transitions) %in% recurrentClassesNames]
-      
-  NumericMatrix steady = matrix(0, nrow = numRecClasses, ncol = dim(object))
-  colnames(steady) = colnames(transitions);
-        
-  mat partialOutput = wrap(mcEigen(transitions));
-          
-  // Allocating to their columns
-  steady[, colnames(steady) %in% recurrentClassesNames] = partialOutput;
-  return steady;
-}
- */

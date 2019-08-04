@@ -159,6 +159,26 @@ List communicatingClasses(S4 object) {
   return classesList;
 }
 
+// [[Rcpp::export(.transientStatesRcpp)]]
+CharacterVector transientStates(S4 object) {
+  NumericMatrix transitionProbabilities = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+  
+  if (!byrow)
+    transitionProbabilities = transpose(transitionProbabilities);
+  
+  List commKernel = commClassesKernel(transitionProbabilities);
+  List closed = commKernel["closed"];
+  CharacterVector states = objec.slot("states");
+  CharacterVector transientStates;
+  
+  for (int i = 0; i < states.size(); i++)
+    if (!closed[i])
+      transientStates.push_back(states[i]);
+  
+  return transitentStates;
+}
+
 // returns the recurrent classes
 // [[Rcpp::export(.recurrentClassesRcpp)]]
 List recurrentClasses(S4 object) {

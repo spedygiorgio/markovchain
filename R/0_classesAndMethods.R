@@ -686,24 +686,9 @@ setGeneric("transientStates", function(object) standardGeneric("transientStates"
 
 #' @rdname absorbingStates
 setMethod("transientStates", "markovchain", 
-	       	function(object) {
-			      out <- character()
-			      
-			      # make byRow = true for the matrix
-			      if(object@byrow == TRUE) {
-			        matr <- object@transitionMatrix
-			      } else {
-			        matr <- t(object@transitionMatrix)
-			      }
-			      
-			      temp <- .commClassesKernelRcpp(matr)
-			      index <- which(temp$closed == FALSE)
-			      if(length(index) > 0) {
-			        out <- names(temp$closed[index])
-			      }
-			      
-			      return(out)
-		      }
+ 	function(object) {
+ 	  .transientStatesRcpp(object)
+  }
 )
 
 # generic method to extract transition probability

@@ -718,7 +718,6 @@ setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("tr
 #' @rdname transitionProbability
 setMethod("transitionProbability", "markovchain", 
 	        function(object, t0, t1) {
-		        out <- numeric(1)
 		        fromState <- which(object@states == t0)
 		        toState <- which(object@states == t1)
 		        out <- ifelse(object@byrow == TRUE, object@transitionMatrix[fromState, toState] , 

@@ -14,9 +14,9 @@ template <typename T>
 T sortByDimNames(const T m);
 
 // check if two vectors are intersected
-bool _intersected(CharacterVector x, CharacterVector y) {
+bool intersects(CharacterVector x, CharacterVector y) {
   if (x.size() < y.size())
-    return _intersected(y, x);
+    return intersects(y, x);
   else {
     unordered_set<string> values;
     bool intersect = false;
@@ -164,9 +164,6 @@ CharacterVector transientStates(S4 object) {
   NumericMatrix transitionProbabilities = object.slot("transitionMatrix");
   bool byrow = object.slot("byrow");
   
-  if (!byrow)
-    transitionProbabilities = transpose(transitionProbabilities);
-  
   List commKernel = commClassesKernel(transitionProbabilities);
   List closed = commKernel["closed"];
   CharacterVector states = object.slot("states");
@@ -221,10 +218,10 @@ List recurrentClasses(S4 object) {
   List recurrentClassesList;
   
   for (int i = 0; i < communicatingClassList.size(); i ++) {
-    CharacterVector class2Test = communicatingClassList[i];
+    CharacterVector currentClass = communicatingClassList[i];
     
-    if (!_intersected(class2Test,transientStates)) 
-      recurrentClassesList.push_back(class2Test);
+    if (!intersects(currentClass, transientStates)) 
+      recurrentClassesList.push_back(currentClass);
   }
   
   return recurrentClassesList;
@@ -279,7 +276,7 @@ List summaryKernel(S4 object) {
   for (int i = 0; i < communicatingClassList.size(); i ++) {
     CharacterVector class2Test = communicatingClassList[i];
     
-    if (_intersected(class2Test,transientStates)) 
+    if (intersects(class2Test,transientStates)) 
         transientClasses.push_back(class2Test); 
       else {
         bool isClosed = true;
@@ -308,7 +305,7 @@ List summaryKernel(S4 object) {
       }
   }
   recurrentClassesList = recurrentClasses(object);
-  List summaryMc = List::create(_["closedClasses"] = closedClasses,
+  List summaryMc = List::create(_["closedClasses"]    = closedClasses,
                                 _["recurrentClasses"] = recurrentClassesList,
                                 _["transientClasses"] = transientClasses);
   

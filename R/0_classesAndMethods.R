@@ -584,29 +584,7 @@ setMethod(
   "steadyStates",
   "markovchain", 
   function(object) {
-    transitions <- object@transitionMatrix
-    byrow <- object@byrow
-    
-    steady <- .mcEigen(transitions, byrow)
-    
-    if (min(steady) < 0) {
-      warning("Negative elements in steady states, working on closed classes submatrix")
-      steady <- .steadyStatesByRecurrentClasses(object)
-    }
-    
-    if (length(steady) > 0) {
-      steady <- .mcLexSort(steady)
-      
-      colnames(steady) <- object@states
-      # Normalize each row
-      
-      if (! byrow)
-        steady <- t(steady)
-        
-      steady
-    } else {
-      warning("Warning! No steady states")
-    }
+    .steadyStatesRcpp(object)
   }
 )
 
@@ -1736,13 +1714,6 @@ setMethod("predict", "markovchainList",
 			                    return(out)
 		                   }
 )
-
-# Wrapper for a function to lexicographically sort the rows of a matrixx
-# m : matrix
-.mcLexSort <- function(m) {
-  matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
-}
-
 
 #sort method for markovchain objects
 

@@ -17,6 +17,9 @@
     .Call(`_markovchain_lexicographicalSort`, y)
 }
 
+.steadyStatesRcpp <- function(obj) {
+    .Call('_markovchain_steadyStates', PACKAGE = 'markovchain', obj)
+}
 
 #' @name generatorToTransitionMatrix
 #' @title Function to obtain the transition matrix from the generator

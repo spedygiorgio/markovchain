@@ -1,8 +1,11 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 #include <functional>
+#include <unordered_map>
+#include <string>
 using namespace Rcpp;
 using namespace arma;
+using namespace std;
 
 // check if prob is probability or not
 // [[Rcpp::export(.isProbability)]]
@@ -21,6 +24,7 @@ bool isGen(NumericMatrix gen) {
   return true;
 }
 
+// Declared in probabilistic.cpp
 SEXP commClassesKernel(NumericMatrix P);
 
 // method to convert into canonic form a markovchain object
@@ -96,20 +100,31 @@ SEXP canonicForm(S4 object) {
 
 
 
-// Function to sort a list of vectors lexicographically
-// Input should be given as a matrix where each row represents a vector
-// [[Rcpp::export(.lexicographical_sort)]]
-SEXP lexicographicalSort(SEXP y) {
-  NumericMatrix m(y);
-  std::vector< std::vector<double> > x(m.nrow(), std::vector<double>(m.ncol()));
+// Function to sort a matrix of vectors lexicographically
+NumericMatrix lexicographicalSort(NumericMatrix m) {
+  int numCols = m.ncol();
+  int numRows = m.nrow();
   
-  for (int i=0; i<m.nrow(); i++)
-    for (int j=0; j<m.ncol(); j++)
-      x[i][j] = m(i,j);
-  
-  sort(x.begin(), x.end());
-  
-  return(wrap(x));
+  if (numRows > 0 && numCols > 0) {
+    vector<vector<double>> x(numRows, vector<double>(numCols));
+
+    for (int i = 0; i < numRows; ++i)
+      for (int j = 0; j < numCols; ++j)
+        x[i][j] = m(i,j);
+    
+    sort(x.begin(), x.end());
+    
+    NumericMatrix result(numRows, numCols);
+    
+    for (int i = 0; i < numRows; ++i)
+      for (int j = 0; j < numCols; ++j)
+        result(i, j) = x[i][j];
+    
+    colnames(result) = colnames(m);
+    return result;
+  } else {
+    return m;
+  }
 }
 
 inline bool approxEqual(const double& a, const double& b) {
@@ -185,7 +200,6 @@ mat computeSteadyStates(NumericMatrix t, bool byrow) {
   return result;
 }
 
-
 bool anyElement(mat matrix, bool (*condition)(const double&)) {
   int numRows = matrix.n_rows;
   int numCols = matrix.n_cols;
@@ -198,24 +212,102 @@ bool anyElement(mat matrix, bool (*condition)(const double&)) {
   return found;
 }
 
+// Defined in probabilistic.cpp
+List recurrentClasses(S4 object);
+
+// Precondition: the matrix should be stochastic by rows
+NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
+  List recClasses = recurrentClasses(object);
+  int numRecClasses = recClasses.size();
+  NumericMatrix transitionMatrix = object.slot("transitionMatrix");
+  
+  CharacterVector states = object.slot("states");
+  int numCols = transitionMatrix.ncol();
+  NumericMatrix steady(numRecClasses, numCols);
+  unordered_map<string, int> stateToIndex;
+  int steadyStateIndex = 0;
+  
+  // Map each state to the index it has
+  for (int i = 0; i < states.size(); ++i) {
+    string state = (string) states[i];
+    stateToIndex[state] = i;
+  }
+  
+  // For each recurrent class, there must be an steady state
+  for (CharacterVector recurrentClass : recClasses) {
+    int recClassSize = recurrentClass.size();
+    NumericMatrix subMatrix(recClassSize, recClassSize);
+    
+    // Fill the submatrix corresponding to the current steady class
+    // Note that for that we have to subset the matrix with the indices
+    // the states in the recurrent class ocuppied in the transition matrix
+    for (int i = 0; i < recClassSize; ++i) {
+      int r = stateToIndex[(string) recurrentClass[i]];
+      
+      for (int j = 0; j < recClassSize; ++j) {
+        int c = stateToIndex[(string) recurrentClass[j]];
+        subMatrix(i, j) = transitionMatrix(r, c);
+      }
+    }
+    
+    // Compute the steady states for the given submatrix
+    mat steadySubMatrix = computeSteadyStates(subMatrix, true);
+    
+    // There should only be one steady state for that matrix
+    // Make sure of it
+    if (steadySubMatrix.n_rows != 1)
+      stop("Could not compute steady states with recurrent classes method");
+    
+    for (int i = 0; i < recClassSize; ++i) {
+      int c = stateToIndex[(string) recurrentClass[i]];
+      steady(steadyStateIndex, c) = steadySubMatrix(0, i);
+    }
+    
+    ++steadyStateIndex;
+  }
+    
+  colnames(steady) = states;
+  
+  return steady;
+}
+
 
 // [[Rcpp::export(.steadyStatesRcpp)]]
-NumericMatrix steadyStates(S4 object) {
-  NumericMatrix transitions = object.slot("transitionMatrix");
-  bool byrow = object.slot("byrow");
+NumericMatrix steadyStates(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  bool byrow = obj.slot("byrow");
+  S4 object("markovchain");
+
+  if (!byrow) {
+    object.slot("transitionMatrix") = transpose(transitions);
+    object.slot("states") = states;
+    object.slot("byrow") = true;
+    transitions = transpose(transitions);
+  } else {
+    object = obj;
+  }
+  
+  // Try to compute the steady states computing the eigenvectors
+  // associated with the eigenvalue 1, else compute steady states
+  // using recurrent classes (there is one steady state associated
+  // with each recurrent class)
   NumericMatrix result;
   mat steady;
-  
-  steady = computeSteadyStates(transitions, byrow);
-  result = wrap(steady);
-  colnames(result) = colnames(transitions);
-  
+  steady = computeSteadyStates(transitions, true);
   auto isNegative = [](const double& x) { return x < 0; };
   
   if (anyElement(steady, isNegative)) {
-    warning("Negative elements in steady states, working on closed classes submatrix");
-    //result = steadyStatesByRecurrentClasses(object);
+    result = steadyStatesByRecurrentClasses(object);
+  } else {
+    result = wrap(steady);
+    colnames(result) = colnames(transitions);
   }
+
+  result = lexicographicalSort(result);
+  
+  if (!byrow)
+      result = transpose(result);
 
   return result;
 }

@@ -39,25 +39,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// lexicographicalSort
-SEXP lexicographicalSort(SEXP y);
-RcppExport SEXP _markovchain_lexicographicalSort(SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(lexicographicalSort(y));
-    return rcpp_result_gen;
-END_RCPP
-}
 // steadyStates
-NumericMatrix steadyStates(S4 object);
-RcppExport SEXP _markovchain_steadyStates(SEXP objectSEXP) {
+NumericMatrix steadyStates(S4 obj);
+RcppExport SEXP _markovchain_steadyStates(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(steadyStates(object));
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(steadyStates(obj));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -510,7 +499,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
     {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
     {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
-    {"_markovchain_lexicographicalSort", (DL_FUNC) &_markovchain_lexicographicalSort, 1},
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
     {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
     {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},

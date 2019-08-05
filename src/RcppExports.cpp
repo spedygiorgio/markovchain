@@ -29,13 +29,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // canonicForm
-SEXP canonicForm(S4 object);
-RcppExport SEXP _markovchain_canonicForm(SEXP objectSEXP) {
+S4 canonicForm(S4 obj);
+RcppExport SEXP _markovchain_canonicForm(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(canonicForm(object));
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(canonicForm(obj));
     return rcpp_result_gen;
 END_RCPP
 }

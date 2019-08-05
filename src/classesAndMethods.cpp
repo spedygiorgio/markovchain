@@ -7,6 +7,9 @@ using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
+// Defined in probabilistic.cpp
+List recurrentClasses(S4 object);
+
 // check if prob is probability or not
 // [[Rcpp::export(.isProbability)]]
 bool isProb(double prob) {
@@ -29,75 +32,72 @@ SEXP commClassesKernel(NumericMatrix P);
 
 // method to convert into canonic form a markovchain object
 // [[Rcpp::export(.canonicFormRcpp)]]
-SEXP canonicForm(S4 object) {
-  NumericMatrix P = object.slot("transitionMatrix");
-  bool byrow = object.slot("byrow");
-  
-  if (!byrow)
-    P = transpose(P);
-  
-  List comclasList = commClassesKernel(P);
-  LogicalVector vu = comclasList["closed"];
-  NumericVector u, w; 
-
-  for (int i = 0; i < vu.size(); i ++) {
-    if(vu[i]) u.push_back(i);
-    else w.push_back(i);
+S4 canonicForm(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  bool byrow = obj.slot("byrow");
+  int numRows = transitions.nrow();
+  int numCols = transitions.ncol();
+  NumericMatrix resultTransitions(numRows, numCols);
+  CharacterVector states = obj.slot("states");
+  unordered_map<string, int> stateToIndex;
+  unordered_set<int> usedIndices;
+  int currentIndex;
+  List recClasses;
+  S4 input("markovchain");
+  S4 result("markovchain");
+  vector<int> indexPermutation(numRows);
+    
+  if (!byrow) {
+    input.slot("transitionMatrix") = transpose(transitions);
+    input.slot("states") = states;
+    input.slot("byrow") = true;
+    transitions = transpose(transitions);
+  } else {
+    input = obj;
   }
   
-  LogicalMatrix Cmatr = comclasList["classes"];
-  NumericVector R, p;
-  LogicalVector crow;
+  recClasses = recurrentClasses(input);
   
-  while (u.size() > 0) {
-    R.push_back(u[0]);
-    crow = Cmatr(u[0], _);
-
-    for (int i = 0; i < crow.size(); i++) 
-      vu[i] = vu[i] * !crow[i];
-
-    u = NumericVector::create();
-
-    for (int i = 0; i < vu.size(); i ++) 
-      if(vu[i]) u.push_back(i);
+  // Map each state to the index it has
+  for (int i = 0; i < states.size(); ++i) {
+    string state = (string) states[i];
+    stateToIndex[state] = i;
   }
   
-  for (int i = 0; i < R.size(); i ++) {
-    crow = Cmatr(R[i], _);
-
-    for (int j = 0; j < crow.size(); j++) 
-      if(crow[j]) p.push_back(j);
+  int toFill = 0;
+  for (CharacterVector recClass : recClasses) {
+    for (auto state : recClass) {
+      currentIndex = stateToIndex[(string) state];
+      indexPermutation[toFill] = currentIndex;
+      ++toFill;
+      usedIndices.insert(currentIndex);
+    }
   }
   
-  for (NumericVector::iterator it = w.begin(); it != w.end(); it++)
-    p.push_back(*it);
+  for (int i = 0; i < states.size(); ++i) {
+    if (usedIndices.count(i) == 0) {
+      indexPermutation[toFill] = i;
+      ++toFill;
+    }
+  }
   
-  NumericMatrix Q(p.size());
-  CharacterVector rnames(P.nrow());
-  CharacterVector cnames(P.ncol());
-  CharacterVector r = rownames(P);
-  CharacterVector c = colnames(P);
-
-  for (int i = 0; i < p.size(); i ++) {
-    rnames[i] = r[p[i]];
-    for (int j = 0; j < p.size(); j ++) {
-      Q(i, j) = P(p[i], p[j]);
-      cnames[j] = c[p[j]];
+  for (int i = 0; i < numRows; ++i) {
+    int r = indexPermutation[i];
+    for (int j = 0; j < numCols; ++j) {
+      int c = indexPermutation[j];
+      resultTransitions(i, j) = transitions(r, c);
     }
   }
   
   if (!byrow)
-    Q = transpose(Q);
+    resultTransitions = transpose(resultTransitions);
   
-  S4 out("markovchain"); 
-  Q.attr("dimnames") = List::create(rnames, cnames);
-  out.slot("transitionMatrix") = Q;
-  out.slot("name") = object.slot("name");
-  
-  return out;
+  result.slot("transitionMatrix") = resultTransitions;
+  result.slot("byrow") = byrow;
+  result.slot("states") = states;
+  result.slot("name") = input.slot("name");
+  return result;
 }
-
-
 
 
 // Function to sort a matrix of vectors lexicographically

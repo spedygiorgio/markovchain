@@ -1,5 +1,8 @@
-# define higher order Markov Chain class
-
+#' @title Higher order Markov Chains class
+#' @name HigherOrderMarkovChain-class
+#' @description The S4 class that describes \code{HigherOrderMarkovChain} objects.
+#' 
+#' @export
 setClass("HigherOrderMarkovChain", #class name
          representation(
            states = "character", 

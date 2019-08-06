@@ -1,8 +1,124 @@
-# Define Markov Chain class
-#' @title Markov chain class
+#' @title Markov Chain class
 #' @name markovchain-class
-#' @aliases markovchain-class * [ ^ == != coerce dim plot print show summary t
+#' @aliases markovchain-class *,markovchain,markovchain-method
+#'   *,markovchain,matrix-method *,markovchain,numeric-method
+#'   *,matrix,markovchain-method *,numeric,markovchain-method
+#'   ==,markovchain,markovchain-method !=,markovchain,markovchain-method
+#'   absorbingStates,markovchain-method conditionalDistribution,markovchain-method
+#'   canonicForm,markovchain-method coerce,data.frame,markovchain-method
+#'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
+#'   coerce,markovchain,igraph-method coerce,markovchain,matrix-method
+#'   coerce,markovchain,sparseMatrix-method coerce,sparseMatrix,markovchain-method
+#'   coerce,matrix,markovchain-method coerce,msm,markovchain-method
+#'   coerce,msm.est,markovchain-method coerce,etm,markovchain-method
+#'   dim,markovchain-method initialize,markovchain-method
+#'   names<-,markovchain-method plot,markovchain,missing-method
+#'   predict,markovchain-method print,markovchain-method
+#'   show,markovchain-method summary,markovchain-method
+#'   sort,markovchain-method t,markovchain-method
+#'   [,markovchain,ANY,ANY,ANY-method ^,markovchain,numeric-method
 #' @description The S4 class that describes \code{markovchain} objects.
+#' 
+#' @param states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
+#' @param byrow TRUE or FALSE indicating whether the supplied matrix 
+#'   is either stochastic by rows or by columns
+#' @param transitionMatrix Square transition matrix
+#' @param name Optional character name of the Markov chain
+#' 
+#' @section Creation of objects:
+#' 
+#' Objects can be created by calls of the form \code{new("markovchain", states, byrow, transitionMatrix, ...)}.
+#' 
+#' @section Methods:
+#' 
+#' \describe{
+#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: multiply two \code{markovchain} objects}
+#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "matrix")}: markovchain by matrix multiplication}
+#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "numeric")}: markovchain by numeric vector multiplication }
+#'    \item{*}{\code{signature(e1 = "matrix", e2 = "markovchain")}: matrix by markov chain}
+#'    \item{*}{\code{signature(e1 = "numeric", e2 = "markovchain")}: numeric vector by \code{markovchain} multiplication   }
+#'    \item{[}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
+#'    \item{^}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
+#'    \item{==}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: equality of two \code{markovchain} object}
+#'    \item{!=}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: non-equality of two \code{markovchain} object}
+#'    \item{absorbingStates}{\code{signature(object = "markovchain")}: method to get absorbing states }
+#'    \item{canonicForm}{\code{signature(object = "markovchain")}: return a \code{markovchain} object into canonic form }
+#'    \item{coerce}{\code{signature(from = "markovchain", to = "data.frame")}: coerce method from markovchain to \code{data.frame}}
+#'    \item{conditionalDistribution}{\code{signature(object = "markovchain")}: returns the conditional probability of subsequent states given a state}
+#'    \item{coerce}{\code{signature(from = "data.frame", to = "markovchain")}: coerce method from \code{data.frame} to \code{markovchain}}
+#'    \item{coerce}{\code{signature(from = "table", to = "markovchain")}: coerce method from \code{table} to \code{markovchain} }
+#'    \item{coerce}{\code{signature(from = "msm", to = "markovchain")}: coerce method from \code{msm} to \code{markovchain} }
+#'    \item{coerce}{\code{signature(from = "msm.est", to = "markovchain")}: coerce method from \code{msm.est} (but only from a Probability Matrix) to \code{markovchain} }
+#'    \item{coerce}{\code{signature(from = "etm", to = "markovchain")}: coerce method from \code{etm} to \code{markovchain} }
+#'    \item{coerce}{\code{signature(from = "sparseMatrix", to = "markovchain")}: coerce method from \code{sparseMatrix} to \code{markovchain} }
+#'    \item{coerce}{\code{signature(from = "markovchain", to = "igraph")}: coercing to \code{igraph} objects }
+#'    \item{coerce}{\code{signature(from = "markovchain", to = "matrix")}: coercing to \code{matrix} objects }
+#'    \item{coerce}{\code{signature(from = "markovchain", to = "sparseMatrix")}: coercing to \code{sparseMatrix} objects }
+#'    \item{coerce}{\code{signature(from = "matrix", to = "markovchain")}: coercing to \code{markovchain} objects from \code{matrix} one }
+#'    \item{dim}{\code{signature(x = "markovchain")}: method to get the size}
+#'    \item{names}{\code{signature(x = "markovchain")}: method to get the names of states}
+#'    \item{names<-}{\code{signature(x = "markovchain", value = "character")}: method to set the names of states}
+#'    \item{initialize}{\code{signature(.Object = "markovchain")}: initialize method }
+#'    \item{plot}{\code{signature(x = "markovchain", y = "missing")}: plot method for \code{markovchain} objects }
+#'    \item{predict}{\code{signature(object = "markovchain")}: predict method }
+#'    \item{print}{\code{signature(x = "markovchain")}: print method. }
+#'    \item{show}{\code{signature(object = "markovchain")}: show method. }
+#'    \item{sort}{\code{signature(x = "markovchain", decreasing=FALSE)}: sorting the transition matrix. }
+#'    \item{states}{\code{signature(object = "markovchain")}: returns the names of states (as \code{names}. }
+#'    \item{steadyStates}{\code{signature(object = "markovchain")}: method to get the steady vector. }
+#'    \item{summary}{\code{signature(object = "markovchain")}: method to summarize structure of the markov chain }
+#'    \item{transientStates}{\code{signature(object = "markovchain")}: method to get the transient states. }
+#'    \item{t}{\code{signature(x = "markovchain")}: transpose matrix }
+#'    \item{transitionProbability}{\code{signature(object = "markovchain")}: transition probability }
+#' }
+#' 
+#' @references 
+#' A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @author Giorgio Spedicato
+#' @note  
+#' \enumerate{
+#' \item \code{markovchain} object are backed by S4 Classes.
+#' \item Validation method is used to assess whether either columns or rows totals to one. 
+#' Rounding is used up to \code{.Machine$double.eps * 100}. If state names are not properly
+#' defined for a probability  \code{matrix}, coercing to \code{markovhcain} object leads 
+#' to overriding states name with artificial "s1", "s2", ... sequence. In addition, operator
+#' overloading has been applied for \eqn{+,*,^,==,!=} operators.
+#' }
+#' 
+#' @seealso \code{\link{markovchainSequence}},\code{\link{markovchainFit}}
+#' 
+#' @examples
+#' #show markovchain definition
+#' showClass("markovchain")
+#' #create a simple Markov chain
+#' transMatr<-matrix(c(0.4,0.6,.3,.7),nrow=2,byrow=TRUE)
+#' simpleMc<-new("markovchain", states=c("a","b"),
+#'               transitionMatrix=transMatr, 
+#'               name="simpleMc")
+#' #power
+#' simpleMc^4
+#' #some methods
+#' steadyStates(simpleMc)
+#' absorbingStates(simpleMc)
+#' simpleMc[2,1]
+#' t(simpleMc)
+#' is.irreducible(simpleMc)
+#' #conditional distributions
+#' conditionalDistribution(simpleMc, "b")
+#' #example for predict method
+#' sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
+#' mcFit<-markovchainFit(data=sequence)
+#' predict(mcFit$estimate, newdata="b",n.ahead=3)
+#' #direct conversion
+#' myMc<-as(transMatr, "markovchain")
+#' 
+#' #example of summary
+#' summary(simpleMc)
+#' \dontrun{plot(simpleMc)}
+#' 
+#' @keywords classes
+#' 
 #' @export
 setClass(
   # Class name
@@ -83,8 +199,70 @@ setMethod(
   }
 )
 
-# Define Markov Chain List class
-#' @export 
+#' @title Non homogeneus discrete time Markov Chains class
+#' @name markovchainList-class
+#' @aliases [[,markovchainList-method dim,markovchainList-method
+#'   predict,markovchainList-method print,markovchainList-method
+#'   show,markovchainList-method
+#' @description A class to handle non homogeneous discrete Markov chains
+#' 
+#' @param markovchains Object of class \code{"list"}: a list of markovchains
+#' @param name Object of class \code{"character"}: optional name of the class
+#' 
+#' @section Objects from the Class:
+#'
+#'   A \code{markovchainlist} is a list of \code{markovchain} objects. They can
+#'   be used to model non homogeneous discrete time Markov Chains, when
+#'   transition probabilities (and possible states) change by time.
+#' @section Methods:
+#' \describe{
+#' \item{[[}{\code{signature(x = "markovchainList")}: extract the
+#' i-th \code{markovchain} }
+#' \item{dim}{\code{signature(x = "markovchainList")}: number 
+#' of \code{markovchain} underlying the matrix }
+#' \item{predict}{\code{signature(object = "markovchainList")}: predict 
+#' from a \code{markovchainList} }
+#' \item{print}{\code{signature(x = "markovchainList")}: prints the list 
+#'   of markovchains }
+#' \item{show}{\code{signature(object = "markovchainList")}: same as \code{print} }
+#' }
+#' 
+#' @references 
+#' A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' 
+#' @author  Giorgio Spedicato
+#' 
+#' @note 
+#' The class consists in a list of \code{markovchain} objects. 
+#' It is aimed at working with non homogeneous Markov chains.
+#' 
+#' @seealso \code{\linkS4class{markovchain-class}}
+#' @examples
+#' showClass("markovchainList")
+#' #define a markovchainList
+#' statesNames=c("a","b")
+#' 
+#' mcA<-new("markovchain",name="MCA", 
+#'          transitionMatrix=matrix(c(0.7,0.3,0.1,0.9),
+#'                           byrow=TRUE, nrow=2, 
+#'                           dimnames=list(statesNames,statesNames))
+#'         )
+#'                                                            
+#' mcB<-new("markovchain", states=c("a","b","c"), name="MCB",
+#'          transitionMatrix=matrix(c(0.2,0.5,0.3,0,1,0,0.1,0.8,0.1),
+#'          nrow=3, byrow=TRUE))
+#'  
+#' mcC<-new("markovchain", states=c("a","b","c","d"), name="MCC",
+#'          transitionMatrix=matrix(c(0.25,0.75,0,0,0.4,0.6,
+#'                                    0,0,0,0,0.1,0.9,0,0,0.7,0.3), 
+#'                                  nrow=4, byrow=TRUE)
+#' )
+#' mcList<-new("markovchainList",markovchains=list(mcA, mcB, mcC), 
+#'            name="Non - homogeneous Markov Chain")
+#' 
+#' @keywords classes
+#' 
+#' @export
 setClass(
   "markovchainList",
   slots = list(

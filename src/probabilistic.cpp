@@ -278,62 +278,24 @@ NumericMatrix commStatesFinder(NumericMatrix matr) {
 // summary of markovchain object
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object) {
+  NumericMatrix transitionMatrix = object.slot("transitionMatrix");
   bool byrow = object.slot("byrow");
-  NumericMatrix matr = object.slot("transitionMatrix");
+  CharacterVector states = object.slot("states");
   
   if (!byrow)
-    matr = transpose(matr);
+    transitionMatrix = transpose(transitionMatrix);
   
-  List temp = commClassesKernel(matr);
-  List communicatingClassList = communicatingClasses(object);
-  // List communicatingClassList = communicatingClasses(temp["C"]);
-  List v = temp["closed"];
-  CharacterVector ns = v.names();
-  CharacterVector transientStates;
+  List commClassesList = commClassesKernel(transitionMatrix);
+  LogicalMatrix commClasses = commClassesList["classes"];
+  LogicalVector closed = commClassesList["closed"];
+  List recurrentClassesList = computeRecurrentClasses(commClasses, closed, states);
+  CharacterVector transientStates = computeTransientStates(states, closed);
   
-  for (int i = 0; i < v.size(); i++) {
-    if (bool(v[i]) == false)
-      transientStates.push_back(ns[i]);
-  }
-  List closedClasses, transientClasses, recurrentClassesList;
-
-  for (int i = 0; i < communicatingClassList.size(); i ++) {
-    CharacterVector class2Test = communicatingClassList[i];
-    
-    if (intersects(class2Test,transientStates)) 
-        transientClasses.push_back(class2Test); 
-      else {
-        bool isClosed = true;
-        
-        for (int j = 0; j < class2Test.size(); j ++) {
-          for (int from = 0; from < ns.size(); from ++) {
-            bool inclass = false;
-            
-            if (ns[from] != class2Test[j]) continue;
-            
-            for (int to = 0; to < matr.cols(); to ++) {
-              for (int k = 0; k < class2Test.size(); k ++) {
-                if (class2Test[k] == ns[to]) inclass = true;
-              }
-              if (from == to || inclass) continue;
-              if (matr(from, to) != 0) {
-                isClosed = false;
-                break;
-              }
-            }
-          }
-        }
-        if (isClosed)
-          closedClasses.push_back(class2Test);
-        // recurrentClassesList.push_back(class2Test);
-      }
-  }
-  recurrentClassesList = recurrentClasses(object);
-  List summaryMc = List::create(_["closedClasses"]    = closedClasses,
-                                _["recurrentClasses"] = recurrentClassesList,
-                                _["transientClasses"] = transientClasses);
+  List summaryResult = List::create(_["closedClasses"]    = recurrentClassesList,
+                                    _["recurrentClasses"] = recurrentClassesList,
+                                    _["transientStates"]  = transientStates);
   
-  return(summaryMc);
+  return(summaryResult);
 }
 
 //here the kernel function to compute the first passage

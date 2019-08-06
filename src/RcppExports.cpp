@@ -305,7 +305,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // commClassesKernel
-SEXP commClassesKernel(NumericMatrix P);
+List commClassesKernel(NumericMatrix P);
 RcppExport SEXP _markovchain_commClassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

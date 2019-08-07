@@ -178,8 +178,7 @@ time s using lower rate transition matrix</p>
 <span class='no'>range</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>/<span class='fl'>52</span>,<span class='fl'>3</span>/<span class='fl'>52</span>,<span class='fl'>1</span>/<span class='fl'>2</span>,<span class='fl'>2</span>),<span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,<span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 <span class='no'>name</span> <span class='kw'>&lt;-</span> <span class='st'>"testictmc"</span>
 <span class='no'>ictmc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ictmc"</span>,<span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>states</span>,<span class='kw'>Q</span> <span class='kw'>=</span> <span class='no'>Q</span>,<span class='kw'>range</span> <span class='kw'>=</span> <span class='no'>range</span>,<span class='kw'>name</span> <span class='kw'>=</span> <span class='no'>name</span>)
-<span class='fu'>impreciseProbabilityatT</span>(<span class='no'>ictmc</span>,<span class='fl'>2</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>10</span>^-<span class='fl'>3</span>,<span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 0.008259774 0.140983476</div><div class='input'>
-</div></pre>
+<span class='fu'>impreciseProbabilityatT</span>(<span class='no'>ictmc</span>,<span class='fl'>2</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>10</span>^-<span class='fl'>3</span>,<span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 0.008259774 0.140983476</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

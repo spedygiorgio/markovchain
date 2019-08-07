@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Class <code>"ctmc"</code> — ctmc-class • markovchain</title>
+<title>Continuous time Markov Chains class — ctmc-class • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Class <code>"ctmc"</code> — ctmc-class" />
+<meta property="og:title" content="Continuous time Markov Chains class — ctmc-class" />
 
-<meta property="og:description" content="The S4 class that describes ctmc (continuous time Markov chain) objects." />
+<meta property="og:description" content="The S4 class that describes ctmc (continuous 
+time Markov chain) objects." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,52 +124,71 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Class <code>"ctmc"</code></h1>
-    
+    <h1>Continuous time Markov Chains class</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/0_ctmcClassesAndMethodsSAI.R'><code>R/0_ctmcClassesAndMethodsSAI.R</code></a></small>
     <div class="hidden name"><code>ctmc-class.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The S4 class that describes <code>ctmc</code> (continuous time Markov chain) objects.</p>
+    <p>The S4 class that describes <code>ctmc</code> (continuous 
+time Markov chain) objects.</p>
     
     </div>
 
-        
-    <h2 class="hasAnchor" id="objects-from-the-class"><a class="anchor" href="#objects-from-the-class"></a>Objects from the Class</h2>
-
-    <p>Objects can be created by calls of the form <code>new("ctmc", states, byrow, generator, ...)</code>.</p>
     
-    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
-
-    <p></p><dl class='dl-horizontal'>
-    <dt><code>states</code>:</dt><dd><p>Name of the states. Must be the same of <code>colnames</code> and <code>rownames</code> of the generator matrix</p></dd>
-    <dt><code>byrow</code>:</dt><dd><p>Binary flag.</p></dd>
-    <dt><code>generator</code>:</dt><dd><p>Square generator matrix</p></dd>
-    <dt><code>name</code>:</dt><dd><p>Optional character name of the Markov chain</p></dd>
-  </dl>
-    
-    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
-
-    <p></p><dl class='dl-horizontal'>
-    <dt>dim</dt><dd><p><code>signature(x = "ctmc")</code>: method to get the size</p></dd>
-    <dt>initialize</dt><dd><p><code>signature(.Object = "ctmc")</code>: initialize method</p></dd>
-    <dt>states</dt><dd><p><code>signature(object = "ctmc")</code>: states method.</p></dd>
-    <dt>steadyStates</dt><dd><p><code>signature(object = "ctmc")</code>: method to get the steady state vector.</p></dd>
-    <dt>plot</dt><dd><p><code>signature(x = "ctmc", y = "missing")</code>: plot method for <code>ctmc</code> objects</p></dd>
-	 </dl>
-    
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p>Introduction to Stochastic Processes with Applications in the Biosciences (2013), David F. Anderson, University of Wisconsin at Madison</p>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>states</th>
+      <td><p>Name of the states. Must be the same of
+<code>colnames</code> and <code>rownames</code> of the generator matrix</p></td>
+    </tr>
+    <tr>
+      <th>byrow</th>
+      <td><p>TRUE or FALSE. Indicates whether the given matrix is
+stochastic by rows or by columns</p></td>
+    </tr>
+    <tr>
+      <th>generator</th>
+      <td><p>Square generator matrix</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>Optional character name of the Markov chain</p></td>
+    </tr>
+    </table>
     
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p><code>ctmc</code> objects are written using S4 Classes.</p>
+    <ol>
+<li><p><code>ctmc</code> classes are written using S4 classes</p></li>
+<li><p>Validation method is used to assess whether either columns or rows totals to zero. 
+Rounding is used up to 5th decimal. If state names are not properly defined
+for a generator  <code>matrix</code>, coercing to <code>ctmc</code> object leads to overriding
+states name with artificial "s1", "s2", ... sequence</p></li>
+</ol>
     
-    <h2 class="hasAnchor" id="warning-"><a class="anchor" href="#warning-"></a>Warning </h2>
+    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
-    <p>Validation method is used to assess whether either columns or rows totals to zero. Rounding is used up to 5th decimal. If state names are not properly defined for a generator  <code>matrix</code>, coercing to <code>ctmc</code> object leads to overriding states name with artificial "s1", "s2", ... sequence</p>
+    
+    <dl class='dl-horizontal'>
+<dt>dim</dt><dd><p><code>signature(x = "ctmc")</code>: method to get the size</p></dd> 
+<dt>initialize</dt><dd><p><code>signature(.Object = "ctmc")</code>: initialize
+  method</p></dd>
+<dt>states</dt><dd><p><code>signature(object = "ctmc")</code>: states method.</p></dd>
+<dt>steadyStates</dt><dd><p><code>signature(object = "ctmc")</code>: method to get the
+  steady state vector.</p></dd> 
+<dt>plot</dt><dd><p><code>signature(x = "ctmc", y = "missing")</code>: plot method 
+  for <code>ctmc</code> objects</p></dd>
+</dl>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Introduction to Stochastic Processes with Applications in the Biosciences
+(2013), David F. Anderson, University of Wisconsin at Madison. Sai Bhargav
+Yalamanchi, Giorgio Spedicato</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -182,37 +202,30 @@
                        <span class='fl'>1</span>, -<span class='fl'>1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
               <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>energyStates</span>, <span class='no'>energyStates</span>))
 <span class='no'>molecularCTMC</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>energyStates</span>,
-                 <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>,
-                 <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Molecular Transition Model"</span>)
-
-<span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='no'>molecularCTMC</span>)</div><div class='output co'>#&gt;      sigma sigma_star
+                     <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>,
+                     <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Molecular Transition Model"</span>)
+                     <span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='no'>molecularCTMC</span>)</div><div class='output co'>#&gt;      sigma sigma_star
 #&gt; [1,]  0.25       0.75</div><span class='co'># NOT RUN {</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='no'>molecularCTMC</span>)
-<span class='co'># }</span></pre>
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#objects-from-the-class">Objects from the Class</a></li>
-
-      <li><a href="#slots">Slots</a></li>
+      <li><a href="#note">Note</a></li>
 
       <li><a href="#methods">Methods</a></li>
 
       <li><a href="#references">References</a></li>
-
-      <li><a href="#note">Note</a></li>
-
-      <li><a href="#warning-">Warning </a></li>
 
       <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
 
-    <h2>Author</h2>
-    <p>Sai Bhargav Yalamanchi, Giorgio Spedicato</p>
   </div>
 </div>
 

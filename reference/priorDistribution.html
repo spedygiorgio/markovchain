@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Prior Distribution — priorDistribution • markovchain</title>
+<title>priorDistribution — priorDistribution • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,11 @@
 
 
 
-<meta property="og:title" content="Prior Distribution — priorDistribution" />
+<meta property="og:title" content="priorDistribution — priorDistribution" />
 
-<meta property="og:description" content="Function to evaluate the prior probability of a transition matrix. It is based on conjugate priors and therefore a Dirichlet distribution is used to model the transitions of each state." />
+<meta property="og:description" content="Function to evaluate the prior probability of a transition
+  matrix. It is based on conjugate priors and therefore a Dirichlet
+  distribution is used to model the transitions of each state." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,14 +125,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Prior Distribution</h1>
-    
+    <h1>priorDistribution</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
     <div class="hidden name"><code>priorDistribution.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Function to evaluate the prior probability of a transition matrix. It is based on conjugate priors and therefore a Dirichlet distribution is used to model the transitions of each state.</p>
+    <p>Function to evaluate the prior probability of a transition
+  matrix. It is based on conjugate priors and therefore a Dirichlet
+  distribution is used to model the transitions of each state.</p>
     
     </div>
 
@@ -141,30 +145,41 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>transMatr</th>
-      <td><p>The transition matrix whose probability is the parameter of interest.</p></td>
+      <td><p>The transition matrix whose probability is the parameter of
+interest.</p></td>
     </tr>
     <tr>
       <th>hyperparam</th>
-      <td><p>The hyperparam matrix (optional). If not provided, a default value of 1 is assumed for each and therefore the resulting probability distribution is uniform.</p></td>
+      <td><p>The hyperparam matrix (optional). If not provided, a
+default value of 1 is assumed for each and therefore the resulting
+probability distribution is uniform.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The states (dimnames) of the transition matrix and the hyperparam may be in any order.</p>
-    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The log of the probabilities for each state is returned in a numeric vector. Each number in the vector represents the probability (log) of having a probability transition vector as specified in corresponding the row of the transition matrix.</p>
+    <p>The log of the probabilities for each state is returned in a numeric
+  vector. Each number in the vector represents the probability (log) of
+  having a probability transition vector as specified in corresponding the
+  row of the transition matrix.</p>
     
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-package version 0.2.5</p>
+    <p>The states (dimnames) of the transition matrix and the hyperparam
+  may be in any order.</p>
     
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>This function can be used in conjunction with inferHyperparam. For example, if the user has a prior data set and a prior transition matrix, he can infer the hyperparameters using inferHyperparam and then compute the probability of their prior matrix using the inferred hyperparameters with priorDistribution.</p>
+    <p>This function can be used in conjunction with inferHyperparam. For
+  example, if the user has a prior data set and a prior transition matrix,
+  he can infer the hyperparameters using inferHyperparam and then compute
+  the probability of their prior matrix using the inferred hyperparameters
+  with priorDistribution.</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First
+Order Markov Chains. R package version 0.2.5</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -173,11 +188,11 @@ package version 0.2.5</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>priorDistribution</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>),
-                        <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                        <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))),
-                 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>),
-                        <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                        <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))))</div><div class='output co'>#&gt;         a         b 
+                  <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                  <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))),
+                  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>),
+                  <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                  <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))))</div><div class='output co'>#&gt;         a         b 
 #&gt; 0.4054651 0.4054651 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -185,13 +200,13 @@ package version 0.2.5</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
-
       <li><a href="#value">Value</a></li>
 
-      <li><a href="#references">References</a></li>
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#note">Note</a></li>
+
+      <li><a href="#references">References</a></li>
 
       <li><a href="#see-also">See also</a></li>
       

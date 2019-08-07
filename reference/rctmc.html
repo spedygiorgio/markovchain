@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to generate a sequence of random CTMC transitions. — rctmc • markovchain</title>
+<title>rctmc — rctmc • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Function to generate a sequence of random CTMC transitions. — rctmc" />
+<meta property="og:title" content="rctmc — rctmc" />
 
-<meta property="og:description" content="The function generates random CTMC transitions as per the provided generator matrix." />
+<meta property="og:description" content="The function generates random CTMC transitions as per the
+  provided generator matrix." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,18 +124,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to generate a sequence of random CTMC transitions.</h1>
-    
+    <h1>rctmc</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/1_ctmcProbabilisticSAI.R'><code>R/1_ctmcProbabilisticSAI.R</code></a></small>
     <div class="hidden name"><code>rctmc.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The function generates random CTMC transitions as per the provided generator matrix.</p>
+    <p>The function generates random CTMC transitions as per the
+  provided generator matrix.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>rctmc</span>(<span class='no'>n</span>, <span class='no'>ctmc</span>, <span class='kw'>initDist</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/numeric'>numeric</a></span>(), <span class='kw'>T</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>include.T0</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>out.type</span> <span class='kw'>=</span> <span class='st'>"list"</span>)</pre>
+    <pre class="usage"><span class='fu'>rctmc</span>(<span class='no'>n</span>, <span class='no'>ctmc</span>, <span class='kw'>initDist</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/numeric'>numeric</a></span>(), <span class='kw'>T</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>include.T0</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>out.type</span> <span class='kw'>=</span> <span class='st'>"list"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,29 +156,33 @@
     </tr>
     <tr>
       <th>T</th>
-      <td><p>The time up to which the simulation runs (all transitions after time T are not returned).</p></td>
+      <td><p>The time up to which the simulation runs (all transitions after time
+T are not returned).</p></td>
     </tr>
     <tr>
       <th>include.T0</th>
       <td><p>Flag to determine if start state is to be included.</p></td>
     </tr>
     <tr>
-      <th>out.type</th>
+      <th>out.typ</th>
       <td><p>"list" or "df"</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Based on out.type, a list or a data frame is returned. The returned
+  list has two elements - a character vector (states) and a numeric vector
+  (indicating time of transitions). The data frame is similarly structured.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>In order to use the T0 argument, set n to Inf.</p>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Based on out.type, a list or a data frame is returned. The returned list has two elements - a character vector (states) and a numeric vector (indicating time of transitions). The data frame is similarly structured.</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Introduction to Stochastic Processes with Applications in the Biosciences (2013), David F. Anderson, University of Wisconsin at Madison</p>
+    <p>Introduction to Stochastic Processes with Applications in the Biosciences 
+(2013), David F. Anderson, University of Wisconsin at Madison</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -185,12 +192,11 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>energyStates</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"sigma"</span>, <span class='st'>"sigma_star"</span>)
 <span class='no'>byRow</span> <span class='kw'>&lt;-</span> <span class='fl'>TRUE</span>
-<span class='no'>gen</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>3</span>, <span class='fl'>3</span>,
-                       <span class='fl'>1</span>, -<span class='fl'>1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-              <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>energyStates</span>, <span class='no'>energyStates</span>))
+<span class='no'>gen</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>1</span>, -<span class='fl'>1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+             <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>energyStates</span>, <span class='no'>energyStates</span>))
 <span class='no'>molecularCTMC</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>energyStates</span>,
-                 <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>,
-                 <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Molecular Transition Model"</span>)
+                     <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>,
+                     <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Molecular Transition Model"</span>)
 
 <span class='no'>statesDist</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.8</span>, <span class='fl'>0.2</span>)
 <span class='fu'>rctmc</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>ctmc</span> <span class='kw'>=</span> <span class='no'>molecularCTMC</span>, <span class='kw'>T</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; [[1]]
@@ -210,9 +216,9 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
-
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#references">References</a></li>
 

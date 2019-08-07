@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to compute the probability of observing a new data set, given a data set — predictiveDistribution • markovchain</title>
+<title>predictiveDistribution — predictiveDistribution • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="Function to compute the probability of observing a new data set, given a data set — predictiveDistribution" />
+<meta property="og:title" content="predictiveDistribution — predictiveDistribution" />
 
-<meta property="og:description" content="The function computes the probability of observing a new data set using information from a given data set. Additionally, hyperparameters can be provided." />
+<meta property="og:description" content="The function computes the probability of observing a new data
+  set, given a data set" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -123,14 +124,15 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to compute the probability of observing a new data set, given a data set</h1>
-    
+    <h1>predictiveDistribution</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
     <div class="hidden name"><code>predictiveDistribution.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The function computes the probability of observing a new data set using information from a given data set. Additionally, hyperparameters can be provided.</p>
+    <p>The function computes the probability of observing a new data
+  set, given a data set</p>
     
     </div>
 
@@ -140,32 +142,42 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>stringchar</th>
-      <td><p>This is the data using which the Bayesian inference is performed.</p></td>
-    </tr>
-    <tr>
       <th>newData</th>
       <td><p>This is the data whose predictive probability is computed.</p></td>
     </tr>
     <tr>
       <th>hyperparam</th>
-      <td><p>This determines the shape of the prior distribution of the parameters. If none is provided, default value of 1 is assigned to each parameter. This must be of size kxk where k is the number of states in the chain and the values should typically be non-negative integers.</p></td>
+      <td><p>This determines the shape of the prior distribution of the
+parameters. If none is provided, default value of 1 is assigned to each
+parameter. This must be of size kxk where k is the number of states in the
+chain and the values should typically be non-negative integers.</p></td>
+    </tr>
+    <tr>
+      <th>stringChar</th>
+      <td><p>This is the data using which the Bayesian inference is
+performed.</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The underlying method is Bayesian inference. The probability is computed by averaging the likelihood of the new data with respect to the posterior. Since the method assumes conjugate priors, the result can be represented in a closed form (see the vignette for more details), which is what is returned.</p>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The log of the probability is returned.</p>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The underlying method is Bayesian inference. The probability is
+  computed by averaging the likelihood of the new data with respect to the
+  posterior. Since the method assumes conjugate priors, the result can be
+  represented in a closed form (see the vignette for more details), which is
+  what is returned.</p>
+    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, Alfred Hubler, Santa Fe Institute</p>
-<p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-package version 0.2.5</p>
+    <p>Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+and Out-of-Class Modeling, Christopher C. Strelioff, James P.
+Crutchfield, Alfred Hubler, Santa Fe Institute</p>
+<p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov 
+Chains. R package version 0.2.5</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -173,8 +185,8 @@ package version 0.2.5</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>sequence</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>,
-<span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
+    <pre class="examples"><div class='input'><span class='no'>sequence</span><span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>,
+             <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
 <span class='no'>hyperMatrix</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>4</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,<span class='kw'>dimnames</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>)))
 <span class='no'>predProb</span> <span class='kw'>&lt;-</span> <span class='fu'>predictiveDistribution</span>(<span class='no'>sequence</span>[<span class='fl'>1</span>:<span class='fl'>10</span>], <span class='no'>sequence</span>[<span class='fl'>11</span>:<span class='fl'>17</span>], <span class='kw'>hyperparam</span> <span class='kw'>=</span><span class='no'>hyperMatrix</span> )
 <span class='no'>hyperMatrix2</span><span class='kw'>&lt;-</span><span class='no'>hyperMatrix</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>1</span>),<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>1</span>)]
@@ -186,9 +198,9 @@ package version 0.2.5</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
-
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#references">References</a></li>
 

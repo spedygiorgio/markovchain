@@ -9,16 +9,12 @@
     .Call(`_markovchain_isGen`, gen)
 }
 
-.canonicFormRcpp <- function(object) {
-    .Call(`_markovchain_canonicForm`, object)
-}
-
-.lexicographical_sort <- function(y) {
-    .Call(`_markovchain_lexicographicalSort`, y)
+.canonicFormRcpp <- function(obj) {
+    .Call(`_markovchain_canonicForm`, obj)
 }
 
 .steadyStatesRcpp <- function(obj) {
-    .Call('_markovchain_steadyStates', PACKAGE = 'markovchain', obj)
+    .Call(`_markovchain_steadyStates`, obj)
 }
 
 #' @name generatorToTransitionMatrix
@@ -273,11 +269,11 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 }
 
 .transientStatesRcpp <- function(object) {
-    .Call('_markovchain_transientStates', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_transientStates`, object)
 }
 
 .recurrentStatesRcpp <- function(object) {
-    .Call('_markovchain_recurrentStates', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_recurrentStates`, object)
 }
 
 .recurrentClassesRcpp <- function(object) {
@@ -285,7 +281,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 }
 
 .transientClassesRcpp <- function(object) {
-    .Call('_markovchain_transientClasses', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_transientClasses`, object)
 }
 
 .commStatesFinderRcpp <- function(matr) {
@@ -411,8 +407,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
-
 .hittingProbabilitiesRcpp <- function(object) {
-    .Call('_markovchain_hittingProbabilities', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_hittingProbabilities`, object)
 }
 

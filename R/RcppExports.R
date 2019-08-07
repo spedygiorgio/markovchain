@@ -2,78 +2,132 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .isProbability <- function(prob) {
-    .Call('_markovchain_isProb', PACKAGE = 'markovchain', prob)
+    .Call(`_markovchain_isProb`, prob)
 }
 
 .isGenRcpp <- function(gen) {
-    .Call('_markovchain_isGen', PACKAGE = 'markovchain', gen)
+    .Call(`_markovchain_isGen`, gen)
 }
 
 .canonicFormRcpp <- function(object) {
-    .Call('_markovchain_canonicForm', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_canonicForm`, object)
 }
 
 .lexicographical_sort <- function(y) {
-    .Call('_markovchain_lexicographicalSort', PACKAGE = 'markovchain', y)
+    .Call(`_markovchain_lexicographicalSort`, y)
 }
 
+#' @name generatorToTransitionMatrix
+#' @title Function to obtain the transition matrix from the generator
+#' @description The transition matrix of the embedded DTMC is inferred from the CTMC's generator
+#'
+#' @usage generatorToTransitionMatrix(gen, byrow = TRUE)
+#'
+#' @param gen The generator matrix
+#' @param byrow Flag to determine if rows (columns) sum to 0
+#' @return Returns the transition matrix.
+#' 
+#' @references
+#' Introduction to Stochastic Processes with Applications in the Biosciences (2013), David F.
+#' Anderson, University of Wisconsin at Madison
+#' 
+#' @author Sai Bhargav Yalamanchi
+#' @seealso \code{\link{rctmc}},\code{\link{ctmc-class}}
+#' @examples
+#' energyStates <- c("sigma", "sigma_star")
+#' byRow <- TRUE
+#' gen <- matrix(data = c(-3, 3, 1, -1), nrow = 2,
+#'               byrow = byRow, dimnames = list(energyStates, energyStates))
+#' generatorToTransitionMatrix(gen)
+#' 
+#' @export
 generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
-    .Call('_markovchain_generatorToTransitionMatrix', PACKAGE = 'markovchain', gen, byrow)
+    .Call(`_markovchain_generatorToTransitionMatrix`, gen, byrow)
 }
 
+#' @name ctmcFit
+#' @title Function to fit a CTMC
+#' @description This function fits the underlying CTMC give the state
+#'   transition data and the transition times using the maximum likelihood
+#'   method (MLE)
+#' @usage ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
+#' @param data It is a list of two elements. The first element is a character
+#'   vector denoting the states. The second is a numeric vector denoting the
+#'   corresponding transition times.
+#' @param byRow Determines if the output transition probabilities of the
+#'   underlying embedded DTMC are by row.
+#' @param name Optional name for the CTMC.
+#' @param confidencelevel Confidence level for the confidence interval
+#'   construnction.
+#' @return It returns a list containing the CTMC object and the confidence intervals.
+#' 
+#' @details  Note that in data, there must exist an element wise corresponding
+#'   between the two elements of the list and that data[[2]][1] is always 0.
+#' @references Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
+#' @author Sai Bhargav Yalamanchi
+#' @seealso \code{\link{rctmc}}
+#' 
+#' @examples
+#' data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+#' ctmcFit(data)
+#' 
+#' @export
+#' 
 ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
-    .Call('_markovchain_ctmcFit', PACKAGE = 'markovchain', data, byrow, name, confidencelevel)
+    .Call(`_markovchain_ctmcFit`, data, byrow, name, confidencelevel)
 }
 
 .ExpectedTimeRCpp <- function(x, y) {
-    .Call('_markovchain_ExpectedTimeRcpp', PACKAGE = 'markovchain', x, y)
+    .Call(`_markovchain_ExpectedTimeRcpp`, x, y)
 }
 
 .probabilityatTRCpp <- function(y) {
-    .Call('_markovchain_probabilityatTRCpp', PACKAGE = 'markovchain', y)
+    .Call(`_markovchain_probabilityatTRCpp`, y)
 }
 
 .impreciseProbabilityatTRCpp <- function(C, i, t, s, error) {
-    .Call('_markovchain_impreciseProbabilityatTRCpp', PACKAGE = 'markovchain', C, i, t, s, error)
+    .Call(`_markovchain_impreciseProbabilityatTRCpp`, C, i, t, s, error)
 }
 
+#' @export
 seq2freqProb <- function(sequence) {
-    .Call('_markovchain_seq2freqProb', PACKAGE = 'markovchain', sequence)
+    .Call(`_markovchain_seq2freqProb`, sequence)
 }
 
+#' @export
 seq2matHigh <- function(sequence, order) {
-    .Call('_markovchain_seq2matHigh', PACKAGE = 'markovchain', sequence, order)
+    .Call(`_markovchain_seq2matHigh`, sequence, order)
 }
 
 .markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
-    .Call('_markovchain_markovchainSequenceRcpp', PACKAGE = 'markovchain', n, markovchain, t0, include_t0)
+    .Call(`_markovchain_markovchainSequenceRcpp`, n, markovchain, t0, include_t0)
 }
 
 .markovchainListRcpp <- function(n, object, include_t0 = FALSE, t0 = character()) {
-    .Call('_markovchain_markovchainListRcpp', PACKAGE = 'markovchain', n, object, include_t0, t0)
+    .Call(`_markovchain_markovchainListRcpp`, n, object, include_t0, t0)
 }
 
 .markovchainSequenceParallelRcpp <- function(listObject, n, include_t0 = FALSE, init_state = character()) {
-    .Call('_markovchain_markovchainSequenceParallelRcpp', PACKAGE = 'markovchain', listObject, n, include_t0, init_state)
+    .Call(`_markovchain_markovchainSequenceParallelRcpp`, listObject, n, include_t0, init_state)
 }
 
 #' @rdname markovchainFit
 #' 
 #' @export
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
-    .Call('_markovchain_createSequenceMatrix', PACKAGE = 'markovchain', stringchar, toRowProbs, sanitize, possibleStates)
+    .Call(`_markovchain_createSequenceMatrix`, stringchar, toRowProbs, sanitize, possibleStates)
 }
 
 .mcListFitForList <- function(data) {
-    .Call('_markovchain_mcListFitForList', PACKAGE = 'markovchain', data)
+    .Call(`_markovchain_mcListFitForList`, data)
 }
 
 .matr2Mc <- function(matrData, laplacian = 0, sanitize = FALSE, possibleStates = character()) {
-    .Call('_markovchain__matr2Mc', PACKAGE = 'markovchain', matrData, laplacian, sanitize, possibleStates)
+    .Call(`_markovchain__matr2Mc`, matrData, laplacian, sanitize, possibleStates)
 }
 
 .list2Mc <- function(data, laplacian = 0, sanitize = FALSE) {
-    .Call('_markovchain__list2Mc', PACKAGE = 'markovchain', data, laplacian, sanitize)
+    .Call(`_markovchain__list2Mc`, data, laplacian, sanitize)
 }
 
 #' @name inferHyperparam
@@ -117,7 +171,7 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALS
 #' @export
 #'  
 inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = character()) {
-    .Call('_markovchain_inferHyperparam', PACKAGE = 'markovchain', transMatr, scale, data)
+    .Call(`_markovchain_inferHyperparam`, transMatr, scale, data)
 }
 
 #' @name markovchainFit
@@ -191,59 +245,59 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' @export
 #' 
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
-    .Call('_markovchain_markovchainFit', PACKAGE = 'markovchain', data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
+    .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 
 .noofVisitsDistRCpp <- function(matrix, i, N) {
-    .Call('_markovchain_noofVisitsDistRCpp', PACKAGE = 'markovchain', matrix, i, N)
+    .Call(`_markovchain_noofVisitsDistRCpp`, matrix, i, N)
 }
 
 .multinomialCIForRowRcpp <- function(x, confidencelevel) {
-    .Call('_markovchain_multinomialCIForRow', PACKAGE = 'markovchain', x, confidencelevel)
+    .Call(`_markovchain_multinomialCIForRow`, x, confidencelevel)
 }
 
 .multinomialCIRcpp <- function(transMat, seqMat, confidencelevel) {
-    .Call('_markovchain_multinomCI', PACKAGE = 'markovchain', transMat, seqMat, confidencelevel)
+    .Call(`_markovchain_multinomCI`, transMat, seqMat, confidencelevel)
 }
 
 .commClassesKernelRcpp <- function(P) {
-    .Call('_markovchain_commClassesKernel', PACKAGE = 'markovchain', P)
+    .Call(`_markovchain_commClassesKernel`, P)
 }
 
 .communicatingClassesRcpp <- function(object) {
-    .Call('_markovchain_communicatingClasses', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_communicatingClasses`, object)
 }
 
 .recurrentClassesRcpp <- function(object) {
-    .Call('_markovchain_recurrentClasses', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_recurrentClasses`, object)
 }
 
 .commStatesFinderRcpp <- function(matr) {
-    .Call('_markovchain_commStatesFinder', PACKAGE = 'markovchain', matr)
+    .Call(`_markovchain_commStatesFinder`, matr)
 }
 
 .summaryKernelRcpp <- function(object) {
-    .Call('_markovchain_summaryKernel', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_summaryKernel`, object)
 }
 
 .firstpassageKernelRcpp <- function(P, i, n) {
-    .Call('_markovchain_firstpassageKernel', PACKAGE = 'markovchain', P, i, n)
+    .Call(`_markovchain_firstpassageKernel`, P, i, n)
 }
 
 .firstPassageMultipleRCpp <- function(P, i, setno, n) {
-    .Call('_markovchain_firstPassageMultipleRCpp', PACKAGE = 'markovchain', P, i, setno, n)
+    .Call(`_markovchain_firstPassageMultipleRCpp`, P, i, setno, n)
 }
 
 .expectedRewardsRCpp <- function(matrix, n, rewards) {
-    .Call('_markovchain_expectedRewardsRCpp', PACKAGE = 'markovchain', matrix, n, rewards)
+    .Call(`_markovchain_expectedRewardsRCpp`, matrix, n, rewards)
 }
 
 .expectedRewardsBeforeHittingARCpp <- function(matrix, s0, rewards, n) {
-    .Call('_markovchain_expectedRewardsBeforeHittingARCpp', PACKAGE = 'markovchain', matrix, s0, rewards, n)
+    .Call(`_markovchain_expectedRewardsBeforeHittingARCpp`, matrix, s0, rewards, n)
 }
 
 .gcdRcpp <- function(a, b) {
-    .Call('_markovchain_gcd', PACKAGE = 'markovchain', a, b)
+    .Call(`_markovchain_gcd`, a, b)
 }
 
 #' @rdname absorbingStates
@@ -251,18 +305,97 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
 #' @export
 #' 
 period <- function(object) {
-    .Call('_markovchain_period', PACKAGE = 'markovchain', object)
+    .Call(`_markovchain_period`, object)
 }
 
+#' @title predictiveDistribution
+#'
+#' @description The function computes the probability of observing a new data
+#'   set, given a data set
+#' @usage predictiveDistribution(stringchar, newData, hyperparam = matrix())
+#'
+#' @param stringChar This is the data using which the Bayesian inference is
+#'   performed.
+#' @param newData This is the data whose predictive probability is computed.
+#' @param hyperparam This determines the shape of the prior distribution of the
+#'   parameters. If none is provided, default value of 1 is assigned to each
+#'   parameter. This must be of size kxk where k is the number of states in the
+#'   chain and the values should typically be non-negative integers.
+#' @return The log of the probability is returned.
+#'
+#' @details The underlying method is Bayesian inference. The probability is
+#'   computed by averaging the likelihood of the new data with respect to the
+#'   posterior. Since the method assumes conjugate priors, the result can be
+#'   represented in a closed form (see the vignette for more details), which is
+#'   what is returned.
+#' @references 
+#' Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+#' and Out-of-Class Modeling, Christopher C. Strelioff, James P.
+#' Crutchfield, Alfred Hubler, Santa Fe Institute
+#' 
+#' Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov 
+#' Chains. R package version 0.2.5
+#' 
+#' @author Sai Bhargav Yalamanchi
+#' @seealso \code{\link{markovchainFit}}
+#' @examples
+#' sequence<- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
+#'              "b", "b", "b", "a")
+#' hyperMatrix<-matrix(c(1, 2, 1, 4), nrow = 2,dimnames=list(c("a","b"),c("a","b")))
+#' predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix )
+#' hyperMatrix2<-hyperMatrix[c(2,1),c(2,1)]
+#' predProb2 <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix2 )
+#' predProb2==predProb
+#' @export
+#' 
 predictiveDistribution <- function(stringchar, newData, hyperparam = matrix()) {
-    .Call('_markovchain_predictiveDistribution', PACKAGE = 'markovchain', stringchar, newData, hyperparam)
+    .Call(`_markovchain_predictiveDistribution`, stringchar, newData, hyperparam)
 }
 
+#' @title priorDistribution
+#'
+#' @description Function to evaluate the prior probability of a transition
+#'   matrix. It is based on conjugate priors and therefore a Dirichlet
+#'   distribution is used to model the transitions of each state.
+#' @usage priorDistribution(transMatr, hyperparam = matrix())
+#'
+#' @param transMatr The transition matrix whose probability is the parameter of
+#'   interest.
+#' @param hyperparam The hyperparam matrix (optional). If not provided, a
+#'   default value of 1 is assumed for each and therefore the resulting
+#'   probability distribution is uniform.
+#' @return The log of the probabilities for each state is returned in a numeric
+#'   vector. Each number in the vector represents the probability (log) of
+#'   having a probability transition vector as specified in corresponding the
+#'   row of the transition matrix.
+#'
+#' @details The states (dimnames) of the transition matrix and the hyperparam
+#'   may be in any order.
+#' @references Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First
+#' Order Markov Chains. R package version 0.2.5
+#'
+#' @author Sai Bhargav Yalamanchi, Giorgio Spedicato
+#'
+#' @note This function can be used in conjunction with inferHyperparam. For
+#'   example, if the user has a prior data set and a prior transition matrix,
+#'   he can infer the hyperparameters using inferHyperparam and then compute
+#'   the probability of their prior matrix using the inferred hyperparameters
+#'   with priorDistribution.
+#' @seealso \code{\link{predictiveDistribution}}, \code{\link{inferHyperparam}}
+#' 
+#' @examples
+#' priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), 
+#'                   nrow = 2, 
+#'                   dimnames = list(c("a", "b"), c("a", "b"))), 
+#'                   matrix(c(2, 2, 2, 2), 
+#'                   nrow = 2, 
+#'                   dimnames = list(c("a", "b"), c("a", "b"))))
+#' @export
 priorDistribution <- function(transMatr, hyperparam = matrix()) {
-    .Call('_markovchain_priorDistribution', PACKAGE = 'markovchain', transMatr, hyperparam)
+    .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
 .hittingProbabilitiesRcpp <- function(transitionMatrix) {
-    .Call('_markovchain_hittingProbabilities', PACKAGE = 'markovchain', transitionMatrix)
+    .Call(`_markovchain_hittingProbabilities`, transitionMatrix)
 }
 

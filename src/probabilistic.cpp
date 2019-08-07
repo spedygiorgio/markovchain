@@ -438,6 +438,46 @@ int period(S4 object) {
   }
 }
 
+//' @title predictiveDistribution
+//'
+//' @description The function computes the probability of observing a new data
+//'   set, given a data set
+//' @usage predictiveDistribution(stringchar, newData, hyperparam = matrix())
+//'
+//' @param stringChar This is the data using which the Bayesian inference is
+//'   performed.
+//' @param newData This is the data whose predictive probability is computed.
+//' @param hyperparam This determines the shape of the prior distribution of the
+//'   parameters. If none is provided, default value of 1 is assigned to each
+//'   parameter. This must be of size kxk where k is the number of states in the
+//'   chain and the values should typically be non-negative integers.
+//' @return The log of the probability is returned.
+//'
+//' @details The underlying method is Bayesian inference. The probability is
+//'   computed by averaging the likelihood of the new data with respect to the
+//'   posterior. Since the method assumes conjugate priors, the result can be
+//'   represented in a closed form (see the vignette for more details), which is
+//'   what is returned.
+//' @references 
+//' Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+//' and Out-of-Class Modeling, Christopher C. Strelioff, James P.
+//' Crutchfield, Alfred Hubler, Santa Fe Institute
+//' 
+//' Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov 
+//' Chains. R package version 0.2.5
+//' 
+//' @author Sai Bhargav Yalamanchi
+//' @seealso \code{\link{markovchainFit}}
+//' @examples
+//' sequence<- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
+//'              "b", "b", "b", "a")
+//' hyperMatrix<-matrix(c(1, 2, 1, 4), nrow = 2,dimnames=list(c("a","b"),c("a","b")))
+//' predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix )
+//' hyperMatrix2<-hyperMatrix[c(2,1),c(2,1)]
+//' predProb2 <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix2 )
+//' predProb2==predProb
+//' @export
+//' 
 // [[Rcpp::export]]
 double predictiveDistribution(CharacterVector stringchar, CharacterVector newData, NumericMatrix hyperparam = NumericMatrix()) {
   // construct list of states
@@ -557,6 +597,45 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
 }
 
 
+//' @title priorDistribution
+//'
+//' @description Function to evaluate the prior probability of a transition
+//'   matrix. It is based on conjugate priors and therefore a Dirichlet
+//'   distribution is used to model the transitions of each state.
+//' @usage priorDistribution(transMatr, hyperparam = matrix())
+//'
+//' @param transMatr The transition matrix whose probability is the parameter of
+//'   interest.
+//' @param hyperparam The hyperparam matrix (optional). If not provided, a
+//'   default value of 1 is assumed for each and therefore the resulting
+//'   probability distribution is uniform.
+//' @return The log of the probabilities for each state is returned in a numeric
+//'   vector. Each number in the vector represents the probability (log) of
+//'   having a probability transition vector as specified in corresponding the
+//'   row of the transition matrix.
+//'
+//' @details The states (dimnames) of the transition matrix and the hyperparam
+//'   may be in any order.
+//' @references Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First
+//' Order Markov Chains. R package version 0.2.5
+//'
+//' @author Sai Bhargav Yalamanchi, Giorgio Spedicato
+//'
+//' @note This function can be used in conjunction with inferHyperparam. For
+//'   example, if the user has a prior data set and a prior transition matrix,
+//'   he can infer the hyperparameters using inferHyperparam and then compute
+//'   the probability of their prior matrix using the inferred hyperparameters
+//'   with priorDistribution.
+//' @seealso \code{\link{predictiveDistribution}}, \code{\link{inferHyperparam}}
+//' 
+//' @examples
+//' priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), 
+//'                   nrow = 2, 
+//'                   dimnames = list(c("a", "b"), c("a", "b"))), 
+//'                   matrix(c(2, 2, 2, 2), 
+//'                   nrow = 2, 
+//'                   dimnames = list(c("a", "b"), c("a", "b"))))
+//' @export
 // [[Rcpp::export]]
 NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperparam = NumericMatrix()) {
   // begin validity checks for the transition matrix

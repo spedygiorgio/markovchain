@@ -3,6 +3,7 @@
 using namespace Rcpp;
 
 // sequence to frequency probability vector
+//' @export
 // [[Rcpp::export]]
 NumericVector seq2freqProb(CharacterVector sequence) {
   int n = sequence.size(); 
@@ -20,7 +21,8 @@ NumericVector seq2freqProb(CharacterVector sequence) {
   return out;
 }
 
-// sequence to transition matrix for higher order markov chain
+// sequence to transition matrix for higher order markov chai
+//' @export
 // [[Rcpp::export]]
 NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
   int n = sequence.size();

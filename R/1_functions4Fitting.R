@@ -593,7 +593,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' singleMc <- markovchainFit(data = holson[,2:12])
 #' # fitting a markovchainList
 #' mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
-
+#' @export
 markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   
   # check the format of input data
@@ -690,6 +690,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' mcfit<-markovchainFit(data=seq,byrow=TRUE)
 #' seqmat<-createSequenceMatrix(seq)
 #' multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
+#' @export
 multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)

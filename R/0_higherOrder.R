@@ -1,5 +1,8 @@
-# define higher order Markov Chain class
-
+#' @title Higher order Markov Chains class
+#' @name HigherOrderMarkovChain-class
+#' @description The S4 class that describes \code{HigherOrderMarkovChain} objects.
+#' 
+#' @export
 setClass("HigherOrderMarkovChain", #class name
          representation(
            states = "character", 
@@ -30,7 +33,39 @@ setClass("HigherOrderMarkovChain", #class name
   return(sum(params))
 }
 
-# fit higher order markov chain
+#' @name fitHigherOrder
+#' @aliases seq2freqProb seq2matHigh 
+#' @title Functions to fit a higher order Markov chain
+#'
+#' @description Given a sequence of states arising from a stationary state, it
+#'   fits the underlying Markov chain distribution with higher order.
+#' @usage  
+#' fitHigherOrder(sequence, order = 2)
+#' seq2freqProb(sequence)
+#' seq2matHigh(sequence, order)
+#'
+#' @param sequence A character list.
+#' @param order Markov chain order
+#' @return A list containing lambda, Q, and X.
+#'
+#' @references 
+#' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov 
+#' chains. In Markov Chains (pp. 141-176). Springer US.
+#' 
+#' Ching, W. K., Ng, M. K., & Fung, E. S. (2008). Higher-order multivariate
+#' Markov chains and their applications. Linear Algebra and its Applications,
+#' 428(2), 492-507.
+#'
+#' @author Giorgio Spedicato, Tae Seung Kang
+#' @note This function is written in Rcpp.
+#' @seealso \code{\link{markovchain}}
+#'
+#' @examples
+#' sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
+#'             "c", "a", "b", "c", "a", "b", "a", "b")
+#' fitHigherOrder(sequence)
+#'
+#' @export
 fitHigherOrder<-function(sequence, order = 2) {
   # prbability of each states of sequence
   X <- seq2freqProb(sequence)

@@ -11,6 +11,34 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
                     NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false,
                     CharacterVector possibleStates = CharacterVector()); 
 
+//' @name ctmcFit
+//' @title Function to fit a CTMC
+//' @description This function fits the underlying CTMC give the state
+//'   transition data and the transition times using the maximum likelihood
+//'   method (MLE)
+//' @usage ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
+//' @param data It is a list of two elements. The first element is a character
+//'   vector denoting the states. The second is a numeric vector denoting the
+//'   corresponding transition times.
+//' @param byRow Determines if the output transition probabilities of the
+//'   underlying embedded DTMC are by row.
+//' @param name Optional name for the CTMC.
+//' @param confidencelevel Confidence level for the confidence interval
+//'   construnction.
+//' @return It returns a list containing the CTMC object and the confidence intervals.
+//' 
+//' @details  Note that in data, there must exist an element wise corresponding
+//'   between the two elements of the list and that data[[2]][1] is always 0.
+//' @references Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
+//' @author Sai Bhargav Yalamanchi
+//' @seealso \code{\link{rctmc}}
+//' 
+//' @examples
+//' data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+//' ctmcFit(data)
+//' 
+//' @export
+//' 
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   

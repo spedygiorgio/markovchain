@@ -1,3 +1,60 @@
+#' @title Continuous time Markov Chains class
+#' @name ctmc-class
+#' @aliases dim,ctmc-method initialize,ctmc_method states,ctmc-method
+#'   steadyStates,ctmc-method plot,ctmc,missing-method
+#' @description The S4 class that describes \code{ctmc} (continuous 
+#' time Markov chain) objects.
+#' 
+#' @param states Name of the states. Must be the same of
+#'   \code{colnames} and \code{rownames} of the generator matrix
+#' @param byrow TRUE or FALSE. Indicates whether the given matrix is
+#'    stochastic by rows or by columns
+#' @param generator Square generator matrix
+#' @param name Optional character name of the Markov chain
+#' 
+#' @section Methods:
+#' 
+#' \describe{
+#' \item{dim}{\code{signature(x = "ctmc")}: method to get the size} 
+#' \item{initialize}{\code{signature(.Object = "ctmc")}: initialize
+#'   method }
+#' \item{states}{\code{signature(object = "ctmc")}: states method. }
+#' \item{steadyStates}{\code{signature(object = "ctmc")}: method to get the
+#'   steady state vector. } 
+#' \item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method 
+#'   for \code{ctmc} objects }
+#' }
+#' 
+#' @references
+#' Introduction to Stochastic Processes with Applications in the Biosciences
+#' (2013), David F. Anderson, University of Wisconsin at Madison. Sai Bhargav
+#' Yalamanchi, Giorgio Spedicato
+#' 
+#' @note
+#' \enumerate{
+#' \item \code{ctmc} classes are written using S4 classes
+#' \item Validation method is used to assess whether either columns or rows totals to zero. 
+#' Rounding is used up to 5th decimal. If state names are not properly defined
+#' for a generator  \code{matrix}, coercing to \code{ctmc} object leads to overriding
+#' states name with artificial "s1", "s2", ... sequence
+#' }
+#' @seealso \code{\link{generatorToTransitionMatrix}},\code{\link{rctmc}}
+#'
+#' @examples
+#' energyStates <- c("sigma", "sigma_star")
+#' byRow <- TRUE
+#' gen <- matrix(data = c(-3, 3,
+#'                        1, -1), nrow = 2,
+#'               byrow = byRow, dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, 
+#'                      byrow = byRow, generator = gen, 
+#'                      name = "Molecular Transition Model")
+#'                      steadyStates(molecularCTMC)
+#' \dontrun{plot(molecularCTMC)}
+#' 
+#' @keywords classes
+#' 
+#' @export
 setClass("ctmc",
          representation(states = "character",
                         byrow = "logical",

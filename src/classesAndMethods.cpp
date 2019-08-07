@@ -28,7 +28,7 @@ bool isGen(NumericMatrix gen) {
 }
 
 // Declared in probabilistic.cpp
-SEXP commClassesKernel(NumericMatrix P);
+List commClassesKernel(NumericMatrix P);
 
 // method to convert into canonic form a markovchain object
 // [[Rcpp::export(.canonicFormRcpp)]]

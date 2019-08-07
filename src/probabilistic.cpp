@@ -124,9 +124,9 @@ List computeCommunicatingClasses(LogicalMatrix& commClasses, CharacterVector& st
           computed[j] = true;
         }
       }
+      
+      classesList.push_back(currentClass);
     }
-    
-    classesList.push_back(currentClass);
   }
   
   return classesList;
@@ -146,7 +146,7 @@ List communicatingClasses(S4 object) {
   List commClassesList = commClassesKernel(transitionMatrix);
   LogicalMatrix commClasses = commClassesList["classes"];
   
-  computeCommunicatingClasses(commClasses, states);
+  return computeCommunicatingClasses(commClasses, states);
 }
 
 // Wrapper that computes the transient states from a list of the states and a
@@ -213,13 +213,13 @@ List computeRecurrentClasses(LogicalMatrix& commClasses,
   int numStates = states.size();
   vector<bool> computed(numStates, false);
   List recurrentClassesList;
-  bool recurrentClass;
+  bool isRecurrentClass;
   
   for (int i = 0; i < numStates; ++i) {
     CharacterVector currentClass;
-    recurrentClass = closedClass(i) && !computed[i];
+    isRecurrentClass = closedClass(i) && !computed[i];
     
-    if (recurrentClass) {
+    if (isRecurrentClass) {
       for (int j = 0; j < numStates; ++j) {
         if (commClasses(i, j)) {
           currentClass.push_back(states[j]);
@@ -249,6 +249,54 @@ List recurrentClasses(S4 object) {
   LogicalVector closed = commClassesList["closed"];
   
   return computeRecurrentClasses(commClasses, closed, states);
+}
+
+// Wrapper that computes the transient classes from the matrix given by 
+// commClassesKernel (which entry i,j is TRUE iff i and j are in the same
+// communicating class), a vector indicating wheter the class for state is
+// closed and the states of the Markov Chain
+List computeTransientClasses(LogicalMatrix& commClasses, 
+                             LogicalVector& closedClass, 
+                             CharacterVector& states) {
+  int numStates = states.size();
+  vector<bool> computed(numStates, false);
+  List transientClassesList;
+  bool isTransientClass;
+  
+  for (int i = 0; i < numStates; ++i) {
+    CharacterVector currentClass;
+    isTransientClass = !closedClass(i) && !computed[i];
+    
+    if (isTransientClass) {
+      for (int j = 0; j < numStates; ++j) {
+        if (commClasses(i, j)) {
+          currentClass.push_back(states[j]);
+          computed[j] = true;
+        }
+      }
+      
+      transientClassesList.push_back(currentClass);
+    }
+  }
+  
+  return transientClassesList;
+}
+
+// returns the transient classes
+// [[Rcpp::export(.transientClassesRcpp)]]
+List transientClasses(S4 object) {
+  NumericMatrix transitionMatrix = object.slot("transitionMatrix");
+  bool byrow = object.slot("byrow");
+  CharacterVector states = object.slot("states");
+  
+  if (!byrow)
+    transitionMatrix = transpose(transitionMatrix);
+  
+  List commClassesList = commClassesKernel(transitionMatrix);
+  LogicalMatrix commClasses = commClassesList["classes"];
+  LogicalVector closed = commClassesList["closed"];
+  
+  return computeTransientClasses(commClasses, closed, states);
 }
 
 // matrix power function
@@ -288,12 +336,12 @@ List summaryKernel(S4 object) {
   List commClassesList = commClassesKernel(transitionMatrix);
   LogicalMatrix commClasses = commClassesList["classes"];
   LogicalVector closed = commClassesList["closed"];
-  List recurrentClassesList = computeRecurrentClasses(commClasses, closed, states);
-  CharacterVector transientStates = computeTransientStates(states, closed);
+  List recurrentClasses = computeRecurrentClasses(commClasses, closed, states);
+  List transientClasses = computeTransientClasses(commClasses, closed, states);
   
-  List summaryResult = List::create(_["closedClasses"]    = recurrentClassesList,
-                                    _["recurrentClasses"] = recurrentClassesList,
-                                    _["transientStates"]  = transientStates);
+  List summaryResult = List::create(_["closedClasses"]    = recurrentClasses,
+                                    _["recurrentClasses"] = recurrentClasses,
+                                    _["transientClasses"] = transientClasses);
   
   return(summaryResult);
 }

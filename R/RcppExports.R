@@ -284,6 +284,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_recurrentClasses`, object)
 }
 
+.transientClassesRcpp <- function(object) {
+    .Call('_markovchain_transientClasses', PACKAGE = 'markovchain', object)
+}
+
 .commStatesFinderRcpp <- function(matr) {
     .Call(`_markovchain_commStatesFinder`, matr)
 }

@@ -359,6 +359,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// transientClasses
+List transientClasses(S4 object);
+RcppExport SEXP _markovchain_transientClasses(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(transientClasses(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // commStatesFinder
 NumericMatrix commStatesFinder(NumericMatrix matr);
 RcppExport SEXP _markovchain_commStatesFinder(SEXP matrSEXP) {
@@ -524,6 +535,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_transientStates", (DL_FUNC) &_markovchain_transientStates, 1},
     {"_markovchain_recurrentStates", (DL_FUNC) &_markovchain_recurrentStates, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
+    {"_markovchain_transientClasses", (DL_FUNC) &_markovchain_transientClasses, 1},
     {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
     {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},
     {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},

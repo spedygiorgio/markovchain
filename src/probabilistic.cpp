@@ -323,6 +323,24 @@ NumericMatrix commStatesFinder(NumericMatrix matr) {
   return R;
 }
 
+template<class T>
+T efficientPow(T a, T identity, T (*product)(const T&, const T&), T (*sum)(const T&, const T&), int n) {
+  T result  = identity;
+  T partial = identity;
+  
+  // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
+  // Compute last = a + 1
+  while (n > 0) {
+    if (n & 1 > 0)
+      result = sum(result, partial);
+    
+    partial = product(partial, partial);
+    n >>= 1;
+  }
+  
+  return result;
+}
+
 // summary of markovchain object
 // [[Rcpp::export(.summaryKernelRcpp)]]
 List summaryKernel(S4 object) {

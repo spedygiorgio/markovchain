@@ -10,9 +10,9 @@ Authors@R: c(
     person("Sai", "Bhargav Yalamanchi", role = "aut"),
     person("Mildenberger", "Thoralf", role = "ctb", comment = c(ORCID = "0000-0001-7242-1873")),
     person("Deepak", "Yadav", role = "aut"),
-    person("Ignacio", "Cordón", role = "ctb"),
+    person("Ignacio", "Cordón", role = "aut", comment = c(ORCID = "0000-0002-3152-0231")),
     person("Vandit", "Jain", role = "ctb"),
-    person("Toni","Giorgino",role="ctb",comment=c(ORCID = "0000-0001-6449-0596"))
+    person("Toni", "Giorgino", role="ctb", comment = c(ORCID = "0000-0001-6449-0596"))
   )
 Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov

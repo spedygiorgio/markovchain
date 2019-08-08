@@ -17,41 +17,17 @@ test_that("Hitting probabilities of identity markov chain is identity", {
 
 
 test_that("Hitting probabilities hold their characteristic system", {
-  
-  # This is simply a method that checks the following recurrence,
+  # Check that the following recurrence holds,
   # naming p = probs, f = hitting, it checks:
   #
   # f(i, j) = p(i, j) + ∑_{k ≠ j} p(i, k) f(k, j)
   #
-  cppFunction('bool checkHittingProbabilities(NumericMatrix probs, 
-                                              NumericMatrix hitting,
-                                              double tolerance) {
-    int numStates = probs.nrow();
-    bool holds = true;
-    double result;
-
-    for (int i = 0; i < numStates && holds; ++i) {
-      for (int j = 0; j < numStates && holds; ++j) {
-        result = 0;
-        
-        for (int k = 0; k < numStates; ++k)
-          if (k != j)
-            result -= probs(i, k) * hitting(k, j);
-
-        result += hitting(i, j) - probs(i, j);
-        holds = abs(result) < tolerance;
-      }
-    }
-    
-    return holds;
-  }')
-  
   tolerance <- .Machine$double.eps ^ 0.5
   
   for (markovChain in MCs) {
     probs <- markovChain@transitionMatrix
     hitting <- hittingProbabilities(markovChain)
-    expect_true(checkHittingProbabilities(probs, hitting, tolerance))
+    expect_true(.testthatAreHittingRcpp(probs, hitting, TRUE, tolerance))
   }
 })
 

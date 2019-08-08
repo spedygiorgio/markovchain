@@ -1,6 +1,3 @@
-context("Checking that commClassesKernelRcpp works as expected")
-
-
 # Not very good in efficiency, but it serves its purpose though
 # O(n³) implementation
 checkInterchangeability <- function(matrix) {
@@ -19,6 +16,7 @@ checkInterchangeability <- function(matrix) {
   any(!correctCommClasses)
 }
 
+context("Checking .commClassesKernelRcpp")
 
 test_that("Communicating classes matrix is symmetric", {
   
@@ -66,15 +64,17 @@ test_that("All clasess are closed for identity matrixes", {
     transitionMatrix <- markovChain@transitionMatrix
     areClosed <- .commClassesKernelRcpp(transitionMatrix)$closed
     
-    expect_false(any(!areClosed))
+    expect_true(all(areClosed))
   }
 })
 
 
-test_that("Communicating class is correct", {
+context("Checking communicatingClasses")
+
+
+test_that("Communicating class matrix is correct", {
   
-  for (i in 1:length(MCs)) {
-    markovChain <- MCs[[i]]
+  for (markovChain in MCs) {
     # P
     transitionMatrix <- markovChain@transitionMatrix
     n <- ncol(transitionMatrix)
@@ -88,5 +88,27 @@ test_that("Communicating class is correct", {
     expectedCommMatrix <- (p_n * t(p_n)) > 0
     
     expect_true(all(commClasses == expectedCommMatrix))
+  }
+})
+
+
+test_that("Communicating classes are a partition of states", {
+  
+  for (markovChain in MCs) {
+    states <- markovChain@states
+    commClasses <- communicatingClasses(markovChain)
+    expect_true(.testthatIsPartitionRcpp(commClasses, states))
+  }
+})
+
+
+test_that("Communicating classes for identity matrix a partition of states", {
+  
+  for (markovChain in diagonalMCs) {
+    states <- markovChain@states
+    numStates <- length(states)
+    commClasses <- communicatingClasses(markovChain)
+    numCommClasses <- length(commClasses)
+    expect_true(.testthatIsPartitionRcpp(commClasses, states) && numCommClasses == numStates)
   }
 })

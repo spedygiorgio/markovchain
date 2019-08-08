@@ -634,8 +634,9 @@ setMethod(
 
 #' @rdname absorbingStates
 #' 
-#' @export
+#' @exportMethod absorbingStates
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
+
 setMethod(
   "absorbingStates", 
   "markovchain", 

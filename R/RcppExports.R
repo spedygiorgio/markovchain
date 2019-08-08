@@ -411,3 +411,11 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_hittingProbabilities`, object)
 }
 
+.testthatIsPartitionRcpp <- function(commClasses, states) {
+    .Call(`_markovchain_isPartition`, commClasses, states)
+}
+
+.testthatAreHittingRcpp <- function(probs, hitting, byrow, tolerance) {
+    .Call(`_markovchain_areHittingProbabilities`, probs, hitting, byrow, tolerance)
+}
+

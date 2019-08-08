@@ -11,7 +11,7 @@
 #' @param T The time up to which the simulation runs (all transitions after time
 #'   T are not returned).
 #' @param include.T0 Flag to determine if start state is to be included.
-#' @param out.typ "list" or "df"
+#' @param out.type "list" or "df"
 #'
 #' @details In order to use the T0 argument, set n to Inf.
 #' @return Based on out.type, a list or a data frame is returned. The returned

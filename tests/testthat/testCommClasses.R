@@ -1,3 +1,6 @@
+context("Checking .commClassesKernelRcpp")
+
+
 # Not very good in efficiency, but it serves its purpose though
 # O(n³) implementation
 checkInterchangeability <- function(matrix) {
@@ -16,7 +19,6 @@ checkInterchangeability <- function(matrix) {
   any(!correctCommClasses)
 }
 
-context("Checking .commClassesKernelRcpp")
 
 test_that("Communicating classes matrix is symmetric", {
   
@@ -94,7 +96,7 @@ test_that("Communicating class matrix is correct", {
 
 test_that("Communicating classes are a partition of states", {
   
-  for (markovChain in MCs) {
+  for (markovChain in allMCs) {
     states <- markovChain@states
     commClasses <- communicatingClasses(markovChain)
     expect_true(.testthatIsPartitionRcpp(commClasses, states))
@@ -104,7 +106,7 @@ test_that("Communicating classes are a partition of states", {
 
 test_that("Communicating classes for identity matrix a partition of states", {
   
-  for (markovChain in diagonalMCs) {
+  for (markovChain in allDiagonalMCs) {
     states <- markovChain@states
     numStates <- length(states)
     commClasses <- communicatingClasses(markovChain)

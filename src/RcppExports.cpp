@@ -531,6 +531,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// recurrentAreHitting
+bool recurrentAreHitting(List recurrentClasses, NumericMatrix hitting, CharacterVector states, bool byrow);
+RcppExport SEXP _markovchain_recurrentAreHitting(SEXP recurrentClassesSEXP, SEXP hittingSEXP, SEXP statesSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type recurrentClasses(recurrentClassesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type states(statesSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(recurrentAreHitting(recurrentClasses, hitting, states, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hittingProbsAreOne
+bool hittingProbsAreOne(NumericMatrix matrix);
+RcppExport SEXP _markovchain_hittingProbsAreOne(SEXP matrixSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbsAreOne(matrix));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
@@ -575,6 +600,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
     {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
+    {"_markovchain_recurrentAreHitting", (DL_FUNC) &_markovchain_recurrentAreHitting, 4},
+    {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
     {NULL, NULL, 0}
 };
 

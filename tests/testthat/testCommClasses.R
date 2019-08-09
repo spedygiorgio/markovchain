@@ -1,4 +1,4 @@
-context("Checking .commClassesKernelRcpp")
+context("Checking .commClassesKernelRcpp method")
 
 
 # Not very good in efficiency, but it serves its purpose though
@@ -71,7 +71,7 @@ test_that("All clasess are closed for identity matrixes", {
 })
 
 
-context("Checking communicatingClasses")
+context("Checking communicatingClasses method")
 
 
 test_that("Communicating class matrix is correct", {

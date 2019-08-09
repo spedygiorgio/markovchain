@@ -127,19 +127,8 @@ NumericMatrix lexicographicalSort(NumericMatrix m) {
   }
 }
 
-inline bool approxEqual(const double& a, const double& b) {
-  if (a >= b)
-    return (a - b) <= 1E-7;
-  else
-    return approxEqual(b, a);
-}
-
-inline bool approxEqual(const cx_double& a, const cx_double& b){
-  double x = a.real() - b.real();
-  double y = a.imag() - b.imag();
-  
-  return (x*x - y*y) <= 1E-14;
-}
+// Declared in testUtils.cpp
+bool approxEqual(const cx_double& a, const cx_double& b);
 
 mat computeSteadyStates(NumericMatrix t, bool byrow) {
   if (byrow)

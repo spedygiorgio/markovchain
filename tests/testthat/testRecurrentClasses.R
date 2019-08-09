@@ -19,8 +19,55 @@ probMc <- new("markovchain", transitionMatrix = P,
 context("Recurrent Classes")
 
 test_that("Checking recurrent classes for a known matrix", {
-  expect_equal(.recurrentClassesRcpp(probMc), list(c("a", "c")
+  expect_equal(recurrentClasses(probMc), list(c("a", "c")
                                             , c("b", "g", "i")
                                             , c("f")))
 })
 
+test_that("f(i,j) = 1 for i, j in same recurrent class, hittingProbability(i, k) = 0 for k otherwise", {
+  
+  for (markovChain in allMCs) {
+    byrow <- markovChain@byrow
+    states <- markovChain@states
+    hitting <- hittingProbabilities(markovChain)
+    recurrentClasses <- recurrentClasses(markovChain)
+    expect_true(.testthatRecurrentAreHittingRcpp(recurrentClasses, hitting, states, byrow))
+  }
+})
+
+test_that("All hitting probabilities are 1 iff the Markov chain is irreducible", {
+  
+  for (markovChain in allMCs) {
+    hitting <- hittingProbabilities(markovChain)
+    hittingOne <- .testthatHittingAreOneRcpp(hitting)
+    irreducible <- is.irreducible(markovChain)
+    
+    if (irreducible)
+      expect_true(hittingOne)
+    if (hittingOne)
+      expect_true(irreducible)
+  }
+})
+
+test_that("Union of recurrentClasses is recurrentStates", {
+  
+  for (markovChain in allMCs) {
+    recClasses <- recurrentClasses(markovChain)
+    recStates <- sort(unlist(recClasses))
+    target <- sort(recurrentStates(markovChain))
+
+    expect_equal(recStates, target)
+  }
+})
+
+test_that("Recurrent classes are disjoint", {
+  
+  for (i in 1:length(allMCs)) {
+    markovChain <- allMCs[[i]]
+    recClasses <- recurrentClasses(markovChain)
+    numRecurrentStates <- sum(sapply(recClasses, function(c){ length(c) }))
+    numUnion <- length(unique(unlist(recClasses)))
+
+    expect_equal(numRecurrentStates, numUnion)
+  }
+})

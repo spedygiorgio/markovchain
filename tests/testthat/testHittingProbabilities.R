@@ -32,9 +32,24 @@ test_that("Hitting probabilities hold their characteristic system", {
 })
 
 
+test_that("All hitting probabilities are 1 iff the Markov chain is irreducible", {
+  
+  for (markovChain in allMCs) {
+    hitting <- hittingProbabilities(markovChain)
+    hittingOne <- .testthatHittingAreOneRcpp(hitting)
+    irreducible <- is.irreducible(markovChain)
+    
+    if (irreducible)
+      expect_true(hittingOne)
+    if (hittingOne)
+      expect_true(irreducible)
+  }
+})
+
+
 # Test with a matrix with known hitting probabilities
 # Taken from the book Procesos Estocásticos, Ricardo Vélez & Tomás Prieto
-test_that("Hitting probabilities of known markov chain", {
+test_that("Tests hitting probabilities for a known markov chain", {
   
   M <- matlab::zeros(5, 5)
   M[1,1] <- M[5,5] <- 1

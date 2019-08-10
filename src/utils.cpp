@@ -162,3 +162,30 @@ bool hittingProbsAreOne(NumericMatrix matrix) {
   
   return allOne;
 }
+
+// [[Rcpp::export(.testthatAbsorbingAreRecurrentClassRcpp)]]
+bool absorbingAreRecurrentClass(CharacterVector absorbingStates, List recurrentClasses) {
+  unordered_set<string> singletonRecurrent;
+  unordered_set<string> absorbing;
+  string current;
+  bool diffEmpty = true;
+  
+  for (CharacterVector recClass : recurrentClasses)
+    if (recClass.size() == 1)
+      singletonRecurrent.insert((string) (*recClass.begin()));
+    
+  for (auto state : absorbingStates)
+    absorbing.insert((string) state);
+
+  for (int i = 0; i < absorbingStates.size() && diffEmpty; ++i) {
+    current = (string) absorbingStates(i);
+    diffEmpty = singletonRecurrent.count(current) > 0;
+  }
+
+  for (auto it = singletonRecurrent.begin(); it != singletonRecurrent.end() && diffEmpty; ++it) {
+    current = (string) (*it);
+    diffEmpty = absorbing.count(current) > 0;
+  }
+  
+  return diffEmpty;
+}

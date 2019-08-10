@@ -4,13 +4,15 @@ context("Checking hittingProbabilities method")
 
 test_that("Hitting probabilities of identity markov chain is identity", {
   
-  for (markovChain in allDiagonalMCs) {
-    states <- markovChain@states
+  for (mc in allDiagonalMCs) {
+    states <- mc$states
     numStates <- length(states)
     result <- diag(numStates)
     rownames(result) <- states
     colnames(result) <- states
-    expect_equal(hittingProbabilities(markovChain), result)
+    hittingProbabilities <- mc$hittingProbabilities
+    
+    expect_equal(hittingProbabilities, result)
   }
 })
 
@@ -23,10 +25,10 @@ test_that("Hitting probabilities hold their characteristic system", {
   #
   tolerance <- .Machine$double.eps ^ 0.5
   
-  for (markovChain in allMCs) {
-    probs <- markovChain@transitionMatrix
-    byrow <- markovChain@byrow
-    hitting <- hittingProbabilities(markovChain)
+  for (mc in allMCs) {
+    probs <- mc$transitionMatrix
+    byrow <- mc$byrow
+    hitting <- mc$hittingProbabilities
     expect_true(.testthatAreHittingRcpp(probs, hitting, byrow, tolerance))
   }
 })
@@ -34,10 +36,10 @@ test_that("Hitting probabilities hold their characteristic system", {
 
 test_that("All hitting probabilities are 1 iff the Markov chain is irreducible", {
   
-  for (markovChain in allMCs) {
-    hitting <- hittingProbabilities(markovChain)
+  for (mc in allMCs) {
+    hitting <- mc$hittingProbabilities
     hittingOne <- .testthatHittingAreOneRcpp(hitting)
-    irreducible <- is.irreducible(markovChain)
+    irreducible <- mc$irreducible
     
     if (irreducible)
       expect_true(hittingOne)

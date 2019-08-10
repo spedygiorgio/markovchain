@@ -568,6 +568,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// absorbingAreRecurrentClass
+bool absorbingAreRecurrentClass(CharacterVector absorbingStates, List recurrentClasses);
+RcppExport SEXP _markovchain_absorbingAreRecurrentClass(SEXP absorbingStatesSEXP, SEXP recurrentClassesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type absorbingStates(absorbingStatesSEXP);
+    Rcpp::traits::input_parameter< List >::type recurrentClasses(recurrentClassesSEXP);
+    rcpp_result_gen = Rcpp::wrap(absorbingAreRecurrentClass(absorbingStates, recurrentClasses));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
@@ -615,6 +627,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
     {"_markovchain_recurrentAreHitting", (DL_FUNC) &_markovchain_recurrentAreHitting, 4},
     {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
+    {"_markovchain_absorbingAreRecurrentClass", (DL_FUNC) &_markovchain_absorbingAreRecurrentClass, 2},
     {NULL, NULL, 0}
 };
 

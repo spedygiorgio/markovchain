@@ -22,8 +22,8 @@ checkInterchangeability <- function(matrix) {
 
 test_that("Communicating classes matrix is symmetric", {
   
-  for (markovChain in MCs) {
-    transitionMatrix <- markovChain@transitionMatrix
+  for (mc in allMCs) {
+    transitionMatrix <- mc$transitionMatrix
     communicating <- .commClassesKernelRcpp(transitionMatrix)
     C <- communicating$classes
     
@@ -34,8 +34,8 @@ test_that("Communicating classes matrix is symmetric", {
 
 test_that("Rows of the same class are interchangeable in a communicating classes matrix", {
   
-  for (markovChain in MCs) {
-    transitionMatrix <- markovChain@transitionMatrix
+  for (mc in allMCs) {
+    transitionMatrix <- mc$transitionMatrix
     communicating <- .commClassesKernelRcpp(transitionMatrix)
     C <- communicating$classes
     
@@ -46,9 +46,9 @@ test_that("Rows of the same class are interchangeable in a communicating classes
 
 test_that("Communicating classes of identity matrix of size n are {1, ..., n}", {
   
-  for (markovChain in diagonalMCs) {
-    transitionMatrix <- markovChain@transitionMatrix
-    states <- markovChain@states
+  for (mc in allDiagonalMCs) {
+    transitionMatrix <- mc$transitionMatrix
+    states <- mc$states
     expected <- as.matrix(apply(transitionMatrix, 1, function(x){ x == 1 }))
     colnames(expected) <- states
     rownames(expected) <- states
@@ -62,8 +62,8 @@ test_that("Communicating classes of identity matrix of size n are {1, ..., n}", 
 
 test_that("All clasess are closed for identity matrixes", {
   
-  for (markovChain in diagonalMCs) {
-    transitionMatrix <- markovChain@transitionMatrix
+  for (mc in allDiagonalMCs) {
+    transitionMatrix <- mc$transitionMatrix
     areClosed <- .commClassesKernelRcpp(transitionMatrix)$closed
     
     expect_true(all(areClosed))
@@ -71,14 +71,11 @@ test_that("All clasess are closed for identity matrixes", {
 })
 
 
-context("Checking communicatingClasses method")
-
-
 test_that("Communicating class matrix is correct", {
   
-  for (markovChain in MCs) {
+  for (mc in allMCs) {
     # P
-    transitionMatrix <- markovChain@transitionMatrix
+    transitionMatrix <- mc$transitionMatrix
     n <- ncol(transitionMatrix)
     # The communicating matrix has a 1 in an entry (i,j) iff
     # P'^{n - 1} has a positive number in its entries (i,j) and (j,i)
@@ -94,11 +91,14 @@ test_that("Communicating class matrix is correct", {
 })
 
 
+context("Checking communicatingClasses method")
+
+
 test_that("Communicating classes are a partition of states", {
   
-  for (markovChain in allMCs) {
-    states <- markovChain@states
-    commClasses <- communicatingClasses(markovChain)
+  for (mc in allMCs) {
+    states <- mc$states
+    commClasses <- mc$communicatingClasses
     expect_true(.testthatIsPartitionRcpp(commClasses, states))
   }
 })
@@ -106,10 +106,10 @@ test_that("Communicating classes are a partition of states", {
 
 test_that("Communicating classes for identity matrix a partition of states", {
   
-  for (markovChain in allDiagonalMCs) {
-    states <- markovChain@states
+  for (mc in allDiagonalMCs) {
+    states <- mc$states
     numStates <- length(states)
-    commClasses <- communicatingClasses(markovChain)
+    commClasses <- mc$communicatingClasses
     numCommClasses <- length(commClasses)
     expect_true(.testthatIsPartitionRcpp(commClasses, states) && numCommClasses == numStates)
   }

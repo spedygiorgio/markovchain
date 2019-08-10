@@ -53,12 +53,25 @@ test_that("Test recurrent / transient / absorbing states for known Markov chains
 })
 
 
+test_that("A state is absorbing iff it is singleton recurrent class", {
+  
+  for (mc in allMCs) {
+    states <- mc$states
+    classes <- mc$recurrentClasses
+    absorbing <- mc$absorbingStates
+    
+    expect_true(.testthatAbsorbingAreRecurrentClassRcpp(absorbing, classes))
+  }
+})
+
+
 test_that("Recurrent states and transient states are a partition of states", {
   
-  for (markovChain in allMCs) {
-    states <- markovChain@states
-    recurrentStates <- recurrentStates(markovChain)
-    transientStates <- transientStates(markovChain)
+  for (mc in allMCs) {
+    states <- mc$states
+    recurrentStates <- mc$recurrentStates
+    transientStates <- mc$transientStates
+    states <- mc$states
     statesUnion <- sort(unique(append(recurrentStates, transientStates)))
     
     expect_equal(statesUnion, sort(states))
@@ -68,20 +81,19 @@ test_that("Recurrent states and transient states are a partition of states", {
 
 test_that("All states are recurrent in a identity Markov chain", {
   
-  for (markovChain in allDiagonalMCs) {
-    states <- markovChain@states
-    recurrentStates <- recurrentStates(markovChain)
+  for (mc in allDiagonalMCs) {
+    states <- mc$states
+    recurrentStates <- mc$recurrentStates
     expect_true(setequal(recurrentStates, states))
   }
 })
 
 test_that("If Markov chain is irreducible then all states are recurrent", {
     
-  for (i in 1:length(allMCs)) {
-    markovChain <- allMCs[[i]]
-    states <- markovChain@states
-    recurrent  <- recurrentStates(markovChain)
-    irreducible <- is.irreducible(markovChain)
+  for (mc in allMCs) {
+    states <- mc$states
+    recurrent <- mc$recurrentStates
+    irreducible <- mc$irreducible
     allRecurrent <- setequal(states, recurrent)
     
     if (irreducible)
@@ -92,11 +104,10 @@ test_that("If Markov chain is irreducible then all states are recurrent", {
 
 test_that("If there are transient states then Markov chain is not irreducible", {
   
-  for (i in 1:length(allMCs)) {
-    markovChain <- allMCs[[i]]
-    states <- markovChain@states
-    transient  <- transientStates(markovChain)
-    irreducible <- is.irreducible(markovChain)
+  for (mc in allMCs) {
+    states <- mc$states
+    transient  <- mc$transientStates
+    irreducible <- mc$irreducible
     
     if (length(transient) > 0)
       expect_false(irreducible)
@@ -104,13 +115,16 @@ test_that("If there are transient states then Markov chain is not irreducible", 
 })
 
 
+context("Checking canonicForm and is.irreducible")
+
+
 test_that("Markov chain is irreducible iff there is a single communicating class", {
   
-  for (markovChain in allMCs) {
-    states <- markovChain@states
-    commClasses  <- communicatingClasses(markovChain)
+  for (mc in allMCs) {
+    states <- mc$states
+    commClasses  <- mc$communicatingClasses
     numCommClasses <- length(commClasses)
-    irreducible <- is.irreducible(markovChain)
+    irreducible <- mc$irreducible
     
     if (irreducible)
       expect_equal(numCommClasses, 1)
@@ -122,12 +136,12 @@ test_that("Markov chain is irreducible iff there is a single communicating class
 
 test_that("If the matrix is irreducible then the canonic form equals the Markov chain", {
   
-  for (markovChain in allMCs) {
-    canonic <- canonicForm(markovChain)
-    irreducible <- is.irreducible(markovChain)
-    canonicEqual <- canonic == markovChain
+  for (mc in allMCs) {
+    canonic <- mc$canonicForm
+    irreducible <- mc$irreducible
+    canonicEqual <- canonic == mc$object
     
-    if (irreducible || !thereAreTransient)
+    if (irreducible)
       expect_true(canonicEqual)
   }
 })
@@ -165,11 +179,11 @@ test_that("Check know Markov chain is irreducible", {
 
 test_that("f(i,j) = 1 for i, j in same recurrent class, hittingProbability(i, k) = 0 for k otherwise", {
   
-  for (markovChain in allMCs) {
-    byrow <- markovChain@byrow
-    states <- markovChain@states
-    hitting <- hittingProbabilities(markovChain)
-    recurrentClasses <- recurrentClasses(markovChain)
+  for (mc in allMCs) {
+    byrow <- mc$byrow
+    states <- mc$states
+    hitting <- mc$hittingProbabilities
+    recurrentClasses <- mc$recurrentClasses
     expect_true(.testthatRecurrentAreHittingRcpp(recurrentClasses, hitting, states, byrow))
   }
 })
@@ -177,10 +191,10 @@ test_that("f(i,j) = 1 for i, j in same recurrent class, hittingProbability(i, k)
 
 test_that("Union of recurrentClasses is recurrentStates", {
   
-  for (markovChain in allMCs) {
-    recClasses <- recurrentClasses(markovChain)
+  for (mc in allMCs) {
+    recClasses <- mc$recurrentClasses
     recStates <- sort(unlist(recClasses))
-    target <- sort(recurrentStates(markovChain))
+    target <- sort(mc$recurrentStates)
     
     expect_equal(recStates, target)
   }
@@ -188,12 +202,13 @@ test_that("Union of recurrentClasses is recurrentStates", {
 
 test_that("Recurrent classes are disjoint", {
   
-  for (i in 1:length(allMCs)) {
-    markovChain <- allMCs[[i]]
-    recClasses <- recurrentClasses(markovChain)
+  for (mc in allMCs) {
+    recClasses <- mc$recurrentClasses
     numRecurrentStates <- sum(sapply(recClasses, function(c){ length(c) }))
     numUnion <- length(unique(unlist(recClasses)))
     
     expect_equal(numRecurrentStates, numUnion)
   }
 })
+
+context("Checking transientClasses method")

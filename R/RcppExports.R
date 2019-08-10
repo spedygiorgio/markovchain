@@ -431,3 +431,7 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_hittingProbsAreOne`, matrix)
 }
 
+.testthatAbsorbingAreRecurrentClassRcpp <- function(absorbingStates, recurrentClasses) {
+    .Call(`_markovchain_absorbingAreRecurrentClass`, absorbingStates, recurrentClasses)
+}
+

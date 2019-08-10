@@ -249,10 +249,8 @@ firstPassageMultiple <- function(object,state,set, n){
 #' 
 #' @rdname absorbingStates
 #' @export
-
 communicatingClasses <- function(object) {
-  out <- .communicatingClassesRcpp(object)
-  return(out)
+  return(.communicatingClassesRcpp(object))
 }
 
 # A communicating class will be a recurrent class if 
@@ -261,12 +259,20 @@ communicatingClasses <- function(object) {
 
 #' @rdname absorbingStates
 #' @export
-
 recurrentClasses <- function(object) {
-  out <- .recurrentClassesRcpp(object)
-  return(out)
+  return(.recurrentClassesRcpp(object))
 }
 
+
+# A communicating class will be a transient class if 
+# there is an outgoing edge from this class to an state
+# outside of the class
+# Transient classes are subset of communicating classes
+#' @rdname absorbingStates
+#' @export
+transientClasses <- function(object) {
+  return(.transientClassesRcpp(object))
+}
 
 
 #' @title Calculates committor of a markovchain object with respect to set A, B

@@ -9,6 +9,7 @@
 \alias{canonicForm}
 \alias{communicatingClasses}
 \alias{recurrentClasses}
+\alias{transientClasses}
 \title{Various function to perform structural analysis of DTMC}
 \usage{
 period(object)
@@ -24,6 +25,8 @@ canonicForm(object)
 communicatingClasses(object)
 
 recurrentClasses(object)
+
+transientClasses(object)
 }
 \arguments{
 \item{object}{A \code{markovchain} object.}

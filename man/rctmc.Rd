@@ -19,7 +19,7 @@ T are not returned).}
 
 \item{include.T0}{Flag to determine if start state is to be included.}
 
-\item{out.typ}{"list" or "df"}
+\item{out.type}{"list" or "df"}
 }
 \value{
 Based on out.type, a list or a data frame is returned. The returned

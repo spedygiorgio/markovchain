@@ -68,6 +68,7 @@ S4 canonicForm(S4 obj) {
   for (CharacterVector recClass : recClasses) {
     for (auto state : recClass) {
       currentIndex = stateToIndex[(string) state];
+      //Rcout << "state: " << state << " currentIndex: " << currentIndex << endl;
       indexPermutation[toFill] = currentIndex;
       ++toFill;
       usedIndices.insert(currentIndex);
@@ -80,6 +81,12 @@ S4 canonicForm(S4 obj) {
       ++toFill;
     }
   }
+  
+  //for (int j : indexPermutation) {
+  //  Rcout << j << " ,";
+  //}
+  // 
+  //Rcout << endl;
   
   for (int i = 0; i < numRows; ++i) {
     int r = indexPermutation[i];

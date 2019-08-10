@@ -411,6 +411,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_hittingProbabilities`, object)
 }
 
+.approxEqualMatricesRcpp <- function(a, b) {
+    .Call(`_markovchain_approxEqual`, a, b)
+}
+
 .testthatIsPartitionRcpp <- function(commClasses, states) {
     .Call(`_markovchain_isPartition`, commClasses, states)
 }

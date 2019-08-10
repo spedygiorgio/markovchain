@@ -505,6 +505,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// approxEqual
+bool approxEqual(NumericMatrix a, NumericMatrix b);
+RcppExport SEXP _markovchain_approxEqual(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type a(aSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(approxEqual(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isPartition
 bool isPartition(List commClasses, CharacterVector states);
 RcppExport SEXP _markovchain_isPartition(SEXP commClassesSEXP, SEXP statesSEXP) {
@@ -598,6 +610,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
+    {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
     {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
     {"_markovchain_recurrentAreHitting", (DL_FUNC) &_markovchain_recurrentAreHitting, 4},

@@ -120,6 +120,19 @@ test_that("Markov chain is irreducible iff there is a single communicating class
 })
 
 
+test_that("If the matrix is irreducible then the canonic form equals the Markov chain", {
+  
+  for (markovChain in allMCs) {
+    canonic <- canonicForm(markovChain)
+    irreducible <- is.irreducible(markovChain)
+    canonicEqual <- canonic == markovChain
+    
+    if (irreducible || !thereAreTransient)
+      expect_true(canonicEqual)
+  }
+})
+
+
 context("Checking recurrentClasses method")
 
 P <- matlab::zeros(10)

@@ -24,6 +24,25 @@ bool approxEqual(const cx_double& a, const cx_double& b){
   return (x*x - y*y) <= 1E-14;
 }
 
+// [[Rcpp::export(.approxEqualMatricesRcpp)]]
+bool approxEqual(NumericMatrix a, NumericMatrix b) {
+  int a_ncol = a.ncol();
+  int b_ncol = b.ncol();
+  int a_nrow = a.nrow();
+  int b_nrow = b.nrow();
+  
+  if (a_ncol != b_ncol || a_nrow != b_nrow)
+    return false;
+  else {
+    bool equal = true;
+    
+    for (int i = 0; i < a_nrow && equal; ++i)
+      for (int j = 0; j < a_ncol && equal; ++j)
+        equal = approxEqual(a(i, j), b(i, j));
+    
+    return equal;
+  }
+}
 
 // This method receives the output of communicatingClasses(object) and object@states
 // and checks that in fact the communicating classes are a partition of states

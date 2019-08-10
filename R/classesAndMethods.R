@@ -497,56 +497,6 @@ setValidity(
   }
 )
 
-# matr : matrix
-# transpose : boolean indicating whether the matrix shall be transposed or not
-# output : a matrix / vector
-.mcEigen <- function(matr, transpose = TRUE) {
-
-  if (transpose)
-    matr <- t(matr) 
-  
-  # perform the eigenvalue extraction
-  eigenResults <- eigen(x = matr) 
-  
-  # takes the one eigenvalues
-  onesIndex <- which(
-    sapply(
-      eigenResults$values,
-      function(e){
-        isTRUE(all.equal(as.complex(e), 1+0i))
-      }
-    )
-  )
-  
-  # do the following: 
-  # 1 : get eigenvectors whose eigenvalues == 1
-  # 2 : normalize
-  
-  if (length(onesIndex) > 0) {
-    # Gives always a norm-based order to eigenvectors
-    eigenVectors <- as.matrix( eigenResults$vectors[, onesIndex] )
-
-    if (transpose) {
-      eigenVectors <- as.matrix(t(eigenVectors)) 
-      out <- eigenVectors / rowSums(eigenVectors) # normalize
-    } else {
-      out <- eigenVectors / colSums(eigenVectors) # normalize
-    }
-    
-    # subset the eigenvectors
-    # normalize
-    # take the real part: need to be sanitized
-    # @DEEPAK: later we have to see and optimize this part. I am not sure taking
-    #       the real part is most appropriate.
-  
-    Re(out)
-  } else {
-    warning("No eigenvalue = 1 found")
-  
-    # Return NULL
-    NULL
-  }
-}
 
 # method to get stationary states
 
@@ -1422,8 +1372,7 @@ setGeneric("==")
 # compare two markovchain object
 setMethod("==", c("markovchain", "markovchain"),
           function(e1, e2) {
-            out <- FALSE
-            out <- identical(e1@transitionMatrix, e2@transitionMatrix)
+            out <- .approxEqualMatricesRcpp(e1@transitionMatrix, e2@transitionMatrix)
             return(out)
           }
 )

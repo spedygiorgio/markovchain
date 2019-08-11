@@ -33,6 +33,31 @@ bool isProb(double prob) {
   return (prob >= 0 && prob <= 1);
 }
 
+// checks if a matrix is stochastic (by rows or by columns), i.e. all
+// elements are probabilities and the rows (cols, resp.) sum 1
+// [[Rcpp::export(.isStochasticMatrix)]]
+bool isStochasticMatrix(NumericMatrix m, bool byrow) {
+  if (!byrow)
+    m = transpose(m);
+  
+  int nrow = m.nrow();
+  int ncol = m.ncol();
+  bool isStochastic = true;
+  double rowSum;
+  
+  for (int i = 0; i < nrow && isStochastic; ++i) {
+    rowSum = 0;
+    
+    for (int j = 0; j < ncol && isStochastic; ++j) {
+      isStochastic = m(i, j) >= 0;
+      rowSum += m(i, j);
+    }
+    
+    isStochastic = approxEqual(rowSum, 1);
+  }
+  
+  return isStochastic;
+}
 
 // [[Rcpp::export(.isProbabilityVector)]]
 bool isProbVector(NumericVector prob) {

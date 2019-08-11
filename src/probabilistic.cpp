@@ -486,10 +486,9 @@ int gcd (int a, int b) {
 
 // function to get the period of a DTMC
 
-//' @rdname absorbingStates
+//' @rdname structuralAnalysis
 //' 
 //' @export
-//' 
 // [[Rcpp::export(period)]]
 int period(S4 object) {
   Function isIrreducible("is.irreducible");

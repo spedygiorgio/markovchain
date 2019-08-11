@@ -31,7 +31,7 @@ author:
       Uttar Pradesh - 221 005, India
     email: \email{deepakyadav.iitbhu@gmail.com}
   - name: "Ignacio Cordón"
-    affiliation: Software Engineer
+    affiliation: Software Engineer at source{d}
     email: \email{nacho.cordon.castillo@gmail.com}
 preamble: >
   \author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}

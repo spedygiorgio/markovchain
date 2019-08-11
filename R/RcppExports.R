@@ -308,10 +308,9 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_gcd`, a, b)
 }
 
-#' @rdname absorbingStates
+#' @rdname structuralAnalysis
 #' 
 #' @export
-#' 
 period <- function(object) {
     .Call(`_markovchain_period`, object)
 }
@@ -409,6 +408,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
+}
+
+.isStochasticMatrix <- function(m, byrow) {
+    .Call(`_markovchain_isStochasticMatrix`, m, byrow)
 }
 
 .isProbabilityVector <- function(prob) {

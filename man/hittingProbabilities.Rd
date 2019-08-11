@@ -4,10 +4,10 @@
 \alias{hittingProbabilities}
 \title{Hitting probabilities for markovchain}
 \usage{
-hittingProbabilities(markovchain)
+hittingProbabilities(object)
 }
 \arguments{
-\item{markovchain}{the markovchain-class object}
+\item{object}{the markovchain-class object}
 }
 \value{
 a matrix of hitting probabilities
@@ -25,6 +25,7 @@ M[4,2] <- M[4,5] <- 1/2
 
 markovChain <- new("markovchain", transitionMatrix = M)
 hittingProbabilities(markovChain)
+
 }
 \references{
 R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013

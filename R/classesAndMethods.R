@@ -4,7 +4,10 @@
 #'   *,markovchain,matrix-method *,markovchain,numeric-method
 #'   *,matrix,markovchain-method *,numeric,markovchain-method
 #'   ==,markovchain,markovchain-method !=,markovchain,markovchain-method
-#'   absorbingStates,markovchain-method conditionalDistribution,markovchain-method
+#'   absorbingStates,markovchain-method transientStates,markovchain-method
+#'   recurrentStates,markovchain-method transientClasses,markovchain-method
+#'   recurrentClasses,markovchain-method communicatingClasses,markovchain-method
+#'   conditionalDistribution,markovchain-method hittingProbabilities,markovchain-method
 #'   canonicForm,markovchain-method coerce,data.frame,markovchain-method
 #'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
 #'   coerce,markovchain,igraph-method coerce,markovchain,matrix-method
@@ -465,7 +468,7 @@ setValidity(
       absdiff     <- abs(1 - zapsmall(rowSums(transitionMatrix)))
       matrixShape <- "rows"
     } else { 
-      absdiff     <- abs(1-zapsmall(colSums(transitionMatrix)))
+      absdiff     <- abs(1 - zapsmall(colSums(transitionMatrix)))
       matrixShape <- "columns"
     }
 
@@ -580,57 +583,6 @@ setMethod(
 }
 
 
-# generic function to extract absorbing states
-
-#' @rdname absorbingStates
-#' 
-#' @exportMethod absorbingStates
-setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
-
-setMethod(
-  "absorbingStates", 
-  "markovchain", 
-  function(object) {
-    n <- dim(object)
-    
-    whichAbsorbing <- which(
-      sapply(
-        1:n, 
-        function(i) { 
-          isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
-        }
-      )
-    )
-    
-    object@states[whichAbsorbing]
-  }
-)
-
-
-#' @rdname absorbingStates
-#' 
-#' @exportMethod transientStates
-setGeneric("transientStates", function(object) standardGeneric("transientStates"))
-
-
-setMethod("transientStates", "markovchain", 
- 	function(object) {
- 	  .transientStatesRcpp(object)
-  }
-)
-
-# generic method to extract recurrent states
-#' @rdname absorbingStates
-#' 
-#' @exportMethod recurrentStates
-setGeneric("recurrentStates", function(object) standardGeneric("recurrentStates"))
-
-
-setMethod("recurrentStates", "markovchain", 
-  function(object) {
-    .recurrentStatesRcpp(object)
-  }
-)
 
 # generic method to extract transition probability
 # from state t0 to state t1
@@ -809,24 +761,6 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 		}
 )
 
-
-
-#setMethod("plotCommunicatingClasses",signature(x = "markovchain"))
-
-
-# method to convert into canonic form : a markovchain object
-# TODO: check meaning of this function
-
-#' @rdname absorbingStates
-#' 
-#' @exportMethod canonicForm
-setGeneric("canonicForm", function(object) standardGeneric("canonicForm"))
-setMethod("canonicForm", "markovchain",
-  function(object) {
-    .canonicFormRcpp(object);
-  }
-)
-
 #' @exportMethod summary
 setGeneric("summary")
 
@@ -914,42 +848,22 @@ setMethod("summary", signature(object = "markovchain"),
 
 .checkMatrix <- function(matr, byrow = TRUE, verbose = FALSE) {
 	
-  # first check: size
-	if (dim(matr)[1] != dim(matr)[2]) {
+  # firstly, check size
+	if (ncol(matr) != nrow(matr)) {
 		if(verbose) stop("Error! Rectangular matrix")
 		return(FALSE)
 	}
-	
-	# second check: all elements are probs
-	for(i in 1:nrow(matr)) {
-		for(j in 1:ncol(matr)){
-			if(!(.isProbability(matr[i, j]))) {
-			  myMessage<-paste("Error!","Element",i,j,"is not a probability")
-				if(verbose) stop(myMessage)
-				  return(FALSE)
-			}
-		}
-	}
-	
-	# third check: either columns or rows sum to one
-  # to perform only one check 	
-	if(byrow == FALSE) {
-	  matr <- t(matr) 
-	}
-	
-  # calculate row's sum
-	check <- rowSums(matr)
-	
-	for( i in 1:length(check)) {
-	  if (abs(1-check[i]) > .Machine$double.eps) {
-	    if(verbose) {
-	      myMessage<-paste("Error! Either rows or cols should sum to 1","check state",i)
-	      stop(myMessage) 
-	    }
-	    return(FALSE)
-	  }
-	}
-	
+  
+  # secondly, check is stochastic
+  isStochastic <- .isStochasticMatrix(matr, byrow)
+  
+  if (!isStochastic) {
+    if (verbose)
+	    stop("Error! Either rows or cols should sum to 1")
+  
+	  return(FALSE)
+  }
+  
 	# if all test are passed
 	return(TRUE)
 }
@@ -961,23 +875,23 @@ setMethod("summary", signature(object = "markovchain"),
   # if it is then how probabilities are stored
   # row-wise or columnwise
   
-	byrow <- FALSE
-	checkByRow <- .checkMatrix(from, byrow = TRUE)
+	byrow <- TRUE
+	checkByRows <- .checkMatrix(from, byrow = byrow)
 	
-	if(checkByRow) {
-	  byrow <- TRUE
-	} else  {
-		checkByCols <- .checkMatrix(from, byrow = FALSE)
+	if(!checkByRows) {
+	  byrow <- FALSE
+		checkByCols <- .checkMatrix(from, byrow = byrow)
+		
 		if(!checkByCols) {
 		  #error could be either in rows or in cols
-		  if (any(colSums(from)!=1)) cat("columns sums not equal to one are:",which(colSums(from)!=1),"\n")
-		  if (any(rowSums(from)!=1)) cat("row sums not equal to one are:",which(rowSums(from)!=1),"\n")
+		  if (any(colSums(from) != 1)) cat("columns sums not equal to one are:", which(colSums(from) != 1),"\n")
+		  if (any(rowSums(from) != 1)) cat("row sums not equal to one are:", which(rowSums(from) != 1),"\n")
 		  stop("Error! Not a transition matrix")	
 		}
 	}
 	
 	# extract states names
-	if(byrow == TRUE) {
+	if(byrow) {
 	  namesCandidate <- rownames(from) 
 	} else {
 	  namesCandidate <- colnames(from)
@@ -985,10 +899,7 @@ setMethod("summary", signature(object = "markovchain"),
 	
 	# if states names is not there create it s1, s2, s3, ....
 	if(is.null(namesCandidate)) {
-		namesCandidate <- character()
-		for(i in 1:nrow(from)) {
-		  namesCandidate <- c(namesCandidate, paste("s", i, sep = "")) 
-		}
+		namesCandidate <- paste("s", 1:nrow(from), sep = "")
 	}
 	
 	# create markovchain object

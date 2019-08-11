@@ -63,7 +63,6 @@ S4 canonicForm(S4 obj) {
   for (CharacterVector recClass : recClasses) {
     for (auto state : recClass) {
       currentIndex = stateToIndex[(string) state];
-      //Rcout << "state: " << state << " currentIndex: " << currentIndex << endl;
       indexPermutation[toFill] = currentIndex;
       ++toFill;
       usedIndices.insert(currentIndex);
@@ -77,26 +76,27 @@ S4 canonicForm(S4 obj) {
     }
   }
   
-  //for (int j : indexPermutation) {
-  //  Rcout << j << " ,";
-  //}
-  // 
-  //Rcout << endl;
+  CharacterVector newStates(numRows);
   
   for (int i = 0; i < numRows; ++i) {
     int r = indexPermutation[i];
+    newStates(i) = states(r);
+    
     for (int j = 0; j < numCols; ++j) {
       int c = indexPermutation[j];
       resultTransitions(i, j) = transitions(r, c);
     }
   }
   
+  rownames(resultTransitions) = newStates;
+  colnames(resultTransitions) = newStates;
+  
   if (!byrow)
     resultTransitions = transpose(resultTransitions);
   
   result.slot("transitionMatrix") = resultTransitions;
   result.slot("byrow") = byrow;
-  result.slot("states") = states;
+  result.slot("states") = newStates;
   result.slot("name") = input.slot("name");
   return result;
 }

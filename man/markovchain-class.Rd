@@ -11,7 +11,13 @@
 \alias{==,markovchain,markovchain-method}
 \alias{!=,markovchain,markovchain-method}
 \alias{absorbingStates,markovchain-method}
+\alias{transientStates,markovchain-method}
+\alias{recurrentStates,markovchain-method}
+\alias{transientClasses,markovchain-method}
+\alias{recurrentClasses,markovchain-method}
+\alias{communicatingClasses,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
+\alias{hittingProbabilities,markovchain-method}
 \alias{canonicForm,markovchain-method}
 \alias{coerce,data.frame,markovchain-method}
 \alias{coerce,markovchain,data.frame-method}

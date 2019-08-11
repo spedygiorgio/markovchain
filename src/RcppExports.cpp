@@ -505,6 +505,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// isStochasticMatrix
+bool isStochasticMatrix(NumericMatrix m, bool byrow);
+RcppExport SEXP _markovchain_isStochasticMatrix(SEXP mSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type m(mSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(isStochasticMatrix(m, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isProbVector
 bool isProbVector(NumericVector prob);
 RcppExport SEXP _markovchain_isProbVector(SEXP probSEXP) {
@@ -633,6 +645,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
+    {"_markovchain_isStochasticMatrix", (DL_FUNC) &_markovchain_isStochasticMatrix, 2},
     {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},
     {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},

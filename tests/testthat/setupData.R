@@ -50,10 +50,12 @@ precomputeData <- function(mc) {
     transientStates = transientStates(mc),
     absorbingStates = absorbingStates(mc),
     hittingProbabilities = hittingProbabilities(mc),
-    communicatingClasses = communicatingClasses(mc)
+    communicatingClasses = communicatingClasses(mc),
+    steadyStates = steadyStates(mc)
   )
 }
 
 
 allMCs <- lapply(.allMCs, precomputeData)
 allDiagonalMCs <- lapply(.allDiagonalMCs, precomputeData)
+allAndDiagonalMCs <- append(allMCs, allDiagonalMCs)

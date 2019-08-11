@@ -10,6 +10,7 @@ using namespace arma;
 using namespace std;
 
 
+
 bool approxEqual(const double& a, const double& b) {
   if (a >= b)
     return (a - b) <= 1E-7;
@@ -24,6 +25,28 @@ bool approxEqual(const cx_double& a, const cx_double& b){
   
   return (x*x - y*y) <= 1E-14;
 }
+
+
+// check if prob is probability or not
+// [[Rcpp::export(.isProbability)]]
+bool isProb(double prob) {
+  return (prob >= 0 && prob <= 1);
+}
+
+
+// [[Rcpp::export(.isProbabilityVector)]]
+bool isProbVector(NumericVector prob) {
+  bool result = true;
+  double sumProbs = 0;
+  
+  for (int i = 0; i < prob.size() && result; ++i) {
+    result = prob[i] >= 0;
+    sumProbs += prob[i];
+  }
+  
+  return result && approxEqual(sumProbs, 1);
+}
+
 
 // [[Rcpp::export(.approxEqualMatricesRcpp)]]
 bool approxEqual(NumericMatrix a, NumericMatrix b) {

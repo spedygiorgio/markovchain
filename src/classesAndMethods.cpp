@@ -10,13 +10,8 @@ using namespace std;
 // Defined in probabilistic.cpp
 List recurrentClasses(S4 object);
 
-// check if prob is probability or not
-// [[Rcpp::export(.isProbability)]]
-bool isProb(double prob) {
-  return (prob >= 0 && prob <= 1);
-}
 
-// doubt
+// TODO meaning of this method
 // [[Rcpp::export(.isGenRcpp)]]
 bool isGen(NumericMatrix gen) {
   for (int i = 0; i < gen.nrow(); i++)

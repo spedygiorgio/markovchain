@@ -543,9 +543,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// recurrentAreHitting
-bool recurrentAreHitting(List recurrentClasses, NumericMatrix hitting, CharacterVector states, bool byrow);
-RcppExport SEXP _markovchain_recurrentAreHitting(SEXP recurrentClassesSEXP, SEXP hittingSEXP, SEXP statesSEXP, SEXP byrowSEXP) {
+// recurrentHitting
+bool recurrentHitting(List recurrentClasses, NumericMatrix hitting, CharacterVector states, bool byrow);
+RcppExport SEXP _markovchain_recurrentHitting(SEXP recurrentClassesSEXP, SEXP hittingSEXP, SEXP statesSEXP, SEXP byrowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -553,7 +553,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type states(statesSEXP);
     Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
-    rcpp_result_gen = Rcpp::wrap(recurrentAreHitting(recurrentClasses, hitting, states, byrow));
+    rcpp_result_gen = Rcpp::wrap(recurrentHitting(recurrentClasses, hitting, states, byrow));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -625,7 +625,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
     {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
-    {"_markovchain_recurrentAreHitting", (DL_FUNC) &_markovchain_recurrentAreHitting, 4},
+    {"_markovchain_recurrentHitting", (DL_FUNC) &_markovchain_recurrentHitting, 4},
     {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
     {"_markovchain_absorbingAreRecurrentClass", (DL_FUNC) &_markovchain_absorbingAreRecurrentClass, 2},
     {NULL, NULL, 0}

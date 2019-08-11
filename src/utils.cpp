@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include <iostream>
 using namespace Rcpp;
 using namespace arma;
@@ -115,11 +116,11 @@ bool areHittingProbabilities(NumericMatrix probs,
   return holds;
 }
 
-// [[Rcpp::export(.testthatRecurrentAreHittingRcpp)]]
-bool recurrentAreHitting(List recurrentClasses,
-                         NumericMatrix hitting,
-                         CharacterVector states,
-                         bool byrow) {
+// [[Rcpp::export(.testthatRecurrentHittingRcpp)]]
+bool recurrentHitting(List recurrentClasses,
+                      NumericMatrix hitting,
+                      CharacterVector states,
+                      bool byrow) {
   if (!byrow)
     hitting = transpose(hitting);
   

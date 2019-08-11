@@ -79,6 +79,17 @@ test_that("Recurrent states and transient states are a partition of states", {
 })
 
 
+test_that("hittingProb(i,i) < 1 for i a transient state", {
+  
+  for (mc in allMCs) {
+    transStates <- mc$transientStates
+    hitting <- mc$hittingProbabilities
+    transientHittingLessOne <- all(sapply(transStates, function(s){ hitting[s, s] < 1}))
+    expect_true(transientHittingLessOne)
+  }
+})
+
+
 test_that("All states are recurrent in a identity Markov chain", {
   
   for (mc in allDiagonalMCs) {
@@ -147,6 +158,11 @@ test_that("If the matrix is irreducible then the canonic form equals the Markov 
 })
 
 
+test_that("Check known Markov chain is irreducible", {
+  expect_true(is.irreducible(mc1))
+})
+
+
 context("Checking recurrentClasses method")
 
 P <- matlab::zeros(10)
@@ -172,19 +188,14 @@ test_that("Checking recurrent classes for known Markov chains", {
 })
 
 
-test_that("Check know Markov chain is irreducible", {
-  expect_true(is.irreducible(mc1))
-})
-
-
-test_that("f(i,j) = 1 for i, j in same recurrent class, hittingProbability(i, k) = 0 for k otherwise", {
+test_that("hittingProb(i,j) = 1 for i, j in same recurrent class, hittingProb(i, k) = 0 for k otherwise", {
   
   for (mc in allMCs) {
     byrow <- mc$byrow
     states <- mc$states
     hitting <- mc$hittingProbabilities
     recurrentClasses <- mc$recurrentClasses
-    expect_true(.testthatRecurrentAreHittingRcpp(recurrentClasses, hitting, states, byrow))
+    expect_true(.testthatRecurrentHittingRcpp(recurrentClasses, hitting, states, byrow))
   }
 })
 
@@ -193,7 +204,7 @@ test_that("Union of recurrentClasses is recurrentStates", {
   
   for (mc in allMCs) {
     recClasses <- mc$recurrentClasses
-    recStates <- sort(unlist(recClasses))
+    recStates <- as.character(sort(unlist(recClasses)))
     target <- sort(mc$recurrentStates)
     
     expect_equal(recStates, target)
@@ -204,7 +215,8 @@ test_that("Recurrent classes are disjoint", {
   
   for (mc in allMCs) {
     recClasses <- mc$recurrentClasses
-    numRecurrentStates <- sum(sapply(recClasses, function(c){ length(c) }))
+    lengthRecClasses <- sapply(recClasses, function(c){ length(c) })
+    numRecurrentStates <- ifelse(length(recClasses) > 0, sum(lengthRecClasses), 0)
     numUnion <- length(unique(unlist(recClasses)))
     
     expect_equal(numRecurrentStates, numUnion)
@@ -212,3 +224,32 @@ test_that("Recurrent classes are disjoint", {
 })
 
 context("Checking transientClasses method")
+
+test_that("Checking recurrent classes for known Markov chains", {
+  expect_equal(transientClasses(probMc), list(c("d", "e"), c("h"), c("j")))
+})
+
+
+test_that("Union of transientClases is transientStates", {
+  
+  for (mc in allMCs) {
+    transClasses <- mc$transientClasses
+    # as.character forces the result to be a char vector when it is empty
+    transStates <- as.character(sort(unlist(transClasses)))
+    target <- sort(mc$transientStates)
+    
+    expect_equal(transStates, target)
+  }
+})
+
+test_that("Transient classes are disjoint", {
+  
+  for (mc in allMCs) {
+    transClasses <- mc$transientClasses
+    lengthTransClasses <- sapply(transClasses, function(c){ length(c) })
+    numTransientStates <- ifelse(length(transClasses) > 0, sum(lengthTransClasses), 0)
+    numUnion <- length(unique(unlist(transClasses)))
+    
+    expect_equal(numTransientStates, numUnion)
+  }
+})

@@ -72,7 +72,7 @@ mcList<-new("markovchainList",markovchains=list(mcA, mcB, mcC),
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
-\code{\linkS4class{markovchain-class}}
+\code{\linkS4class{markovchain}}
 }
 \author{
 Giorgio Spedicato

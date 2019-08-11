@@ -20,7 +20,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 //' @param data It is a list of two elements. The first element is a character
 //'   vector denoting the states. The second is a numeric vector denoting the
 //'   corresponding transition times.
-//' @param byRow Determines if the output transition probabilities of the
+//' @param byrow Determines if the output transition probabilities of the
 //'   underlying embedded DTMC are by row.
 //' @param name Optional name for the CTMC.
 //' @param confidencelevel Confidence level for the confidence interval

@@ -548,7 +548,7 @@ int period(S4 object) {
 //'   set, given a data set
 //' @usage predictiveDistribution(stringchar, newData, hyperparam = matrix())
 //'
-//' @param stringChar This is the data using which the Bayesian inference is
+//' @param stringchar This is the data using which the Bayesian inference is
 //'   performed.
 //' @param newData This is the data whose predictive probability is computed.
 //' @param hyperparam This determines the shape of the prior distribution of the

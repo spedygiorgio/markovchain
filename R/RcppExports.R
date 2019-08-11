@@ -50,7 +50,7 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
 #' @param data It is a list of two elements. The first element is a character
 #'   vector denoting the states. The second is a numeric vector denoting the
 #'   corresponding transition times.
-#' @param byRow Determines if the output transition probabilities of the
+#' @param byrow Determines if the output transition probabilities of the
 #'   underlying embedded DTMC are by row.
 #' @param name Optional name for the CTMC.
 #' @param confidencelevel Confidence level for the confidence interval
@@ -322,7 +322,7 @@ period <- function(object) {
 #'   set, given a data set
 #' @usage predictiveDistribution(stringchar, newData, hyperparam = matrix())
 #'
-#' @param stringChar This is the data using which the Bayesian inference is
+#' @param stringchar This is the data using which the Bayesian inference is
 #'   performed.
 #' @param newData This is the data whose predictive probability is computed.
 #' @param hyperparam This determines the shape of the prior distribution of the

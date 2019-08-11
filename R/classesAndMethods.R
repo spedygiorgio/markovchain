@@ -236,7 +236,7 @@ setMethod(
 #' The class consists in a list of \code{markovchain} objects. 
 #' It is aimed at working with non homogeneous Markov chains.
 #' 
-#' @seealso \code{\linkS4class{markovchain-class}}
+#' @seealso \code{\linkS4class{markovchain}}
 #' @examples
 #' showClass("markovchainList")
 #' #define a markovchainList

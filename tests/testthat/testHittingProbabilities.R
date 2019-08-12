@@ -1,60 +1,57 @@
 library(Rcpp)
 
-context("Checking hitting probabilities method")
+context("Checking hittingProbabilities method")
 
 test_that("Hitting probabilities of identity markov chain is identity", {
   
-  for (markovChain in diagonalMCs) {
-    transitionMatrix <- attr(markovChain, "transitionMatrix")
-    numStates <- nrow(transitionMatrix)
-    expect_equal(hittingProbabilities(markovChain), diag(numStates))
+  for (mc in allDiagonalMCs) {
+    states <- mc$states
+    numStates <- length(states)
+    result <- diag(numStates)
+    rownames(result) <- states
+    colnames(result) <- states
+    hittingProbabilities <- mc$hittingProbabilities
+    
+    expect_equal(hittingProbabilities, result)
   }
 })
 
 
 test_that("Hitting probabilities hold their characteristic system", {
-  
-  # This is simply a method that checks the following recurrence,
+  # Check that the following recurrence holds,
   # naming p = probs, f = hitting, it checks:
   #
   # f(i, j) = p(i, j) + ∑_{k ≠ j} p(i, k) f(k, j)
   #
-  cppFunction('bool checkHittingProbabilities(NumericMatrix probs, 
-                                              NumericMatrix hitting,
-                                              double tolerance) {
-    int numStates = probs.nrow();
-    bool holds = true;
-    double result;
-
-    for (int i = 0; i < numStates && holds; ++i) {
-      for (int j = 0; j < numStates && holds; ++j) {
-        result = 0;
-        
-        for (int k = 0; k < numStates; ++k)
-          if (k != j)
-            result -= probs(i, k) * hitting(k, j);
-
-        result += hitting(i, j) - probs(i, j);
-        holds = abs(result) < tolerance;
-      }
-    }
-    
-    return holds;
-  }')
-  
   tolerance <- .Machine$double.eps ^ 0.5
   
-  for (markovChain in MCs) {
-    probs <- attr(markovChain, "transitionMatrix")
-    hitting <- hittingProbabilities(markovChain)
-    expect_true(checkHittingProbabilities(probs, hitting, tolerance))
+  for (mc in allMCs) {
+    probs <- mc$transitionMatrix
+    byrow <- mc$byrow
+    hitting <- mc$hittingProbabilities
+    expect_true(.testthatAreHittingRcpp(probs, hitting, byrow, tolerance))
+  }
+})
+
+
+test_that("All hitting probabilities are 1 iff the Markov chain is irreducible", {
+  
+  for (mc in allMCs) {
+    hitting <- mc$hittingProbabilities
+    hittingOne <- .testthatHittingAreOneRcpp(hitting)
+    irreducible <- mc$irreducible
+    
+    if (irreducible)
+      expect_true(hittingOne)
+    if (hittingOne)
+      expect_true(irreducible)
   }
 })
 
 
 # Test with a matrix with known hitting probabilities
 # Taken from the book Procesos Estocásticos, Ricardo Vélez & Tomás Prieto
-test_that("Hitting probabilities of known markov chain", {
+test_that("Tests hitting probabilities for a known markov chain", {
   
   M <- matlab::zeros(5, 5)
   M[1,1] <- M[5,5] <- 1
@@ -82,6 +79,9 @@ test_that("Hitting probabilities of known markov chain", {
   result[2,5] <- 1/5
   result[3,5] <- 2/5
   result[4,5] <- 3/5
+  rownames(result) <- markovChain@states
+  colnames(result) <- markovChain@states
   
   expect_equal(hittingProbabilities(markovChain), result)
+  expect_equal(hittingProbabilities(t(markovChain)), t(result))
 })

@@ -4,7 +4,11 @@
 #'   *,markovchain,matrix-method *,markovchain,numeric-method
 #'   *,matrix,markovchain-method *,numeric,markovchain-method
 #'   ==,markovchain,markovchain-method !=,markovchain,markovchain-method
-#'   absorbingStates,markovchain-method conditionalDistribution,markovchain-method
+#'   absorbingStates,markovchain-method transientStates,markovchain-method
+#'   recurrentStates,markovchain-method transientClasses,markovchain-method
+#'   recurrentClasses,markovchain-method communicatingClasses,markovchain-method
+#'   steadyStates,markovchain-method
+#'   conditionalDistribution,markovchain-method hittingProbabilities,markovchain-method
 #'   canonicForm,markovchain-method coerce,data.frame,markovchain-method
 #'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
 #'   coerce,markovchain,igraph-method coerce,markovchain,matrix-method
@@ -236,7 +240,7 @@ setMethod(
 #' The class consists in a list of \code{markovchain} objects. 
 #' It is aimed at working with non homogeneous Markov chains.
 #' 
-#' @seealso \code{\linkS4class{markovchain-class}}
+#' @seealso \code{\linkS4class{markovchain}}
 #' @examples
 #' showClass("markovchainList")
 #' #define a markovchainList
@@ -465,7 +469,7 @@ setValidity(
       absdiff     <- abs(1 - zapsmall(rowSums(transitionMatrix)))
       matrixShape <- "rows"
     } else { 
-      absdiff     <- abs(1-zapsmall(colSums(transitionMatrix)))
+      absdiff     <- abs(1 - zapsmall(colSums(transitionMatrix)))
       matrixShape <- "columns"
     }
 
@@ -497,214 +501,6 @@ setValidity(
   }
 )
 
-# matr : matrix
-# transpose : boolean indicating whether the matrix shall be transposed or not
-# output : a matrix / vector
-.mcEigen <- function(matr, transpose = TRUE) {
-
-  if (transpose)
-    matr <- t(matr) 
-  
-  # perform the eigenvalue extraction
-  eigenResults <- eigen(x = matr) 
-  
-  # takes the one eigenvalues
-  onesIndex <- which(
-    sapply(
-      eigenResults$values,
-      function(e){
-        isTRUE(all.equal(as.complex(e), 1+0i))
-      }
-    )
-  )
-  
-  # do the following: 
-  # 1 : get eigenvectors whose eigenvalues == 1
-  # 2 : normalize
-  
-  if (length(onesIndex) > 0) {
-    # Gives always a norm-based order to eigenvectors
-    eigenVectors <- as.matrix( eigenResults$vectors[, onesIndex] )
-
-    if (transpose) {
-      eigenVectors <- as.matrix(t(eigenVectors)) 
-      out <- eigenVectors / rowSums(eigenVectors) # normalize
-    } else {
-      out <- eigenVectors / colSums(eigenVectors) # normalize
-    }
-    
-    # subset the eigenvectors
-    # normalize
-    # take the real part: need to be sanitized
-    # @DEEPAK: later we have to see and optimize this part. I am not sure taking
-    #       the real part is most appropriate.
-  
-    Re(out)
-  } else {
-    warning("No eigenvalue = 1 found")
-  
-    # Return NULL
-    NULL
-  }
-}
-
-# method to get stationary states
-
-#' @name steadyStates
-#' @title Stationary states of a \code{markovchain} object
-#' 
-#' @description This method returns the stationary vector in matricial form of a markovchain object.
-#' @param object A discrete \code{markovchain} object
-#' 
-#' @return A matrix corresponding to the stationary states
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-#' @author Giorgio Spedicato
-#' @seealso \code{\linkS4class{markovchain}}
-#' 
-#' @note The steady states are identified starting from which eigenvectors correspond 
-#'       to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
-#'       in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
-#'       
-#' @examples 
-#' statesNames <- c("a", "b", "c")
-#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
-#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
-#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
-#'                name = "A markovchain Object" 
-#' )       
-#' steadyStates(markovB)
-#' 
-#' @rdname steadyStates
-#' @export
-setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
-
-#' @rdname steadyStates
-setMethod(
-  "steadyStates",
-  "markovchain", 
-  function(object) {
-    transitions <- object@transitionMatrix
-    byrow <- object@byrow
-    
-    steady <- .mcEigen(transitions, byrow)
-    
-    if (min(steady) < 0) {
-      warning("Negative elements in steady states, working on closed classes submatrix")
-      steady <- .steadyStatesByRecurrentClasses(object)
-    }
-    
-    if (length(steady) > 0) {
-      steady <- .mcLexSort(steady)
-      
-      colnames(steady) <- object@states
-      # Normalize each row
-      
-      if (! byrow)
-        steady <- t(steady)
-        
-      steady
-    } else {
-      warning("Warning! No steady states")
-    }
-  }
-)
-
-
-.steadyStatesByRecurrentClasses<-function(object) {
-  #initialization
-  transitions <- object@transitionMatrix
-  byrow <- object@byrow
-  
-  #transpose bycol matrices
-  if (byrow) 
-    transitions <- t(transitions)
-  
-  #characterizing recurrent classes
-  recClasses <- recurrentClasses(object)
-  numRecClasses <- length(recClasses)
-  recurrentClassesNames <- unlist(recClasses)
-  
-  #extracting recurrent classes
-  transitionsSub <- transitions[rownames(transitions) %in% recurrentClassesNames, 
-                                colnames(transitions) %in% recurrentClassesNames]
-  
-  steady <- matrix(0, nrow = numRecClasses, ncol = dim(object))
-  colnames(steady) <- names(object)
-  
-  #getting their steady states, calculating first indexes of eigenvalues equal to 1
-  onesIndex <- which(
-    sapply(
-      eigen(transitionsSub)$values, 
-      function(e){ isTRUE(all.equal( as.complex(e), 1+0i)) }
-    ) 
-  )
-  
-  eigenvectors <- eigen(transitionsSub)$vectors[, onesIndex, drop = FALSE]
-  eigenvectors <- t(eigenvectors)
-  partialOutput <- eigenvectors / rowSums(eigenvectors)
-  colnames(partialOutput) <- recurrentClassesNames
-  
-  #allocating to their columns
-  steady[, colnames(steady) %in% recurrentClassesNames] <- partialOutput
-  
-  steady
-}
-
-
-# generic function to extract absorbing states
-
-#' @rdname absorbingStates
-#' 
-#' @export
-setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
-setMethod(
-  "absorbingStates", 
-  "markovchain", 
-  function(object) {
-    n <- dim(object)
-    
-    whichAbsorbing <- which(
-      sapply(
-        1:n, 
-        function(i) { 
-          isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
-        }
-      )
-    )
-    
-    object@states[whichAbsorbing]
-  }
-)
-
-# generic method to extract transient states
-
-#' @rdname absorbingStates
-#' 
-#' @export
-setGeneric("transientStates", function(object) standardGeneric("transientStates"))
-
-#' @rdname absorbingStates
-setMethod("transientStates", "markovchain", 
-	       	function(object) {
-			      out <- character()
-			      
-			      # make byRow = true for the matrix
-			      if(object@byrow == TRUE) {
-			        matr <- object@transitionMatrix
-			      } else {
-			        matr <- t(object@transitionMatrix)
-			      }
-			      
-			      temp <- .commClassesKernelRcpp(matr)
-			      index <- which(temp$closed == FALSE)
-			      if(length(index) > 0) {
-			        out <- names(temp$closed[index])
-			      }
-			      
-			      return(out)
-		      }
-)
 
 # generic method to extract transition probability
 # from state t0 to state t1
@@ -741,14 +537,13 @@ setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("tr
 
 #' @rdname transitionProbability
 setMethod("transitionProbability", "markovchain", 
-	        function(object, t0, t1) {
-		        out <- numeric(1)
-		        fromState <- which(object@states == t0)
-		        toState <- which(object@states == t1)
-		        out <- ifelse(object@byrow == TRUE, object@transitionMatrix[fromState, toState] , 
-		                      object@transitionMatrix[toState, fromState])
-		        return(out)
-	        }
+  function(object, t0, t1) {
+    fromState <- which(object@states == t0)
+    toState <- which(object@states == t1)
+    out <- ifelse(object@byrow == TRUE, object@transitionMatrix[fromState, toState] , 
+                  object@transitionMatrix[toState, fromState])
+    return(out)
+  }
 )
 
 #  print, plot and show methods
@@ -777,19 +572,19 @@ setGeneric("show")
 
 # show methods for markovchain and markovchain list objects 
 setMethod("show", "markovchain",
-          function(object){
-            .showInt(object)
-          }
+  function(object){
+    .showInt(object)
+  }
 )
 
 setMethod("show", "markovchainList",
-          function(object) {
-		        cat(object@name, " list of Markov chain(s)", "\n")
-            for(i in 1:length(object@markovchains)) {
-              cat("Markovchain ",i,"\n")
-              show(object@markovchains[[i]])
-            }
-          }
+  function(object) {
+    cat(object@name, " list of Markov chain(s)", "\n")
+    for(i in 1:length(object@markovchains)) {
+      cat("Markovchain ",i,"\n")
+      show(object@markovchains[[i]])
+    }
+  }
 )
 
 #' @exportMethod print
@@ -798,10 +593,10 @@ setGeneric("print")
 # print methods
 setMethod("print", "markovchainList", function(x) show(x))
 setMethod("print", "markovchain",
-          function(x){
-           object <- x
-		       .showInt(object, verbose = FALSE)
-          }
+  function(x){
+   object <- x
+   .showInt(object, verbose = FALSE)
+  }
 )
 
 .getNet <- function(object, round = FALSE) {
@@ -852,285 +647,59 @@ setGeneric("plot")
 
 # plot method from stat5
 setMethod("plot", signature(x = "markovchain", y = "missing"),
-		      function(x, y, package = "igraph", ...) {
-		        switch(package,
-		         diagram = {
-		           if (requireNamespace("diagram", quietly = TRUE)) {
-		             .plotdiagram(object = x, ...)
-		           } else {
-		             netMc <- .getNet(object = x, round = TRUE)
-		             edgeLabel <- round(E(netMc)$weight / 100, 2)
-		             colorvector <- getColorVector(x)
-		             plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
-		           }
-		         },
-		         
-		         DiagrammeR = {
-		           if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-		             .plotDiagrammeR(object = x, ...)
-		           } else {
-		             netMc <- .getNet(object = x, round = TRUE)
-		             edgeLabel <- round(E(netMc)$weight / 100, 2)
-		             colorvector <- getColorVector(x)
-		             plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
-		           }
-		         },
-		         {
-		           netMc <- .getNet(object = x,round = TRUE)
-		           edgeLabel <- round(E(netMc)$weight / 100, 2)
-		           colorvector <- getColorVector(x)
-		           plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
-		        })
-		}
-)
-
-
-
-#setMethod("plotCommunicatingClasses",signature(x = "markovchain"))
-
-
-# method to convert into canonic form : a markovchain object
-# TODO: check meaning of this function
-
-#' @rdname absorbingStates
-#' 
-#' @exportMethod canonicForm
-setGeneric("canonicForm", function(object) standardGeneric("canonicForm"))
-setMethod("canonicForm", "markovchain",
-          function(object) {
-            # Obtain the canonical form Q of a stochastic matrix P
-            P <- object@transitionMatrix
-            
-            # Uses the internal function commClassesKernelRcpp
-            comclasList <- .commClassesKernelRcpp(P)
-            
-            # vu is a row vector of 0s and 1s. vu(i) = 1 if
-            # the class C(i) is closed, and 0 otherwise
-            vu <- comclasList$closed
-			
-            # find index of closed communicating classes
-            u <- matlab::find(vu == TRUE)
-            
-            # find index of open communicating classes
-            w <- matlab::find(vu == FALSE)
-            
-            # Cmatr(i,j) is 1 if and only if j is in the
-            # communicating class of i.
-            Cmatr <- comclasList$classes
-            
-            # R is now the set of representatives of closed classes
-            # Each closed class has a unique representative in R.
-            R <- numeric()
-            while(length(u) > 0) {
-              # everytime add a unique closed communicating classes index
-              R <- c(R, u[1])
-              
-              # remove the duplicate communication classes as u[1]
-              vu <- as.logical(vu * (Cmatr[u[1], ] == FALSE))
-              
-              # rest communicating classes index are hidden inside u
-              u <- find(vu == TRUE);
-            }
-            
-            # we have now a permutation p of indices, p, that
-            # gives the new stochastic matrix Q.
-            p <- numeric()
-            for (i in 1:length(R))
-            {
-              a <- find(Cmatr[R[i], ])
-              p <- c(p,a)
-            }
-            
-            # append open communicating classes index
-            p <- c(p, w)
-            
-            # extract canonical form out of given matrix using 
-            # permutation of indexes calculated above
-            Q <- P[p, p]
-            
-            out <- new("markovchain", transitionMatrix = Q, name = object@name)
-            return(out)
-          }
-)
-
-.canonicForm <- function(object) {
-  # Obtain the canonical form Q of a stochastic matrix P
-  P <- object@transitionMatrix
-  
-  # Uses the internal function commClassesKernelRcpp
-  comclasList <- .commClassesKernelRcpp(P)
-  
-  # vu is a row vector of 0s and 1s. vu(i) = 1 if
-  # the class C(i) is closed, and 0 otherwise
-  vu <- comclasList$closed
-  
-  # find index of closed communicating classes
-  u <- matlab::find(vu == TRUE)
-  
-  # find index of open communicating classes
-  w <- matlab::find(vu == FALSE)
-  
-  # Cmatr(i,j) is 1 if and only if j is in the
-  # communicating class of i.
-  Cmatr <- comclasList$classes
-  
-  # R is now the set of representatives of closed classes
-  # Each closed class has a unique representative in R.
-  R <- numeric()
-  while(length(u) > 0) {
-    # everytime add a unique closed communicating classes index
-    R <- c(R, u[1])
-    
-    # remove the duplicate communication classes as u[1]
-    vu <- as.logical(vu * (Cmatr[u[1], ] == FALSE))
-    
-    # rest communicating classes index are hidden inside u
-    u <- find(vu == TRUE);
+  function(x, y, package = "igraph", ...) {
+    switch(package,
+     diagram = {
+       if (requireNamespace("diagram", quietly = TRUE)) {
+         .plotdiagram(object = x, ...)
+       } else {
+         netMc <- .getNet(object = x, round = TRUE)
+         edgeLabel <- round(E(netMc)$weight / 100, 2)
+         colorvector <- getColorVector(x)
+         plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+       }
+     },
+     
+     DiagrammeR = {
+       if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+         .plotDiagrammeR(object = x, ...)
+       } else {
+         netMc <- .getNet(object = x, round = TRUE)
+         edgeLabel <- round(E(netMc)$weight / 100, 2)
+         colorvector <- getColorVector(x)
+         plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+       }
+     },
+     {
+       netMc <- .getNet(object = x,round = TRUE)
+       edgeLabel <- round(E(netMc)$weight / 100, 2)
+       colorvector <- getColorVector(x)
+       plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+    })
   }
-  
-  # we have now a permutation p of indices, p, that
-  # gives the new stochastic matrix Q.
-  p <- numeric()
-  for (i in 1:length(R))
-  {
-    a <- find(Cmatr[R[i], ])
-    p <- c(p,a)
-  }
-  
-  # append open communicating classes index
-  p <- c(p, w)
-  
-  # extract canonical form out of given matrix using 
-  # permutation of indexes calculated above
-  Q <- P[p, p]
-  
-  out <- new("markovchain", transitionMatrix = Q, name = object@name)
-  return(out)
-}
-
-#' @exportMethod summary
-setGeneric("summary")
-
-# summary method for markovchain class
-# lists: closed, transient classes, irreducibility, absorbint, transient states
-setMethod("summary", signature(object = "markovchain"),
-		      function(object){
-			      
-		        # list of closed, recurrent and transient classes
-		        outs <- .summaryKernelRcpp(object)
-			      
-		        # display name of the markovchain object
-			      cat(object@name," Markov chain that is composed by:", "\n")
-			      
-			      # number of closed classes
-			      check <- length(outs$closedClasses)
-			      
-			      cat("Closed classes:","\n")
-			      
-			      # display closed classes
-			      if(check == 0) cat("NONE", "\n") else {
-				      for(i in 1:check) cat(outs$closedClasses[[i]], "\n")
-			      }
-			      
-			      # number of recurrent classes
-			      check <- length(outs$recurrentClasses)
-			
-			      cat("Recurrent classes:", "\n")
-			      
-			      # display recurrent classes
-			      if(check == 0) cat("NONE", "\n") else {
-			          cat("{")
-			          cat(outs$recurrentClasses[[1]], sep = ",")
-			          cat("}")
-			          if(check > 1) {
-			            for(i in 2:check) {
-			              cat(",{")
-			              cat(outs$recurrentClasses[[i]], sep = ",")
-			              cat("}")
-			            }
-			          }
-			          cat("\n")
-			      }
-			      
-			      # number of transient classes
-			      check <- length(outs$transientClasses)
-			      
-			      cat("Transient classes:","\n")
-			
-			      # display transient classes
-			      if(check == 0) cat("NONE", "\n") else {
-			          cat("{")
-			          cat(outs$transientClasses[[1]], sep = ",")
-			          cat("}")
-			          if(check > 1) { 
-			            for(i in 2:check) {
-			              cat(",{")
-			              cat(outs$transientClasses[[i]], sep = ",")
-			              cat("}")
-			            }
-			          }
-			          cat("\n")
-			      }
-			
-			      # bool to say about irreducibility of markovchain
-			      irreducibility <- is.irreducible(object)
-			      
-			      if(irreducibility) 
-			        cat("The Markov chain is irreducible", "\n") 
-			      else cat("The Markov chain is not irreducible", "\n")
-			      
-			      # display absorbing states
-			      check <- absorbingStates(object)
-			      if(length(check) == 0) check <- "NONE"
-			      cat("The absorbing states are:", check )
-			      cat("\n")
-			      
-			      # return outs
-			      # useful when user will assign the value returned
-			      invisible(outs) 
-          }
 )
+
 
 ##################################################AS METHODS#########################
 
 .checkMatrix <- function(matr, byrow = TRUE, verbose = FALSE) {
 	
-  # first check: size
-	if (dim(matr)[1] != dim(matr)[2]) {
+  # firstly, check size
+	if (ncol(matr) != nrow(matr)) {
 		if(verbose) stop("Error! Rectangular matrix")
 		return(FALSE)
 	}
-	
-	# second check: all elements are probs
-	for(i in 1:nrow(matr)) {
-		for(j in 1:ncol(matr)){
-			if(!(.isProbability(matr[i, j]))) {
-			  myMessage<-paste("Error!","Element",i,j,"is not a probability")
-				if(verbose) stop(myMessage)
-				  return(FALSE)
-			}
-		}
-	}
-	
-	# third check: either columns or rows sum to one
-  # to perform only one check 	
-	if(byrow == FALSE) {
-	  matr <- t(matr) 
-	}
-	
-  # calculate row's sum
-	check <- rowSums(matr)
-	
-	for( i in 1:length(check)) {
-	  if (abs(1-check[i]) > .Machine$double.eps) {
-	    if(verbose) {
-	      myMessage<-paste("Error! Either rows or cols should sum to 1","check state",i)
-	      stop(myMessage) 
-	    }
-	    return(FALSE)
-	  }
-	}
-	
+  
+  # secondly, check is stochastic
+  isStochastic <- .isStochasticMatrix(matr, byrow)
+  
+  if (!isStochastic) {
+    if (verbose)
+	    stop("Error! Either rows or cols should sum to 1")
+  
+	  return(FALSE)
+  }
+  
 	# if all test are passed
 	return(TRUE)
 }
@@ -1142,23 +711,23 @@ setMethod("summary", signature(object = "markovchain"),
   # if it is then how probabilities are stored
   # row-wise or columnwise
   
-	byrow <- FALSE
-	checkByRow <- .checkMatrix(from, byrow = TRUE)
+	byrow <- TRUE
+	checkByRows <- .checkMatrix(from, byrow = byrow)
 	
-	if(checkByRow) {
-	  byrow <- TRUE
-	} else  {
-		checkByCols <- .checkMatrix(from, byrow = FALSE)
+	if(!checkByRows) {
+	  byrow <- FALSE
+		checkByCols <- .checkMatrix(from, byrow = byrow)
+		
 		if(!checkByCols) {
 		  #error could be either in rows or in cols
-		  if (any(colSums(from)!=1)) cat("columns sums not equal to one are:",which(colSums(from)!=1),"\n")
-		  if (any(rowSums(from)!=1)) cat("row sums not equal to one are:",which(rowSums(from)!=1),"\n")
+		  if (any(colSums(from) != 1)) cat("columns sums not equal to one are:", which(colSums(from) != 1),"\n")
+		  if (any(rowSums(from) != 1)) cat("row sums not equal to one are:", which(rowSums(from) != 1),"\n")
 		  stop("Error! Not a transition matrix")	
 		}
 	}
 	
 	# extract states names
-	if(byrow == TRUE) {
+	if(byrow) {
 	  namesCandidate <- rownames(from) 
 	} else {
 	  namesCandidate <- colnames(from)
@@ -1166,10 +735,7 @@ setMethod("summary", signature(object = "markovchain"),
 	
 	# if states names is not there create it s1, s2, s3, ....
 	if(is.null(namesCandidate)) {
-		namesCandidate <- character()
-		for(i in 1:nrow(from)) {
-		  namesCandidate <- c(namesCandidate, paste("s", i, sep = "")) 
-		}
+		namesCandidate <- paste("s", 1:nrow(from), sep = "")
 	}
 	
 	# create markovchain object
@@ -1455,12 +1021,12 @@ setGeneric("t")
 
 # transposing method for markovchain objects
 setMethod("t", "markovchain", 
-		      function(x) { 
-			      out <- new("markovchain", byrow = !x@byrow, 
-			                 transitionMatrix = t(x@transitionMatrix))
-			      
-			      return(out)
-		      } 
+  function(x) { 
+    out <- new("markovchain", byrow = !x@byrow, 
+               transitionMatrix = t(x@transitionMatrix))
+    
+    return(out)
+  } 
 )
 
 #' @exportMethod *
@@ -1476,124 +1042,124 @@ setGeneric("*")
 # if feasible, a markovchain where the transition matrix is e1*e2
 
 setMethod("*", c("markovchain", "markovchain"),
-          function(e1, e2) {
-            
-            # compare states of markovchains
-	          if(!setequal(e1@states, e2@states)) {
-	            warning("Warning! Different states")
-	          }
-            
-            # dimension must be equal
-			      if(!setequal(dim(e1@transitionMatrix), dim(e2@transitionMatrix))) {
-			        stop("Error! Different size")
-			      }
-			
-            # both must be either row wise or col wise
-            if(!(e1@byrow == e2@byrow)) {
-              stop("Error! Both transition matrix should be defined either by row or by column")
-            }
-		
-            newStates <- e1@states
-			      newTransMatr <- e1@transitionMatrix %*% e2@transitionMatrix
-			      byRow <- e1@byrow
-			      # multiplicated matrix takes the first matrix's name
-			      mcName <- e1@name 
-			      
-			      out<-new("markovchain", states = newStates, transitionMatrix = newTransMatr, 
-			               byrow = byRow, name = mcName)
-			      
-			      return(out)
-          }
+  function(e1, e2) {
+    
+    # compare states of markovchains
+    if(!setequal(e1@states, e2@states)) {
+      warning("Warning! Different states")
+    }
+    
+    # dimension must be equal
+    if(!setequal(dim(e1@transitionMatrix), dim(e2@transitionMatrix))) {
+      stop("Error! Different size")
+    }
+
+    # both must be either row wise or col wise
+    if(!(e1@byrow == e2@byrow)) {
+      stop("Error! Both transition matrix should be defined either by row or by column")
+    }
+
+    newStates <- e1@states
+    newTransMatr <- e1@transitionMatrix %*% e2@transitionMatrix
+    byRow <- e1@byrow
+    # multiplicated matrix takes the first matrix's name
+    mcName <- e1@name 
+    
+    out<-new("markovchain", states = newStates, transitionMatrix = newTransMatr, 
+             byrow = byRow, name = mcName)
+    
+    return(out)
+  }
 )
 
 # methods implemented for multiplication of markovchain object with 
 # matrix, 1-D vector, and vice-versa
 
 setMethod("*", c("matrix", "markovchain"),
-		      function(e1, e2) {
-			      out <- e1 %*% e2@transitionMatrix
-			      return(out)
-		      }
+  function(e1, e2) {
+    out <- e1 %*% e2@transitionMatrix
+    return(out)
+  }
 )
 
 setMethod("*", c("markovchain", "matrix"),
-		      function(e1, e2) {
-			      out <- e1@transitionMatrix %*% e2
-			      return(out)
-          }
+  function(e1, e2) {
+    out <- e1@transitionMatrix %*% e2
+    return(out)
+  }
 )
 
-setMethod("*", c("numeric", "markovchain"),
-		      function(e1, e2) {
-			      if(length(e1) != dim(e2)) {
-			        stop("Error! Uncompatible dimensions")
-			      } else {
-			        out <- e1 %*% e2@transitionMatrix
-			      }
-		        
-			      return(out)
-		      }
+setMethod("*", c("numeric", "markovchain"), 
+  function(e1, e2) {
+    if(length(e1) != dim(e2)) {
+      stop("Error! Uncompatible dimensions")
+    } else {
+      out <- e1 %*% e2@transitionMatrix
+    }
+    
+    return(out)
+  }
 )
 
-setMethod("*", c("markovchain", "numeric"),
-		      function(e1, e2) {
-			      if(length(e2) != dim(e1)) {
-			        stop("Error! Uncompatible dimensions")
-			      } else {
-			        out <- e1@transitionMatrix %*% e2
-			      }
-		        
-			       return(out)
-		      }
+setMethod("*", c("markovchain", "numeric"), 
+  function(e1, e2) {
+    if(length(e2) != dim(e1)) {
+      stop("Error! Uncompatible dimensions")
+    } else {
+      out <- e1@transitionMatrix %*% e2
+    }
+    
+     return(out)
+  }
 )
 
 #' @exportMethod ==
 setGeneric("==")
 
 # compare two markovchain object
-setMethod("==", c("markovchain", "markovchain"),
-          function(e1, e2) {
-            out <- FALSE
-            out <- identical(e1@transitionMatrix, e2@transitionMatrix)
-            return(out)
-          }
+setMethod("==", c("markovchain", "markovchain"), 
+  function(e1, e2) {
+    out <- .approxEqualMatricesRcpp(e1@transitionMatrix, e2@transitionMatrix)
+    return(out)
+  }
 )
 
 #' @exportMethod !=
 setGeneric("!=")
 
-setMethod("!=", c("markovchain", "markovchain"),
-          function(e1, e2) {
-            out <- FALSE
-            out <- !(e1 == e2)
-            return(out)
-          }
+setMethod("!=", c("markovchain", "markovchain"), 
+  function(e1, e2) {
+    out <- FALSE
+    out <- !(e1 == e2)
+    return(out)
+  }
 )
 
 #'@exportMethod ^
 setGeneric("^")
 
 # markovchain raise to some power
-setMethod("^", c("markovchain", "numeric"),
-          function(e1, e2) {
-            out <- new("markovchain", states = e1@states, byrow = e1@byrow,
-                       transitionMatrix = e1@transitionMatrix %^% e2,
-                       name = paste(e1@name, "^", e2, sep = "")
-                      )
-            
-            return(out)
-          }
+# this method is O(n³ log(m)) where n = {num cols (= rows) of e1} and m = e2
+setMethod("^", c("markovchain", "numeric"), 
+  function(e1, e2) {
+    out <- new("markovchain", states = e1@states, byrow = e1@byrow,
+               transitionMatrix = e1@transitionMatrix %^% e2,
+               name = paste(e1@name, "^", e2, sep = "")
+              )
+    
+    return(out)
+  }
 )
 
 #' @exportMethod [
 setGeneric("[")
 
 # methods to directly access transition matrix elements
-setMethod("[", signature(x = "markovchain", i = "ANY", j = "ANY"),
-          function(x, i, j) {
-            out <- x@transitionMatrix[i, j]
-            return(out)
-          }
+setMethod("[", signature(x = "markovchain", i = "ANY", j = "ANY"), 
+  function(x, i, j) {
+    out <- x@transitionMatrix[i, j]
+    return(out)
+  }
 )
 
 #' @exportMethod [[
@@ -1601,10 +1167,10 @@ setGeneric("[[")
 
 # methods to directly access markovchain objects composing a markovchainList object
 setMethod("[[", signature(x = "markovchainList", i = "ANY"),
-		      function(x, i) {
-			      out <- x@markovchains[[i]]
-            return(out)
-		      }
+  function(x, i) {
+    out <- x@markovchains[[i]]
+    return(out)
+  }
 )
 
 # transition probabilty vector from a given state
@@ -1638,27 +1204,27 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 #' @exportMethod conditionalDistribution
 setGeneric("conditionalDistribution", function(object, state) standardGeneric("conditionalDistribution"))
 setMethod("conditionalDistribution", "markovchain",
-          function(object, state) {
-            # get the states names
-			      stateNames <- states(object) 
-			      
-			      # number of unique states
-			      out <- numeric(length(stateNames))
-			      
-			      # states are assumed to be sorted
-			      index2Take <- which(stateNames == state) 
-			      
-			      if(object@byrow == TRUE) {
-				      out <- object@transitionMatrix[index2Take, ]
-			      } else {
-				      out <- object@transitionMatrix[, index2Take]
-			      }
-			      
-			      # names the output and returs it
-			      names(out) <- stateNames
-			      
-			      return(out) 
-		      }
+  function(object, state) {
+    # get the states names
+    stateNames <- states(object) 
+    
+    # number of unique states
+    out <- numeric(length(stateNames))
+    
+    # states are assumed to be sorted
+    index2Take <- which(stateNames == state) 
+    
+    if(object@byrow == TRUE) {
+      out <- object@transitionMatrix[index2Take, ]
+    } else {
+      out <- object@transitionMatrix[, index2Take]
+    }
+    
+    # names the output and returs it
+    names(out) <- stateNames
+    
+    return(out) 
+  }
 )
 		  
 # Function to get the mode of a probability vector
@@ -1671,7 +1237,6 @@ setMethod("conditionalDistribution", "markovchain",
 # the name of the model element
 
 .getMode <- function(probVector, ties = "random") {
-	
 	maxIndex <- which(probVector == max(probVector))
 	temp <- probVector[maxIndex] # index of maximum probabilty
 	
@@ -1692,83 +1257,110 @@ setGeneric("predict")
 # given initial state return a vector of next n.ahead states
 
 setMethod("predict", "markovchain", 
-		      function(object, newdata, n.ahead = 1) {
-		        # identify the last state
-			      lastState <- newdata[length(newdata)]
-            out <- character()
-            
-            for(i in 1:n.ahead) {
-              # cyclically determine the most probable subsequent state from the conditional distribution
-              newState <- .getMode(probVector = conditionalDistribution(object, lastState), ties = "random") 
-              out <- c(out, newState)
-              lastState <- newState
-            }
-            
-            return(out)
-          }
+  function(object, newdata, n.ahead = 1) {
+    # identify the last state
+    lastState <- newdata[length(newdata)]
+    out <- character()
+    
+    for(i in 1:n.ahead) {
+      # cyclically determine the most probable subsequent state from the conditional distribution
+      newState <- .getMode(probVector = conditionalDistribution(object, lastState), ties = "random") 
+      out <- c(out, newState)
+      lastState <- newState
+    }
+    
+    return(out)
+  }
 )
 
 # predict method for markovchainList objects
 setMethod("predict", "markovchainList",
-		      definition = function(object, newdata, n.ahead = 1, continue = FALSE) {
-			    # object a markovchainList
-		      # newdata = the actual data 
-		      # n.ahead = how much ahead 
-		      # continue = veryfy if that lasts
-		        
-		                      # allocate output
-			                    out <- character() 
-			                    actualPos <- length(newdata) 
-			                    lastState <- newdata[actualPos] # take last position
-			                    for(i in 1:n.ahead) {
-				                    newPos <- actualPos + i - 1
-				                    if(newPos <= dim(object)) {
-					                    newState <- predict(object = object[[newPos]], newdata = lastState, n.ahead = 1)
-					                    out <- c(out, newState)
-					                    lastState <- newState
-				                    } else {
-					                      if(continue == TRUE) {
-						                      newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
-						                      out <- c(out, newState)
-						                      lastState <- newState
-					                      } else break;
-				                      }
-			                    }
-			
-			                    return(out)
-		                   }
+  function(object, newdata, n.ahead = 1, continue = FALSE) {
+    # object a markovchainList
+    # newdata = the actual data 
+    # n.ahead = how much ahead 
+    # continue = veryfy if that lasts
+      
+    # allocate output
+    out <- character() 
+    actualPos <- length(newdata) 
+    lastState <- newdata[actualPos] # take last position
+    for(i in 1:n.ahead) {
+      newPos <- actualPos + i - 1
+      if(newPos <= dim(object)) {
+        newState <- predict(object = object[[newPos]], newdata = lastState, n.ahead = 1)
+        out <- c(out, newState)
+        lastState <- newState
+      } else {
+          if(continue == TRUE) {
+            newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
+            out <- c(out, newState)
+            lastState <- newState
+          } else break;
+        }
+    }
+
+    return(out)
+  }
 )
-
-# Wrapper for a function to lexicographically sort the rows of a matrixx
-# m : matrix
-.mcLexSort <- function(m) {
-  matrix(unlist(.lexicographical_sort(m)), nrow=nrow(m), byrow = T)
-}
-
 
 #sort method for markovchain objects
 
 setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
 
-setMethod("sort", signature(x="markovchain"), function(x, decreasing=FALSE){
-  
-  #get matrix and state names 2 be sorted
- 
-  matr2besorted<-x@transitionMatrix 
-  if (x@byrow==TRUE) states2besorted<-rownames(matr2besorted) else states2besorted<-colnames(matr2besorted)
-  
-  #sorting
-  sort_index<-order(states2besorted,decreasing = decreasing)
-  
-  #reallocating
-  matr_sorted<-matr2besorted[sort_index,sort_index]
-  states_sorted<-states2besorted[sort_index]
-  
-  out<-x
-  
-  out@transitionMatrix<-matr_sorted
-  out@states<-states_sorted
-  
-  return(out)
-}
+setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
+    #get matrix and state names 2 be sorted
+   
+    matr2besorted<-x@transitionMatrix 
+    if (x@byrow) 
+      states2besorted <- rownames(matr2besorted) 
+    else 
+      states2besorted <- colnames(matr2besorted)
+    
+    #sorting
+    sort_index<-order(states2besorted,decreasing = decreasing)
+    
+    #reallocating
+    matr_sorted<-matr2besorted[sort_index,sort_index]
+    states_sorted<-states2besorted[sort_index]
+    
+    out<-x
+    
+    out@transitionMatrix<-matr_sorted
+    out@states<-states_sorted
+    
+    return(out)
+  }
 )
+
+
+# method to get stationary states
+
+#' @name steadyStates
+#' @title Stationary states of a \code{markovchain} object
+#' 
+#' @description This method returns the stationary vector in matricial form of a markovchain object.
+#' @param object A discrete \code{markovchain} object
+#' 
+#' @return A matrix corresponding to the stationary states
+#' 
+#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @author Giorgio Spedicato
+#' @seealso \code{\linkS4class{markovchain}}
+#' 
+#' @note The steady states are identified starting from which eigenvectors correspond 
+#'       to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
+#'       in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
+#'       
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.5, 0.3, 0, 1, 0, 0.1, 0.8, 0.1), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A markovchain Object" 
+#' )       
+#' steadyStates(markovB)
+#' 
+#' @rdname steadyStates
+#' @exportMethod steadyStates
+setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))

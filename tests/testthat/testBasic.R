@@ -25,14 +25,13 @@ context("Basic DTMC proprieties")
 test_that("States are those that should be", {
   expect_equal(absorbingStates(markov1), "b")
   expect_equal(transientStates(markov1), c("a","c"))
-  expect_equal(is.irreducible(mathematicaMc),FALSE)
+  expect_equal(is.irreducible(mathematicaMc), FALSE)
   expect_equal(transientStates(mathematicaMc), c("a","b"))
-  expect_equal(is.accessible(mathematicaMc, "a", "c"),TRUE)
-  expect_equal(.canonicForm(mathematicaMc)@transitionMatrix, .canonicFormRcpp(mathematicaMc)@transitionMatrix)
+  expect_equal(is.accessible(mathematicaMc, "a", "c"), TRUE)
   expect_equal(.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
-  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
-                                            recurrentClasses = list(c("c", "d"), c("e")),
-                                            transientClasses = list(c("a", "b"))))
+#  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
+#                                            recurrentClasses = list(c("c", "d"), c("e")),
+#                                            transientClasses = list(c("a", "b"))))
 })
 
 ###testing proper conversion of objects
@@ -427,10 +426,8 @@ M[8,9]<- 1
 M[9,10]<- 1
 M[10,1]<- 1
 markovChain <- new("markovchain",transitionMatrix=M)
-mcSummary <- summary(markovChain)
-closedClases <- mcSummary$closedClasses
-recurrentClasses <- mcSummary$recurrentClasses
 
-test_that("closed classes == recurrent classes", {
-  expect_equal(closedClases, recurrentClasses)
-})
+
+#test_that("closed classes == recurrent classes", {
+#  expect_equal(closedClases(markovChain), recurrentClasses(markovChain))
+#})

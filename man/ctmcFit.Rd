@@ -11,13 +11,13 @@ ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
 vector denoting the states. The second is a numeric vector denoting the
 corresponding transition times.}
 
+\item{byrow}{Determines if the output transition probabilities of the
+underlying embedded DTMC are by row.}
+
 \item{name}{Optional name for the CTMC.}
 
 \item{confidencelevel}{Confidence level for the confidence interval
 construnction.}
-
-\item{byRow}{Determines if the output transition probabilities of the
-underlying embedded DTMC are by row.}
 }
 \value{
 It returns a list containing the CTMC object and the confidence intervals.

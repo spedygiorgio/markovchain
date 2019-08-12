@@ -7,15 +7,15 @@
 predictiveDistribution(stringchar, newData, hyperparam = matrix())
 }
 \arguments{
+\item{stringchar}{This is the data using which the Bayesian inference is
+performed.}
+
 \item{newData}{This is the data whose predictive probability is computed.}
 
 \item{hyperparam}{This determines the shape of the prior distribution of the
 parameters. If none is provided, default value of 1 is assigned to each
 parameter. This must be of size kxk where k is the number of states in the
 chain and the values should typically be non-negative integers.}
-
-\item{stringChar}{This is the data using which the Bayesian inference is
-performed.}
 }
 \value{
 The log of the probability is returned.

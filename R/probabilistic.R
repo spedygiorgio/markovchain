@@ -77,20 +77,11 @@ is.accessible <- function(object, from, to) {
 #'            ))
 #' is.irreducible(mcA)
 #' @export
-
 is.irreducible <- function(object) {
-  # assuming markovchain chain has more than 1 communicating classes
-  out <- FALSE
-
-  # this function will return a list of communicating classes 
-  tocheck <- .communicatingClassesRcpp(object)
-  
-  # only one class implies irreducible markovchain
-  if(length(tocheck) == 1) {
-    out<-TRUE  
-  }
-  
-  return(out)
+  # This function will return a list of communicating classes 
+  commClasses <- .communicatingClassesRcpp(object)
+  # The markov chain is irreducible iff has only a single communicating class
+  return(length(commClasses) == 1)
 }
 
 # what this function will do?
@@ -122,7 +113,6 @@ is.irreducible <- function(object) {
 #' firstPassage(simpleMc, "b", 20)
 #'
 #' @export
-
 firstPassage <- function(object, state, n) {
   P <- object@transitionMatrix
   stateNames <- states(object)
@@ -201,80 +191,168 @@ firstPassageMultiple <- function(object,state,set, n){
 }
 
 
-
-
-# return a list of communicating classes
-
 #' @name communicatingClasses
+#' @rdname structuralAnalysis
+#' @aliases transientStates recurrentStates absorbingStates communicatingClasses
+#'   transientClasses recurrentClasses
 #' @title Various function to perform structural analysis of DTMC
 #' @description These functions return absorbing and transient states of the \code{markovchain} objects.
 #' 
 #' @param object A \code{markovchain} object.
 #' 
-#' @return vector, matrix or list
+#' @return
+#' \describe{
+#'   \item{\code{period}}{returns a integer number corresponding to the periodicity of the Markov 
+#'     chain (if it is irreducible)}
+#'   \item{\code{absorbingStates}}{returns a character vector with the names of the absorbing 
+#'     states in the Markov chain}
+#'   \item{\code{communicatingClasses}}{returns a list in which each slot contains the names of
+#'     the states that are in that communicating class}
+#'   \item{\code{recurrentClasses}}{analogously to \code{communicatingClasses}, but with 
+#'     recurrent classes}
+#'   \item{\code{transientClasses}}{analogously to \code{communicatingClasses}, but with 
+#'     transient classes}
+#'   \item{\code{transientStates}}{returns a character vector with all the transient states
+#'     for the Markov chain}
+#'   \item{\code{recurrentStates}}{returns a character vector with all the recurrent states 
+#'     for the Markov chain}
+#'   \item{\code{canonicForm}}{returns the Markov chain reordered by a permutation of states 
+#'     so that we have blocks submatrices for each of the recurrent classes and a collection 
+#'     of rows in the end for the transient states}
+#' }
 #' 
 #' @references Feres, Matlab listing for markov chain.
 #' 
-#' @author Giorgio Alfredo Spedicato
+#' @author Giorgio Alfredo Spedicato, Ignacio Cordón
 #' 
 #' @seealso \code{\linkS4class{markovchain}}
 #' 
 #' @examples 
 #' statesNames <- c("a", "b", "c")
-#' markovB <- new("markovchain", states = statesNames, transitionMatrix =
-#'                    matrix(c(0.2, 0.5, 0.3,
-#'                               0,   1,   0,
-#'                             0.1, 0.8, 0.1), nrow = 3, byrow = TRUE, 
-#'                             dimnames = list(statesNames, statesNames)
-#'               ))
-#'               
-#' communicatingClasses(markovB)               
-#' recurrentClasses(markovB)
-#' absorbingStates(markovB)
-#' transientStates(markovB)
-#' canonicForm(markovB)
+#' mc <- new("markovchain", states = statesNames, transitionMatrix =
+#'           matrix(c(0.2, 0.5, 0.3,
+#'                    0,   1,   0,
+#'                    0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+#'                  dimnames = list(statesNames, statesNames))
+#'          )
 #' 
-#' # periodicity analysis : 1
-#' E <- matrix(c(0, 1, 0, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0, 1, 0), 
+#' communicatingClasses(mc)
+#' recurrentClasses(mc)
+#' recurrentClasses(mc)
+#' absorbingStates(mc)
+#' transientStates(mc)
+#' recurrentStates(mc)
+#' canonicForm(mc)
+#' 
+#' # periodicity analysis
+#' A <- matrix(c(0, 1, 0, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0, 1, 0), 
 #'             nrow = 4, ncol = 4, byrow = TRUE)
-#' mcE <- new("markovchain", states = c("a", "b", "c", "d"), 
-#'           transitionMatrix = E, 
-#'           name = "E")
+#' mcA <- new("markovchain", states = c("a", "b", "c", "d"), 
+#'           transitionMatrix = A,
+#'           name = "A")
 #'
-#' is.irreducible(mcE) #true
-#' period(mcE) #2
+#' is.irreducible(mcA) #true
+#' period(mcA) #2
 #'
-#' # periodicity analysis : 2
-#' myMatr <- matrix(c(0, 0, 1/2, 1/4, 1/4, 0, 0,
+#' # periodicity analysis
+#' B <- matrix(c(0, 0, 1/2, 1/4, 1/4, 0, 0,
 #'                    0, 0, 1/3, 0, 2/3, 0, 0,
 #'                    0, 0, 0, 0, 0, 1/3, 2/3,
 #'                    0, 0, 0, 0, 0, 1/2, 1/2,
 #'                    0, 0, 0, 0, 0, 3/4, 1/4,
 #'                    1/2, 1/2, 0, 0, 0, 0, 0,
 #'                    1/4, 3/4, 0, 0, 0, 0, 0), byrow = TRUE, ncol = 7)
-#' myMc <- new("markovchain", transitionMatrix = myMatr)
-#' period(myMc)
+#' mcB <- new("markovchain", transitionMatrix = B)
+#' period(mcB)
 #' 
-#' @rdname absorbingStates
-#' @export
+#' @exportMethod communicatingClasses
+setGeneric("communicatingClasses", function(object) standardGeneric("communicatingClasses"))
 
-communicatingClasses <- function(object) {
-  out <- .communicatingClassesRcpp(object)
-  return(out)
-}
+setMethod("communicatingClasses", "markovchain", function(object) {
+  return(.communicatingClassesRcpp(object))
+})
+
 
 # A communicating class will be a recurrent class if 
 # there is no outgoing edge from this class
 # Recurrent classes are subset of communicating classes
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod recurrentClasses
+setGeneric("recurrentClasses", function(object) standardGeneric("recurrentClasses"))
 
-#' @rdname absorbingStates
-#' @export
+setMethod("recurrentClasses", "markovchain", function(object) {
+  return(.recurrentClassesRcpp(object))
+})
 
-recurrentClasses <- function(object) {
-  out <- .recurrentClassesRcpp(object)
-  return(out)
-}
 
+# A communicating class will be a transient class if 
+# there is an outgoing edge from this class to an state
+# outside of the class
+# Transient classes are subset of communicating classes
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod transientClasses
+setGeneric("transientClasses", function(object) standardGeneric("transientClasses"))
+
+setMethod("transientClasses", "markovchain", function(object) {
+  return(.transientClassesRcpp(object))
+})
+
+
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod transientStates
+setGeneric("transientStates", function(object) standardGeneric("transientStates"))
+
+
+setMethod("transientStates", "markovchain", function(object) {
+    .transientStatesRcpp(object)
+  }
+)
+
+
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod recurrentStates
+setGeneric("recurrentStates", function(object) standardGeneric("recurrentStates"))
+
+
+setMethod("recurrentStates", "markovchain", function(object) {
+    .recurrentStatesRcpp(object)
+  }
+)
+
+# generic function to extract absorbing states
+
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod absorbingStates
+setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
+
+setMethod("absorbingStates", "markovchain", function(object) {
+    n <- dim(object)
+    
+    whichAbsorbing <- which(
+      sapply(1:n, function(i) { 
+        isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
+      })
+    )
+    
+    object@states[whichAbsorbing]
+  }
+)
+
+
+#' @rdname structuralAnalysis
+#' 
+#' @exportMethod canonicForm
+setGeneric("canonicForm", function(object) standardGeneric("canonicForm"))
+
+setMethod("canonicForm", "markovchain", function(object) {
+    .canonicFormRcpp(object)
+  }
+)
 
 
 #' @title Calculates committor of a markovchain object with respect to set A, B
@@ -599,9 +677,9 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #' @description Given a markovchain object,
 #' this function calculates the probability of ever arriving from state i to j
 #' 
-#' @usage hittingProbabilities(markovchain)
+#' @usage hittingProbabilities(object)
 #' 
-#' @param markovchain the markovchain-class object
+#' @param object the markovchain-class object
 #' 
 #' @return a matrix of hitting probabilities
 #' 
@@ -618,10 +696,104 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #' 
 #' markovChain <- new("markovchain", transitionMatrix = M)
 #' hittingProbabilities(markovChain)
-#' @export
-hittingProbabilities <- function(markovchain) {
-  matrix <- markovchain@transitionMatrix
-  result <- .hittingProbabilitiesRcpp(matrix)
-  
-  result
-}
+#' 
+#' @exportMethod hittingProbabilities
+setGeneric("hittingProbabilities", function(object) standardGeneric("hittingProbabilities"))
+
+setMethod("hittingProbabilities", "markovchain", function(object) {
+  return(.hittingProbabilitiesRcpp(object))
+})
+
+
+setMethod(
+  "steadyStates",
+  "markovchain", 
+  function(object) {
+    .steadyStatesRcpp(object)
+  }
+)
+
+
+
+#' @exportMethod summary
+setGeneric("summary")
+
+# summary method for markovchain class
+# lists: closed, transient classes, irreducibility, absorbint, transient states
+setMethod("summary", signature(object = "markovchain"),
+  function(object){
+    
+    # list of closed, recurrent and transient classes
+    outs <- .summaryKernelRcpp(object)
+    
+    # display name of the markovchain object
+    cat(object@name," Markov chain that is composed by:", "\n")
+    
+    # number of closed classes
+    check <- length(outs$closedClasses)
+    
+    cat("Closed classes:","\n")
+    
+    # display closed classes
+    if(check == 0) cat("NONE", "\n") else {
+      for(i in 1:check) cat(outs$closedClasses[[i]], "\n")
+    }
+    
+    # number of recurrent classes
+    check <- length(outs$recurrentClasses)
+    
+    cat("Recurrent classes:", "\n")
+    
+    # display recurrent classes
+    if(check == 0) cat("NONE", "\n") else {
+      cat("{")
+      cat(outs$recurrentClasses[[1]], sep = ",")
+      cat("}")
+      if(check > 1) {
+        for(i in 2:check) {
+          cat(",{")
+          cat(outs$recurrentClasses[[i]], sep = ",")
+          cat("}")
+        }
+      }
+      cat("\n")
+    }
+    
+    # number of transient classes
+    check <- length(outs$transientClasses)
+    
+    cat("Transient classes:","\n")
+    
+    # display transient classes
+    if(check == 0) cat("NONE", "\n") else {
+      cat("{")
+      cat(outs$transientClasses[[1]], sep = ",")
+      cat("}")
+      if(check > 1) { 
+        for(i in 2:check) {
+          cat(",{")
+          cat(outs$transientClasses[[i]], sep = ",")
+          cat("}")
+        }
+      }
+      cat("\n")
+    }
+    
+    # bool to say about irreducibility of markovchain
+    irreducibility <- is.irreducible(object)
+    
+    if(irreducibility) 
+      cat("The Markov chain is irreducible", "\n") 
+    else cat("The Markov chain is not irreducible", "\n")
+    
+    # display absorbing states
+    check <- absorbingStates(object)
+    if(length(check) == 0) check <- "NONE"
+    cat("The absorbing states are:", check )
+    cat("\n")
+    
+    # return outs
+    # useful when user will assign the value returned
+    invisible(outs) 
+  }
+)

@@ -6,17 +6,6 @@
 
 using namespace Rcpp;
 
-// isProb
-bool isProb(double prob);
-RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(isProb(prob));
-    return rcpp_result_gen;
-END_RCPP
-}
 // isGen
 bool isGen(NumericMatrix gen);
 RcppExport SEXP _markovchain_isGen(SEXP genSEXP) {
@@ -25,28 +14,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
     rcpp_result_gen = Rcpp::wrap(isGen(gen));
-    return rcpp_result_gen;
-END_RCPP
-}
-// canonicForm
-SEXP canonicForm(S4 object);
-RcppExport SEXP _markovchain_canonicForm(SEXP objectSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(canonicForm(object));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lexicographicalSort
-SEXP lexicographicalSort(SEXP y);
-RcppExport SEXP _markovchain_lexicographicalSort(SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(lexicographicalSort(y));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -305,7 +272,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // commClassesKernel
-SEXP commClassesKernel(NumericMatrix P);
+List commClassesKernel(NumericMatrix P);
 RcppExport SEXP _markovchain_commClassesKernel(SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -326,6 +293,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// transientStates
+CharacterVector transientStates(S4 object);
+RcppExport SEXP _markovchain_transientStates(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(transientStates(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// recurrentStates
+CharacterVector recurrentStates(S4 object);
+RcppExport SEXP _markovchain_recurrentStates(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(recurrentStates(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // recurrentClasses
 List recurrentClasses(S4 object);
 RcppExport SEXP _markovchain_recurrentClasses(SEXP objectSEXP) {
@@ -334,6 +323,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
     rcpp_result_gen = Rcpp::wrap(recurrentClasses(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// transientClasses
+List transientClasses(S4 object);
+RcppExport SEXP _markovchain_transientClasses(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(transientClasses(object));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -462,22 +462,150 @@ BEGIN_RCPP
 END_RCPP
 }
 // hittingProbabilities
-NumericMatrix hittingProbabilities(NumericMatrix transitionMatrix);
-RcppExport SEXP _markovchain_hittingProbabilities(SEXP transitionMatrixSEXP) {
+NumericMatrix hittingProbabilities(S4 object);
+RcppExport SEXP _markovchain_hittingProbabilities(SEXP objectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type transitionMatrix(transitionMatrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(transitionMatrix));
+    Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// canonicForm
+S4 canonicForm(S4 obj);
+RcppExport SEXP _markovchain_canonicForm(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(canonicForm(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// steadyStates
+NumericMatrix steadyStates(S4 obj);
+RcppExport SEXP _markovchain_steadyStates(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(steadyStates(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isProb
+bool isProb(double prob);
+RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(isProb(prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isStochasticMatrix
+bool isStochasticMatrix(NumericMatrix m, bool byrow);
+RcppExport SEXP _markovchain_isStochasticMatrix(SEXP mSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type m(mSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(isStochasticMatrix(m, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isProbVector
+bool isProbVector(NumericVector prob);
+RcppExport SEXP _markovchain_isProbVector(SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(isProbVector(prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// approxEqual
+bool approxEqual(NumericMatrix a, NumericMatrix b);
+RcppExport SEXP _markovchain_approxEqual(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type a(aSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(approxEqual(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isPartition
+bool isPartition(List commClasses, CharacterVector states);
+RcppExport SEXP _markovchain_isPartition(SEXP commClassesSEXP, SEXP statesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type commClasses(commClassesSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type states(statesSEXP);
+    rcpp_result_gen = Rcpp::wrap(isPartition(commClasses, states));
+    return rcpp_result_gen;
+END_RCPP
+}
+// areHittingProbabilities
+bool areHittingProbabilities(NumericMatrix probs, NumericMatrix hitting, bool byrow, double tolerance);
+RcppExport SEXP _markovchain_areHittingProbabilities(SEXP probsSEXP, SEXP hittingSEXP, SEXP byrowSEXP, SEXP toleranceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type probs(probsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    rcpp_result_gen = Rcpp::wrap(areHittingProbabilities(probs, hitting, byrow, tolerance));
+    return rcpp_result_gen;
+END_RCPP
+}
+// recurrentHitting
+bool recurrentHitting(List recurrentClasses, NumericMatrix hitting, CharacterVector states, bool byrow);
+RcppExport SEXP _markovchain_recurrentHitting(SEXP recurrentClassesSEXP, SEXP hittingSEXP, SEXP statesSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type recurrentClasses(recurrentClassesSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type states(statesSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(recurrentHitting(recurrentClasses, hitting, states, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hittingProbsAreOne
+bool hittingProbsAreOne(NumericMatrix matrix);
+RcppExport SEXP _markovchain_hittingProbsAreOne(SEXP matrixSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbsAreOne(matrix));
+    return rcpp_result_gen;
+END_RCPP
+}
+// absorbingAreRecurrentClass
+bool absorbingAreRecurrentClass(CharacterVector absorbingStates, List recurrentClasses);
+RcppExport SEXP _markovchain_absorbingAreRecurrentClass(SEXP absorbingStatesSEXP, SEXP recurrentClassesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type absorbingStates(absorbingStatesSEXP);
+    Rcpp::traits::input_parameter< List >::type recurrentClasses(recurrentClassesSEXP);
+    rcpp_result_gen = Rcpp::wrap(absorbingAreRecurrentClass(absorbingStates, recurrentClasses));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
     {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
-    {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
-    {"_markovchain_lexicographicalSort", (DL_FUNC) &_markovchain_lexicographicalSort, 1},
     {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
     {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},
     {"_markovchain_ExpectedTimeRcpp", (DL_FUNC) &_markovchain_ExpectedTimeRcpp, 2},
@@ -499,7 +627,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
     {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},
     {"_markovchain_communicatingClasses", (DL_FUNC) &_markovchain_communicatingClasses, 1},
+    {"_markovchain_transientStates", (DL_FUNC) &_markovchain_transientStates, 1},
+    {"_markovchain_recurrentStates", (DL_FUNC) &_markovchain_recurrentStates, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
+    {"_markovchain_transientClasses", (DL_FUNC) &_markovchain_transientClasses, 1},
     {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
     {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},
     {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},
@@ -511,6 +642,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
+    {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
+    {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
+    {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
+    {"_markovchain_isStochasticMatrix", (DL_FUNC) &_markovchain_isStochasticMatrix, 2},
+    {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},
+    {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
+    {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
+    {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
+    {"_markovchain_recurrentHitting", (DL_FUNC) &_markovchain_recurrentHitting, 4},
+    {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
+    {"_markovchain_absorbingAreRecurrentClass", (DL_FUNC) &_markovchain_absorbingAreRecurrentClass, 2},
     {NULL, NULL, 0}
 };
 

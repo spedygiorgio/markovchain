@@ -58,7 +58,6 @@ setClass("HigherOrderMarkovChain", #class name
 #'
 #' @author Giorgio Spedicato, Tae Seung Kang
 #' @note This function is written in Rcpp.
-#' @seealso \code{\link{markovchain}}
 #'
 #' @examples
 #' sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",

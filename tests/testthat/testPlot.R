@@ -29,31 +29,31 @@ require(DiagrammeR)
 # k <- new("markovchain", states = c("1", "2", "3"), transitionMatrix=P, name = "test")
 # plot(k) 
 
-mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
-                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
-                                                       0.3, 0.4, 0.3,
-                                                       0.2, 0.45, 0.35), byrow = T, nrow = 3),
-                  name = "Weather")
-mcWeather
-plot(mcWeather)
-plot(mcWeather, package = "diagram", box.size = 0.06, main = "Weather transition matrix")
-plot(mcWeather, package = "DiagrammeR", label ="Weather transition matrix", labelloc="t")
-
-
-
-
-### TESTS FOR CTMC PLOTTING
-energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3,
-                       1, -1), nrow = 2,
-              byrow = byRow, dimnames = list(energyStates, energyStates))
-molecularCTMC <- new("ctmc", states = energyStates, 
-                     byrow = byRow, generator = gen, 
-                     name = "Molecular Transition Model")
-plot(molecularCTMC)
-plot(molecularCTMC, package = "diagram", box.size = 0.06, main = "Energy States CTMC")
-plot(molecularCTMC, package = "DiagrammeR", label ="Energy States CTMC", labelloc="t")
+# mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
+#                   transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
+#                                                        0.3, 0.4, 0.3,
+#                                                        0.2, 0.45, 0.35), byrow = T, nrow = 3),
+#                   name = "Weather")
+# mcWeather
+# plot(mcWeather)
+# plot(mcWeather, package = "diagram", box.size = 0.06, main = "Weather transition matrix")
+# plot(mcWeather, package = "DiagrammeR", label ="Weather transition matrix", labelloc="t")
+# 
+# 
+# 
+# 
+# ### TESTS FOR CTMC PLOTTING
+# energyStates <- c("sigma", "sigma_star")
+# byRow <- TRUE
+# gen <- matrix(data = c(-3, 3,
+#                        1, -1), nrow = 2,
+#               byrow = byRow, dimnames = list(energyStates, energyStates))
+# molecularCTMC <- new("ctmc", states = energyStates, 
+#                      byrow = byRow, generator = gen, 
+#                      name = "Molecular Transition Model")
+# plot(molecularCTMC)
+# plot(molecularCTMC, package = "diagram", box.size = 0.06, main = "Energy States CTMC")
+# plot(molecularCTMC, package = "DiagrammeR", label ="Energy States CTMC", labelloc="t")
 
 
 

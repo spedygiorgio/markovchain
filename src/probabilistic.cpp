@@ -1012,68 +1012,28 @@ NumericMatrix lexicographicalSort(NumericMatrix m) {
 bool approxEqual(const cx_double& a, const cx_double& b);
 
 
-mat computeSteadyStates(NumericMatrix t, bool byrow) {
-  if (byrow)
-    t = transpose(t);
+vec computeSteadyState(mat submatrix) {
+  int m = submatrix.n_rows;
+  vec rightPart(m);
+  vec result;
   
-  cx_mat transitionMatrix = as<cx_mat>(t);
-  cx_vec eigvals;
-  cx_mat eigvecs;
-  // 1 + 0i
-  cx_double cxOne(1.0, 0);
-  bool correctEigenDecomposition;
+  rightPart(0) = 1;
   
-  // If transition matrix is hermitian (symmetric in real case), use
-  // more efficient implementation to get the eigenvalues and vectors
-  if (transitionMatrix.is_hermitian()) {
-    vec realEigvals;
-    correctEigenDecomposition = eig_sym(realEigvals, eigvecs, transitionMatrix);
-    eigvals.resize(realEigvals.size());
-    
-    // eigen values are real, but we need to cast them to complex values
-    // to perform the rest of the algorithm
-    for (int i = 0; i < realEigvals.size(); ++i)
-      eigvals[i] = cx_double(realEigvals[i], 0);
-  } else {
-    correctEigenDecomposition = eig_gen(eigvals, eigvecs, transitionMatrix, "balance");
+  for (int i = 1; i < m; ++i) {
+    rightPart(i) = 0;
+    submatrix(i, i) -= 1;
   }
   
-  if (!correctEigenDecomposition)
+  for (int j = 0; j < m; ++j)
+    submatrix(0, j) = 1;
+  
+  bool couldSolveSystem = solve(result, submatrix, rightPart);
+  
+  if (!couldSolveSystem)
     stop("Failure computing eigen values / vectors for submatrix in computeSteadySates");
-  std::vector<int> whichOnes;
-  std::vector<double> colSums;
-  double colSum;
-  mat realEigvecs = real(eigvecs);
-  int numRows = realEigvecs.n_rows;
-  
-  // Search for the eigenvalues which are 1 and store 
-  // the sum of the corresponding eigenvector
-  for (int j = 0; j < eigvals.size(); ++j) {
-    if (approxEqual(eigvals[j], cxOne)) {
-      whichOnes.push_back(j);
-      colSum = 0;
-      
-      for (int i = 0; i < numRows; ++i)
-        colSum += realEigvecs(i, j);
-      
-      colSums.push_back((colSum != 0 ? colSum : 1));
-    }
-  }
-  
-  // Normalize eigen vectors
-  int numCols = whichOnes.size();
-  mat result(numRows, numCols);
-  
-  for (int j = 0; j < numCols; ++j)
-    for (int i = 0; i < numRows; ++i)
-      result(i, j) = realEigvecs(i, whichOnes[j]) / colSums[j];
-  
-  if (byrow)
-    result = result.t();
   
   return result;
 }
-
 
 // Precondition: the matrix should be stochastic by rows
 NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
@@ -1086,7 +1046,6 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
   NumericMatrix steady(numRecClasses, numCols);
   unordered_map<string, int> stateToIndex;
   int steadyStateIndex = 0;
-  bool negativeFound = false;
   double current;
   
   // Map each state to the index it has
@@ -1098,7 +1057,7 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
   // For each recurrent class, there must be an steady state
   for (CharacterVector recurrentClass : recClasses) {
     int recClassSize = recurrentClass.size();
-    NumericMatrix subMatrix(recClassSize, recClassSize);
+    mat subMatrix(recClassSize, recClassSize);
     
     // Fill the submatrix corresponding to the current steady class
     // Note that for that we have to subset the matrix with the indices
@@ -1111,27 +1070,14 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
         subMatrix(i, j) = transitionMatrix(r, c);
       }
     }
-    
+
     // Compute the steady states for the given submatrix
-    mat steadySubMatrix = computeSteadyStates(subMatrix, true);
-    
-    // There should only be one steady state for that matrix
-    // Make sure of it
-    if (steadySubMatrix.n_rows != 1)
-      stop("Could not compute steady states with recurrent classes method");
-    
-    for (int i = 0; i < recClassSize && !negativeFound; ++i) {
+    vec steadyState = computeSteadyState(subMatrix.t());
+
+    for (int i = 0; i < recClassSize; ++i) {
       int c = stateToIndex[(string) recurrentClass[i]];
-      // Either all elements are positive or only a few are negative, because
-      // computeSteadyStates normalizes the result dividing by the sum of the vector
-      current = steadySubMatrix(0, i);
-      // If we find some negative value from the steady states,  we should stop the method
-      negativeFound = current < 0;
-      steady(steadyStateIndex, c) = current;
+      steady(steadyStateIndex, c) = steadyState(i);;
     }
-    
-    if (negativeFound)
-      stop("Could not compute steady states correctly: negative value found"); 
     
     ++steadyStateIndex;
   }
@@ -1156,8 +1102,8 @@ NumericMatrix steadyStates(S4 obj) {
     object = obj;
   }
   
-  // Compute steady states using recurrent classes (there is one
-  // steady state associated with each recurrent class)
+  // Compute steady states using recurrent classes (there is 
+  // exactly one steady state associated with each recurrent class)
   NumericMatrix result = lexicographicalSort(steadyStatesByRecurrentClasses(object));
   
   if (!byrow)

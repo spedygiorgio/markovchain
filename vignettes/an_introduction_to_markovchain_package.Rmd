@@ -312,25 +312,24 @@ Table \@ref(tab:methodsToHandleMc) lists which methods handle and manipulate `ma
   Method & Purpose \\
     \hline  \hline
   \code{*} & Direct multiplication for transition matrices.\\
-  \code{^} & Compute the power \code{markovchain} of a given one\\
-% $\^$ & Integer power of a markov chain.\\
+  \code{\textasciicircum{}} & Compute the power \code{markovchain} of a given one.\\
   \code{[} & Direct access to the elements of the transition matrix.\\
   \code{==} & Equality operator between two transition matrices.\\
   \code{!=} & Inequality operator between two transition matrices.\\
   \code{as} & Operator to convert \code{markovchain} objects into \code{data.frame} and\\
   & \code{table} object.\\
-\code{dim} & Dimension of the transition matrix.\\
-\code{names} & Equal to \code{states}.\\
-\code{names<-} & Change the \code{states} name.\\
-\code{name} & Get the name of \code{markovchain object}.\\
-\code{name<-} & Change the name of \code{markovchain object}.\\
-\code{plot} & \code{plot} method for \code{markovchain} objects.\\
-\code{print} & \code{print} method for \code{markovchain} objects.\\
-\code{show} & \code{show} method for \code{markovchain} objects.\\
-\code{sort} & \code{sort} method for \code{markovchain} objects, in terms of their states.\\
+  \code{dim} & Dimension of the transition matrix.\\
+  \code{names} & Equal to \code{states}.\\
+  \code{names<-} & Change the \code{states} name.\\
+  \code{name} & Get the name of \code{markovchain object}.\\
+  \code{name<-} & Change the name of \code{markovchain object}.\\
+  \code{plot} & \code{plot} method for \code{markovchain} objects.\\
+  \code{print} & \code{print} method for \code{markovchain} objects.\\
+  \code{show} & \code{show} method for \code{markovchain} objects.\\
+  \code{sort} & \code{sort} method for \code{markovchain} objects, in terms of their states.\\
   \code{states} & Name of the transition states.\\
   \code{t} & Transposition operator (which switches \code{byrow} `slot value and modifies \\
- &  the transition matrix coherently).\\
+  &  the transition matrix coherently).\\
   \hline
 \end{tabular}
 \caption{\pkg{markovchain} methods for handling \code{markovchain} objects.}

@@ -16,6 +16,7 @@
 \alias{transientClasses,markovchain-method}
 \alias{recurrentClasses,markovchain-method}
 \alias{communicatingClasses,markovchain-method}
+\alias{steadyStates,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
 \alias{hittingProbabilities,markovchain-method}
 \alias{canonicForm,markovchain-method}

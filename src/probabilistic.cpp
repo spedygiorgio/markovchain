@@ -1095,6 +1095,9 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
   NumericMatrix steady(numRecClasses, numCols);
   unordered_map<string, int> stateToIndex;
   int steadyStateIndex = 0;
+  bool allNegative;
+  bool negativeFound;
+  double current;
   
   // Map each state to the index it has
   for (int i = 0; i < states.size(); ++i) {
@@ -1127,10 +1130,26 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
     if (steadySubMatrix.n_rows != 1)
       stop("Could not compute steady states with recurrent classes method");
     
+    allNegative = true;
+    negativeFound = false;
+    
     for (int i = 0; i < recClassSize; ++i) {
       int c = stateToIndex[(string) recurrentClass[i]];
-      steady(steadyStateIndex, c) = steadySubMatrix(0, i);
+      current = steadySubMatrix(0, i);
+      allNegative = allNegative && current < 0;
+      
+      // If we find some negative value from the steady states, try to shift it
+      // But if not all of them are negative, we should stop the method
+      if (current < 0) {
+        negativeFound = true;
+        current = -current;
+      }
+      
+      steady(steadyStateIndex, c) = current;
     }
+    
+    if (negativeFound && !allNegative)
+      stop("Could not compute steady states correctly: negative value found"); 
     
     ++steadyStateIndex;
   }

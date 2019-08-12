@@ -10,6 +10,18 @@ using namespace arma;
 using namespace std;
 
 
+bool anyElement(mat matrix, bool (*condition)(const double&)) {
+  int numRows = matrix.n_rows;
+  int numCols = matrix.n_cols;
+  bool found = false;
+  
+  for (int i = 0; i < numRows && !found; ++i)
+    for (int j = 0; j < numCols && !found; ++j)
+      found = condition(matrix(i, j));
+  
+  return found;
+}
+
 
 bool approxEqual(const double& a, const double& b) {
   if (a >= b)

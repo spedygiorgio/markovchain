@@ -1021,12 +1021,13 @@ mat computeSteadyStates(NumericMatrix t, bool byrow) {
   cx_mat eigvecs;
   // 1 + 0i
   cx_double cxOne(1.0, 0);
+  bool correctEigenDecomposition;
   
   // If transition matrix is hermitian (symmetric in real case), use
   // more efficient implementation to get the eigenvalues and vectors
   if (transitionMatrix.is_hermitian()) {
     vec realEigvals;
-    eig_sym(realEigvals, eigvecs, transitionMatrix);
+    correctEigenDecomposition = eig_sym(realEigvals, eigvecs, transitionMatrix);
     eigvals.resize(realEigvals.size());
     
     // eigen values are real, but we need to cast them to complex values
@@ -1034,9 +1035,11 @@ mat computeSteadyStates(NumericMatrix t, bool byrow) {
     for (int i = 0; i < realEigvals.size(); ++i)
       eigvals[i] = cx_double(realEigvals[i], 0);
   } else {
-    eig_gen(eigvals, eigvecs, transitionMatrix, "balance");
+    correctEigenDecomposition = eig_gen(eigvals, eigvecs, transitionMatrix, "balance");
   }
   
+  if (!correctEigenDecomposition)
+    stop("Failure computing eigen values / vectors for submatrix in computeSteadySates");
   std::vector<int> whichOnes;
   std::vector<double> colSums;
   double colSum;
@@ -1069,18 +1072,6 @@ mat computeSteadyStates(NumericMatrix t, bool byrow) {
     result = result.t();
   
   return result;
-}
-
-bool anyElement(mat matrix, bool (*condition)(const double&)) {
-  int numRows = matrix.n_rows;
-  int numCols = matrix.n_cols;
-  bool found = false;
-  
-  for (int i = 0; i < numRows && !found; ++i)
-    for (int j = 0; j < numCols && !found; ++j)
-      found = condition(matrix(i, j));
-  
-  return found;
 }
 
 
@@ -1161,28 +1152,13 @@ NumericMatrix steadyStates(S4 obj) {
     object.slot("transitionMatrix") = transpose(transitions);
     object.slot("states") = states;
     object.slot("byrow") = true;
-    transitions = transpose(transitions);
   } else {
     object = obj;
   }
   
-  // Try to compute the steady states computing the eigenvectors
-  // associated with the eigenvalue 1, else compute steady states
-  // using recurrent classes (there is one steady state associated
-  // with each recurrent class)
-  NumericMatrix result;
-  mat steady;
-  steady = computeSteadyStates(transitions, true);
-  auto isNegative = [](const double& x) { return x < 0; };
-  
-  if (anyElement(steady, isNegative)) {
-    result = steadyStatesByRecurrentClasses(object);
-  } else {
-    result = wrap(steady);
-    colnames(result) = colnames(transitions);
-  }
-  
-  result = lexicographicalSort(result);
+  // Compute steady states using recurrent classes (there is one
+  // steady state associated with each recurrent class)
+  NumericMatrix result = lexicographicalSort(steadyStatesByRecurrentClasses(object));
   
   if (!byrow)
     result = transpose(result);

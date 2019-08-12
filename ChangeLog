@@ -1,3 +1,11 @@
+2019-08-12 0.7.0
+* Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to C++ whenever possible and improving the algorithmic complexity of the code.
+* Solves a bug with `steadyStates` method.
+* Adds the methods `recurrentStates` and `transientClasses`.
+* Makes the aforementioned methods work on by column Markov chains.
+* Improves tests, adding checking of mathematical structural properties and hundreds of random test cases.
+* Fixes documentation for `roxygen` and NAMESPACE file for automatic generation using `devtools::document()`
+* Bumps Ignacio Cordón as author (ORCID included)
 2019-07-01 0.6.9.15
 Fixed confidence interval calculation: true confidence intervals are now 1-(1-confidence_interval)/2
 Various code refactoring
@@ -98,7 +106,7 @@ Fixed a compatibility issue with R 3 development
 
 12-04-2015
 Version 0.2
-This is a milestone for markovchain package, since the package project has been 
+This is a milestone for markovchain package, since the package project has been
 selected within the funded GSOC 2015 projects.
 Thanks to Tae support now the fitting functions have been rewritten in Rcpp.
 

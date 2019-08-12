@@ -1,3 +1,8 @@
-2019-07-21 0.6.9.15
-Fixed confidence interval calculation: true confidence intervals are now 1-(1-confidence_interval)/2
-Various code refactoring
+2019-08-12 0.7.0
+* Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to C++ whenever possible and improving the algorithmic complexity of the code.
+* Solves a bug with `steadyStates` method.
+* Adds the methods `recurrentStates` and `transientClasses`.
+* Makes the aforementioned methods work on by column Markov chains.
+* Improves tests, adding checking of mathematical structural properties and hundreds of random test cases.
+* Fixes documentation for `roxygen` and NAMESPACE file for automatic generation using `devtools::document()`
+* Bumps Ignacio Cordón as author (ORCID included)

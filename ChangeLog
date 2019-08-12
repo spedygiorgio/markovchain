@@ -1,4 +1,4 @@
-2019-08-12 0.7.0
+2019-08-13 0.7.0
 * Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to C++ whenever possible and improving the algorithmic complexity of the code.
 * Solves a bug with `steadyStates` method.
 * Adds the methods `recurrentStates` and `transientClasses`.

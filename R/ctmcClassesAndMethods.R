@@ -98,7 +98,7 @@ setMethod("initialize",
 )
 
 #returns states of the ctmc
-setMethod("states","ctmc", 
+setMethod("states", "ctmc", 
           function(object) {
             out <- object@states
             return(out)
@@ -106,7 +106,7 @@ setMethod("states","ctmc",
 )
 
 #returns states of the ctmc
-setMethod("dim","ctmc", 
+setMethod("dim", "ctmc", 
           function(x) {
             out <- nrow(x@generator)
             return(out)
@@ -172,7 +172,7 @@ setValidity("ctmc",
   return(out)
 }
 
-setMethod("steadyStates","ctmc", 
+setMethod("steadyStates", "ctmc", 
           function(object) {
             transposeYN <- FALSE
             if(object@byrow==TRUE) transposeYN <- TRUE		

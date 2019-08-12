@@ -5,14 +5,6 @@
     .Call(`_markovchain_isGen`, gen)
 }
 
-.canonicFormRcpp <- function(obj) {
-    .Call(`_markovchain_canonicForm`, obj)
-}
-
-.steadyStatesRcpp <- function(obj) {
-    .Call(`_markovchain_steadyStates`, obj)
-}
-
 #' @name generatorToTransitionMatrix
 #' @title Function to obtain the transition matrix from the generator
 #' @description The transition matrix of the embedded DTMC is inferred from the CTMC's generator
@@ -404,6 +396,14 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .hittingProbabilitiesRcpp <- function(object) {
     .Call(`_markovchain_hittingProbabilities`, object)
+}
+
+.canonicFormRcpp <- function(obj) {
+    .Call(`_markovchain_canonicForm`, obj)
+}
+
+.steadyStatesRcpp <- function(obj) {
+    .Call(`_markovchain_steadyStates`, obj)
 }
 
 .isProbability <- function(prob) {

@@ -703,3 +703,97 @@ setGeneric("hittingProbabilities", function(object) standardGeneric("hittingProb
 setMethod("hittingProbabilities", "markovchain", function(object) {
   return(.hittingProbabilitiesRcpp(object))
 })
+
+
+setMethod(
+  "steadyStates",
+  "markovchain", 
+  function(object) {
+    .steadyStatesRcpp(object)
+  }
+)
+
+
+
+#' @exportMethod summary
+setGeneric("summary")
+
+# summary method for markovchain class
+# lists: closed, transient classes, irreducibility, absorbint, transient states
+setMethod("summary", signature(object = "markovchain"),
+  function(object){
+    
+    # list of closed, recurrent and transient classes
+    outs <- .summaryKernelRcpp(object)
+    
+    # display name of the markovchain object
+    cat(object@name," Markov chain that is composed by:", "\n")
+    
+    # number of closed classes
+    check <- length(outs$closedClasses)
+    
+    cat("Closed classes:","\n")
+    
+    # display closed classes
+    if(check == 0) cat("NONE", "\n") else {
+      for(i in 1:check) cat(outs$closedClasses[[i]], "\n")
+    }
+    
+    # number of recurrent classes
+    check <- length(outs$recurrentClasses)
+    
+    cat("Recurrent classes:", "\n")
+    
+    # display recurrent classes
+    if(check == 0) cat("NONE", "\n") else {
+      cat("{")
+      cat(outs$recurrentClasses[[1]], sep = ",")
+      cat("}")
+      if(check > 1) {
+        for(i in 2:check) {
+          cat(",{")
+          cat(outs$recurrentClasses[[i]], sep = ",")
+          cat("}")
+        }
+      }
+      cat("\n")
+    }
+    
+    # number of transient classes
+    check <- length(outs$transientClasses)
+    
+    cat("Transient classes:","\n")
+    
+    # display transient classes
+    if(check == 0) cat("NONE", "\n") else {
+      cat("{")
+      cat(outs$transientClasses[[1]], sep = ",")
+      cat("}")
+      if(check > 1) { 
+        for(i in 2:check) {
+          cat(",{")
+          cat(outs$transientClasses[[i]], sep = ",")
+          cat("}")
+        }
+      }
+      cat("\n")
+    }
+    
+    # bool to say about irreducibility of markovchain
+    irreducibility <- is.irreducible(object)
+    
+    if(irreducibility) 
+      cat("The Markov chain is irreducible", "\n") 
+    else cat("The Markov chain is not irreducible", "\n")
+    
+    # display absorbing states
+    check <- absorbingStates(object)
+    if(length(check) == 0) check <- "NONE"
+    cat("The absorbing states are:", check )
+    cat("\n")
+    
+    # return outs
+    # useful when user will assign the value returned
+    invisible(outs) 
+  }
+)

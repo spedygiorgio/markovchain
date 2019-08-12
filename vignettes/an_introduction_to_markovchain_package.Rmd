@@ -312,9 +312,11 @@ Table \@ref(tab:methodsToHandleMc) lists which methods handle and manipulate `ma
   Method & Purpose \\
     \hline  \hline
   \code{*} & Direct multiplication for transition matrices.\\
+  \code{^} & Compute the power \code{markovchain} of a given one\\
 % $\^$ & Integer power of a markov chain.\\
   \code{[} & Direct access to the elements of the transition matrix.\\
   \code{==} & Equality operator between two transition matrices.\\
+  \code{!=} & Inequality operator between two transition matrices.\\
   \code{as} & Operator to convert \code{markovchain} objects into \code{data.frame} and\\
   & \code{table} object.\\
 \code{dim} & Dimension of the transition matrix.\\
@@ -325,9 +327,9 @@ Table \@ref(tab:methodsToHandleMc) lists which methods handle and manipulate `ma
 \code{plot} & \code{plot} method for \code{markovchain} objects.\\
 \code{print} & \code{print} method for \code{markovchain} objects.\\
 \code{show} & \code{show} method for \code{markovchain} objects.\\
-\code{sort} & \code{sort} method for \code{markovchain} objects.\\
+\code{sort} & \code{sort} method for \code{markovchain} objects, in terms of their states.\\
   \code{states} & Name of the transition states.\\
-  \code{t} & Transposition operator (which switches byrow slot value and modifies \\
+  \code{t} & Transposition operator (which switches \code{byrow} `slot value and modifies \\
  &  the transition matrix coherently).\\
   \hline
 \end{tabular}
@@ -565,19 +567,21 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
     \hline  \hline
   \code{absorbingStates} & the absorbing states of the transition
   matrix, if any.\\
-  \code{steadyStates} & the vector(s) of steady state(s) in matrix form.\\
-  \code{meanFirstPassageTime} & matrix or vector of mean first passage times \\
-  \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain\\ 
+  \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
+  \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
+  \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{committorAB} & committor probabilities \\
   \code{communicatingClasses} & list of communicating classes. \\
-   & $s_{j}$, given actual state $s_{i}$.\\
-  \code{canonicForm} & the transition matrix into canonic form.\\
-  \code{is.accessible} & checks whether a state j is reachable from state i.\\
-  \code{is.irreducible} & checks whether a DTMC is irreducible.\\
-  \code{period} & the period of an irreducible DTMC.\\
+   & $s_{j}$, given actual state $s_{i}$. \\
+  \code{canonicForm} & the transition matrix into canonic form. \\
+  \code{is.accessible} & checks whether a state j is reachable from state i. \\
+  \code{is.irreducible} & checks whether a DTMC is irreducible. \\
+  \code{period} & the period of an irreducible DTMC. \\
   \code{recurrentClasses} & list of recurrent classes. \\
+  \code{transientClasses} & list of transient classes. \\
   \code{summary} & DTMC summary.\\
-  \code{transientStates} & the transient states of the transition matrix, if any.\\
+  \code{recurrentStates} & the recurrent states of the transition matrix. \\
+  \code{transientStates} & the transient states of the transition matrix, if any. \\
   \hline
   \end{tabular}
 \caption{\pkg{markovchain} methods: statistical operations.}

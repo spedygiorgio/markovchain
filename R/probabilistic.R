@@ -56,7 +56,7 @@ is.accessible <- function(object, from, to) {
 # a markov chain is irreducible if it is composed of only one communicating class
 
 #' @name is.irreducible
-#' @title Function to check if a Markov chain is irreducible
+#' @title Function to check if a Markov chain is irreducible (i.e. ergodic)
 #' @description This function verifies whether a \code{markovchain} object transition matrix 
 #'              is composed by only one communicating class.
 #' @param object A \code{markovchain} object
@@ -78,10 +78,7 @@ is.accessible <- function(object, from, to) {
 #' is.irreducible(mcA)
 #' @export
 is.irreducible <- function(object) {
-  # This function will return a list of communicating classes 
-  commClasses <- .communicatingClassesRcpp(object)
-  # The markov chain is irreducible iff has only a single communicating class
-  return(length(commClasses) == 1)
+  .isIrreducibleRcpp(object)
 }
 
 # what this function will do?

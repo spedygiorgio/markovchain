@@ -494,6 +494,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// absorbingStates
+CharacterVector absorbingStates(S4 obj);
+RcppExport SEXP _markovchain_absorbingStates(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(absorbingStates(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isProb
 bool isProb(double prob);
 RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
@@ -644,6 +655,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
+    {"_markovchain_absorbingStates", (DL_FUNC) &_markovchain_absorbingStates, 1},
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
     {"_markovchain_isStochasticMatrix", (DL_FUNC) &_markovchain_isStochasticMatrix, 2},
     {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},

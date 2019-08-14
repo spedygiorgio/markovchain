@@ -406,6 +406,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_steadyStates`, obj)
 }
 
+.absorbingStatesRcpp <- function(obj) {
+    .Call(`_markovchain_absorbingStates`, obj)
+}
+
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
 }

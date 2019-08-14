@@ -331,15 +331,7 @@ setMethod("recurrentStates", "markovchain", function(object) {
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
 
 setMethod("absorbingStates", "markovchain", function(object) {
-    n <- dim(object)
-    
-    whichAbsorbing <- which(
-      sapply(1:n, function(i) { 
-        isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
-      })
-    )
-    
-    object@states[whichAbsorbing]
+    .absorbingStatesRcpp(object)
   }
 )
 

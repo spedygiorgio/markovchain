@@ -1112,3 +1112,19 @@ NumericMatrix steadyStates(S4 obj) {
   return result;
 }
 
+
+// This method is agnostic on whether the matrix is stochastic 
+// by rows or by columns, we just need the diagonal
+// [[Rcpp::export(.absorbingStatesRcpp)]]
+CharacterVector absorbingStates(S4 obj) {
+  NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  CharacterVector absorbing;
+  int numStates = states.size();
+  
+  for (int i = 0; i < numStates; ++i)
+    if (approxEqual(transitionMatrix(i, i), 1))
+      absorbing.push_back(states(i));
+    
+  return absorbing;
+}

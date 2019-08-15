@@ -586,16 +586,29 @@ BEGIN_RCPP
 END_RCPP
 }
 // areHittingProbabilities
-bool areHittingProbabilities(NumericMatrix probs, NumericMatrix hitting, bool byrow, double tolerance);
-RcppExport SEXP _markovchain_areHittingProbabilities(SEXP probsSEXP, SEXP hittingSEXP, SEXP byrowSEXP, SEXP toleranceSEXP) {
+bool areHittingProbabilities(NumericMatrix probs, NumericMatrix hitting, bool byrow);
+RcppExport SEXP _markovchain_areHittingProbabilities(SEXP probsSEXP, SEXP hittingSEXP, SEXP byrowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type probs(probsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
     Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
-    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
-    rcpp_result_gen = Rcpp::wrap(areHittingProbabilities(probs, hitting, byrow, tolerance));
+    rcpp_result_gen = Rcpp::wrap(areHittingProbabilities(probs, hitting, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
+// areMeanNumVisits
+bool areMeanNumVisits(NumericMatrix probs, NumericMatrix numVisits, NumericMatrix hitting, bool byrow);
+RcppExport SEXP _markovchain_areMeanNumVisits(SEXP probsSEXP, SEXP numVisitsSEXP, SEXP hittingSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type probs(probsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type numVisits(numVisitsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(areMeanNumVisits(probs, numVisits, hitting, byrow));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -685,7 +698,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},
     {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
-    {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
+    {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 3},
+    {"_markovchain_areMeanNumVisits", (DL_FUNC) &_markovchain_areMeanNumVisits, 4},
     {"_markovchain_recurrentHitting", (DL_FUNC) &_markovchain_recurrentHitting, 4},
     {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
     {"_markovchain_absorbingAreRecurrentClass", (DL_FUNC) &_markovchain_absorbingAreRecurrentClass, 2},

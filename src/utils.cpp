@@ -144,13 +144,11 @@ bool isPartition(List commClasses,
 // where p are the transitionMatrix probs and hitting are the
 // hitting probabilities for the Markov Chain associated to
 // probs. byrow indicates whether probs is an stochastic matrix
-// by rows or by columns. tolerance is the tolerance we want to
-// check against (values must sufficiently close to 1)
+// by rows or by columns.
 // [[Rcpp::export(.testthatAreHittingRcpp)]]
 bool areHittingProbabilities(NumericMatrix probs, 
                              NumericMatrix hitting,
-                             bool byrow,
-                             double tolerance) {
+                             bool byrow) {
   if (!byrow) {
     probs = transpose(probs);
     hitting = transpose(hitting);
@@ -169,7 +167,58 @@ bool areHittingProbabilities(NumericMatrix probs,
           result -= probs(i, k) * hitting(k, j);
         
       result += hitting(i, j) - probs(i, j);
-      holds = abs(result) < tolerance;
+      holds = approxEqual(result, 0);
+    }
+  }
+  
+  return holds;
+}
+
+
+// This is simply a method that checks the following recurrence,
+// naming p = probs, E = mean number of visits, f = hitting 
+// probabilities, it checks:
+//
+// E(i, j) = p(i, j) / (1 - f(j, j)) + ∑_{k ≠ j} p(i, k) E(k, j)
+//
+// Note this recurrence is similar to the one for hitting probabilities
+// We have to take care when E(i, j) = 0, because we would have to check
+// that in either p(i, k) = 0 or E(k, j) = 0. If E(i, j) = ∞ we would have
+// to check that either p(i, j) > 0 or (p(i, k) != 0 and E(k, j) = ∞)
+// 
+// where p are the transitionMatrix probs, numVisits are the mean
+// number of visits for each state, and hitting are the hitting 
+// probabilities for the Markov Chain associated to probs. 
+// byrow indicates whether probs is an stochastic matrix
+// by rows or by columns.
+// [[Rcpp::export(.testthatAreMeanNumVisitsRcpp)]]
+bool areMeanNumVisits(NumericMatrix probs, NumericMatrix numVisits, 
+                      NumericMatrix hitting, bool byrow) {
+  if (!byrow) {
+    probs = transpose(probs);
+    numVisits = transpose(numVisits);
+    hitting = transpose(hitting);
+  }
+  
+  int numStates = probs.ncol();
+  bool holds = true;
+  double result;
+  double inverse;
+  
+  for (int j = 0; j < numStates && holds; ++j) {
+    if (!approxEqual(hitting(j, j), 1)) {
+      inverse = 1 / (1 - hitting(j, j));
+      
+      for (int i = 0; i < numStates && holds; ++i) {
+        result = 0;
+        
+        for (int k = 0; k < numStates; ++k)
+          if (k != j)
+            result -= probs(i, k) * numVisits(k, j);
+          
+        result += numVisits(i, j) - probs(i, j) * inverse;
+        holds = approxEqual(result, 0);
+      }
     }
   }
   

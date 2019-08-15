@@ -1176,6 +1176,7 @@ bool isIrreducible(S4 obj) {
 // [[Rcpp::export(.minNumVisitsRcpp)]]
 NumericMatrix meanNumVisits(S4 obj) {
   NumericMatrix hitting = hittingProbabilities(obj);
+  CharacterVector states = obj.slot("states");
   bool byrow = obj.slot("byrow");
   
   if (!byrow)
@@ -1185,6 +1186,8 @@ NumericMatrix meanNumVisits(S4 obj) {
   bool closeToOne;
   double inverse;
   NumericMatrix result(n, n);
+  rownames(result) = states;
+  colnames(result) = states;
   
   for (int j = 0; j < n; ++j) {
     closeToOne = approxEqual(hitting(j, j), 1);

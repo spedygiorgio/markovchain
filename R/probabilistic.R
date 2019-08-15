@@ -602,22 +602,22 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
   # gets the transition matrix
   matrix <- markovchain@transitionMatrix
 
-  # if(is.null(destination_set)) {
-  #   # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
-  #   d <- nrow(matrix)
-  #   w <- steadyStates(markovchain)
-  #   W <- w[rep(1,d),]  # Replicate w, d equal rows
-  #   Z <- solve(diag(d)-matrix+W)
-  #   M <- matrix(0,nrow=d,ncol=d)
-  #   for (i in 1:d) {
-  #     for (j in 1:d) {
-  #       M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
-  #     }
-  #   }
-  #   rownames(M) <- markovchain@states
-  #   colnames(M) <- markovchain@states
-  #   result <- M
-  # } else {
+  if(is.null(destination_set)) {
+    # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
+    d <- nrow(matrix)
+    w <- steadyStates(markovchain)
+    W <- w[rep(1,d),]  # Replicate w, d equal rows
+    Z <- solve(diag(d)-matrix+W)
+    M <- matrix(0,nrow=d,ncol=d)
+    for (i in 1:d) {
+      for (j in 1:d) {
+        M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
+      }
+    }
+    rownames(M) <- markovchain@states
+    colnames(M) <- markovchain@states
+    result <- M
+  } else {
     # Drop absorbing states
     Q <- matrix[!rownames(matrix) %in% destination_set,
                 !colnames(matrix) %in% destination_set,
@@ -626,7 +626,7 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
     cc <- rep(1,d)
     Ninv <- diag(d)-Q
     result <- solve(Ninv, cc) # Theorem 11.5
-  #}
+  }
 
   return(result)
 }

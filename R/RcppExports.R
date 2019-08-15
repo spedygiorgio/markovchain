@@ -438,8 +438,12 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_isPartition`, commClasses, states)
 }
 
-.testthatAreHittingRcpp <- function(probs, hitting, byrow, tolerance) {
-    .Call(`_markovchain_areHittingProbabilities`, probs, hitting, byrow, tolerance)
+.testthatAreHittingRcpp <- function(probs, hitting, byrow) {
+    .Call(`_markovchain_areHittingProbabilities`, probs, hitting, byrow)
+}
+
+.testthatAreMeanNumVisitsRcpp <- function(probs, numVisits, hitting, byrow) {
+    .Call(`_markovchain_areMeanNumVisits`, probs, numVisits, hitting, byrow)
 }
 
 .testthatRecurrentHittingRcpp <- function(recurrentClasses, hitting, states, byrow) {

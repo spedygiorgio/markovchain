@@ -1,5 +1,3 @@
-library(Rcpp)
-
 context("Checking hittingProbabilities method")
 
 test_that("Hitting probabilities of identity markov chain is identity", {
@@ -22,14 +20,12 @@ test_that("Hitting probabilities hold their characteristic system", {
   # naming p = probs, f = hitting, it checks:
   #
   # f(i, j) = p(i, j) + ∑_{k ≠ j} p(i, k) f(k, j)
-  #
-  tolerance <- .Machine$double.eps ^ 0.5
   
   for (mc in allMCs) {
     probs <- mc$transitionMatrix
     byrow <- mc$byrow
     hitting <- mc$hittingProbabilities
-    expect_true(.testthatAreHittingRcpp(probs, hitting, byrow, tolerance))
+    expect_true(.testthatAreHittingRcpp(probs, hitting, byrow))
   }
 })
 
@@ -60,7 +56,6 @@ test_that("Tests hitting probabilities for a known markov chain", {
   M[4,2] <- M[4,5] <- 1/2
   
   markovChain <- new("markovchain", transitionMatrix = M)
-  hittingProbabilities(markovChain)
   
   result <- matlab::zeros(5, 5)
   result[1,1] <- result[5,5] <- 1

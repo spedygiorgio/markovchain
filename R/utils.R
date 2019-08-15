@@ -12,6 +12,7 @@ precomputeData <- function(mc) {
     transientStates = transientStates(mc),
     absorbingStates = absorbingStates(mc),
     hittingProbabilities = hittingProbabilities(mc),
+    meanNumVisits = meanNumVisits(mc),
     communicatingClasses = communicatingClasses(mc),
     steadyStates = steadyStates(mc)
   )

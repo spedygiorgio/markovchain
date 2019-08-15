@@ -602,22 +602,22 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
   # gets the transition matrix
   matrix <- markovchain@transitionMatrix
 
-  if(is.null(destination_set)) {
-    # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
-    d <- nrow(matrix)
-    w <- steadyStates(markovchain)
-    W <- w[rep(1,d),]  # Replicate w, d equal rows
-    Z <- solve(diag(d)-matrix+W)
-    M <- matrix(0,nrow=d,ncol=d)
-    for (i in 1:d) {
-      for (j in 1:d) {
-        M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
-      }
-    }
-    rownames(M) <- markovchain@states
-    colnames(M) <- markovchain@states
-    result <- M
-  } else {
+  # if(is.null(destination_set)) {
+  #   # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
+  #   d <- nrow(matrix)
+  #   w <- steadyStates(markovchain)
+  #   W <- w[rep(1,d),]  # Replicate w, d equal rows
+  #   Z <- solve(diag(d)-matrix+W)
+  #   M <- matrix(0,nrow=d,ncol=d)
+  #   for (i in 1:d) {
+  #     for (j in 1:d) {
+  #       M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
+  #     }
+  #   }
+  #   rownames(M) <- markovchain@states
+  #   colnames(M) <- markovchain@states
+  #   result <- M
+  # } else {
     # Drop absorbing states
     Q <- matrix[!rownames(matrix) %in% destination_set,
                 !colnames(matrix) %in% destination_set,
@@ -626,7 +626,7 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
     cc <- rep(1,d)
     Ninv <- diag(d)-Q
     result <- solve(Ninv, cc) # Theorem 11.5
-  }
+  #}
 
   return(result)
 }
@@ -683,14 +683,50 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #' M[3,2] <- M[3,4] <- 1/2
 #' M[4,2] <- M[4,5] <- 1/2
 #' 
-#' markovChain <- new("markovchain", transitionMatrix = M)
-#' hittingProbabilities(markovChain)
+#' mc <- new("markovchain", transitionMatrix = M)
+#' hittingProbabilities(mc)
 #' 
 #' @exportMethod hittingProbabilities
 setGeneric("hittingProbabilities", function(object) standardGeneric("hittingProbabilities"))
 
 setMethod("hittingProbabilities", "markovchain", function(object) {
-  return(.hittingProbabilitiesRcpp(object))
+  .hittingProbabilitiesRcpp(object)
+})
+
+
+
+#' Mean num of visits for markovchain, starting at each state
+#' 
+#' @description Given a markovchain object, this function calculates 
+#' a matrix where the element (i, j) represents the expect number of visits
+#' to the state j if the chain starts at i (in a Markov chain by columns it
+#' would be the element (j, i) instead)
+#' 
+#' @usage meanNumVisits(object)
+#' 
+#' @param object the markovchain-class object
+#' 
+#' @return a matrix with the expect number of visits to each state
+#' 
+#' @author Ignacio Cordón
+#' 
+#' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
+#' 
+#' @examples
+#' M <- matlab::zeros(5, 5)
+#' M[1,1] <- M[5,5] <- 1
+#' M[2,1] <- M[2,3] <- 1/2
+#' M[3,2] <- M[3,4] <- 1/2
+#' M[4,2] <- M[4,5] <- 1/2
+#' 
+#' mc <- new("markovchain", transitionMatrix = M)
+#' meanNumVisits(mc)
+#' 
+#' @exportMethod meanNumVisits
+setGeneric("meanNumVisits", function(object) standardGeneric("meanNumVisits"))
+
+setMethod("meanNumVisits", "markovchain", function(object) {
+  .minNumVisitsRcpp(object)
 })
 
 
@@ -701,7 +737,6 @@ setMethod(
     .steadyStatesRcpp(object)
   }
 )
-
 
 
 #' @exportMethod summary

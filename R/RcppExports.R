@@ -410,6 +410,14 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_absorbingStates`, obj)
 }
 
+.isIrreducibleRcpp <- function(obj) {
+    .Call(`_markovchain_isIrreducible`, obj)
+}
+
+.minNumVisitsRcpp <- function(obj) {
+    .Call(`_markovchain_meanNumVisits`, obj)
+}
+
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
 }

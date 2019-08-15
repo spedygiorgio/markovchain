@@ -1129,52 +1129,83 @@ CharacterVector absorbingStates(S4 obj) {
   return absorbing;
 }
 
-// [[Rcpp::export(.absorbingStatesRcpp)]]
-NumericMatrix meanFirstPassageTime(S4 obj) {
-  NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
-  CharacterVector states = obj.slot("states");
+// // [[Rcpp::export(.absorbingStatesRcpp)]]
+// NumericMatrix meanFirstPassageTime(S4 obj) {
+//   NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
+//   CharacterVector states = obj.slot("states");
+//   bool byrow = obj.slot("byrow");
+//   int numStates = states.size();
+//   NumericMatrix passageTimes(numStates, numStates);
+//   unordered_set<int> absorbing;
+//     
+//   if (!byrow)
+//     transitionMatrix = transpose(transitionMatrix);
+//   
+//   for (int i = 0; i < numStates; ++i)
+//     if (approxEqual(transitionMatrix(i, i), 1))
+//       absorbing.insert(i);
+//     
+//   int s = numStates - absorbing.size();
+//   int k = 0;
+//   mat toInvert(s, s);
+//   
+//   for (int i = 0; i < numStates; ++i) {
+//     if (absorbing.count(i) == 0) {
+//       
+//       for (int j = 0; j < numStates; ++j)
+//         toInvert(k, j) = transitionMatrix(i, j);
+//       
+//       toInvert(k, k) -= 1;
+//       ++k;
+//     }
+//   }
+//   
+//   solve(inv(toInvert, )
+//   
+//   
+//   return absorbing;
+// }
+
 // [[Rcpp::export(.isIrreducibleRcpp)]]
 bool isIrreducible(S4 obj) {
   List commClasses = communicatingClasses(obj);
   // The markov chain is irreducible iff has only a single communicating class
   return commClasses.size() == 1;
 }
+
+// [[Rcpp::export(.minNumVisitsRcpp)]]
+NumericMatrix meanNumVisits(S4 obj) {
+  NumericMatrix hitting = hittingProbabilities(obj);
   bool byrow = obj.slot("byrow");
-  int numStates = states.size();
-  NumericMatrix passageTimes(numStates, numStates);
-  unordered_set<int> absorbing;
-    
+  
   if (!byrow)
-    transitionMatrix = transpose(transitionMatrix);
+    hitting = transpose(hitting);
   
-  for (int i = 0; i < numStates; ++i)
-    if (approxEqual(transitionMatrix(i, i), 1))
-      absorbing.insert(i);
+  int n = hitting.ncol();
+  bool closeToOne;
+  double inverse;
+  NumericMatrix result(n, n);
+  
+  for (int j = 0; j < n; ++j) {
+    closeToOne = approxEqual(hitting(j, j), 1);
     
-  int s = numStates - absorbing.size();
-  int k = 0;
-  mat toInvert(s, s);
-  
-  for (int i = 0; i < numStates; ++i) {
-    if (absorbing.count(i) == 0) {
-      
-      for (int j = 0; j < numStates; ++j)
-        toInvert(k, j) = transitionMatrix(i, j);
-      
-      toInvert(k, k) -= 1;
-      ++k;
+    if (!closeToOne)
+      inverse = 1 / (1 - hitting(j, j));
+        
+    for (int i = 0; i < n; ++i) {
+      if (hitting(i, j) == 0)
+        result(i, j) = 0;
+      else {
+        if (closeToOne)
+          result(i, j) = R_PosInf;
+        else
+          result(i, j) = hitting(i, j) * inverse; 
+      }
     }
   }
   
-  solve(inv(toInvert, )
+  if (!byrow)
+    result = transpose(result);
   
-  
-  return absorbing;
-}
-
-// [[Rcpp::export(.isIrreducibleRcpp)]]
-bool isIrreducible(S4 obj) {
-  List commClasses = .communicatingClassesRcpp(obj);
-  // The markov chain is irreducible iff has only a single communicating class
-  return commClasses.size() == 1;
+  return result;
 }

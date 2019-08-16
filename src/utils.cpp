@@ -12,10 +12,10 @@ using namespace std;
 
 // matrix power function
 // O(log n * m³) where m is the number of rows / cols of A
-mat matrixPow(mat& a, int n) {
-  int m = a.n_rows;
+mat matrixPow(const mat& A, int n) {
+  int m = A.n_rows;
   mat result  = eye(m, m);
-  mat partial = a;
+  mat partial = A;
   
   // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
   // Compute last = a + 1

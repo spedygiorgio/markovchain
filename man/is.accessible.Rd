@@ -22,7 +22,7 @@ This function verifies if a state is reachable from another, i.e.,
              positive probability
 }
 \details{
-It wraps an internal function named \code{.commStatesFinder}.
+It wraps an internal function named \code{reachabilityMatrix}.
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -42,5 +42,5 @@ James Montgomery, University of Madison
 \code{is.irreducible}
 }
 \author{
-Giorgio Spedicato
+Giorgio Spedicato, Ignacio Cordón
 }

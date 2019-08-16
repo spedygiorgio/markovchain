@@ -44,7 +44,7 @@ is.accessible <- function(object, from, to) {
   toPos <- which(statesNames == to)
 
   # a logical matrix which will tell the reachability of jth state from ith state
-  reachable <- reachabilityMatrix(object@transitionMatrix)
+  reachable <- .reachabilityMatrixRcpp(object@transitionMatrix)
   return(reachable[fromPos, toPos]) 
 }
 
@@ -644,32 +644,37 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
   .meanAbsorptionTimeRcpp(object, destination)
 })
 
-# @title Check if a DTMC is regular
+#' @title Check if a DTMC is regular
+#' 
+#' @description Function to check wether a DTCM is regular
 # 
-# @description Function to check wether a DTCM is regular
-# 
-# @details A regular Markov chain has $A^n$ strictly positive for some n. 
-# So we check: if there is only one eigenvector; if the steadystate vector is striclty positive.
-# 
-# @param object a markovchain object
-# 
-# @return A boolean value
-# 
-# @examples 
-# P=matrix(c(0.5,.25,.25,.5,0,.5,.25,.25,.5),nrow = 3)
-# colnames(P)<-rownames(P)<-c("R","N","S")
-# ciao<-as(P,"markovchain")
-# is.regular(ciao)
-# 
-# @seealso \code{\link{is.irreducible}}
+#' @details A Markov chain is regular if some of the powers of its matrix has all elements 
+#'   strictly positive
+#' 
+#' @param object a markovchain object
+#'
+#' @author Ignacio Cordón
+#' 
+#' @return A boolean value
+#'
+#' 
+#' @examples 
+#' P <- matrix(c(0.5,  0.25, 0.25,
+#'               0.5,     0, 0.5,
+#'               0.25, 0.25, 0.5), nrow = 3)
+#' colnames(P) <- rownames(P) <- c("R","N","S")
+#' ciao <- as(P, "markovchain")
+#' is.regular(ciao)
+#' 
+#' @seealso \code{\link{is.irreducible}}
+#' 
+#' @exportMethod is.regular
+setGeneric("is.regular", function(object) standardGeneric("is.regular"))
 
+setMethod("is.regular", "markovchain", function(object) {
+  .isRegularRcpp(object)
+})
 
-# is.regular<-function(object) {
-#   eigenValues<-steadyStates(object = object)
-#   minDim<-min(dim(eigenValues))
-#   out <- minDim==1 & all(eigenValues>0)
-#   return(out)
-# }
 
 #' Hitting probabilities for markovchain
 #' 

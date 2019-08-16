@@ -2,78 +2,21 @@
 % Please edit documentation in R/probabilistic.R
 \name{hittingProbabilities}
 \alias{hittingProbabilities}
-\title{Mean First Passage Time for irreducible Markov chains}
+\title{Hitting probabilities for markovchain}
 \usage{
-meanFirstPassageTime(markovchain)
+hittingProbabilities(object)
 }
 \arguments{
 \item{object}{the markovchain-class object}
-
-\item{markovchain}{the markovchain object}
-
-\item{destination}{a character vector representing the states respect to
-which we want to compute the mean first passage time. Empty by default}
 }
 \value{
-a Matrix of the same size with the average first passage times if
-  destination is empty, a vector if destination is not
-
 a matrix of hitting probabilities
 }
 \description{
-Given an irreducible (ergodic) markovchain object, this function
-  calculates the expected number of steps to reach other states
-
 Given a markovchain object,
 this function calculates the probability of ever arriving from state i to j
 }
-\details{
-For an ergodic Markov chain it computes: 
-\itemize{ 
-  \item If destination is empty, the average first time (in steps) that takes
-  the Markov chain to go from initial state i to j. (i, j) represents that 
-  value in case the Markov chain is given row-wise, (j, i) in case it is given
-  col-wise. 
-  \item If destination is not empty, the average time it takes us from the 
-  remaining states to reach the states in \code{destination} 
-}
-}
 \examples{
-m <- matrix(1 / 10 * c(6,3,1,
-                       2,3,5,
-                       4,1,5), ncol = 3, byrow = TRUE)
-mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
-meanFirstPassageTime(mc, "r")
-
-
-# Grinstead and Snell's "Oz weather" worked out example
-mOz <- matrix(c(2,1,1,
-                2,0,2,
-                1,1,2)/4, ncol = 3, byrow = TRUE)
-
-mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
-meanFirstPassageTime(mcOz)
-
-#' @export meanFirstPassageTime
-setGeneric("meanFirstPassageTime", function(object, destination = NULL) {
-  standardGeneric("meanFirstPassageTime")
-})
-
-
-setMethod("meanFirstPassageTime",  c("markovchain", "character"), 
-  function(object, destination = NULL) {
-    if (length(destination) > 0) {
-      states <- markovchain@states
-      incorrectStates <- setdiff(states, destination)
-      
-      if (length(incorrectStates) > 0)
-        stop("Some of the states you provided in destination do not match states from the markovchain")
-    }
-    .meanFirstPassageTimeRcpp(markovchain, destination)
-  }
-)
-Hitting probabilities for markovchain
-
 M <- matlab::zeros(5, 5)
 M[1,1] <- M[5,5] <- 1
 M[2,1] <- M[2,3] <- 1/2
@@ -85,13 +28,8 @@ hittingProbabilities(mc)
 
 }
 \references{
-C. M. Grinstead and J. L. Snell. Introduction to Probability.
-American Mathematical Soc., 2012.
-
 R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 }
 \author{
-Toni Giorgino, Ignacio Cordón
-
 Ignacio Cordón
 }

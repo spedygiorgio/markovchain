@@ -290,17 +290,17 @@ List transientClasses(S4 object) {
 
 
 // Defined in probabilistic.cpp
-mat matrixPow(arma::mat A, int n);
+mat matrixPow(const mat& A, int n);
 
 
-// [[Rcpp::export(.commStatesFinderRcpp)]]
+// [[Rcpp::export(.reachabilityMatrixRcpp)]]
 LogicalMatrix reachabilityMatrix(NumericMatrix matrix) {
   // Reachability matrix
   int m = matrix.nrow();
   mat X(matrix.begin(), m, m, false);
   mat reachability = eye(m, m) + sign(X);
   reachability = matrixPow(reachability, m - 1);
-  LogicalMatrix result = wrap(reachability == 1);
+  LogicalMatrix result = wrap(reachability > 0);
   result.attr("dimnames") = matrix.attr("dimnames");
   
   return result;
@@ -1102,6 +1102,20 @@ bool isIrreducible(S4 obj) {
   return commClasses.size() == 1;
 }
 
+
+// [[Rcpp::export(.isRegularRcpp)]]
+bool isRegular(S4 obj) {
+  NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
+  LogicalMatrix reachable = reachabilityMatrix(transitionMatrix);
+  bool regular = true;
+  int n = transitionMatrix.ncol();
+  
+  for (int i = 0; i < n && regular; ++i)
+    for (int j = 0; j < n && regular; ++j)
+      regular = reachable(i, j);
+  
+  return regular;
+}
 
 NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 
                                          CharacterVector& states) {

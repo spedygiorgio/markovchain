@@ -18,8 +18,9 @@
 \alias{communicatingClasses,markovchain-method}
 \alias{steadyStates,markovchain-method}
 \alias{meanNumVisits,markovchain-method}
+\alias{is.regular,markovchain-method}
 \alias{meanFirstPassageTime,markovchain-method}
-\alias{meanAbsorptionTimes,markovchain-method}
+\alias{meanAbsorptionTime,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
 \alias{hittingProbabilities,markovchain-method}
 \alias{canonicForm,markovchain-method}

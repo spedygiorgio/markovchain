@@ -516,6 +516,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// isRegular
+bool isRegular(S4 obj);
+RcppExport SEXP _markovchain_isRegular(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(isRegular(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // meanAbsorptionTime
 NumericMatrix meanAbsorptionTime(S4 obj);
 RcppExport SEXP _markovchain_meanAbsorptionTime(SEXP objSEXP) {
@@ -715,6 +726,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
     {"_markovchain_absorbingStates", (DL_FUNC) &_markovchain_absorbingStates, 1},
     {"_markovchain_isIrreducible", (DL_FUNC) &_markovchain_isIrreducible, 1},
+    {"_markovchain_isRegular", (DL_FUNC) &_markovchain_isRegular, 1},
     {"_markovchain_meanAbsorptionTime", (DL_FUNC) &_markovchain_meanAbsorptionTime, 1},
     {"_markovchain_meanFirstPassageTime", (DL_FUNC) &_markovchain_meanFirstPassageTime, 2},
     {"_markovchain_meanNumVisits", (DL_FUNC) &_markovchain_meanNumVisits, 1},

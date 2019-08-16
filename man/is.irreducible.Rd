@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{is.irreducible}
 \alias{is.irreducible}
-\title{Function to check if a Markov chain is irreducible}
+\title{Function to check if a Markov chain is irreducible (i.e. ergodic)}
 \usage{
 is.irreducible(object)
 }

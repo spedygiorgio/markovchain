@@ -17,6 +17,9 @@
 \alias{recurrentClasses,markovchain-method}
 \alias{communicatingClasses,markovchain-method}
 \alias{steadyStates,markovchain-method}
+\alias{meanNumVisits,markovchain-method}
+\alias{meanFirstPassageTime,markovchain-method}
+\alias{meanAbsorptionTimes,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
 \alias{hittingProbabilities,markovchain-method}
 \alias{canonicForm,markovchain-method}

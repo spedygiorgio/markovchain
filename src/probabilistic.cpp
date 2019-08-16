@@ -1014,8 +1014,10 @@ bool approxEqual(const cx_double& a, const cx_double& b);
 
 
 // This method computes the *unique* steady state that exists for an
+// matrix has to be schocastic by rows
 // ergodic (= irreducible) matrix
 vec steadyStateErgodicMatrix(mat submatrix) {
+  submatrix = submatrix.t();
   int m = submatrix.n_rows;
   vec rightPart(m);
   vec result;
@@ -1073,7 +1075,7 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
     }
 
     // Compute the steady states for the given submatrix
-    vec steadyState = steadyStateErgodicMatrix(subMatrix.t());
+    vec steadyState = steadyStateErgodicMatrix(subMatrix);
 
     for (int i = 0; i < recClassSize; ++i) {
       int c = stateToIndex[(string) recurrentClass[i]];
@@ -1141,18 +1143,21 @@ bool isIrreducible(S4 obj) {
 
 NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 
                                          CharacterVector& states) {
-  unordered_set<string> toKeep;
+  unordered_set<string> toErase;
   vector<uint> indicesToKeep;
+  CharacterVector newNames;
   string current;
   
   for (auto state : absorbing)
-    toKeep.insert((string) state);
+    toErase.insert((string) state);
   
   for (uint i = 0; i < states.size(); ++i) {
     current = (string) states(i);
     
-    if (toKeep.count(current))
+    if (toErase.count(current) == 0) {
       indicesToKeep.push_back(i);
+      newNames.push_back(current);
+    }
   }
   
   int n = indicesToKeep.size();
@@ -1165,7 +1170,7 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
     stop("Error solving system in meanAbsorptionTime");
   
   NumericMatrix result = wrap(meanTimes);
-  rownames(result) = absorbing;
+  rownames(result) = newNames;
   
   return result;
 }
@@ -1208,9 +1213,12 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
     if (!byrow)
       probs = probs.t();
     
-    if (destination.size() == 0)
+    if (destination.size() > 0) {
       result = computeMeanAbsorptionTimes(probs, destination, states);
-    else {
+      // This transpose is intentional to return a row always instead of a column
+      result = transpose(result);
+      return result;
+    } else {
       result = NumericMatrix(numStates, numStates);
       vec steadyState = steadyStateErgodicMatrix(probs);
       mat toInvert(numStates, numStates);
@@ -1223,7 +1231,7 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
           toInvert(i, j) = -probs(i, j) + steadyState(j);
           
           if (i == j)
-            toInvert(i, i) -= 1;
+            toInvert(i, i) += 1;
         }
       }
       
@@ -1241,12 +1249,12 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
     
       colnames(result) = states;
       rownames(result) = states;
+      
+      if (!byrow)
+        result = transpose(result);
+      
+      return result;
     }
-    
-    if (!byrow)
-      result = transpose(result);
-    
-    return result;
   }
 }
 

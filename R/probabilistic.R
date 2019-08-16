@@ -610,18 +610,34 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 #' mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
 #' meanFirstPassageTime(mcOz)
 #'
-#' @export
-meanFirstPassageTime <- function(markovchain, destination = NULL) {
-  if (length(destination) > 0) {
-    states <- markovchain@states
-    incorrectStates <- setdiff(states, destination)
+#' @export meanFirstPassageTime
+setGeneric("meanFirstPassageTime", function(object, destination) {
+  standardGeneric("meanFirstPassageTime")
+})
+
+
+setMethod("meanFirstPassageTime",  signature("markovchain", "missing"),
+  function(object, destination) {
+    destination = character()
+    .meanFirstPassageTimeRcpp(object, destination)
+  }
+)
+
+setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
+  function(object, destination) {
+    states <- object@states
+    incorrectStates <- setdiff(destination, states)
     
     if (length(incorrectStates) > 0)
       stop("Some of the states you provided in destination do not match states from the markovchain")
-  }
-  .meanFirstPassageTimeRcpp(markovchain, destination)
-}
 
+    result <- .meanFirstPassageTimeRcpp(object, destination)
+    asVector <- as.vector(result)
+    names(asVector) <- colnames(result)
+    
+    asVector
+  }
+)
 # @title Check if a DTMC is regular
 # 
 # @description Function to check wether a DTCM is regular

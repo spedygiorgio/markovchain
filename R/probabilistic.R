@@ -565,74 +565,62 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 
 
 
-#' Mean First Passage Time for markovchain
-#' 
-#' @description Given a markovchain object,
-#' this function calculates the expected steps to go from state i to j
-#' 
-#' @usage meanFirstPassageTime(markovchain,destination_set)
-#' 
-#' @param markovchain the markovchain-class object
-#' @param destination_set the set of destination states or NULL (all states)
-#' 
-#' @details if destination_set is one or more states, the mean first
-#' passage time from each remaining state to the given set is computed.
-#' If NULL, the full MFPT matrix is computed (with a different algorithm).
-#' 
-#' @return
-#' a vector (if destination_set given) or a matrix (otherwise) of mean passage times
-#' 
-#' @author Toni Giorgino
-#' 
-#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability. American Mathematical Soc., 2012.
-#' 
-#' @examples 
-#' Pmat <- matrix( c(6,3,1,  2,3,5, 4,1,5)/10, ncol=3, byrow=TRUE)
-#' P <- new("markovchain", states=c("s","c","r"), transitionMatrix=Pmat)
-#' meanFirstPassageTime(P,"r")
-#' meanFirstPassageTime(P)
-#' 
+#' Mean First Passage Time for irreducible Markov chains
+#'
+#' @description Given an irreducible (ergodic) markovchain object, this function
+#'   calculates the expected number of steps to reach other states
+#'
+#' @usage meanFirstPassageTime(markovchain)
+#'
+#' @param markovchain the markovchain object
+#' @param destination a character vector representing the states respect to
+#'   which we want to compute the mean first passage time. Empty by default
+#'
+#' @details For an ergodic Markov chain it computes: 
+#' \itemize{ 
+#'   \item If destination is empty, the average first time (in steps) that takes
+#'   the Markov chain to go from initial state i to j. (i, j) represents that 
+#'   value in case the Markov chain is given row-wise, (j, i) in case it is given
+#'   col-wise. 
+#'   \item If destination is not empty, the average time it takes us from the 
+#'   remaining states to reach the states in \code{destination} 
+#' }
+#'
+#' @return a Matrix of the same size with the average first passage times if
+#'   destination is empty, a vector if destination is not
+#'
+#' @author Toni Giorgino, Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(1 / 10 * c(6,3,1,
+#'                        2,3,5,
+#'                        4,1,5), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
+#' meanFirstPassageTime(mc, "r")
+#'
+#'
 #' # Grinstead and Snell's "Oz weather" worked out example
-#' Poz <- new("markovchain", states=c("s","c","r"), 
-#'            transitionMatrix=matrix(c(2,1,1, 2,0,2, 1,1,2)/4, byrow=TRUE, ncol=3)) 
-#' meanFirstPassageTime(Poz)  
+#' mOz <- matrix(c(2,1,1,
+#'                 2,0,2,
+#'                 1,1,2)/4, ncol = 3, byrow = TRUE)
+#'
+#' mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
+#' meanFirstPassageTime(mcOz)
+#'
 #' @export
-meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
-  
-  # gets the transition matrix
-  matrix <- markovchain@transitionMatrix
-
-  if(is.null(destination_set)) {
-    # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
-    d <- nrow(matrix)
-    w <- steadyStates(markovchain)
-    W <- w[rep(1,d),]  # Replicate w, d equal rows
-    Z <- solve(diag(d)-matrix+W)
-    M <- matrix(0,nrow=d,ncol=d)
-    for (i in 1:d) {
-      for (j in 1:d) {
-        M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
-      }
-    }
-    rownames(M) <- markovchain@states
-    colnames(M) <- markovchain@states
-    result <- M
-  } else {
-    # Drop absorbing states
-    Q <- matrix[!rownames(matrix) %in% destination_set,
-                !colnames(matrix) %in% destination_set,
-                drop = FALSE]
-    d <- nrow(Q)
-    cc <- rep(1,d)
-    Ninv <- diag(d)-Q
-    result <- solve(Ninv, cc) # Theorem 11.5
+meanFirstPassageTime <- function(markovchain, destination = NULL) {
+  if (length(destination) > 0) {
+    states <- markovchain@states
+    incorrectStates <- setdiff(states, destination)
+    
+    if (length(incorrectStates) > 0)
+      stop("Some of the states you provided in destination do not match states from the markovchain")
   }
-
-  return(result)
+  .meanFirstPassageTimeRcpp(markovchain, destination)
 }
-
-
-
 
 # @title Check if a DTMC is regular
 # 

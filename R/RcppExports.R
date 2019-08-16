@@ -414,6 +414,14 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_isIrreducible`, obj)
 }
 
+.meanAbsorptionTimesRcpp <- function(obj) {
+    .Call(`_markovchain_meanAbsorptionTimes`, obj)
+}
+
+.meanFirstPassageTimeRcpp <- function(obj, destination) {
+    .Call(`_markovchain_meanFirstPassageTime`, obj, destination)
+}
+
 .minNumVisitsRcpp <- function(obj) {
     .Call(`_markovchain_meanNumVisits`, obj)
 }

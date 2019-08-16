@@ -1130,42 +1130,6 @@ CharacterVector absorbingStates(S4 obj) {
   return absorbing;
 }
 
-// // [[Rcpp::export(.absorbingStatesRcpp)]]
-// NumericMatrix meanFirstPassageTime(S4 obj) {
-//   NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
-//   CharacterVector states = obj.slot("states");
-//   bool byrow = obj.slot("byrow");
-//   int numStates = states.size();
-//   NumericMatrix passageTimes(numStates, numStates);
-//   unordered_set<int> absorbing;
-//     
-//   if (!byrow)
-//     transitionMatrix = transpose(transitionMatrix);
-//   
-//   for (int i = 0; i < numStates; ++i)
-//     if (approxEqual(transitionMatrix(i, i), 1))
-//       absorbing.insert(i);
-//     
-//   int s = numStates - absorbing.size();
-//   int k = 0;
-//   mat toInvert(s, s);
-//   
-//   for (int i = 0; i < numStates; ++i) {
-//     if (absorbing.count(i) == 0) {
-//       
-//       for (int j = 0; j < numStates; ++j)
-//         toInvert(k, j) = transitionMatrix(i, j);
-//       
-//       toInvert(k, k) -= 1;
-//       ++k;
-//     }
-//   }
-//   
-//   solve(inv(toInvert, )
-//   
-//   
-//   return absorbing;
-// }
 
 // [[Rcpp::export(.isIrreducibleRcpp)]]
 bool isIrreducible(S4 obj) {
@@ -1225,6 +1189,67 @@ NumericMatrix meanAbsorptionTimes(S4 obj) {
   
   return result;
 }
+
+
+// [[Rcpp::export(.meanFirstPassageTimeRcpp)]]
+NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
+  bool isErgodic = isIrreducible(obj);
+  
+  if (!isErgodic)
+    stop("Markov chain needs to be ergodic (= irreducile) for this method to work");
+  else {
+    NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
+    mat probs = as<mat>(transitionMatrix);
+    CharacterVector states = obj.slot("states");
+    bool byrow = obj.slot("byrow");
+    int numStates = states.size();
+    NumericMatrix result;
+    
+    if (!byrow)
+      probs = probs.t();
+    
+    if (destination.size() == 0)
+      result = computeMeanAbsorptionTimes(probs, destination, states);
+    else {
+      result = NumericMatrix(numStates, numStates);
+      vec steadyState = steadyStateErgodicMatrix(probs);
+      mat toInvert(numStates, numStates);
+      mat Z;
+      
+      // Compute inverse for (I - P + W), where P = probs,
+      // and W = steadyState pasted row-wise
+      for (int i = 0; i < numStates; ++i) {
+        for (int j = 0; j < numStates; ++j) {
+          toInvert(i, j) = -probs(i, j) + steadyState(j);
+          
+          if (i == j)
+            toInvert(i, i) -= 1;
+        }
+      }
+      
+      if (!inv(Z, toInvert))
+        stop("Problem computing inverse of matrix inside meanFirstPassageTime");
+      
+      // Set the result matrix
+      for (int j = 0; j < numStates; ++j) {
+        double r_j = 1.0 / steadyState(j);
+        
+        for (int i = 0; i < numStates; ++i) {
+          result(i, j) = (Z(j,j) - Z(i,j)) * r_j;
+        }
+      }
+    
+      colnames(result) = states;
+      rownames(result) = states;
+    }
+    
+    if (!byrow)
+      result = transpose(result);
+    
+    return result;
+  }
+}
+
 
 // [[Rcpp::export(.minNumVisitsRcpp)]]
 NumericMatrix meanNumVisits(S4 obj) {

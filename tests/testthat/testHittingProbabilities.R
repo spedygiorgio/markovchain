@@ -15,7 +15,7 @@ test_that("Hitting probabilities of identity markov chain is identity", {
 })
 
 
-test_that("Hitting probabilities hold their characteristic system", {
+test_that("Hitting probabilities hold their characteristic system and are non negative", {
   # Check that the following recurrence holds,
   # naming p = probs, f = hitting, it checks:
   #
@@ -25,6 +25,7 @@ test_that("Hitting probabilities hold their characteristic system", {
     probs <- mc$transitionMatrix
     byrow <- mc$byrow
     hitting <- mc$hittingProbabilities
+    expect_true(all(hitting >= 0))
     expect_true(.testthatAreHittingRcpp(probs, hitting, byrow))
   }
 })

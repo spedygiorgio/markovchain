@@ -638,6 +638,17 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
     asVector
   }
 )
+
+#' @export meanAbsorptionTime
+setGeneric("meanAbsorptionTime", function(object) {
+  standardGeneric("meanAbsorptionTime")
+})
+
+
+setMethod("meanAbsorptionTime",  "markovchain", function(object) {
+  .meanAbsorptionTimeRcpp(object, destination)
+})
+
 # @title Check if a DTMC is regular
 # 
 # @description Function to check wether a DTCM is regular

@@ -1176,8 +1176,8 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
 }
 
 
-// [[Rcpp::export(.meanAbsorptionTimesRcpp)]]
-NumericMatrix meanAbsorptionTimes(S4 obj) {
+// [[Rcpp::export(.meanAbsorptionTimeRcpp)]]
+NumericMatrix meanAbsorptionTime(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
   CharacterVector transient = transientStates(obj);
   CharacterVector states = obj.slot("states");

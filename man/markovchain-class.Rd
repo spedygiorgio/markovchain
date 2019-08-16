@@ -19,6 +19,8 @@
 \alias{steadyStates,markovchain-method}
 \alias{meanNumVisits,markovchain-method}
 \alias{is.regular,markovchain-method}
+\alias{is.irreducible,markovchain-method}
+\alias{is.accesible,markovchain-method}
 \alias{meanFirstPassageTime,markovchain-method}
 \alias{meanAbsorptionTime,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}

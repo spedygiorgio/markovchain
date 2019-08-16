@@ -17,3 +17,10 @@ precomputeData <- function(mc) {
     steadyStates = steadyStates(mc)
   )
 }
+
+precomputeSteadyStates <- function(mc) {
+  list(
+    object = mc,
+    expected = steadyStates(mc)
+  )
+}

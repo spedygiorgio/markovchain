@@ -26,6 +26,7 @@ mcA <- new("markovchain", transitionMatrix = matrix(c(0.7,0.3,0.1,0.9),
                                              dimnames = list(statesNames, statesNames)
            ))
 is.irreducible(mcA)
+
 }
 \references{
 Feres, Matlab listings for Markov Chains.

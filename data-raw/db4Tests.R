@@ -70,9 +70,9 @@ generateSteadyStates <- function(mc) {
 
 MCs <- list(mc1, mc2, mc3, mc4, mc5, mcRain)
 tMCs <- lapply(MCs, t)
-steadyStatesMCs <- lapply(append(MCs, tMCs), markovchain:::precomputeData)
+knownSteadyStatesMCs <- append(MCs, tMCs)
 
 #SAVING
 
-usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, steadyStatesMCs,
-                   internal = TRUE, overwrite = TRUE)
+usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, knownSteadyStatesMCs,
+                  internal = TRUE, overwrite = TRUE)

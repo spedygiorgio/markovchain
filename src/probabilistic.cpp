@@ -984,23 +984,31 @@ bool approxEqual(const cx_double& a, const cx_double& b);
 // This method computes the *unique* steady state that exists for an
 // matrix has to be schocastic by rows
 // ergodic (= irreducible) matrix
-vec steadyStateErgodicMatrix(mat submatrix) {
-  submatrix = submatrix.t();
-  int m = submatrix.n_rows;
-  vec rightPart(m);
+vec steadyStateErgodicMatrix(const mat& submatrix) {
+  int nRows = submatrix.n_rows;
+  int nCols = submatrix.n_cols;
+  vec rightPart(nRows + 1, fill::zeros);
   vec result;
+  mat coeffs(nRows + 1, nCols);
   
-  rightPart(0) = 1;
-  
-  for (int i = 1; i < m; ++i) {
-    rightPart(i) = 0;
-    submatrix(i, i) -= 1;
+  // If P is Ergodic, the system (I - P)*w = 0 plus the equation 
+  // w_1 + ... + w_m = 1 must have a soultion
+  for (int i = 0; i < nRows; ++i) {
+    for (int j = 0; j < nCols; ++j) {
+      // transpose matrix in-place
+      coeffs(i, j) = submatrix(j, i);
+      
+      if (i == j)
+        coeffs(i, i) -= 1;
+    }
   }
   
-  for (int j = 0; j < m; ++j)
-    submatrix(0, j) = 1;
+  for (int j = 0; j < nCols; ++j)
+    coeffs(nRows, j) = 1;
   
-  if (!solve(result, submatrix, rightPart))
+  rightPart(nRows) = 1;
+  
+  if (!solve(result, coeffs, rightPart))
     stop("Failure computing eigen values / vectors for submatrix in steadyStateErgodicMatrix");
   
   return result;
@@ -1184,8 +1192,8 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
   if (!isErgodic)
     stop("Markov chain needs to be ergodic (= irreducile) for this method to work");
   else {
-    NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
-    mat probs = as<mat>(transitionMatrix);
+    NumericMatrix transitions = obj.slot("transitionMatrix");
+    mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), false);
     CharacterVector states = obj.slot("states");
     bool byrow = obj.slot("byrow");
     int numStates = states.size();

@@ -38,5 +38,6 @@ diagonalIndexes <- seq_along(.allDiagonalMCs)
 #################################################################
 
 allMCs <- lapply(.allMCs, markovchain:::precomputeData)
+steadyStatesMCs <- lapply(knownSteadyStatesMCs, markovchain:::precomputeData)
 allDiagonalMCs <- lapply(.allDiagonalMCs, markovchain:::precomputeData)
 allAndDiagonalMCs <- append(allMCs, allDiagonalMCs)

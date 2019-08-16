@@ -29,7 +29,7 @@
 #'                                         )
 #'                )
 #' is.accessible(markovB, "a", "c")
-#' @exportMethod communicatingClasses
+#' @exportMethod is.accessible
 setGeneric("is.accessible", function(object, from, to) standardGeneric("is.accessible"))
 
 setMethod("is.accessible", c("markovchain", "character", "character"), 

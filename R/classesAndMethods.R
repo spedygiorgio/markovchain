@@ -8,7 +8,8 @@
 #'   recurrentStates,markovchain-method transientClasses,markovchain-method
 #'   recurrentClasses,markovchain-method communicatingClasses,markovchain-method
 #'   steadyStates,markovchain-method meanNumVisits,markovchain-method
-#'   is.regular,markovchain-method
+#'   is.regular,markovchain-method is.irreducible,markovchain-method
+#'   is.accesible,markovchain-method
 #'   meanFirstPassageTime,markovchain-method meanAbsorptionTime,markovchain-method
 #'   conditionalDistribution,markovchain-method hittingProbabilities,markovchain-method
 #'   canonicForm,markovchain-method coerce,data.frame,markovchain-method

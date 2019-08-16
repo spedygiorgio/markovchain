@@ -29,24 +29,34 @@
 #'                                         )
 #'                )
 #' is.accessible(markovB, "a", "c")
-#' @export
-is.accessible <- function(object, from, to) {
-  # assume that it is not possible
-  out <- FALSE
-  
-  # names of states
-  statesNames <- states(object)
-  
-  # row number
-  fromPos <- which(statesNames == from)
-  
-  # column number
-  toPos <- which(statesNames == to)
+#' @exportMethod communicatingClasses
+setGeneric("is.accessible", function(object, from, to) standardGeneric("is.accessible"))
 
-  # a logical matrix which will tell the reachability of jth state from ith state
-  reachable <- .reachabilityMatrixRcpp(object@transitionMatrix)
-  return(reachable[fromPos, toPos]) 
-}
+setMethod("is.accessible", c("markovchain", "character", "character"), 
+  function(object, from, to) {
+    # assume that it is not possible
+    out <- FALSE
+    
+    # names of states
+    statesNames <- states(object)
+    
+    # row number
+    fromPos <- which(statesNames == from)
+    
+    # column number
+    toPos <- which(statesNames == to)
+  
+    # a logical matrix which will tell the reachability of jth state from ith state
+    reachable <- .reachabilityMatrixRcpp(object@transitionMatrix)
+    return(reachable[fromPos, toPos]) 
+  }
+)
+
+setMethod("is.accessible", c("markovchain", "missing", "missing"), 
+  function(object, from, to) {
+    .reachabilityMatrixRcpp(object@transitionMatrix)
+  }
+)
 
 # a markov chain is irreducible if it is composed of only one communicating class
 
@@ -71,10 +81,14 @@ is.accessible <- function(object, from, to) {
 #'                                              dimnames = list(statesNames, statesNames)
 #'            ))
 #' is.irreducible(mcA)
-#' @export
-is.irreducible <- function(object) {
+#' 
+#' @exportMethod is.irreducible
+setGeneric("is.irreducible", function(object) standardGeneric("is.irreducible"))
+
+setMethod("is.irreducible", "markovchain", function(object) {
   .isIrreducibleRcpp(object)
-}
+})
+
 
 # what this function will do?
 # It calculates the probability to go from given state

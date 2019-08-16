@@ -16,20 +16,22 @@ test_that("Mean number visits of identity markov chain is identity * Inf", {
 })
 
 
-test_that("Mean number of visits hold their characteristic system", {
+test_that("Mean number of visits hold their characteristic system and are non negative", {
   # Check that the following recurrence holds,
   # naming p = probs, f = hitting, E = mean number of visits, it checks:
   #
   # E(i, j) = p(i, j) / (1 - f(j, j)) + ∑_{k ≠ j} p(i, k) E(k, j)
   
-  for (i in 1:length(allMCs)) {
+  for (mc in allMCs) {
     probs <- mc$transitionMatrix
     byrow <- mc$byrow
     hitting <- mc$hittingProbabilities
     numVisits <- mc$meanNumVisits
+    expect_true(all(numVisits >= 0))
     expect_true(.testthatAreMeanNumVisitsRcpp(probs, numVisits, hitting, byrow))
   }
 })
+
 
 
 test_that("All mean number of visits are ∞ iff the Markov chain is irreducible", {

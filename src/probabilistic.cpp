@@ -14,6 +14,7 @@ using namespace arma;
 template <typename T>
 T sortByDimNames(const T m);
 
+typedef unsigned int uint;
 
 // check if two vectors are intersected
 bool intersects(CharacterVector x, CharacterVector y) {
@@ -1012,7 +1013,9 @@ NumericMatrix lexicographicalSort(NumericMatrix m) {
 bool approxEqual(const cx_double& a, const cx_double& b);
 
 
-vec computeSteadyState(mat submatrix) {
+// This method computes the *unique* steady state that exists for an
+// ergodic (= irreducible) matrix
+vec steadyStateErgodicMatrix(mat submatrix) {
   int m = submatrix.n_rows;
   vec rightPart(m);
   vec result;
@@ -1027,10 +1030,8 @@ vec computeSteadyState(mat submatrix) {
   for (int j = 0; j < m; ++j)
     submatrix(0, j) = 1;
   
-  bool couldSolveSystem = solve(result, submatrix, rightPart);
-  
-  if (!couldSolveSystem)
-    stop("Failure computing eigen values / vectors for submatrix in computeSteadySates");
+  if (!solve(result, submatrix, rightPart))
+    stop("Failure computing eigen values / vectors for submatrix in steadyStateErgodicMatrix");
   
   return result;
 }
@@ -1072,7 +1073,7 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
     }
 
     // Compute the steady states for the given submatrix
-    vec steadyState = computeSteadyState(subMatrix.t());
+    vec steadyState = steadyStateErgodicMatrix(subMatrix.t());
 
     for (int i = 0; i < recClassSize; ++i) {
       int c = stateToIndex[(string) recurrentClass[i]];
@@ -1171,6 +1172,58 @@ bool isIrreducible(S4 obj) {
   List commClasses = communicatingClasses(obj);
   // The markov chain is irreducible iff has only a single communicating class
   return commClasses.size() == 1;
+}
+
+
+NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 
+                                         CharacterVector& states) {
+  unordered_set<string> toKeep;
+  vector<uint> indicesToKeep;
+  string current;
+  
+  for (auto state : absorbing)
+    toKeep.insert((string) state);
+  
+  for (uint i = 0; i < states.size(); ++i) {
+    current = (string) states(i);
+    
+    if (toKeep.count(current))
+      indicesToKeep.push_back(i);
+  }
+  
+  int n = indicesToKeep.size();
+  uvec indices(indicesToKeep);
+  auto coeffs = eye(n, n) - probs(indices, indices);
+  vec rightPart = vec(n, fill::ones);
+  mat meanTimes;
+  
+  if (!solve(meanTimes, coeffs, rightPart))
+    stop("Error solving system in meanAbsorptionTime");
+  
+  NumericMatrix result = wrap(meanTimes);
+  rownames(result) = absorbing;
+  
+  return result;
+}
+
+
+// [[Rcpp::export(.meanAbsorptionTimesRcpp)]]
+NumericMatrix meanAbsorptionTimes(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  CharacterVector transient = transientStates(obj);
+  CharacterVector states = obj.slot("states");
+  bool byrow = obj.slot("byrow");
+  
+  if (!byrow)
+    transitions = transpose(transitions);
+  
+  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), false);
+  NumericMatrix result = computeMeanAbsorptionTimes(probs, transient, states);
+  
+  if (!byrow)
+    result = transpose(result);
+  
+  return result;
 }
 
 // [[Rcpp::export(.minNumVisitsRcpp)]]

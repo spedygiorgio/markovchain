@@ -1,7 +1,7 @@
 language: R
 sudo: true
 cache: packages
-dist: trusty
+dist: bionic
 
 warnings_are_errors: true
 
@@ -17,7 +17,7 @@ r_packages:
   - rticles
 
 before_install:
-  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
+  - mkdir ~/.R && echo 'CXX11=g++ -std=c++11 -g -O2' > ~/.R/Makevars
   
 script:
   - R CMD build . ${R_BUILD_ARGS}

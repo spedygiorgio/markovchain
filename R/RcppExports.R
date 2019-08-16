@@ -272,8 +272,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_transientClasses`, object)
 }
 
-.commStatesFinderRcpp <- function(matr) {
-    .Call(`_markovchain_commStatesFinder`, matr)
+.commStatesFinderRcpp <- function(matrix) {
+    .Call(`_markovchain_reachabilityMatrix`, matrix)
 }
 
 .summaryKernelRcpp <- function(object) {
@@ -414,8 +414,8 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_isIrreducible`, obj)
 }
 
-.meanAbsorptionTimesRcpp <- function(obj) {
-    .Call(`_markovchain_meanAbsorptionTimes`, obj)
+.meanAbsorptionTimeRcpp <- function(obj) {
+    .Call(`_markovchain_meanAbsorptionTime`, obj)
 }
 
 .meanFirstPassageTimeRcpp <- function(obj, destination) {

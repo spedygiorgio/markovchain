@@ -16,23 +16,10 @@ T sortByDimNames(const T m);
 
 typedef unsigned int uint;
 
-// check if two vectors are intersected
-bool intersects(CharacterVector x, CharacterVector y) {
-  if (x.size() < y.size())
-    return intersects(y, x);
-  else {
-    unordered_set<string> values;
-    bool intersect = false;
-    
-    for (auto value : x)
-      values.insert(as<string>(value));
-    
-    for (auto it = y.begin(); it != y.end() && !intersect; ++it)
-      intersect = values.count(as<string>(*it)) > 0;
-    
-    return intersect;
-  }
-}
+
+// Returns whether a Markov chain is ergodic
+// Declared in this same file
+bool isIrreducible(S4 obj);
 
 
 // [[Rcpp::export(.commClassesKernelRcpp)]]
@@ -301,44 +288,20 @@ List transientClasses(S4 object) {
   return computeTransientClasses(commClasses, closed, states);
 }
 
-// matrix power function
-arma::mat _pow(arma::mat A, int n) {
-  arma::mat R = arma::eye(A.n_rows, A.n_rows);
-  
-  for (int i = 0; i < n; i ++) 
-    R = A*R;
-  
-  return R;
-}
 
-//communicating states
+// Defined in probabilistic.cpp
+mat matrixPow(arma::mat A, int n);
+
+
 // [[Rcpp::export(.commStatesFinderRcpp)]]
-NumericMatrix commStatesFinder(NumericMatrix matr) {
-  //Reachability matrix
-  int dimMatr = matr.nrow();
-  arma::mat X(matr.begin(), dimMatr, dimMatr, false);
-  arma::mat temp = arma::eye(dimMatr, dimMatr) + arma::sign(X);
-  temp = _pow(temp, dimMatr - 1);
-  NumericMatrix R = wrap(arma::sign(temp));
-  R.attr("dimnames") = matr.attr("dimnames");
-  
-  return R;
-}
-
-template<class T>
-T efficientPow(T a, T identity, T (*product)(const T&, const T&), T (*sum)(const T&, const T&), int n) {
-  T result  = identity;
-  T partial = identity;
-  
-  // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
-  // Compute last = a + 1
-  while (n > 0) {
-    if (n & 1 > 0)
-      result = sum(result, partial);
-    
-    partial = product(partial, partial);
-    n >>= 1;
-  }
+LogicalMatrix reachabilityMatrix(NumericMatrix matrix) {
+  // Reachability matrix
+  int m = matrix.nrow();
+  mat X(matrix.begin(), m, m, false);
+  mat reachability = eye(m, m) + sign(X);
+  reachability = matrixPow(reachability, m - 1);
+  LogicalMatrix result = wrap(reachability == 1);
+  result.attr("dimnames") = matrix.attr("dimnames");
   
   return result;
 }
@@ -493,10 +456,9 @@ int gcd (int a, int b) {
 //' @export
 // [[Rcpp::export(period)]]
 int period(S4 object) {
-  Function isIrreducible("is.irreducible");
-  List res = isIrreducible(object);
+  bool irreducible = isIrreducible(object);
   
-  if (!res[0]) {
+  if (!irreducible) {
     warning("The matrix is not irreducible");
     return 0;
   } else {

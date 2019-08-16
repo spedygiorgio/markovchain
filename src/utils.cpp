@@ -10,6 +10,44 @@ using namespace arma;
 using namespace std;
 
 
+// matrix power function
+// O(log n * m³) where m is the number of rows / cols of A
+mat matrixPow(mat& a, int n) {
+  int m = a.n_rows;
+  mat result  = eye(m, m);
+  mat partial = a;
+  
+  // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
+  // Compute last = a + 1
+  while (n > 0) {
+    if (n & 1 > 0)
+      result = result + partial;
+    
+    partial = partial * partial;
+    n >>= 1;
+  }
+  
+  return result;
+}
+
+// check if two vectors are intersected
+bool intersects(CharacterVector x, CharacterVector y) {
+  if (x.size() < y.size())
+    return intersects(y, x);
+  else {
+    unordered_set<string> values;
+    bool intersect = false;
+    
+    for (auto value : x)
+      values.insert(as<string>(value));
+    
+    for (auto it = y.begin(); it != y.end() && !intersect; ++it)
+      intersect = values.count(as<string>(*it)) > 0;
+    
+    return intersect;
+  }
+}
+
 bool anyElement(mat matrix, bool (*condition)(const double&)) {
   int numRows = matrix.n_rows;
   int numCols = matrix.n_cols;

@@ -11,12 +11,12 @@
 #' @param from The name of state "i" (beginning state).
 #' @param to The name of state "j" (ending state).
 #' 
-#' @details It wraps an internal function named \code{.commStatesFinder}.
+#' @details It wraps an internal function named \code{reachabilityMatrix}.
 #' @return A boolean value.
 #' 
 #' @references James Montgomery, University of Madison
 #' 
-#' @author Giorgio Spedicato
+#' @author Giorgio Spedicato, Ignacio Cordón
 #' @seealso \code{is.irreducible}
 #' 
 #' @examples 
@@ -41,16 +41,11 @@ is.accessible <- function(object, from, to) {
   fromPos <- which(statesNames == from)
   
   # column number
-  toPos<-which(statesNames == to)
+  toPos <- which(statesNames == to)
 
   # a logical matrix which will tell the reachability of jth state from ith state
-  R <- .commStatesFinderRcpp(object@transitionMatrix)
-  
-  if(R[fromPos, toPos] == TRUE) {
-    out <- TRUE 
-  }
-  
-  return(out)
+  reachable <- reachabilityMatrix(object@transitionMatrix)
+  return(reachable[fromPos, toPos]) 
 }
 
 # a markov chain is irreducible if it is composed of only one communicating class

@@ -337,14 +337,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// commStatesFinder
-NumericMatrix commStatesFinder(NumericMatrix matr);
-RcppExport SEXP _markovchain_commStatesFinder(SEXP matrSEXP) {
+// reachabilityMatrix
+LogicalMatrix reachabilityMatrix(NumericMatrix matrix);
+RcppExport SEXP _markovchain_reachabilityMatrix(SEXP matrixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type matr(matrSEXP);
-    rcpp_result_gen = Rcpp::wrap(commStatesFinder(matr));
+    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
+    rcpp_result_gen = Rcpp::wrap(reachabilityMatrix(matrix));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -516,14 +516,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// meanAbsorptionTimes
-NumericMatrix meanAbsorptionTimes(S4 obj);
-RcppExport SEXP _markovchain_meanAbsorptionTimes(SEXP objSEXP) {
+// meanAbsorptionTime
+NumericMatrix meanAbsorptionTime(S4 obj);
+RcppExport SEXP _markovchain_meanAbsorptionTime(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(meanAbsorptionTimes(obj));
+    rcpp_result_gen = Rcpp::wrap(meanAbsorptionTime(obj));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -700,7 +700,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_recurrentStates", (DL_FUNC) &_markovchain_recurrentStates, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
     {"_markovchain_transientClasses", (DL_FUNC) &_markovchain_transientClasses, 1},
-    {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
+    {"_markovchain_reachabilityMatrix", (DL_FUNC) &_markovchain_reachabilityMatrix, 1},
     {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},
     {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},
     {"_markovchain_firstPassageMultipleRCpp", (DL_FUNC) &_markovchain_firstPassageMultipleRCpp, 4},
@@ -715,7 +715,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
     {"_markovchain_absorbingStates", (DL_FUNC) &_markovchain_absorbingStates, 1},
     {"_markovchain_isIrreducible", (DL_FUNC) &_markovchain_isIrreducible, 1},
-    {"_markovchain_meanAbsorptionTimes", (DL_FUNC) &_markovchain_meanAbsorptionTimes, 1},
+    {"_markovchain_meanAbsorptionTime", (DL_FUNC) &_markovchain_meanAbsorptionTime, 1},
     {"_markovchain_meanFirstPassageTime", (DL_FUNC) &_markovchain_meanFirstPassageTime, 2},
     {"_markovchain_meanNumVisits", (DL_FUNC) &_markovchain_meanNumVisits, 1},
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},

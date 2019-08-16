@@ -294,7 +294,13 @@ mat matrixPow(const mat& A, int n);
 
 
 // [[Rcpp::export(.reachabilityMatrixRcpp)]]
-LogicalMatrix reachabilityMatrix(NumericMatrix matrix) {
+LogicalMatrix reachabilityMatrix(S4 obj) {
+  NumericMatrix matrix = obj.slot("transitionMatrix");
+  bool byrow = obj.slot("byrow");
+  
+  if (!byrow)
+    matrix = transpose(matrix);
+  
   // Reachability matrix
   int m = matrix.nrow();
   mat X(matrix.begin(), m, m, false);
@@ -302,7 +308,7 @@ LogicalMatrix reachabilityMatrix(NumericMatrix matrix) {
   reachability = matrixPow(reachability, m - 1);
   LogicalMatrix result = wrap(reachability > 0);
   result.attr("dimnames") = matrix.attr("dimnames");
-  
+
   return result;
 }
 
@@ -1105,10 +1111,9 @@ bool isIrreducible(S4 obj) {
 
 // [[Rcpp::export(.isRegularRcpp)]]
 bool isRegular(S4 obj) {
-  NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
-  LogicalMatrix reachable = reachabilityMatrix(transitionMatrix);
+  LogicalMatrix reachable = reachabilityMatrix(obj);
   bool regular = true;
-  int n = transitionMatrix.ncol();
+  int n = ((CharacterVector) obj.slot("states")).size();
   
   for (int i = 0; i < n && regular; ++i)
     for (int j = 0; j < n && regular; ++j)

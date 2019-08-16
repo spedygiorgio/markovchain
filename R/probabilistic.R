@@ -47,14 +47,14 @@ setMethod("is.accessible", c("markovchain", "character", "character"),
     toPos <- which(statesNames == to)
   
     # a logical matrix which will tell the reachability of jth state from ith state
-    reachable <- .reachabilityMatrixRcpp(object@transitionMatrix)
+    reachable <- .reachabilityMatrixRcpp(object)
     return(reachable[fromPos, toPos]) 
   }
 )
 
 setMethod("is.accessible", c("markovchain", "missing", "missing"), 
   function(object, from, to) {
-    .reachabilityMatrixRcpp(object@transitionMatrix)
+    .reachabilityMatrixRcpp(object)
   }
 )
 

@@ -272,8 +272,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_transientClasses`, object)
 }
 
-.reachabilityMatrixRcpp <- function(matrix) {
-    .Call(`_markovchain_reachabilityMatrix`, matrix)
+.reachabilityMatrixRcpp <- function(obj) {
+    .Call(`_markovchain_reachabilityMatrix`, obj)
 }
 
 .summaryKernelRcpp <- function(object) {

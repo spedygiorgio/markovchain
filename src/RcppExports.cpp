@@ -338,13 +338,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // reachabilityMatrix
-LogicalMatrix reachabilityMatrix(NumericMatrix matrix);
-RcppExport SEXP _markovchain_reachabilityMatrix(SEXP matrixSEXP) {
+LogicalMatrix reachabilityMatrix(S4 obj);
+RcppExport SEXP _markovchain_reachabilityMatrix(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type matrix(matrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(reachabilityMatrix(matrix));
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(reachabilityMatrix(obj));
     return rcpp_result_gen;
 END_RCPP
 }

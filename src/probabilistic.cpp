@@ -1119,13 +1119,19 @@ bool isIrreducible(S4 obj) {
 
 // [[Rcpp::export(.isRegularRcpp)]]
 bool isRegular(S4 obj) {
-  LogicalMatrix reachable = reachabilityMatrix(obj);
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  int n = transitions.ncol();
+  mat probs(transitions.begin(), n, n, false);
+  // Taken from the book: 
+  // Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. Corollary 8.5.8
+  //
+  // A is regular iff A^{n²-2n+2} > 0
+  mat reachable = matrixPow(probs, n * n - 2 * n + 2);
   bool regular = true;
-  int n = ((CharacterVector) obj.slot("states")).size();
   
   for (int i = 0; i < n && regular; ++i)
     for (int j = 0; j < n && regular; ++j)
-      regular = reachable(i, j);
+      regular = reachable(i, j) > 0;
   
   return regular;
 }

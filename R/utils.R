@@ -5,6 +5,7 @@ precomputeData <- function(mc) {
     states = mc@states,
     byrow = mc@byrow,
     irreducible = is.irreducible(mc),
+    regular = is.regular(mc),
     canonicForm = canonicForm(mc),
     recurrentClasses = recurrentClasses(mc),
     transientClasses = transientClasses(mc),

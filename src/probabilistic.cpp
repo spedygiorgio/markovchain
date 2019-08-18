@@ -1130,7 +1130,7 @@ bool isRegular(S4 obj) {
   mat reachable;
   // Let alias this as d
   int positiveDiagonal = 0;
-  auto arePositive = [](const double& x){ return x >= 0; };
+  auto arePositive = [](const double& x){ return x > 0; };
   
   // Count positive elements in the diagonal
   for (int i = 0; i < m; ++i)

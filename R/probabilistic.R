@@ -670,7 +670,8 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
 #' @return A boolean value
 #'
 #' @author Ignacio Cordón
-#' @references Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. Corollary 8.5.8
+#' @references Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+#'   Corollary 8.5.8, Theorem 8.5.9
 #'
 #' 
 #' @examples 

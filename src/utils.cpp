@@ -48,7 +48,7 @@ bool intersects(CharacterVector x, CharacterVector y) {
   }
 }
 
-bool anyElement(mat matrix, bool (*condition)(const double&)) {
+bool anyElement(const mat& matrix, bool (*condition)(const double&)) {
   int numRows = matrix.n_rows;
   int numCols = matrix.n_cols;
   bool found = false;
@@ -60,6 +60,17 @@ bool anyElement(mat matrix, bool (*condition)(const double&)) {
   return found;
 }
 
+bool allElements(const mat& matrix, bool (*condition)(const double&)) {
+  int numRows = matrix.n_rows;
+  int numCols = matrix.n_cols;
+  bool all = true;
+  
+  for (int i = 0; i < numRows && all; ++i)
+    for (int j = 0; j < numCols && all; ++j)
+      all = condition(matrix(i, j));
+  
+  return all;
+}
 
 bool approxEqual(const double& a, const double& b) {
   if (a >= b)

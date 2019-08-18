@@ -21,6 +21,11 @@ typedef unsigned int uint;
 // Declared in this same file
 bool isIrreducible(S4 obj);
 
+// Declared in utils.cpp
+bool anyElement(const mat& matrix, bool (*condition)(const double&));
+
+// Declared in utils.cpp
+bool allElements(const mat& matrix, bool (*condition)(const double&));
 
 // [[Rcpp::export(.commClassesKernelRcpp)]]
 List commClassesKernel(NumericMatrix P) {
@@ -1120,20 +1125,32 @@ bool isIrreducible(S4 obj) {
 // [[Rcpp::export(.isRegularRcpp)]]
 bool isRegular(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
-  int n = transitions.ncol();
-  mat probs(transitions.begin(), n, n, false);
+  int m = transitions.ncol();
+  mat probs(transitions.begin(), m, m, false);
+  mat reachable;
+  // Let alias this as d
+  int positiveDiagonal = 0;
+  auto arePositive = [](const double& x){ return x >= 0; };
+  
+  // Count positive elements in the diagonal
+  for (int i = 0; i < m; ++i)
+    if (probs(i, i) > 0)
+      ++positiveDiagonal;
+  
   // Taken from the book: 
-  // Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. Corollary 8.5.8
+  // Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+  // Corollary 8.5.8 and Theorem 8.5.9
   //
-  // A is regular iff A^{n²-2n+2} > 0
-  mat reachable = matrixPow(probs, n * n - 2 * n + 2);
-  bool regular = true;
+  // If A is irreducible and has 0 < d positive diagonal elements
+  //   A is regular and $A^{2m - d - 1} > 0
+  //
+  // A is regular iff A^{m²- 2m + 2} > 0
+  if (positiveDiagonal > 0)
+    reachable = matrixPow(probs, 2*m - positiveDiagonal - 1);
+  else
+    reachable = matrixPow(probs, m*m - 2*m + 2);
   
-  for (int i = 0; i < n && regular; ++i)
-    for (int j = 0; j < n && regular; ++j)
-      regular = reachable(i, j) > 0;
-  
-  return regular;
+  return allElements(reachable, arePositive);
 }
 
 NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 

@@ -426,6 +426,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_meanFirstPassageTime`, obj, destination)
 }
 
+.meanRecurrenceTimeRcpp <- function(obj) {
+    .Call(`_markovchain_meanRecurrenceTime`, obj)
+}
+
 .minNumVisitsRcpp <- function(obj) {
     .Call(`_markovchain_meanNumVisits`, obj)
 }

@@ -1,6 +1,6 @@
-context("Checking that meanFirstPassageTime works as expected")
+context("Checking meanFirstPassageTime and meanRecurrenceTime")
 
-#load & prepare data
+# Prepare matrices with known solution
 
 scr <- c("s","c","r")
 
@@ -29,8 +29,29 @@ Poz_full <- matrix( c( 0,  4, 10/3,
 rownames(Poz_full) <- scr
 colnames(Poz_full) <- scr
 
-test_that("Check meanFirstPassageTime", {
+test_that("meanFirstPassageTime works for known matrices", {
   expect_equal(meanFirstPassageTime(P,"r"), P_r)
   expect_equal(meanFirstPassageTime(P),     P_full)
   expect_equal(meanFirstPassageTime(Poz),   Poz_full)
+})
+
+# Given M = (m_{ij}) where m_{ij} is the mean recurrence time from i to j
+# Given P the transition probabilities
+# Given C a matrix with all its components as a 1
+# Given D a matrix where the diagonal is formed by the recurrence times r_i and
+#   the rest of the elements are 0s
+#
+# It must hold M = PM + C - D (by rows equation)
+test_that("meanFirstPassageTime and recurrenceTime hold their characteristic equation", {
+  for (mc in allPositiveMCs) {
+    P <- mc$transitionMatrix
+    M <- meanFirstPassageTime(mc$object)
+    C <- matlab::ones(ncol(P))
+    D <- diag(meanRecurrenceTime(mc$object))
+    
+    if (mc$byrow)
+      expect_true(isTRUE(all.equal(M, P %*% M + C - D)))
+    else
+      expect_true(isTRUE(all.equal(M, M %*% P + C - D)))
+  }
 })

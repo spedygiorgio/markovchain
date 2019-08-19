@@ -10,7 +10,8 @@ transposed <- function(markovChains) {
 }
 
 randomDims  <- sample(1:maxDim, numByRow, replace = TRUE)
-randomPositiveDims <- sample(1:maxDim, numPositiveInstances, replace = TRUE)
+# Make positive matrices smaller, since it is costly to make computations on them
+randomPositiveDims <- sample(1:20, numPositiveInstances, replace = TRUE)
 
 # Get 1:[maxDim] identity by-row-markov-chains
 .diagonalMCs <- lapply(1:numByRow, function(n) {
@@ -47,7 +48,10 @@ allMCs <- lapply(.allMCs, markovchain:::precomputeData)
 steadyStatesMCs <- lapply(knownSteadyStatesMCs, markovchain:::precomputeData)
 allDiagonalMCs <- lapply(.allDiagonalMCs, markovchain:::precomputeData)
 allAndDiagonalMCs <- append(allMCs, allDiagonalMCs)
-allPositiveMCs <- lapply(.positiveMCs, function(mc) {
+allPositiveMCs <- lapply(.allPositiveMCs, function(mc) {
   list(object = mc,
-       regular = is.regular(mc))
+       byrow = mc@byrow,
+       transitionMatrix = mc@transitionMatrix,
+       regular = is.regular(mc)
+  )
 })

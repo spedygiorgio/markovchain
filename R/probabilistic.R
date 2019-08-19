@@ -40,6 +40,13 @@ setMethod("is.accessible", c("markovchain", "character", "character"),
     # names of states
     statesNames <- states(object)
     
+    # Change rows by cols if matrix is stochastic by columns
+    if (!object@byrow) {
+      aux <- from
+      from <- to
+      to <- aux
+    }
+    
     # row number
     fromPos <- which(statesNames == from)
     
@@ -647,6 +654,44 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
     asVector
   }
 )
+
+#' Mean recurrence time
+#'
+#' @description Computes the expected time to return to a recurrent state
+#'   in case the Markov chain starts there
+#'
+#' @usage meanRecurrenceTime(markovchain)
+#'
+#' @param markovchain the markovchain object
+#' @param destination a character vector representing the states respect to
+#'   which we want to compute the mean first passage time. Empty by default
+#'
+#' @return For a Markov chain its output is a named vector with the expected 
+#'   time to return to a state when the chain starts there.
+#'   States present in the vector are only the recurrent ones. If the matrix
+#'   is ergodic (i.e. irreducible), then all states are present in the output
+#'   and order is the same for states of the Markov chain
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(1 / 10 * c(6,3,1,
+#'                        2,3,5,
+#'                        4,1,5), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
+#' meanRecurrenceTime(mc)
+#'
+#' @export meanRecurrenceTime
+setGeneric("meanRecurrenceTime", function(object) {
+  standardGeneric("meanRecurrenceTime")
+})
+
+setMethod("meanRecurrenceTime", "markovchain", function(object) {
+  .meanRecurrenceTimeRcpp(object)
+})
 
 #' @export meanAbsorptionTime
 setGeneric("meanAbsorptionTime", function(object) {

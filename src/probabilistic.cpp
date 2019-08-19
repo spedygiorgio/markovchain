@@ -301,14 +301,10 @@ mat matrixPow(const mat& A, int n);
 // [[Rcpp::export(.reachabilityMatrixRcpp)]]
 LogicalMatrix reachabilityMatrix(S4 obj) {
   NumericMatrix matrix = obj.slot("transitionMatrix");
-  bool byrow = obj.slot("byrow");
-  
-  if (!byrow)
-    matrix = transpose(matrix);
   
   // Reachability matrix
   int m = matrix.nrow();
-  mat X(matrix.begin(), m, m, false);
+  mat X(matrix.begin(), m, m, true);
   mat reachability = eye(m, m) + sign(X);
   reachability = matrixPow(reachability, m - 1);
   LogicalMatrix result = wrap(reachability > 0);
@@ -1030,7 +1026,6 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
   NumericMatrix steady(numRecClasses, numCols);
   unordered_map<string, int> stateToIndex;
   int steadyStateIndex = 0;
-  double current;
   
   // Map each state to the index it has
   for (int i = 0; i < states.size(); ++i) {
@@ -1126,7 +1121,7 @@ bool isIrreducible(S4 obj) {
 bool isRegular(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
   int m = transitions.ncol();
-  mat probs(transitions.begin(), m, m, false);
+  mat probs(transitions.begin(), m, m, true);
   mat reachable;
   // Let alias this as d
   int positiveDiagonal = 0;
@@ -1198,7 +1193,7 @@ NumericMatrix meanAbsorptionTime(S4 obj) {
   if (!byrow)
     transitions = transpose(transitions);
   
-  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), false);
+  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
   NumericMatrix result = computeMeanAbsorptionTimes(probs, transient, states);
   
   if (!byrow)
@@ -1216,7 +1211,7 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
     stop("Markov chain needs to be ergodic (= irreducile) for this method to work");
   else {
     NumericMatrix transitions = obj.slot("transitionMatrix");
-    mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), false);
+    mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
     CharacterVector states = obj.slot("states");
     bool byrow = obj.slot("byrow");
     int numStates = states.size();
@@ -1270,6 +1265,38 @@ NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
   }
 }
 
+// [[Rcpp::export(.meanRecurrenceTimeRcpp)]]
+NumericVector meanRecurrenceTime(S4 obj) {
+  NumericMatrix steady = steadyStates(obj);
+  bool byrow = obj.slot("byrow");
+  
+  if (!byrow)
+    steady = transpose(steady);
+    
+  CharacterVector states = obj.slot("states");
+  int n = steady.ncol();
+  NumericVector result;
+  CharacterVector recurrentStates;
+  
+  for (int i = 0; i < steady.nrow(); ++i) {
+    for (int j = 0; j < steady.ncol(); ++j) {
+      // This depends on our imlementation of the steady
+      // states, but we have the guarantee that the entry
+      // corresponding to a state in a recurrent class is
+      // only going to be positive in one vector and the 
+      // entries corresponding to transient states are
+      // going to be zero
+      if (!approxEqual(steady(i, j), 0)) {
+        result.push_back(1.0 / steady(i, j));
+        recurrentStates.push_back(states(j));
+      }
+    }
+  }
+  
+  result.attr("names") = recurrentStates;
+  
+  return result;
+}
 
 // [[Rcpp::export(.minNumVisitsRcpp)]]
 NumericMatrix meanNumVisits(S4 obj) {

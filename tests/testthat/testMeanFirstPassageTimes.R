@@ -50,8 +50,47 @@ test_that("meanFirstPassageTime and recurrenceTime hold their characteristic equ
     D <- diag(meanRecurrenceTime(mc$object))
     
     if (mc$byrow)
-      expect_true(isTRUE(all.equal(M, P %*% M + C - D)))
+      expect_true(all.equal(M, P %*% M + C - D))
     else
-      expect_true(isTRUE(all.equal(M, M %*% P + C - D)))
+      expect_true(all.equal(M, M %*% P + C - D))
+  }
+})
+
+# Note that meanRecurrenceTimes are the inverse of the steady states elements
+# which are not negative,
+#
+# One steady state:          Other:
+#    0                         0
+#    0                       u > 0
+#    .                       v > 0
+#    .                         0
+#    .                         .
+#   x > 0                      .
+#   y > 0                      .
+#   z > 0                      .
+#    0                         .
+#
+# So if we invert the mean recurrenceTimes and fill the positions corresponding
+# to transient states with 0s, the result should be an eigen vector of the
+# transition matrix
+#
+test_that("We can manufacture an eigen vector with meanRecurrenceTimes", {
+  for (mc in allMCs) {
+    P <- mc$transitionMatrix
+    byrow <- mc$byrow
+    times <- mc$meanRecurrenceTime
+    states <- mc$states
+    inverse <- times ** (-1)
+    v <- sapply(states, function(s) {
+      ifelse(is.na(inverse[s]), 0, inverse[s])
+    })
+    v <- unname(v)
+    
+    if (byrow)
+      result <- as.numeric(v %*% P)
+    else
+      result <- as.numeric(P %*% v)
+    
+    expect_true(all.equal(result, v))
   }
 })

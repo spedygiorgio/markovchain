@@ -14,6 +14,7 @@ precomputeData <- function(mc) {
     absorbingStates = absorbingStates(mc),
     hittingProbabilities = hittingProbabilities(mc),
     meanNumVisits = meanNumVisits(mc),
+    meanRecurrenceTime = meanRecurrenceTime(mc),
     communicatingClasses = communicatingClasses(mc),
     steadyStates = steadyStates(mc)
   )

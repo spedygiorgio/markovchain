@@ -49,14 +49,7 @@ test_that("All hitting probabilities are 1 iff the Markov chain is irreducible",
 # Test with a matrix with known hitting probabilities
 # Taken from the book Procesos Estocásticos, Ricardo Vélez & Tomás Prieto
 test_that("Tests hitting probabilities for a known markov chain", {
-  
-  M <- matlab::zeros(5, 5)
-  M[1,1] <- M[5,5] <- 1
-  M[2,1] <- M[2,3] <- 1/2
-  M[3,2] <- M[3,4] <- 1/2
-  M[4,2] <- M[4,5] <- 1/2
-  
-  markovChain <- new("markovchain", transitionMatrix = M)
+  # For mcHitting defined in data-raw/db4Tests.R
   
   result <- matlab::zeros(5, 5)
   result[1,1] <- result[5,5] <- 1
@@ -75,9 +68,9 @@ test_that("Tests hitting probabilities for a known markov chain", {
   result[2,5] <- 1/5
   result[3,5] <- 2/5
   result[4,5] <- 3/5
-  rownames(result) <- markovChain@states
-  colnames(result) <- markovChain@states
+  rownames(result) <- mcHitting@states
+  colnames(result) <- mcHitting@states
   
-  expect_equal(hittingProbabilities(markovChain), result)
-  expect_equal(hittingProbabilities(t(markovChain)), t(result))
+  expect_equal(hittingProbabilities(mcHitting), result)
+  expect_equal(hittingProbabilities(t(mcHitting)), t(result))
 })

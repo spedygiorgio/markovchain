@@ -72,7 +72,14 @@ MCs <- list(mc1, mc2, mc3, mc4, mc5, mcRain)
 tMCs <- lapply(MCs, t)
 knownSteadyStatesMCs <- append(MCs, tMCs)
 
+M <- matlab::zeros(5, 5)
+M[1,1] <- M[5,5] <- 1
+M[2,1] <- M[2,3] <- 1/2
+M[3,2] <- M[3,4] <- 1/2
+M[4,2] <- M[4,5] <- 1/2
+
+mcHitting <- new("markovchain", transitionMatrix = M)
 #SAVING
 
 usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, knownSteadyStatesMCs,
-                  internal = TRUE, overwrite = TRUE)
+                  mcHitting, internal = TRUE, overwrite = TRUE)

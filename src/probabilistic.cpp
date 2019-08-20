@@ -1148,6 +1148,7 @@ bool isRegular(S4 obj) {
   return allElements(reachable, arePositive);
 }
 
+
 NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 
                                          CharacterVector& states) {
   unordered_set<string> toErase;
@@ -1158,6 +1159,9 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
   for (auto state : absorbing)
     toErase.insert((string) state);
   
+  // Compute the states which are not in absorbing
+  // and subset the sub-probability matrix of those
+  // states which are not considered absorbing, Q
   for (uint i = 0; i < states.size(); ++i) {
     current = (string) states(i);
     
@@ -1169,10 +1173,13 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
   
   int n = indicesToKeep.size();
   uvec indices(indicesToKeep);
+  // Comppute N = 1 - Q
   auto coeffs = eye(n, n) - probs(indices, indices);
   vec rightPart = vec(n, fill::ones);
   mat meanTimes;
   
+  // Mean absorbing times A are computed as N * A = 1,
+  // where 1 is a column vector of 1s
   if (!solve(meanTimes, coeffs, rightPart))
     stop("Error solving system in meanAbsorptionTime");
   
@@ -1202,6 +1209,67 @@ NumericMatrix meanAbsorptionTime(S4 obj) {
   return result;
 }
 
+// [[Rcpp::export(.meanAbsorptionProbabilitiesRcpp)]]
+NumericMatrix meanAbsorptionProbabilities(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  string current;
+  bool byrow = obj.slot("byrow");
+  if (!byrow)
+    transitions = transpose(transitions);
+  
+  unordered_map<string, uint> stateToIndex;
+  
+  // Map each state to the index it has
+  for (int i = 0; i < states.size(); ++i) {
+    current = (string) states[i];
+    stateToIndex[current] = i;
+  }
+  
+  List commKernel = commClassesKernel(transitions);
+  LogicalVector closed = commKernel["closed"];
+  CharacterVector transient = computeTransientStates(states, closed);
+  CharacterVector recurrent = computeRecurrentStates(states, closed);
+  
+  vector<uint> transientIndxs, recurrentIndxs;
+  
+  // Compute the indexes of the matrix which correspond to transient and recurrent states
+  for (auto state : transient) {
+    current = (string) state;
+    transientIndxs.push_back(stateToIndex[current]);
+  }
+  
+  for (auto state : recurrent) {
+    current = (string) state;
+    recurrentIndxs.push_back(stateToIndex[current]);
+  }
+  
+  int m = transitions.ncol();
+  int n = transientIndxs.size();
+  
+  // Get the indices in arma::uvec s
+  uvec transientIndices(transientIndxs);
+  uvec recurrentIndices(recurrentIndxs);
+  
+  // Compute N = (1 - Q)^{-1}
+  mat probs(transitions.begin(), m, m, true);
+  mat toInvert = eye(n, n) - probs(transientIndices, transientIndices);
+  mat fundamentalMatrix;
+  
+  if (!inv(toInvert, fundamentalMatrix))
+    stop("Could not compute fundamental matrix");
+  
+  // Compute the mean absorption probabilities
+  mat meanProbs = fundamentalMatrix * probs(transientIndices, recurrentIndices);
+  NumericMatrix result = wrap(meanProbs);
+  rownames(result) = transient;
+  colnames(result) = recurrent;
+  
+  if (!byrow)
+    result = transpose(result);
+  
+  return result;
+}
 
 // [[Rcpp::export(.meanFirstPassageTimeRcpp)]]
 NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
@@ -1314,6 +1382,12 @@ NumericMatrix meanNumVisits(S4 obj) {
   rownames(result) = states;
   colnames(result) = states;
   
+  // Lets call the matrix of hitting probabilities as f
+  // Then mean number of visits from i to j are given by 
+  //            f_{ij} / (1 - f_{jj})
+  // having care when f_{ij} -> mean num of visits is zero
+  // and when f_{ij} > 0 and f_{jj} = 1 -> infinity mean
+  //                                       num of visits
   for (int j = 0; j < n; ++j) {
     closeToOne = approxEqual(hitting(j, j), 1);
     

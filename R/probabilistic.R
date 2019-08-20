@@ -693,15 +693,26 @@ setMethod("meanRecurrenceTime", "markovchain", function(object) {
   .meanRecurrenceTimeRcpp(object)
 })
 
+
 #' @export meanAbsorptionTime
 setGeneric("meanAbsorptionTime", function(object) {
   standardGeneric("meanAbsorptionTime")
 })
 
-
 setMethod("meanAbsorptionTime",  "markovchain", function(object) {
   .meanAbsorptionTimeRcpp(object, destination)
 })
+
+
+#' @export meanAbsorptionProbabilities
+setGeneric("meanAbsorptionProbabilities", function(object) {
+  standardGeneric("meanAbsorptionProbabilities")
+})
+
+setMethod("meanAbsorptionProbabilities",  "markovchain", function(object) {
+  .meanAbsorptionProbabilitiesRcpp(object, destination)
+})
+
 
 #' @title Check if a DTMC is regular
 #' 

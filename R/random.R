@@ -43,7 +43,7 @@ randomStochasticMatrix <- function(n, zeroProb, byrow = TRUE) {
 }
 
 
-randomMarkovChain <- function(n, zeroProb = 0.95) {
-  matrix <- randomStochasticMatrix(n, zeroProb)
-  new("markovchain", transitionMatrix = matrix)
+randomMarkovChain <- function(n, zeroProb = 0.95, byrow = TRUE) {
+  matrix <- randomStochasticMatrix(n, zeroProb, byrow)
+  new("markovchain", transitionMatrix = matrix, byrow = byrow)
 }

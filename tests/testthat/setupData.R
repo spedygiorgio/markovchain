@@ -27,7 +27,7 @@ randomPositiveDims <- sample(1:20, numPositiveInstances, replace = TRUE)
 # with dimensions ranging from 1 to 100
 .MCs <- lapply(randomDims, randomMarkovChain)
 
-.colMCs <- transposed(.MCs)
+.colMCs <- lapply(randomDims, function(s) { randomMarkovChain(s, byrow = FALSE) })
 
 # Append by-columns MarkovChains
 .allMCs <- append(.MCs, .colMCs)

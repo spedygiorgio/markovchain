@@ -1247,6 +1247,9 @@ NumericMatrix meanAbsorptionProbabilities(S4 obj) {
   int m = transitions.ncol();
   int n = transientIndxs.size();
   
+  if (n == 0)
+    stop("Markov chain does not have transient states, method not applicable");
+  
   // Get the indices in arma::uvec s
   uvec transientIndices(transientIndxs);
   uvec recurrentIndices(recurrentIndxs);
@@ -1259,7 +1262,7 @@ NumericMatrix meanAbsorptionProbabilities(S4 obj) {
   if (!inv(fundamentalMatrix, toInvert))
     stop("Could not compute fundamental matrix");
   
-  // Compute the mean absorption probabilities
+  // Compute the mean absorption probabilities as F* = N*P[recurrent, recurrent]
   mat meanProbs = fundamentalMatrix * probs(transientIndices, recurrentIndices);
   NumericMatrix result = wrap(meanProbs);
   rownames(result) = transient;

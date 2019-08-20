@@ -710,7 +710,7 @@ setGeneric("meanAbsorptionProbabilities", function(object) {
 })
 
 setMethod("meanAbsorptionProbabilities",  "markovchain", function(object) {
-  .meanAbsorptionProbabilitiesRcpp(object, destination)
+  .meanAbsorptionProbabilitiesRcpp(object)
 })
 
 

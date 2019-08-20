@@ -176,3 +176,44 @@ test_that("Tests mean number of visits for a known markov chain", {
   expect_equal(meanNumVisits(markovChain), result)
   expect_equal(meanNumVisits(t(markovChain)), t(result))
 })
+
+
+context("Checking meanAbsorptionProbabilities")
+
+test_that("Test mean absorption times for known matrix", {
+  # For mcHitting, defined in data-raw/db4Tests.R
+  M <- matlab::zeros(3, 3)
+  result <- 1/5 * matrix(c(4, 1, 3, 2, 2, 3), nrow = 3, byrow = TRUE)
+  rownames(result) <- c(2, 3, 4)
+  colnames(result) <- c(1, 5)
+  
+  expect_equal(meanAbsorptionProbabilities(mcHitting), result)
+  expect_equal(meanAbsorptionProbabilities(t(mcHitting)), t(result))
+})
+
+# Fs is mean absorption probabilities
+# N is the fundamental matrix, (I - Q)^{-1}
+# This equation is by rows, need to transpose left part for by columns matrices
+test_that("Test that (I - Q) Fs = P[transient, recurrent]", {
+  for (mc in allMCs) {
+    if (length(mc$transientStates) > 0) {
+      recurrent <- mc$recurrentStates
+      transient <- mc$transientStates
+      byrow <- mc$byrow
+      states <- mc$states
+      whichRecurrent <- which(states %in% recurrent)
+      whichTransient <- which(states %in% transient)
+      P <- mc$transitionMatrix
+      Fs <- meanAbsorptionProbabilities(mc$object)
+      Ninv <- diag(length(transient)) - P[whichTransient, whichTransient, drop = FALSE]
+      
+      if (byrow) {
+        expected <- P[whichTransient, whichRecurrent, drop = FALSE]
+        expect_equal(Ninv %*% Fs, expected)
+      } else {
+        expected <- P[whichRecurrent, whichTransient, drop = FALSE]
+        expect_equal(Fs %*% Ninv, expected)
+      }
+    }
+  }
+})

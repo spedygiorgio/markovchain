@@ -528,7 +528,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // meanAbsorptionTime
-NumericMatrix meanAbsorptionTime(S4 obj);
+NumericVector meanAbsorptionTime(S4 obj);
 RcppExport SEXP _markovchain_meanAbsorptionTime(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

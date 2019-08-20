@@ -1191,20 +1191,30 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
 
 
 // [[Rcpp::export(.meanAbsorptionTimeRcpp)]]
-NumericMatrix meanAbsorptionTime(S4 obj) {
+NumericVector meanAbsorptionTime(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
-  CharacterVector transient = transientStates(obj);
   CharacterVector states = obj.slot("states");
   bool byrow = obj.slot("byrow");
+  unordered_set<string> allStates;
   
   if (!byrow)
     transitions = transpose(transitions);
   
-  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
-  NumericMatrix result = computeMeanAbsorptionTimes(probs, transient, states);
+  // Compute recurrent and transient states
+  List commKernel = commClassesKernel(transitions);
+  LogicalVector closed = commKernel["closed"];
+  CharacterVector transient = computeTransientStates(states, closed);
+  CharacterVector recurrent = computeRecurrentStates(states, closed);
   
-  if (!byrow)
-    result = transpose(result);
+  // Compute the mean absorption time for the transient states
+  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
+  NumericMatrix meanTimes = computeMeanAbsorptionTimes(probs, recurrent, states);
+  NumericVector result;
+  
+  if (meanTimes.ncol() > 0) {
+    result = meanTimes(_, 0);
+    result.attr("names") = transient;
+  }
   
   return result;
 }

@@ -217,3 +217,24 @@ test_that("Test that (I - Q) Fs = P[transient, recurrent]", {
     }
   }
 })
+
+
+context("Checking meanAbsorptionTime")
+
+
+test_that("Mean absorption time for known matrix", {
+  result <- c(3, 4, 3)
+  names(result) <- c(2, 3, 4)
+  
+  expect_equal(meanAbsorptionTime(mcDrunkard), result)
+  expect_equal(meanAbsorptionTime(t(mcDrunkard)), result)
+})
+
+
+test_that("All mean absorption times are greater or equal than 1", {
+  for (mc in allMCs) {
+    if (length(mc$transientStates) > 0) {
+      expect_true(all(meanAbsorptionTime(mcDrunkard) > 1))
+    }
+  }
+})

@@ -700,7 +700,7 @@ setGeneric("meanAbsorptionTime", function(object) {
 })
 
 setMethod("meanAbsorptionTime",  "markovchain", function(object) {
-  .meanAbsorptionTimeRcpp(object, destination)
+  .meanAbsorptionTimeRcpp(object)
 })
 
 

@@ -1256,7 +1256,7 @@ NumericMatrix meanAbsorptionProbabilities(S4 obj) {
   mat toInvert = eye(n, n) - probs(transientIndices, transientIndices);
   mat fundamentalMatrix;
   
-  if (!inv(toInvert, fundamentalMatrix))
+  if (!inv(fundamentalMatrix, toInvert))
     stop("Could not compute fundamental matrix");
   
   // Compute the mean absorption probabilities

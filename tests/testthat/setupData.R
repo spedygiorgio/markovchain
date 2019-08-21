@@ -1,8 +1,8 @@
 numInstances <- 150
 # Instances of markov chains with all transitions positive
-numPositiveInstances <- 20
+smallNumInstances <- 20
 numByRow <- numInstances / 2
-maxDim <- 100
+maxDim <- 80
 set.seed(1234567)
 
 transposed <- function(markovChains) {
@@ -11,7 +11,7 @@ transposed <- function(markovChains) {
 
 randomDims  <- sample(1:maxDim, numByRow, replace = TRUE)
 # Make positive matrices smaller, since it is costly to make computations on them
-randomPositiveDims <- sample(1:20, numPositiveInstances, replace = TRUE)
+randomPositiveDims <- sample(1:20, smallNumInstances, replace = TRUE)
 
 # Get 1:[maxDim] identity by-row-markov-chains
 .diagonalMCs <- lapply(1:numByRow, function(n) {
@@ -45,13 +45,25 @@ diagonalIndexes <- seq_along(.allDiagonalMCs)
 #################################################################
 
 allMCs <- lapply(.allMCs, markovchain:::precomputeData)
+
+subsetAllMCs <- sample(allMCs, smallNumInstances, replace = FALSE)
+
 steadyStatesMCs <- lapply(knownSteadyStatesMCs, markovchain:::precomputeData)
+
 allDiagonalMCs <- lapply(.allDiagonalMCs, markovchain:::precomputeData)
+
 allAndDiagonalMCs <- append(allMCs, allDiagonalMCs)
+
 allPositiveMCs <- lapply(.allPositiveMCs, function(mc) {
   list(object = mc,
        byrow = mc@byrow,
+       states = mc@states,
+       communicatingClasses = communicatingClasses(mc),
+       canonicForm = canonicForm(mc),
        transitionMatrix = mc@transitionMatrix,
-       regular = is.regular(mc)
+       regular = is.regular(mc),
+       irreducible = is.irreducible(mc)
   )
 })
+
+allAndPositiveMCs <- append(allMCs, allPositiveMCs)

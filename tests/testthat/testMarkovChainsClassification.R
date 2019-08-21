@@ -17,7 +17,7 @@ test_that("Markov chains with strictly positive transition matrices are regular"
 
 
 test_that("Regularity implies ergodicity", {
-  for (mc in allMCs)
+  for (mc in allAndPositiveMCs)
     
     if (mc$regular)
       expect_true(mc$irreducible)
@@ -49,7 +49,7 @@ context("Checking canonicForm and is.irreducible")
 
 test_that("Markov chain is irreducible iff there is a single communicating class", {
   
-  for (mc in allMCs) {
+  for (mc in allAndPositiveMCs) {
     states <- mc$states
     commClasses  <- mc$communicatingClasses
     numCommClasses <- length(commClasses)
@@ -65,7 +65,7 @@ test_that("Markov chain is irreducible iff there is a single communicating class
 
 test_that("If the matrix is irreducible then the canonic form equals the Markov chain", {
   
-  for (mc in allMCs) {
+  for (mc in allAndPositiveMCs) {
     canonic <- mc$canonicForm
     irreducible <- mc$irreducible
     canonicEqual <- canonic == mc$object

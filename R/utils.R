@@ -16,7 +16,8 @@ precomputeData <- function(mc) {
     meanNumVisits = meanNumVisits(mc),
     meanRecurrenceTime = meanRecurrenceTime(mc),
     communicatingClasses = communicatingClasses(mc),
-    steadyStates = steadyStates(mc)
+    steadyStates = steadyStates(mc),
+    reachabilityMatrix = is.accessible(mc)
   )
 }
 

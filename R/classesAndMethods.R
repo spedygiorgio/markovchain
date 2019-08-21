@@ -462,6 +462,10 @@ setValidity(
     transitionMatrix <- object@transitionMatrix
     states           <- object@states
     
+    if (length(setdiff(states, unique(states))) > 0) {
+      msg    <- "Error! States must be unique!"
+      errors <- c(errors, msg)
+    }
     # Performs a set of checks. If any error arises, it ends up concatenated to errors
     
     # Check all values of transition matrix belongs to [0, 1]

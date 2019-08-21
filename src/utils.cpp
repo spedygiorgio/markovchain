@@ -9,6 +9,11 @@ using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
+// Defined in probabilistic.cpp
+bool isAccessible(S4 obj, String from, String to);
+
+// Defined in probabilistic.cpp
+LogicalMatrix reachabilityMatrix(S4 obj);
 
 // matrix power function
 // O(log n * m³) where m is the number of rows / cols of A
@@ -133,6 +138,24 @@ bool isProbVector(NumericVector prob) {
   return result && approxEqual(sumProbs, 1);
 }
 
+// [[Rcpp::export(.testthatIsAccesibleRcpp)]]
+bool checkIsAccesibleMethod(S4 obj) {
+  CharacterVector states = obj.slot("states");
+  bool byrow = obj.slot("byrow");
+  LogicalMatrix reachability = reachabilityMatrix(obj);
+  int m = states.size();
+  bool correct = true;
+  bool reachable;
+  
+  for (int i = 0; i < m && correct; ++i) {
+    for (int j = 0; j < m && correct; ++j) {
+      reachable = (byrow ? reachability(i, j) : reachability(j, i));
+      correct = isAccessible(obj, states(i), states(j)) == reachable;
+    }
+  }
+  
+  return correct;
+}
 
 // [[Rcpp::export(.approxEqualMatricesRcpp)]]
 bool approxEqual(NumericMatrix a, NumericMatrix b) {

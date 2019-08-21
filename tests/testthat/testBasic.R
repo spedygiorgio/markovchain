@@ -428,6 +428,11 @@ M[10,1]<- 1
 markovChain <- new("markovchain",transitionMatrix=M)
 
 
-#test_that("closed classes == recurrent classes", {
-#  expect_equal(closedClases(markovChain), recurrentClasses(markovChain))
-#})
+context("Checking is.accesible")
+
+
+test_that("is accesible is equivalent to reachability matrix", {
+  for (mc in subsetAllMCs) {
+    expect_true(.testthatIsAccesibleRcpp(mc$object))
+  }
+})

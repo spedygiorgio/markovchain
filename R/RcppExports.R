@@ -276,6 +276,10 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_reachabilityMatrix`, obj)
 }
 
+.isAccessibleRcpp <- function(obj, from, to) {
+    .Call(`_markovchain_isAccessible`, obj, from, to)
+}
+
 .summaryKernelRcpp <- function(object) {
     .Call(`_markovchain_summaryKernel`, object)
 }
@@ -448,6 +452,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .isProbabilityVector <- function(prob) {
     .Call(`_markovchain_isProbVector`, prob)
+}
+
+.testthatIsAccesibleRcpp <- function(obj) {
+    .Call(`_markovchain_checkIsAccesibleMethod`, obj)
 }
 
 .approxEqualMatricesRcpp <- function(a, b) {

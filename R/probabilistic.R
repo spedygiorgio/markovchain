@@ -35,28 +35,8 @@ setGeneric("is.accessible", function(object, from, to) standardGeneric("is.acces
 
 setMethod("is.accessible", c("markovchain", "character", "character"), 
   function(object, from, to) {
-    # assume that it is not possible
-    out <- FALSE
-    
-    # names of states
-    statesNames <- states(object)
-    
-    # Change rows by cols if matrix is stochastic by columns
-    if (!object@byrow) {
-      aux <- from
-      from <- to
-      to <- aux
-    }
-    
-    # row number
-    fromPos <- which(statesNames == from)
-    
-    # column number
-    toPos <- which(statesNames == to)
-  
-    # a logical matrix which will tell the reachability of jth state from ith state
-    reachable <- .reachabilityMatrixRcpp(object)
-    return(reachable[fromPos, toPos]) 
+    # O(n²) procedure to see if to state is reachable starting at from state
+    return(.isAccessibleRcpp(object, from, to))
   }
 )
 

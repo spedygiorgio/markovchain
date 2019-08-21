@@ -27,6 +27,9 @@ bool anyElement(const mat& matrix, bool (*condition)(const double&));
 // Declared in utils.cpp
 bool allElements(const mat& matrix, bool (*condition)(const double&));
 
+// Declared in utils.cpp
+bool approxEqual(const cx_double& a, const cx_double& b);
+
 // [[Rcpp::export(.commClassesKernelRcpp)]]
 List commClassesKernel(NumericMatrix P) {
   // The matrix must be stochastic by rows
@@ -312,6 +315,48 @@ LogicalMatrix reachabilityMatrix(S4 obj) {
 
   return result;
 }
+
+// [[Rcpp::export(.isAccessibleRcpp)]]
+bool isAccessible(S4 obj, String from, String to) {
+  NumericMatrix probs = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  int fromPos = -1, toPos = -1;
+  bool byrow = obj.slot("byrow");
+  int m = probs.ncol();
+  
+  // Compute indices for states from and pos
+  for (int i = 0; i < m; ++i) {
+    if (states[i] == from)
+      fromPos = i;
+    if (states[i] == to)
+      toPos = i;
+  }
+  
+  if (fromPos == -1 || toPos == -1)
+    stop("Please give valid states method");
+  
+  stack<int> toExplore;
+  toExplore.push(fromPos);
+  vector<int> visited(m, false);
+  visited[fromPos] = true;
+  bool isReachable = false;
+  
+  // DFS until we hit 'to' state or we cannot traverse to more states
+  while (!toExplore.empty() && !isReachable) {
+    int i = toExplore.top();
+    toExplore.pop();
+    visited[i] = true;
+    isReachable = i == toPos;
+
+    for (int j = 0; j < m; ++j)
+      if (((byrow && !approxEqual(probs(i, j), 0)) || (!byrow && !approxEqual(probs(j, i), 0))) 
+          && !visited[j])
+        toExplore.push(j);
+  }
+  
+  return isReachable;
+}
+
 
 // summary of markovchain object
 // [[Rcpp::export(.summaryKernelRcpp)]]
@@ -978,9 +1023,6 @@ NumericMatrix lexicographicalSort(NumericMatrix m) {
   }
 }
 
-// Declared in utils.cpp
-bool approxEqual(const cx_double& a, const cx_double& b);
-
 
 // This method computes the *unique* steady state that exists for an
 // matrix has to be schocastic by rows
@@ -1355,7 +1397,6 @@ NumericVector meanRecurrenceTime(S4 obj) {
     steady = transpose(steady);
     
   CharacterVector states = obj.slot("states");
-  int n = steady.ncol();
   NumericVector result;
   CharacterVector recurrentStates;
   

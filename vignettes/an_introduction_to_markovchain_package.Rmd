@@ -168,7 +168,7 @@ If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain t
 
 Given a time homogeneous Markov chain with transition matrix \emph{P}, a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and $\sum_{j}z_{j}=1$.
 
-If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$ is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
+If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$ is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the unique eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
 
 \begin{equation}
   \underset{n\rightarrow\infty}{lim}P^{n}=Z,
@@ -176,6 +176,8 @@ If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribu
 \end{equation}
 
 where $Z$ is the matrix having all rows equal to $z$. The stationary distribution of $\{X_{n}\}$ is represented by $z$.
+
+A matrix $A$ is called primitive if all of its entries are strictly positive, and we write it $A > 0$. If the transition matrix $P$ for a DTMC has some primitive power, i.e. it exists $m > 0: P^m > 0$, then the DTMC is said to be regular. In fact being regular is equivalent to being irreducible and aperiodic. All regular DTMCs are irreducible. The counterpart is not true.
 
 Given two absorbing states $s_A$ (source) and $s_B$ (sink), the \emph{committor probability} $q_j^{(AB)}$ is the probability that a process starting in state $s_i$ is absorbed in state $s_B$ (rather than $s_A$) [@noe_constructing_2009]. It can be computed via <!-- TONI -->
 
@@ -575,6 +577,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{canonicForm} & the transition matrix into canonic form. \\
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
   \code{is.irreducible} & checks whether a DTMC is irreducible. \\
+  \code{is.regular} & checks whether a DTMC is regular \\
   \code{period} & the period of an irreducible DTMC. \\
   \code{recurrentClasses} & list of recurrent classes. \\
   \code{transientClasses} & list of transient classes. \\

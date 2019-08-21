@@ -1,8 +1,14 @@
 2019-08-13 0.7.0
-* Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to C++ whenever possible and improving the algorithmic complexity of the code.
-* Solves a bug with `steadyStates` method.
 * Adds the methods `recurrentStates` and `transientClasses`.
-* Makes the aforementioned methods work on by column Markov chains.
+* Adds `meanAbsorptionTime`, which computes the expected number of steps for a transient state to be absorbed by any recurrent class in the Markov chain.
+* Adds `absorptionProbabilities`, which computes the probability for a transient state of being absorbed by a recurrent one.
+* Adds `meanNumVisits` to compute the expected number of visits when of the Markov chain to an state when it starts in a certain one.
+* Improves `steadyStates` method.
+* Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to Rcpp whenever possible and improving the algorithmic complexity of the code.
+* Ports `meanFirstPassageTime` to Rcpp.
 * Improves tests, adding checking of mathematical structural properties and hundreds of random test cases.
+* Revisits most methods for DTMCs to actually work on by column Markov chains.
+* Improves is.accessible performance with `from` and `to` as parameters: from former O(n⁴) with n the number of states to O(n²).
+* Adds is.accessible without parameters, which outputs the reachability matrix for the Markov chain.
 * Fixes documentation for `roxygen` and NAMESPACE file for automatic generation using `devtools::document()`
 * Bumps Ignacio Cordón as author (ORCID included)

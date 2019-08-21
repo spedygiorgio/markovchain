@@ -34,6 +34,7 @@ markovB <- new("markovchain", states = statesNames,
                                         )
                )
 is.accessible(markovB, "a", "c")
+
 }
 \references{
 James Montgomery, University of Madison

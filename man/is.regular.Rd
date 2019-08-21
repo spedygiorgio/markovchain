@@ -28,6 +28,10 @@ ciao <- as(P, "markovchain")
 is.regular(ciao)
 
 }
+\references{
+Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+  Corollary 8.5.8, Theorem 8.5.9
+}
 \seealso{
 \code{\link{is.irreducible}}
 }

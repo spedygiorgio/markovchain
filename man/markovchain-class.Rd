@@ -20,9 +20,13 @@
 \alias{meanNumVisits,markovchain-method}
 \alias{is.regular,markovchain-method}
 \alias{is.irreducible,markovchain-method}
-\alias{is.accesible,markovchain-method}
-\alias{meanFirstPassageTime,markovchain-method}
+\alias{is.accessible,markovchain,character,character-method}
+\alias{is.accessible,markovchain,missing,missing-method}
+\alias{absorptionProbabilities,markovchain-method}
+\alias{meanFirstPassageTime,markovchain,character-method}
+\alias{meanFirstPassageTime,markovchain,missing-method}
 \alias{meanAbsorptionTime,markovchain-method}
+\alias{meanRecurrenceTime,markovchain-method}
 \alias{conditionalDistribution,markovchain-method}
 \alias{hittingProbabilities,markovchain-method}
 \alias{canonicForm,markovchain-method}

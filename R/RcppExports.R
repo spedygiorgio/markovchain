@@ -422,8 +422,8 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_meanAbsorptionTime`, obj)
 }
 
-.meanAbsorptionProbabilitiesRcpp <- function(obj) {
-    .Call(`_markovchain_meanAbsorptionProbabilities`, obj)
+.absorptionProbabilitiesRcpp <- function(obj) {
+    .Call(`_markovchain_absorptionProbabilities`, obj)
 }
 
 .meanFirstPassageTimeRcpp <- function(obj, destination) {

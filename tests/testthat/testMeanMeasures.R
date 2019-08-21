@@ -178,7 +178,7 @@ test_that("Tests mean number of visits for a known markov chain", {
 })
 
 
-context("Checking meanAbsorptionProbabilities")
+context("Checking absorptionProbabilities")
 
 test_that("Test mean absorption times for known matrix", {
   # For mcHitting, defined in data-raw/db4Tests.R
@@ -187,8 +187,8 @@ test_that("Test mean absorption times for known matrix", {
   rownames(result) <- c(2, 3, 4)
   colnames(result) <- c(1, 5)
   
-  expect_equal(meanAbsorptionProbabilities(mcHitting), result)
-  expect_equal(meanAbsorptionProbabilities(t(mcHitting)), t(result))
+  expect_equal(absorptionProbabilities(mcHitting), result)
+  expect_equal(absorptionProbabilities(t(mcHitting)), t(result))
 })
 
 # Fs is mean absorption probabilities
@@ -204,7 +204,7 @@ test_that("Test that (I - Q) Fs = P[transient, recurrent]", {
       whichRecurrent <- which(states %in% recurrent)
       whichTransient <- which(states %in% transient)
       P <- mc$transitionMatrix
-      Fs <- meanAbsorptionProbabilities(mc$object)
+      Fs <- absorptionProbabilities(mc$object)
       Ninv <- diag(length(transient)) - P[whichTransient, whichTransient, drop = FALSE]
       
       if (byrow) {

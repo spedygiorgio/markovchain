@@ -4,13 +4,13 @@
 \alias{meanFirstPassageTime}
 \title{Mean First Passage Time for irreducible Markov chains}
 \usage{
-meanFirstPassageTime(markovchain)
+meanFirstPassageTime(object, destination)
 }
 \arguments{
+\item{object}{the markovchain object}
+
 \item{destination}{a character vector representing the states respect to
 which we want to compute the mean first passage time. Empty by default}
-
-\item{markovchain}{the markovchain object}
 }
 \value{
 a Matrix of the same size with the average first passage times if

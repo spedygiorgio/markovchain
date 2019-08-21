@@ -29,6 +29,7 @@
 #'                                         )
 #'                )
 #' is.accessible(markovB, "a", "c")
+#' 
 #' @exportMethod is.accessible
 setGeneric("is.accessible", function(object, from, to) standardGeneric("is.accessible"))
 
@@ -299,7 +300,7 @@ setMethod("recurrentClasses", "markovchain", function(object) {
 })
 
 
-# A communicating class will be a transient class if 
+# A communicating class will be a transient class iff
 # there is an outgoing edge from this class to an state
 # outside of the class
 # Transient classes are subset of communicating classes
@@ -586,9 +587,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 #' @description Given an irreducible (ergodic) markovchain object, this function
 #'   calculates the expected number of steps to reach other states
 #'
-#' @usage meanFirstPassageTime(markovchain)
-#'
-#' @param markovchain the markovchain object
+#' @param object the markovchain object
 #' @param destination a character vector representing the states respect to
 #'   which we want to compute the mean first passage time. Empty by default
 #'
@@ -660,17 +659,15 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
 #' @description Computes the expected time to return to a recurrent state
 #'   in case the Markov chain starts there
 #'
-#' @usage meanRecurrenceTime(markovchain)
+#' @usage meanRecurrenceTime(object)
 #'
-#' @param markovchain the markovchain object
-#' @param destination a character vector representing the states respect to
-#'   which we want to compute the mean first passage time. Empty by default
+#' @param object the markovchain object
 #'
-#' @return For a Markov chain its output is a named vector with the expected 
+#' @return For a Markov chain it outputs is a named vector with the expected 
 #'   time to return to a state when the chain starts there.
 #'   States present in the vector are only the recurrent ones. If the matrix
 #'   is ergodic (i.e. irreducible), then all states are present in the output
-#'   and order is the same for states of the Markov chain
+#'   and order is the same as states order for the Markov chain
 #'
 #' @author Ignacio Cordón
 #'
@@ -694,6 +691,31 @@ setMethod("meanRecurrenceTime", "markovchain", function(object) {
 })
 
 
+#' Mean absorption time
+#'
+#' @description Computes the expected number of steps to go from any of the
+#'   transient states to any of the recurrent states. The Markov chain should
+#'   have at least one transient state for this method to work
+#'
+#' @usage meanAbsorptionTime(object)
+#'
+#' @param object the markovchain object
+#'
+#' @return A named vector with the expected number of steps to go from a
+#'   transient state to any of the recurrent ones
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(c(1/2, 1/2, 0,
+#'               1/2, 1/2, 0,
+#'                 0, 1/2, 1/2), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
+#' meanAbsorptionTime(mc)
+#'
 #' @export meanAbsorptionTime
 setGeneric("meanAbsorptionTime", function(object) {
   standardGeneric("meanAbsorptionTime")
@@ -703,14 +725,41 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
   .meanAbsorptionTimeRcpp(object)
 })
 
-
-#' @export meanAbsorptionProbabilities
-setGeneric("meanAbsorptionProbabilities", function(object) {
-  standardGeneric("meanAbsorptionProbabilities")
+#' Absorption probability
+#'
+#' @description Computes the absorption probability from each transient
+#'   state to each recurrent one (i.e. the (i, j) entry or (j, i), in a 
+#'   stochastic matrix by columns, represents the probability that the
+#'   first not transient state we can go from the transient state i is j
+#'   (and therefore we are going to be absorbed in the communicating
+#'   recurrent class of j)
+#'
+#' @usage absorptionProbabilities(object)
+#'
+#' @param object the markovchain object
+#'
+#' @return A named vector with the expected number of steps to go from a
+#'   transient state to any of the recurrent ones
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(c(1/2, 1/2, 0,
+#'               1/2, 1/2, 0,
+#'                 0, 1/2, 1/2), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
+#' absorptionProbabilities(mc)
+#'
+#' @export absorptionProbabilities
+setGeneric("absorptionProbabilities", function(object) {
+  standardGeneric("absorptionProbabilities")
 })
 
-setMethod("meanAbsorptionProbabilities",  "markovchain", function(object) {
-  .meanAbsorptionProbabilitiesRcpp(object)
+setMethod("absorptionProbabilities",  "markovchain", function(object) {
+  .absorptionProbabilitiesRcpp(object)
 })
 
 

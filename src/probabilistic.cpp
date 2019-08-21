@@ -1219,8 +1219,8 @@ NumericVector meanAbsorptionTime(S4 obj) {
   return result;
 }
 
-// [[Rcpp::export(.meanAbsorptionProbabilitiesRcpp)]]
-NumericMatrix meanAbsorptionProbabilities(S4 obj) {
+// [[Rcpp::export(.absorptionProbabilitiesRcpp)]]
+NumericMatrix absorptionProbabilities(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
   CharacterVector states = obj.slot("states");
   string current;

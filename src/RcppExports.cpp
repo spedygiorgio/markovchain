@@ -538,14 +538,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// meanAbsorptionProbabilities
-NumericMatrix meanAbsorptionProbabilities(S4 obj);
-RcppExport SEXP _markovchain_meanAbsorptionProbabilities(SEXP objSEXP) {
+// absorptionProbabilities
+NumericMatrix absorptionProbabilities(S4 obj);
+RcppExport SEXP _markovchain_absorptionProbabilities(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(meanAbsorptionProbabilities(obj));
+    rcpp_result_gen = Rcpp::wrap(absorptionProbabilities(obj));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -750,7 +750,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_isIrreducible", (DL_FUNC) &_markovchain_isIrreducible, 1},
     {"_markovchain_isRegular", (DL_FUNC) &_markovchain_isRegular, 1},
     {"_markovchain_meanAbsorptionTime", (DL_FUNC) &_markovchain_meanAbsorptionTime, 1},
-    {"_markovchain_meanAbsorptionProbabilities", (DL_FUNC) &_markovchain_meanAbsorptionProbabilities, 1},
+    {"_markovchain_absorptionProbabilities", (DL_FUNC) &_markovchain_absorptionProbabilities, 1},
     {"_markovchain_meanFirstPassageTime", (DL_FUNC) &_markovchain_meanFirstPassageTime, 2},
     {"_markovchain_meanRecurrenceTime", (DL_FUNC) &_markovchain_meanRecurrenceTime, 1},
     {"_markovchain_meanNumVisits", (DL_FUNC) &_markovchain_meanNumVisits, 1},

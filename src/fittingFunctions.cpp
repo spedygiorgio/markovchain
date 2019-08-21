@@ -2,10 +2,10 @@
 #define STRICT_R_HEADERS
 
 // [[Rcpp::depends(RcppParallel)]]
+// [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppParallel.h>
 #include <ctime>
 #include <RcppArmadilloExtensions/sample.h>
-// [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
 using namespace RcppArmadillo;
@@ -13,8 +13,7 @@ using namespace RcppParallel;
 using namespace std;
 
 #include "helpers.h"
-#include "mapFitFunctionsSAI.h"
-#include "sampler.h"   
+#include "mapFitFunctions.h"
 #include <math.h>
 #include <armadillo>
 
@@ -255,7 +254,7 @@ struct MCList : public Worker
       if (not init) {
         
         // randomly selected state
-        istate = rsample(in_states, 1, false, in_probs);
+        istate = sample(in_states, 1, false, in_probs);
         t0 = names[0][istate[0]];  
       }
       
@@ -275,7 +274,7 @@ struct MCList : public Worker
           if (names[i][j] == t0) break;
         }
         
-        // vector to be passed to rsample method
+        // vector to be passed to sample method
         arma::vec probs(size_emat[i]);
         arma::vec states(size_emat[i]);
         
@@ -286,7 +285,7 @@ struct MCList : public Worker
         
         
         // new state selected
-        arma::vec elmt = rsample(states, 1, false, probs);
+        arma::vec elmt = sample(states, 1, false, probs);
         t0 = names[i][elmt[0]];
         
         // populate sequence
@@ -1018,7 +1017,7 @@ struct BootstrapList : public Worker {
       
       // randomly select starting state
       vector<string> result(len);
-      istate = rsample(ustates, 1, false, iprobs);
+      istate = sample(ustates, 1, false, iprobs);
       result[0] = states[istate[0]];
       
       // given a present state generate a future state
@@ -1030,7 +1029,7 @@ struct BootstrapList : public Worker {
         }
         
         // select future state
-        istate = rsample(ustates, 1, false, probs);
+        istate = sample(ustates, 1, false, probs);
         result[j] = states[istate[0]];
       }
       

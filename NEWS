@@ -2,6 +2,7 @@
 * Adds the methods `recurrentStates` and `transientClasses`.
 * Adds `meanAbsorptionTime`, which computes the expected number of steps for a transient state to be absorbed by any recurrent class in the Markov chain.
 * Adds `absorptionProbabilities`, which computes the probability for a transient state of being absorbed by a recurrent one.
+* Adds `meanRecurrenceTime` as the expected number of steps that takes the chain to return to a given recurrent state.
 * Adds `meanNumVisits` to compute the expected number of visits when of the Markov chain to an state when it starts in a certain one.
 * Improves `steadyStates` method.
 * Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to Rcpp whenever possible and improving the algorithmic complexity of the code.

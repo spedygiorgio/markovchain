@@ -644,7 +644,7 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
 #' @param object the markovchain object
 #'
 #' @return For a Markov chain it outputs is a named vector with the expected 
-#'   time to return to a state when the chain starts there.
+#'   time to first return to a state when the chain starts there.
 #'   States present in the vector are only the recurrent ones. If the matrix
 #'   is ergodic (i.e. irreducible), then all states are present in the output
 #'   and order is the same as states order for the Markov chain
@@ -705,7 +705,7 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
   .meanAbsorptionTimeRcpp(object)
 })
 
-#' Absorption probability
+#' Absorption probabilities
 #'
 #' @description Computes the absorption probability from each transient
 #'   state to each recurrent one (i.e. the (i, j) entry or (j, i), in a 

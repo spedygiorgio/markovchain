@@ -32,9 +32,12 @@ author:
     email: \email{deepakyadav.iitbhu@gmail.com}
   - name: "Ignacio Cordón"
     affiliation: Software Engineer at source{d}
+    address: >
+      Madrid (Madrid), Spain
     email: \email{nacho.cordon.castillo@gmail.com}
 preamble: >
   \author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}
+  \Plainauthor{G.A. Spedicato, T.S. Kang, S.B. Yalamanchi, D. Yadav, I. Cordón}
   \usepackage{graphicx}
   \usepackage{amsmath}
   \usepackage{longtable}
@@ -160,11 +163,15 @@ and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^
 \label{eq:ftp2}
 \end{equation}
 
-A commonly used quantity related to $h$  is its average value, i.e.
-the \emph{mean first passage time} (also expected hitting time), namely
-$\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
+A commonly used quantity related to $h$  is its average value, i.e. the \emph{mean first passage time} (also expected hitting time), namely $\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
 
-If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
+If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first recurrence time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. We could also ask ourselves which is the *mean recurrence time*, an average of the mean first recurrence times:
+
+\[
+ r_i = \sum_{k = 1}^{\infty} k * P(T_i = k)
+\]
+
+Revisiting the definition of recurrence and transience: a state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$.
 
 Given a time homogeneous Markov chain with transition matrix \emph{P}, a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and $\sum_{j}z_{j}=1$.
 
@@ -192,6 +199,8 @@ Note we can also define the hitting probability from $i$ to $j$ as the probabili
 h_{i,j} = Pr(T_{ij} < \infty) = \sum_{n = 0}^{\infty} h_{ij}^{(n)}
 \label{eq:hitting-probs}
 \end{equation}
+
+In a DTMC with finite set of states, we know that a transient state communicates at least with one recurrent state. If the chain starts in a transient element, once it hits a recurrent state, it is going to be caught in its recurrent state, and we cannot expect it would go back to the initial state. Given a transient state $i$ we can define the *absorption probability* to the recurrent state $j$ as the probability that the first recurrent state that the Markov chain visits (and therefore gets absorbed by its recurrent class) is $j$, $f^{*}_ij$. We can also define the *mean absorption time* as the mean number of steps the transient state $i$ would take until it hits any recurrent state, $b_i$.
 
 ## A short example
 
@@ -570,20 +579,25 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
+  \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
+  \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
+                            & absorbed by any recurrent class \\
+  \code{absorptionProbabilities} & probabilities of transient states of being \\
+                                 & absorbed by each recurrent state \\
   \code{committorAB} & committor probabilities \\
   \code{communicatingClasses} & list of communicating classes. \\
    & $s_{j}$, given actual state $s_{i}$. \\
   \code{canonicForm} & the transition matrix into canonic form. \\
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
   \code{is.irreducible} & checks whether a DTMC is irreducible. \\
-  \code{is.regular} & checks whether a DTMC is regular \\
+  \code{is.regular} & checks whether a DTMC is regular. \\
   \code{period} & the period of an irreducible DTMC. \\
-  \code{recurrentClasses} & list of recurrent classes. \\
-  \code{transientClasses} & list of transient classes. \\
-  \code{summary} & DTMC summary.\\
+  \code{recurrentClasses} & list of recurrent communicating classes. \\
+  \code{transientClasses} & list of transient communicatingclasses. \\
   \code{recurrentStates} & the recurrent states of the transition matrix. \\
   \code{transientStates} & the transient states of the transition matrix, if any. \\
+  \code{summary} & DTMC summary. \\
   \hline
   \end{tabular}
 \caption{\pkg{markovchain} methods: statistical operations.}
@@ -842,6 +856,64 @@ The implementation follows the matrix solutions  by [@GrinsteadSnell]. We can ch
 firstPassagePdF.long <- firstPassage(object = mcWeather, state = "sunny",  n = 100)
 sum(firstPassagePdF.long[,"rain"] * 1:100)
 ```
+
+## Mean recurrence time
+
+The `meanRecurrenceTime` method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
+
+```{r mrt-weather}
+meanRecurrenceTime(mcWeather)
+```
+
+Another example, with not all of its states being recurrent:
+
+```{r mrt-probMc}
+recurrentStates(probMc)
+meanRecurrenceTime(probMc)
+```
+
+## Absorption probabilities and mean absorption time
+
+We are going to use the Drunkard’s random walk from [@GrinsteadSnell]. We have a drunk person walking through the street. Each move the person does, if they have not arrived to either home (corner 1) or to the bar (corner 5) could be to the left corner or to the right one, with equal probability. In case of arrival to the bar or to home, the person stays there.
+
+```{r data-drunkard}
+drunkProbs <- matlab::zeros(5, 5)
+drunkProbs[1,1] <- drunkProbs[5,5] <- 1
+drunkProbs[2,1] <- drunkProbs[2,3] <- 1/2
+drunkProbs[3,2] <- drunkProbs[3,4] <- 1/2
+drunkProbs[4,3] <- drunkProbs[4,5] <- 1/2
+
+drunkMc <- new("markovchain", transitionMatrix = drunkProbs)
+drunkMc
+```
+
+Recurrent (in fact absorbing states) are:
+
+```{r rs-drunkard}
+recurrentStates(drunkMc)
+```
+
+Transient states are the rest:
+
+```{r ts-drunkard}
+transientStates(drunkMc)
+```
+
+The probability of either being absorbed by the bar or by the sofa at home are:
+
+```{r ap-drunkard}
+absorptionProbabilities(drunkMc)
+```
+
+which means that the probability of arriving home / bar is inversely proportional to the distance to each one.
+
+But we also would like to know how much time does the person take to arrive there, which can be done with `meanAbsorptionTime`:
+
+```{r at-drunkard}
+meanAbsorptionTime(drunkMc)
+```
+
+So it would take `3` steps to arrive to the destiny if the person is either in the second or fourth corner, and `4` steps in case of being at the same distance from home than to the bar.
 
 ## Committor probability
 

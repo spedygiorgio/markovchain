@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mean First Passage Time for markovchain — meanFirstPassageTime • markovchain</title>
+<title>Mean First Passage Time for irreducible Markov chains — meanFirstPassageTime • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,10 @@
 
 
 
-<meta property="og:title" content="Mean First Passage Time for markovchain — meanFirstPassageTime" />
+<meta property="og:title" content="Mean First Passage Time for irreducible Markov chains — meanFirstPassageTime" />
 
-<meta property="og:description" content="Given a markovchain object,
-this function calculates the expected steps to go from state i to j" />
+<meta property="og:description" content="Given an irreducible (ergodic) markovchain object, this function
+  calculates the expected number of steps to reach other states" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -90,9 +90,6 @@ this function calculates the expected steps to go from state i to j" />
       <a href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a>
     </li>
     <li>
-      <a href="../articles/complicate_steady_states_analysis.pdf">Complicate Steady States Analysis (PDF)</a>
-    </li>
-    <li>
       <a href="../articles/gsoc_2017_additions.pdf">Google Summer of Code 2017 Additions (PDF)</a>
     </li>
     <li>
@@ -124,63 +121,75 @@ this function calculates the expected steps to go from state i to j" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Mean First Passage Time for markovchain</h1>
+    <h1>Mean First Passage Time for irreducible Markov chains</h1>
     <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>meanFirstPassageTime.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Given a markovchain object,
-this function calculates the expected steps to go from state i to j</p>
+    <p>Given an irreducible (ergodic) markovchain object, this function
+  calculates the expected number of steps to reach other states</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>meanFirstPassageTime</span>(<span class='no'>markovchain</span>,<span class='no'>destination_set</span>)</pre>
+    <pre class="usage"><span class='fu'>meanFirstPassageTime</span>(<span class='no'>object</span>, <span class='no'>destination</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>markovchain</th>
-      <td><p>the markovchain-class object</p></td>
+      <th>object</th>
+      <td><p>the markovchain object</p></td>
     </tr>
     <tr>
-      <th>destination_set</th>
-      <td><p>the set of destination states or NULL (all states)</p></td>
+      <th>destination</th>
+      <td><p>a character vector representing the states respect to
+which we want to compute the mean first passage time. Empty by default</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a vector (if destination_set given) or a matrix (otherwise) of mean passage times</p>
+    <p>a Matrix of the same size with the average first passage times if
+  destination is empty, a vector if destination is not</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>if destination_set is one or more states, the mean first
-passage time from each remaining state to the given set is computed.
-If NULL, the full MFPT matrix is computed (with a different algorithm).</p>
+    <p>For an ergodic Markov chain it computes:</p><ul>
+<li><p>If destination is empty, the average first time (in steps) that takes
+  the Markov chain to go from initial state i to j. (i, j) represents that 
+  value in case the Markov chain is given row-wise, (j, i) in case it is given
+  col-wise.</p></li>
+<li><p>If destination is not empty, the average time it takes us from the 
+  remaining states to reach the states in <code>destination</code></p></li>
+</ul>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>C. M. Grinstead and J. L. Snell. Introduction to Probability. American Mathematical Soc., 2012.</p>
+    <p>C. M. Grinstead and J. L. Snell. Introduction to Probability.
+American Mathematical Soc., 2012.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>Pmat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>( <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>1</span>,  <span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>5</span>, <span class='fl'>4</span>,<span class='fl'>1</span>,<span class='fl'>5</span>)/<span class='fl'>10</span>, <span class='kw'>ncol</span><span class='kw'>=</span><span class='fl'>3</span>, <span class='kw'>byrow</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>P</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"s"</span>,<span class='st'>"c"</span>,<span class='st'>"r"</span>), <span class='kw'>transitionMatrix</span><span class='kw'>=</span><span class='no'>Pmat</span>)
-<span class='fu'>meanFirstPassageTime</span>(<span class='no'>P</span>,<span class='st'>"r"</span>)</div><div class='output co'>#&gt;        s        c 
-#&gt; 4.545455 2.727273 </div><div class='input'><span class='fu'>meanFirstPassageTime</span>(<span class='no'>P</span>)</div><div class='output co'>#&gt;          s    c        r
-#&gt; s 0.000000 3.75 4.545455
-#&gt; c 3.333333 0.00 2.727273
-#&gt; r 2.666667 5.00 0.000000</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>1</span> / <span class='fl'>10</span> * <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>1</span>,
+                       <span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>5</span>,
+                       <span class='fl'>4</span>,<span class='fl'>1</span>,<span class='fl'>5</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='no'>mc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"s"</span>,<span class='st'>"c"</span>,<span class='st'>"r"</span>), <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>m</span>)
+<span class='fu'>meanFirstPassageTime</span>(<span class='no'>mc</span>, <span class='st'>"r"</span>)</div><div class='output co'>#&gt;        s        c 
+#&gt; 4.545455 2.727273 </div><div class='input'>
+
 <span class='co'># Grinstead and Snell's "Oz weather" worked out example</span>
-<span class='no'>Poz</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"s"</span>,<span class='st'>"c"</span>,<span class='st'>"r"</span>),
-           <span class='kw'>transitionMatrix</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>1</span>, <span class='fl'>2</span>,<span class='fl'>0</span>,<span class='fl'>2</span>, <span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>2</span>)/<span class='fl'>4</span>, <span class='kw'>byrow</span><span class='kw'>=</span><span class='fl'>TRUE</span>, <span class='kw'>ncol</span><span class='kw'>=</span><span class='fl'>3</span>))
-<span class='fu'>meanFirstPassageTime</span>(<span class='no'>Poz</span>)</div><div class='output co'>#&gt;          s c        r
+<span class='no'>mOz</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,
+                <span class='fl'>2</span>,<span class='fl'>0</span>,<span class='fl'>2</span>,
+                <span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>2</span>)/<span class='fl'>4</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='no'>mcOz</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"s"</span>, <span class='st'>"c"</span>, <span class='st'>"r"</span>), <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>mOz</span>)
+<span class='fu'>meanFirstPassageTime</span>(<span class='no'>mcOz</span>)</div><div class='output co'>#&gt;          s c        r
 #&gt; s 0.000000 4 3.333333
 #&gt; c 2.666667 0 2.666667
-#&gt; r 3.333333 4 0.000000</div></pre>
+#&gt; r 3.333333 4 0.000000</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -197,7 +206,7 @@ If NULL, the full MFPT matrix is computed (with a different algorithm).</p>
     </ul>
 
     <h2>Author</h2>
-    <p>Toni Giorgino</p>
+    <p>Toni Giorgino, Ignacio Cordón</p>
   </div>
 </div>
 

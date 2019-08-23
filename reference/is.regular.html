@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Holson data set — holson • markovchain</title>
+<title>Check if a DTMC is regular — is.regular • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Holson data set — holson" />
+<meta property="og:title" content="Check if a DTMC is regular — is.regular" />
 
-<meta property="og:description" content="A data set containing 1000 life histories trajectories and a categorical status (1,2,3) observed on eleven evenly spaced steps." />
+<meta property="og:description" content="Function to check wether a DTCM is regular" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,74 +120,74 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Holson data set</h1>
-    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>holson.Rd</code></div>
+    <h1>Check if a DTMC is regular</h1>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
+    <div class="hidden name"><code>is.regular.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>A data set containing 1000 life histories trajectories and a categorical status (1,2,3) observed on eleven evenly spaced steps.</p>
+    <p>Function to check wether a DTCM is regular</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>holson</span>)</pre>
-        
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p>A data frame with 1000 observations on the following 12 variables.</p><dl class='dl-horizontal'>
-<dt><code>id</code></dt><dd><p>unique id</p></dd>
-<dt><code>time1</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time2</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time3</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time4</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time5</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time6</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time7</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time8</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time9</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time10</code></dt><dd><p>observed status at i-th time</p></dd>
-<dt><code>time11</code></dt><dd><p>observed status at i-th time</p></dd>
-</dl>
+    <pre class="usage"><span class='fu'>is.regular</span>(<span class='no'>object</span>)</pre>
     
-    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>a markovchain object</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Private communications</p>
+    <p>A boolean value</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The example can be used to fit a <code>markovchain</code> or a <code>markovchainList</code> object.</p>
+    <p>A Markov chain is regular if some of the powers of its matrix has all elements 
+  strictly positive</p>
     
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Private communications</p>
+    <p>Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+  Corollary 8.5.8, Theorem 8.5.9</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='is.irreducible.html'>is.irreducible</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>holson</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>holson</span>)</div><div class='output co'>#&gt;   id time1 time2 time3 time4 time5 time6 time7 time8 time9 time10 time11
-#&gt; 1  1     1     1     1     1     1     1     1     1     1      1      1
-#&gt; 2  2     1     1     1     1     1     1     1     1     1      1      1
-#&gt; 3  3     1     1     1     1     1     1     1     1     1      1      1
-#&gt; 4  4     1     1     1     1     2     1     1     1     1      1      1
-#&gt; 5  5     1     1     1     1     1     1     1     1     1      1      1
-#&gt; 6  6     1     1     1     1     1     1     1     1     1      1      1</div></pre>
+    <pre class="examples"><div class='input'><span class='no'>P</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.5</span>,  <span class='fl'>0.25</span>, <span class='fl'>0.25</span>,
+              <span class='fl'>0.5</span>,     <span class='fl'>0</span>, <span class='fl'>0.5</span>,
+              <span class='fl'>0.25</span>, <span class='fl'>0.25</span>, <span class='fl'>0.5</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>)
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>colnames</a></span>(<span class='no'>P</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/colnames'>rownames</a></span>(<span class='no'>P</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"R"</span>,<span class='st'>"N"</span>,<span class='st'>"S"</span>)
+<span class='no'>ciao</span> <span class='kw'>&lt;-</span> <span class='fu'>as</span>(<span class='no'>P</span>, <span class='st'>"markovchain"</span>)
+<span class='fu'>is.regular</span>(<span class='no'>ciao</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#format">Format</a></li>
-
-      <li><a href="#source">Source</a></li>
+      <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
 
       <li><a href="#references">References</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
 
+    <h2>Author</h2>
+    <p>Ignacio Cordón</p>
   </div>
 </div>
 

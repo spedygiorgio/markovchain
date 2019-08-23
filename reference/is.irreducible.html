@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to check if a Markov chain is irreducible — is.irreducible • markovchain</title>
+<title>Function to check if a Markov chain is irreducible (i.e. ergodic) — is.irreducible • markovchain</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Function to check if a Markov chain is irreducible — is.irreducible" />
+<meta property="og:title" content="Function to check if a Markov chain is irreducible (i.e. ergodic) — is.irreducible" />
 
 <meta property="og:description" content="This function verifies whether a markovchain object transition matrix 
              is composed by only one communicating class." />
@@ -90,9 +90,6 @@
       <a href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a>
     </li>
     <li>
-      <a href="../articles/complicate_steady_states_analysis.pdf">Complicate Steady States Analysis (PDF)</a>
-    </li>
-    <li>
       <a href="../articles/gsoc_2017_additions.pdf">Google Summer of Code 2017 Additions (PDF)</a>
     </li>
     <li>
@@ -124,7 +121,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to check if a Markov chain is irreducible</h1>
+    <h1>Function to check if a Markov chain is irreducible (i.e. ergodic)</h1>
     <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>is.irreducible.Rd</code></div>
     </div>
@@ -170,7 +167,8 @@
                                              <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
                                              <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>)
            ))
-<span class='fu'>is.irreducible</span>(<span class='no'>mcA</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+<span class='fu'>is.irreducible</span>(<span class='no'>mcA</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

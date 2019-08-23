@@ -43,6 +43,7 @@ preamble: >
   \usepackage{longtable}
   \usepackage{booktabs}
   \setkeys{Gin}{width=0.8\textwidth}
+  \usepackage{amsfonts}
 abstract: |
   The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
 output: if (rmarkdown::pandoc_version() < 2.2) rmarkdown::pdf_document else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) }
@@ -168,7 +169,7 @@ A commonly used quantity related to $h$  is its average value, i.e. the \emph{me
 If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first recurrence time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. We could also ask ourselves which is the *mean recurrence time*, an average of the mean first recurrence times:
 
 \[
- r_i = \sum_{k = 1}^{\infty} k * P(T_i = k)
+ r_i = \sum_{k = 1}^{\infty} k \cdot P(T_i = k)
 \]
 
 Revisiting the definition of recurrence and transience: a state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$.
@@ -248,6 +249,10 @@ The package is loaded within the \proglang{R} command line as follows:
 
 ```{r, load, results='hide', message=FALSE}
 library("markovchain")
+```
+
+```{r, load-aux, echo=FALSE, results='hide'}
+library("matlab")
 ```
 
 The `markovchain` and `markovchainList` S4 classes [@chambers] are defined within the \pkg{markovchain} package as displayed:
@@ -423,7 +428,7 @@ show(mcWeather)
 
 ```{r mcPlot, echo=FALSE, fig.cap="Weather example. Markov chain plot"}
 library("igraph")
-plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition matrix")
+plot(mcWeather,layout = layout.fruchterman.reingold)
 ```
 
 ```{r mcPlotdiagram, echo=FALSE, fig.cap="Weather example. Markov chain plot with diagram"}
@@ -622,19 +627,49 @@ A stationary (steady state, or equilibrium) vector is a probability vector such 
 \begin{equation}
 \begin{matrix}
 0\leq \pi_j \leq 1\\ 
-\sum_{j \in S} \pi_j=1\\ 
-\pi*P=\pi
+\sum_{j \in S} \pi_j = 1\\ 
+\pi \cdot P = \pi
 \end{matrix}
 \label{eq:steadystat2}
 \end{equation}
 
-Steady states are associated to $P$ eigenvalues equal to one. Therefore the steady states vector can be identified by the following:
+Steady states are associated to $P$ eigenvalues equal to one. We could be tempted to compute them 
+solving the eigen values / vectors of the matrix and taking real parts (since if $u + iv$ is a eigen vector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigen vectors) and normalizing by the vector sum, this carries some concerns:
 
-  1. decompose the transition matrix in eigenvalues and eigenvectors;
-  2. consider only eigenvectors corresponding to eigenvalues equal to one;
-  3. normalize such eigenvalues so that the sum of their components is one.
+1. If $u, v \in \mathbb{R}^n$ are linearly independent eigen vectors associated to $1$ eigen value, $u + iv$, $u + iu$ are also linearly independent eigen vectors, and their real parts coincide. Clearly if we took real parts, we would be loosing an eigen vector, because we cannot know in advance if the underlying algorithm to compute the eigen vectors is going to output something similar to what we described. We should be agnostic to the underlying eigen vector computation algorithm.
 
-Numeric issue (negative values) can arise when the Markov Chain contains more closed classes. If negative values are found in the initial solution, the above described algorithm is performed on the submatrix corresponding to recurrent P classes. Another vignette in the package focuses on this issue.
+2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigen vectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigen vectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigen vectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
+
+3. Algorithms to compute eigen values / vectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
+
+We are going to use that every irreducible DTMC has a unique steady state, that is, if $M$ is the matrix for an irreducible DTMC (all states communicate with each other), then it exists a unique $v \in \mathbb{R}^m$ such that:
+
+\[ v \cdot M = v, \qquad \sum_{i = 1}^m v_i = 1 \]
+
+Also, we'll use that a steady state for a DTMC assigns $0$ to the transient states. The cannonic form of a (by row) stochastic matrix looks alike:
+
+\[
+\left(\begin{array}{c|c|c|c|c}
+M_1 & 0 & 0 & \ldots & 0 \\
+\hline
+0 & M_2 & 0 & \ldots & 0 \\
+\hline
+0 & 0 & M_3 & \ldots & 0 \\
+\hline
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\hline
+A_1 & A_2 & A_3 & \ldots & R
+\end{array}\right)
+\]
+
+where $M_i$ corresponds to irreducible subchains, the blocks $A_i$ correspond to the transitions from transient states to each of the recurrent classes and $R$ are the transitions from the transient states to themselves.
+
+Also, we should note that a Markov chain has exactly the same name of steady states as recurrent classes. Therefore, we have coded the following algorithm:
+
+  1. Identify the recurrent classes $[C_1, \ldots, C_l]$ with \texttt{recurrentClasses} function.
+  2. Take each class $C_i$, compute the submatrix corresponding to it $M_i$.
+  3. Solve the system $v \cdot C_i = v, \, \sum_{j = 1}^{|C_i|} v_j = 1$ which has a unique solution, for each $i = 1, \ldots, l$.
+  3. Map each state $v_i$ to the oiginal order in $P$ and assign a $0$ to the slots corresponding to transient states in the matrix.
 
 The result is returned in matrix form.
 
@@ -646,18 +681,18 @@ It is possible for a Markov chain to have more than one stationary distribution,
 
 ```{r gamblerRuin}
 gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
-  require(matlab)
-  matr <- zeros(moneyMax + 1)
-  states <- as.character(seq(from = 0, to = moneyMax, by = 1))
-  rownames(matr) = states; colnames(matr) = states
-  matr[1,1] = 1; matr[moneyMax + 1,moneyMax + 1] = 1
-  for(i in 2:moneyMax)
-  { matr[i,i-1] = 1 - prob; matr[i, i + 1] = prob   }
-  out <- new("markovchain",  
-           transitionMatrix = matr, 
-           name = paste("Gambler ruin", moneyMax, "dim", sep = " ")
-           )
-  return(out)
+  m <- matlab::zeros(moneyMax + 1)
+  m[1,1] <- m[moneyMax + 1,moneyMax + 1] <- 1
+  states <- as.character(0:moneyMax)
+  rownames(m) <- colnames(m) <- states
+  
+  for(i in 2:moneyMax){ 
+    m[i,i-1] <- 1 - prob
+    m[i, i + 1] <- prob   
+  }
+  
+  new("markovchain", transitionMatrix = m, 
+      name = paste("Gambler ruin", moneyMax, "dim", sep = " "))
 }
 
 mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
@@ -1530,7 +1565,7 @@ mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
 
 ## Pseudo - Bayesian Estimation
 
-\cite{Hu2002} shows an empirical quasi-bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha*Q+\left(1-1alpha\right)*P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
+\cite{Hu2002} shows an empirical quasi-bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-1alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
 
 \begin{equation}
 \left\{\begin{matrix}

@@ -337,14 +337,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// commStatesFinder
-NumericMatrix commStatesFinder(NumericMatrix matr);
-RcppExport SEXP _markovchain_commStatesFinder(SEXP matrSEXP) {
+// reachabilityMatrix
+LogicalMatrix reachabilityMatrix(S4 obj);
+RcppExport SEXP _markovchain_reachabilityMatrix(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type matr(matrSEXP);
-    rcpp_result_gen = Rcpp::wrap(commStatesFinder(matr));
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(reachabilityMatrix(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isAccessible
+bool isAccessible(S4 obj, String from, String to);
+RcppExport SEXP _markovchain_isAccessible(SEXP objSEXP, SEXP fromSEXP, SEXP toSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< String >::type from(fromSEXP);
+    Rcpp::traits::input_parameter< String >::type to(toSEXP);
+    rcpp_result_gen = Rcpp::wrap(isAccessible(obj, from, to));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -494,6 +507,95 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// absorbingStates
+CharacterVector absorbingStates(S4 obj);
+RcppExport SEXP _markovchain_absorbingStates(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(absorbingStates(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isIrreducible
+bool isIrreducible(S4 obj);
+RcppExport SEXP _markovchain_isIrreducible(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(isIrreducible(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isRegular
+bool isRegular(S4 obj);
+RcppExport SEXP _markovchain_isRegular(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(isRegular(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meanAbsorptionTime
+NumericVector meanAbsorptionTime(S4 obj);
+RcppExport SEXP _markovchain_meanAbsorptionTime(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(meanAbsorptionTime(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// absorptionProbabilities
+NumericMatrix absorptionProbabilities(S4 obj);
+RcppExport SEXP _markovchain_absorptionProbabilities(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(absorptionProbabilities(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meanFirstPassageTime
+NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination);
+RcppExport SEXP _markovchain_meanFirstPassageTime(SEXP objSEXP, SEXP destinationSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type destination(destinationSEXP);
+    rcpp_result_gen = Rcpp::wrap(meanFirstPassageTime(obj, destination));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meanRecurrenceTime
+NumericVector meanRecurrenceTime(S4 obj);
+RcppExport SEXP _markovchain_meanRecurrenceTime(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(meanRecurrenceTime(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meanNumVisits
+NumericMatrix meanNumVisits(S4 obj);
+RcppExport SEXP _markovchain_meanNumVisits(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(meanNumVisits(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isProb
 bool isProb(double prob);
 RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
@@ -528,6 +630,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// checkIsAccesibleMethod
+bool checkIsAccesibleMethod(S4 obj);
+RcppExport SEXP _markovchain_checkIsAccesibleMethod(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< S4 >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(checkIsAccesibleMethod(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // approxEqual
 bool approxEqual(NumericMatrix a, NumericMatrix b);
 RcppExport SEXP _markovchain_approxEqual(SEXP aSEXP, SEXP bSEXP) {
@@ -553,16 +666,29 @@ BEGIN_RCPP
 END_RCPP
 }
 // areHittingProbabilities
-bool areHittingProbabilities(NumericMatrix probs, NumericMatrix hitting, bool byrow, double tolerance);
-RcppExport SEXP _markovchain_areHittingProbabilities(SEXP probsSEXP, SEXP hittingSEXP, SEXP byrowSEXP, SEXP toleranceSEXP) {
+bool areHittingProbabilities(NumericMatrix probs, NumericMatrix hitting, bool byrow);
+RcppExport SEXP _markovchain_areHittingProbabilities(SEXP probsSEXP, SEXP hittingSEXP, SEXP byrowSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type probs(probsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
     Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
-    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
-    rcpp_result_gen = Rcpp::wrap(areHittingProbabilities(probs, hitting, byrow, tolerance));
+    rcpp_result_gen = Rcpp::wrap(areHittingProbabilities(probs, hitting, byrow));
+    return rcpp_result_gen;
+END_RCPP
+}
+// areMeanNumVisits
+bool areMeanNumVisits(NumericMatrix probs, NumericMatrix numVisits, NumericMatrix hitting, bool byrow);
+RcppExport SEXP _markovchain_areMeanNumVisits(SEXP probsSEXP, SEXP numVisitsSEXP, SEXP hittingSEXP, SEXP byrowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type probs(probsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type numVisits(numVisitsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type hitting(hittingSEXP);
+    Rcpp::traits::input_parameter< bool >::type byrow(byrowSEXP);
+    rcpp_result_gen = Rcpp::wrap(areMeanNumVisits(probs, numVisits, hitting, byrow));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -631,7 +757,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_recurrentStates", (DL_FUNC) &_markovchain_recurrentStates, 1},
     {"_markovchain_recurrentClasses", (DL_FUNC) &_markovchain_recurrentClasses, 1},
     {"_markovchain_transientClasses", (DL_FUNC) &_markovchain_transientClasses, 1},
-    {"_markovchain_commStatesFinder", (DL_FUNC) &_markovchain_commStatesFinder, 1},
+    {"_markovchain_reachabilityMatrix", (DL_FUNC) &_markovchain_reachabilityMatrix, 1},
+    {"_markovchain_isAccessible", (DL_FUNC) &_markovchain_isAccessible, 3},
     {"_markovchain_summaryKernel", (DL_FUNC) &_markovchain_summaryKernel, 1},
     {"_markovchain_firstpassageKernel", (DL_FUNC) &_markovchain_firstpassageKernel, 3},
     {"_markovchain_firstPassageMultipleRCpp", (DL_FUNC) &_markovchain_firstPassageMultipleRCpp, 4},
@@ -644,12 +771,22 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 1},
     {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
+    {"_markovchain_absorbingStates", (DL_FUNC) &_markovchain_absorbingStates, 1},
+    {"_markovchain_isIrreducible", (DL_FUNC) &_markovchain_isIrreducible, 1},
+    {"_markovchain_isRegular", (DL_FUNC) &_markovchain_isRegular, 1},
+    {"_markovchain_meanAbsorptionTime", (DL_FUNC) &_markovchain_meanAbsorptionTime, 1},
+    {"_markovchain_absorptionProbabilities", (DL_FUNC) &_markovchain_absorptionProbabilities, 1},
+    {"_markovchain_meanFirstPassageTime", (DL_FUNC) &_markovchain_meanFirstPassageTime, 2},
+    {"_markovchain_meanRecurrenceTime", (DL_FUNC) &_markovchain_meanRecurrenceTime, 1},
+    {"_markovchain_meanNumVisits", (DL_FUNC) &_markovchain_meanNumVisits, 1},
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
     {"_markovchain_isStochasticMatrix", (DL_FUNC) &_markovchain_isStochasticMatrix, 2},
     {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},
+    {"_markovchain_checkIsAccesibleMethod", (DL_FUNC) &_markovchain_checkIsAccesibleMethod, 1},
     {"_markovchain_approxEqual", (DL_FUNC) &_markovchain_approxEqual, 2},
     {"_markovchain_isPartition", (DL_FUNC) &_markovchain_isPartition, 2},
-    {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 4},
+    {"_markovchain_areHittingProbabilities", (DL_FUNC) &_markovchain_areHittingProbabilities, 3},
+    {"_markovchain_areMeanNumVisits", (DL_FUNC) &_markovchain_areMeanNumVisits, 4},
     {"_markovchain_recurrentHitting", (DL_FUNC) &_markovchain_recurrentHitting, 4},
     {"_markovchain_hittingProbsAreOne", (DL_FUNC) &_markovchain_hittingProbsAreOne, 1},
     {"_markovchain_absorbingAreRecurrentClass", (DL_FUNC) &_markovchain_absorbingAreRecurrentClass, 2},

@@ -70,9 +70,27 @@ generateSteadyStates <- function(mc) {
 
 MCs <- list(mc1, mc2, mc3, mc4, mc5, mcRain)
 tMCs <- lapply(MCs, t)
-steadyStatesMCs <- lapply(append(MCs, tMCs), markovchain:::precomputeData)
+knownSteadyStatesMCs <- append(MCs, tMCs)
+
+M <- matlab::zeros(5, 5)
+M[1,1] <- M[5,5] <- 1
+M[2,1] <- M[2,3] <- 1/2
+M[3,2] <- M[3,4] <- 1/2
+M[4,2] <- M[4,5] <- 1/2
+
+mcHitting <- new("markovchain", transitionMatrix = M)
+
+# Grinstead and Snell’s Introduction to Probability, 
+# example 11.14 and example 11.15
+M <- matlab::zeros(5, 5)
+M[1,1] <- 1
+M[2,1] <- M[2,3] <- 1/2
+M[3,2] <- M[3,4] <- 1/2
+M[4,3] <- M[4,5] <- 1/2
+M[5,5] <- 1
+mcDrunkard <- new("markovchain", transitionMatrix = M)
 
 #SAVING
 
-usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, steadyStatesMCs,
-                   internal = TRUE, overwrite = TRUE)
+usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, knownSteadyStatesMCs,
+                  mcHitting, mcDrunkard, internal = TRUE, overwrite = TRUE)

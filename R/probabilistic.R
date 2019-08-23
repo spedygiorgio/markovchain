@@ -11,12 +11,12 @@
 #' @param from The name of state "i" (beginning state).
 #' @param to The name of state "j" (ending state).
 #' 
-#' @details It wraps an internal function named \code{.commStatesFinder}.
+#' @details It wraps an internal function named \code{reachabilityMatrix}.
 #' @return A boolean value.
 #' 
 #' @references James Montgomery, University of Madison
 #' 
-#' @author Giorgio Spedicato
+#' @author Giorgio Spedicato, Ignacio Cordón
 #' @seealso \code{is.irreducible}
 #' 
 #' @examples 
@@ -29,34 +29,27 @@
 #'                                         )
 #'                )
 #' is.accessible(markovB, "a", "c")
-#' @export
-is.accessible <- function(object, from, to) {
-  # assume that it is not possible
-  out <- FALSE
-  
-  # names of states
-  statesNames <- states(object)
-  
-  # row number
-  fromPos <- which(statesNames == from)
-  
-  # column number
-  toPos<-which(statesNames == to)
+#' 
+#' @exportMethod is.accessible
+setGeneric("is.accessible", function(object, from, to) standardGeneric("is.accessible"))
 
-  # a logical matrix which will tell the reachability of jth state from ith state
-  R <- .commStatesFinderRcpp(object@transitionMatrix)
-  
-  if(R[fromPos, toPos] == TRUE) {
-    out <- TRUE 
+setMethod("is.accessible", c("markovchain", "character", "character"), 
+  function(object, from, to) {
+    # O(n²) procedure to see if to state is reachable starting at from state
+    return(.isAccessibleRcpp(object, from, to))
   }
-  
-  return(out)
-}
+)
+
+setMethod("is.accessible", c("markovchain", "missing", "missing"), 
+  function(object, from, to) {
+    .reachabilityMatrixRcpp(object)
+  }
+)
 
 # a markov chain is irreducible if it is composed of only one communicating class
 
 #' @name is.irreducible
-#' @title Function to check if a Markov chain is irreducible
+#' @title Function to check if a Markov chain is irreducible (i.e. ergodic)
 #' @description This function verifies whether a \code{markovchain} object transition matrix 
 #'              is composed by only one communicating class.
 #' @param object A \code{markovchain} object
@@ -76,13 +69,14 @@ is.accessible <- function(object, from, to) {
 #'                                              dimnames = list(statesNames, statesNames)
 #'            ))
 #' is.irreducible(mcA)
-#' @export
-is.irreducible <- function(object) {
-  # This function will return a list of communicating classes 
-  commClasses <- .communicatingClassesRcpp(object)
-  # The markov chain is irreducible iff has only a single communicating class
-  return(length(commClasses) == 1)
-}
+#' 
+#' @exportMethod is.irreducible
+setGeneric("is.irreducible", function(object) standardGeneric("is.irreducible"))
+
+setMethod("is.irreducible", "markovchain", function(object) {
+  .isIrreducibleRcpp(object)
+})
+
 
 # what this function will do?
 # It calculates the probability to go from given state
@@ -286,7 +280,7 @@ setMethod("recurrentClasses", "markovchain", function(object) {
 })
 
 
-# A communicating class will be a transient class if 
+# A communicating class will be a transient class iff
 # there is an outgoing edge from this class to an state
 # outside of the class
 # Transient classes are subset of communicating classes
@@ -331,15 +325,7 @@ setMethod("recurrentStates", "markovchain", function(object) {
 setGeneric("absorbingStates", function(object) standardGeneric("absorbingStates"))
 
 setMethod("absorbingStates", "markovchain", function(object) {
-    n <- dim(object)
-    
-    whichAbsorbing <- which(
-      sapply(1:n, function(i) { 
-        isTRUE(all.equal(object@transitionMatrix[i, i], 1)) 
-      })
-    )
-    
-    object@states[whichAbsorbing]
+    .absorbingStatesRcpp(object)
   }
 )
 
@@ -576,101 +562,220 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 
 
 
-#' Mean First Passage Time for markovchain
+#' Mean First Passage Time for irreducible Markov chains
+#'
+#' @description Given an irreducible (ergodic) markovchain object, this function
+#'   calculates the expected number of steps to reach other states
+#'
+#' @param object the markovchain object
+#' @param destination a character vector representing the states respect to
+#'   which we want to compute the mean first passage time. Empty by default
+#'
+#' @details For an ergodic Markov chain it computes: 
+#' \itemize{ 
+#'   \item If destination is empty, the average first time (in steps) that takes
+#'   the Markov chain to go from initial state i to j. (i, j) represents that 
+#'   value in case the Markov chain is given row-wise, (j, i) in case it is given
+#'   col-wise. 
+#'   \item If destination is not empty, the average time it takes us from the 
+#'   remaining states to reach the states in \code{destination} 
+#' }
+#'
+#' @return a Matrix of the same size with the average first passage times if
+#'   destination is empty, a vector if destination is not
+#'
+#' @author Toni Giorgino, Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(1 / 10 * c(6,3,1,
+#'                        2,3,5,
+#'                        4,1,5), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
+#' meanFirstPassageTime(mc, "r")
+#'
+#'
+#' # Grinstead and Snell's "Oz weather" worked out example
+#' mOz <- matrix(c(2,1,1,
+#'                 2,0,2,
+#'                 1,1,2)/4, ncol = 3, byrow = TRUE)
+#'
+#' mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
+#' meanFirstPassageTime(mcOz)
+#'
+#' @export meanFirstPassageTime
+setGeneric("meanFirstPassageTime", function(object, destination) {
+  standardGeneric("meanFirstPassageTime")
+})
+
+
+setMethod("meanFirstPassageTime",  signature("markovchain", "missing"),
+  function(object, destination) {
+    destination = character()
+    .meanFirstPassageTimeRcpp(object, destination)
+  }
+)
+
+setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
+  function(object, destination) {
+    states <- object@states
+    incorrectStates <- setdiff(destination, states)
+    
+    if (length(incorrectStates) > 0)
+      stop("Some of the states you provided in destination do not match states from the markovchain")
+
+    result <- .meanFirstPassageTimeRcpp(object, destination)
+    asVector <- as.vector(result)
+    names(asVector) <- colnames(result)
+    
+    asVector
+  }
+)
+
+#' Mean recurrence time
+#'
+#' @description Computes the expected time to return to a recurrent state
+#'   in case the Markov chain starts there
+#'
+#' @usage meanRecurrenceTime(object)
+#'
+#' @param object the markovchain object
+#'
+#' @return For a Markov chain it outputs is a named vector with the expected 
+#'   time to first return to a state when the chain starts there.
+#'   States present in the vector are only the recurrent ones. If the matrix
+#'   is ergodic (i.e. irreducible), then all states are present in the output
+#'   and order is the same as states order for the Markov chain
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(1 / 10 * c(6,3,1,
+#'                        2,3,5,
+#'                        4,1,5), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
+#' meanRecurrenceTime(mc)
+#'
+#' @export meanRecurrenceTime
+setGeneric("meanRecurrenceTime", function(object) {
+  standardGeneric("meanRecurrenceTime")
+})
+
+setMethod("meanRecurrenceTime", "markovchain", function(object) {
+  .meanRecurrenceTimeRcpp(object)
+})
+
+
+#' Mean absorption time
+#'
+#' @description Computes the expected number of steps to go from any of the
+#'   transient states to any of the recurrent states. The Markov chain should
+#'   have at least one transient state for this method to work
+#'
+#' @usage meanAbsorptionTime(object)
+#'
+#' @param object the markovchain object
+#'
+#' @return A named vector with the expected number of steps to go from a
+#'   transient state to any of the recurrent ones
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(c(1/2, 1/2, 0,
+#'               1/2, 1/2, 0,
+#'                 0, 1/2, 1/2), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
+#' meanAbsorptionTime(mc)
+#'
+#' @export meanAbsorptionTime
+setGeneric("meanAbsorptionTime", function(object) {
+  standardGeneric("meanAbsorptionTime")
+})
+
+setMethod("meanAbsorptionTime",  "markovchain", function(object) {
+  .meanAbsorptionTimeRcpp(object)
+})
+
+#' Absorption probabilities
+#'
+#' @description Computes the absorption probability from each transient
+#'   state to each recurrent one (i.e. the (i, j) entry or (j, i), in a 
+#'   stochastic matrix by columns, represents the probability that the
+#'   first not transient state we can go from the transient state i is j
+#'   (and therefore we are going to be absorbed in the communicating
+#'   recurrent class of j)
+#'
+#' @usage absorptionProbabilities(object)
+#'
+#' @param object the markovchain object
+#'
+#' @return A named vector with the expected number of steps to go from a
+#'   transient state to any of the recurrent ones
+#'
+#' @author Ignacio Cordón
+#'
+#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability.
+#' American Mathematical Soc., 2012.
+#'
+#' @examples
+#' m <- matrix(c(1/2, 1/2, 0,
+#'               1/2, 1/2, 0,
+#'                 0, 1/2, 1/2), ncol = 3, byrow = TRUE)
+#' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
+#' absorptionProbabilities(mc)
+#'
+#' @export absorptionProbabilities
+setGeneric("absorptionProbabilities", function(object) {
+  standardGeneric("absorptionProbabilities")
+})
+
+setMethod("absorptionProbabilities",  "markovchain", function(object) {
+  .absorptionProbabilitiesRcpp(object)
+})
+
+
+#' @title Check if a DTMC is regular
 #' 
-#' @description Given a markovchain object,
-#' this function calculates the expected steps to go from state i to j
+#' @description Function to check wether a DTCM is regular
+# 
+#' @details A Markov chain is regular if some of the powers of its matrix has all elements 
+#'   strictly positive
 #' 
-#' @usage meanFirstPassageTime(markovchain,destination_set)
-#' 
-#' @param markovchain the markovchain-class object
-#' @param destination_set the set of destination states or NULL (all states)
-#' 
-#' @details if destination_set is one or more states, the mean first
-#' passage time from each remaining state to the given set is computed.
-#' If NULL, the full MFPT matrix is computed (with a different algorithm).
-#' 
-#' @return
-#' a vector (if destination_set given) or a matrix (otherwise) of mean passage times
-#' 
-#' @author Toni Giorgino
-#' 
-#' @references C. M. Grinstead and J. L. Snell. Introduction to Probability. American Mathematical Soc., 2012.
+#' @param object a markovchain object
+#'
+#' @return A boolean value
+#'
+#' @author Ignacio Cordón
+#' @references Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+#'   Corollary 8.5.8, Theorem 8.5.9
+#'
 #' 
 #' @examples 
-#' Pmat <- matrix( c(6,3,1,  2,3,5, 4,1,5)/10, ncol=3, byrow=TRUE)
-#' P <- new("markovchain", states=c("s","c","r"), transitionMatrix=Pmat)
-#' meanFirstPassageTime(P,"r")
-#' meanFirstPassageTime(P)
+#' P <- matrix(c(0.5,  0.25, 0.25,
+#'               0.5,     0, 0.5,
+#'               0.25, 0.25, 0.5), nrow = 3)
+#' colnames(P) <- rownames(P) <- c("R","N","S")
+#' ciao <- as(P, "markovchain")
+#' is.regular(ciao)
 #' 
-#' # Grinstead and Snell's "Oz weather" worked out example
-#' Poz <- new("markovchain", states=c("s","c","r"), 
-#'            transitionMatrix=matrix(c(2,1,1, 2,0,2, 1,1,2)/4, byrow=TRUE, ncol=3)) 
-#' meanFirstPassageTime(Poz)  
-#' @export
-meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
-  
-  # gets the transition matrix
-  matrix <- markovchain@transitionMatrix
+#' @seealso \code{\link{is.irreducible}}
+#' 
+#' @exportMethod is.regular
+setGeneric("is.regular", function(object) standardGeneric("is.regular"))
 
-  if(is.null(destination_set)) {
-    # "Using the Fundamental Matrix to Calculate the Mean First Passage Matrix"
-    d <- nrow(matrix)
-    w <- steadyStates(markovchain)
-    W <- w[rep(1,d),]  # Replicate w, d equal rows
-    Z <- solve(diag(d)-matrix+W)
-    M <- matrix(0,nrow=d,ncol=d)
-    for (i in 1:d) {
-      for (j in 1:d) {
-        M[i,j] <- (Z[j,j]-Z[i,j])/w[j]
-      }
-    }
-    rownames(M) <- markovchain@states
-    colnames(M) <- markovchain@states
-    result <- M
-  } else {
-    # Drop absorbing states
-    Q <- matrix[!rownames(matrix) %in% destination_set,
-                !colnames(matrix) %in% destination_set,
-                drop = FALSE]
-    d <- nrow(Q)
-    cc <- rep(1,d)
-    Ninv <- diag(d)-Q
-    result <- solve(Ninv, cc) # Theorem 11.5
-  }
+setMethod("is.regular", "markovchain", function(object) {
+  .isRegularRcpp(object)
+})
 
-  return(result)
-}
-
-
-
-
-# @title Check if a DTMC is regular
-# 
-# @description Function to check wether a DTCM is regular
-# 
-# @details A regular Markov chain has $A^n$ strictly positive for some n. 
-# So we check: if there is only one eigenvector; if the steadystate vector is striclty positive.
-# 
-# @param object a markovchain object
-# 
-# @return A boolean value
-# 
-# @examples 
-# P=matrix(c(0.5,.25,.25,.5,0,.5,.25,.25,.5),nrow = 3)
-# colnames(P)<-rownames(P)<-c("R","N","S")
-# ciao<-as(P,"markovchain")
-# is.regular(ciao)
-# 
-# @seealso \code{\link{is.irreducible}}
-
-
-# is.regular<-function(object) {
-#   eigenValues<-steadyStates(object = object)
-#   minDim<-min(dim(eigenValues))
-#   out <- minDim==1 & all(eigenValues>0)
-#   return(out)
-# }
 
 #' Hitting probabilities for markovchain
 #' 
@@ -694,14 +799,50 @@ meanFirstPassageTime <- function(markovchain, destination_set=NULL) {
 #' M[3,2] <- M[3,4] <- 1/2
 #' M[4,2] <- M[4,5] <- 1/2
 #' 
-#' markovChain <- new("markovchain", transitionMatrix = M)
-#' hittingProbabilities(markovChain)
+#' mc <- new("markovchain", transitionMatrix = M)
+#' hittingProbabilities(mc)
 #' 
 #' @exportMethod hittingProbabilities
 setGeneric("hittingProbabilities", function(object) standardGeneric("hittingProbabilities"))
 
 setMethod("hittingProbabilities", "markovchain", function(object) {
-  return(.hittingProbabilitiesRcpp(object))
+  .hittingProbabilitiesRcpp(object)
+})
+
+
+
+#' Mean num of visits for markovchain, starting at each state
+#' 
+#' @description Given a markovchain object, this function calculates 
+#' a matrix where the element (i, j) represents the expect number of visits
+#' to the state j if the chain starts at i (in a Markov chain by columns it
+#' would be the element (j, i) instead)
+#' 
+#' @usage meanNumVisits(object)
+#' 
+#' @param object the markovchain-class object
+#' 
+#' @return a matrix with the expect number of visits to each state
+#' 
+#' @author Ignacio Cordón
+#' 
+#' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
+#' 
+#' @examples
+#' M <- matlab::zeros(5, 5)
+#' M[1,1] <- M[5,5] <- 1
+#' M[2,1] <- M[2,3] <- 1/2
+#' M[3,2] <- M[3,4] <- 1/2
+#' M[4,2] <- M[4,5] <- 1/2
+#' 
+#' mc <- new("markovchain", transitionMatrix = M)
+#' meanNumVisits(mc)
+#' 
+#' @exportMethod meanNumVisits
+setGeneric("meanNumVisits", function(object) standardGeneric("meanNumVisits"))
+
+setMethod("meanNumVisits", "markovchain", function(object) {
+  .minNumVisitsRcpp(object)
 })
 
 
@@ -712,7 +853,6 @@ setMethod(
     .steadyStatesRcpp(object)
   }
 )
-
 
 
 #' @exportMethod summary

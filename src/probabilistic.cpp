@@ -14,25 +14,21 @@ using namespace arma;
 template <typename T>
 T sortByDimNames(const T m);
 
+typedef unsigned int uint;
 
-// check if two vectors are intersected
-bool intersects(CharacterVector x, CharacterVector y) {
-  if (x.size() < y.size())
-    return intersects(y, x);
-  else {
-    unordered_set<string> values;
-    bool intersect = false;
-    
-    for (auto value : x)
-      values.insert(as<string>(value));
-    
-    for (auto it = y.begin(); it != y.end() && !intersect; ++it)
-      intersect = values.count(as<string>(*it)) > 0;
-    
-    return intersect;
-  }
-}
 
+// Returns whether a Markov chain is ergodic
+// Declared in this same file
+bool isIrreducible(S4 obj);
+
+// Declared in utils.cpp
+bool anyElement(const mat& matrix, bool (*condition)(const double&));
+
+// Declared in utils.cpp
+bool allElements(const mat& matrix, bool (*condition)(const double&));
+
+// Declared in utils.cpp
+bool approxEqual(const cx_double& a, const cx_double& b);
 
 // [[Rcpp::export(.commClassesKernelRcpp)]]
 List commClassesKernel(NumericMatrix P) {
@@ -300,47 +296,67 @@ List transientClasses(S4 object) {
   return computeTransientClasses(commClasses, closed, states);
 }
 
-// matrix power function
-arma::mat _pow(arma::mat A, int n) {
-  arma::mat R = arma::eye(A.n_rows, A.n_rows);
-  
-  for (int i = 0; i < n; i ++) 
-    R = A*R;
-  
-  return R;
-}
 
-//communicating states
-// [[Rcpp::export(.commStatesFinderRcpp)]]
-NumericMatrix commStatesFinder(NumericMatrix matr) {
-  //Reachability matrix
-  int dimMatr = matr.nrow();
-  arma::mat X(matr.begin(), dimMatr, dimMatr, false);
-  arma::mat temp = arma::eye(dimMatr, dimMatr) + arma::sign(X);
-  temp = _pow(temp, dimMatr - 1);
-  NumericMatrix R = wrap(arma::sign(temp));
-  R.attr("dimnames") = matr.attr("dimnames");
-  
-  return R;
-}
+// Defined in probabilistic.cpp
+mat matrixPow(const mat& A, int n);
 
-template<class T>
-T efficientPow(T a, T identity, T (*product)(const T&, const T&), T (*sum)(const T&, const T&), int n) {
-  T result  = identity;
-  T partial = identity;
+
+// [[Rcpp::export(.reachabilityMatrixRcpp)]]
+LogicalMatrix reachabilityMatrix(S4 obj) {
+  NumericMatrix matrix = obj.slot("transitionMatrix");
   
-  // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
-  // Compute last = a + 1
-  while (n > 0) {
-    if (n & 1 > 0)
-      result = sum(result, partial);
-    
-    partial = product(partial, partial);
-    n >>= 1;
-  }
-  
+  // Reachability matrix
+  int m = matrix.nrow();
+  mat X(matrix.begin(), m, m, true);
+  mat reachability = eye(m, m) + sign(X);
+  reachability = matrixPow(reachability, m - 1);
+  LogicalMatrix result = wrap(reachability > 0);
+  result.attr("dimnames") = matrix.attr("dimnames");
+
   return result;
 }
+
+// [[Rcpp::export(.isAccessibleRcpp)]]
+bool isAccessible(S4 obj, String from, String to) {
+  NumericMatrix probs = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  int fromPos = -1, toPos = -1;
+  bool byrow = obj.slot("byrow");
+  int m = probs.ncol();
+  
+  // Compute indices for states from and pos
+  for (int i = 0; i < m; ++i) {
+    if (states[i] == from)
+      fromPos = i;
+    if (states[i] == to)
+      toPos = i;
+  }
+  
+  if (fromPos == -1 || toPos == -1)
+    stop("Please give valid states method");
+  
+  stack<int> toExplore;
+  toExplore.push(fromPos);
+  vector<int> visited(m, false);
+  visited[fromPos] = true;
+  bool isReachable = false;
+  
+  // DFS until we hit 'to' state or we cannot traverse to more states
+  while (!toExplore.empty() && !isReachable) {
+    int i = toExplore.top();
+    toExplore.pop();
+    visited[i] = true;
+    isReachable = i == toPos;
+
+    for (int j = 0; j < m; ++j)
+      if (((byrow && !approxEqual(probs(i, j), 0)) || (!byrow && !approxEqual(probs(j, i), 0))) 
+          && !visited[j])
+        toExplore.push(j);
+  }
+  
+  return isReachable;
+}
+
 
 // summary of markovchain object
 // [[Rcpp::export(.summaryKernelRcpp)]]
@@ -492,10 +508,9 @@ int gcd (int a, int b) {
 //' @export
 // [[Rcpp::export(period)]]
 int period(S4 object) {
-  Function isIrreducible("is.irreducible");
-  List res = isIrreducible(object);
+  bool irreducible = isIrreducible(object);
   
-  if (!res[0]) {
+  if (!irreducible) {
     warning("The matrix is not irreducible");
     return 0;
   } else {
@@ -1008,29 +1023,36 @@ NumericMatrix lexicographicalSort(NumericMatrix m) {
   }
 }
 
-// Declared in utils.cpp
-bool approxEqual(const cx_double& a, const cx_double& b);
 
-
-vec computeSteadyState(mat submatrix) {
-  int m = submatrix.n_rows;
-  vec rightPart(m);
+// This method computes the *unique* steady state that exists for an
+// matrix has to be schocastic by rows
+// ergodic (= irreducible) matrix
+vec steadyStateErgodicMatrix(const mat& submatrix) {
+  int nRows = submatrix.n_rows;
+  int nCols = submatrix.n_cols;
+  vec rightPart(nRows + 1, fill::zeros);
   vec result;
+  mat coeffs(nRows + 1, nCols);
   
-  rightPart(0) = 1;
-  
-  for (int i = 1; i < m; ++i) {
-    rightPart(i) = 0;
-    submatrix(i, i) -= 1;
+  // If P is Ergodic, the system (I - P)*w = 0 plus the equation 
+  // w_1 + ... + w_m = 1 must have a soultion
+  for (int i = 0; i < nRows; ++i) {
+    for (int j = 0; j < nCols; ++j) {
+      // transpose matrix in-place
+      coeffs(i, j) = submatrix(j, i);
+      
+      if (i == j)
+        coeffs(i, i) -= 1;
+    }
   }
   
-  for (int j = 0; j < m; ++j)
-    submatrix(0, j) = 1;
+  for (int j = 0; j < nCols; ++j)
+    coeffs(nRows, j) = 1;
   
-  bool couldSolveSystem = solve(result, submatrix, rightPart);
+  rightPart(nRows) = 1;
   
-  if (!couldSolveSystem)
-    stop("Failure computing eigen values / vectors for submatrix in computeSteadySates");
+  if (!solve(result, coeffs, rightPart))
+    stop("Failure computing eigen values / vectors for submatrix in steadyStateErgodicMatrix");
   
   return result;
 }
@@ -1046,7 +1068,6 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
   NumericMatrix steady(numRecClasses, numCols);
   unordered_map<string, int> stateToIndex;
   int steadyStateIndex = 0;
-  double current;
   
   // Map each state to the index it has
   for (int i = 0; i < states.size(); ++i) {
@@ -1072,7 +1093,7 @@ NumericMatrix steadyStatesByRecurrentClasses(S4 object) {
     }
 
     // Compute the steady states for the given submatrix
-    vec steadyState = computeSteadyState(subMatrix.t());
+    vec steadyState = steadyStateErgodicMatrix(subMatrix);
 
     for (int i = 0; i < recClassSize; ++i) {
       int c = stateToIndex[(string) recurrentClass[i]];
@@ -1112,3 +1133,335 @@ NumericMatrix steadyStates(S4 obj) {
   return result;
 }
 
+
+// This method is agnostic on whether the matrix is stochastic 
+// by rows or by columns, we just need the diagonal
+// [[Rcpp::export(.absorbingStatesRcpp)]]
+CharacterVector absorbingStates(S4 obj) {
+  NumericMatrix transitionMatrix = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  CharacterVector absorbing;
+  int numStates = states.size();
+  
+  for (int i = 0; i < numStates; ++i)
+    if (approxEqual(transitionMatrix(i, i), 1))
+      absorbing.push_back(states(i));
+    
+  return absorbing;
+}
+
+
+// [[Rcpp::export(.isIrreducibleRcpp)]]
+bool isIrreducible(S4 obj) {
+  List commClasses = communicatingClasses(obj);
+  // The markov chain is irreducible iff has only a single communicating class
+  return commClasses.size() == 1;
+}
+
+
+// [[Rcpp::export(.isRegularRcpp)]]
+bool isRegular(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  int m = transitions.ncol();
+  mat probs(transitions.begin(), m, m, true);
+  mat reachable;
+  // Let alias this as d
+  int positiveDiagonal = 0;
+  auto arePositive = [](const double& x){ return x > 0; };
+  
+  // Count positive elements in the diagonal
+  for (int i = 0; i < m; ++i)
+    if (probs(i, i) > 0)
+      ++positiveDiagonal;
+  
+  // Taken from the book: 
+  // Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
+  // Corollary 8.5.8 and Theorem 8.5.9
+  //
+  // If A is irreducible and has 0 < d positive diagonal elements
+  //   A is regular and $A^{2m - d - 1} > 0
+  //
+  // A is regular iff A^{m²- 2m + 2} > 0
+  if (positiveDiagonal > 0)
+    reachable = matrixPow(probs, 2*m - positiveDiagonal - 1);
+  else
+    reachable = matrixPow(probs, m*m - 2*m + 2);
+  
+  return allElements(reachable, arePositive);
+}
+
+
+NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing, 
+                                         CharacterVector& states) {
+  unordered_set<string> toErase;
+  vector<uint> indicesToKeep;
+  CharacterVector newNames;
+  string current;
+  
+  for (auto state : absorbing)
+    toErase.insert((string) state);
+  
+  // Compute the states which are not in absorbing
+  // and subset the sub-probability matrix of those
+  // states which are not considered absorbing, Q
+  for (uint i = 0; i < states.size(); ++i) {
+    current = (string) states(i);
+    
+    if (toErase.count(current) == 0) {
+      indicesToKeep.push_back(i);
+      newNames.push_back(current);
+    }
+  }
+  
+  int n = indicesToKeep.size();
+  uvec indices(indicesToKeep);
+  // Comppute N = 1 - Q
+  auto coeffs = eye(n, n) - probs(indices, indices);
+  vec rightPart = vec(n, fill::ones);
+  mat meanTimes;
+  
+  // Mean absorbing times A are computed as N * A = 1,
+  // where 1 is a column vector of 1s
+  if (!solve(meanTimes, coeffs, rightPart))
+    stop("Error solving system in meanAbsorptionTime");
+  
+  NumericMatrix result = wrap(meanTimes);
+  rownames(result) = newNames;
+  
+  return result;
+}
+
+
+// [[Rcpp::export(.meanAbsorptionTimeRcpp)]]
+NumericVector meanAbsorptionTime(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  bool byrow = obj.slot("byrow");
+  unordered_set<string> allStates;
+  
+  if (!byrow)
+    transitions = transpose(transitions);
+  
+  // Compute recurrent and transient states
+  List commKernel = commClassesKernel(transitions);
+  LogicalVector closed = commKernel["closed"];
+  CharacterVector transient = computeTransientStates(states, closed);
+  CharacterVector recurrent = computeRecurrentStates(states, closed);
+  
+  // Compute the mean absorption time for the transient states
+  mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
+  NumericMatrix meanTimes = computeMeanAbsorptionTimes(probs, recurrent, states);
+  NumericVector result;
+  
+  if (meanTimes.ncol() > 0) {
+    result = meanTimes(_, 0);
+    result.attr("names") = transient;
+  }
+  
+  return result;
+}
+
+// [[Rcpp::export(.absorptionProbabilitiesRcpp)]]
+NumericMatrix absorptionProbabilities(S4 obj) {
+  NumericMatrix transitions = obj.slot("transitionMatrix");
+  CharacterVector states = obj.slot("states");
+  string current;
+  bool byrow = obj.slot("byrow");
+  if (!byrow)
+    transitions = transpose(transitions);
+  
+  unordered_map<string, uint> stateToIndex;
+  
+  // Map each state to the index it has
+  for (int i = 0; i < states.size(); ++i) {
+    current = (string) states[i];
+    stateToIndex[current] = i;
+  }
+  
+  List commKernel = commClassesKernel(transitions);
+  LogicalVector closed = commKernel["closed"];
+  CharacterVector transient = computeTransientStates(states, closed);
+  CharacterVector recurrent = computeRecurrentStates(states, closed);
+  
+  vector<uint> transientIndxs, recurrentIndxs;
+  
+  // Compute the indexes of the matrix which correspond to transient and recurrent states
+  for (auto state : transient) {
+    current = (string) state;
+    transientIndxs.push_back(stateToIndex[current]);
+  }
+  
+  for (auto state : recurrent) {
+    current = (string) state;
+    recurrentIndxs.push_back(stateToIndex[current]);
+  }
+  
+  int m = transitions.ncol();
+  int n = transientIndxs.size();
+  
+  if (n == 0)
+    stop("Markov chain does not have transient states, method not applicable");
+  
+  // Get the indices in arma::uvec s
+  uvec transientIndices(transientIndxs);
+  uvec recurrentIndices(recurrentIndxs);
+  
+  // Compute N = (1 - Q)^{-1}
+  mat probs(transitions.begin(), m, m, true);
+  mat toInvert = eye(n, n) - probs(transientIndices, transientIndices);
+  mat fundamentalMatrix;
+  
+  if (!inv(fundamentalMatrix, toInvert))
+    stop("Could not compute fundamental matrix");
+  
+  // Compute the mean absorption probabilities as F* = N*P[recurrent, recurrent]
+  mat meanProbs = fundamentalMatrix * probs(transientIndices, recurrentIndices);
+  NumericMatrix result = wrap(meanProbs);
+  rownames(result) = transient;
+  colnames(result) = recurrent;
+  
+  if (!byrow)
+    result = transpose(result);
+  
+  return result;
+}
+
+// [[Rcpp::export(.meanFirstPassageTimeRcpp)]]
+NumericMatrix meanFirstPassageTime(S4 obj, CharacterVector destination) {
+  bool isErgodic = isIrreducible(obj);
+  
+  if (!isErgodic)
+    stop("Markov chain needs to be ergodic (= irreducile) for this method to work");
+  else {
+    NumericMatrix transitions = obj.slot("transitionMatrix");
+    mat probs(transitions.begin(), transitions.nrow(), transitions.ncol(), true);
+    CharacterVector states = obj.slot("states");
+    bool byrow = obj.slot("byrow");
+    int numStates = states.size();
+    NumericMatrix result;
+    
+    if (!byrow)
+      probs = probs.t();
+    
+    if (destination.size() > 0) {
+      result = computeMeanAbsorptionTimes(probs, destination, states);
+      // This transpose is intentional to return a row always instead of a column
+      result = transpose(result);
+      return result;
+    } else {
+      result = NumericMatrix(numStates, numStates);
+      vec steadyState = steadyStateErgodicMatrix(probs);
+      mat toInvert(numStates, numStates);
+      mat Z;
+      
+      // Compute inverse for (I - P + W), where P = probs,
+      // and W = steadyState pasted row-wise
+      for (int i = 0; i < numStates; ++i) {
+        for (int j = 0; j < numStates; ++j) {
+          toInvert(i, j) = -probs(i, j) + steadyState(j);
+          
+          if (i == j)
+            toInvert(i, i) += 1;
+        }
+      }
+      
+      if (!inv(Z, toInvert))
+        stop("Problem computing inverse of matrix inside meanFirstPassageTime");
+      
+      // Set the result matrix
+      for (int j = 0; j < numStates; ++j) {
+        double r_j = 1.0 / steadyState(j);
+        
+        for (int i = 0; i < numStates; ++i) {
+          result(i, j) = (Z(j,j) - Z(i,j)) * r_j;
+        }
+      }
+    
+      colnames(result) = states;
+      rownames(result) = states;
+      
+      if (!byrow)
+        result = transpose(result);
+      
+      return result;
+    }
+  }
+}
+
+// [[Rcpp::export(.meanRecurrenceTimeRcpp)]]
+NumericVector meanRecurrenceTime(S4 obj) {
+  NumericMatrix steady = steadyStates(obj);
+  bool byrow = obj.slot("byrow");
+  
+  if (!byrow)
+    steady = transpose(steady);
+    
+  CharacterVector states = obj.slot("states");
+  NumericVector result;
+  CharacterVector recurrentStates;
+  
+  for (int i = 0; i < steady.nrow(); ++i) {
+    for (int j = 0; j < steady.ncol(); ++j) {
+      // This depends on our imlementation of the steady
+      // states, but we have the guarantee that the entry
+      // corresponding to a state in a recurrent class is
+      // only going to be positive in one vector and the 
+      // entries corresponding to transient states are
+      // going to be zero
+      if (!approxEqual(steady(i, j), 0)) {
+        result.push_back(1.0 / steady(i, j));
+        recurrentStates.push_back(states(j));
+      }
+    }
+  }
+  
+  result.attr("names") = recurrentStates;
+  
+  return result;
+}
+
+// [[Rcpp::export(.minNumVisitsRcpp)]]
+NumericMatrix meanNumVisits(S4 obj) {
+  NumericMatrix hitting = hittingProbabilities(obj);
+  CharacterVector states = obj.slot("states");
+  bool byrow = obj.slot("byrow");
+  
+  if (!byrow)
+    hitting = transpose(hitting);
+  
+  int n = hitting.ncol();
+  bool closeToOne;
+  double inverse;
+  NumericMatrix result(n, n);
+  rownames(result) = states;
+  colnames(result) = states;
+  
+  // Lets call the matrix of hitting probabilities as f
+  // Then mean number of visits from i to j are given by 
+  //            f_{ij} / (1 - f_{jj})
+  // having care when f_{ij} -> mean num of visits is zero
+  // and when f_{ij} > 0 and f_{jj} = 1 -> infinity mean
+  //                                       num of visits
+  for (int j = 0; j < n; ++j) {
+    closeToOne = approxEqual(hitting(j, j), 1);
+    
+    if (!closeToOne)
+      inverse = 1 / (1 - hitting(j, j));
+        
+    for (int i = 0; i < n; ++i) {
+      if (hitting(i, j) == 0)
+        result(i, j) = 0;
+      else {
+        if (closeToOne)
+          result(i, j) = R_PosInf;
+        else
+          result(i, j) = hitting(i, j) * inverse; 
+      }
+    }
+  }
+  
+  if (!byrow)
+    result = transpose(result);
+  
+  return result;
+}

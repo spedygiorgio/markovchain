@@ -32,14 +32,18 @@ author:
     email: \email{deepakyadav.iitbhu@gmail.com}
   - name: "Ignacio Cordón"
     affiliation: Software Engineer at source{d}
+    address: >
+      Madrid (Madrid), Spain
     email: \email{nacho.cordon.castillo@gmail.com}
 preamble: >
   \author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}
+  \Plainauthor{G.A. Spedicato, T.S. Kang, S.B. Yalamanchi, D. Yadav, I. Cordón}
   \usepackage{graphicx}
   \usepackage{amsmath}
   \usepackage{longtable}
   \usepackage{booktabs}
   \setkeys{Gin}{width=0.8\textwidth}
+  \usepackage{amsfonts}
 abstract: |
   The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
 output: if (rmarkdown::pandoc_version() < 2.2) rmarkdown::pdf_document else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) }
@@ -160,15 +164,19 @@ and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^
 \label{eq:ftp2}
 \end{equation}
 
-A commonly used quantity related to $h$  is its average value, i.e.
-the \emph{mean first passage time} (also expected hitting time), namely
-$\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
+A commonly used quantity related to $h$  is its average value, i.e. the \emph{mean first passage time} (also expected hitting time), namely $\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
 
-If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first return time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. A state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$. 
+If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first recurrence time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. We could also ask ourselves which is the *mean recurrence time*, an average of the mean first recurrence times:
+
+\[
+ r_i = \sum_{k = 1}^{\infty} k \cdot P(T_i = k)
+\]
+
+Revisiting the definition of recurrence and transience: a state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$.
 
 Given a time homogeneous Markov chain with transition matrix \emph{P}, a stationary distribution \emph{z} is a stochastic row vector such that $z=z\cdot P$, where $0\leq z_{j}\leq 1 \: \forall j$ and $\sum_{j}z_{j}=1$.
 
-If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$ is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
+If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribution and this distribution is stationary. As a consequence, if $P$ is the $k\times k$ transition matrix of the chain and $z=\left(z_{1},...,z_{k}\right)$ is the unique eigenvector of $P$ such that $\sum_{i=1}^{k}z_{i}=1$, then we get
 
 \begin{equation}
   \underset{n\rightarrow\infty}{lim}P^{n}=Z,
@@ -176,6 +184,8 @@ If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribu
 \end{equation}
 
 where $Z$ is the matrix having all rows equal to $z$. The stationary distribution of $\{X_{n}\}$ is represented by $z$.
+
+A matrix $A$ is called primitive if all of its entries are strictly positive, and we write it $A > 0$. If the transition matrix $P$ for a DTMC has some primitive power, i.e. it exists $m > 0: P^m > 0$, then the DTMC is said to be regular. In fact being regular is equivalent to being irreducible and aperiodic. All regular DTMCs are irreducible. The counterpart is not true.
 
 Given two absorbing states $s_A$ (source) and $s_B$ (sink), the \emph{committor probability} $q_j^{(AB)}$ is the probability that a process starting in state $s_i$ is absorbed in state $s_B$ (rather than $s_A$) [@noe_constructing_2009]. It can be computed via <!-- TONI -->
 
@@ -190,6 +200,8 @@ Note we can also define the hitting probability from $i$ to $j$ as the probabili
 h_{i,j} = Pr(T_{ij} < \infty) = \sum_{n = 0}^{\infty} h_{ij}^{(n)}
 \label{eq:hitting-probs}
 \end{equation}
+
+In a DTMC with finite set of states, we know that a transient state communicates at least with one recurrent state. If the chain starts in a transient element, once it hits a recurrent state, it is going to be caught in its recurrent state, and we cannot expect it would go back to the initial state. Given a transient state $i$ we can define the *absorption probability* to the recurrent state $j$ as the probability that the first recurrent state that the Markov chain visits (and therefore gets absorbed by its recurrent class) is $j$, $f^{*}_ij$. We can also define the *mean absorption time* as the mean number of steps the transient state $i$ would take until it hits any recurrent state, $b_i$.
 
 ## A short example
 
@@ -237,6 +249,10 @@ The package is loaded within the \proglang{R} command line as follows:
 
 ```{r, load, results='hide', message=FALSE}
 library("markovchain")
+```
+
+```{r, load-aux, echo=FALSE, results='hide'}
+library("matlab")
 ```
 
 The `markovchain` and `markovchainList` S4 classes [@chambers] are defined within the \pkg{markovchain} package as displayed:
@@ -412,7 +428,7 @@ show(mcWeather)
 
 ```{r mcPlot, echo=FALSE, fig.cap="Weather example. Markov chain plot"}
 library("igraph")
-plot(mcWeather,layout = layout.fruchterman.reingold,main="Weather transition matrix")
+plot(mcWeather,layout = layout.fruchterman.reingold)
 ```
 
 ```{r mcPlotdiagram, echo=FALSE, fig.cap="Weather example. Markov chain plot with diagram"}
@@ -568,19 +584,25 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
+  \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
+  \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
+                            & absorbed by any recurrent class \\
+  \code{absorptionProbabilities} & probabilities of transient states of being \\
+                                 & absorbed by each recurrent state \\
   \code{committorAB} & committor probabilities \\
   \code{communicatingClasses} & list of communicating classes. \\
    & $s_{j}$, given actual state $s_{i}$. \\
   \code{canonicForm} & the transition matrix into canonic form. \\
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
   \code{is.irreducible} & checks whether a DTMC is irreducible. \\
+  \code{is.regular} & checks whether a DTMC is regular. \\
   \code{period} & the period of an irreducible DTMC. \\
-  \code{recurrentClasses} & list of recurrent classes. \\
-  \code{transientClasses} & list of transient classes. \\
-  \code{summary} & DTMC summary.\\
+  \code{recurrentClasses} & list of recurrent communicating classes. \\
+  \code{transientClasses} & list of transient communicatingclasses. \\
   \code{recurrentStates} & the recurrent states of the transition matrix. \\
   \code{transientStates} & the transient states of the transition matrix, if any. \\
+  \code{summary} & DTMC summary. \\
   \hline
   \end{tabular}
 \caption{\pkg{markovchain} methods: statistical operations.}
@@ -605,19 +627,49 @@ A stationary (steady state, or equilibrium) vector is a probability vector such 
 \begin{equation}
 \begin{matrix}
 0\leq \pi_j \leq 1\\ 
-\sum_{j \in S} \pi_j=1\\ 
-\pi*P=\pi
+\sum_{j \in S} \pi_j = 1\\ 
+\pi \cdot P = \pi
 \end{matrix}
 \label{eq:steadystat2}
 \end{equation}
 
-Steady states are associated to $P$ eigenvalues equal to one. Therefore the steady states vector can be identified by the following:
+Steady states are associated to $P$ eigenvalues equal to one. We could be tempted to compute them 
+solving the eigen values / vectors of the matrix and taking real parts (since if $u + iv$ is a eigen vector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigen vectors) and normalizing by the vector sum, this carries some concerns:
 
-  1. decompose the transition matrix in eigenvalues and eigenvectors;
-  2. consider only eigenvectors corresponding to eigenvalues equal to one;
-  3. normalize such eigenvalues so that the sum of their components is one.
+1. If $u, v \in \mathbb{R}^n$ are linearly independent eigen vectors associated to $1$ eigen value, $u + iv$, $u + iu$ are also linearly independent eigen vectors, and their real parts coincide. Clearly if we took real parts, we would be loosing an eigen vector, because we cannot know in advance if the underlying algorithm to compute the eigen vectors is going to output something similar to what we described. We should be agnostic to the underlying eigen vector computation algorithm.
 
-Numeric issue (negative values) can arise when the Markov Chain contains more closed classes. If negative values are found in the initial solution, the above described algorithm is performed on the submatrix corresponding to recurrent P classes. Another vignette in the package focuses on this issue.
+2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigen vectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigen vectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigen vectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
+
+3. Algorithms to compute eigen values / vectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
+
+We are going to use that every irreducible DTMC has a unique steady state, that is, if $M$ is the matrix for an irreducible DTMC (all states communicate with each other), then it exists a unique $v \in \mathbb{R}^m$ such that:
+
+\[ v \cdot M = v, \qquad \sum_{i = 1}^m v_i = 1 \]
+
+Also, we'll use that a steady state for a DTMC assigns $0$ to the transient states. The cannonic form of a (by row) stochastic matrix looks alike:
+
+\[
+\left(\begin{array}{c|c|c|c|c}
+M_1 & 0 & 0 & \ldots & 0 \\
+\hline
+0 & M_2 & 0 & \ldots & 0 \\
+\hline
+0 & 0 & M_3 & \ldots & 0 \\
+\hline
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\hline
+A_1 & A_2 & A_3 & \ldots & R
+\end{array}\right)
+\]
+
+where $M_i$ corresponds to irreducible subchains, the blocks $A_i$ correspond to the transitions from transient states to each of the recurrent classes and $R$ are the transitions from the transient states to themselves.
+
+Also, we should note that a Markov chain has exactly the same name of steady states as recurrent classes. Therefore, we have coded the following algorithm ^[We would like to thank Prof. Christophe Dutang for his contributions to the development of this method. He coded a first improvement of the original `steadyStates` method and we could not have reached the current correctness without his previous work]:
+
+  1. Identify the recurrent classes $[C_1, \ldots, C_l]$ with \texttt{recurrentClasses} function.
+  2. Take each class $C_i$, compute the submatrix corresponding to it $M_i$.
+  3. Solve the system $v \cdot C_i = v, \, \sum_{j = 1}^{|C_i|} v_j = 1$ which has a unique solution, for each $i = 1, \ldots, l$.
+  3. Map each state $v_i$ to the oiginal order in $P$ and assign a $0$ to the slots corresponding to transient states in the matrix.
 
 The result is returned in matrix form.
 
@@ -629,24 +681,23 @@ It is possible for a Markov chain to have more than one stationary distribution,
 
 ```{r gamblerRuin}
 gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
-  require(matlab)
-  matr <- zeros(moneyMax + 1)
-  states <- as.character(seq(from = 0, to = moneyMax, by = 1))
-  rownames(matr) = states; colnames(matr) = states
-  matr[1,1] = 1; matr[moneyMax + 1,moneyMax + 1] = 1
-  for(i in 2:moneyMax)
-  { matr[i,i-1] = 1 - prob; matr[i, i + 1] = prob   }
-  out <- new("markovchain",  
-           transitionMatrix = matr, 
-           name = paste("Gambler ruin", moneyMax, "dim", sep = " ")
-           )
-  return(out)
+  m <- matlab::zeros(moneyMax + 1)
+  m[1,1] <- m[moneyMax + 1,moneyMax + 1] <- 1
+  states <- as.character(0:moneyMax)
+  rownames(m) <- colnames(m) <- states
+  
+  for(i in 2:moneyMax){ 
+    m[i,i-1] <- 1 - prob
+    m[i, i + 1] <- prob   
+  }
+  
+  new("markovchain", transitionMatrix = m, 
+      name = paste("Gambler ruin", moneyMax, "dim", sep = " "))
 }
 
 mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 steadyStates(mcGR4)
 ```
-
 
 ## Classification of states
 
@@ -839,6 +890,64 @@ The implementation follows the matrix solutions  by [@GrinsteadSnell]. We can ch
 firstPassagePdF.long <- firstPassage(object = mcWeather, state = "sunny",  n = 100)
 sum(firstPassagePdF.long[,"rain"] * 1:100)
 ```
+
+## Mean recurrence time
+
+The `meanRecurrenceTime` method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
+
+```{r mrt-weather}
+meanRecurrenceTime(mcWeather)
+```
+
+Another example, with not all of its states being recurrent:
+
+```{r mrt-probMc}
+recurrentStates(probMc)
+meanRecurrenceTime(probMc)
+```
+
+## Absorption probabilities and mean absorption time
+
+We are going to use the Drunkard’s random walk from [@GrinsteadSnell]. We have a drunk person walking through the street. Each move the person does, if they have not arrived to either home (corner 1) or to the bar (corner 5) could be to the left corner or to the right one, with equal probability. In case of arrival to the bar or to home, the person stays there.
+
+```{r data-drunkard}
+drunkProbs <- matlab::zeros(5, 5)
+drunkProbs[1,1] <- drunkProbs[5,5] <- 1
+drunkProbs[2,1] <- drunkProbs[2,3] <- 1/2
+drunkProbs[3,2] <- drunkProbs[3,4] <- 1/2
+drunkProbs[4,3] <- drunkProbs[4,5] <- 1/2
+
+drunkMc <- new("markovchain", transitionMatrix = drunkProbs)
+drunkMc
+```
+
+Recurrent (in fact absorbing states) are:
+
+```{r rs-drunkard}
+recurrentStates(drunkMc)
+```
+
+Transient states are the rest:
+
+```{r ts-drunkard}
+transientStates(drunkMc)
+```
+
+The probability of either being absorbed by the bar or by the sofa at home are:
+
+```{r ap-drunkard}
+absorptionProbabilities(drunkMc)
+```
+
+which means that the probability of arriving home / bar is inversely proportional to the distance to each one.
+
+But we also would like to know how much time does the person take to arrive there, which can be done with `meanAbsorptionTime`:
+
+```{r at-drunkard}
+meanAbsorptionTime(drunkMc)
+```
+
+So it would take `3` steps to arrive to the destiny if the person is either in the second or fourth corner, and `4` steps in case of being at the same distance from home than to the bar.
 
 ## Committor probability
 
@@ -1455,7 +1564,7 @@ mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
 
 ## Pseudo - Bayesian Estimation
 
-\cite{Hu2002} shows an empirical quasi-bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha*Q+\left(1-1alpha\right)*P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
+\cite{Hu2002} shows an empirical quasi-bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-1alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
 
 \begin{equation}
 \left\{\begin{matrix}

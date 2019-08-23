@@ -1,12 +1,12 @@
 context("Checking steadyStates method")
 
 
-steadyStatesMCs <- append(allAndDiagonalMCs, steadyStatesMCs)
+testMCs <- append(allAndDiagonalMCs, steadyStatesMCs)
 
 
 test_that("Num of steady states is the same as num of recurrent classes", {
   
-  for (mc in steadyStatesMCs) {
+  for (mc in testMCs) {
     byrow <- mc$byrow
     steady <- mc$steadyStates
     numSteadyStates <- ifelse(byrow, nrow(steady), ncol(steady))
@@ -19,12 +19,11 @@ test_that("Num of steady states is the same as num of recurrent classes", {
 
 test_that("Steady states are prob vectors", {
   
-  for (mc in steadyStatesMCs) {
+  for (mc in testMCs) {
     byrow <- mc$byrow
     steady <- mc$steadyStates
     margin <- ifelse(byrow, 1, 2)
     steadyAreProbVectors <- all(apply(steady, MARGIN = margin, .isProbabilityVector))
-    
     expect_true(steadyAreProbVectors)
   }
 })
@@ -32,7 +31,7 @@ test_that("Steady states are prob vectors", {
 
 test_that("Steady states are linearly independent vectors", {
   
-  for (mc in steadyStatesMCs) {
+  for (mc in testMCs) {
     byrow <- mc$byrow
     steady <- mc$steadyStates
     rank <- rankMatrix(steady)[[1]]
@@ -44,7 +43,7 @@ test_that("Steady states are linearly independent vectors", {
 
 test_that("Steady states v are eigen vectors, i.e. vP = v (by rows) or Pv = v (by cols)", {
   
-  for (mc in steadyStatesMCs) {
+  for (mc in testMCs) {
     byrow <- mc$byrow
     steady <- mc$steadyStates
     P <- mc$transitionMatrix

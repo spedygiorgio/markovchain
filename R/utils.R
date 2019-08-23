@@ -5,6 +5,7 @@ precomputeData <- function(mc) {
     states = mc@states,
     byrow = mc@byrow,
     irreducible = is.irreducible(mc),
+    regular = is.regular(mc),
     canonicForm = canonicForm(mc),
     recurrentClasses = recurrentClasses(mc),
     transientClasses = transientClasses(mc),
@@ -12,7 +13,17 @@ precomputeData <- function(mc) {
     transientStates = transientStates(mc),
     absorbingStates = absorbingStates(mc),
     hittingProbabilities = hittingProbabilities(mc),
+    meanNumVisits = meanNumVisits(mc),
+    meanRecurrenceTime = meanRecurrenceTime(mc),
     communicatingClasses = communicatingClasses(mc),
-    steadyStates = steadyStates(mc)
+    steadyStates = steadyStates(mc),
+    reachabilityMatrix = is.accessible(mc)
+  )
+}
+
+precomputeSteadyStates <- function(mc) {
+  list(
+    object = mc,
+    expected = steadyStates(mc)
   )
 }

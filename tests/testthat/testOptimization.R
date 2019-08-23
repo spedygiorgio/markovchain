@@ -19,12 +19,5 @@ context("Optimization of functions")
 test_that("Optimized functions should satisfy", 
           {
             expect_equal(.gcdRcpp(9, 12), 3) # .gcdRcpp function is also tested in testPeriod.R
-            expect_equal(.commStatesFinderRcpp(mathematicaMatr), matrix(c(1,1,1,1,1,
-                                                                          1,1,1,1,1,
-                                                                          0,0,1,1,0,
-                                                                          0,0,1,1,0,
-                                                                          0,0,0,0,1
-                                                                          ), nrow=5, byrow=T
-            ))
           })
 

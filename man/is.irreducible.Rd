@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{is.irreducible}
 \alias{is.irreducible}
-\title{Function to check if a Markov chain is irreducible}
+\title{Function to check if a Markov chain is irreducible (i.e. ergodic)}
 \usage{
 is.irreducible(object)
 }
@@ -26,6 +26,7 @@ mcA <- new("markovchain", transitionMatrix = matrix(c(0.7,0.3,0.1,0.9),
                                              dimnames = list(statesNames, statesNames)
            ))
 is.irreducible(mcA)
+
 }
 \references{
 Feres, Matlab listings for Markov Chains.

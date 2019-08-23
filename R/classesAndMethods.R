@@ -7,7 +7,15 @@
 #'   absorbingStates,markovchain-method transientStates,markovchain-method
 #'   recurrentStates,markovchain-method transientClasses,markovchain-method
 #'   recurrentClasses,markovchain-method communicatingClasses,markovchain-method
-#'   steadyStates,markovchain-method
+#'   steadyStates,markovchain-method meanNumVisits,markovchain-method
+#'   is.regular,markovchain-method is.irreducible,markovchain-method
+#'   is.accessible,markovchain,character,character-method
+#'   is.accessible,markovchain,missing,missing-method
+#'   absorptionProbabilities,markovchain-method
+#'   meanFirstPassageTime,markovchain,character-method 
+#'   meanFirstPassageTime,markovchain,missing-method
+#'   meanAbsorptionTime,markovchain-method
+#'   meanRecurrenceTime,markovchain-method
 #'   conditionalDistribution,markovchain-method hittingProbabilities,markovchain-method
 #'   canonicForm,markovchain-method coerce,data.frame,markovchain-method
 #'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
@@ -454,6 +462,10 @@ setValidity(
     transitionMatrix <- object@transitionMatrix
     states           <- object@states
     
+    if (length(setdiff(states, unique(states))) > 0) {
+      msg    <- "Error! States must be unique!"
+      errors <- c(errors, msg)
+    }
     # Performs a set of checks. If any error arises, it ends up concatenated to errors
     
     # Check all values of transition matrix belongs to [0, 1]

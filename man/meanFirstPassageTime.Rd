@@ -2,41 +2,56 @@
 % Please edit documentation in R/probabilistic.R
 \name{meanFirstPassageTime}
 \alias{meanFirstPassageTime}
-\title{Mean First Passage Time for markovchain}
+\title{Mean First Passage Time for irreducible Markov chains}
 \usage{
-meanFirstPassageTime(markovchain,destination_set)
+meanFirstPassageTime(object, destination)
 }
 \arguments{
-\item{markovchain}{the markovchain-class object}
+\item{object}{the markovchain object}
 
-\item{destination_set}{the set of destination states or NULL (all states)}
+\item{destination}{a character vector representing the states respect to
+which we want to compute the mean first passage time. Empty by default}
 }
 \value{
-a vector (if destination_set given) or a matrix (otherwise) of mean passage times
+a Matrix of the same size with the average first passage times if
+  destination is empty, a vector if destination is not
 }
 \description{
-Given a markovchain object,
-this function calculates the expected steps to go from state i to j
+Given an irreducible (ergodic) markovchain object, this function
+  calculates the expected number of steps to reach other states
 }
 \details{
-if destination_set is one or more states, the mean first
-passage time from each remaining state to the given set is computed.
-If NULL, the full MFPT matrix is computed (with a different algorithm).
+For an ergodic Markov chain it computes: 
+\itemize{ 
+  \item If destination is empty, the average first time (in steps) that takes
+  the Markov chain to go from initial state i to j. (i, j) represents that 
+  value in case the Markov chain is given row-wise, (j, i) in case it is given
+  col-wise. 
+  \item If destination is not empty, the average time it takes us from the 
+  remaining states to reach the states in \code{destination} 
+}
 }
 \examples{
-Pmat <- matrix( c(6,3,1,  2,3,5, 4,1,5)/10, ncol=3, byrow=TRUE)
-P <- new("markovchain", states=c("s","c","r"), transitionMatrix=Pmat)
-meanFirstPassageTime(P,"r")
-meanFirstPassageTime(P)
+m <- matrix(1 / 10 * c(6,3,1,
+                       2,3,5,
+                       4,1,5), ncol = 3, byrow = TRUE)
+mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
+meanFirstPassageTime(mc, "r")
+
 
 # Grinstead and Snell's "Oz weather" worked out example
-Poz <- new("markovchain", states=c("s","c","r"), 
-           transitionMatrix=matrix(c(2,1,1, 2,0,2, 1,1,2)/4, byrow=TRUE, ncol=3)) 
-meanFirstPassageTime(Poz)  
+mOz <- matrix(c(2,1,1,
+                2,0,2,
+                1,1,2)/4, ncol = 3, byrow = TRUE)
+
+mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
+meanFirstPassageTime(mcOz)
+
 }
 \references{
-C. M. Grinstead and J. L. Snell. Introduction to Probability. American Mathematical Soc., 2012.
+C. M. Grinstead and J. L. Snell. Introduction to Probability.
+American Mathematical Soc., 2012.
 }
 \author{
-Toni Giorgino
+Toni Giorgino, Ignacio Cordón
 }

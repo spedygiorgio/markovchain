@@ -272,8 +272,12 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_transientClasses`, object)
 }
 
-.commStatesFinderRcpp <- function(matr) {
-    .Call(`_markovchain_commStatesFinder`, matr)
+.reachabilityMatrixRcpp <- function(obj) {
+    .Call(`_markovchain_reachabilityMatrix`, obj)
+}
+
+.isAccessibleRcpp <- function(obj, from, to) {
+    .Call(`_markovchain_isAccessible`, obj, from, to)
 }
 
 .summaryKernelRcpp <- function(object) {
@@ -406,6 +410,38 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_steadyStates`, obj)
 }
 
+.absorbingStatesRcpp <- function(obj) {
+    .Call(`_markovchain_absorbingStates`, obj)
+}
+
+.isIrreducibleRcpp <- function(obj) {
+    .Call(`_markovchain_isIrreducible`, obj)
+}
+
+.isRegularRcpp <- function(obj) {
+    .Call(`_markovchain_isRegular`, obj)
+}
+
+.meanAbsorptionTimeRcpp <- function(obj) {
+    .Call(`_markovchain_meanAbsorptionTime`, obj)
+}
+
+.absorptionProbabilitiesRcpp <- function(obj) {
+    .Call(`_markovchain_absorptionProbabilities`, obj)
+}
+
+.meanFirstPassageTimeRcpp <- function(obj, destination) {
+    .Call(`_markovchain_meanFirstPassageTime`, obj, destination)
+}
+
+.meanRecurrenceTimeRcpp <- function(obj) {
+    .Call(`_markovchain_meanRecurrenceTime`, obj)
+}
+
+.minNumVisitsRcpp <- function(obj) {
+    .Call(`_markovchain_meanNumVisits`, obj)
+}
+
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
 }
@@ -418,6 +454,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_isProbVector`, prob)
 }
 
+.testthatIsAccesibleRcpp <- function(obj) {
+    .Call(`_markovchain_checkIsAccesibleMethod`, obj)
+}
+
 .approxEqualMatricesRcpp <- function(a, b) {
     .Call(`_markovchain_approxEqual`, a, b)
 }
@@ -426,8 +466,12 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_isPartition`, commClasses, states)
 }
 
-.testthatAreHittingRcpp <- function(probs, hitting, byrow, tolerance) {
-    .Call(`_markovchain_areHittingProbabilities`, probs, hitting, byrow, tolerance)
+.testthatAreHittingRcpp <- function(probs, hitting, byrow) {
+    .Call(`_markovchain_areHittingProbabilities`, probs, hitting, byrow)
+}
+
+.testthatAreMeanNumVisitsRcpp <- function(probs, numVisits, hitting, byrow) {
+    .Call(`_markovchain_areMeanNumVisits`, probs, numVisits, hitting, byrow)
 }
 
 .testthatRecurrentHittingRcpp <- function(recurrentClasses, hitting, states, byrow) {

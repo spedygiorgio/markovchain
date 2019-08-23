@@ -96,21 +96,9 @@ context("Checking communicatingClasses method")
 
 test_that("Communicating classes are a partition of states", {
   
-  for (mc in allMCs) {
+  for (mc in allAndDiagonalMCs) {
     states <- mc$states
     commClasses <- mc$communicatingClasses
     expect_true(.testthatIsPartitionRcpp(commClasses, states))
-  }
-})
-
-
-test_that("Communicating classes for identity matrix a partition of states", {
-  
-  for (mc in allDiagonalMCs) {
-    states <- mc$states
-    numStates <- length(states)
-    commClasses <- mc$communicatingClasses
-    numCommClasses <- length(commClasses)
-    expect_true(.testthatIsPartitionRcpp(commClasses, states) && numCommClasses == numStates)
   }
 })

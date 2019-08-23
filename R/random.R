@@ -27,11 +27,10 @@ normalizeMatrix <- function(matrix, byrow = TRUE) {
 
 
 # Returns a random stochastic matrix
-randomStochasticMatrix <- function(n, byrow = TRUE) {
+randomStochasticMatrix <- function(n, zeroProb, byrow = TRUE) {
   numRandom <- n * n
   randomNums <- stats::runif(numRandom)
   
-  zeroProb <- 0.95
   remainProb <- (1 - zeroProb) / numRandom
   probs <- c(zeroProb, rep(remainProb, numRandom))
   
@@ -44,7 +43,7 @@ randomStochasticMatrix <- function(n, byrow = TRUE) {
 }
 
 
-randomMarkovChain <- function(n) {
-  matrix <- randomStochasticMatrix(n)
-  new("markovchain", transitionMatrix = matrix)
+randomMarkovChain <- function(n, zeroProb = 0.95, byrow = TRUE) {
+  matrix <- randomStochasticMatrix(n, zeroProb, byrow)
+  new("markovchain", transitionMatrix = matrix, byrow = byrow)
 }

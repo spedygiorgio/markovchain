@@ -13,47 +13,39 @@ A <- structure(c(0, 0, 0, 0, 0, 0, 0, 0,
 mchain <- new("markovchain", transitionMatrix = A)
 
 
-#https://www.math.ucdavis.edu/~gravner/MAT135B/materials/ch13.pdf
-mc1Matrix <- matrix(c(0.5, 0.5, 0,
-                      0.5, 0.25, 0.25,
-                      0, 1/3, 2/3), 
-                    nrow = 3, byrow = TRUE)
-mc1 <- as(mc1Matrix, "markovchain")
-
-
-mc2Matrix <- matrix(c(0, 0, 1/2, 1/2,
+mc1Matrix <- matrix(c(0, 0, 1/2, 1/2,
                       1, 0, 0, 0,
                       0, 1, 0, 0,
                       0, 1, 0, 0), 
                     ncol = 4, byrow=TRUE)
-mc2 <- as(mc2Matrix, "markovchain")
+mc1 <- as(mc1Matrix, "markovchain")
 
 
-mc3Matrix <- matrix(c(0, 1, 0, 0, 0, 0,
+mc2Matrix <- matrix(c(0, 1, 0, 0, 0, 0,
                       0.4, 0.6, 0, 0, 0, 0,
                       0.3, 0, 0.4, 0.2, 0.1, 0,
                       0, 0, 0, 0.3, 0.7, 0,
                       0, 0, 0, 0.5, 0, 0.5,
                       0, 0, 0, 0.3, 0, 0.7), 
                     nrow = 6, byrow=TRUE)
+mc2 <- as(mc2Matrix,"markovchain")
+
+
+mc3Matrix <- matlab::zeros(5)
+mc3Matrix[1:2,1:2] <- 0.5*matlab::ones(2)
+mc3Matrix[5,1] <- 1
+mc3Matrix[3,3] <- 1
+mc3Matrix[4,3:4] <- 0.5
 mc3 <- as(mc3Matrix,"markovchain")
 
 
-mc4Matrix <- matlab::zeros(5)
-mc4Matrix[1:2,1:2] <- 0.5*matlab::ones(2)
-mc4Matrix[5,1] <- 1
-mc4Matrix[3,3] <- 1
-mc4Matrix[4,3:4] <- 0.5
-mc4 <- as(mc4Matrix,"markovchain")
-
-
 test_that("Test recurrent / transient / absorbing states for known Markov chains", {
-  expect_equal(recurrentClasses(mc2), list(c("s1","s2","s3","s4")))
-  expect_equal(recurrentClasses(mc3), list(c("s1","s2"),c("s4","s5","s6") ))
-  expect_equal(transientStates(mc3), "s3")
-  expect_equal(recurrentClasses(mc4), list(c("s1","s2"),c("s3")))
-  expect_equal(absorbingStates(mc4), "s3")
-  expect_equal(transientStates(mc4), c("s4","s5"))
+  expect_equal(recurrentClasses(mc1), list(c("s1","s2","s3","s4")))
+  expect_equal(recurrentClasses(mc2), list(c("s1","s2"),c("s4","s5","s6") ))
+  expect_equal(transientStates(mc2), "s3")
+  expect_equal(recurrentClasses(mc3), list(c("s1","s2"),c("s3")))
+  expect_equal(absorbingStates(mc3), "s3")
+  expect_equal(transientStates(mc3), c("s4","s5"))
   expect_equal(recurrentClasses(mchain), list(c("3", "4"), c("8")))
   expect_equal(transientStates(mchain), c("1", "2", "5", "6", "7"))
   expect_equal(absorbingStates(mchain), "8")
@@ -130,43 +122,6 @@ test_that("If there are transient states then Markov chain is not irreducible", 
     if (length(transient) > 0)
       expect_false(irreducible)
   }
-})
-
-
-context("Checking canonicForm and is.irreducible")
-
-
-test_that("Markov chain is irreducible iff there is a single communicating class", {
-  
-  for (mc in allMCs) {
-    states <- mc$states
-    commClasses  <- mc$communicatingClasses
-    numCommClasses <- length(commClasses)
-    irreducible <- mc$irreducible
-    
-    if (irreducible)
-      expect_equal(numCommClasses, 1)
-    if (numCommClasses == 1)
-      expect_true(irreducible)
-  }
-})
-
-
-test_that("If the matrix is irreducible then the canonic form equals the Markov chain", {
-  
-  for (mc in allMCs) {
-    canonic <- mc$canonicForm
-    irreducible <- mc$irreducible
-    canonicEqual <- canonic == mc$object
-    
-    if (irreducible)
-      expect_true(canonicEqual)
-  }
-})
-
-
-test_that("Check known Markov chain is irreducible", {
-  expect_true(is.irreducible(mc1))
 })
 
 

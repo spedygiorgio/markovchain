@@ -664,7 +664,7 @@ A_1 & A_2 & A_3 & \ldots & R
 
 where $M_i$ corresponds to irreducible subchains, the blocks $A_i$ correspond to the transitions from transient states to each of the recurrent classes and $R$ are the transitions from the transient states to themselves.
 
-Also, we should note that a Markov chain has exactly the same name of steady states as recurrent classes. Therefore, we have coded the following algorithm:
+Also, we should note that a Markov chain has exactly the same name of steady states as recurrent classes. Therefore, we have coded the following algorithm ^[We would like to thank Prof. Christophe Dutang for his contributions to the development of this method. He coded a first improvement of the original `steadyStates` method and we could not have reached the current correctness without his previous work]:
 
   1. Identify the recurrent classes $[C_1, \ldots, C_l]$ with \texttt{recurrentClasses} function.
   2. Take each class $C_i$, compute the submatrix corresponding to it $M_i$.
@@ -698,7 +698,6 @@ gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
 mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 steadyStates(mcGR4)
 ```
-
 
 ## Classification of states
 

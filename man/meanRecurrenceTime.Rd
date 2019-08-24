@@ -10,11 +10,11 @@ meanRecurrenceTime(object)
 \item{object}{the markovchain object}
 }
 \value{
-For a Markov chain its output is a named vector with the expected 
-  time to return to a state when the chain starts there.
+For a Markov chain it outputs is a named vector with the expected 
+  time to first return to a state when the chain starts there.
   States present in the vector are only the recurrent ones. If the matrix
   is ergodic (i.e. irreducible), then all states are present in the output
-  and order is the same for states of the Markov chain
+  and order is the same as states order for the Markov chain
 }
 \description{
 Computes the expected time to return to a recurrent state

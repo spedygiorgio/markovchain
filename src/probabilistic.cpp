@@ -1314,7 +1314,7 @@ NumericMatrix absorptionProbabilities(S4 obj) {
   if (!inv(fundamentalMatrix, toInvert))
     stop("Could not compute fundamental matrix");
   
-  // Compute the mean absorption probabilities as F* = N*P[recurrent, recurrent]
+  // Compute the mean absorption probabilities as F* = N*P[transient, recurrent]
   mat meanProbs = fundamentalMatrix * probs(transientIndices, recurrentIndices);
   NumericMatrix result = wrap(meanProbs);
   rownames(result) = transient;

@@ -23,7 +23,7 @@ m <- matrix(c(1/2, 1/2, 0,
               1/2, 1/2, 0,
                 0, 1/2, 1/2), ncol = 3, byrow = TRUE)
 mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
-meanAbsorptionTime(mc)
+times <- meanAbsorptionTime(mc)
 
 }
 \references{

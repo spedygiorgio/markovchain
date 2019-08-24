@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{absorptionProbabilities}
 \alias{absorptionProbabilities}
-\title{Absorption probability}
+\title{Absorption probabilities}
 \usage{
 absorptionProbabilities(object)
 }

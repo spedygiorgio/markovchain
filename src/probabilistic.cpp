@@ -1216,7 +1216,7 @@ NumericMatrix computeMeanAbsorptionTimes(mat& probs, CharacterVector& absorbing,
   int n = indicesToKeep.size();
   uvec indices(indicesToKeep);
   // Comppute N = 1 - Q
-  auto coeffs = eye(n, n) - probs(indices, indices);
+  mat coeffs = eye(n, n) - probs(indices, indices);
   vec rightPart = vec(n, fill::ones);
   mat meanTimes;
   

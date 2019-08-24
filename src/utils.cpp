@@ -25,7 +25,7 @@ mat matrixPow(const mat& A, int n) {
   // We can decompose n = 2^a + 2^b + 2^c ... with a > b > c >= 0
   // Compute last = a + 1
   while (n > 0) {
-    if (n & 1 > 0)
+    if ((n & 1) > 0)
       result = result + partial;
     
     partial = partial * partial;

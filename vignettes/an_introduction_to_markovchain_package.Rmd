@@ -708,49 +708,12 @@ absorbingStates(mcGR4)
 absorbingStates(mcWeather)
 ```
 
-The key function used within \cite{renaldoMatlab} (and \pkg{markovchain}'s derived functions) is `.commclassKernel`, that is called below.
+The key function in methods which need knowledge about communicating classes, recurrent states, transient 
+states, is `.commclassKernel`, which is a modification of Tarjan's algorithm from \cite{Tarjan}. This
+`.commclassKernel` method gets a transition matrix of dimension $n$ and returns a list of two items:
 
-```{r commclassKernel}
-.commClassesKernel <- function(P){
-  m <- ncol(P)
-	stateNames <- rownames(P)
-	T <- zeros(m) 
-	i <- 1
-	while (i <= m) { 
-		a <- i 
-		b <- zeros(1,m)
-		b[1,i] <- 1
-		old <- 1
-		new <- 0
-		while (old != new) {
-			old <- sum(find(b > 0))
-			n <- size(a)[2]
-			matr <- matrix(as.numeric(P[a,]), ncol = m, 
-                     nrow = n)
-			c <- colSums(matr)
-			d <- find(c)
-			n <- size(d)[2]
-			b[1,d] <- ones(1,n)
-			new <- sum(find(b>0))
-			a <- d
-		}
-		T[i,] <- b
-		i <- i+1 }
-	F <- t(T)  
-	C <- (T > 0)&(F > 0)
-	v <- (apply(t(C) == t(T), 2, sum) == m)
-	colnames(C) <- stateNames
-	rownames(C) <- stateNames
-	names(v) <- stateNames
-	out <- list(C = C, v = v)
-	return(out)
-}
-```
-
-The `.commclassKernel` function gets a transition matrix of dimension $n$ and return a list of two items:
-
-  1. `C`, an adjacency matrix showing for each state $s_{j}$ (in the row) which states lie in the same communicating class of $s_{j}$ (flagged with 1).
-  2. `v`, a binary vector indicating whether the state $s_{j}$ is transient (0) or not (1).
+  1. `classes`, an matrix whose $(i, j)$ entry is `true` iff $s_i$ and $s_j$ are in the same communicating class.
+  2. `closed`, a vector whose $i$ -th entry indicates whether the communicating class to which $i$ belongs is closed.
 
 These functions are used by two other internal functions on which the `summary` method for `markovchain` objects works.
 
@@ -772,7 +735,6 @@ rownames(P) <- letters[1:10]
 colnames(P) <- letters[1:10]
 probMc <- new("markovchain", transitionMatrix = P, 
               name = "Probability MC")
-.commClassesKernel(P)
 summary(probMc)
 ```
 
@@ -783,9 +745,8 @@ specific method has been written to elicit them.
 transientStates(probMc)
 ```
 
-
-
-Listings from \cite{renaldoMatlab} have been adapted into `canonicForm` method that turns a Markov chain into canonic form.
+`canonicForm` method that turns a Markov chain into its canonic form, reordering the states to have first the
+recurrent classes and then the transient states.
 
 ```{r probMc2Canonic}
 probMcCanonic <- canonicForm(probMc)

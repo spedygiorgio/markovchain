@@ -1,5 +1,6 @@
 #library(markovchain)
 library(etm)
+context("Checking conversion of objects to etm")
 
 data(sir.cont)
 

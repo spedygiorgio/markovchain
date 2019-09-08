@@ -1,8 +1,10 @@
 #library(markovchain)
-library(msm)
+library("msm")
+context("Checking conversion of objects to msm")
+
 
 # cav
-data(cav)
+cav <- msm::cav
 Q <- rbind ( c(0, 0.25, 0, 0.25),
              c(0.166, 0, 0.166, 0.166),
              c(0, 0.25, 0, 0.25),

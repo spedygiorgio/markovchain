@@ -30,73 +30,108 @@ bool allElements(const mat& matrix, bool (*condition)(const double&));
 // Declared in utils.cpp
 bool approxEqual(const cx_double& a, const cx_double& b);
 
-// [[Rcpp::export(.commClassesKernelRcpp)]]
-List commClassesKernel(NumericMatrix P) {
-  // The matrix must be stochastic by rows
-  unsigned int numStates = P.ncol();
-  CharacterVector stateNames = rownames(P);
-  int numReachable;
-  int classSize;
-  
-  // The entry (i,j) of this matrix is true iff we can reach j from i
-  vector<vector<bool>> communicates(numStates, vector<bool>(numStates, false));
-  vector<list<int>> adjacencies(numStates);
-  
-  // We fill the adjacencies matrix for the graph
-  // A state j is in the adjacency of i iff P(i, j) > 0
-  for (int i = 0; i < numStates; ++i)
-    for (int j = 0; j < numStates; ++j)
-      if (P(i, j) > 0)
-        adjacencies[i].push_back(j);
 
-
-  // Backtrack from all the states to find which
-  // states communicate with a given on
-  // O(n³) where n is the number of states
-  for (int i = 0; i < numStates; ++i) {
-    stack<int> notVisited;
-    notVisited.push(i);
-    
-    while (!notVisited.empty()) {
-      int j = notVisited.top();
-      notVisited.pop();
-      communicates[i][j] = true;
-      
-      for (int k: adjacencies[j])
-        if (!communicates[i][k])
-          notVisited.push(k);
+// Used in commClassesKernel
+void strongConnect(int v, vector<int>& disc, vector<int>& low, vector<int>& onStack,
+                   int& index, stack<int>& exploring, NumericMatrix& P, 
+                   vector<unordered_set<int>>& components, int numStates) {
+  
+  disc[v] = index;
+  low[v] = index;
+  ++index;
+  exploring.push(v);
+  onStack[v] = true;
+  
+  // For each edge (v, w) that goes out of v
+  for (int w = 0; w < numStates; ++w) {
+    if (P(v, w) > 0) {
+      // If w has not been visited yet, compute [w], and update
+      // the minimum node we can travel to from v
+      if (disc[w] == -1) {
+        strongConnect(w, disc, low, onStack, index, exploring, P, components, numStates);
+        low[v] = min(low[v], low[w]);
+      // Otherwise, if w is on the stack of nodes been explored,
+      // update the minimum node we can travel to from v
+      } else if (onStack[w]) {
+        low[v] = min(low[v], disc[w]);
+      }
+      // Otherwise, (v, w) is a cross edge between components 
+      // in the DFS tree, do nothing
     }
   }
   
+  // If v is the root of [v], unwind the strongly connected 
+  // component from the stack
+  if (low[v] == disc[v]) {
+    bool remaining = true;
+    unordered_set<int> component;
+    int w;
+    
+    while (remaining) {
+      w = exploring.top();
+      exploring.pop();
+      component.insert(w);
+      onStack[w] = false;
+      remaining = w != v;
+    }
+    
+    components.push_back(component);
+  }
+}
+
+// This method is based on Tarjan's algorithm to find strongly 
+// connected components in a directed graph: 
+// https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
+// to compute the communicating classes.
+// Output: 
+//      - classes: a matrix whose entry (i, j) is true iff i and 
+//                 j are in the same communicating class
+//      - closed: a vector whose i-th entry indicates whether the 
+//                 class [i] is closed
+//
+// [[Rcpp::export(.commClassesKernelRcpp)]]
+List commClassesKernel(NumericMatrix P) {
+  // The matrix must be stochastic by rows
+  int numStates = P.ncol();
+  vector<int> disc(numStates, -1);
+  vector<int> low(numStates, -1);
+  vector<int> onStack(numStates, false);
+  vector<unordered_set<int>> components;
+  stack<int> exploring;
+  int index = 0;
+  
+  // If the component [v] has not been computed yet
+  // (disc[v] == -1), compute it
+  for (int v  = 0; v < numStates; ++v) {
+     if (disc[v] == -1)
+       strongConnect(v, disc, low, onStack, index, exploring, P, components, numStates);
+  }  
+  
+  // Create the output data structures
+  CharacterVector stateNames = rownames(P);
   LogicalMatrix classes(numStates, numStates);
-  classes.attr("dimnames") = List::create(stateNames, stateNames);
-  // v populated with FALSEs
+  classes.attr("dimnames") = P.attr("dimnames");
+  std::fill(classes.begin(), classes.end(), false);
   LogicalVector closed(numStates);
   closed.names() = stateNames;
   
-  for (int i = 0; i < numStates; ++i) {
-    numReachable = 0;
-    classSize = 0;
+  for (auto component : components) {
+    bool isClosed = true;
     
-    /* We mark i and j as the same communicating class iff we can reach the
-       state j from i and the state i from j
-       We count the size of the communicating class of i (i is fixed here),
-       and if it matches the number of states that can be reached from i,
-       then the class is closed
-    */
-    for (int j = 0; j < numStates; ++j) {
-      classes(i, j) = communicates[i][j] && communicates[j][i];
-      
-      if (classes(i,j))
-        classSize += 1;
-
-      // Number of states reachable from i
-      if (communicates[i][j])
-        numReachable += 1;
+    // The class is closed iff there is no edge going out of the class
+    for (int i : component) {
+      for (int j = 0; j < numStates; ++j)
+        if (P(i, j) > 0 && component.count(j) == 0)
+          isClosed = false;
     }
     
-    if (classSize == numReachable)
-      closed(i) = true;
+    // Set the communicating matrix and whether it is closed or not
+    for (int i : component) {
+      closed(i) = isClosed;
+      
+      for (int j : component)
+        classes(i, j) = true;
+    }
   }
   
   return List::create(_["classes"] = classes, _["closed"] = closed);

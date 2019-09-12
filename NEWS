@@ -1,15 +1,3 @@
-2019-08-13 0.7.0
-* Adds the methods `recurrentStates` and `transientClasses`.
-* Adds `meanAbsorptionTime`, which computes the expected number of steps for a transient state to be absorbed by any recurrent class in the Markov chain.
-* Adds `absorptionProbabilities`, which computes the probability for a transient state of being absorbed by a recurrent one.
-* Adds `meanRecurrenceTime` as the expected number of steps that takes the chain to return to a given recurrent state.
-* Adds `meanNumVisits` to compute the expected number of visits when of the Markov chain to an state when it starts in a certain one.
-* Improves `steadyStates` method.
-* Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to Rcpp whenever possible and improving the algorithmic complexity of the code.
-* Ports `meanFirstPassageTime` to Rcpp.
-* Improves tests, adding checking of mathematical structural properties and hundreds of random test cases.
-* Revisits most methods for DTMCs to actually work on by column Markov chains.
-* Improves is.accessible performance with `from` and `to` as parameters: from former O(n⁴) with n the number of states to O(n²).
-* Adds is.accessible without parameters, which outputs the reachability matrix for the Markov chain.
-* Fixes documentation for `roxygen` and NAMESPACE file for automatic generation using `devtools::document()`
-* Bumps Ignacio Cordón as author (ORCID included)
+2019-09-12 0.8.0
+* Implements Tarjan's algorithm (optimal one) for `commClassesKernelRcpp`. That increase of computational complexity cascades to `recurrentClasses`, `transientClasses`, `recurrentStates`, `transientStates`, `steadyStates`, ...
+* Solves noLD problems with the vignette

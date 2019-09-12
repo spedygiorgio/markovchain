@@ -437,10 +437,10 @@ plot(mcWeather, package="diagram", box.size = 0.04)
 
 If one would like to use the \pkg{MmgraphR} package [@pkg:MmgraphR] to plot the transition matric, the following code shows how to do:
 
-```{r MmgraphR_plot, echo=TRUE}
+```{r MmgraphR_plot, echo=TRUE, warning=FALSE, message=FALSE}
 library("MmgraphR")
-stochastic_matrix_to_plot <- as(mcWeather,"matrix")
-trmatplot(stochastic_matrix_to_plot,main="Weather MC plot using MmgraphR")
+stochastic_matrix_to_plot <- as(mcWeather, "matrix")
+trmatplot(stochastic_matrix_to_plot, main = "Weather MC plot using MmgraphR", rowconstraint = FALSE)
 ```
 
 

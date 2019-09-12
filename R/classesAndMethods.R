@@ -476,26 +476,18 @@ setValidity(
       errors <- c(errors, msg)
     }
     
-    # Rows sum or columns sum = 1
-    if (object@byrow) {
-      absdiff     <- abs(1 - zapsmall(rowSums(transitionMatrix)))
-      matrixShape <- "rows"
-    } else { 
-      absdiff     <- abs(1 - zapsmall(colSums(transitionMatrix)))
-      matrixShape <- "columns"
-    }
-
-    if(any(absdiff > .Machine$double.eps*100)) {
-      wrongIndexes <- which(absdiff > .Machine$double.eps*100)
-      msg <- paste("Error! Following", matrixShape,
-                   "of transitionMatrix do not sum one: ",
-                   toString(wrongIndexes))
-      errors <- c(errors, msg)
-    }
-
     # Check whether matrix is square matrix or not
     if (nrow(transitionMatrix) != ncol(transitionMatrix)) {
       msg    <- "Error! transitionMatrix is not a square matrix"
+      errors <- c(errors, msg)
+    }
+    
+    if (!.checkMatrix(transitionMatrix, object@byrow)) {
+      msg <- paste(
+               paste("Error!", 
+               ifelse(object@byrow, "Rows", "Cols")),
+               "of transition matrix do not some one"
+             )
       errors <- c(errors, msg)
     }
     
@@ -698,7 +690,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 	
   # firstly, check size
 	if (ncol(matr) != nrow(matr)) {
-		if(verbose) stop("Error! Rectangular matrix")
+		if(verbose) stop("Error! Not a rectangular matrix")
 		return(FALSE)
 	}
   

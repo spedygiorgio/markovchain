@@ -8,11 +8,13 @@
 
 <title>Mean First Passage Time for irreducible Markov chains — meanFirstPassageTime • markovchain</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,11 +34,12 @@
 
 
 
-<meta property="og:title" content="Mean First Passage Time for irreducible Markov chains — meanFirstPassageTime" />
 
+<meta property="og:title" content="Mean First Passage Time for irreducible Markov chains — meanFirstPassageTime" />
 <meta property="og:description" content="Given an irreducible (ergodic) markovchain object, this function
   calculates the expected number of steps to reach other states" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -67,7 +70,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.1</span>
       </span>
     </div>
 
@@ -104,7 +107,6 @@
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/spedygiorgio/markovchain">
@@ -131,14 +133,12 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Given an irreducible (ergodic) markovchain object, this function
   calculates the expected number of steps to reach other states</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>meanFirstPassageTime</span>(<span class='no'>object</span>, <span class='no'>destination</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -152,12 +152,11 @@
 which we want to compute the mean first passage time. Empty by default</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a Matrix of the same size with the average first passage times if
   destination is empty, a vector if destination is not</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>For an ergodic Markov chain it computes:</p><ul>
@@ -169,12 +168,10 @@ which we want to compute the mean first passage time. Empty by default</p></td>
   remaining states to reach the states in <code>destination</code></p></li>
 </ul>
 
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>1</span> / <span class='fl'>10</span> * <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>,<span class='fl'>3</span>,<span class='fl'>1</span>,
@@ -200,13 +197,9 @@ American Mathematical Soc., 2012.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
       <li><a href="#references">References</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -222,7 +215,7 @@ American Mathematical Soc., 2012.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

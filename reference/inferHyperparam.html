@@ -8,11 +8,13 @@
 
 <title>Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set — inferHyperparam • markovchain</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,8 +34,8 @@
 
 
 
-<meta property="og:title" content="Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set — inferHyperparam" />
 
+<meta property="og:title" content="Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set — inferHyperparam" />
 <meta property="og:description" content="Since the Bayesian inference approach implemented in the package is based on conjugate priors, 
              hyperparameters must be provided to model the prior probability distribution of the chain 
              parameters. The hyperparameters are inferred from a given a priori matrix under the assumption 
@@ -41,6 +43,7 @@
              scaling factor vector must be provided too. Alternatively, the hyperparameters can be inferred 
              from a data set." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -71,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.1</span>
       </span>
     </div>
 
@@ -108,7 +111,6 @@
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/spedygiorgio/markovchain">
@@ -135,19 +137,17 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Since the Bayesian inference approach implemented in the package is based on conjugate priors, 
              hyperparameters must be provided to model the prior probability distribution of the chain 
              parameters. The hyperparameters are inferred from a given a priori matrix under the assumption 
              that the matrix provided corresponds to the mean (expected) values of the chain parameters. A 
              scaling factor vector must be provided too. Alternatively, the hyperparameters can be inferred 
              from a data set.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>inferHyperparam</span>(<span class='kw'>transMatr</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(), <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>numeric</a></span>(),
   <span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/character.html'>character</a></span>())</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -165,29 +165,24 @@ matrix transMatr, in the same order.</p></td>
       <td><p>A data set from which the hyperparameters are inferred.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Returns the hyperparameter matrix in a list.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>transMatr and scale need not be provided if data is provided.</p>
-    
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, 
       and the elements in the matrix are correspondingly permuted.</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
             package version 0.2.5</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='markovchainFit.html'>markovchainFit</a></code>, <code><a href='predictiveDistribution.html'>predictiveDistribution</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>rain</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"markovchain"</span>)
@@ -215,17 +210,11 @@ matrix transMatr, in the same order.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
       <li><a href="#note">Note</a></li>
-
       <li><a href="#references">References</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -241,7 +230,7 @@ matrix transMatr, in the same order.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

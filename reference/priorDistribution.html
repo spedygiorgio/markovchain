@@ -8,11 +8,13 @@
 
 <title>priorDistribution — priorDistribution • markovchain</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,12 +34,13 @@
 
 
 
-<meta property="og:title" content="priorDistribution — priorDistribution" />
 
+<meta property="og:title" content="priorDistribution — priorDistribution" />
 <meta property="og:description" content="Function to evaluate the prior probability of a transition
   matrix. It is based on conjugate priors and therefore a Dirichlet
   distribution is used to model the transitions of each state." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -68,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.1</span>
       </span>
     </div>
 
@@ -105,7 +108,6 @@
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/spedygiorgio/markovchain">
@@ -132,15 +134,13 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Function to evaluate the prior probability of a transition
   matrix. It is based on conjugate priors and therefore a Dirichlet
   distribution is used to model the transitions of each state.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>priorDistribution</span>(<span class='no'>transMatr</span>, <span class='kw'>hyperparam</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>())</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -156,19 +156,17 @@ default value of 1 is assumed for each and therefore the resulting
 probability distribution is uniform.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The log of the probabilities for each state is returned in a numeric
   vector. Each number in the vector represents the probability (log) of
   having a probability transition vector as specified in corresponding the
   row of the transition matrix.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The states (dimnames) of the transition matrix and the hyperparam
   may be in any order.</p>
-    
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>This function can be used in conjunction with inferHyperparam. For
@@ -176,16 +174,13 @@ probability distribution is uniform.</p></td>
   he can infer the hyperparameters using inferHyperparam and then compute
   the probability of their prior matrix using the inferred hyperparameters
   with priorDistribution.</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First
 Order Markov Chains. R package version 0.2.5</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='predictiveDistribution.html'>predictiveDistribution</a></code>, <code><a href='inferHyperparam.html'>inferHyperparam</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>priorDistribution</span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>),
@@ -200,17 +195,11 @@ Order Markov Chains. R package version 0.2.5</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
       <li><a href="#note">Note</a></li>
-
       <li><a href="#references">References</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -226,7 +215,7 @@ Order Markov Chains. R package version 0.2.5</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

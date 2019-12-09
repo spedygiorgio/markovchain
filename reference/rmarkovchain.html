@@ -8,11 +8,13 @@
 
 <title>Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains. — rmarkovchain • markovchain</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,11 +34,12 @@
 
 
 
-<meta property="og:title" content="Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains. — rmarkovchain" />
 
+<meta property="og:title" content="Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains. — rmarkovchain" />
 <meta property="og:description" content="Provided any markovchain or markovchainList objects, it returns a sequence of 
 states coming from the underlying stationary distribution." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -67,7 +70,7 @@ states coming from the underlying stationary distribution." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.1</span>
       </span>
     </div>
 
@@ -104,7 +107,6 @@ states coming from the underlying stationary distribution." />
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/spedygiorgio/markovchain">
@@ -131,15 +133,13 @@ states coming from the underlying stationary distribution." />
     </div>
 
     <div class="ref-description">
-    
     <p>Provided any <code>markovchain</code> or <code>markovchainList</code> objects, it returns a sequence of 
 states coming from the underlying stationary distribution.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>rmarkovchain</span>(<span class='no'>n</span>, <span class='no'>object</span>, <span class='kw'>what</span> <span class='kw'>=</span> <span class='st'>"data.frame"</span>, <span class='kw'>useRCpp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>num.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -173,30 +173,25 @@ states coming from the underlying stationary distribution.</p>
       <td><p>additional parameters passed to the internal sampler</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>Character Vector, data.frame, list or matrix</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When a homogeneous process is assumed (<code>markovchain</code> object) a sequence is 
 sampled of size n. When a non - homogeneous process is assumed,
 n samples are taken but the process is assumed to last from the begin to the end of the 
 non-homogeneous markov process.</p>
-    
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>Check the type of input</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='markovchainFit.html'>markovchainFit</a></code>, <code><a href='markovchainSequence.html'>markovchainSequence</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># define the markovchain object</span>
@@ -529,17 +524,11 @@ non-homogeneous markov process.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-
       <li><a href="#note">Note</a></li>
-
       <li><a href="#references">References</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -555,7 +544,7 @@ non-homogeneous markov process.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

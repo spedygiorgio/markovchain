@@ -597,13 +597,13 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   
   # check the format of input data
-  if (!any((class(data) %in% c("data.frame", "matrix", "list")))) {
+  if (!any(is.list(data),is.data.frame(data),is.matrix(data))) {
     stop("Error: data must be either a matrix or a data.frame or a list")
   }
   
   freqMatrixes <- list() 
   
-  if(class(data) == "list") {
+  if(is.list(data) == TRUE) {
     markovchains <- list()
     # list of frquency matrix
     freqMatrixes <- .mcListFitForList(data)

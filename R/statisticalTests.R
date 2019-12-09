@@ -485,7 +485,7 @@ verifyHomogeneity<-function(inputList, verbose = TRUE) {
   #checks whether all inputs can be put as transition matrices
   
   for (i in 1:length(inputList)) {
-    if (class(inputList[[i]]) == 'matrix') {
+    if (is.matrix(inputList[[i]]) == TRUE) {
       checks<-.checkMatrix4Homogeneity(inputList[[i]])
       if (!checks) stop("Error! Element ", i, " to be checked")
     } else {

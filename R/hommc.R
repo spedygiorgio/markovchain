@@ -237,7 +237,7 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   
   message("This function is experimental")
   
-  if(class(seqMat) == "data.frame") {
+  if(is.data.frame(seqMat) == TRUE) {
     seqMat <- as.matrix(seqMat)
   }
   

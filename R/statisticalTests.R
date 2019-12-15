@@ -50,8 +50,6 @@
 #' assessOrder(sequence)
 #' assessStationarity(sequence, 1)
 #' 
-
-#' @rdname statisticalTests
 #' 
 #' @export
 

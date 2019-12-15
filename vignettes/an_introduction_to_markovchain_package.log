@@ -1,0 +1,2108 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2019.12.15)  15 DEC 2019 19:02
+entering extended mode
+**Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pa
+ckage.tex
+
+(Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage.tex
+LaTeX2e <2019-10-01> patch level 3
+(jss.cls
+Document Class: jss 2015/09/01 3.0 jss class by Achim Zeileis
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\article.cls"
+Document Class: article 2019/10/25 v1.4k Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\size11.clo"
+File: size11.clo 2019/10/25 v1.4k Standard LaTeX file (size option)
+)
+\c@part=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\graphicx.sty"
+Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\keyval.sty"
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks14
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\graphics.sty"
+Package: graphics 2019/11/01 v1.3d Standard LaTeX Graphics (DPC,SPQR)
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\trig.sty"
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/graphics-cfg\graphics.cf
+g
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 105.
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2016/07/10 v0.06j Graphics/color for pdfTeX
+
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/infwarerr\infwarerr.st
+y
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+) ("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\ltxcmds.sty"
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count88
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\color.sty"
+Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package color Info: Driver file: pdftex.def on input line 147.
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/ae\ae.sty"
+Package: ae 2001/02/12 1.3 Almost European Computer Modern
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\fontenc.sty"
+Package: fontenc 2018/08/11 v2.0j Standard LaTeX package
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\t1enc.def"
+File: t1enc.def 2018/08/11 v2.0j Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+)
+LaTeX Font Info:    Trying to load font information for T1+aer on input line 10
+5.
+("C:\Program Files\MiKTeX 2.9\tex/latex/ae\t1aer.fd"
+File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
+))) (C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/fancyvrb\fancyvrb.st
+y
+Package: fancyvrb 2008/02/07
+
+Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix 
+<2008/02/07> (tvz)
+\FV@CodeLineNo=\count89
+\FV@InFile=\read1
+\FV@TabBox=\box27
+\c@FancyVerbLine=\count90
+\FV@StepNumber=\count91
+\FV@OutFile=\write3
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/base\fontenc.sty"
+Package: fontenc 2018/08/11 v2.0j Standard LaTeX package
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\t1enc.def"
+File: t1enc.def 2018/08/11 v2.0j Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+)) (C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/upquote\upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\textcomp.sty"
+Package: textcomp 2018/08/11 v2.0j Standard LaTeX package
+Package textcomp Info: Sub-encoding information:
+(textcomp)               5 = only ISO-Adobe without \textcurrency
+(textcomp)               4 = 5 + \texteuro
+(textcomp)               3 = 4 + \textohm
+(textcomp)               2 = 3 + \textestimated + \textcurrency
+(textcomp)               1 = TS1 - \textcircled - \t
+(textcomp)               0 = TS1 (full)
+(textcomp)             Font families with sub-encoding setting implement
+(textcomp)             only a restricted character set as indicated.
+(textcomp)             Family '?' is the default used for unknown fonts.
+(textcomp)             See the documentation for details.
+Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 79.
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\ts1enc.def"
+File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
+Now handling font encoding TS1 ...
+... processing UTF-8 mapping file for font encoding TS1
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\ts1enc.dfu"
+File: ts1enc.dfu 2019/07/11 v1.2j UTF-8 support for inputenc
+   defining Unicode char U+00A2 (decimal 162)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00A4 (decimal 164)
+   defining Unicode char U+00A5 (decimal 165)
+   defining Unicode char U+00A6 (decimal 166)
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00A8 (decimal 168)
+   defining Unicode char U+00A9 (decimal 169)
+   defining Unicode char U+00AA (decimal 170)
+   defining Unicode char U+00AC (decimal 172)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+00AF (decimal 175)
+   defining Unicode char U+00B0 (decimal 176)
+   defining Unicode char U+00B1 (decimal 177)
+   defining Unicode char U+00B2 (decimal 178)
+   defining Unicode char U+00B3 (decimal 179)
+   defining Unicode char U+00B4 (decimal 180)
+   defining Unicode char U+00B5 (decimal 181)
+   defining Unicode char U+00B6 (decimal 182)
+   defining Unicode char U+00B7 (decimal 183)
+   defining Unicode char U+00B9 (decimal 185)
+   defining Unicode char U+00BA (decimal 186)
+   defining Unicode char U+00BC (decimal 188)
+   defining Unicode char U+00BD (decimal 189)
+   defining Unicode char U+00BE (decimal 190)
+   defining Unicode char U+00D7 (decimal 215)
+   defining Unicode char U+00F7 (decimal 247)
+   defining Unicode char U+0192 (decimal 402)
+   defining Unicode char U+02C7 (decimal 711)
+   defining Unicode char U+02D8 (decimal 728)
+   defining Unicode char U+02DD (decimal 733)
+   defining Unicode char U+0E3F (decimal 3647)
+   defining Unicode char U+2016 (decimal 8214)
+   defining Unicode char U+2020 (decimal 8224)
+   defining Unicode char U+2021 (decimal 8225)
+   defining Unicode char U+2022 (decimal 8226)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2031 (decimal 8241)
+   defining Unicode char U+203B (decimal 8251)
+   defining Unicode char U+203D (decimal 8253)
+   defining Unicode char U+2044 (decimal 8260)
+   defining Unicode char U+204E (decimal 8270)
+   defining Unicode char U+2052 (decimal 8274)
+   defining Unicode char U+20A1 (decimal 8353)
+   defining Unicode char U+20A4 (decimal 8356)
+   defining Unicode char U+20A6 (decimal 8358)
+   defining Unicode char U+20A9 (decimal 8361)
+   defining Unicode char U+20AB (decimal 8363)
+   defining Unicode char U+20AC (decimal 8364)
+   defining Unicode char U+20B1 (decimal 8369)
+   defining Unicode char U+2103 (decimal 8451)
+   defining Unicode char U+2116 (decimal 8470)
+   defining Unicode char U+2117 (decimal 8471)
+   defining Unicode char U+211E (decimal 8478)
+   defining Unicode char U+2120 (decimal 8480)
+   defining Unicode char U+2122 (decimal 8482)
+   defining Unicode char U+2126 (decimal 8486)
+   defining Unicode char U+2127 (decimal 8487)
+   defining Unicode char U+212E (decimal 8494)
+   defining Unicode char U+2190 (decimal 8592)
+   defining Unicode char U+2191 (decimal 8593)
+   defining Unicode char U+2192 (decimal 8594)
+   defining Unicode char U+2193 (decimal 8595)
+   defining Unicode char U+2329 (decimal 9001)
+   defining Unicode char U+232A (decimal 9002)
+   defining Unicode char U+2422 (decimal 9250)
+   defining Unicode char U+25E6 (decimal 9702)
+   defining Unicode char U+25EF (decimal 9711)
+   defining Unicode char U+266A (decimal 9834)
+   defining Unicode char U+27E8 (decimal 10216)
+   defining Unicode char U+27E9 (decimal 10217)
+   defining Unicode char U+FEFF (decimal 65279)
+))
+LaTeX Info: Redefining \oldstylenums on input line 334.
+Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 349.
+Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 350.
+Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 351.
+Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 352.
+Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 353.
+Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 354.
+Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 355.
+Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 356.
+Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 357.
+Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 358.
+Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 359.
+Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 360.
+Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 361.
+Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 362.
+Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 363.
+Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 364.
+Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 365.
+Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 366.
+Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 367.
+Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 368.
+Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 369.
+Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 370.
+Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 371.
+Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 372.
+
+Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 373.
+Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 374.
+Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 375.
+Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 376.
+Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 377.
+Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 378.
+Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 379.
+Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 380.
+Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 381.
+Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 382.
+Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 383.
+Package textcomp Info: Setting lmtt sub-encoding to TS1/0 on input line 384.
+Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 385.
+Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 386.
+Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 387.
+Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 388.
+Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 389.
+Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 390.
+Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 391.
+Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 392.
+Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 393.
+Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 394.
+Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 395.
+Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 396.
+Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 397.
+Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 398.
+Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 399.
+Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 400.
+Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 401.
+Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 402.
+Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 403.
+Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 404.
+Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 405.
+Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
+Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
+Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
+Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
+)) (C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/natbib\natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip43
+\bibsep=\skip44
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count92
+)
+\footerskip=\skip45
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\hyperref.sty"
+Package: hyperref 2019/11/10 v7.00c Hypertext links for LaTeX
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/iftex\iftex.sty
+Package: iftex 2019/11/07 v1.0c TeX engine tests
+)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/pdftexcmds\pdftexcmds.st
+y
+Package: pdftexcmds 2019/11/24 v0.31 Utility functions of pdfTeX for LuaTeX (HO
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+) ("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\kvsetkeys.sty"
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\etexcmds.sty"
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/iftex\ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+))) ("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\kvdefinekeys.sty"
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/pdfescape\pdfescape.st
+y
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\hycolor.sty"
+Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\xcolor-patch.sty"
+Package: xcolor-patch 2016/05/16 xcolor patch
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\hopatch.sty"
+Package: hopatch 2016/05/16 v1.3 Wrapper for package hooks (HO)
+)))
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/letltxmacro\letltxmacro.
+sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\auxhook.sty"
+Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
+) (C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/kvoptions\kvoptions.st
+y
+Package: kvoptions 2019/11/29 v3.13 Key value format for package options (HO)
+)
+\@linkdim=\dimen105
+\Hy@linkcounter=\count93
+\Hy@pagecounter=\count94
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\pd1enc.def"
+File: pd1enc.def 2019/11/10 v7.00c Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) ("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\intcalc.sty"
+Package: intcalc 2016/05/16 v1.2 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count95
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/00miktex\hyperref.cfg
+File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
+)
+Package hyperref Info: Hyper figures OFF on input line 4535.
+Package hyperref Info: Link nesting OFF on input line 4540.
+Package hyperref Info: Hyper index ON on input line 4543.
+Package hyperref Info: Plain pages OFF on input line 4550.
+Package hyperref Info: Backreferencing OFF on input line 4555.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4788.
+\c@Hy@tempcnt=\count96
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/url\url.sty
+\Urlmuskip=\muskip10
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 5147.
+\XeTeXLinkMargin=\dimen106
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\bigintcalc.sty"
+Package: bigintcalc 2016/05/16 v1.4 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count97
+\Field@Width=\dimen107
+\Fld@charsize=\dimen108
+Package hyperref Info: Hyper figures OFF on input line 6418.
+Package hyperref Info: Link nesting OFF on input line 6423.
+Package hyperref Info: Hyper index ON on input line 6426.
+Package hyperref Info: backreferencing OFF on input line 6433.
+Package hyperref Info: Link coloring OFF on input line 6438.
+Package hyperref Info: Link coloring with OCG OFF on input line 6443.
+Package hyperref Info: PDF/A mode OFF on input line 6448.
+LaTeX Info: Redefining \ref on input line 6488.
+LaTeX Info: Redefining \pageref on input line 6492.
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/generic/atbegshi\atbegshi.sty
+Package: atbegshi 2019/12/05 v1.19 At begin shipout hook (HO)
+)
+\Hy@abspage=\count98
+\c@Item=\count99
+\c@Hfootnote=\count100
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\hpdftex.def"
+File: hpdftex.def 2019/11/10 v7.00c Hyperref driver for pdfTeX
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/atveryend\atveryend.sty
+Package: atveryend 2019-12-11 v1.11 Hooks at the very end of document (HO)
+Package atveryend Info: \enddocument detected (standard20110627).
+)
+\Fld@listcount=\count101
+\c@bookmark@seq@number=\count102
+
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/rerunfilecheck\rerunfile
+check.sty
+Package: rerunfilecheck 2019/12/05 v1.9 Rerun checks for auxiliary files (HO)
+("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\uniquecounter.sty"
+Package: uniquecounter 2016/05/16 v1.3 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+86.
+)
+\Hy@SectionHShift=\skip46
+)
+\preXLskip=\skip47
+\preLskip=\skip48
+\preMskip=\skip49
+\preSskip=\skip50
+\postMskip=\skip51
+\postSskip=\skip52
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 466.
+
+Package hyperref Info: Option `colorlinks' set `true' on input line 466.
+Package hyperref Info: Option `linktocpage' set `true' on input line 466.
+Package hyperref Info: Option `plainpages' set `false' on input line 466.
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/base\inputenc.sty"
+Package: inputenc 2018/08/11 v1.3c Input encoding file
+\inpenc@prehook=\toks15
+\inpenc@posthook=\toks16
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsmath.sty"
+Package: amsmath 2019/11/16 v2.17d AMS math features
+\@mathmargin=\skip53
+For additional information on amsmath, use the `?' option.
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amstext.sty"
+Package: amstext 2000/06/29 v2.01 AMS text
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks17
+\ex@=\dimen109
+)) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen110
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsopn.sty"
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count103
+LaTeX Info: Redefining \frac on input line 227.
+\uproot@=\count104
+\leftroot@=\count105
+LaTeX Info: Redefining \overline on input line 389.
+\classnum@=\count106
+\DOTSCASE@=\count107
+LaTeX Info: Redefining \ldots on input line 486.
+LaTeX Info: Redefining \dots on input line 489.
+LaTeX Info: Redefining \cdots on input line 610.
+\Mathstrutbox@=\box28
+\strutbox@=\box29
+\big@size=\dimen111
+LaTeX Font Info:    Redeclaring font encoding OML on input line 733.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
+\macc@depth=\count108
+\c@MaxMatrixCols=\count109
+\dotsspace@=\muskip11
+\c@parentequation=\count110
+\dspbrk@lvl=\count111
+\tag@help=\toks18
+\row@=\count112
+\column@=\count113
+\maxfields@=\count114
+\andhelp@=\toks19
+\eqnshift@=\dimen112
+\alignsep@=\dimen113
+\tagshift@=\dimen114
+\tagwidth@=\dimen115
+\totwidth@=\dimen116
+\lineht@=\dimen117
+\@envbody=\toks20
+\multlinegap=\skip54
+\multlinetaggap=\skip55
+\mathdisplay@stack=\toks21
+LaTeX Info: Redefining \[ on input line 2858.
+LaTeX Info: Redefining \] on input line 2859.
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/tools\longtable.sty"
+Package: longtable 2019/02/06 v4.12 Multi-page Table package (DPC)
+\LTleft=\skip56
+\LTright=\skip57
+\LTpre=\skip58
+\LTpost=\skip59
+\LTchunksize=\count115
+\LTcapwidth=\dimen118
+\LT@head=\box30
+\LT@firsthead=\box31
+\LT@foot=\box32
+\LT@lastfoot=\box33
+\LT@cols=\count116
+\LT@rows=\count117
+\c@LT@tables=\count118
+\c@LT@chunks=\count119
+\LT@p@ftn=\toks22
+) (C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2005/04/14 v1.61803 publication quality tables
+\heavyrulewidth=\dimen119
+\lightrulewidth=\dimen120
+\cmidrulewidth=\dimen121
+\belowrulesep=\dimen122
+\belowbottomsep=\dimen123
+\aboverulesep=\dimen124
+\abovetopsep=\dimen125
+\cmidrulesep=\dimen126
+\cmidrulekern=\dimen127
+\defaultaddspace=\dimen128
+\@cmidla=\count120
+\@cmidlb=\count121
+\@aboverulesep=\dimen129
+\@belowrulesep=\dimen130
+\@thisruleclass=\count122
+\@lastruleclass=\count123
+\@thisrulewidth=\dimen131
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\amsfonts.sty"
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+) (an_introduction_to_markovchain_package.aux)
+\openout1 = `an_introduction_to_markovchain_package.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 73.
+LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 7
+3.
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\ts1cmr.fd"
+File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 73.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 73.
+LaTeX Font Info:    ... okay on input line 73.
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/context/base\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count124
+\scratchdimen=\dimen132
+\scratchbox=\box34
+\nofMPsegments=\count125
+\nofMParguments=\count126
+\everyMPshowfont=\toks23
+\MPscratchCnt=\count127
+\MPscratchDim=\dimen133
+\MPnumerator=\count128
+\makeMPintoPDFobject=\count129
+\everyMPtoPDFconversion=\toks24
+)
+(C:\Users\giorgio\AppData\Roaming\MiKTeX\2.9\tex/latex/epstopdf-pkg\epstopdf-ba
+se.sty
+Package: epstopdf-base 2019-12-09 v2.10 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+)
+\AtBeginShipoutBox=\box35
+Package hyperref Info: Link coloring ON on input line 73.
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\nameref.sty"
+Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\refcount.sty"
+Package: refcount 2016/05/16 v3.5 Data extraction from label references (HO)
+) ("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\gettitlestring.sty"
+Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
+)
+\c@section@level=\count130
+)
+LaTeX Info: Redefining \ref on input line 73.
+LaTeX Info: Redefining \pageref on input line 73.
+LaTeX Info: Redefining \nameref on input line 73.
+(an_introduction_to_markovchain_package.out) (an_introduction_to_markovchain_pa
+ckage.out)
+\@outlinefile=\write4
+\openout4 = `an_introduction_to_markovchain_package.out'.
+
+LaTeX Font Info:    Trying to load font information for T1+aess on input line 7
+3.
+("C:\Program Files\MiKTeX 2.9\tex/latex/ae\t1aess.fd"
+File: t1aess.fd 1997/11/16 Font definitions for T1/aess.
+)
+LaTeX Font Info:    Trying to load font information for U+msa on input line 73.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 73.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Trying to load font information for TS1+aer on input line 8
+3.
+LaTeX Font Info:    No file TS1aer.fd. on input line 83.
+
+LaTeX Font Warning: Font shape `TS1/aer/m/n' undefined
+(Font)              using `TS1/cmr/m/n' instead
+(Font)              for symbol `textbullet' on input line 83.
+
+LaTeX Font Info:    Trying to load font information for T1+aett on input line 9
+4.
+("C:\Program Files\MiKTeX 2.9\tex/latex/ae\t1aett.fd"
+File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
+) [1
+
+{C:/Users/giorgio/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+Overfull \hbox (9.90729pt too wide) in paragraph at lines 120--121
+[]\T1/aer/m/n/10.95 The pro-ba-bi-lity of mo-ving from state $\OML/cmm/m/it/10.
+95 i$ \T1/aer/m/n/10.95 to $\OML/cmm/m/it/10.95 j$ \T1/aer/m/n/10.95 in $\OML/c
+mm/m/it/10.95 n$ \T1/aer/m/n/10.95 steps is de-no-ted by $\OML/cmm/m/it/10.95 p
+[] \OT1/cmr/m/n/10.95 = \OML/cmm/m/it/10.95 Pr []$\T1/aer/m/n/10.95 . 
+ []
+
+LaTeX Font Info:    Font shape `T1/aer/b/sl' in size <10.95> not available
+(Font)              Font shape `T1/aer/bx/sl' tried instead on input line 142.
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 2 []
+ []
+
+[2]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 3
+ []
+
+[3]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 4 []
+ []
+
+[4]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 5
+ []
+
+[5]
+LaTeX Font Info:    Trying to load font information for TS1+aett on input line 
+291.
+LaTeX Font Info:    No file TS1aett.fd. on input line 291.
+
+LaTeX Font Warning: Font shape `TS1/aett/m/n' undefined
+(Font)              using `TS1/cmr/m/n' instead
+(Font)              for symbol `textquotesingle' on input line 291.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 6 []
+ []
+
+[6]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 7
+ []
+
+[7]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 8 []
+ []
+
+[8]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 9
+ []
+
+[9]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 10 []
+ []
+
+[10]
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/mcPlot-1.pdf, id=413, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/mcPlot-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mcPlot-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf used on input line
+ 687.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/mcPlotdiagram-1.pdf, id=414, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/mcPlotdiagram-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mcPlotdiagram-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf used on inp
+ut line 698.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/MmgraphR_plot-1.pdf, id=417, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/MmgraphR_plot-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/MmgraphR_plot-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/MmgraphR_plot-1.pdf used on inp
+ut line 717.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 11
+ []
+
+[11]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 12 []
+ []
+
+[12 <Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mcPlot-1.pdf> <Z:/TEMP/RtmpWmjhtz/preview-2114402b4
+b8d.dir/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram
+-1.pdf>]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 13
+ []
+
+[13 <Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/MmgraphR_plot-1.pdf>]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 14 []
+ []
+
+[14]
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/fromAndTo-1.pdf, id=456, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/fromAndTo-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/fromAndTo-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf used on input l
+ine 840.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 15
+ []
+
+[15 <Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/fromAndTo-1.pdf>]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 16 []
+ []
+
+[16]
+Overfull \hbox (1.86595pt too wide) in paragraph at lines 969--982
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 17
+ []
+
+[17]
+Overfull \hbox (22.74673pt too wide) in paragraph at lines 1013--1042
+ [][] 
+ []
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 18 []
+ []
+
+[18]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 19
+ []
+
+[19]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 20 []
+ []
+
+[20]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 21
+ []
+
+[21]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 22 []
+ []
+
+[22]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 23
+ []
+
+[23]
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/mcMathematics-1.pdf, id=564, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/mcMathematics-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mcMathematics-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf used on inp
+ut line 1388.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 24 []
+ []
+
+[24 <Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mcMathematics-1.pdf>]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 25
+ []
+
+[25]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 26 []
+ []
+
+[26]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 27
+ []
+
+[27]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 28 []
+ []
+
+[28]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 29
+ []
+
+[29]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 30 []
+ []
+
+[30]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 31
+ []
+
+[31]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 32 []
+ []
+
+[32]
+Overfull \hbox (15.99129pt too wide) in paragraph at lines 1974--1976
+[]\T1/aer/m/n/10.95 apply MLE es-ti-ma-tion on boot-s-trap-ped data se-quen-ces
+ that are sa-ved in \T1/aett/m/n/10.95 bootStrapSamples
+ []
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 33
+ []
+
+[33]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 34 []
+ []
+
+[34]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 35
+ []
+
+[35]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 36 []
+ []
+
+[36]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 37
+ []
+
+[37]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 38 []
+ []
+
+[38]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 39
+ []
+
+[39]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 40 []
+ []
+
+[40]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 41
+ []
+
+[41]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 42 []
+ []
+
+[42]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 43
+ []
+
+[43]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 44 []
+ []
+
+[44]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 45
+ []
+
+[45]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 46 []
+ []
+
+[46]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 47
+ []
+
+[47]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 48 []
+ []
+
+[48]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 49
+ []
+
+[49]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 50 []
+ []
+
+[50]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 51
+ []
+
+[51]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 52 []
+ []
+
+[52]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 53
+ []
+
+[53]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 54 []
+ []
+
+[54]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 55
+ []
+
+[55]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 56 []
+ []
+
+[56]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 57
+ []
+
+[57]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 58 []
+ []
+
+[58]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 59
+ []
+
+[59]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 60 []
+ []
+
+[60]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 61
+ []
+
+[61]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 62 []
+ []
+
+[62]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 63
+ []
+
+[63]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 64 []
+ []
+
+[64]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 65
+ []
+
+[65]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 66 []
+ []
+
+[66]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 67
+ []
+
+[67]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 68 []
+ []
+
+[68]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 69
+ []
+
+[69]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 70 []
+ []
+
+[70]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 71
+ []
+
+[71]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 72 []
+ []
+
+[72]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 73
+ []
+
+[73]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 74 []
+ []
+
+[74]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 75
+ []
+
+[75]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 76 []
+ []
+
+[76]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 77
+ []
+
+[77]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 78 []
+ []
+
+[78]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 79
+ []
+
+[79]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 80 []
+ []
+
+[80]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 81
+ []
+
+[81]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 82 []
+ []
+
+[82]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 83
+ []
+
+[83]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 84 []
+ []
+
+[84]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 85
+ []
+
+[85]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 86 []
+ []
+
+[86]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 87
+ []
+
+[87]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 88 []
+ []
+
+[88]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 89
+ []
+
+[89]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 90 []
+ []
+
+[90]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 91
+ []
+
+[91]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 92 []
+ []
+
+[92]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 93
+ []
+
+[93]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 94 []
+ []
+
+[94]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 95
+ []
+
+[95]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 96 []
+ []
+
+[96]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 97
+ []
+
+[97]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 98 []
+ []
+
+[98]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 99
+ []
+
+[99]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 100 []
+ []
+
+[100]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 101
+ []
+
+[101]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 102 []
+ []
+
+[102]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 103
+ []
+
+[103]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 104 []
+ []
+
+[104]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 105
+ []
+
+[105]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 106 []
+ []
+
+[106]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 107
+ []
+
+[107]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 108 []
+ []
+
+[108]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 109
+ []
+
+[109]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 110 []
+ []
+
+[110]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 111
+ []
+
+[111]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 112 []
+ []
+
+[112]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 113
+ []
+
+[113]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 114 []
+ []
+
+[114]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 115
+ []
+
+[115]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 116 []
+ []
+
+[116]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 117
+ []
+
+[117]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 118 []
+ []
+
+[118]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 119
+ []
+
+[119]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 120 []
+ []
+
+[120]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 121
+ []
+
+[121]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 122 []
+ []
+
+[122]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 123
+ []
+
+[123]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 124 []
+ []
+
+[124]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 125
+ []
+
+[125]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 126 []
+ []
+
+[126]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 127
+ []
+
+[127]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 128 []
+ []
+
+[128]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 129
+ []
+
+[129]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 130 []
+ []
+
+[130]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 131
+ []
+
+[131]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 132 []
+ []
+
+[132]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 133
+ []
+
+[133]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 134 []
+ []
+
+[134]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 135
+ []
+
+[135]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 136 []
+ []
+
+[136]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 137
+ []
+
+[137]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 138 []
+ []
+
+[138]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 139
+ []
+
+[139]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 140 []
+ []
+
+[140]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 141
+ []
+
+[141]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 142 []
+ []
+
+[142]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 143
+ []
+
+[143]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 144 []
+ []
+
+[144]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 145
+ []
+
+[145]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 146 []
+ []
+
+[146]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 147
+ []
+
+[147]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 148 []
+ []
+
+[148]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 149
+ []
+
+[149]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 150 []
+ []
+
+[150]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 151
+ []
+
+[151]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 152 []
+ []
+
+[152]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 153
+ []
+
+[153]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 154 []
+ []
+
+[154]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 155
+ []
+
+[155]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 156 []
+ []
+
+[156]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 157
+ []
+
+[157]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 158 []
+ []
+
+[158]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 159
+ []
+
+[159]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 160 []
+ []
+
+[160]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 161
+ []
+
+[161]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 162 []
+ []
+
+[162]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 163
+ []
+
+[163]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 164 []
+ []
+
+[164]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 165
+ []
+
+[165]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 166 []
+ []
+
+[166]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 167
+ []
+
+[167]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 168 []
+ []
+
+[168]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 169
+ []
+
+[169]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 170 []
+ []
+
+[170]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 171
+ []
+
+[171]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 172 []
+ []
+
+[172]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 173
+ []
+
+[173]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 174 []
+ []
+
+[174]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 175
+ []
+
+[175]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 176 []
+ []
+
+[176]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 177
+ []
+
+[177]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 178 []
+ []
+
+[178]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 179
+ []
+
+[179]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 180 []
+ []
+
+[180]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 181
+ []
+
+[181]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 182 []
+ []
+
+[182]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 183
+ []
+
+[183]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 184 []
+ []
+
+[184]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 185
+ []
+
+[185]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 186 []
+ []
+
+[186]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 187
+ []
+
+[187]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 188 []
+ []
+
+[188]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 189
+ []
+
+[189]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 190 []
+ []
+
+[190]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 191
+ []
+
+[191]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 192 []
+ []
+
+[192]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 193
+ []
+
+[193]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 194 []
+ []
+
+[194]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 195
+ []
+
+[195]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 196 []
+ []
+
+[196]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 197
+ []
+
+[197]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 198 []
+ []
+
+[198]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 199
+ []
+
+[199]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 200 []
+ []
+
+[200]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 201
+ []
+
+[201]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 202 []
+ []
+
+[202]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 203
+ []
+
+[203]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 204 []
+ []
+
+[204]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 205
+ []
+
+[205]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 206 []
+ []
+
+[206]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 207
+ []
+
+[207]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 208 []
+ []
+
+[208]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 209
+ []
+
+[209]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 210 []
+ []
+
+[210]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 211
+ []
+
+[211]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 212 []
+ []
+
+[212]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 213
+ []
+
+[213]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 214 []
+ []
+
+[214]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 215
+ []
+
+[215]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 216 []
+ []
+
+[216]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 217
+ []
+
+[217]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 218 []
+ []
+
+[218]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 219
+ []
+
+[219]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 220 []
+ []
+
+[220]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 221
+ []
+
+[221]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 222 []
+ []
+
+[222]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 223
+ []
+
+[223]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 224 []
+ []
+
+[224]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 225
+ []
+
+[225]
+Overfull \hbox (50.75368pt too wide) in paragraph at lines 11119--11120
+[]\T1/aer/m/n/10.95 In this section, we des-cribe the sta-tis-ti-cal tests: as-
+ses-sing the Mar-kov pro-perty (\T1/aett/m/n/10.95 verifyMarkovProperty\T1/aer/
+m/n/10.95 ),
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 226 []
+ []
+
+[226]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 227
+ []
+
+[227]
+Underfull \hbox (badness 10000) in paragraph at lines 11267--11269
+
+ []
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 228 []
+ []
+
+[228]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 229
+ []
+
+[229]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 230 []
+ []
+
+[230]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 231
+ []
+
+[231]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 232 []
+ []
+
+[232]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 233
+ []
+
+[233]
+
+LaTeX Font Warning: Font shape `TS1/aett/m/sl' undefined
+(Font)              using `TS1/aett/m/n' instead
+(Font)              for symbol `textquotesingle' on input line 11573.
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 234 []
+ []
+
+[234]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 235
+ []
+
+[235]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 236 []
+ []
+
+[236]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 237
+ []
+
+[237]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 238 []
+ []
+
+[238]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 239
+ []
+
+[239]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 240 []
+ []
+
+[240]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 241
+ []
+
+[241]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 242 []
+ []
+
+[242]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 243
+ []
+
+[243]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 244 []
+ []
+
+[244]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 245
+ []
+
+[245]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 246 []
+ []
+
+[246]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 247
+ []
+
+[247]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 248 []
+ []
+
+[248]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 249
+ []
+
+[249]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 250 []
+ []
+
+[250]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 251
+ []
+
+[251]
+<Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain_pac
+kage_files/figure-latex/mobility-1.pdf, id=1728, 614.295pt x 433.62pt>
+File: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/mobility-1.pdf Graphic file (type pdf)
+<use Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchain
+_package_files/figure-latex/mobility-1.pdf>
+Package pdftex.def Info: Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introdu
+ction_to_markovchain_package_files/figure-latex/mobility-1.pdf used on input li
+ne 12686.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 252 []
+ []
+
+[252]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 253
+ []
+
+[253 <Z:/TEMP/RtmpWmjhtz/preview-2114402b4b8d.dir/an_introduction_to_markovchai
+n_package_files/figure-latex/mobility-1.pdf>]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 254 []
+ []
+
+[254]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 255
+ []
+
+[255] (an_introduction_to_markovchain_package.bbl
+Underfull \hbox (badness 5403) in paragraph at lines 38--43
+[]\T1/aer/m/n/10.95 Bard JF (2000).  ``Lec-ture 12.5 - Ad-di-ti-o-nal Is-sues C
+on-cer-ning Discrete-Time
+ []
+
+LaTeX Font Info:    Font shape `T1/aess/m/it' in size <10.95> not available
+(Font)              Font shape `T1/aess/m/sl' tried instead on input line 51.
+LaTeX Font Info:    Font shape `T1/aer/b/it' in size <10.95> not available
+(Font)              Font shape `T1/aer/bx/it' tried instead on input line 106.
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 256 []
+ []
+
+[256
+
+]
+Underfull \hbox (badness 2980) in paragraph at lines 130--135
+[]\T1/aer/m/n/10.95 Goulet V, Du-tang C, Ma-e-chler M, Firth D, Shapira M, Sta-
+del-mann M, expm-
+ []
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 257
+ []
+
+[257]
+Underfull \hbox (badness 10000) in paragraph at lines 296--299
+\T1/aett/m/n/10.95 markov-[]chains-[]and-[]queues / structural-[]properties-[]o
+f-[]finite-[]markov-[]processes .
+ []
+
+)
+Underfull \hbox (badness 10000) in paragraph at lines 12829--12829
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 12829--12829
+
+ []
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/aer/m/n/10.95 258 []
+ []
+
+[258]
+Underfull \hbox (badness 10000) in paragraph at lines 12829--12829
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 12829--12829
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 12829--12829
+
+ []
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 12829.
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/aer/m/n/10.95 259
+ []
+
+[259]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 12829.
+(an_introduction_to_markovchain_package.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 12829.
+
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 12829
+.
+Package rerunfilecheck Info: File `an_introduction_to_markovchain_package.out' 
+has not changed.
+(rerunfilecheck)             Checksum: 96C63677C1E9EDDDC9B2A4A8DFFF618F;7188.
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 12829.
+ ) 
+Here is how much of TeX's memory you used:
+ 8789 strings out of 492484
+ 135388 string characters out of 3130355
+ 220212 words of memory out of 3000000
+ 12342 multiletter control sequences out of 15000+200000
+ 65839 words of font info for 124 fonts, out of 3000000 for 9000
+ 1127 hyphenation exceptions out of 8191
+ 47i,14n,38p,1036b,476s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\giorgio\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi60
+0\tcrm1095.pk><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmb10
+.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:
+/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program
+ Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb><C:/Program Files
+/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Program Files/MiKTe
+X 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cmextra/cmex8.pfb><C:/Program Files/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pu
+blic/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsf
+onts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
+mr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><
+C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program
+ Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><C:/Program Files/MiKTeX 2.9/
+fonts/type1/public/amsfonts/cm/cmsltt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmss10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pu
+blic/amsfonts/cm/cmssbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy
+6.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:
+/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program
+ Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Program Files/M
+iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Program Files/MiKTeX 2.
+9/fonts/type1/public/amsfonts/cm/cmtt9.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
+ype1/public/amsfonts/symbols/msbm10.pfb>
+Output written on an_introduction_to_markovchain_package.pdf (259 pages, 905667
+ bytes).
+PDF statistics:
+ 2050 PDF objects out of 2073 (max. 8388607)
+ 545 named destinations out of 1000 (max. 500000)
+ 495 words of extra memory for PDF output out of 10000 (max. 10000000)
+

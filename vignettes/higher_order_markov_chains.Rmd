@@ -33,7 +33,7 @@ preamble: >
   \setkeys{Gin}{width=0.8\textwidth}
 abstract: |
   The \pkg{markovchain} package contains functions to fit higher (possibly) multivariate order Markov chains. The functions are shown as well as simple exmaples
-output: if (rmarkdown::pandoc_version() < 2.2) rmarkdown::pdf_document else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) }
+output: if (rmarkdown::pandoc_version() < 2.2) function(...) { rmarkdown::pdf_document(template = "./template.tex", ...) } else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) }
 vignette: >
   %\VignetteIndexEntry{Higher order markov chains} 
   %\VignetteEngine{knitr::rmarkdown}  

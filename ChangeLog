@@ -1,5 +1,5 @@
-2019-12-10 0.8.0.1
-Add small changes in code to cope with upcoming R 4.0.0 (no more check class(x)=='matrix')
+2019-12-10 0.8.2
+Add small changes in code to cope with upcoming R 4.0.0 (no more check class(x)=='matrix') as well as packages' unavailable.
 2019-08-13 0.7.0
 * Improves performance and refactors `communicatingClasses`, `recurrentClasses`, `transientStates`, `is.irreducible`, `canonicForm`, `summary` and `steadyStates` methods, porting them to C++ whenever possible and improving the algorithmic complexity of the code.
 * Solves a bug with `steadyStates` method.

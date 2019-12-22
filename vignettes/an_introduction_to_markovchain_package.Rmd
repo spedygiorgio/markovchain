@@ -432,15 +432,24 @@ plot(mcWeather,layout = layout.fruchterman.reingold)
 ```
 
 ```{r mcPlotdiagram, echo=FALSE, fig.cap="Weather example. Markov chain plot with diagram"}
-plot(mcWeather, package="diagram", box.size = 0.04)
+if (requireNamespace("diagram", quietly = TRUE)) {
+  library(diagram)
+  plot(mcWeather, package="diagram", box.size = 0.04)
+  } else {
+  message("diagram unavailable")
+  }
 ```
 
 If one would like to use the \pkg{MmgraphR} package [@pkg:MmgraphR] to plot the transition matric, the following code shows how to do:
 
 ```{r MmgraphR_plot, echo=TRUE, warning=FALSE, message=FALSE}
-suppressPackageStartupMessages(library("MmgraphR"))
 stochastic_matrix_to_plot <- as(mcWeather, "matrix")
-trmatplot(stochastic_matrix_to_plot, main = "Weather MC plot using MmgraphR", rowconstraint = FALSE)
+if (requireNamespace("MmgraphR", quietly = TRUE)) {
+  library(MmgraphR)
+  trmatplot(stochastic_matrix_to_plot, main = "Weather MC plot using MmgraphR", rowconstraint = FALSE)
+  } else {
+  message("MmgraphR unavailable")
+  }
 ```
 
 

@@ -127,7 +127,7 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 
-# Imprecise Conitnuous-Time Markovchains
+# Imprecise Conitnuous-Time Markov chains
 
 Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
 
@@ -300,7 +300,7 @@ committorAB(object,c(5),c(3))
 Here we get probability that the process will hit state "e" before state "c" given different initial states.
 
 
-# First Passage probability for set of States
+# First Passage probability for set of states
 Currently computation of the first passage time for individual states has been implemented in the package. `firstPassageMultiple` function provides a method to get first passage probability for given provided set of states. 
 
 Consider this example markovchain object:
@@ -448,4 +448,3 @@ is.TimeReversible(molecularCTMC)
 
 
 # References
-

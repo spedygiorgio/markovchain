@@ -1,8 +1,7 @@
 .gz
-.log
-.bbl
+*.log
+*.bbl
 #jss*
-.fuse_hidden0000147f00000003
 .bak
 .sav
 # Ignore intermediate tex files created by R-markdown

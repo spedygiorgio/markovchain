@@ -252,7 +252,7 @@ library("markovchain")
 ```
 
 ```{r, load-aux, echo=FALSE, results='hide'}
-library("matlab")
+require("matlab")
 ```
 
 The `markovchain` and `markovchainList` S4 classes [@chambers] are defined within the \pkg{markovchain} package as displayed:
@@ -427,8 +427,12 @@ show(mcWeather)
 ```
 
 ```{r mcPlot, echo=FALSE, fig.cap="Weather example. Markov chain plot"}
-library("igraph")
-plot(mcWeather,layout = layout.fruchterman.reingold)
+if (requireNamespace("igraph", quietly = TRUE)) {
+  library(igraph)
+  plot(mcWeather,layout = layout.fruchterman.reingold)
+  } else {
+  message("igraph unavailable")
+  }
 ```
 
 ```{r mcPlotdiagram, echo=FALSE, fig.cap="Weather example. Markov chain plot with diagram"}
@@ -464,6 +468,7 @@ mcIgraph <- as(mcWeather, "igraph")
 ```
 
 ```{r exportImport2}
+if (requireNamespace("msm", quietly = TRUE)) {
 require(msm)
 Q <- rbind ( c(0, 0.25, 0, 0.25),
              c(0.166, 0, 0.166, 0.166),
@@ -472,9 +477,13 @@ Q <- rbind ( c(0, 0.25, 0, 0.25),
 cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
 msmMc <- as(cavmsm, "markovchain")
 msmMc
+  } else {
+  message("msm unavailable")
+  }
 ```
 
 ```{r exporImport3}
+if (requireNamespace("etm", quietly = TRUE)) {
 library(etm)
 data(sir.cont)
 sir.cont <- sir.cont[order(sir.cont$id, sir.cont$time), ]
@@ -492,6 +501,9 @@ tr.prob <- etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
 tr.prob
 etm2mc<-as(tr.prob, "markovchain")
 etm2mc
+  } else {
+  message("etm unavailable")
+}
 ```
 
 ```{r fromAndTo, echo=FALSE, fig.cap="The markovchain methods for import and export"}

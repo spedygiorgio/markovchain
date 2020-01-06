@@ -46,7 +46,6 @@ Suggests:
     knitcitations,
     rmarkdown,
     ctmcd,
-    MmgraphR,
     bookdown,
     rticles
 VignetteBuilder: utils, knitr

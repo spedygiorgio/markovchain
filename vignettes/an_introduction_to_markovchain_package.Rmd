@@ -444,19 +444,6 @@ if (requireNamespace("diagram", quietly = TRUE)) {
   }
 ```
 
-If one would like to use the \pkg{MmgraphR} package [@pkg:MmgraphR] to plot the transition matrix, the following code shows how to do:
-
-```{r MmgraphR_plot, echo=TRUE, warning=FALSE, message=FALSE}
-stochastic_matrix_to_plot <- as(mcWeather, "matrix")
-if (requireNamespace("MmgraphR", quietly = TRUE)) {
-  library(MmgraphR)
-  trmatplot(stochastic_matrix_to_plot, main = "Weather MC plot using MmgraphR", rowconstraint = FALSE)
-  } else {
-  message("MmgraphR unavailable")
-  }
-```
-
-
 
 Import and export from some specific classes is possible, as shown in Figure \@ref(fig:fromAndTo) and in the following code.
 

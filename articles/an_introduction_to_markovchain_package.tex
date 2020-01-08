@@ -147,7 +147,7 @@ A communicating class is defined to be a set of states that communicate. A DTMC 
 
 If \(p_{ii}=1\), \(s_{i}\) is defined as absorbing state: an absorbing state corresponds to a closed communicating class composed by one state only.
 
-The canonic form of a DTMC transition matrix is a matrix having a block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
+The canonical form of a DTMC transition matrix is a matrix having a block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
 
 A state \(s_{i}\) has period \(k_{i}\) if any return to state \(s_{i}\) must occur in multiplies of \(k_{i}\) steps, that is \(k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}\), where \(gcd\) is the greatest common divisor. If \(k_{i}=1\) the state \(s_{i}\) is said to be aperiodic, else if \(k_{i}>1\) the state \(s_{i}\) is periodic with period \(k_{i}\). Loosely speaking, \(s_{i}\) is periodic if it can only return to itself after a fixed number of transitions \(k_{i}>1\) (or multiple of \(k_{i}\)), else it is aperiodic.
 
@@ -632,7 +632,7 @@ R> mcWeather[2,3]
 \end{CodeOutput}
 \end{CodeChunk}
 
-The transition matrix of a \texttt{markovchain} object can be displayed using \texttt{print} or \texttt{show} methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of \texttt{plot} method (as shown in Figure \ref{fig:mcPlot}) which is based on \pkg{igraph} package \citep{pkg:igraph}. \texttt{plot} method for \texttt{markovchain} objects is a wrapper of \texttt{plot.igraph} for \texttt{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \texttt{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \ref{fig:mcPlotdiagram}. The \texttt{plot} function also uses \texttt{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same colour.
+The transition matrix of a \texttt{markovchain} object can be displayed using \texttt{print} or \texttt{show} methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of \texttt{plot} method (as shown in Figure \ref{fig:mcPlot}) which is based on \pkg{igraph} package \citep{pkg:igraph}. \texttt{plot} method for \texttt{markovchain} objects is a wrapper of \texttt{plot.igraph} for \texttt{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \texttt{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \ref{fig:mcPlotdiagram}. The \texttt{plot} function also uses \texttt{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 \begin{CodeChunk}
 
@@ -683,7 +683,7 @@ The following object is masked from 'package:base':
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmppErbMa/file39d87f237870/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpi1r87r/file7a24519700da/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
 
 }
 
@@ -698,7 +698,7 @@ Loading required package: shape
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmppErbMa/file39d87f237870/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpi1r87r/file7a24519700da/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
 
 }
 
@@ -809,7 +809,7 @@ Unnamed Markov chain
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmppErbMa/file39d87f237870/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpi1r87r/file7a24519700da/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
 
 }
 
@@ -961,7 +961,7 @@ Finally, Table \ref{tab:demos} lists the demos included in the demo directory of
   \centering
   \begin{tabular}{lll}
     \hline
-  R Code Filee & Description \\
+  R Code File & Description \\
     \hline  \hline
     \code{bard.R} & Structural analysis of Markov chains from Bard PPT.\\
     \code{examples.R} & Notable Markov chains, e.g., The Gambler Ruin chain.\\
@@ -1357,7 +1357,7 @@ R+                    name = "Mathematica MC", states = statesNames)
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmppErbMa/file39d87f237870/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpi1r87r/file7a24519700da/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
 
 }
 
@@ -11836,17 +11836,17 @@ We already know the expressions for both quantities in the integral and it turns
 P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \frac{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + m(u, s) + \alpha(u, s))}{\Gamma(\alpha(u) + n(u) + m(u))} \Big\}
 \]
 
-\hypertarget{choosing-the-hyperparameters}{%
-\subsubsection{Choosing the hyperparameters}\label{choosing-the-hyperparameters}}
+\hypertarget{choosing-the-hyper-parameters}{%
+\subsubsection{Choosing the hyper-parameters}\label{choosing-the-hyper-parameters}}
 
-The hyperparameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyperparameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation
+The hyper parameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation
 \[
 \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)}
 \]
 
 holds, the function accepts as input the belief matrix as well as a scaling vector (serves as a proxy for \(\alpha(.)\)) and proceeds to compute \(\alpha(., .)\).
 
-Alternatively, the function accepts a data sample and infers the hyperparameters from it. Since the mode of a parameter (with respect to the prior distribution) is proportional to one less than the corresponding hyperparameter, we set
+Alternatively, the function accepts a data sample and infers the hyper-parameters from it. Since the mode of a parameter (with respect to the prior distribution) is proportional to one less than the corresponding hyper-parameter, we set
 
 \[
 \alpha(u, s) - 1 = m(u, s)
@@ -11876,7 +11876,7 @@ R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 
 For the purpose of this section, we shall continue to use the weather of days example introduced in the main vignette of the package (reproduced above for convenience).
 
-Let us invoke the fit function to estimate the MAP parameters with 92\% confidence bounds and hyperparameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
+Let us invoke the fit function to estimate the MAP parameters with 92\% confidence bounds and hyper-parameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
 
 \begin{CodeChunk}
 
@@ -12011,7 +12011,7 @@ R+                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeChunk}
 
 Note that the predictive probability is very small. However, this can be useful when comparing model orders.
-Suppose we have an idea of the (prior) transition matrix corresponding to the expected value of the parameters, and have a data set from which we want to deduce the MAP estimates. We can infer the hyperparameters from this known transition matrix itself, and use this to obtain our MAP estimates.
+Suppose we have an idea of the (prior) transition matrix corresponding to the expected value of the parameters, and have a data set from which we want to deduce the MAP estimates. We can infer the hyper-parameters from this known transition matrix itself, and use this to obtain our MAP estimates.
 
 \begin{CodeChunk}
 
@@ -12028,7 +12028,7 @@ sunny       2    1     7
 \end{CodeOutput}
 \end{CodeChunk}
 
-Alternatively, we can use a data sample to infer the hyperparameters.
+Alternatively, we can use a data sample to infer the hyper-parameters.
 
 \begin{CodeChunk}
 
@@ -12045,7 +12045,7 @@ sunny       4    1     8
 \end{CodeOutput}
 \end{CodeChunk}
 
-In order to use the inferred hyperparameter matrices, we do
+In order to use the inferred hyper-parameter matrices, we do
 
 \begin{CodeChunk}
 
@@ -12060,7 +12060,7 @@ R> hyperMatrix4 <- hyperMatrix4$dataInference
 
 Now we can safely use \texttt{hyperMatrix3} and \texttt{hyperMatrix4} with \texttt{markovchainFit} (in the \texttt{hyperparam} argument).
 
-Supposing we don't provide any hyperparameters, then the prior is uniform. This is the same as maximum likelihood.
+Supposing we don't provide any hyper-parameters, then the prior is uniform. This is the same as maximum likelihood.
 
 \begin{CodeChunk}
 
@@ -12282,7 +12282,7 @@ Other relevant applications of DTMC can be found in Finance and Economics.
 \hypertarget{fin:fin}{%
 \subsubsection{Finance}\label{fin:fin}}
 
-Credit ratings transitions have been successfully modelled with discrete time Markov chains. Some rating agencies publish transition matrices that show the empirical transition probabilities across credit ratings. The example that follows
+Credit ratings transitions have been successfully modeled with discrete time Markov chains. Some rating agencies publish transition matrices that show the empirical transition probabilities across credit ratings. The example that follows
 comes from \pkg{CreditMetrics} \proglang{R} package \citep{CreditMetricsR},
 carrying Standard \& Poor's published data.
 
@@ -12395,8 +12395,8 @@ classes in Motor Third Party Liability (MTPL) insurance (Section \ref{sec:bm}) a
 \hypertarget{sec:bm}{%
 \subsubsection{MPTL Bonus Malus}\label{sec:bm}}
 
-Bonus Malus (BM) contracts grant the policyholder a discount (enworsen) as a function of the number of claims in the experience period. The discount (enworsen) is applied on a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial} and it usually depends on vehicle, territory, the demographic profile of the policyholder, and policy coverages deep (deductible and policy limits).\textbackslash{}
-Since the proposed BM level depends on the claim on the previous period, it can be modelled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation \ref{eq:BM}:
+Bonus Malus (BM) contracts grant the policyholder a discount (enworsen) as a function of the number of claims in the experience period. The discount (enworsen) is applied on a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial} and it usually depends on vehicle, territory, the demographic profile of the policyholder, and policy coverage deep (deductible and policy limits).\textbackslash{}
+Since the proposed BM level depends on the claim on the previous period, it can be modeled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation \ref{eq:BM}:
 
 \begin{equation}
 bm_{t + 1} = \max \left( {1,bm_{t} - 1} \right)*\left( {\tilde N = 0} \right) + \min \left( {5,bm_{t} + 2*\tilde N} \right)*\left( {\tilde N \ge 1} \right).
@@ -12592,7 +12592,7 @@ R+              what = "matrix", t0 = "A", include.t0 = TRUE)
 \end{CodeOutput}
 \end{CodeChunk}
 
-Lets consider 1000 simulated live trajectories, for a healty guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
+Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
 
 \begin{CodeChunk}
 
@@ -12655,7 +12655,7 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmppErbMa/file39d87f237870/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpi1r87r/file7a24519700da/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
 
 }
 
@@ -12785,10 +12785,10 @@ R> mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
 
 The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
 
-The package has known several improvements in the recent years: many functionalities added, porting the software in Rcpp \pkg{Rcpp} package \citep{RcppR} and many methodological improvements that have improved the software reliability.
+The package has known several improvements in the recent years: many functions added, porting the software in Rcpp \pkg{Rcpp} package \citep{RcppR} and many methodological improvements that have improved the software reliability.
 
 \hypertarget{sec:aknowledgements}{%
-\section{Aknowledgments}\label{sec:aknowledgements}}
+\section{Acknowledgments}\label{sec:aknowledgements}}
 
 The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr.~Simona C. Minotti and Dr.~Mirko Signorelli for their support in drafting this version of the vignettes.
 

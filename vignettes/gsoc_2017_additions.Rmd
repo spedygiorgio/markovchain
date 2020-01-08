@@ -13,7 +13,7 @@ pkgdown:
   extension: pdf
 ---
 
-# Expected Hittting Time using CTMC
+# Expected Hitting Time using CTMC
 
 The package provides `ExpectedTime` function to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in I$, where $I$ is the set of all possible states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations [@NorrisBook]:
 \begin{equation}
@@ -63,7 +63,7 @@ We find that the expected hitting time for process to be hit state $d$ is 7 unit
 
 # Calculating Probability at time T using ctmc
 
-The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. The Kolmogorov's backward equation gives us a relation between transition matrix at any time t with the geneartor matrix[@dobrow2016introduction]: 
+The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. The Kolmogorov's backward equation gives us a relation between transition matrix at any time t with the generator matrix[@dobrow2016introduction]: 
 
 \begin{equation}
 P'(t) = QP(t)
@@ -71,10 +71,10 @@ P'(t) = QP(t)
 
 Here we use the solution of this differential equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. In this equation, $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the conditional probability of the state at time $t$ to be equal to j if it was equal to i at time $t=0$.
 It takes care of the case when `ctmc` object has a generator represented by columns.
-If inital state is not provided, the function returns the whole transition matrix $P(t)$.
+If initial state is not provided, the function returns the whole transition matrix $P(t)$.
 
 Also to mention is that the function is also implemented using RCpp and can be used used to lessen the time of computation. It is used by default.
-Next, We consider both examples where intial state is given and case where initial state is not given.
+Next, We consider both examples where initial state is given and case where initial state is not given.
 
 In the first case, the function takes two inputs, first of them is an object of the S4 class 'ctmc' and second is the final time $t$.
 
@@ -127,9 +127,9 @@ Similarly, one can easily replace $diagram$ package with $DiagrammeR$
 
 
 
-# Imprecise Conitnuous-Time Markov chains
+# Imprecise Continuous-Time Markov chains
 
-Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models usign continuous time markovchains tkae in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
+Continuous-time Markov chains are mathematical models that are used to describe the state-evolution of dynamical systems under stochastic uncertainty. However, building models using continuous time markovchains take in consideration a number of assumptions which may not be realistic for the domain of application; in particular; the ability to provide exact numerical parameter assessments, and the applicability of time-homogeneity and the eponymous Markov property. Hence we take ICTMC into consideration.
 
 
 More technically, an ICTMC is a set of “precise” continuous-time finite-state stochastic processes, and rather than computing expected values of functions, we seek to compute lower expectations, which are tight lower bounds on the expectations that correspond to such a set of “precise” models.
@@ -209,7 +209,7 @@ b & -b
 \]
 
 
-Now suppose we know the initial state of the patient to be sick, hence this is reprsented in the form of a function by: 
+Now suppose we know the initial state of the patient to be sick, hence this is represented in the form of a function by: 
 \[
 I_{s} = \left(\begin{matrix}
 0 \\
@@ -219,7 +219,7 @@ I_{s} = \left(\begin{matrix}
 We observe that the $||I_{s}|| = 1$. 
 Now to use the proposition mentioned above, we use the definition to calculate the lower transition operator $Q_{l}$ Next we calculate the norm of the lower transition rate operator and use it in the preposition. Also we take value of $\epsilon$ to be 0.001.
 
-Using the preposition we can come upto an algorithm for calculating the probability at any time $s$ given state at initial time $t$ and a ICTMC generator[@ictmcpaper].
+Using the preposition we can come up to an algorithm for calculating the probability at any time $s$ given state at initial time $t$ and a ICTMC generator[@ictmcpaper].
 
 The algorithm is as follows:
   
@@ -251,7 +251,7 @@ ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 ```
 
-The probabilites we get are with an error of $10^{-3}$
+The probabilities we get are with an error of $10^{-3}$
 
 # Continuous time markovchain generator using frequency Matrix
 
@@ -259,7 +259,7 @@ The package provides `freq2Generator` function. It takes in a matrix representin
 
 Three methods are as follows:
 
-1. Quasi Optimisation - "QO" 
+1. Quasi Optimization - "QO" 
 2. Diagonal Adjustment - "DA"
 3. Weighted Adjustment - "WA"
 
@@ -314,7 +314,7 @@ dimnames = list(statesNames, statesNames)
 ))
 ```
 
-Now we apply `firstPassageMultiple` function to calculate first passage probabilities for set of states $"b", "c"$ when intial state is $"a"$.
+Now we apply `firstPassageMultiple` function to calculate first passage probabilities for set of states $"b", "c"$ when initial state is $"a"$.
 
 ``` {r}
 firstPassageMultiple(testmarkov,"a",c("b","c"),4)
@@ -325,7 +325,7 @@ This shows us the probability that the process will hit any of the state from th
 
 # Joint PDF of number of visits to the various states of a markovchain
 
-The package provides a function `noofVisitsDist` that returns the PDF of the number of visits to the various states of the discrete time markovchain during the first N steps, given intial state of the process.  
+The package provides a function `noofVisitsDist` that returns the PDF of the number of visits to the various states of the discrete time markovchain during the first N steps, given initial state of the process.  
 
 We will take an example to see how to use the function on a `markovchain-class` object:
 
@@ -360,7 +360,7 @@ expectedRewards(simpleMc,1,c(0,1))
 
 ## Expected Rewards for a set of states in a markovchain process
 
-The package provides a function `expectedRewardsBeforeHittingA` that returns the value of expected first passage rewards $E$ given rewards coressponding to every state, an initial state. This means the function returns expected reward for given initial state $s_{0}$, number of transitions $n$ and for a set of states $A$ with a constraint such that the process does not hit any of the states that belong to state $A$. $S$ is the set of all possible states.
+The package provides a function `expectedRewardsBeforeHittingA` that returns the value of expected first passage rewards $E$ given rewards corresponding to every state, an initial state. This means the function returns expected reward for given initial state $s_{0}$, number of transitions $n$ and for a set of states $A$ with a constraint such that the process does not hit any of the states that belong to state $A$. $S$ is the set of all possible states.
 
 The function uses an equation which is as follows:
 
@@ -369,9 +369,9 @@ here $1_{s_{0}} = [0,0,...0,1,0,...,0,0,0]$, 1 being on $s_{0}$ position and $R_
 
 
 
-# Checking Irreducibility of a CTMC
+# Checking Irreducibly of a CTMC
 
-The package provides a function `is.CTMCirreducible` that returns a boolean value stating whether the ctmc object is irreducible.
+The package provides a function `is.CTMCirreducible` that returns a Boolean value stating whether the ctmc object is irreducible.
 We know that a continuous time markovchain is irreducible if and only if its embedded chain is irreducible[@Sigman].
 
 We demonstrate an example running the function:
@@ -401,7 +401,7 @@ with initals $X_{0}^{(k)},X_{1}^{(k)},......,X_{n-1}^{(k)} \ (k = 1,2,...s)$. He
 $\lambda_{jk}^{(k)}, \ 1 \leq j,k \leq s, \ 1 \leq h \leq n \ \ \  and \ \ \  \sum_{k=1}^{s}\sum_{h=1}^{n}{\lambda_{jk}^{(h)} = 1}, \ \ \ j = 1,2,....s.$
 
 
-Now we run an example on sample hommc object for simulating next 3 steps usinf `predictHommc` function. THe function provides a choice of entering inital states according to the hommc object. In case the user does not enter inital states, the function takes all initial states to be the first state from the set of states.
+Now we run an example on sample hommc object for simulating next 3 steps using `predictHommc` function. The function provides a choice of entering initial states according to the hommc object. In case the user does not enter initial states, the function takes all initial states to be the first state from the set of states.
 
 
 ``` {r}

@@ -770,7 +770,8 @@ setAs(from = "matrix", to = "markovchain", def = .matrix2Mc)
 			t0 <- from@states[i]
 			t1 <- from@states[j]
 			prob <- transitionProbability(object = from, t0 = t0, t1 = t1)
-			rowDf <- data.frame(t0 = t0, t1 = t1, prob = prob)
+			#cope with the new default of R 4.0 (5-3-2020)
+			rowDf <- data.frame(t0 = t0, t1 = t1, prob = prob,stringsAsFactors = TRUE )
 			
 			# go to else part if first row of data frame is generated
 			if(exists("outDf")) {

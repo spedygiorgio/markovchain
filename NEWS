@@ -1,2 +1,2 @@
-2020-03-10 0.8.3
-Add small changes in code to cope with upcoming R 4.0.0 (stringsAsFactor=TRUE in data.frame).
+2020-03-16 0.8.4
+Limiting output lines in vignettes.

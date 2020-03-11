@@ -1226,11 +1226,11 @@ data(holson)
 singleMc<-markovchainFit(data=holson[,2:12],name="holson")
 ```
 
-The same applies for `markovchainList`.
+The same applies for `markovchainList` (output length has been limited).
 
 ```{r fitMclistsFit1, output.lines=20}
 mcListFit<-markovchainListFit(data=holson[,2:6],name="holson")
-#mcListFit$estimate
+mcListFit$estimate
 ```
 
 Finally, given a `list` object, it is possible to fit a `markovchain` object or to obtain the raw transition matrix.
@@ -1249,7 +1249,7 @@ mylistMc
 
 The same works for `markovchainFitList`. 
 
-```{r fitAMarkovChainListfromAlist}
+```{r fitAMarkovChainListfromAlist, output.lines=15}
 markovchainListFit(data=mylist)
 ```
 

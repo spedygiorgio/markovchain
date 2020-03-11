@@ -683,7 +683,7 @@ The following object is masked from 'package:base':
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpc90rJi/file3d6d364021f7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmp2p6VTr/file3ac96dcc87ea/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
 
 }
 
@@ -698,7 +698,7 @@ Loading required package: shape
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpc90rJi/file3d6d364021f7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmp2p6VTr/file3ac96dcc87ea/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
 
 }
 
@@ -809,7 +809,7 @@ Unnamed Markov chain
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpc90rJi/file3d6d364021f7/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmp2p6VTr/file3ac96dcc87ea/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
 
 }
 
@@ -1357,7 +1357,7 @@ R+                    name = "Mathematica MC", states = statesNames)
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpc90rJi/file3d6d364021f7/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmp2p6VTr/file3ac96dcc87ea/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
 
 }
 
@@ -2114,14 +2114,38 @@ R> singleMc<-markovchainFit(data=holson[,2:12],name="holson")
 \end{CodeInput}
 \end{CodeChunk}
 
-The same applies for \texttt{markovchainList}.
+The same applies for \texttt{markovchainList} (output length has been limited).
 
 \begin{CodeChunk}
 
 \begin{CodeInput}
 R> mcListFit<-markovchainListFit(data=holson[,2:6],name="holson")
-R> #mcListFit$estimate
+R> mcListFit$estimate
 \end{CodeInput}
+
+\begin{CodeOutput}
+holson  list of Markov chain(s) 
+Markovchain  1 
+Unnamed Markov chain 
+ A  1 - dimensional discrete Markov Chain defined by the following states: 
+ 1 
+ The transition matrix  (by rows)  is defined as follows: 
+  1
+1 1
+
+Markovchain  2 
+Unnamed Markov chain 
+ A  1 - dimensional discrete Markov Chain defined by the following states: 
+ 1 
+ The transition matrix  (by rows)  is defined as follows: 
+  1
+1 1
+
+Markovchain  3 
+Unnamed Markov chain 
+ A  2 - dimensional discrete Markov Chain defined by the following states: 
+...
+\end{CodeOutput}
 \end{CodeChunk}
 
 Finally, given a \texttt{list} object, it is possible to fit a \texttt{markovchain} object or to obtain the raw transition matrix.
@@ -2199,50 +2223,7 @@ c 1.0 0.0 0.0
 Markovchain  2 
 Unnamed Markov chain 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
- a, b, c 
- The transition matrix  (by rows)  is defined as follows: 
-          a         b         c
-a 0.3333333 0.3333333 0.3333333
-b 1.0000000 0.0000000 0.0000000
-c 0.0000000 1.0000000 0.0000000
-
-Markovchain  3 
-Unnamed Markov chain 
- A  3 - dimensional discrete Markov Chain defined by the following states: 
- a, b, c 
- The transition matrix  (by rows)  is defined as follows: 
-          a         b         c
-a 0.5000000 0.0000000 0.5000000
-b 0.5000000 0.0000000 0.5000000
-c 0.3333333 0.3333333 0.3333333
-
-Markovchain  4 
-Unnamed Markov chain 
- A  2 - dimensional discrete Markov Chain defined by the following states: 
- a, c 
- The transition matrix  (by rows)  is defined as follows: 
-    a   c
-a 0.5 0.5
-c 1.0 0.0
-
-Markovchain  5 
-Unnamed Markov chain 
- A  2 - dimensional discrete Markov Chain defined by the following states: 
- a, c 
- The transition matrix  (by rows)  is defined as follows: 
-  a c
-a 0 1
-c 0 1
-
-Markovchain  6 
-Unnamed Markov chain 
- A  3 - dimensional discrete Markov Chain defined by the following states: 
- a, b, c 
- The transition matrix  (by rows)  is defined as follows: 
-          a         b         c
-a 0.3333333 0.3333333 0.3333333
-b 0.3333333 0.3333333 0.3333333
-c 0.5000000 0.5000000 0.0000000
+...
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3869,7 +3850,7 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmpc90rJi/file3d6d364021f7/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/Rtmp2p6VTr/file3ac96dcc87ea/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
 
 }
 

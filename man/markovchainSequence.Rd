@@ -4,8 +4,13 @@
 \alias{markovchainSequence}
 \title{Function to generate a sequence of states from homogeneous Markov chains.}
 \usage{
-markovchainSequence(n, markovchain, t0 = sample(markovchain@states, 1),
-  include.t0 = FALSE, useRCpp = TRUE)
+markovchainSequence(
+  n,
+  markovchain,
+  t0 = sample(markovchain@states, 1),
+  include.t0 = FALSE,
+  useRCpp = TRUE
+)
 }
 \arguments{
 \item{n}{Sample size}

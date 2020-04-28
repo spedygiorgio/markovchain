@@ -4,11 +4,13 @@
 \name{craigsendi}
 \alias{craigsendi}
 \title{CD4 cells counts on HIV Infects between zero and six month}
-\format{The format is:
+\format{
+The format is:
 table [1:3, 1:3] 682 154 19 33 64 19 25 47 43
 - attr(*, "dimnames")=List of 2
   ..$ : chr [1:3] "0-49" "50-74" "75-UP"
-  ..$ : chr [1:3] "0-49" "50-74" "75-UP"}
+  ..$ : chr [1:3] "0-49" "50-74" "75-UP"
+}
 \source{
 Estimation of the transition matrix of a discrete time Markov chain, Bruce A. Craig and Peter P. Sendi, Health Economics 11, 2002.
 }

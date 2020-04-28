@@ -4,7 +4,9 @@
 \name{kullback}
 \alias{kullback}
 \title{Example from Kullback and Kupperman Tests for Contingency Tables}
-\format{A list containing two 6x6 non - negative integer matrices}
+\format{
+A list containing two 6x6 non - negative integer matrices
+}
 \usage{
 data(kullback)
 }

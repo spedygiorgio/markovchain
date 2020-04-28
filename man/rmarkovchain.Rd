@@ -4,8 +4,15 @@
 \alias{rmarkovchain}
 \title{Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.}
 \usage{
-rmarkovchain(n, object, what = "data.frame", useRCpp = TRUE,
-  parallel = FALSE, num.cores = NULL, ...)
+rmarkovchain(
+  n,
+  object,
+  what = "data.frame",
+  useRCpp = TRUE,
+  parallel = FALSE,
+  num.cores = NULL,
+  ...
+)
 }
 \arguments{
 \item{n}{Sample size}

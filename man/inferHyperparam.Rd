@@ -4,8 +4,7 @@
 \alias{inferHyperparam}
 \title{Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set}
 \usage{
-inferHyperparam(transMatr = matrix(), scale = numeric(),
-  data = character())
+inferHyperparam(transMatr = matrix(), scale = numeric(), data = character())
 }
 \arguments{
 \item{transMatr}{A valid transition matrix, with dimension names.}

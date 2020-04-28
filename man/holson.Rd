@@ -4,7 +4,8 @@
 \name{holson}
 \alias{holson}
 \title{Holson data set}
-\format{A data frame with 1000 observations on the following 12 variables.
+\format{
+A data frame with 1000 observations on the following 12 variables.
 \describe{
 \item{\code{id}}{unique id}
 \item{\code{time1}}{observed status at i-th time}
@@ -18,7 +19,8 @@
 \item{\code{time9}}{observed status at i-th time}
 \item{\code{time10}}{observed status at i-th time}
 \item{\code{time11}}{observed status at i-th time}
-}}
+}
+}
 \source{
 Private communications
 }

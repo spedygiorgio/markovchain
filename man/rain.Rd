@@ -4,11 +4,13 @@
 \name{rain}
 \alias{rain}
 \title{Alofi island daily rainfall}
-\format{A data frame with 1096 observations on the following 2 variables.
+\format{
+A data frame with 1096 observations on the following 2 variables.
 \describe{
   \item{\code{V1}}{a numeric vector, showing original coding}
   \item{\code{rain}}{a character vector, showing daily rainfall millilitres brackets}
-}}
+}
+}
 \source{
 Avery Henderson
 }

@@ -56,6 +56,7 @@ assessOrder(sequence)
 assessStationarity(sequence, 1)
 
 
+
 #Example taken from Kullback Kupperman Tests for Contingency Tables and Markov Chains
 
 sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,

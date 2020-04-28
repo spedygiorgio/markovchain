@@ -4,7 +4,9 @@
 \name{sales}
 \alias{sales}
 \title{Sales Demand Sequences}
-\format{An object of class \code{matrix} with 269 rows and 5 columns.}
+\format{
+An object of class \code{matrix} with 269 rows and 5 columns.
+}
 \usage{
 data("sales")
 }

@@ -4,7 +4,9 @@
 \name{blanden}
 \alias{blanden}
 \title{Mobility between income quartiles}
-\format{An object of class \code{table} with 4 rows and 4 columns.}
+\format{
+An object of class \code{table} with 4 rows and 4 columns.
+}
 \source{
 Personal reworking
 }

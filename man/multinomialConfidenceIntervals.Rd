@@ -4,8 +4,11 @@
 \alias{multinomialConfidenceIntervals}
 \title{A function to compute multinomial confidence intervals of DTMC}
 \usage{
-multinomialConfidenceIntervals(transitionMatrix, countsTransitionMatrix,
-  confidencelevel = 0.95)
+multinomialConfidenceIntervals(
+  transitionMatrix,
+  countsTransitionMatrix,
+  confidencelevel = 0.95
+)
 }
 \arguments{
 \item{transitionMatrix}{An estimated transition matrix.}

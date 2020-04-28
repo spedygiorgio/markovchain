@@ -5,13 +5,27 @@
 \alias{markovchainFit}
 \title{Function to fit a discrete Markov chain}
 \usage{
-createSequenceMatrix(stringchar, toRowProbs = FALSE, sanitize = FALSE,
-  possibleStates = character())
+createSequenceMatrix(
+  stringchar,
+  toRowProbs = FALSE,
+  sanitize = FALSE,
+  possibleStates = character()
+)
 
-markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
-  laplacian = 0, name = "", parallel = FALSE,
-  confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(),
-  sanitize = FALSE, possibleStates = character())
+markovchainFit(
+  data,
+  method = "mle",
+  byrow = TRUE,
+  nboot = 10L,
+  laplacian = 0,
+  name = "",
+  parallel = FALSE,
+  confidencelevel = 0.95,
+  confint = TRUE,
+  hyperparam = matrix(),
+  sanitize = FALSE,
+  possibleStates = character()
+)
 }
 \arguments{
 \item{stringchar}{It can be a {n x n} matrix or a character vector or a list}

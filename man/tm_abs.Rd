@@ -4,11 +4,13 @@
 \name{tm_abs}
 \alias{tm_abs}
 \title{Single Year Corporate Credit Rating Transititions}
-\format{The format is:
+\format{
+The format is:
 num [1:8, 1:8] 17 2 0 0 0 0 0 0 1 455 ...
 - attr(*, "dimnames")=List of 2
 ..$ : chr [1:8] "AAA" "AA" "A" "BBB" ...
-..$ : chr [1:8] "AAA" "AA" "A" "BBB" ...}
+..$ : chr [1:8] "AAA" "AA" "A" "BBB" ...
+}
 \usage{
 data(tm_abs)
 }

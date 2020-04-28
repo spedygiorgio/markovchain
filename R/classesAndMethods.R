@@ -659,8 +659,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
        } else {
          netMc <- .getNet(object = x, round = TRUE)
          edgeLabel <- round(E(netMc)$weight / 100, 2)
-         colorvector <- getColorVector(x)
-         plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+         plot.igraph(x = netMc, edge.label = edgeLabel, ...)
        }
      },
      
@@ -670,15 +669,13 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
        } else {
          netMc <- .getNet(object = x, round = TRUE)
          edgeLabel <- round(E(netMc)$weight / 100, 2)
-         colorvector <- getColorVector(x)
-         plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+         plot.igraph(x = netMc, edge.label = edgeLabel, ...)
        }
      },
      {
        netMc <- .getNet(object = x,round = TRUE)
        edgeLabel <- round(E(netMc)$weight / 100, 2)
-       colorvector <- getColorVector(x)
-       plot.igraph(x = netMc, edge.label = edgeLabel,vertex.color = colorvector, ...)
+       plot.igraph(x = netMc, edge.label = edgeLabel, ...)
     })
   }
 )

@@ -70,3 +70,17 @@ require(DiagrammeR)
 #             shadow.size = 0.01, self.cex = 0.6, my = -0.075, mx = -0.01,
 #             relsize = 0.9, self.shiftx = c(0, 0, 0.125, -0.12, 0.125, 0),
 #             self.shifty = 0, main = "Diagram")
+
+test_that("plotting with a certain vertex color, should show that color", {
+  markov_chain <- new(
+    "markovchain",
+    states = c("X"),
+    transitionMatrix = matrix(c(1.0), nrow = 1)
+  )
+  expect_silent(
+    markovchain::plot(markov_chain,
+      vertex.color = "white",
+      vertex.size = 100
+    )
+  )
+})

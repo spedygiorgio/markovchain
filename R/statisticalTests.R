@@ -380,10 +380,10 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
   warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
   if (!class(object) == 'markovchain') stop("Error! Object should belong to the markovchain class")
   if (missing(data) | missing(object)) stop("Error! Required inputs missing")
-  if (!(class(data) %in% c("matrix","character","numeric"))) stop("Error! Data should be either a raw transition matrix or 
+  if (!(class(data) == "numeric" || class(data) == "character" || is.matrix(data))) stop("Error! Data should be either a raw transition matrix or 
                                                                   either a character or a numeric element")
   
-  if (class(data) %in% c("character","numeric")) data<-createSequenceMatrix(stringchar = data)
+  if ((class(data) == "numeric" || class(data) == "character")) data<-createSequenceMatrix(stringchar = data)
   
   if (length(setdiff(names(data),names(object))) > 0) stop("Error! Empirical and theoretical tm have different support")
   

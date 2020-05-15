@@ -383,7 +383,7 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
   if (!(class(data) == "numeric" || class(data) == "character" || is.matrix(data))) stop("Error! Data should be either a raw transition matrix or 
                                                                   either a character or a numeric element")
   
-  if ((class(data) == "numeric" || class(data) == "character")) data<-createSequenceMatrix(stringchar = data)
+  if ((class(data) == "numeric" || class(data) == "character")) data<-createSequenceMatrix(stringchar = data, possibleStates = states(object))
   
   if (length(setdiff(names(data),names(object))) > 0) stop("Error! Empirical and theoretical tm have different support")
   

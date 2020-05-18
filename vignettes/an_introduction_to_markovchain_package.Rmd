@@ -1291,7 +1291,12 @@ All such tests have been designed for small samples, since it is easy to detect 
 
 ### Assessing the Markov property of a Markov chain sequence
 
-The `verifyMarkovProperty` function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{x+2}=k$, then if the Markov property holds $n_{ijk}$ follows a Binomial distribution with parameters $n_{ij}$ and $p_{jk}$. A classical $\chi^2$ test can check this distributional assumption, since $\sum_{i}\sum_{j}\sum_{k}\frac{n_{ijk}-n_{ij}\hat{p_{jk}}}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(|S|^3 \right )$ where $|S|$ is the cardinality of the state space. 
+The `verifyMarkovProperty` function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{x+2}=k$, then if the Markov property holds $n_{ijk}$ follows a Binomial distribution with parameters $n_{ij}$ and $p_{jk}$. A classical $\chi^2$ test can check this distributional assumption, since $\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p_{jk}})^2}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(q \right )$ where q is the number of degrees of freedom. 
+The number of degrees of freedom q of the distribution of $\chi^2$ is given by the formula r-q+s-1, where:
+ s denotes the number of states i in the state space such that n_{i} > 0 
+ q denotes the number of pairs (i, j) for which n_{ij} > 0 and 
+ r denotes the number of triplets (i, j, k) for which n_{ij}n_{jk} > 0 
+
 
 ```{r test1}
 sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 

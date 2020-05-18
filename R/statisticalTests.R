@@ -88,8 +88,20 @@ verifyMarkovProperty <- function(sequence, verbose = TRUE) {
   #return value of the test statistic and test at confience level 95% and 99%
   
   #dof
+  #Steps : No. of df = No. of triplets - No. of doubles + No. of observations - 1
+
+#Creating vector of doubles/pairs
+doubles = numeric(length(sequence)-1)
+for(i in 1:(length(doubles))) {doubles[i] = paste(sequence[i], sequence[i+1], sep="", collapse = NULL)}
+
+#Creating vector of triplets
+triples = numeric(length(sequence)-2)
+for(i in 1:(length(triples))) {triples[i] = paste(sequence[i], sequence[i+1], sequence[i+2], sep="", collapse = NULL)}
+
+#Hence no. of df is---
+dof = length(unique(triples)) - length(unique(doubles)) + length(unique(sequence)) - 1 
+
   
-  dof = length(unique(sequence))^3
   
   
   pvalue <- 1-pchisq(q = statistic,df = dof)

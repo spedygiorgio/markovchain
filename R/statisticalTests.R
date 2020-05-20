@@ -55,7 +55,8 @@
 
 # check if the sequence holds the Markov property
 verifyMarkovProperty <- function(sequence, verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
+  #warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
+  
   #fitting the markovchain
   
   transMatrix <- markovchainFit(data = sequence)$estimate@transitionMatrix
@@ -389,7 +390,7 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' 
 
 verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
+  #warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
   if (!class(object) == 'markovchain') stop("Error! Object should belong to the markovchain class")
   if (missing(data) | missing(object)) stop("Error! Required inputs missing")
   if (!(class(data) == "numeric" || class(data) == "character" || is.matrix(data))) stop("Error! Data should be either a raw transition matrix or 

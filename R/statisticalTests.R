@@ -362,7 +362,8 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' @title test whether an empirical transition matrix is compatible to a theoretical one
 #' 
 #' @description This function tests whether an empirical transition matrix is statistically compatible
-#' with a theoretical one. It is a chi-square based test
+#' with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
+#' that is 0 in the theoretical transition matrix the null hypothesis is rejected.
 #' 
 #' @rdname statisticalTests
 #' @family statisticalTests
@@ -370,7 +371,8 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' @param data matrix, character or list to be converted in a raw transition matrix
 #' @param object a markovchain object
 #'
-#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
+#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0
+#' that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
 #' @export
 #'
 #' @examples
@@ -405,32 +407,46 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
   data <- data[match(rownames(data),names(object)),] #matching rows
   data <- data[,match(colnames(data),names(object))] #matching cols
   
-  f_i_dot <-colSums(data)
-  
-  statistic <- 0
-  
-  for (i in 1:dim(object)) {
-    for (j in 1:dim(object)) {
-      if (data[i, j]>0&object[i, j]>0) statistic <- statistic + data[i, j]*log(data[i, j]/(f_i_dot[i]*object[i, j]))
+  if (sum((data == 0) == (object@transitionMatrix == 0)) == (nrow(data) * ncol(data))) {
+    f_i_dot <-colSums(data)
+    
+    statistic <- 0
+    
+    for (i in 1:dim(object)) {
+      for (j in 1:dim(object)) {
+        if (data[i, j]>0&object[i, j]>0) statistic <- statistic + data[i, j]*log(data[i, j]/(f_i_dot[i]*object[i, j]))
+      }
     }
-  }
-  
-  statistic <- statistic * 2
-  
-  null_elements <- sum(object@transitionMatrix == 0)
-  
-  dof <- dim(object) * (dim(object) - 1) - null_elements #r(r-1) - c, c null element ob objects
-  
-  p.value <- 1 - pchisq(q = statistic,df = dof)
-  
-  if (verbose == TRUE) {
-    cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
-    cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
+    
+    statistic <- statistic * 2
+    
+    null_elements <- sum(object@transitionMatrix == 0)
+    
+    dof <- dim(object) * (dim(object) - 1) - null_elements #r(r-1) - c, c null element ob objects
+    
+    p.value <- 1 - pchisq(q = statistic,df = dof)
+    
+    if (verbose == TRUE) {
+      cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
+      cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
+    }
+    
+    out <- list(statistic = statistic, dof = dof,pvalue = p.value)
+  } else {
+    statistic <- NA
+    dof <- NA
+    p.value <- 0
+    
+    if (verbose == TRUE) {
+      cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
+      cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")
+      cat("At least one transition is >0 in the data that is 0 in the object. Therefore the null hypothesis is rejected. \n") 
+    }
+    
+    out <- list(statistic = statistic, dof = dof,pvalue = p.value)
   }
 
   #return output
-  out <- list(statistic = statistic, dof = dof,pvalue = p.value)
-  
   return(out)
 }
 

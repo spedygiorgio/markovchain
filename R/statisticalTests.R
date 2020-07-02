@@ -362,7 +362,8 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' @title test whether an empirical transition matrix is compatible to a theoretical one
 #' 
 #' @description This function tests whether an empirical transition matrix is statistically compatible
-#' with a theoretical one. It is a chi-square based test
+#' with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
+#' that is 0 in the theoretical transition matrix the null hypothesis is rejected.
 #' 
 #' @rdname statisticalTests
 #' @family statisticalTests
@@ -370,7 +371,8 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 #' @param data matrix, character or list to be converted in a raw transition matrix
 #' @param object a markovchain object
 #'
-#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
+#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0
+#' that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
 #' @export
 #'
 #' @examples

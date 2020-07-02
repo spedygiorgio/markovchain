@@ -34,7 +34,8 @@ verifyHomogeneity(inputList, verbose = TRUE)
 \value{
 Verification result
 
-a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value
+a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0
+that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
 
 a list of transition matrices?
 }
@@ -43,7 +44,8 @@ These functions verify the Markov property, assess
              the order and stationarity of the Markov chain.
 
 This function tests whether an empirical transition matrix is statistically compatible
-with a theoretical one. It is a chi-square based test
+with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
+that is 0 in the theoretical transition matrix the null hypothesis is rejected.
 
 Verifies that the s elements in the input list belongs to the same DTMC
 }

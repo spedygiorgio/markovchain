@@ -44,13 +44,14 @@ Suggests:
     diagram,
     DiagrammeR,
     msm,
-    etm,
     Rsolnp,
     knitcitations,
     rmarkdown,
     ctmcd,
     bookdown,
     rticles
+Enhances:
+    etm
 VignetteBuilder: utils, knitr
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)
 SystemRequirements: GNU make
@@ -59,4 +60,4 @@ ByteCompile: yes
 Encoding: UTF-8
 BugReports: http://github.com/spedygiorgio/markovchain/issues
 URL: http://github.com/spedygiorgio/markovchain/
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

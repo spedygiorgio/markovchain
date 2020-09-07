@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Markov Chain class</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/classesAndMethods.R'><code>R/classesAndMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/classesAndMethods.R'><code>R/classesAndMethods.R</code></a></small>
     <div class="hidden name"><code>markovchain-class.Rd</code></div>
     </div>
 
@@ -181,7 +181,7 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
     
 
 
-<dl'>
+<dl>
    <dt>*</dt><dd><p><code>signature(e1 = "markovchain", e2 = "markovchain")</code>: multiply two <code>markovchain</code> objects</p></dd>
    <dt>*</dt><dd><p><code>signature(e1 = "markovchain", e2 = "matrix")</code>: markovchain by matrix multiplication</p></dd>
    <dt>*</dt><dd><p><code>signature(e1 = "markovchain", e2 = "numeric")</code>: markovchain by numeric vector multiplication</p></dd>
@@ -228,22 +228,27 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
     <p>A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='markovchainSequence.html'>markovchainSequence</a></code>,<code><a href='markovchainFit.html'>markovchainFit</a></code></p></div>
+    <div class='dont-index'><p><code><a href='markovchainSequence.html'>markovchainSequence</a></code>,<code><a href='createSequenceMatrix.html'>markovchainFit</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>#show markovchain definition</span>
-<span class='fu'>showClass</span>(<span class='st'>"markovchain"</span>)</div><div class='output co'>#&gt; Class "markovchain" [package "markovchain"]
+<span class='fu'>showClass</span>(<span class='st'>"markovchain"</span>)
+</div><div class='output co'>#&gt; Class "markovchain" [package "markovchain"]
 #&gt; 
 #&gt; Slots:
 #&gt;                                                                           
 #&gt; Name:            states            byrow transitionMatrix             name
 #&gt; Class:        character          logical           matrix        character</div><div class='input'><span class='co'>#create a simple Markov chain</span>
-<span class='no'>transMatr</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.4</span>,<span class='fl'>0.6</span>,<span class='fl'>.3</span>,<span class='fl'>.7</span>),<span class='kw'>nrow</span><span class='kw'>=</span><span class='fl'>2</span>,<span class='kw'>byrow</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>simpleMc</span><span class='kw'>&lt;-</span><span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>),
-              <span class='kw'>transitionMatrix</span><span class='kw'>=</span><span class='no'>transMatr</span>,
-              <span class='kw'>name</span><span class='kw'>=</span><span class='st'>"simpleMc"</span>)
+<span class='kw'>transMatr</span><span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.4</span>,<span class='fl'>0.6</span>,<span class='fl'>.3</span>,<span class='fl'>.7</span>),nrow=<span class='fl'>2</span>,byrow=<span class='fl'>TRUE</span>)
+<span class='kw'>simpleMc</span><span class='op'>&lt;-</span><span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>),
+              transitionMatrix=<span class='kw'>transMatr</span>, 
+              name=<span class='st'>"simpleMc"</span>)
 <span class='co'>#power</span>
-<span class='no'>simpleMc</span>^<span class='fl'>4</span></div><div class='output co'>#&gt; simpleMc^4 
+<span class='kw'>simpleMc</span><span class='op'>^</span><span class='fl'>4</span>
+</div><div class='output co'>#&gt; simpleMc^4 
 #&gt;  A  2 - dimensional discrete Markov Chain defined by the following states: 
 #&gt;  a, b 
 #&gt;  The transition matrix  (by rows)  is defined as follows: 
@@ -251,24 +256,32 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 #&gt; a 0.3334 0.6666
 #&gt; b 0.3333 0.6667
 #&gt; </div><div class='input'><span class='co'>#some methods</span>
-<span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='no'>simpleMc</span>)</div><div class='output co'>#&gt;              a         b
-#&gt; [1,] 0.3333333 0.6666667</div><div class='input'><span class='fu'><a href='structuralAnalysis.html'>absorbingStates</a></span>(<span class='no'>simpleMc</span>)</div><div class='output co'>#&gt; character(0)</div><div class='input'><span class='no'>simpleMc</span>[<span class='fl'>2</span>,<span class='fl'>1</span>]</div><div class='output co'>#&gt; [1] 0.3</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='no'>simpleMc</span>)</div><div class='output co'>#&gt; Unnamed Markov chain 
+<span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='kw'>simpleMc</span>)
+</div><div class='output co'>#&gt;              a         b
+#&gt; [1,] 0.3333333 0.6666667</div><div class='input'><span class='fu'><a href='period.html'>absorbingStates</a></span>(<span class='kw'>simpleMc</span>)
+</div><div class='output co'>#&gt; character(0)</div><div class='input'><span class='kw'>simpleMc</span>[<span class='fl'>2</span>,<span class='fl'>1</span>]
+</div><div class='output co'>#&gt; [1] 0.3</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='kw'>simpleMc</span>)
+</div><div class='output co'>#&gt; Unnamed Markov chain 
 #&gt;  A  2 - dimensional discrete Markov Chain defined by the following states: 
 #&gt;  a, b 
 #&gt;  The transition matrix  (by cols)  is defined as follows: 
 #&gt;     a   b
 #&gt; a 0.4 0.3
 #&gt; b 0.6 0.7
-#&gt; </div><div class='input'><span class='fu'><a href='is.irreducible.html'>is.irreducible</a></span>(<span class='no'>simpleMc</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='co'>#conditional distributions</span>
-<span class='fu'><a href='conditionalDistribution.html'>conditionalDistribution</a></span>(<span class='no'>simpleMc</span>, <span class='st'>"b"</span>)</div><div class='output co'>#&gt;   a   b 
+#&gt; </div><div class='input'><span class='fu'><a href='is.irreducible.html'>is.irreducible</a></span>(<span class='kw'>simpleMc</span>)
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='co'>#conditional distributions</span>
+<span class='fu'><a href='conditionalDistribution.html'>conditionalDistribution</a></span>(<span class='kw'>simpleMc</span>, <span class='st'>"b"</span>)
+</div><div class='output co'>#&gt;   a   b 
 #&gt; 0.3 0.7 </div><div class='input'><span class='co'>#example for predict method</span>
-<span class='no'>sequence</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
-<span class='no'>mcFit</span><span class='kw'>&lt;-</span><span class='fu'><a href='markovchainFit.html'>markovchainFit</a></span>(<span class='kw'>data</span><span class='kw'>=</span><span class='no'>sequence</span>)
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>mcFit</span>$<span class='no'>estimate</span>, <span class='kw'>newdata</span><span class='kw'>=</span><span class='st'>"b"</span>,<span class='kw'>n.ahead</span><span class='kw'>=</span><span class='fl'>3</span>)</div><div class='output co'>#&gt; [1] "a" "b" "a"</div><div class='input'><span class='co'>#direct conversion</span>
-<span class='no'>myMc</span><span class='kw'>&lt;-</span><span class='fu'>as</span>(<span class='no'>transMatr</span>, <span class='st'>"markovchain"</span>)
+<span class='kw'>sequence</span><span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
+<span class='kw'>mcFit</span><span class='op'>&lt;-</span><span class='fu'><a href='createSequenceMatrix.html'>markovchainFit</a></span>(data=<span class='kw'>sequence</span>)
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>mcFit</span><span class='op'>$</span><span class='kw'>estimate</span>, newdata=<span class='st'>"b"</span>,n.ahead=<span class='fl'>3</span>)
+</div><div class='output co'>#&gt; [1] "a" "b" "a"</div><div class='input'><span class='co'>#direct conversion</span>
+<span class='kw'>myMc</span><span class='op'>&lt;-</span><span class='fu'>as</span>(<span class='kw'>transMatr</span>, <span class='st'>"markovchain"</span>)
 
 <span class='co'>#example of summary</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='no'>simpleMc</span>)</div><div class='output co'>#&gt; simpleMc  Markov chain that is composed by: 
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span>(<span class='kw'>simpleMc</span>)
+</div><div class='output co'>#&gt; simpleMc  Markov chain that is composed by: 
 #&gt; Closed classes: 
 #&gt; a b 
 #&gt; Recurrent classes: 
@@ -276,7 +289,9 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 #&gt; Transient classes: 
 #&gt; NONE 
 #&gt; The Markov chain is irreducible 
-#&gt; The absorbing states are: NONE</div><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>simpleMc</span>)</div></pre>
+#&gt; The absorbing states are: NONE</div><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>simpleMc</span>)
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -292,7 +307,7 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

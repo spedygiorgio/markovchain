@@ -75,7 +75,7 @@ would be the element (j, i) instead)" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@ would be the element (j, i) instead)" />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -130,7 +130,7 @@ would be the element (j, i) instead)" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Mean num of visits for markovchain, starting at each state</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>meanNumVisits.Rd</code></div>
     </div>
 
@@ -141,7 +141,7 @@ to the state j if the chain starts at i (in a Markov chain by columns it
 would be the element (j, i) instead)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>meanNumVisits</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>meanNumVisits</span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,16 +158,20 @@ would be the element (j, i) instead)</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Ignacio Cordón</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>M</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>matlab</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/matlab/man/ones.html'>zeros</a></span>(<span class='fl'>5</span>, <span class='fl'>5</span>)
-<span class='no'>M</span>[<span class='fl'>1</span>,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>5</span>,<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>
-<span class='no'>M</span>[<span class='fl'>2</span>,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>2</span>,<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
-<span class='no'>M</span>[<span class='fl'>3</span>,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>3</span>,<span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
-<span class='no'>M</span>[<span class='fl'>4</span>,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='no'>M</span>[<span class='fl'>4</span>,<span class='fl'>5</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>/<span class='fl'>2</span>
+    <pre class="examples"><div class='input'><span class='kw'>M</span> <span class='op'>&lt;-</span> <span class='kw'>matlab</span>::<span class='fu'><a href='https://rdrr.io/pkg/matlab/man/ones.html'>zeros</a></span>(<span class='fl'>5</span>, <span class='fl'>5</span>)
+<span class='kw'>M</span>[<span class='fl'>1</span>,<span class='fl'>1</span>] <span class='op'>&lt;-</span> <span class='kw'>M</span>[<span class='fl'>5</span>,<span class='fl'>5</span>] <span class='op'>&lt;-</span> <span class='fl'>1</span>
+<span class='kw'>M</span>[<span class='fl'>2</span>,<span class='fl'>1</span>] <span class='op'>&lt;-</span> <span class='kw'>M</span>[<span class='fl'>2</span>,<span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>
+<span class='kw'>M</span>[<span class='fl'>3</span>,<span class='fl'>2</span>] <span class='op'>&lt;-</span> <span class='kw'>M</span>[<span class='fl'>3</span>,<span class='fl'>4</span>] <span class='op'>&lt;-</span> <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>
+<span class='kw'>M</span>[<span class='fl'>4</span>,<span class='fl'>2</span>] <span class='op'>&lt;-</span> <span class='kw'>M</span>[<span class='fl'>4</span>,<span class='fl'>5</span>] <span class='op'>&lt;-</span> <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>
 
-<span class='no'>mc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>M</span>)
-<span class='fu'>meanNumVisits</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt;     1   2   3   4   5
+<span class='kw'>mc</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, transitionMatrix = <span class='kw'>M</span>)
+<span class='fu'>meanNumVisits</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt;     1   2   3   4   5
 #&gt; 1 Inf 0.0 0.0 0.0   0
 #&gt; 2 Inf 0.6 0.8 0.4 Inf
 #&gt; 3 Inf 1.2 0.6 0.8 Inf
@@ -189,7 +193,7 @@ would be the element (j, i) instead)</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

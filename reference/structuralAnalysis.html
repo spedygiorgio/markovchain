@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Various function to perform structural analysis of DTMC</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a>, <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a>, <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>structuralAnalysis.Rd</code></div>
     </div>
 
@@ -135,21 +135,21 @@
     <p>These functions return absorbing and transient states of the <code>markovchain</code> objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>period</span>(<span class='no'>object</span>)
+    <pre class="usage"><span class='fu'>period</span>(<span class='kw'>object</span>)
 
-<span class='fu'>communicatingClasses</span>(<span class='no'>object</span>)
+<span class='fu'>communicatingClasses</span>(<span class='kw'>object</span>)
 
-<span class='fu'>recurrentClasses</span>(<span class='no'>object</span>)
+<span class='fu'>recurrentClasses</span>(<span class='kw'>object</span>)
 
-<span class='fu'>transientClasses</span>(<span class='no'>object</span>)
+<span class='fu'>transientClasses</span>(<span class='kw'>object</span>)
 
-<span class='fu'>transientStates</span>(<span class='no'>object</span>)
+<span class='fu'>transientStates</span>(<span class='kw'>object</span>)
 
-<span class='fu'>recurrentStates</span>(<span class='no'>object</span>)
+<span class='fu'>recurrentStates</span>(<span class='kw'>object</span>)
 
-<span class='fu'>absorbingStates</span>(<span class='no'>object</span>)
+<span class='fu'>absorbingStates</span>(<span class='kw'>object</span>)
 
-<span class='fu'>canonicForm</span>(<span class='no'>object</span>)</pre>
+<span class='fu'>canonicForm</span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,7 +163,7 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     
-<dl'>
+<dl>
   <dt><code>period</code></dt><dd><p>returns a integer number corresponding to the periodicity of the Markov 
     chain (if it is irreducible)</p></dd>
   <dt><code>absorbingStates</code></dt><dd><p>returns a character vector with the names of the absorbing 
@@ -190,26 +190,36 @@
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='markovchain-class.html'>markovchain</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Alfredo Spedicato, Ignacio Cordón</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>statesNames</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
-<span class='no'>mc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
+    <pre class="examples"><div class='input'><span class='kw'>statesNames</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
+<span class='kw'>mc</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, transitionMatrix =
           <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>,
                    <span class='fl'>0</span>,   <span class='fl'>1</span>,   <span class='fl'>0</span>,
-                   <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-                 <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>))
+                   <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), nrow = <span class='fl'>3</span>, byrow = <span class='fl'>TRUE</span>,
+                 dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>, <span class='kw'>statesNames</span>))
          )
 
-<span class='fu'>communicatingClasses</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [[1]]
+<span class='fu'>communicatingClasses</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] "a" "c"
 #&gt; 
 #&gt; [[2]]
 #&gt; [1] "b"
-#&gt; </div><div class='input'><span class='fu'>recurrentClasses</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt; </div><div class='input'><span class='fu'>recurrentClasses</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] "b"
-#&gt; </div><div class='input'><span class='fu'>recurrentClasses</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [[1]]
+#&gt; </div><div class='input'><span class='fu'>recurrentClasses</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] "b"
-#&gt; </div><div class='input'><span class='fu'>absorbingStates</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [1] "b"</div><div class='input'><span class='fu'>transientStates</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [1] "a" "c"</div><div class='input'><span class='fu'>recurrentStates</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; [1] "b"</div><div class='input'><span class='fu'>canonicForm</span>(<span class='no'>mc</span>)</div><div class='output co'>#&gt; Unnamed Markov chain 
+#&gt; </div><div class='input'><span class='fu'>absorbingStates</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [1] "b"</div><div class='input'><span class='fu'>transientStates</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [1] "a" "c"</div><div class='input'><span class='fu'>recurrentStates</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; [1] "b"</div><div class='input'><span class='fu'>canonicForm</span>(<span class='kw'>mc</span>)
+</div><div class='output co'>#&gt; Unnamed Markov chain 
 #&gt;  A  3 - dimensional discrete Markov Chain defined by the following states: 
 #&gt;  b, a, c 
 #&gt;  The transition matrix  (by rows)  is defined as follows: 
@@ -219,23 +229,26 @@
 #&gt; c 0.8 0.1 0.1
 #&gt; </div><div class='input'>
 <span class='co'># periodicity analysis</span>
-<span class='no'>A</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>),
-            <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='no'>mcA</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"d"</span>),
-          <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>A</span>,
-          <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"A"</span>)
+<span class='kw'>A</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0.5</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>), 
+            nrow = <span class='fl'>4</span>, ncol = <span class='fl'>4</span>, byrow = <span class='fl'>TRUE</span>)
+<span class='kw'>mcA</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"d"</span>), 
+          transitionMatrix = <span class='kw'>A</span>,
+          name = <span class='st'>"A"</span>)
 
-<span class='fu'><a href='is.irreducible.html'>is.irreducible</a></span>(<span class='no'>mcA</span>) <span class='co'>#true</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>period</span>(<span class='no'>mcA</span>) <span class='co'>#2</span></div><div class='output co'>#&gt; [1] 2</div><div class='input'>
+<span class='fu'><a href='is.irreducible.html'>is.irreducible</a></span>(<span class='kw'>mcA</span>) <span class='co'>#true</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>period</span>(<span class='kw'>mcA</span>) <span class='co'>#2</span>
+</div><div class='output co'>#&gt; [1] 2</div><div class='input'>
 <span class='co'># periodicity analysis</span>
-<span class='no'>B</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
-                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>3</span>, <span class='fl'>0</span>, <span class='fl'>2</span>/<span class='fl'>3</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
-                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>3</span>, <span class='fl'>2</span>/<span class='fl'>3</span>,
-                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>,
-                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>3</span>/<span class='fl'>4</span>, <span class='fl'>1</span>/<span class='fl'>4</span>,
-                   <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
-                   <span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>3</span>/<span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>), <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>7</span>)
-<span class='no'>mcB</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>B</span>)
-<span class='fu'>period</span>(<span class='no'>mcB</span>)</div><div class='output co'>#&gt; [1] 3</div><div class='input'>
+<span class='kw'>B</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
+                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>0</span>, <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
+                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>,
+                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>,
+                   <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>3</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>,
+                   <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>,
+                   <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>3</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>), byrow = <span class='fl'>TRUE</span>, ncol = <span class='fl'>7</span>)
+<span class='kw'>mcB</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, transitionMatrix = <span class='kw'>B</span>)
+<span class='fu'>period</span>(<span class='kw'>mcB</span>)
+</div><div class='output co'>#&gt; [1] 3</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -252,7 +265,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

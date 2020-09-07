@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Functions to fit a higher order Markov chain</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/fitHigherOrder.R'><code>R/fitHigherOrder.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/fitHigherOrder.R'><code>R/fitHigherOrder.R</code></a></small>
     <div class="hidden name"><code>fitHigherOrder.Rd</code></div>
     </div>
 
@@ -137,9 +137,9 @@
   fits the underlying Markov chain distribution with higher order.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fitHigherOrder</span>(<span class='no'>sequence</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='fu'>seq2freqProb</span>(<span class='no'>sequence</span>)
-<span class='fu'>seq2matHigh</span>(<span class='no'>sequence</span>, <span class='no'>order</span>)</pre>
+    <pre class="usage"><span class='fu'>fitHigherOrder</span>(<span class='kw'>sequence</span>, order = <span class='fl'>2</span>)
+<span class='fu'>seq2freqProb</span>(<span class='kw'>sequence</span>)
+<span class='fu'>seq2matHigh</span>(<span class='kw'>sequence</span>, <span class='kw'>order</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,12 +167,16 @@ chains. In Markov Chains (pp. 141-176). Springer US.</p>
 <p>Ching, W. K., Ng, M. K., &amp; Fung, E. S. (2008). Higher-order multivariate
 Markov chains and their applications. Linear Algebra and its Applications,
 428(2), 492-507.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato, Tae Seung Kang</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>sequence</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"c"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>,
+    <pre class="examples"><div class='input'><span class='kw'>sequence</span><span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"c"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>,
             <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>)
-<span class='fu'>fitHigherOrder</span>(<span class='no'>sequence</span>)</div><div class='output co'>#&gt; $lambda
-#&gt; [1] 1.000000e+00 1.626305e-08
+<span class='fu'>fitHigherOrder</span>(<span class='kw'>sequence</span>)
+</div><div class='output co'>#&gt; $lambda
+#&gt; [1] 1.000000e+00 1.626303e-08
 #&gt; 
 #&gt; $Q
 #&gt; $Q[[1]]
@@ -208,7 +212,7 @@ Markov chains and their applications. Linear Algebra and its Applications,
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

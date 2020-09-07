@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Function to fit Higher Order Multivariate Markov chain</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/hommc.R'><code>R/hommc.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/hommc.R'><code>R/hommc.R</code></a></small>
     <div class="hidden name"><code>fitHighOrderMultivarMC.Rd</code></div>
     </div>
 
@@ -137,7 +137,7 @@
              Higher Order Multivariate Markov chain.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fitHighOrderMultivarMC</span>(<span class='no'>seqMat</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>Norm</span> <span class='kw'>=</span> <span class='fl'>2</span>)</pre>
+    <pre class="usage"><span class='fu'>fitHighOrderMultivarMC</span>(<span class='kw'>seqMat</span>, order = <span class='fl'>2</span>, Norm = <span class='fl'>2</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,13 +163,17 @@ is a categorical sequence</p></td>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>W.-K. Ching et al. / Linear Algebra and its Applications</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato, Deepak Yadav</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'2'</span>, <span class='st'>'1'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'4'</span>, <span class='st'>'3'</span>, <span class='st'>'2'</span>, <span class='st'>'1'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'2'</span>, <span class='st'>'1'</span>,
-               <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'2'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'2'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'1'</span>, <span class='st'>'4'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>)),
-               <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='fu'>fitHighOrderMultivarMC</span>(<span class='no'>data</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>Norm</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; <span class='message'>This function is experimental</span></div><div class='output co'>#&gt; Order of multivariate markov chain = 2 
+    <pre class="examples"><div class='input'><span class='kw'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'2'</span>, <span class='st'>'1'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'4'</span>, <span class='st'>'3'</span>, <span class='st'>'2'</span>, <span class='st'>'1'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'2'</span>, <span class='st'>'1'</span>, 
+               <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'2'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'4'</span>, <span class='st'>'2'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>, <span class='st'>'1'</span>, <span class='st'>'4'</span>, <span class='st'>'3'</span>, <span class='st'>'3'</span>)), 
+               ncol = <span class='fl'>2</span>, byrow = <span class='fl'>FALSE</span>)
+               
+<span class='fu'>fitHighOrderMultivarMC</span>(<span class='kw'>data</span>, order = <span class='fl'>2</span>, Norm = <span class='fl'>2</span>)                
+</div><div class='output co'>#&gt; <span class='message'>This function is experimental</span></div><div class='output co'>#&gt; Order of multivariate markov chain = 2 
 #&gt; states = 1 2 3 4 
 #&gt; 
 #&gt; List of Lambda's and the corresponding transition matrix (by cols) :
@@ -181,7 +185,7 @@ is a categorical sequence</p></td>
 #&gt; 3 1 0 0.4 1
 #&gt; 4 0 0 0.2 0
 #&gt; 
-#&gt; Lambda2(1,1) : 6.559993e-05
+#&gt; Lambda2(1,1) : 6.559911e-05
 #&gt; P2(1,1) : 
 #&gt;   1 2   3 4
 #&gt; 1 0 0 0.4 0
@@ -197,7 +201,7 @@ is a categorical sequence</p></td>
 #&gt; 3 1 0.0 0.3333333 0.6
 #&gt; 4 0 0.0 0.0000000 0.2
 #&gt; 
-#&gt; Lambda2(1,2) : 6.559984e-05
+#&gt; Lambda2(1,2) : 6.559955e-05
 #&gt; P2(1,2) : 
 #&gt;   1   2 3   4
 #&gt; 1 0 0.5 0 0.2
@@ -229,7 +233,7 @@ is a categorical sequence</p></td>
 #&gt; 3 0 0.5 0.6666667 0.2
 #&gt; 4 1 0.5 0.0000000 0.6
 #&gt; 
-#&gt; Lambda2(2,2) : 8.013496e-09
+#&gt; Lambda2(2,2) : 8.014089e-09
 #&gt; P2(2,2) : 
 #&gt;   1   2   3   4
 #&gt; 1 0 0.0 0.5 0.0
@@ -253,7 +257,7 @@ is a categorical sequence</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

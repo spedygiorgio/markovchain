@@ -73,7 +73,7 @@ function calculates expected reward value after n steps." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@ function calculates expected reward value after n steps." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@ function calculates expected reward value after n steps." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Expected Rewards for a markovchain</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>expectedRewards.Rd</code></div>
     </div>
 
@@ -137,7 +137,7 @@ function calculates expected reward value after n steps." />
 function calculates expected reward value after n steps.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>expectedRewards</span>(<span class='no'>markovchain</span>,<span class='no'>n</span>,<span class='no'>rewards</span>)</pre>
+    <pre class="usage"><span class='fu'>expectedRewards</span>(<span class='kw'>markovchain</span>,<span class='kw'>n</span>,<span class='kw'>rewards</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,12 +167,16 @@ recursive equation described in reference.</p>
 
     <p>Stochastic Processes: Theory for Applications, Robert G. Gallager,
 Cambridge University Press</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Vandit Jain</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>transMatr</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.99</span>,<span class='fl'>0.01</span>,<span class='fl'>0.01</span>,<span class='fl'>0.99</span>),<span class='kw'>nrow</span><span class='kw'>=</span><span class='fl'>2</span>,<span class='kw'>byrow</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>simpleMc</span><span class='kw'>&lt;-</span><span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>),
-             <span class='kw'>transitionMatrix</span><span class='kw'>=</span><span class='no'>transMatr</span>)
-<span class='fu'>expectedRewards</span>(<span class='no'>simpleMc</span>,<span class='fl'>1</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>,<span class='fl'>1</span>))</div><div class='output co'>#&gt; [1] 0.01 1.99</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>transMatr</span><span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.99</span>,<span class='fl'>0.01</span>,<span class='fl'>0.01</span>,<span class='fl'>0.99</span>),nrow=<span class='fl'>2</span>,byrow=<span class='fl'>TRUE</span>)
+<span class='kw'>simpleMc</span><span class='op'>&lt;-</span><span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states=<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>),
+             transitionMatrix=<span class='kw'>transMatr</span>)
+<span class='fu'>expectedRewards</span>(<span class='kw'>simpleMc</span>,<span class='fl'>1</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>,<span class='fl'>1</span>))
+</div><div class='output co'>#&gt; [1] 0.01 1.99</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -188,7 +192,7 @@ Cambridge University Press</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

@@ -32,28 +32,28 @@ The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framewo
 
 \Address{
     Giorgio Alfredo Spedicato\\
-  Ph.D C.Stat FCAS, FSA, CSPA Unipol Group\\
-  Via Firenze 11 Paderno Dugnano 20037 Italy\\
+    Ph.D C.Stat FCAS, FSA, CSPA Unipol Group\\
+    Via Firenze 11 Paderno Dugnano 20037 Italy\\
   E-mail: \email{spedygiorgio@gmail.com}\\
   URL: www.statisticaladvisor.com\\~\\
       Tae Seung Kang\\
-  Ph.D student, Computer \& Information Science \& Engineering\\
-  University of Florida Gainesville, FL, USA\\
+    Ph.D student, Computer \& Information Science \& Engineering\\
+    University of Florida Gainesville, FL, USA\\
   E-mail: \email{tskang3@gmail.com}\\
   
       Sai Bhargav Yalamanchi\\
-  B-Tech student, Electrical Engineering\\
-  Indian Institute of Technology, Bombay Mumbai - 400 076, India\\
+    B-Tech student, Electrical Engineering\\
+    Indian Institute of Technology, Bombay Mumbai - 400 076, India\\
   E-mail: \email{bhargavcoolboy@gmail.com}\\
   
       Deepak Yadav\\
-  B-Tech student, Computer Science and Engineering\\
-  Indian Institute of Technology, Varanasi Uttar Pradesh - 221 005, India\\
+    B-Tech student, Computer Science and Engineering\\
+    Indian Institute of Technology, Varanasi Uttar Pradesh - 221 005, India\\
   E-mail: \email{deepakyadav.iitbhu@gmail.com}\\
   
       Ignacio Cordón\\
-  Software Engineer\\
-  Madrid (Madrid), Spain\\
+    Software Engineer\\
+    Madrid (Madrid), Spain\\
   E-mail: \email{nacho.cordon.castillo@gmail.com}\\
   
   }
@@ -368,11 +368,11 @@ The \texttt{markovchain} objects can be created either in a long way, as the fol
 R> weatherStates <- c("sunny", "cloudy", "rain")
 R> byRow <- TRUE
 R> weatherMatrix <- matrix(data = c(0.70, 0.2, 0.1,
-R+                        0.3, 0.4, 0.3,
-R+                        0.2, 0.45, 0.35), byrow = byRow, nrow = 3,
-R+                      dimnames = list(weatherStates, weatherStates))
++                        0.3, 0.4, 0.3,
++                        0.2, 0.45, 0.35), byrow = byRow, nrow = 3,
++                      dimnames = list(weatherStates, weatherStates))
 R> mcWeather <- new("markovchain", states = weatherStates, byrow = byRow, 
-R+                transitionMatrix = weatherMatrix, name = "Weather")
++                transitionMatrix = weatherMatrix, name = "Weather")
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -382,10 +382,10 @@ or in a shorter way, displayed below
 
 \begin{CodeInput}
 R> mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
-R+                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
-R+                        0.3, 0.4, 0.3,
-R+                        0.2, 0.45, 0.35), byrow = byRow, nrow = 3), 
-R+                  name = "Weather")
++                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
++                        0.3, 0.4, 0.3,
++                        0.2, 0.45, 0.35), byrow = byRow, nrow = 3), 
++                  name = "Weather")
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -414,7 +414,7 @@ The \texttt{markovchain} objects can be collected in a list within \texttt{marko
 
 \begin{CodeInput}
 R> mcList <- new("markovchainList", markovchains = list(mcWeather, defaultMc), 
-R+                name = "A list of Markov chains")
++                 name = "A list of Markov chains")
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -516,17 +516,17 @@ The initial state vector previously shown can not necessarily be a probability v
 
 \begin{CodeInput}
 R> fvals<-function(mchain,initialstate,n) {
-R+   out<-data.frame()
-R+   names(initialstate)<-names(mchain)
-R+   for (i in 0:n)
-R+   {
-R+     iteration<-initialstate*mchain^(i)
-R+     out<-rbind(out,iteration)
-R+   }
-R+   out<-cbind(out, i=seq(0,n))
-R+   out<-out[,c(4,1:3)]
-R+   return(out)
-R+ }
++   out<-data.frame()
++   names(initialstate)<-names(mchain)
++   for (i in 0:n)
++   {
++     iteration<-initialstate*mchain^(i)
++     out<-rbind(out,iteration)
++   }
++   out<-cbind(out, i=seq(0,n))
++   out<-out[,c(4,1:3)]
++   return(out)
++ }
 R> fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
 \end{CodeInput}
 
@@ -683,7 +683,7 @@ The following object is masked from 'package:base':
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpYrpjLK/file3b7651624990/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
 
 }
 
@@ -698,7 +698,7 @@ Loading required package: shape
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpYrpjLK/file3b7651624990/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
 
 }
 
@@ -738,17 +738,17 @@ R> mcIgraph <- as(mcWeather, "igraph")
 
 \begin{CodeInput}
 R> if (requireNamespace("msm", quietly = TRUE)) {
-R+ require(msm)
-R+ Q <- rbind ( c(0, 0.25, 0, 0.25),
-R+              c(0.166, 0, 0.166, 0.166),
-R+              c(0, 0.25, 0, 0.25),
-R+              c(0, 0, 0, 0) )
-R+ cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
-R+ msmMc <- as(cavmsm, "markovchain")
-R+ msmMc
-R+   } else {
-R+   message("msm unavailable")
-R+   }
++ require(msm)
++ Q <- rbind ( c(0, 0.25, 0, 0.25),
++              c(0.166, 0, 0.166, 0.166),
++              c(0, 0.25, 0, 0.25),
++              c(0, 0, 0, 0) )
++ cavmsm <- msm(state ~ years, subject = PTNUM, data = cav, qmatrix = Q, death = 4)
++ msmMc <- as(cavmsm, "markovchain")
++ msmMc
++   } else {
++   message("msm unavailable")
++   }
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -768,48 +768,43 @@ State 4 0.000000000 0.00000000 0.00000000 1.00000000
 \end{CodeOutput}
 \end{CodeChunk}
 
+from etm (now archived as of September 2020):
+
 \begin{CodeChunk}
 
 \begin{CodeInput}
 R> if (requireNamespace("etm", quietly = TRUE)) {
-R+ library(etm)
-R+ data(sir.cont)
-R+ sir.cont <- sir.cont[order(sir.cont$id, sir.cont$time), ]
-R+ for (i in 2:nrow(sir.cont)) {
-R+   if (sir.cont$id[i]==sir.cont$id[i-1]) {
-R+     if (sir.cont$time[i]==sir.cont$time[i-1]) {
-R+       sir.cont$time[i-1] <- sir.cont$time[i-1] - 0.5
-R+     }
-R+   }
-R+ }
-R+ tra <- matrix(ncol=3,nrow=3,FALSE)
-R+ tra[1, 2:3] <- TRUE
-R+ tra[2, c(1, 3)] <- TRUE
-R+ tr.prob <- etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
-R+ tr.prob
-R+ etm2mc<-as(tr.prob, "markovchain")
-R+ etm2mc
-R+   } else {
-R+   message("etm unavailable")
-R+ }
++ library(etm)
++ data(sir.cont)
++ sir.cont <- sir.cont[order(sir.cont$id, sir.cont$time), ]
++ for (i in 2:nrow(sir.cont)) {
++   if (sir.cont$id[i]==sir.cont$id[i-1]) {
++     if (sir.cont$time[i]==sir.cont$time[i-1]) {
++       sir.cont$time[i-1] <- sir.cont$time[i-1] - 0.5
++     }
++   }
++ }
++ tra <- matrix(ncol=3,nrow=3,FALSE)
++ tra[1, 2:3] <- TRUE
++ tra[2, c(1, 3)] <- TRUE
++ tr.prob <- etm::etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
++ tr.prob
++ etm2mc<-as(tr.prob, "markovchain")
++ etm2mc
++   } else {
++   message("etm unavailable")
++ }
 \end{CodeInput}
 
 \begin{CodeOutput}
-Unnamed Markov chain 
- A  3 - dimensional discrete Markov Chain defined by the following states: 
- 0, 1, 2 
- The transition matrix  (by rows)  is defined as follows: 
-          0         1         2
-0 0.0000000 0.5000000 0.5000000
-1 0.5000000 0.0000000 0.5000000
-2 0.3333333 0.3333333 0.3333333
+etm unavailable
 \end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpYrpjLK/file3b7651624990/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
 
 }
 
@@ -846,19 +841,19 @@ Non-homogeneous Markov chains can be created with the aid of \texttt{markovchain
 \begin{CodeInput}
 R> stateNames = c("H", "I", "D")
 R> Q0 <- new("markovchain", states = stateNames, 
-R+         transitionMatrix =matrix(c(0.7, 0.2, 0.1,0.1, 0.6, 0.3,0, 0, 1), 
-R+         byrow = TRUE, nrow = 3), name = "state t0")
++         transitionMatrix =matrix(c(0.7, 0.2, 0.1,0.1, 0.6, 0.3,0, 0, 1), 
++         byrow = TRUE, nrow = 3), name = "state t0")
 R> Q1 <- new("markovchain", states = stateNames, 
-R+         transitionMatrix = matrix(c(0.5, 0.3, 0.2,0, 0.4, 0.6,0, 0, 1), 
-R+         byrow = TRUE, nrow = 3), name = "state t1")
++         transitionMatrix = matrix(c(0.5, 0.3, 0.2,0, 0.4, 0.6,0, 0, 1), 
++         byrow = TRUE, nrow = 3), name = "state t1")
 R> Q2 <- new("markovchain", states = stateNames, 
-R+         transitionMatrix = matrix(c(0.3, 0.2, 0.5,0, 0.2, 0.8,0, 0, 1), 
-R+         byrow = TRUE,nrow = 3), name = "state t2")
++         transitionMatrix = matrix(c(0.3, 0.2, 0.5,0, 0.2, 0.8,0, 0, 1), 
++         byrow = TRUE,nrow = 3), name = "state t2")
 R> Q3 <- new("markovchain", states = stateNames, 
-R+           transitionMatrix = matrix(c(0, 0, 1, 0, 0, 1, 0, 0, 1), 
-R+         byrow = TRUE, nrow = 3), name = "state t3")
++           transitionMatrix = matrix(c(0, 0, 1, 0, 0, 1, 0, 0, 1), 
++         byrow = TRUE, nrow = 3), name = "state t3")
 R> mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3), 
-R+       name = "Continuous Care Health Community")
++       name = "Continuous Care Health Community")
 R> print(mcCCRC)
 \end{CodeInput}
 
@@ -1117,19 +1112,19 @@ It is possible for a Markov chain to have more than one stationary distribution,
 
 \begin{CodeInput}
 R> gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
-R+   m <- matlab::zeros(moneyMax + 1)
-R+   m[1,1] <- m[moneyMax + 1,moneyMax + 1] <- 1
-R+   states <- as.character(0:moneyMax)
-R+   rownames(m) <- colnames(m) <- states
-R+   
-R+   for(i in 2:moneyMax){ 
-R+     m[i,i-1] <- 1 - prob
-R+     m[i, i + 1] <- prob   
-R+   }
-R+   
-R+   new("markovchain", transitionMatrix = m, 
-R+       name = paste("Gambler ruin", moneyMax, "dim", sep = " "))
-R+ }
++   m <- matlab::zeros(moneyMax + 1)
++   m[1,1] <- m[moneyMax + 1,moneyMax + 1] <- 1
++   states <- as.character(0:moneyMax)
++   rownames(m) <- colnames(m) <- states
++   
++   for(i in 2:moneyMax){ 
++     m[i,i-1] <- 1 - prob
++     m[i, i + 1] <- prob   
++   }
++   
++   new("markovchain", transitionMatrix = m, 
++       name = paste("Gambler ruin", moneyMax, "dim", sep = " "))
++ }
 R> 
 R> mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 R> steadyStates(mcGR4)
@@ -1200,7 +1195,7 @@ R> P[10, c(2, 5, 10)] <- 1/3;
 R> rownames(P) <- letters[1:10] 
 R> colnames(P) <- letters[1:10]
 R> probMc <- new("markovchain", transitionMatrix = P, 
-R+               name = "Probability MC")
++               name = "Probability MC")
 R> summary(probMc)
 \end{CodeInput}
 
@@ -1317,8 +1312,8 @@ R> E[3,2] <- 1/4; E[3, 4] <- 3/4
 R> E[4, 3] <- 1
 R> 
 R> mcE <- new("markovchain", states = c("a", "b", "c", "d"), 
-R+      transitionMatrix = E, 
-R+      name = "E")
++       transitionMatrix = E, 
++       name = "E")
 R> is.irreducible(mcE)
 \end{CodeInput}
 
@@ -1350,14 +1345,14 @@ R> mathematicaMatr[4,] <- c(0, 0, 1/2, 1/2, 0)
 R> mathematicaMatr[5,] <- c(0, 0, 0, 0, 1)
 R> statesNames <- letters[1:5]
 R> mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
-R+                    name = "Mathematica MC", states = statesNames)
++                    name = "Mathematica MC", states = statesNames)
 \end{CodeInput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpYrpjLK/file3b7651624990/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
 
 }
 
@@ -1390,15 +1385,15 @@ The absorbing states are: e
 
 \begin{CodeInput}
 R> .firstpassageKernel <- function(P, i, n){
-R>   G <- P
-R>   H <- P[i,]
-R>   E <- 1 - diag(size(P)[2])
-R>   for (m in 2:n) {
-R>     G <- P %*% (G * E)
-R>     H <- rbind(H, G[i,])
-R>   }
-R>   return(H)
-R> }
++   G <- P
++   H <- P[i,]
++   E <- 1 - diag(size(P)[2])
++   for (m in 2:n) {
++     G <- P %*% (G * E)
++     H <- rbind(H, G[i,])
++   }
++   return(H)
++ }
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -1408,7 +1403,7 @@ We conclude that the probability for the \emph{first} rainy day to be the third 
 
 \begin{CodeInput}
 R> firstPassagePdF <- firstPassage(object = mcWeather, state = "sunny", 
-R+                                 n = 10)
++                                 n = 10)
 R> firstPassagePdF[3, 3]
 \end{CodeInput}
 
@@ -1796,7 +1791,7 @@ as the following code (applied on CCHC example) exemplifies.
 
 \begin{CodeInput}
 R> patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H", 
-R+                               include.t0 = TRUE)
++                               include.t0 = TRUE)
 R> patientStates[1:10,]
 \end{CodeInput}
 
@@ -1879,8 +1874,8 @@ is substituted by \(n_{ij}+\alpha\) (see Equation \ref{eq:LAPLACE}), being
 
 \begin{CodeInput}
 R> weatherFittedLAPLACE <- markovchainFit(data = weathersOfDays, 
-R+                                     method = "laplace", laplacian = 0.01,
-R+                                     name = "Weather LAPLACE")
++                                     method = "laplace", laplacian = 0.01,
++                                     name = "Weather LAPLACE")
 R> weatherFittedLAPLACE$estimate
 \end{CodeInput}
 
@@ -1952,7 +1947,7 @@ these steps:
 
 \begin{CodeInput}
 R> weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
-R+                                     method = "bootstrap", nboot = 20)
++                                     method = "bootstrap", nboot = 20)
 R> weatherFittedBOOT$estimate
 \end{CodeInput}
 
@@ -1985,8 +1980,8 @@ The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} p
 
 \begin{CodeInput}
 R> weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
-R>                                     method = "bootstrap", nboot = 200, 
-R>                                     parallel = TRUE)
++                                     method = "bootstrap", nboot = 200, 
++                                     parallel = TRUE)
 R> weatherFittedBOOTParallel$estimate
 R> weatherFittedBOOTParallel$standardError
 \end{CodeInput}
@@ -2080,8 +2075,8 @@ A special function, \texttt{multinomialConfidenceIntervals}, has been written in
 
 \begin{CodeInput}
 R> multinomialConfidenceIntervals(transitionMatrix = 
-R+         weatherFittedMLE$estimate@transitionMatrix, 
-R+         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
++         weatherFittedMLE$estimate@transitionMatrix, 
++         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -2243,7 +2238,7 @@ The 3-days forward predictions from \texttt{markovchain} object can be generated
 
 \begin{CodeInput}
 R> predict(object = weatherFittedMLE$estimate, newdata = c("cloudy", "sunny"),
-R+         n.ahead = 3)
++         n.ahead = 3)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -2300,15 +2295,9 @@ r denotes the number of triplets (i, j, k) for which n\_\{ij\}n\_\{jk\} \textgre
 
 \begin{CodeInput}
 R> sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
-R+                    "b", "a", "a", "b", "b", "b", "a")
++                    "b", "a", "a", "b", "b", "b", "a")
 R> verifyMarkovProperty(sample_sequence)
 \end{CodeInput}
-
-\begin{CodeOutput}
-Warning in verifyMarkovProperty(sample_sequence): The accuracy of the
-statistical inference functions has been questioned. It will be thoroughly
-investigated in future versions of the package.
-\end{CodeOutput}
 
 \begin{CodeOutput}
 Testing markovianity property on given data sequence
@@ -2446,21 +2435,14 @@ The first test is implemented by the \texttt{verifyEmpiricalToTheoretical} funct
 
 \begin{CodeInput}
 R> sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
-R+ 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
-R+ 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-R+ 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
-R+ 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
++ 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
++ 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
++ 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
++ 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
 R> mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 R> rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 R> verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
 \end{CodeInput}
-
-\begin{CodeOutput}
-Warning in verifyEmpiricalToTheoretical(data = sequence, object =
-theoreticalMc): The accuracy of the statistical inference functions has been
-questioned. It will be thoroughly investigated in future versions of the
-package.
-\end{CodeOutput}
 
 \begin{CodeOutput}
 Testing whether the
@@ -2623,11 +2605,11 @@ To create a CTMC object, you need to provide a valid generator matrix, say \(Q\)
 R> energyStates <- c("sigma", "sigma_star")
 R> byRow <- TRUE
 R> gen <- matrix(data = c(-3, 3,
-R+                        1, -1), nrow = 2,
-R+               byrow = byRow, dimnames = list(energyStates, energyStates))
++                        1, -1), nrow = 2,
++               byrow = byRow, dimnames = list(energyStates, energyStates))
 R> molecularCTMC <- new("ctmc", states = energyStates, 
-R+                  byrow = byRow, generator = gen, 
-R+                  name = "Molecular Transition Model")      
++                  byrow = byRow, generator = gen, 
++                  name = "Molecular Transition Model")      
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -2686,7 +2668,7 @@ For fitting, use the \texttt{ctmcFit} function. It returns the MLE values for th
 
 \begin{CodeInput}
 R> data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
-R+              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
++              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
 R> ctmcFit(data)
 \end{CodeInput}
 
@@ -2813,15 +2795,15 @@ The following object is masked from 'package:Matrix':
 \begin{CodeInput}
 R> #defines a function to transform a GM into a TM
 R> gm_to_markovchain<-function(object, t=1) {
-R+   if(!(class(object) %in% c("gm","matrix","Matrix")))
-R+     stop("Error! Expecting either a matrix or a gm object")
-R+   if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
-R+   #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
-R+   #must add importFrom(expm, "expm")
-R+   transitionMatrix<-expm(generator_matrix*t)
-R+   out<-as(transitionMatrix,"markovchain")
-R+   return(out)
-R+ }
++   if(!(class(object) %in% c("gm","matrix","Matrix")))
++     stop("Error! Expecting either a matrix or a gm object")
++   if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
++   #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
++   #must add importFrom(expm, "expm")
++   transitionMatrix<-expm(generator_matrix*t)
++   out<-as(transitionMatrix,"markovchain")
++   return(out)
++ }
 R> #loading ctmcd dataset
 R> data(tm_abs)
 R> gm0=matrix(1,8,8) #initializing
@@ -2852,34 +2834,34 @@ The following code returns the pseudo Bayesian estimate of the transition matrix
 
 \begin{CodeInput}
 R> pseudoBayesEstimator <- function(raw, apriori){
-R+   v_i <- rowSums(raw) 
-R+   K_i <- numeric(nrow(raw))
-R+   sumSquaredY <- rowSums(raw^2)
-R+   #get numerator
-R+   K_i_num <- v_i^2-sumSquaredY
-R+   #get denominator
-R+   VQ <- matrix(0,nrow= nrow(apriori),ncol=ncol(apriori))
-R+   for (i in 1:nrow(VQ)) {
-R+     VQ[i,]<-v_i[i]*apriori[i,]
-R+   }
-R+   
-R+   K_i_den<-rowSums((raw - VQ)^2)
-R+   
-R+   K_i <- K_i_num/K_i_den
-R+   
-R+   #get the alpha vector
-R+   alpha <- K_i / (v_i+K_i)
-R+   
-R+   #empirical transition matrix
-R+   Emp<-raw/rowSums(raw)
-R+   
-R+   #get the estimate
-R+   out<-matrix(0, nrow= nrow(raw),ncol=ncol(raw))
-R+   for (i in 1:nrow(out)) {
-R+     out[i,]<-alpha[i]*apriori[i,]+(1-alpha[i])*Emp[i,]
-R+   }
-R+   return(out)
-R+ }
++   v_i <- rowSums(raw) 
++   K_i <- numeric(nrow(raw))
++   sumSquaredY <- rowSums(raw^2)
++   #get numerator
++   K_i_num <- v_i^2-sumSquaredY
++   #get denominator
++   VQ <- matrix(0,nrow= nrow(apriori),ncol=ncol(apriori))
++   for (i in 1:nrow(VQ)) {
++     VQ[i,]<-v_i[i]*apriori[i,]
++   }
++   
++   K_i_den<-rowSums((raw - VQ)^2)
++   
++   K_i <- K_i_num/K_i_den
++   
++   #get the alpha vector
++   alpha <- K_i / (v_i+K_i)
++   
++   #empirical transition matrix
++   Emp<-raw/rowSums(raw)
++   
++   #get the estimate
++   out<-matrix(0, nrow= nrow(raw),ncol=ncol(raw))
++   for (i in 1:nrow(out)) {
++     out[i,]<-alpha[i]*apriori[i,]+(1-alpha[i])*Emp[i,]
++   }
++   return(out)
++ }
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -2894,9 +2876,9 @@ R>
 R> smallSample<-rmarkovchain(n=20,object = trueMc)
 R> smallSampleRawTransitions<-createSequenceMatrix(stringchar = smallSample)
 R> pseudoBayesEstimator(
-R+   raw = smallSampleRawTransitions, 
-R+   apriori = aprioriMc@transitionMatrix
-R+ ) - trueMc@transitionMatrix
++   raw = smallSampleRawTransitions, 
++   apriori = aprioriMc@transitionMatrix
++ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -2909,9 +2891,9 @@ s2 -0.136019 0.136019
 R> biggerSample<-rmarkovchain(n=100,object = trueMc)
 R> biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample)
 R> pseudoBayesEstimator(
-R+   raw = biggerSampleRawTransitions,
-R+   apriori = aprioriMc@transitionMatrix
-R+ ) - trueMc@transitionMatrix
++   raw = biggerSampleRawTransitions,
++   apriori = aprioriMc@transitionMatrix
++ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -2924,9 +2906,9 @@ s2 -0.02107810  0.02107810
 R> bigSample<-rmarkovchain(n=1000,object = trueMc)
 R> bigSampleRawTransitions<-createSequenceMatrix(stringchar = bigSample)
 R> pseudoBayesEstimator(
-R+   raw = bigSampleRawTransitions,
-R+   apriori = aprioriMc@transitionMatrix
-R+ ) - trueMc@transitionMatrix
++   raw = bigSampleRawTransitions,
++   apriori = aprioriMc@transitionMatrix
++ ) - trueMc@transitionMatrix
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3062,13 +3044,13 @@ where \(m(u, s)\) is the \(u\rightarrow s\) transition count in the data sample.
 R> weatherStates <- c("sunny", "cloudy", "rain")
 R> byRow <- TRUE
 R> weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
-R+                                  0.3, 0.4, 0.3, 
-R+                                  0.2, 0.4, 0.4), 
-R+                         byrow = byRow, nrow = 3, 
-R+                         dimnames = list(weatherStates, weatherStates))
++                                  0.3, 0.4, 0.3, 
++                                  0.2, 0.4, 0.4), 
++                         byrow = byRow, nrow = 3, 
++                         dimnames = list(weatherStates, weatherStates))
 R> mcWeather <- new("markovchain", states = weatherStates, 
-R+                  byrow = byRow, transitionMatrix = weatherMatrix, 
-R+                  name = "Weather")      
++                  byrow = byRow, transitionMatrix = weatherMatrix, 
++                  name = "Weather")      
 R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 \end{CodeInput}
 \end{CodeChunk}
@@ -3081,12 +3063,12 @@ Let us invoke the fit function to estimate the MAP parameters with 92\% confiden
 
 \begin{CodeInput}
 R> hyperMatrix<-matrix(c(1, 1, 2, 
-R+                       3, 2, 1,
-R+                       2, 2, 3), 
-R+                     nrow = 3, byrow = TRUE,
-R+                     dimnames = list(weatherStates,weatherStates))
++                       3, 2, 1,
++                       2, 2, 3), 
++                     nrow = 3, byrow = TRUE,
++                     dimnames = list(weatherStates,weatherStates))
 R> markovchainFit(weathersOfDays[1:200], method = "map", 
-R+                confidencelevel = 0.92, hyperparam = hyperMatrix)
++                confidencelevel = 0.92, hyperparam = hyperMatrix)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3136,7 +3118,7 @@ $logLikelihood
 
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
-R+                        weathersOfDays[201:365],hyperparam = hyperMatrix) 
++                        weathersOfDays[201:365],hyperparam = hyperMatrix) 
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3151,7 +3133,7 @@ The results should not change after permuting the dimensions of the matrix.
 \begin{CodeInput}
 R> hyperMatrix2<- hyperMatrix[c(2,3,1), c(2,3,1)]
 R> markovchainFit(weathersOfDays[1:200], method = "map", 
-R+                confidencelevel = 0.92, hyperparam = hyperMatrix2)
++                confidencelevel = 0.92, hyperparam = hyperMatrix2)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3201,7 +3183,7 @@ $logLikelihood
 
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
-R+                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
++                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3250,7 +3232,7 @@ In order to use the inferred hyper-parameter matrices, we do
 
 \begin{CodeInput}
 R> hyperMatrix3 <- inferHyperparam(transMatr = weatherMatrix, 
-R+                                 scale = c(10, 10, 10))
++                                 scale = c(10, 10, 10))
 R> hyperMatrix3 <- hyperMatrix3$scaledInference
 R> hyperMatrix4 <- inferHyperparam(data = weathersOfDays[1:15])
 R> hyperMatrix4 <- hyperMatrix4$dataInference
@@ -3322,9 +3304,9 @@ nice days in a row. Consider three weather states: rainy, nice and snowy. Let th
 
 \begin{CodeInput}
 R> mcWP <- new("markovchain", states = c("rainy", "nice", "snowy"),
-R+          transitionMatrix = matrix(c(0.5, 0.25, 0.25,
-R+                                    0.5, 0, 0.5,
-R+                                    0.25,0.25,0.5), byrow = T, nrow = 3))
++          transitionMatrix = matrix(c(0.5, 0.25, 0.25,
++                                    0.5, 0, 0.5,
++                                    0.25,0.25,0.5), byrow = T, nrow = 3))
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -3490,15 +3472,15 @@ carrying Standard \& Poor's published data.
 \begin{CodeInput}
 R> rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
 R> creditMatrix <- matrix(
-R+   c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
-R+     0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
-R+     0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
-R+     0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
-R+     0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
-R+     0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
-R+     0.21, 0, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
-R+     0, 0, 0, 0, 0, 0, 0, 100
-R+    )/100, 8, 8, dimnames = list(rc, rc), byrow = TRUE)
++   c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
++     0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
++     0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
++     0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
++     0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
++     0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
++     0.21, 0, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
++     0, 0, 0, 0, 0, 0, 0, 100
++    )/100, 8, 8, dimnames = list(rc, rc), byrow = TRUE)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -3508,7 +3490,7 @@ It is easy to convert such matrices into \texttt{markovchain} objects and to per
 
 \begin{CodeInput}
 R> creditMc <- new("markovchain", transitionMatrix = creditMatrix, 
-R+                 name = "S&P Matrix")
++                 name = "S&P Matrix")
 R> absorbingStates(creditMc)
 \end{CodeInput}
 
@@ -3609,28 +3591,28 @@ to be Poisson distributed.
 
 \begin{CodeInput}
 R> getBonusMalusMarkovChain <- function(lambda) {
-R+  bmMatr <- zeros(5)
-R+  bmMatr[1, 1] <- dpois(x = 0, lambda)
-R+  bmMatr[1, 3] <- dpois(x = 1, lambda)
-R+  bmMatr[1, 5] <- 1 - ppois(q = 1, lambda)
-R+  
-R+  bmMatr[2, 1] <- dpois(x = 0, lambda)
-R+  bmMatr[2, 4] <- dpois(x = 1, lambda)
-R+  bmMatr[2, 5] <- 1 - ppois(q = 1, lambda)
-R+  
-R+  bmMatr[3, 2] <- dpois(x = 0, lambda)
-R+  bmMatr[3, 5] <- 1 - dpois(x=0, lambda)
-R+  
-R+  bmMatr[4, 3] <- dpois(x = 0, lambda)
-R+  bmMatr[4, 5] <- 1 - dpois(x = 0, lambda)
-R+   
-R+  bmMatr[5, 4] <- dpois(x = 0, lambda)
-R+  bmMatr[5, 5] <- 1 - dpois(x = 0, lambda)
-R+  stateNames <- as.character(1:5)
-R+  out <- new("markovchain", transitionMatrix = bmMatr, 
-R+              states = stateNames, name = "BM Matrix")
-R+  return(out)
-R+ }
++   bmMatr <- zeros(5)
++   bmMatr[1, 1] <- dpois(x = 0, lambda)
++   bmMatr[1, 3] <- dpois(x = 1, lambda)
++   bmMatr[1, 5] <- 1 - ppois(q = 1, lambda)
++   
++   bmMatr[2, 1] <- dpois(x = 0, lambda)
++   bmMatr[2, 4] <- dpois(x = 1, lambda)
++   bmMatr[2, 5] <- 1 - ppois(q = 1, lambda)
++   
++   bmMatr[3, 2] <- dpois(x = 0, lambda)
++   bmMatr[3, 5] <- 1 - dpois(x=0, lambda)
++  
++   bmMatr[4, 3] <- dpois(x = 0, lambda)
++   bmMatr[4, 5] <- 1 - dpois(x = 0, lambda)
++   
++   bmMatr[5, 4] <- dpois(x = 0, lambda)
++   bmMatr[5, 5] <- 1 - dpois(x = 0, lambda)
++   stateNames <- as.character(1:5)
++   out <- new("markovchain", transitionMatrix = bmMatr, 
++              states = stateNames, name = "BM Matrix")
++   return(out)
++ }
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -3674,9 +3656,9 @@ An applied example can be performed using the data from \cite{de2016assicurazion
 
 \begin{CodeInput}
 R> ltcDemoPath<-system.file("extdata", "ltdItaData.txt", 
-R+                          package = "markovchain")
++                          package = "markovchain")
 R> ltcDemo<-read.table(file = ltcDemoPath, header=TRUE, 
-R+                     sep = ";", dec = ".")
++                     sep = ";", dec = ".")
 R> head(ltcDemo)
 \end{CodeInput}
 
@@ -3698,11 +3680,11 @@ transition matrix.
 
 \begin{CodeInput}
 R> ltcDemo<-transform(ltcDemo,
-R+                    pIA=0,
-R+                    pII=1-pID,
-R+                    pDD=1,
-R+                    pDA=0,
-R+                    pDI=0)
++                    pIA=0,
++                    pII=1-pID,
++                    pDD=1,
++                    pDA=0,
++                    pDI=0)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -3713,24 +3695,24 @@ Now we build a function that returns the transition during the \(t+1\) th year, 
 \begin{CodeInput}
 R> possibleStates<-c("A","I","D")
 R> getMc4Age<-function(age) {
-R+   transitionsAtAge<-ltcDemo[ltcDemo$age==age,]
-R+   
-R+   myTransMatr<-matrix(0, nrow=3,ncol = 3,
-R+                       dimnames = list(possibleStates, possibleStates))
-R+   myTransMatr[1,1]<-transitionsAtAge$pAA[1]
-R+   myTransMatr[1,2]<-transitionsAtAge$pAI[1]
-R+   myTransMatr[1,3]<-transitionsAtAge$pAD[1]
-R+   myTransMatr[2,2]<-transitionsAtAge$pII[1]
-R+   myTransMatr[2,3]<-transitionsAtAge$pID[1]
-R+   myTransMatr[3,3]<-1
-R+   
-R+   myMc<-new("markovchain", transitionMatrix = myTransMatr,
-R+             states = possibleStates,
-R+             name = paste("Age",age,"transition matrix"))
-R+   
-R+   return(myMc)
-R+ 
-R+ }
++   transitionsAtAge<-ltcDemo[ltcDemo$age==age,]
++   
++   myTransMatr<-matrix(0, nrow=3,ncol = 3,
++                       dimnames = list(possibleStates, possibleStates))
++   myTransMatr[1,1]<-transitionsAtAge$pAA[1]
++   myTransMatr[1,2]<-transitionsAtAge$pAI[1]
++   myTransMatr[1,3]<-transitionsAtAge$pAD[1]
++   myTransMatr[2,2]<-transitionsAtAge$pII[1]
++   myTransMatr[2,3]<-transitionsAtAge$pID[1]
++   myTransMatr[3,3]<-1
++   
++   myMc<-new("markovchain", transitionMatrix = myTransMatr,
++             states = possibleStates,
++             name = paste("Age",age,"transition matrix"))
++   
++   return(myMc)
++ 
++ }
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -3740,18 +3722,18 @@ Cause transitions are not homogeneous across ages, we use a \texttt{markovchainL
 
 \begin{CodeInput}
 R> getFullTransitionTable<-function(age){
-R+   ageSequence<-seq(from=age, to=120)
-R+   k=1
-R+   myList=list()
-R+   for ( i in ageSequence) {
-R+     mc_age_i<-getMc4Age(age = i)
-R+     myList[[k]]<-mc_age_i
-R+     k=k+1
-R+   }
-R+   myMarkovChainList<-new("markovchainList", markovchains = myList,
-R+                          name = paste("TransitionsSinceAge", age, sep = ""))
-R+   return(myMarkovChainList)
-R+ }
++   ageSequence<-seq(from=age, to=120)
++   k=1
++   myList=list()
++   for ( i in ageSequence) {
++     mc_age_i<-getMc4Age(age = i)
++     myList[[k]]<-mc_age_i
++     k=k+1
++   }
++   myMarkovChainList<-new("markovchainList", markovchains = myList,
++                          name = paste("TransitionsSinceAge", age, sep = ""))
++   return(myMarkovChainList)
++ }
 R> transitionsSince100<-getFullTransitionTable(age=100)
 \end{CodeInput}
 \end{CodeChunk}
@@ -3762,7 +3744,7 @@ We can use such transition for simulating ten life trajectories for a guy that b
 
 \begin{CodeInput}
 R> rmarkovchain(n = 10, object = transitionsSince100,
-R+              what = "matrix", t0 = "A", include.t0 = TRUE)
++              what = "matrix", t0 = "A", include.t0 = TRUE)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -3798,7 +3780,7 @@ Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We ca
 \begin{CodeInput}
 R> transitionsSince80<-getFullTransitionTable(age=80)
 R> lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,
-R+                                what="matrix",t0="A",include.t0=TRUE)
++                                what="matrix",t0="A",include.t0=TRUE)
 R> temp<-matrix(0,nrow=nrow(lifeTrajectories),ncol = ncol(lifeTrajectories))
 R> temp[lifeTrajectories=="I"]<-1
 R> expected_period_disabled<-mean(rowSums((temp)))
@@ -3854,7 +3836,7 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmpYrpjLK/file3b7651624990/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
 
 }
 
@@ -3899,7 +3881,7 @@ It is possible to model the transition probabilities between bases as shown in t
 
 \begin{CodeInput}
 R> mcProtein <- markovchainFit(preproglucacon$preproglucacon, 
-R+                           name = "Preproglucacon MC")$estimate
++                           name = "Preproglucacon MC")$estimate
 R> mcProtein
 \end{CodeInput}
 
@@ -3925,8 +3907,8 @@ Discrete-time Markov chains are also employed to study the progression of chroni
 
 \begin{CodeInput}
 R> craigSendiMatr <- matrix(c(682, 33, 25,
-R+               154, 64, 47,
-R+               19, 19, 43), byrow = T, nrow = 3)
++               154, 64, 47,
++               19, 19, 43), byrow = T, nrow = 3)
 R> hivStates <- c("0-49", "50-74", "75-UP")
 R> rownames(craigSendiMatr) <- hivStates
 R> colnames(craigSendiMatr) <- hivStates

@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -110,7 +110,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Mean absorption time</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/probabilistic.R'><code>R/probabilistic.R</code></a></small>
     <div class="hidden name"><code>meanAbsorptionTime.Rd</code></div>
     </div>
 
@@ -139,7 +139,7 @@
   have at least one transient state for this method to work</p>
     </div>
 
-    <pre class="usage"><span class='fu'>meanAbsorptionTime</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>meanAbsorptionTime</span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,13 +158,18 @@
 
     <p>C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Ignacio Cordón</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>0</span>,
-              <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>0</span>,
-                <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='no'>mc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>letters</span>[<span class='fl'>1</span>:<span class='fl'>3</span>], <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='no'>m</span>)
-<span class='no'>times</span> <span class='kw'>&lt;-</span> <span class='fu'>meanAbsorptionTime</span>(<span class='no'>mc</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>m</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>0</span>,
+              <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>0</span>,
+                <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>), ncol = <span class='fl'>3</span>, byrow = <span class='fl'>TRUE</span>)
+<span class='kw'>mc</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>letters</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>], transitionMatrix = <span class='kw'>m</span>)
+<span class='kw'>times</span> <span class='op'>&lt;-</span> <span class='fu'>meanAbsorptionTime</span>(<span class='kw'>mc</span>)
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -180,7 +185,7 @@ American Mathematical Soc., 2012.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

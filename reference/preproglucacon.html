@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Preprogluccacon DNA protein bases sequences</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/data.R'><code>R/data.R</code></a></small>
     <div class="hidden name"><code>preproglucacon.Rd</code></div>
     </div>
 
@@ -135,12 +135,12 @@
     <p>Sequence of bases for preproglucacon DNA protein</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>preproglucacon</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>preproglucacon</span>)</pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A data frame with 1572 observations on the following 2 variables.</p><dl'>
+    <p>A data frame with 1572 observations on the following 2 variables.</p><dl>
   <dt><code>V1</code></dt><dd><p>a numeric vector, showing original coding</p></dd>
   <dt><code>preproglucacon</code></dt><dd><p>a character vector, showing initial of DNA bases (Adenine, Cytosine, Guanine, Thymine)</p></dd>
 
@@ -154,8 +154,9 @@
     <p>Averuy Henderson, Fitting markov chain models on discrete time series such as DNA sequences</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>preproglucacon</span>)
-<span class='no'>preproglucaconMc</span><span class='kw'>&lt;-</span><span class='fu'><a href='markovchainFit.html'>markovchainFit</a></span>(<span class='kw'>data</span><span class='kw'>=</span><span class='no'>preproglucacon</span>$<span class='no'>preproglucacon</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>preproglucacon</span>)
+<span class='kw'>preproglucaconMc</span><span class='op'>&lt;-</span><span class='fu'><a href='createSequenceMatrix.html'>markovchainFit</a></span>(data=<span class='kw'>preproglucacon</span><span class='op'>$</span><span class='kw'>preproglucacon</span>)
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -171,7 +172,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

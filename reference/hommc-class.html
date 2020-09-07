@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>An S4 class for representing High Order Multivariate Markovchain (HOMMC)</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/hommc.R'><code>R/hommc.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/hommc.R'><code>R/hommc.R</code></a></small>
     <div class="hidden name"><code>hommc-class.Rd</code></div>
     </div>
 
@@ -141,7 +141,7 @@
 
     
 
-<dl'>
+<dl>
 <dt><code>order</code></dt><dd><p>an integer equal to order of Multivariate Markovchain</p></dd>
 
 <dt><code>states</code></dt><dd><p>a vector of states present in the HOMMC model</p></dd>
@@ -155,20 +155,25 @@
 <dt><code>name</code></dt><dd><p>a name given to hommc</p></dd>
 
 </dl>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato, Deepak Yadav</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>statesName</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>statesName</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>)
 
-<span class='no'>P</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span>(<span class='fl'>0</span>, <span class='kw'>dim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>4</span>), <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesName</span>, <span class='no'>statesName</span>))
-<span class='no'>P</span>[,,<span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>1</span>/<span class='fl'>3</span>, <span class='fl'>2</span>/<span class='fl'>3</span>), <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>P</span>[,,<span class='fl'>2</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>3</span>/<span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>P</span>[,,<span class='fl'>3</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>3</span>, <span class='fl'>2</span>/<span class='fl'>3</span>), <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='no'>P</span>[,,<span class='fl'>4</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>/<span class='fl'>4</span>, <span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='kw'>P</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span>(<span class='fl'>0</span>, dim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>4</span>), dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesName</span>, <span class='kw'>statesName</span>))
+<span class='kw'>P</span>[,,<span class='fl'>1</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>), byrow = <span class='fl'>FALSE</span>, nrow = <span class='fl'>2</span>)
+<span class='kw'>P</span>[,,<span class='fl'>2</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>3</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), byrow = <span class='fl'>FALSE</span>, nrow = <span class='fl'>2</span>)
+<span class='kw'>P</span>[,,<span class='fl'>3</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>2</span><span class='op'>/</span><span class='fl'>3</span>), byrow = <span class='fl'>FALSE</span>, nrow = <span class='fl'>2</span>)
+<span class='kw'>P</span>[,,<span class='fl'>4</span>] <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>0</span>, <span class='fl'>1</span>), byrow = <span class='fl'>FALSE</span>, nrow = <span class='fl'>2</span>)
 
-<span class='no'>Lambda</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.8</span>, <span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.7</span>)
+<span class='kw'>Lambda</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.8</span>, <span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.7</span>)
 
-<span class='no'>ob</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"hommc"</span>, <span class='kw'>order</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesName</span>, <span class='kw'>P</span> <span class='kw'>=</span> <span class='no'>P</span>,
-          <span class='kw'>Lambda</span> <span class='kw'>=</span> <span class='no'>Lambda</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"FOMMC"</span>)</div></pre>
+<span class='kw'>ob</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"hommc"</span>, order = <span class='fl'>1</span>, states = <span class='kw'>statesName</span>, P = <span class='kw'>P</span>, 
+          Lambda = <span class='kw'>Lambda</span>, byrow = <span class='fl'>FALSE</span>, name = <span class='st'>"FOMMC"</span>)
+          
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -184,7 +189,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Method to retrieve name of markovchain object</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/classesAndMethods.R'><code>R/classesAndMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/classesAndMethods.R'><code>R/classesAndMethods.R</code></a></small>
     <div class="hidden name"><code>getName.Rd</code></div>
     </div>
 
@@ -135,10 +135,10 @@
     <p>This method returns the name of a markovchain object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>name</span>(<span class='no'>object</span>)
+    <pre class="usage"><span class='fu'>name</span>(<span class='kw'>object</span>)
 
 <span class='co'># S4 method for markovchain</span>
-<span class='fu'>name</span>(<span class='no'>object</span>)</pre>
+<span class='fu'>name</span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,15 +149,19 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato, Deepak Yadav</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>statesNames</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
-<span class='no'>markovB</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
-                <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-                <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>,<span class='no'>statesNames</span>)),
-                <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"A markovchain Object"</span>
+    <pre class="examples"><div class='input'><span class='kw'>statesNames</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
+<span class='kw'>markovB</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, transitionMatrix =
+                <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>1</span>, <span class='fl'>0</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), nrow = <span class='fl'>3</span>,
+                byrow = <span class='fl'>TRUE</span>, dimnames=<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>,<span class='kw'>statesNames</span>)),
+                name = <span class='st'>"A markovchain Object"</span> 
 )
-<span class='fu'>name</span>(<span class='no'>markovB</span>)</div><div class='output co'>#&gt; [1] "A markovchain Object"</div><div class='input'>
+<span class='fu'>name</span>(<span class='kw'>markovB</span>)
+</div><div class='output co'>#&gt; [1] "A markovchain Object"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -174,7 +178,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

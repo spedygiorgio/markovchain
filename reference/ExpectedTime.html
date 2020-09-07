@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Returns expected hitting time from state i to state j</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/ctmcProbabilistic.R'><code>R/ctmcProbabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/ctmcProbabilistic.R'><code>R/ctmcProbabilistic.R</code></a></small>
     <div class="hidden name"><code>ExpectedTime.Rd</code></div>
     </div>
 
@@ -135,7 +135,7 @@
     <p>Returns expected hitting time from state i to state j</p>
     </div>
 
-    <pre class="usage"><span class='fu'>ExpectedTime</span>(<span class='no'>C</span>,<span class='no'>i</span>,<span class='no'>j</span>,<span class='no'>useRCpp</span>)</pre>
+    <pre class="usage"><span class='fu'>ExpectedTime</span>(<span class='kw'>C</span>,<span class='kw'>i</span>,<span class='kw'>j</span>,<span class='kw'>useRCpp</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -167,14 +167,18 @@
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Markovchains, J. R. Norris, Cambridge University Press</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Vandit Jain</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>states</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>,<span class='st'>"c"</span>,<span class='st'>"d"</span>)
-<span class='no'>byRow</span> <span class='kw'>&lt;-</span> <span class='fl'>TRUE</span>
-<span class='no'>gen</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>1</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>4</span>, -<span class='fl'>1</span>/<span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span>/<span class='fl'>4</span>, <span class='fl'>1</span>/<span class='fl'>6</span>, <span class='fl'>0</span>, -<span class='fl'>1</span>/<span class='fl'>3</span>, <span class='fl'>1</span>/<span class='fl'>6</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>),
-<span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>4</span>,<span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>states</span>,<span class='no'>states</span>))
-<span class='no'>ctmc</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>,<span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>states</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"testctmc"</span>)
-<span class='fu'>ExpectedTime</span>(<span class='no'>ctmc</span>,<span class='fl'>1</span>,<span class='fl'>4</span>,<span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 7</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='kw'>states</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>,<span class='st'>"b"</span>,<span class='st'>"c"</span>,<span class='st'>"d"</span>)
+<span class='kw'>byRow</span> <span class='op'>&lt;-</span> <span class='fl'>TRUE</span>
+<span class='kw'>gen</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(data = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='op'>-</span><span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>4</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>6</span>, <span class='fl'>0</span>, <span class='op'>-</span><span class='fl'>1</span><span class='op'>/</span><span class='fl'>3</span>, <span class='fl'>1</span><span class='op'>/</span><span class='fl'>6</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span>),
+nrow = <span class='fl'>4</span>,byrow = <span class='kw'>byRow</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>states</span>,<span class='kw'>states</span>))
+<span class='kw'>ctmc</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>,states = <span class='kw'>states</span>, byrow = <span class='kw'>byRow</span>, generator = <span class='kw'>gen</span>, name = <span class='st'>"testctmc"</span>)
+<span class='fu'>ExpectedTime</span>(<span class='kw'>ctmc</span>,<span class='fl'>1</span>,<span class='fl'>4</span>,<span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; [1] 7</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -191,7 +195,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

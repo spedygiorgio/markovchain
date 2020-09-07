@@ -73,7 +73,7 @@ states coming from the underlying stationary distribution." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@ states coming from the underlying stationary distribution." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@ states coming from the underlying stationary distribution." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/fittingFunctions.R'><code>R/fittingFunctions.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/fittingFunctions.R'><code>R/fittingFunctions.R</code></a></small>
     <div class="hidden name"><code>rmarkovchain.Rd</code></div>
     </div>
 
@@ -138,13 +138,13 @@ states coming from the underlying stationary distribution.</p>
     </div>
 
     <pre class="usage"><span class='fu'>rmarkovchain</span>(
-  <span class='no'>n</span>,
-  <span class='no'>object</span>,
-  <span class='kw'>what</span> <span class='kw'>=</span> <span class='st'>"data.frame"</span>,
-  <span class='kw'>useRCpp</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>num.cores</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
+  <span class='kw'>n</span>,
+  <span class='kw'>object</span>,
+  what = <span class='st'>"data.frame"</span>,
+  useRCpp = <span class='fl'>TRUE</span>,
+  parallel = <span class='fl'>FALSE</span>,
+  num.cores = <span class='kw'>NULL</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -198,34 +198,38 @@ non-homogeneous markov process.</p>
     <p>A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='markovchainFit.html'>markovchainFit</a></code>, <code><a href='markovchainSequence.html'>markovchainSequence</a></code></p></div>
+    <div class='dont-index'><p><code><a href='createSequenceMatrix.html'>markovchainFit</a></code>, <code><a href='markovchainSequence.html'>markovchainSequence</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Giorgio Spedicato</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># define the markovchain object</span>
-<span class='no'>statesNames</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
-<span class='no'>mcB</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>,
-   <span class='kw'>transitionMatrix</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>),
-   <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>)))
+<span class='kw'>statesNames</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
+<span class='kw'>mcB</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, 
+   transitionMatrix = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), 
+   nrow = <span class='fl'>3</span>, byrow = <span class='fl'>TRUE</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>, <span class='kw'>statesNames</span>)))
 
 <span class='co'># show the sequence</span>
-<span class='no'>outs</span> <span class='kw'>&lt;-</span> <span class='fu'>rmarkovchain</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>mcB</span>, <span class='kw'>what</span> <span class='kw'>=</span> <span class='st'>"list"</span>)
+<span class='kw'>outs</span> <span class='op'>&lt;-</span> <span class='fu'>rmarkovchain</span>(n = <span class='fl'>100</span>, object = <span class='kw'>mcB</span>, what = <span class='st'>"list"</span>)
 
 
 <span class='co'>#define markovchainList object</span>
-<span class='no'>statesNames</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
-<span class='no'>mcA</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
-   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>)))
-<span class='no'>mcB</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
-   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>)))
-<span class='no'>mcC</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>statesNames</span>, <span class='kw'>transitionMatrix</span> <span class='kw'>=</span>
-   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-   <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>statesNames</span>, <span class='no'>statesNames</span>)))
-<span class='no'>mclist</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchainList"</span>, <span class='kw'>markovchains</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>mcA</span>, <span class='no'>mcB</span>, <span class='no'>mcC</span>))
+<span class='kw'>statesNames</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>)
+<span class='kw'>mcA</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, transitionMatrix = 
+   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), nrow = <span class='fl'>3</span>, 
+   byrow = <span class='fl'>TRUE</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>, <span class='kw'>statesNames</span>)))
+<span class='kw'>mcB</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, transitionMatrix = 
+   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), nrow = <span class='fl'>3</span>, 
+   byrow = <span class='fl'>TRUE</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>, <span class='kw'>statesNames</span>)))
+<span class='kw'>mcC</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchain"</span>, states = <span class='kw'>statesNames</span>, transitionMatrix = 
+   <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.5</span>, <span class='fl'>0.3</span>, <span class='fl'>0</span>, <span class='fl'>0.2</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>, <span class='fl'>0.8</span>, <span class='fl'>0.1</span>), nrow = <span class='fl'>3</span>, 
+   byrow = <span class='fl'>TRUE</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>statesNames</span>, <span class='kw'>statesNames</span>)))
+<span class='kw'>mclist</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"markovchainList"</span>, markovchains = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>mcA</span>, <span class='kw'>mcB</span>, <span class='kw'>mcC</span>)) 
 
 <span class='co'># show the list of sequence</span>
-<span class='fu'>rmarkovchain</span>(<span class='fl'>100</span>, <span class='no'>mclist</span>, <span class='st'>"list"</span>)</div><div class='output co'>#&gt; [[1]]
+<span class='fu'>rmarkovchain</span>(<span class='fl'>100</span>, <span class='kw'>mclist</span>, <span class='st'>"list"</span>)
+</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] "b" "c" "b"
 #&gt; 
 #&gt; [[2]]
@@ -541,7 +545,7 @@ non-homogeneous markov process.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

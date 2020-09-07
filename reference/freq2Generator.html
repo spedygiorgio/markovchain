@@ -73,7 +73,7 @@ a frequency matrix and time taken" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@ a frequency matrix and time taken" />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@ a frequency matrix and time taken" />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Returns a generator matrix corresponding to frequency matrix</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/ctmcProbabilistic.R'><code>R/ctmcProbabilistic.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/ctmcProbabilistic.R'><code>R/ctmcProbabilistic.R</code></a></small>
     <div class="hidden name"><code>freq2Generator.Rd</code></div>
     </div>
 
@@ -137,7 +137,7 @@ a frequency matrix and time taken" />
 a frequency matrix and time taken</p>
     </div>
 
-    <pre class="usage"><span class='fu'>freq2Generator</span>(<span class='no'>P</span>, <span class='kw'>t</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"QO"</span>, <span class='kw'>logmethod</span> <span class='kw'>=</span> <span class='st'>"Eigen"</span>)</pre>
+    <pre class="usage"><span class='fu'>freq2Generator</span>(<span class='kw'>P</span>, t = <span class='fl'>1</span>, method = <span class='st'>"QO"</span>, logmethod = <span class='st'>"Eigen"</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -169,17 +169,19 @@ a frequency matrix and time taken</p>
 Transition Matrices. Algo Research Quarterly 4(1):23-40, 2001</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>sample</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>150</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>200</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>175</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>150</span>),<span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>4</span>,<span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='no'>sample_rel</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>((<span class='no'>sample</span>/<span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='no'>sample</span>))[<span class='fl'>1</span>:<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='no'>sample</span>)[<span class='fl'>1</span>]-<span class='fl'>1</span>,],<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>,<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='no'>sample</span>)[<span class='fl'>1</span>]-<span class='fl'>1</span>),<span class='fl'>1</span>))
-<span class='fu'>freq2Generator</span>(<span class='no'>sample_rel</span>,<span class='fl'>1</span>)</div><div class='output co'>#&gt;              [,1]        [,2]         [,3] [,4]
+    <pre class="examples"><div class='input'><span class='kw'>sample</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>150</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>200</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>175</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>150</span>),nrow = <span class='fl'>4</span>,byrow = <span class='fl'>TRUE</span>)
+<span class='kw'>sample_rel</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>((<span class='kw'>sample</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='kw'>sample</span>))[<span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='kw'>sample</span>)[<span class='fl'>1</span>]<span class='op'>-</span><span class='fl'>1</span>,],<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>,<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='kw'>sample</span>)[<span class='fl'>1</span>]<span class='op'>-</span><span class='fl'>1</span>),<span class='fl'>1</span>)) 
+<span class='fu'>freq2Generator</span>(<span class='kw'>sample_rel</span>,<span class='fl'>1</span>)
+</div><div class='output co'>#&gt;              [,1]        [,2]         [,3] [,4]
 #&gt; [1,] -0.024212164  0.01544797  0.008764198    0
 #&gt; [2,]  0.006594821 -0.01822834  0.011633520    0
 #&gt; [3,]  0.013302567  0.00749703 -0.020799597    0
 #&gt; [4,]  0.000000000  0.00000000  0.000000000    0</div><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>tm_abs</span>)
-<span class='no'>tm_rel</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>((<span class='no'>tm_abs</span>/<span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='no'>tm_abs</span>))[<span class='fl'>1</span>:<span class='fl'>7</span>,],<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>7</span>),<span class='fl'>1</span>))
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>tm_abs</span>)
+<span class='kw'>tm_rel</span><span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>((<span class='kw'>tm_abs</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span>(<span class='kw'>tm_abs</span>))[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>7</span>,],<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0</span>,<span class='fl'>7</span>),<span class='fl'>1</span>))
 <span class='co'>## Derive quasi optimization generator matrix estimate</span>
-<span class='fu'>freq2Generator</span>(<span class='no'>tm_rel</span>,<span class='fl'>1</span>)</div><div class='output co'>#&gt;              AAA           AA            A          BBB           BB
+<span class='fu'>freq2Generator</span>(<span class='kw'>tm_rel</span>,<span class='fl'>1</span>)
+</div><div class='output co'>#&gt;              AAA           AA            A          BBB           BB
 #&gt; AAA -0.109688198  0.104742772  0.004945426  0.000000000  0.000000000
 #&gt; AA   0.006375885 -0.095416840  0.088027218  0.001013738  0.000000000
 #&gt; A    0.000000000  0.037605369 -0.139127796  0.092863518  0.002082790
@@ -213,7 +215,7 @@ Transition Matrices. Algo Research Quarterly 4(1):23-40, 2001</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

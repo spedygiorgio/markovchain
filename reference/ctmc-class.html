@@ -73,7 +73,7 @@ time Markov chain) objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -109,7 +109,7 @@ time Markov chain) objects." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -128,7 +128,7 @@ time Markov chain) objects." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Continuous time Markov Chains class</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/ctmcClassesAndMethods.R'><code>R/ctmcClassesAndMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/ctmcClassesAndMethods.R'><code>R/ctmcClassesAndMethods.R</code></a></small>
     <div class="hidden name"><code>ctmc-class.Rd</code></div>
     </div>
 
@@ -177,7 +177,7 @@ states name with artificial "s1", "s2", ... sequence</p></li>
     
 
 
-<dl'>
+<dl>
 <dt>dim</dt><dd><p><code>signature(x = "ctmc")</code>: method to get the size</p></dd> 
 <dt>initialize</dt><dd><p><code>signature(.Object = "ctmc")</code>: initialize
   method</p></dd>
@@ -199,16 +199,19 @@ Yalamanchi, Giorgio Spedicato</p>
     <div class='dont-index'><p><code><a href='generatorToTransitionMatrix.html'>generatorToTransitionMatrix</a></code>,<code><a href='rctmc.html'>rctmc</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>energyStates</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"sigma"</span>, <span class='st'>"sigma_star"</span>)
-<span class='no'>byRow</span> <span class='kw'>&lt;-</span> <span class='fl'>TRUE</span>
-<span class='no'>gen</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>3</span>, <span class='fl'>3</span>,
-                       <span class='fl'>1</span>, -<span class='fl'>1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-              <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>energyStates</span>, <span class='no'>energyStates</span>))
-<span class='no'>molecularCTMC</span> <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>, <span class='kw'>states</span> <span class='kw'>=</span> <span class='no'>energyStates</span>,
-                     <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='no'>byRow</span>, <span class='kw'>generator</span> <span class='kw'>=</span> <span class='no'>gen</span>,
-                     <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"Molecular Transition Model"</span>)
-                     <span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='no'>molecularCTMC</span>)</div><div class='output co'>#&gt;      sigma sigma_star
-#&gt; [1,]  0.25       0.75</div><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>molecularCTMC</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>energyStates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"sigma"</span>, <span class='st'>"sigma_star"</span>)
+<span class='kw'>byRow</span> <span class='op'>&lt;-</span> <span class='fl'>TRUE</span>
+<span class='kw'>gen</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(data = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='op'>-</span><span class='fl'>3</span>, <span class='fl'>3</span>,
+                       <span class='fl'>1</span>, <span class='op'>-</span><span class='fl'>1</span>), nrow = <span class='fl'>2</span>,
+              byrow = <span class='kw'>byRow</span>, dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>energyStates</span>, <span class='kw'>energyStates</span>))
+<span class='kw'>molecularCTMC</span> <span class='op'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>"ctmc"</span>, states = <span class='kw'>energyStates</span>, 
+                     byrow = <span class='kw'>byRow</span>, generator = <span class='kw'>gen</span>, 
+                     name = <span class='st'>"Molecular Transition Model"</span>)
+                     <span class='fu'><a href='steadyStates.html'>steadyStates</a></span>(<span class='kw'>molecularCTMC</span>)
+</div><div class='output co'>#&gt;      sigma sigma_star
+#&gt; [1,]  0.25       0.75</div><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='kw'>molecularCTMC</span>)
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -224,7 +227,7 @@ Yalamanchi, Giorgio Spedicato</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

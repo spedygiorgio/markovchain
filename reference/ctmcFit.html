@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -110,7 +110,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Function to fit a CTMC</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
     <div class="hidden name"><code>ctmcFit.Rd</code></div>
     </div>
 
@@ -139,7 +139,7 @@
   method (MLE)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>ctmcFit</span>(<span class='no'>data</span>, <span class='kw'>byrow</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>confidencelevel</span> <span class='kw'>=</span> <span class='fl'>0.95</span>)</pre>
+    <pre class="usage"><span class='fu'>ctmcFit</span>(<span class='kw'>data</span>, byrow = <span class='fl'>TRUE</span>, name = <span class='st'>""</span>, confidencelevel = <span class='fl'>0.95</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,10 +179,14 @@ construnction.</p></td>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='rctmc.html'>rctmc</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Sai Bhargav Yalamanchi</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"c"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0.8</span>, <span class='fl'>2.1</span>, <span class='fl'>2.4</span>, <span class='fl'>4</span>, <span class='fl'>5</span>, <span class='fl'>5.9</span>, <span class='fl'>8.2</span>, <span class='fl'>9</span>))
-<span class='fu'>ctmcFit</span>(<span class='no'>data</span>)</div><div class='output co'>#&gt; $estimate
+    <pre class="examples"><div class='input'><span class='kw'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"c"</span>, <span class='st'>"b"</span>, <span class='st'>"c"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>0.8</span>, <span class='fl'>2.1</span>, <span class='fl'>2.4</span>, <span class='fl'>4</span>, <span class='fl'>5</span>, <span class='fl'>5.9</span>, <span class='fl'>8.2</span>, <span class='fl'>9</span>))
+<span class='fu'>ctmcFit</span>(<span class='kw'>data</span>)
+</div><div class='output co'>#&gt; $estimate
 #&gt; An object of class "ctmc"
 #&gt; Slot "states":
 #&gt; [1] "a" "b" "c"
@@ -243,7 +247,7 @@ construnction.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

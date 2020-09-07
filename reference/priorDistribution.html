@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -110,7 +110,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -129,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>priorDistribution</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R'><code>R/RcppExports.R</code></a></small>
     <div class="hidden name"><code>priorDistribution.Rd</code></div>
     </div>
 
@@ -139,7 +139,7 @@
   distribution is used to model the transitions of each state.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>priorDistribution</span>(<span class='no'>transMatr</span>, <span class='kw'>hyperparam</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>())</pre>
+    <pre class="usage"><span class='fu'>priorDistribution</span>(<span class='kw'>transMatr</span>, hyperparam = <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,14 +181,18 @@ Order Markov Chains. R package version 0.2.5</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='predictiveDistribution.html'>predictiveDistribution</a></code>, <code><a href='inferHyperparam.html'>inferHyperparam</a></code></p></div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Sai Bhargav Yalamanchi, Giorgio Spedicato</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>priorDistribution</span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>),
-                  <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                  <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))),
-                  <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>),
-                  <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-                  <span class='kw'>dimnames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))))</div><div class='output co'>#&gt;         a         b 
+    <pre class="examples"><div class='input'><span class='fu'>priorDistribution</span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>), 
+                  nrow = <span class='fl'>2</span>, 
+                  dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))), 
+                  <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>), 
+                  nrow = <span class='fl'>2</span>, 
+                  dimnames = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))))
+</div><div class='output co'>#&gt;         a         b 
 #&gt; 0.4054651 0.4054651 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -205,7 +209,7 @@ Order Markov Chains. R package version 0.2.5</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="http://github.com/spedygiorgio/markovchain/">
+  <a href="https://github.com/spedygiorgio/markovchain/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -127,7 +127,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>A function to compute multinomial confidence intervals of DTMC</h1>
-    <small class="dont-index">Source: <a href='http://github.com/spedygiorgio/markovchain/blob/master/R/fittingFunctions.R'><code>R/fittingFunctions.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/spedygiorgio/markovchain/blob/master/R/fittingFunctions.R'><code>R/fittingFunctions.R</code></a></small>
     <div class="hidden name"><code>multinomialConfidenceIntervals.Rd</code></div>
     </div>
 
@@ -136,9 +136,9 @@
     </div>
 
     <pre class="usage"><span class='fu'>multinomialConfidenceIntervals</span>(
-  <span class='no'>transitionMatrix</span>,
-  <span class='no'>countsTransitionMatrix</span>,
-  <span class='kw'>confidencelevel</span> <span class='kw'>=</span> <span class='fl'>0.95</span>
+  <span class='kw'>transitionMatrix</span>,
+  <span class='kw'>countsTransitionMatrix</span>,
+  confidencelevel = <span class='fl'>0.95</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -171,10 +171,11 @@ Journal of Statistical Software 5(6) (2000)</p>
     <div class='dont-index'><p><code>markovchainFit</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>seq</span><span class='kw'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
-<span class='no'>mcfit</span><span class='kw'>&lt;-</span><span class='fu'><a href='markovchainFit.html'>markovchainFit</a></span>(<span class='kw'>data</span><span class='kw'>=</span><span class='no'>seq</span>,<span class='kw'>byrow</span><span class='kw'>=</span><span class='fl'>TRUE</span>)
-<span class='no'>seqmat</span><span class='kw'>&lt;-</span><span class='fu'><a href='markovchainFit.html'>createSequenceMatrix</a></span>(<span class='no'>seq</span>)
-<span class='fu'>multinomialConfidenceIntervals</span>(<span class='no'>mcfit</span>$<span class='no'>estimate</span>@<span class='kw'>transitionMatrix</span>, <span class='no'>seqmat</span>, <span class='fl'>0.95</span>)</div><div class='output co'>#&gt; $confidenceLevel
+    <pre class="examples"><div class='input'><span class='kw'>seq</span><span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"b"</span>, <span class='st'>"a"</span>)
+<span class='kw'>mcfit</span><span class='op'>&lt;-</span><span class='fu'><a href='createSequenceMatrix.html'>markovchainFit</a></span>(data=<span class='kw'>seq</span>,byrow=<span class='fl'>TRUE</span>)
+<span class='kw'>seqmat</span><span class='op'>&lt;-</span><span class='fu'><a href='createSequenceMatrix.html'>createSequenceMatrix</a></span>(<span class='kw'>seq</span>)
+<span class='fu'>multinomialConfidenceIntervals</span>(<span class='kw'>mcfit</span><span class='op'>$</span><span class='kw'>estimate</span><span class='op'>@</span>transitionMatrix, <span class='kw'>seqmat</span>, <span class='fl'>0.95</span>)
+</div><div class='output co'>#&gt; $confidenceLevel
 #&gt; [1] 0.95
 #&gt; 
 #&gt; $lowerEndpointMatrix
@@ -202,7 +203,7 @@ Journal of Statistical Software 5(6) (2000)</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

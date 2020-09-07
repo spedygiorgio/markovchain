@@ -33,7 +33,7 @@ get_etm_transition_matrix <- function() {
   # print(tra)
   
   # etm
-  tr.prob <- etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
+  tr.prob <- etm::etm(sir.cont, c("0", "1", "2"), tra, "cens", 1)
   return(tr.prob)
 }
 

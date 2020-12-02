@@ -486,7 +486,7 @@ setValidity(
       msg <- paste(
                paste("Error!", 
                ifelse(object@byrow, "Rows", "Cols")),
-               "of transition matrix do not some one"
+               "of transition matrix do not sum to one"
              )
       errors <- c(errors, msg)
     }

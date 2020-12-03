@@ -21,7 +21,7 @@ Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
 Description: Functions and S4 methods to create and manage discrete time Markov
     chains more easily. In addition functions to perform statistical (fitting
     and drawing random variates) and probabilistic (analysis of their structural
-    proprieties) analysis are provided.
+    proprieties) analysis are provided. See Spedicato (2017) <doi.org/10.32614/RJ-2017-036>.
 License: GPL-2
 Depends:
     R (>= 3.6.0),
@@ -45,7 +45,6 @@ Suggests:
     DiagrammeR,
     msm,
     Rsolnp,
-    knitcitations,
     rmarkdown,
     ctmcd,
     bookdown,

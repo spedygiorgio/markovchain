@@ -602,10 +602,10 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   }
   
   freqMatrixes <- list() 
-  
-  if(is.list(data) == TRUE) {
+  # a pure list= a list and not a data frame 
+  if((is.list(data) == TRUE) & (is.data.frame(data)==FALSE)) {
     markovchains <- list()
-    # list of frquency matrix
+    # list of frequency matrix
     freqMatrixes <- .mcListFitForList(data)
     
   } else{

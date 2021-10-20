@@ -97,7 +97,7 @@ Markov chains represent a class of stochastic processes of great interest for th
 * \pkg{hmm} [@hmmR] fits hidden Markov models with covariates.
 * \pkg{mstate} fits `Multi-State Models based on Markov chains for survival analysis [@mstateR].
 
-Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} [@DTMCPackR] the first one. Notwithstanding, \pkg{markovchain} package [@pkg:markovchain] aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and non-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
+Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} [@DTMCPackR] the first one. Notwithstanding, \pkg{markovchain} package [@pkg:markovchain] aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and semi-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
 
 The \pkg{markovchain} package depends on the following \proglang{R} packages: \pkg{expm} [@expmR] to perform efficient matrices powers; \pkg{igraph} [@pkg:igraph] to perform pretty plotting of `markovchain` objects and \pkg{matlab} [@pkg:matlab], that contains functions for matrix management and calculations that emulate those within \proglang{MATLAB} environment. Moreover, other scientific softwares provide functions specifically designed to analyze DTMC, as \proglang{Mathematica} 9 [@mathematica9].
 
@@ -282,7 +282,7 @@ showClass("markovchain")
 showClass("markovchainList")
 ```
 
-The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of `markovchain` objects) has been designed to handle non-homogeneous Markov chains processes.
+The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of `markovchain` objects) has been designed to handle semi-homogeneous Markov chains processes.
 
 Any element of `markovchain` class is comprised by following slots:
 
@@ -531,7 +531,7 @@ myMc<-as(myMatr, "markovchain")
 myMc
 ```
 
-Non-homogeneous Markov chains can be created with the aid of `markovchainList` object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modeled by a non-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for `markovchainList` objects are: `print`, `show`,  `dim` and `[`.
+Semi-homogeneous Markov chains can be created with the aid of `markovchainList` object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modeled by a semi-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for `markovchainList` objects are: `print`, `show`,  `dim` and `[`.
 
 ```{r cchcMcList}
 stateNames = c("H", "I", "D")
@@ -1078,7 +1078,7 @@ weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 weathersOfDays[1:30]
 ```
 
-Similarly, it is possible to simulate one or more sequences from a non-homogeneous Markov chain, 
+Similarly, it is possible to simulate one or more sequences from a semi-homogeneous Markov chain, 
 as the following code (applied on CCHC example) exemplifies.
 
 ```{r simulatingAListOfMarkovChain}
@@ -1260,7 +1260,7 @@ If any transition contains `NA`, it will be ignored in the results as the above 
 
 ## Prediction
 
-The $n$-step forward predictions can be obtained using the `predict` methods explicitly written for `markovchain` and `markovchainList` objects. The prediction is the mode of the conditional distribution of $X_{t+1}$ given $X_{t}=s_{j}$, being $s_{j}$ the last realization of the DTMC (homogeneous or non-homogeneous).
+The $n$-step forward predictions can be obtained using the `predict` methods explicitly written for `markovchain` and `markovchainList` objects. The prediction is the mode of the conditional distribution of $X_{t+1}$ given $X_{t}=s_{j}$, being $s_{j}$ the last realization of the DTMC (homogeneous or semi-homogeneous).
 
 ### Predicting from a markovchain object
 
@@ -1279,7 +1279,7 @@ Given an initial two years health status, the 5-year ahead prediction of any CCR
 predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5)
 ```
 
-The prediction has stopped at time sequence since the underlying non-homogeneous Markov chain has a length of four. In order to continue five years ahead, the `continue=TRUE` parameter setting makes the `predict` method keeping to use the last `markovchain` in the sequence list.
+The prediction has stopped at time sequence since the underlying semi-homogeneous Markov chain has a length of four. In order to continue five years ahead, the `continue=TRUE` parameter setting makes the `predict` method keeping to use the last `markovchain` in the sequence list.
 
 ```{r markovchainListPredict2}
 predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)

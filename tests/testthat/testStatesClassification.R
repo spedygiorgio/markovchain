@@ -31,8 +31,8 @@ mc2Matrix <- matrix(c(0, 1, 0, 0, 0, 0,
 mc2 <- as(mc2Matrix,"markovchain")
 
 
-mc3Matrix <- matlab::zeros(5)
-mc3Matrix[1:2,1:2] <- 0.5*matlab::ones(2)
+mc3Matrix <- markovchain:::zeros(5)
+mc3Matrix[1:2,1:2] <- 0.5*markovchain:::ones(2)
 mc3Matrix[5,1] <- 1
 mc3Matrix[3,3] <- 1
 mc3Matrix[4,3:4] <- 0.5
@@ -127,7 +127,7 @@ test_that("If there are transient states then Markov chain is not irreducible", 
 
 context("Checking recurrentClasses method")
 
-P <- matlab::zeros(10)
+P <- markovchain:::zeros(10)
 P[1, c(1, 3)] <- 1/2;
 P[2, 2] <- 1/3; P[2,7] <- 2/3;
 P[3, 1] <- 1;

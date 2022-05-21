@@ -17,7 +17,7 @@ The package contains classes and method to create and manage
   Version: \tab 0.8.2\cr
   Date: \tab 2020-01-5\cr
   License: \tab GPL-2\cr
-  Depends: \tab R (>= 3.6.0), methods, expm, matlab, igraph, Matrix\cr
+  Depends: \tab R (>= 4.0.0), methods, expm,  igraph, Matrix\cr
 }
 }
 \examples{

@@ -51,7 +51,7 @@ test_that("All hitting probabilities are 1 iff the Markov chain is irreducible",
 test_that("Tests hitting probabilities for a known markov chain", {
   # For mcHitting defined in data-raw/db4Tests.R
   
-  result <- matlab::zeros(5, 5)
+  result <- markovchain:::zeros(5, 5)
   result[1,1] <- result[5,5] <- 1
   result[2,1] <- 4/5
   result[3,1] <- 3/5

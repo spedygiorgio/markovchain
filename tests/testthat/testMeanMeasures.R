@@ -152,7 +152,7 @@ test_that("All mean number of visits are ∞ iff the Markov chain is irreducible
 # Taken from the book Procesos Estocásticos, Ricardo Vélez & Tomás Prieto
 test_that("Tests mean number of visits for a known markov chain", {
 
-  M <- matlab::zeros(5, 5)
+  M <- markovchain:::zeros(5, 5)
   M[1,1] <- M[5,5] <- 1
   M[2,1] <- M[2,3] <- 1/2
   M[3,2] <- M[3,4] <- 1/2
@@ -160,7 +160,7 @@ test_that("Tests mean number of visits for a known markov chain", {
 
   markovChain <- new("markovchain", transitionMatrix = M)
 
-  result <- matlab::zeros(5, 5)
+  result <- markovchain:::zeros(5, 5)
   result[1:4, 1] <- Inf
   result[2:5, 5] <- Inf
   result[1, 2:5] <- 0

@@ -8,8 +8,7 @@ markov1<-new("markovchain", states=c("a","b","c"), transitionMatrix=
                                                                        c("a","b","c"))
                ))
 
-require(matlab)
-mathematicaMatr <- zeros(5)
+mathematicaMatr <- markovchain:::zeros(5)
 mathematicaMatr[1,] <- c(0, 1/3, 0, 2/3, 0)
 mathematicaMatr[2,] <- c(1/2, 0, 0, 0, 1/2)
 mathematicaMatr[3,] <- c(0, 0, 1/2, 1/2, 0)

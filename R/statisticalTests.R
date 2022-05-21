@@ -220,7 +220,7 @@ assessOrder <- function(sequence, verbose = TRUE) {
   TStat <- 0
   for(present in states) {
     # going to be a transition matrix 
-    mat <- matlab::zeros(nelements)
+    mat <- zeros(nelements)
     dimnames(mat) <- list(states, states)
     
     # populate transition matrix
@@ -277,7 +277,7 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
   for(i in states) {
     
     # init matrix
-    mat <- matlab :: zeros(nblocks, nstates)
+    mat <- zeros(nblocks, nstates)
     dimnames(mat) <- list(1:nblocks, states)
     
     # compute the transition matrix from sequence
@@ -343,7 +343,7 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
   nstates <- length(states)
   
   # create transition matrix
-  mat <- matlab::zeros(nstates)
+  mat <- zeros(nstates)
   dimnames(mat) <- list(states, states)
   
   # populate transition matrix

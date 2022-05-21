@@ -15,7 +15,7 @@
 #'   Version: \tab 0.8.2\cr
 #'   Date: \tab 2020-01-5\cr
 #'   License: \tab GPL-2\cr
-#'   Depends: \tab R (>= 3.6.0), methods, expm, matlab, igraph, Matrix\cr
+#'   Depends: \tab R (>= 4.0.0), methods, expm,  igraph, Matrix\cr
 #' }
 #' @author 
 #' Giorgio Alfredo Spedicato 
@@ -56,7 +56,6 @@ NULL
 #' @importFrom Rcpp evalCpp
 #' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom stats4 plot summary
-#' @importFrom matlab zeros find eye size ones
 #' @importFrom expm %^% logm
 #' @importFrom stats sd rexp chisq.test pchisq predict aggregate
 #' @importFrom grDevices colors

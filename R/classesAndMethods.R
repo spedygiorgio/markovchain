@@ -935,7 +935,7 @@ setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
   nelements <- length(elements)
   
   # temporary t-matrix
-  prMatr <- matlab::zeros(nelements)
+  prMatr <- zeros(nelements)
   dimnames(prMatr) <- list(elements, elements)
   
   # populate t-matrix

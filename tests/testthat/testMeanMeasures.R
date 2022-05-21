@@ -46,7 +46,7 @@ test_that("meanFirstPassageTime and recurrenceTime hold their characteristic equ
   for (mc in allPositiveMCs) {
     P <- mc$transitionMatrix
     M <- meanFirstPassageTime(mc$object)
-    C <- matlab::ones(ncol(P))
+    C <- markovchain:::ones(ncol(P))
     D <- diag(meanRecurrenceTime(mc$object))
 
     if (mc$byrow)
@@ -152,7 +152,7 @@ test_that("All mean number of visits are ∞ iff the Markov chain is irreducible
 # Taken from the book Procesos Estocásticos, Ricardo Vélez & Tomás Prieto
 test_that("Tests mean number of visits for a known markov chain", {
 
-  M <- markovchain:::zeros(5, 5)
+  M <- zeros(5)
   M[1,1] <- M[5,5] <- 1
   M[2,1] <- M[2,3] <- 1/2
   M[3,2] <- M[3,4] <- 1/2
@@ -160,7 +160,7 @@ test_that("Tests mean number of visits for a known markov chain", {
 
   markovChain <- new("markovchain", transitionMatrix = M)
 
-  result <- markovchain:::zeros(5, 5)
+  result <- zeros(5)
   result[1:4, 1] <- Inf
   result[2:5, 5] <- Inf
   result[1, 2:5] <- 0
@@ -182,7 +182,7 @@ context("Checking absorptionProbabilities")
 
 test_that("Test mean absorption times for known matrix", {
   # For mcHitting, defined in data-raw/db4Tests.R
-  M <- matlab::zeros(3, 3)
+  M <- zeros(3)
   result <- 1/5 * matrix(c(4, 1, 3, 2, 2, 3), nrow = 3, byrow = TRUE)
   rownames(result) <- c(2, 3, 4)
   colnames(result) <- c(1, 5)

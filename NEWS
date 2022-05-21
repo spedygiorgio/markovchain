@@ -1,2 +1,2 @@
-2021-05-7 0.8.6
-Fix a bug in markovchainListFit that made confusion between lists and data.frames
+2022-05-21 0.8.9
+Removal of Matlab package dependency

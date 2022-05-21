@@ -899,7 +899,7 @@ meanRecurrenceTime(probMc)
 We are going to use the Drunkard’s random walk from [@GrinsteadSnell]. We have a drunk person walking through the street. Each move the person does, if they have not arrived to either home (corner 1) or to the bar (corner 5) could be to the left corner or to the right one, with equal probability. In case of arrival to the bar or to home, the person stays there.
 
 ```{r data-drunkard}
-drunkProbs <- markovchain:::zeros(5, 5)
+drunkProbs <- markovchain:::zeros(5)
 drunkProbs[1,1] <- drunkProbs[5,5] <- 1
 drunkProbs[2,1] <- drunkProbs[2,3] <- 1/2
 drunkProbs[3,2] <- drunkProbs[3,4] <- 1/2
@@ -1023,7 +1023,7 @@ The method in charge of that in `markovchain` package is `hittingProbabilities`,
 For the following chain:
 
 ```{r hitting-data}
-M <- markovchain:::zeros(5, 5)
+M <- markovchain:::zeros(5)
 M[1,1] <- M[5,5] <- 1
 M[2,1] <- M[2,3] <- 1/2
 M[3,2] <- M[3,4] <- 1/2

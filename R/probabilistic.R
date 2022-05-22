@@ -793,7 +793,7 @@ setMethod("is.regular", "markovchain", function(object) {
 #' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 #' 
 #' @examples
-#' M <- matlab::zeros(5, 5)
+#' M <- zeros(5)
 #' M[1,1] <- M[5,5] <- 1
 #' M[2,1] <- M[2,3] <- 1/2
 #' M[3,2] <- M[3,4] <- 1/2
@@ -829,7 +829,7 @@ setMethod("hittingProbabilities", "markovchain", function(object) {
 #' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 #' 
 #' @examples
-#' M <- matlab::zeros(5, 5)
+#' M <- zeros(5, 5)
 #' M[1,1] <- M[5,5] <- 1
 #' M[2,1] <- M[2,3] <- 1/2
 #' M[3,2] <- M[3,4] <- 1/2

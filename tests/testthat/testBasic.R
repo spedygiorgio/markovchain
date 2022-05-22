@@ -8,7 +8,7 @@ markov1<-new("markovchain", states=c("a","b","c"), transitionMatrix=
                                                                        c("a","b","c"))
                ))
 
-mathematicaMatr <- markovchain:::zeros(5)
+mathematicaMatr <- zeros(5)
 mathematicaMatr[1,] <- c(0, 1/3, 0, 2/3, 0)
 mathematicaMatr[2,] <- c(1/2, 0, 0, 0, 1/2)
 mathematicaMatr[3,] <- c(0, 0, 1/2, 1/2, 0)
@@ -27,7 +27,7 @@ test_that("States are those that should be", {
   expect_equal(is.irreducible(mathematicaMc), FALSE)
   expect_equal(transientStates(mathematicaMc), c("a","b"))
   expect_equal(is.accessible(mathematicaMc, "a", "c"), TRUE)
-  expect_equal(.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
+  expect_equal(markovchain:::.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
 #  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
 #                                            recurrentClasses = list(c("c", "d"), c("e")),
 #                                            transientClasses = list(c("a", "b"))))
@@ -432,6 +432,6 @@ context("Checking is.accesible")
 
 test_that("is accesible is equivalent to reachability matrix", {
   for (mc in subsetAllMCs) {
-    expect_true(.testthatIsAccesibleRcpp(mc$object))
+    expect_true(markovchain:::.testthatIsAccesibleRcpp(mc$object))
   }
 })

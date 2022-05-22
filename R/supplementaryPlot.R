@@ -1,6 +1,6 @@
 # plot a diagram using diagram for a markovchain object
 .plotdiagram <- function(object, ...) {
-  if(class(object) == "markovchain"){
+  if(is(object,"markovchain")){
     mat <- object@transitionMatrix
     list <- .communicatingClassesRcpp(object)
     sections <- length(list)
@@ -13,7 +13,7 @@
         colorvector[match(part[j],object@states)] <- colorList[i]
       }
     }
-  } else if(class(object) == "ctmc"){
+  } else if(is(object,"ctmc")){
     mat <- object@generator
     colorvector <- rep("white",length(object@states))
   }
@@ -27,9 +27,9 @@
 
 # plot a diagram using DiagrammeR for a markovchain object
 .plotDiagrammeR <- function(object, ...) {
-  if(class(object) == "markovchain"){
+  if(is(object,"markovchain")){
   mat <- object@transitionMatrix
-  } else if(class(object) == "ctmc"){
+  } else if(is(object,"ctmc")){
     mat <- object@generator
   }
   names <- rownames(mat)

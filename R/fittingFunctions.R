@@ -185,12 +185,12 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = FALSE, num.cores = NULL, ...) {
   
   # check the class of the object
-  if (class(object) == "markovchain") {
+  if (is(object,"markovchain")) {
     out <- markovchainSequence(n = n, markovchain = object, useRCpp = useRCpp, ...)
     return(out)
   }
     
-  if (class(object) == "markovchainList")
+  if (is(object,"markovchainList"))
   {
     #######################################################
     if(useRCpp && !parallel) {
@@ -727,7 +727,7 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' @export
 noofVisitsDist <- function(markovchain,N = 5,state) {
   
-  if(class(markovchain)!="markovchain")
+  if(!is(markovchain,"markovchain"))
     stop("please provide a valid markovchain-class object")
   
   if(N <= 0)

@@ -13,11 +13,18 @@ mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
                      name = "Mathematica MC", states = statesNames)
 
 # ####end creating DTMC
-# test .gcdRcpp function, .commClassesKernelRcpp function, .commStatesFinderRcpp function
+# test .gcdRcpp function, .commclassesKernelRcpp function, .commStatesFinderRcpp function
 context("Optimization of functions")
 
 test_that("Optimized functions should satisfy", 
           {
             expect_equal(.gcdRcpp(9, 12), 3) # .gcdRcpp function is also tested in testPeriod.R
+            expect_equal(.commStatesFinderRcpp(mathematicaMatr), matrix(c(1,1,1,1,1,
+                                                                          1,1,1,1,1,
+                                                                          0,0,1,1,0,
+                                                                          0,0,1,1,0,
+                                                                          0,0,0,0,1
+                                                                          ), nrow=5, byrow=T
+            ))
           })
 

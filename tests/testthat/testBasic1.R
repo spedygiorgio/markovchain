@@ -8,7 +8,8 @@ markov1<-new("markovchain", states=c("a","b","c"), transitionMatrix=
                                                                        c("a","b","c"))
                ))
 
-mathematicaMatr <- zeros(5)
+
+mathematicaMatr <- markovchain:::zeros(5)
 mathematicaMatr[1,] <- c(0, 1/3, 0, 2/3, 0)
 mathematicaMatr[2,] <- c(1/2, 0, 0, 0, 1/2)
 mathematicaMatr[3,] <- c(0, 0, 1/2, 1/2, 0)
@@ -24,13 +25,14 @@ context("Basic DTMC proprieties")
 test_that("States are those that should be", {
   expect_equal(absorbingStates(markov1), "b")
   expect_equal(transientStates(markov1), c("a","c"))
-  expect_equal(is.irreducible(mathematicaMc), FALSE)
+  expect_equal(is.irreducible(mathematicaMc),FALSE)
   expect_equal(transientStates(mathematicaMc), c("a","b"))
-  expect_equal(is.accessible(mathematicaMc, "a", "c"), TRUE)
-  expect_equal(markovchain:::.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
-#  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
-#                                            recurrentClasses = list(c("c", "d"), c("e")),
-#                                            transientClasses = list(c("a", "b"))))
+  expect_equal(is.accessible(mathematicaMc, "a", "c"),TRUE)
+  expect_equal(.canonicForm(mathematicaMc)@transitionMatrix, .canonicFormRcpp(mathematicaMc)@transitionMatrix)
+  expect_equal(.recurrentClassesRcpp(mathematicaMc), list(c("c", "d"), c("e")))
+  expect_equal(summary(mathematicaMc), list(closedClasses = list(c("c", "d"), c("e")), 
+                                            recurrentClasses = list(c("c", "d"), c("e")),
+                                            transientClasses = list(c("a", "b"))))
 })
 
 ###testing proper conversion of objects
@@ -199,7 +201,7 @@ test_that("createSequenceMatrix : Permutation of parameters",{
                       byrow = TRUE, dimnames = list(c("a", "b", "c"), c("a", "b", "c"))))
 })
 
-### Test for createSequenceMatrix : input {n x n} matrix
+### Test for createSequenceMatrix : input nx2 matrix
 data <- matrix(c("a", "a", "b", "a", "b", "a", "b", "a", NA, "a", "a", "a", "a", "b", NA, "b"), ncol = 2,
                byrow = TRUE)
 
@@ -410,28 +412,6 @@ test_that("firstPassageMultiple function satisfies", {
 })
                           
 
-# See https://github.com/spedygiorgio/markovchain/issues/171 for context
-# Test that closed classes = recurrent classes
-M <- matrix(0,nrow=10,ncol=10,byrow=TRUE)
-M[1,2]<- 0.7  
-M[1,3]<- 0.3
-M[2,3]<- 1
-M[3,4]<- 1
-M[4,1]<- 1
-M[5,6]<- 1
-M[6,7]<- 1
-M[7,8]<- 1
-M[8,9]<- 1
-M[9,10]<- 1
-M[10,1]<- 1
-markovChain <- new("markovchain",transitionMatrix=M)
 
 
-context("Checking is.accesible")
 
-
-test_that("is accesible is equivalent to reachability matrix", {
-  for (mc in subsetAllMCs) {
-    expect_true(markovchain:::.testthatIsAccesibleRcpp(mc$object))
-  }
-})

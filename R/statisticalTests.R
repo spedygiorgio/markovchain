@@ -313,12 +313,12 @@ assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
 
 verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
   #warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
-  if (!class(object) == 'markovchain') stop("Error! Object should belong to the markovchain class")
+  if (!is(object,'markovchain')  ) stop("Error! Object should belong to the markovchain class")
   if (missing(data) | missing(object)) stop("Error! Required inputs missing")
-  if (!(class(data) == "numeric" || class(data) == "character" || is.matrix(data))) stop("Error! Data should be either a raw transition matrix or 
+  if (  !is.numeric(data) || is.character(data) || is.matrix(data)) stop("Error! Data should be either a raw transition matrix or 
                                                                   either a character or a numeric element")
   
-  if ((class(data) == "numeric" || class(data) == "character")) data<-createSequenceMatrix(stringchar = data, possibleStates = states(object))
+  if (is.numeric(data)  || is.character(data) ) data<-createSequenceMatrix(stringchar = data, possibleStates = states(object))
   
   if (length(setdiff(names(data),names(object))) > 0) stop("Error! Empirical and theoretical tm have different support")
   
@@ -426,7 +426,7 @@ verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
 #' 
 verifyHomogeneity<-function(inputList, verbose = TRUE) {
   warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
-  if (class(inputList) != "list") stop("Error! inputList should be a string")
+  if (!is.list(inputList) ) stop("Error! inputList should be a string")
   if (length(inputList) < 2) stop("Error! inputList length lower than 2")
   
   #checks whether all inputs can be put as transition matrices

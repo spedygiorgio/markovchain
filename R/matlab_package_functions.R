@@ -1,9 +1,3 @@
-
-
-
-
-
-
 #' Matrix to create zeros
 #'
 #' @param n size of the matrix
@@ -20,5 +14,5 @@ zeros <- function(n) {
 #'
 #' @return a identity matrix 
 ones <- function(n) {
-  return(diag(n))
+  return(matrix(1,n,n))
 }

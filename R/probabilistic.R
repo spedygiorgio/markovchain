@@ -371,7 +371,7 @@ setMethod("canonicForm", "markovchain", function(object) {
 #' @export
 committorAB <- function(object,A,B,p=1) {
   
-  if(!class(object) == "markovchain")
+  if(!is(object,"markovchain"))
     stop("please provide a valid markovchain object")
   
   matrix <- object@transitionMatrix

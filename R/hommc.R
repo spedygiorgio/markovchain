@@ -312,7 +312,7 @@ predictHommc <- function(hommc, t, init) {
     stop("Please provide sufficient number of previous states")
   }
   
-  if(class(hommc)!= "hommc") {
+  if(!is(hommc, "hommc")) {
     stop("Please provide a valid hommc-class object")
   }
   

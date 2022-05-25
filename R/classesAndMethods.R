@@ -803,7 +803,7 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 	for(i in 1:ncol(df)) {
 	    
 	  # when found the first numeric and probability col
-			if((class(df[, i]) == "numeric") & (all(sapply(df[, i], .isProbability) == TRUE))) {
+			if((is(df[, i], "numeric")) & (all(sapply(df[, i], .isProbability) == TRUE))) {
 					out <- i
 					break
 			}

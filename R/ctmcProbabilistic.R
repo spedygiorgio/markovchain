@@ -251,7 +251,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
 #' @export
 probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   
-  if(class(C) != "ctmc"){
+  if(!is(C,"ctmc")){
     stop("Provided object is not a ctmc object")
   }
   if(t < 0){
@@ -326,7 +326,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
     stop("Please provide time points such that initial time is greater than or equal to end point")
   }
   
-  if(!class(C) == 'ictmc'){
+  if(!is(C,'ictmc')){
     stop("Please provide a valid ictmc-class object")
   }
   noOfstates <-length(C@states)
@@ -420,7 +420,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 #' @export
 is.CTMCirreducible <- function(ctmc) {
   
-  if(!class(ctmc) == 'ctmc') {
+  if(!is(ctmc, 'ctmc') ) {
     stop("please provide a valid ctmc class object")
   }
   
@@ -471,7 +471,7 @@ is.CTMCirreducible <- function(ctmc) {
 #' @export
 is.TimeReversible <- function(ctmc) {
   
-  if(!class(ctmc) == "ctmc") {
+  if(!is(ctmc,"ctmc")) {
     stop("please provide a valid ctmc-class object")
   }
   

@@ -26,7 +26,7 @@ mat matrixPow(const mat& A, int n) {
   // Compute last = a + 1
   while (n > 0) {
     if ((n & 1) > 0)
-      result = result + partial;
+      result = result * partial;
     
     partial = partial * partial;
     n >>= 1;

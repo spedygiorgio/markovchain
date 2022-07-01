@@ -1,2 +1,2 @@
-2022-05-21 0.8.9
-Removal of Matlab package dependency
+2022-07-01 0.9.0
+Bugfix a state classification error in Rcpp

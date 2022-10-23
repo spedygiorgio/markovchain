@@ -1,3 +1,13 @@
+# Package news
+
+## Current
+
+date: 2022-09-23 
+version: 0.9.1
+changes: Uptick Matrics requirements and modified Changelogs
+
+## Previous
+
 2022-09-23 0.9.1
 Uptick Matrix reqs
 2022-07-01 0.9.0

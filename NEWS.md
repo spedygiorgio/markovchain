@@ -183,12 +183,15 @@ methods for transitory states
 markovchain and markovchainList objects Implemented rmarkovchain and
 bootstrap fit Improved vignettes
 
-Fixed presentation 2020-03-16 0.8.4 Limiting output lines in vignettes.
+2020-03-16 0.8.4 Limiting output lines in vignettes.
+
 2020-03-15 0.8.3 Add small changes in code to cope with upcoming R 4.0.0
-(stringsAsFactor=TRUE in data.frame). 2019-12-10 0.8.2 Add small changes
-in code to cope with upcoming R 4.0.0 (no more check class(x)=='matrix')
-as well as packages' unavailable. 2019-08-13 0.7.0 \* Improves
-performance and refactors `communicatingClasses`, `recurrentClasses`,
+(stringsAsFactor=TRUE in data.frame). 
+
+2019-12-10 0.8.2 Add small changes in code to cope with upcoming R 4.0.0 (no more check class(x)=='matrix')
+as well as packages' unavailable. 
+
+2019-08-13 0.7.0 \* Improves performance and refactors `communicatingClasses`, `recurrentClasses`,
 `transientStates`, `is.irreducible`, `canonicForm`, `summary` and
 `steadyStates` methods, porting them to C++ whenever possible and
 improving the algorithmic complexity of the code. \* Solves a bug with
@@ -198,28 +201,41 @@ column Markov chains. \* Improves tests, adding checking of mathematical
 structural properties and hundreds of random test cases. \* Fixes
 documentation for `roxygen` and NAMESPACE file for automatic generation
 using `devtools::document()` \* Bumps Ignacio Cordón as author (ORCID
-included) 2019-07-01 0.6.9.15 Fixed confidence interval calculation:
+included) 
+
+2019-07-01 0.6.9.15 Fixed confidence interval calculation:
 true confidence intervals are now 1-(1-confidence_interval)/2 Various
-code refactoring 09-12-2018 0.6.9.14 Added plot from MmgraphR Added
+code refactoring 
+
+09-12-2018 0.6.9.14 Added plot from MmgraphR Added
 meanFirstPassageTime (thanks to Toni Giorgino) Add orcid Add more
 warning to Statistical Inference Functions 12-08-2018 0.6.9.12 Improved
 Rcpp performance as suggested by
-<https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/>
+<https://www.r-bloggers.com/2018/07/boost-the-speed-of-r-calls-from-rcpp/>
+
 20-04-2018 0.6.9.9 Fixed typo in vignette MAP method now works also with
 lists (issue #141) Fix valgrid error 14-08-2017 0.6.9.8-1 Added
-is.TimeReversible function added gm_to_markovchain example 10-07-2017
-0.6.9.5 Added empirical bayesian estimate Various additions from GSOC
-2017 (see the new vignette) 31-03-2014 Version 0.6.9 Added sort method
-Revised numeric tolerance when creating markovchains Added suggestion
-for which row to fix 16-03-2017 Version 0.6.8 Deep restructuring of
-statistical tests Add parameter confint to markovchainFit Fixed bug in
-markovchainFitList Handling of NA 02-02-2017 Version 0.6.6.2 Add
-parameter confint to markovchainFit 27-01-2017 Version 0.6.6.1 Fixing
-bug in markovchainListFit 22-01-2017 markovchainFit accepts an uneven
-list now Added confidence intervals when markovchainFit is given a
-matrix 08-12-2016 Added patch to divergence test 20-08-2016 Fully
-parallelized bootstrapped markovchain fit 08-08-2016 Version 0.6 Added
-multivariate higher order markov chains Better handlign of steady state
+is.TimeReversible function added gm_to_markovchain example 
+
+10-07-2017 0.6.9.5 Added empirical bayesian estimate Various additions from GSOC
+2017 (see the new vignette)
+
+31-03-2017 Version 0.6.9 Added sort method Revised numeric tolerance when creating markovchains Added suggestion
+for which row to fix 
+
+16-03-2017 Version 0.6.8 Deep restructuring of statistical tests Add parameter confint to markovchainFit Fixed bug in markovchainFitList Handling of NA 
+
+02-02-2017 Version 0.6.6.2 Add parameter confint to markovchainFit 27-01-2017 Version 0.6.6.1 Fixing
+bug in markovchainListFit 
+
+22-01-2017 markovchainFit accepts an uneven list now Added confidence intervals when markovchainFit is given a
+matrix 
+
+08-12-2016 Added patch to divergence test 
+
+20-08-2016 Fully parallelized bootstrapped markovchain fit 
+
+08-08-2016 Version 0.6 Added multivariate higher order markov chains Better handlign of steady state
 analysis on non - recurrent Markov Chains Fixed an error in the igraph
 conversion 08-07-2016 Fixed C++ 11 variables types 24-06-2016 Version
 0.4.5 Speeding up rmarkovchain using parallel and RcppParallel library.

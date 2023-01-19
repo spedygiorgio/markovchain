@@ -80,8 +80,7 @@ title: News
     meanFirstPassageTime (thanks to Toni Giorgino) Add orcid Add more
     warning to Statistical Inference Functions
 
--   12-08-2018 0.6.9.12 Improved Rcpp performance as suggested by
-    <https://www.r-bloggers.com/boost-the-speed-of-r-calls-from-rcpp/>
+-   12-08-2018 0.6.9.12 Improved Rcpp performance
 
 -   20-04-2018 0.6.9.9 Fixed typo in vignette MAP method now works also
     with lists (issue #141) Fix valgrid error
@@ -105,20 +104,24 @@ title: News
 -   02-02-2017 Version 0.6.6.2 Add parameter confint to markovchainFit
 
 -   27-01-2017 Version 0.6.6.1 Fixing bug in markovchainListFit
-    22-01-2017
 
--   markovchainFit accepts an uneven list now Added confidence intervals
-    when markovchainFit is given a matrix 08-12-2016 Added patch to
-    divergence test 20-08-2016 Fully parallelized bootstrapped
-    markovchain fit 08-08-2016 Version 0.6 Added multivariate higher
-    order markov chains Better handlign of steady state analysis on
-    non - recurrent Markov Chains Fixed an error in the igraph
-    conversion 08-07-2016 Fixed C++ 11 variables types 24-06-2016
-    Version 0.4.5 Speeding up rmarkovchain using parallel and
-    RcppParallel library. 14-06-2016 Version 0.4.4.4 Bug fixed for
-    markovchainFit when method = bootstrap
+-   22-01-2017 markovchainFit accepts an uneven list now Added confidence intervals
+    when markovchainFit is given a matrix 
 
--    09-06-2016 Version 0.4.4.2 added sanitize=false paramter to markovchainFit
+-   08-12-2016 Added patch to divergence test 
+
+-   20-08-2016 Fully parallelized bootstrapped markovchain fit 
+
+-   08-08-2016 Version 0.6 Added multivariate higher order markov chains Better handlign of steady state analysis on non - recurrent Markov Chains Fixed an error in the igraph conversion 
+
+-   08-07-2016 Fixed C++ 11 variables types 
+
+-   24-06-2016 Version 0.4.5 Speeding up rmarkovchain using parallel and
+    RcppParallel library. 
+
+-   14-06-2016 Version 0.4.4.4 Bug fixed for markovchainFit when method = bootstrap
+
+-   09-06-2016 Version 0.4.4.2 added sanitize=false paramter to markovchainFit
 
 -   31-05-2016 Version 0.4.4.1 Improvement of the internal method checkSequence. name method to set and get the names of markovchain object.
 

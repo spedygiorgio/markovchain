@@ -5,6 +5,10 @@ editor_options:
 title: News
 ---
 
+# News for version 0.9.2
+
+-   Add RcppParallel flags to PKG_LIBS
+
 # News for version 0.9.1
 
 ## Current changes

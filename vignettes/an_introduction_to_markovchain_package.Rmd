@@ -1532,6 +1532,7 @@ mcWeatherHalfDay
 The \pkg{ctmcd} package \citep{pkg:ctmcd} provides various functions to estimate the generator matrix (GM) of a CTMC process using different methods. The following code provides a way to join \pkg{markovchain} and \pkg{ctmcd} computations.
 
 ```{r ctmcd1}
+if(requireNamespace(package='ctmcd', quietly = TRUE)) {
 require(ctmcd)
 require(expm)
 #defines a function to transform a GM into a TM
@@ -1553,6 +1554,9 @@ diag(gm0)=-rowSums(gm0)
 gm0[8,]=0
 gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
 mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
+} else {
+  warning('package ctmcd unavailable')
+}
 ```
 
 ## Pseudo - Bayesian Estimation

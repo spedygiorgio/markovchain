@@ -138,12 +138,17 @@ transition2Generator<-function(P, t = 1,method = "logarithm") {
 #' @export
 #' 
 freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
+  if(requireNamespace('ctmcd', quietly = TRUE)) {
   if(method == "QO"){
     out <- ctmcd::gmQO(P, t, logmethod)
   } else if(method == "WA") {
     out <- ctmcd::gmWA(P, t, logmethod)
   } else if(method == "DA") {
     out <- ctmcd::gmDA(P, t, logmethod)
+  }
+  } else {
+    warning("package ctmcd is not installed")
+    out = NULL
   }
   return(out)
 }

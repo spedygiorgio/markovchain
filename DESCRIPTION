@@ -2,7 +2,7 @@ Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
 Version: 0.9.2
-Date: 2023-01-26
+Date: 2023-02-26
 Authors@R: c(
     person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
       email = "spedicato_giorgio@yahoo.it",comment = c(ORCID = "0000-0002-0315-8888")),

@@ -44,6 +44,9 @@ gen <- matrix(c(-1/4,1/4,0,0,0,1/5,-9/20,1/4,0,0,0,1/5,-9/20,1/4,0,0,0,1/5,-9/20
 ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
 
 test_that("Check probabilityatT using a ctmc object:",{
+  if (!requireNamespace("ctmcd", quietly = TRUE)) {
+    skip("The ctmcd package is not available")
+  }
   expect_equal(round(probabilityatT(ctmc,2.5),3),ansMatrix)
 })
 
@@ -58,6 +61,9 @@ ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 
 
 test_that("Check impreciseProbabilityatT function using an ictmc object:",{
+  if (!requireNamespace("ctmcd", quietly = TRUE)) {
+    skip("The ctmcd package is not available")
+  }
   expect_equal(round(impreciseProbabilityatT(ictmc,2,0,1,error = 10^-3),4),c(0.0083,0.1410))
 })
 
@@ -75,6 +81,9 @@ answer <- matrix(c(
 ),nrow = 4,byrow = TRUE)
 
 test_that("Check if ",{
+  if (!requireNamespace("ctmcd", quietly = TRUE)) {
+    skip("The ctmcd package is not available")
+  }
   expect_equal(round(freq2Generator(sample_rel,1),3),answer)
 })
 
@@ -90,6 +99,9 @@ molecularCTMC <- new("ctmc", states = energyStates,
                      name = "Molecular Transition Model")
 
 test_that("is.CTMCirreducible works", {
+  if (!requireNamespace("ctmcd", quietly = TRUE)) {
+    skip("The ctmcd package is not available")
+  }
   expect_equal(is.CTMCirreducible(molecularCTMC),TRUE)
 })
 
@@ -106,6 +118,9 @@ molecularCTMC <- new("ctmc", states = energyStates,
                      name = "Molecular Transition Model")
 
 test_that("is.TimeReversible works", {
+  if (!requireNamespace("ctmcd", quietly = TRUE)) {
+    skip("The ctmcd package is not available")
+  }
   expect_equal(is.TimeReversible(molecularCTMC),TRUE)
 })
 

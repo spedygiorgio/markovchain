@@ -1,7 +1,7 @@
-citHeader("To cite markovchain in publications use:")
+note <- sprintf("R package version %s", meta$Version)
 
-citEntry(
-  entry    = "Article",
+bibentry(
+  bibtype  = "Article",
   title    = "Discrete Time Markov Chains with R",
   author   =  person(given="Giorgio Alfredo", family="Spedicato"),
   journal  = "The R Journal",
@@ -9,8 +9,5 @@ citEntry(
   volume   = "9",
   number   = "2",
   pages    = "84--104",
-  url      = "https://journal.r-project.org/archive/2017/RJ-2017-036/index.html",
-  textVersion = paste(
-  "Giorgio Alfredo Spedicato , The R Journal (2017) 9:2, pages 84-104."
-  ) 
+  url      = "https://journal.r-project.org/archive/2017/RJ-2017-036/index.html"
 )

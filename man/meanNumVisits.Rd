@@ -19,7 +19,7 @@ to the state j if the chain starts at i (in a Markov chain by columns it
 would be the element (j, i) instead)
 }
 \examples{
-M <- matlab::zeros(5, 5)
+M <- markovchain:::zeros(5)
 M[1,1] <- M[5,5] <- 1
 M[2,1] <- M[2,3] <- 1/2
 M[3,2] <- M[3,4] <- 1/2

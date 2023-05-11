@@ -21,6 +21,8 @@ Description: Functions and S4 methods to create and manage discrete time Markov
     chains more easily. In addition functions to perform statistical (fitting
     and drawing random variates) and probabilistic (analysis of their structural
     proprieties) analysis are provided. See Spedicato (2017) <doi:10.32614/RJ-2017-036>.
+    Please consider that some functions for continuous times Markov chains depends on the ctmcd package, listed in the Suggest section, that, as May 2023, 
+    is not available in standard repositories .
 License: GPL-2
 Depends:
     R (>= 4.3.0),

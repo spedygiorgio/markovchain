@@ -7,3 +7,4 @@ vignettes/*.log
 ^.fuse_hidden*
 ^TAGS$
 ^.*\.tar\.gz$
+^LICENSE\.md$

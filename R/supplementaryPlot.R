@@ -21,8 +21,13 @@
     mat <- t(mat)
   }
   
-  # pass the matrix as columnwise fashion
-  diagram::plotmat(t(mat),relsize = 0.75,box.col = colorvector, ...)
+  
+  if (!requireNamespace("diagram", quietly = TRUE)) {
+    print("The diagram package is not available")
+  } else{
+    diagram::plotmat(t(mat),relsize = 0.75,box.col = colorvector, ...)  
+  }
+  
 }
 
 # plot a diagram using DiagrammeR for a markovchain object
@@ -56,6 +61,7 @@
   }
   
   # print(args)
+  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
   res <- DiagrammeR::grViz(paste0("
   digraph circles {
             graph [overlap = true, fontsize = 10]
@@ -72,6 +78,9 @@
   "))
   
   return (res)
+  } else {
+    print("Diagrammer unavailable")
+  }
 }
 
 #  How to do plotting?

@@ -57,7 +57,7 @@ setClass("HigherOrderMarkovChain", #class name
 #' 428(2), 492-507.
 #'
 #' @author Giorgio Spedicato, Tae Seung Kang
-#' @note This function is written in Rcpp.
+
 #'
 #' @examples
 #' sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
@@ -67,6 +67,7 @@ setClass("HigherOrderMarkovChain", #class name
 #' @export
 fitHigherOrder<-function(sequence, order = 2) {
   # prbability of each states of sequence
+  if (requireNamespace("Rsolnp", quietly = TRUE)) {
   X <- seq2freqProb(sequence)
   
   # store h step transition matrix
@@ -82,5 +83,9 @@ fitHigherOrder<-function(sequence, order = 2) {
                          LB=rep(0, order), control=list(trace=0))
   lambda <- model$pars
   out <- list(lambda=lambda, Q=Q, X=X)
+  } else {
+    print("package Rsolnp unavailable")
+    out <- NULL
+  }
   return(out)
 }

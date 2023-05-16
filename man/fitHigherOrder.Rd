@@ -22,9 +22,6 @@ A list containing lambda, Q, and X.
 Given a sequence of states arising from a stationary state, it
   fits the underlying Markov chain distribution with higher order.
 }
-\note{
-This function is written in Rcpp.
-}
 \examples{
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
             "c", "a", "b", "c", "a", "b", "a", "b")

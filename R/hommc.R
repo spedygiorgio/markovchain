@@ -234,7 +234,7 @@ setMethod("show", "hommc",
 #' 
 #' @export
 fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
-  
+  if (requireNamespace("Rsolnp", quietly = TRUE)) {
   message("This function is experimental")
   
   if(is.data.frame(seqMat) == TRUE) {
@@ -262,6 +262,10 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   
   
   return(new("hommc", order = order, Lambda = fit$pars, P = allTmat, states = uelement, byrow = FALSE))
+  } else {
+    print("Rsolnp unavailable")
+    return(NULL)
+  }
 }
 
 

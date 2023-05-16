@@ -119,11 +119,15 @@ plot(molecularCTMC)
 The figure shown is built using the $igraph$ package. The package also provides options of plotting graph using $diagram$ and $DiagrameR$ package. Plot using these packages can be built using these commands:
 
 ``` {r}
+if(requireNamespace(package='ctmcd', quietly = TRUE)) {
 plot(molecularCTMC,package = "diagram")
+} else {
+  print("diagram package unavailable")
+}
 ```
 
 
-Similarly, one can easily replace $diagram$ package with $DiagrammeR$ 
+Similarly, one can easily replace $diagram$ package with $DiagrammeR$.
 
 
 

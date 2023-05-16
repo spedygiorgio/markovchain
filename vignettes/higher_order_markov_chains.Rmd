@@ -74,13 +74,16 @@ Its quadratic programming problem is solved using `solnp` function of the Rsolnp
 
 ```{r load, results='hide', warning=FALSE, message=FALSE}
 require(markovchain)
-library(Rsolnp)
+
 ```
 
 ```{r higherOrder}
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
+library(Rsolnp)
 data(rain)
 fitHigherOrder(rain$rain, 2)
 fitHigherOrder(rain$rain, 3)
+}
 ```
 
 # Higher Order Multivariate Markov Chains
@@ -261,7 +264,9 @@ According to the constructed 8th order multivariate Markov model, Products A and
 
 ```{r hommcFit, warning = FALSE, message = FALSE}
 # fit 8th order multivariate markov chain
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
 object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
+}
 ```
 
 We choose to show only results shown in the paper. We see that $\lambda$ values are quite close, but not equal, to those shown in the original paper.

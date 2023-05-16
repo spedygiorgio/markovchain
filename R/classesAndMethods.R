@@ -888,9 +888,14 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
 # see how to create msm object using ?msm
 
 .msm2Mc <- function(from) {
+  if(requireNamespace(package='msm', quietly = TRUE)) {
   temp <- msm::pmatrix.msm(from)
   prMatr <- unclass(as.matrix(temp))
   out <- new("markovchain", transitionMatrix = prMatr)
+  } else {
+    out <- NULL
+    print("msm unavailable")
+  }
   return(out)
 }
 

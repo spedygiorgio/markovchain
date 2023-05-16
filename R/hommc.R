@@ -259,8 +259,6 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   fit <- Rsolnp::solnp(pars = lmbda, fun =  .fn3, eqfun = .eqn3, eqB = rep(1, s),
                        LB = rep(0, n * s * s), control = list(trace = 0), 
                        allTmat = allTmat, freqMat = freqMat, n = n, m = m, s = s, Norm = Norm)
-  
-  
   return(new("hommc", order = order, Lambda = fit$pars, P = allTmat, states = uelement, byrow = FALSE))
   } else {
     print("Rsolnp unavailable")

@@ -51,7 +51,7 @@ Suggests:
     rticles
 Enhances:
     etm
-VignetteBuilder: utils, knitr
+VignetteBuilder: rmarkdown, knitr, bookdown, rticles
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)
 SystemRequirements: GNU make
 LazyLoad: yes

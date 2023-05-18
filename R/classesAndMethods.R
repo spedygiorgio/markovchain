@@ -1371,3 +1371,58 @@ setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
 #' @rdname steadyStates
 #' @exportMethod steadyStates
 setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
+
+
+# method to check for monotonicity of the transition matrix
+
+#' @name isMonotonic
+#' @title Monontonicity of a \code{markovchain} transition matrix
+#' 
+#' @description This method returns whether the transition matrix associated to a markovchain object is monotonic as a boolean value.
+#' @param object A discrete \code{markovchain} object
+#' 
+#' @return A boolean value
+#' 
+#' @references Stochastically monotone Markov Chains (Daley, 1968)
+#' @author Pietro Zanotta
+#'       
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' monotonicMarkov <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.3,0.3,0.4,0.2,0.4,.4,.2,.4,.4), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#'                name = "A monotonic markovchain Object" 
+#' )       
+#' isMonotonic(monotonicMarkov)
+setGeneric("isMonotonic", function(.Object) standardGeneric("isMonotonic"))
+
+setMethod("isMonotonic", "markovchain", function(.Object){
+  
+  M <- .Object@transitionMatrix
+  out <- T
+  
+  # check it's a stochastic matrix
+  if(any(M < 0) | any(M > 1)) {
+    out <- F
+  }
+  for(row in 1:ncol(M)){
+    if(any(sum(M[row,]) != 1)) {
+      out <- F
+    }
+  }
+  
+  if(out == T){
+    sum_ <- 0
+    
+    # check it's monotone 
+    for(col in 2:ncol(M)){      # if m is stochastic, the condition for m = 1
+      for(row in 1:nrow(M)){    # is already satisfied
+        sum_[row] <- sum(M[row, col:ncol(M)])
+      }
+      if(any(diff(sum_) < -1e-8)){
+        out <- F 
+      }
+    }
+  }
+  return(out)
+})

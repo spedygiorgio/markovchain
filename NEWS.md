@@ -5,6 +5,11 @@ editor_options:
 title: News
 ---
 
+# News for version 0.9.4
+
+-   Corrected strange characters
+
+
 # News for version 0.9.3
 
 -   Generalized application of requireNamespace(..., quietly = TRUE)

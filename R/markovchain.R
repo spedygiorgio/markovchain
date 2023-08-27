@@ -8,15 +8,6 @@
 #'   addition it provide functions to perform statistical (fitting and drawing
 #'   random variates) and probabilistic (analysis of DTMC proprieties) analysis
 #'   
-#' @details 
-#' \tabular{ll}{
-#'   Package: \tab markovchain\cr
-#'   Type: \tab Package\cr
-#'   Version: \tab 0.8.2\cr
-#'   Date: \tab 2020-01-5\cr
-#'   License: \tab GPL-2\cr
-#'   Depends: \tab R (>= 4.0.0), methods, expm,  igraph, Matrix\cr
-#' }
 #' @author 
 #' Giorgio Alfredo Spedicato 
 #' Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>

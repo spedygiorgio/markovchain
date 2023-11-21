@@ -1371,3 +1371,62 @@ setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
 #' @rdname steadyStates
 #' @exportMethod steadyStates
 setGeneric("steadyStates", function(object) standardGeneric("steadyStates"))
+
+
+# method to get stationary states
+
+#' @name isMonotone
+#' @title Check monotonicity of the transition matrix of a  \code{markovchain} 
+#' object
+#' 
+#' @description This method returns TRUE if the transition matrix associated to 
+#' a \code{markovchain} object is monotone, FALSE otherwise.
+#' @param object A discrete \code{markovchain} object
+#' 
+#' @return TRUE or FALSE
+#' 
+#' @author Pietro Zanotta
+#' 
+#' @examples 
+#' statesNames <- c("a", "b", "c")
+#' monotoneMC <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.2, 0.3, 0.5, 0.1, 0.3, 0.6, 0, 0.4, 0.6), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#' )
+#' isMonotone(monotoneMC)
+#'
+#' nonMonotoneMC <- new("markovchain", states = statesNames, transitionMatrix =
+#'                 matrix(c(0.9, 0, 0.1, 0.1, 0.3, 0.6, 0, 0.5, 0.5), nrow = 3,
+#'                 byrow = TRUE, dimnames=list(statesNames,statesNames)),
+#' )
+#'
+#' isMonotone(nonMonotoneMC)
+#' 
+#' @rdname isMonotone
+#' @exportMethod isMonotone
+
+
+cppFunction('
+
+  bool isMonotoneCpp(const NumericMatrix& matrix) {
+  int rows = matrix.nrow();
+  int cols = matrix.ncol();
+
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 1; j < cols; ++j) {
+      if (matrix(i, j) < matrix(i, j - 1)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+')
+  
+setGeneric("isMonotone", function(.Object) standardGeneric("isMonotone"))
+  
+setMethod("isMonotone", "markovchain", function(.Object){
+  matrix <- .Object@transitionMatrix
+  isMonotoneCpp(matrix)
+})

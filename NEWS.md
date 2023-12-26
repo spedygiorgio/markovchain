@@ -5,6 +5,11 @@ editor_options:
 title: News
 ---
 
+# News for version 0.9.6
+
+-   Handling change of pandoc requirements
+
+
 # News for version 0.9.5
 
 -   Downtick R requirements

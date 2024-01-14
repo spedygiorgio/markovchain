@@ -28,7 +28,7 @@ markovchainFit(
 )
 }
 \arguments{
-\item{stringchar}{It can be a {n x n} matrix or a character vector or a list}
+\item{stringchar}{It can be a \deqn{n x n} matrix or a character vector or a list}
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 
@@ -36,7 +36,7 @@ markovchainFit(
 
 \item{possibleStates}{Possible states which are not present in the given sequence}
 
-\item{data}{It can be a character vector or a {n x n} matrix or a {n x n} data frame or a list}
+\item{data}{It can be a character vector or a \deqn{n x n} matrix or a \deqn{n x n} data frame or a list}
 
 \item{method}{Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"}
 
@@ -58,7 +58,7 @@ Used only when \code{method} equal to "mle".}
 
 \item{hyperparam}{Hyperparameter matrix for the a priori distribution. If none is provided, 
 default value of 1 is assigned to each parameter. This must be of size
-{k x k} where k is the number of states in the chain and the values
+\deqn{k x k} where k is the number of states in the chain and the values
 should typically be non-negative integers.}
 }
 \value{

@@ -1,5 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.Rproj\.user
 ^\.travis\.yml$
 ^data-raw$
 vignettes/jss*
@@ -8,3 +9,4 @@ vignettes/*.log
 ^TAGS$
 ^.*\.tar\.gz$
 ^LICENSE\.md$
+^\.github$

@@ -1,9 +1,10 @@
 ---
 title:
-  plain:     "Higher, possibly multivariate, Order Markov Chains in markovchain package"
-  formatted: "Higher, possibly multivariate, Order Markov Chains in \\pkg{markovchain} package"
-  short:     "Higher order (multivariate) Markov chains"
+  plain:     "Higher order Markov chains"
+  formatted: "Higher order Markov chains"
+  short:     "Higher order Markov chains"
 pagetitle: "Higher order (multivariate) Markov chains"
+output: rmarkdown::html_vignette
 author:
   - name: "Deepak Yadav"
     affiliation: B-Tech student, Computer Science and Engineering
@@ -18,7 +19,7 @@ author:
       Gainesville, FL, USA
     email: \email{tskang3@gmail.com}
   - name: "Giorgio Alfredo Spedicato"
-    affiliation: Ph.D C.Stat ACAS, UnipolSai R\&D
+    affiliation: Ph.D FCAS FSA CSPA C.Stat, Unipol Group
     address: >
       Via Firenze 11
       Paderno Dugnano 20037 Italy
@@ -33,20 +34,14 @@ preamble: >
   \setkeys{Gin}{width=0.8\textwidth}
 abstract: |
   The \pkg{markovchain} package contains functions to fit higher (possibly) multivariate order Markov chains. The functions are shown as well as simple exmaples
-output: if (rmarkdown::pandoc_version() < "2.2") function(...) { rmarkdown::pdf_document(template = "./template.tex", ...) } else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) } 
 vignette: >
-  %\VignetteIndexEntry{Higher order markov chains} 
+  %\VignetteIndexEntry{Higher order Markov chains} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
 keywords:
   plain: [Higher order Markov chains]
   formatted: [Higher order Markov chains]
-documentclass: jss
-classoption: nojss
 bibliography: markovchainBiblio.bib
-pkgdown:
-  as_is: true
-  extension: pdf
 ---
 
 ```{r global_options, include=FALSE}
@@ -72,10 +67,16 @@ The output will be a `list` which consists of
 
 Its quadratic programming problem is solved using `solnp` function of the Rsolnp package [@pkg:Rsolnp]. 
 
-```{r load, results='hide', warning=FALSE, message=FALSE}
-require(markovchain)
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      collapse = TRUE,
+                      comment = "#>")
 ```
+
+```{r setup_2, include=FALSE, message=FALSE, echo=FALSE}
+require(markovchain)
+```
+
 
 ```{r higherOrder}
 if (requireNamespace("Rsolnp", quietly = TRUE)) {

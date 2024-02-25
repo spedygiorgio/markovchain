@@ -2,16 +2,25 @@
 title: "Google Summer of Code 2017 Additions"
 author: "Vandit Jain"
 date: "August 2017"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_vignette
 bibliography: markovchainBiblio.bib
 vignette: >
   %\VignetteIndexEntry{Google Summer of Code 2017 Additions} 
   %\VignetteEngine{knitr::rmarkdown}  
   %VignetteEncoding{UTF-8}
-pkgdown:
-  as_is: true
-  extension: pdf
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      collapse = TRUE,
+                      comment = "#>")
+```
+
+```{r setup_2, include=FALSE}
+require(markovchain)
+```
+
+
 
 # Expected Hitting Time using CTMC
 

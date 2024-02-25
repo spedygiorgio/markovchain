@@ -15,7 +15,7 @@
 /*.Rcheck/
 
 # RStudio files
-.Rproj.user/
+.Rproj.user*
 
 # produced vignettes and aux files
 vignettes/*.html
@@ -33,16 +33,13 @@ docs
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-.Rproj.user
 packrat/lib*/
 
 # pkgdown files
 docs/
 
-
 # Packrat and other files
 packrat/src
-packrat/src/
 inst/doc
 /revdep/.cache.rds
 /revdep

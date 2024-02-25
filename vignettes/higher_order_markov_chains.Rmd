@@ -1,9 +1,6 @@
 ---
-title:
-  plain:     "Higher order Markov chains"
-  formatted: "Higher order Markov chains"
-  short:     "Higher order Markov chains"
-pagetitle: "Higher order (multivariate) Markov chains"
+title: "Higher order Markov chains"
+pagetitle: "Higher order Markov chains"
 output: rmarkdown::html_vignette
 author:
   - name: "Deepak Yadav"

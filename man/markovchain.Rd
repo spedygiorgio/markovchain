@@ -2,6 +2,7 @@
 % Please edit documentation in R/markovchain.R
 \docType{package}
 \name{markovchain-package}
+\alias{markovchain}
 \alias{markovchain-package}
 \title{Easy Handling Discrete Time Markov Chains}
 \description{
@@ -35,6 +36,14 @@ markovchainSequence(n=20, markovchain=mcC, include=TRUE)
 }
 \references{
 Discrete-Time Markov Models, Bremaud, Springer 1999
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/spedygiorgio/markovchain/}
+  \item Report bugs at \url{https://github.com/spedygiorgio/markovchain/issues}
+}
+
 }
 \author{
 Giorgio Alfredo Spedicato 

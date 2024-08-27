@@ -61,12 +61,17 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
   i <- 1
   while (i <= n){
     idx <- which(ctmc@states == state)
-    t <- t + rexp(1, -ctmc@generator[idx, idx])
-    state <- ctmc@states[sample(1:dim(ctmc), 1, prob = trans[idx, ])]
+    if (ctmc@generator[idx, idx] == 0) {
+      # absorbing state; stay here forever
+      t <- Inf
+    } else {
+      t <- t + rexp(1, -ctmc@generator[idx, idx])
+    }
     
-    if(T > 0 & t > T)
+    if((T > 0 & t > T) | (is.infinite(t)))
       break
     
+    state <- ctmc@states[sample(1:dim(ctmc), 1, prob = trans[idx, ])]
     states <- c(states, state)
     time <- c(time, t)
     i <- i + 1
@@ -83,6 +88,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
   else
     stop("Not a valid output type")
 }
+
 
 #' @title Return the generator matrix for a corresponding transition matrix
 #' 

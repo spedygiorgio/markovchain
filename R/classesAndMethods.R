@@ -21,7 +21,8 @@
 #'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
 #'   coerce,markovchain,igraph-method coerce,markovchain,matrix-method
 #'   coerce,markovchain,sparseMatrix-method coerce,sparseMatrix,markovchain-method
-#'   coerce,matrix,markovchain-method coerce,msm,markovchain-method
+#'   coerce,matrix,markovchain-method coerce,Matrix,markovchain-method
+#'   coerce,msm,markovchain-method
 #'   coerce,msm.est,markovchain-method coerce,etm,markovchain-method
 #'   dim,markovchain-method initialize,markovchain-method
 #'   names<-,markovchain-method plot,markovchain,missing-method
@@ -34,7 +35,7 @@
 #' @param states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
 #' @param byrow TRUE or FALSE indicating whether the supplied matrix 
 #'   is either stochastic by rows or by columns
-#' @param transitionMatrix Square transition matrix
+#' @param transitionMatrix Square transition matrix of class Matrix::Matrix
 #' @param name Optional character name of the Markov chain
 #' 
 #' @section Creation of objects:
@@ -93,7 +94,7 @@
 #' \item \code{markovchain} object are backed by S4 Classes.
 #' \item Validation method is used to assess whether either columns or rows totals to one. 
 #' Rounding is used up to \code{.Machine$double.eps * 100}. If state names are not properly
-#' defined for a probability  \code{matrix}, coercing to \code{markovhcain} object leads 
+#' defined for a probability  \code{matrix}, coercing to \code{markovchain} object leads 
 #' to overriding states name with artificial "s1", "s2", ... sequence. In addition, operator
 #' overloading has been applied for \eqn{+,*,^,==,!=} operators.
 #' }
@@ -204,7 +205,7 @@ setMethod(
       .Object,
       states = states,
       byrow = byrow,
-      transitionMatrix = transitionMatrix,
+      transitionMatrix = as.matrix(transitionMatrix),
       name = name,
       ...
     )
@@ -687,7 +688,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 	
   # firstly, check size
 	if (ncol(matr) != nrow(matr)) {
-		if(verbose) stop("Error! Not a rectangular matrix")
+		if(verbose) stop("Error! Not a quadratic matrix")
 		return(FALSE)
 	}
   
@@ -707,7 +708,9 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 
 # Internal function to return a markovchain object given a matrix
 .matrix2Mc <- function(from) {
-	
+	# enforce class matrix
+  from <- as.matrix(from)
+  
   # whether given matrix is a transition matrix or not
   # if it is then how probabilities are stored
   # row-wise or columnwise
@@ -751,6 +754,7 @@ NULL
 # coerce matrix to markovchain object using internal method
 # example: as("some matrix", "markovchain")
 setAs(from = "matrix", to = "markovchain", def = .matrix2Mc)
+setAs(from = "Matrix", to = "markovchain", def = .matrix2Mc)
 
 # Function to transform a markovchain into a data.frame
 # Args:

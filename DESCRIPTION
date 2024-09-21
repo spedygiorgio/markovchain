@@ -25,10 +25,10 @@ Description: Functions and S4 methods to create and manage discrete time Markov
 License: MIT + file LICENSE
 Depends:
     R (>= 4.2.0),
+    Matrix (>= 1.5-0),
     methods
 Imports:
     igraph,
-    Matrix (>= 1.5-0),
     expm,
     stats4,
     parallel,

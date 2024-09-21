@@ -90,7 +90,13 @@ M[4,3] <- M[4,5] <- 1/2
 M[5,5] <- 1
 mcDrunkard <- new("markovchain", transitionMatrix = M)
 
+# sparse matrix example based on Fisher's iris data
+data(iris)
+sparsematrix <- Matrix::sparseMatrix(i=rep(seq.int(nrow(iris)),5),
+                                     j=FNN::get.knn(iris[,-5], k=5)$nn.index,
+                                     x=.2)
+
 #SAVING
 
 usethis::use_data(simpleMcCiaoFit, checksAlofiRawTransitions, checkmarkovchainFitList, knownSteadyStatesMCs,
-                  mcHitting, mcDrunkard, internal = TRUE, overwrite = TRUE)
+                  mcHitting, mcDrunkard, sparsematrix, internal = TRUE, overwrite = TRUE)

@@ -35,7 +35,7 @@
 #' @param states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
 #' @param byrow TRUE or FALSE indicating whether the supplied matrix 
 #'   is either stochastic by rows or by columns
-#' @param transitionMatrix Square transition matrix of class Matrix::Matrix
+#' @param transitionMatrix Square transition matrix
 #' @param name Optional character name of the Markov chain
 #' 
 #' @section Creation of objects:

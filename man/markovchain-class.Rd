@@ -61,7 +61,7 @@
 \item{byrow}{TRUE or FALSE indicating whether the supplied matrix 
 is either stochastic by rows or by columns}
 
-\item{transitionMatrix}{Square transition matrix of class Matrix::Matrix}
+\item{transitionMatrix}{Square transition matrix}
 
 \item{name}{Optional character name of the Markov chain}
 }

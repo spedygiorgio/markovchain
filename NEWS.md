@@ -1,11 +1,6 @@
 # markovchain 0.10.0
 
----
-editor_options: 
-  markdown: 
-    wrap: 72
-title: News
----
+-  Uptick pandoc requirements
 
 # News for version 0.9.6
 

@@ -10,3 +10,4 @@ vignettes/*.log
 ^.*\.tar\.gz$
 ^LICENSE\.md$
 ^\.github$
+support/*.*

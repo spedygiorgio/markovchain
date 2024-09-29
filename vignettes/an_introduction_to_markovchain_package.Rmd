@@ -46,7 +46,7 @@ preamble: >
   \usepackage{amsfonts}
 abstract: |
   The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
-output: if (rmarkdown::pandoc_version() < "2.2") function(...) { rmarkdown::pdf_document(template = "./template.tex", ...) } else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) } 
+output: if (rmarkdown::pandoc_version() < "2.7") function(...) { rmarkdown::pdf_document(template = "./template.tex", ...) } else function(...) { bookdown::pdf_book(base_format = rticles::jss_article, ...) } 
 vignette: >
   %\VignetteIndexEntry{An introduction to markovchain package} 
   %\VignetteEngine{knitr::rmarkdown}

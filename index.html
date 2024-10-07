@@ -6,22 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Easy Handling Discrete Time Markov Chains • markovchain</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Easy Handling Discrete Time Markov Chains">
-<meta property="og:description" content="Functions and S4 methods to create and manage discrete time Markov
-    chains more easily. In addition functions to perform statistical (fitting
-    and drawing random variates) and probabilistic (analysis of their structural
-    proprieties) analysis are provided.">
+<meta property="og:description" content="Functions and S4 methods to create and manage discrete time Markov chains more easily. In addition functions to perform statistical (fitting and drawing random variates) and probabilistic (analysis of their structural proprieties) analysis are provided. See Spedicato (2017) &lt;doi:10.32614/RJ-2017-036&gt;. Some functions for continuous times Markov chains depend on the suggested ctmcd package.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -34,25 +33,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.10.0.9100</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -60,19 +53,22 @@
       <a href="articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a>
     </li>
     <li>
-      <a href="articles/gsoc_2017_additions.pdf">Google Summer of Code 2017 Additions (PDF)</a>
+      <a href="articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a>
     </li>
     <li>
-      <a href="articles/higher_order_markov_chains.pdf">Higher, possibly multivariate, Order Markov Chains in markovchain package (PDF)</a>
+      <a href="articles/higher_order_markov_chains.html">Higher order Markov chains</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/spedygiorgio/markovchain/">
-    <span class="fab fa fab fa-github fa-lg"></span>
-     
+  <a href="https://github.com/spedygiorgio/markovchain/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+
   </a>
 </li>
       </ul>
@@ -83,65 +79,75 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="markovchain" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#markovchain" class="anchor"></a>markovchain</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="markovchain">markovchain<a class="anchor" aria-label="anchor" href="#markovchain"></a>
+</h1></div>
 <p>R package providing classes, methods and function for easily handling Discrete Time Markov Chains (DTMC), performing probabilistic analysis and fitting.</p>
-<div id="install-the-current-release-from-cran" class="section level2">
-<h2 class="hasAnchor">
-<a href="#install-the-current-release-from-cran" class="anchor"></a>Install the current release from CRAN:</h2>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">'markovchain'</span>)
-</pre></div>
+<div class="section level2">
+<h2 id="install-the-current-release-from-cran">Install the current release from CRAN:<a class="anchor" aria-label="anchor" href="#install-the-current-release-from-cran"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'markovchain'</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="install-the-development-version-from-github" class="section level2">
-<h2 class="hasAnchor">
-<a href="#install-the-development-version-from-github" class="anchor"></a>Install the development version from GitHub:</h2>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="kw">devtools</span>::<span class="fu">install_github</span>(<span class="st">'spedygiorgio/markovchain'</span>)
-</pre></div>
-<p><img src="https://travis-ci.org/spedygiorgio/markovchain.svg?branch=master" alt="alt tag"><a href="https://cran.r-project.org/package=markovchain"><img src="http://cranlogs.r-pkg.org/badges/markovchain" alt="Downloads"></a> <a href="https://cran.r-project.org/package=markovchain"><img src="http://www.r-pkg.org/badges/version/markovchain" alt="CRAN_Status_Badge"></a> <a href="http://depsy.org/package/r/markovchain"><img src="http://depsy.org/api/package/cran/markovchain/badge.svg" alt="Research software impact"></a></p>
+<div class="section level2">
+<h2 id="install-the-development-version-from-github">Install the development version from GitHub:<a class="anchor" aria-label="anchor" href="#install-the-development-version-from-github"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'spedygiorgio/markovchain'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="https://travis-ci.org/spedygiorgio/markovchain.svg?branch=master" alt="alt tag"><a href="https://cran.r-project.org/package=markovchain" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/markovchain" alt="Downloads"></a> <a href="https://cran.r-project.org/package=markovchain" class="external-link"><img src="http://www.r-pkg.org/badges/version/markovchain" alt="CRAN_Status_Badge"></a> <a href="http://depsy.org/package/r/markovchain" class="external-link"><img src="http://depsy.org/api/package/cran/markovchain/badge.svg" alt="Research software impact"></a></p>
+<!-- badges: start -->
+
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=markovchain">https://​cloud.r-project.org/​package=markovchain</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/spedygiorgio/markovchain/">https://​github.com/​spedygiorgio/​markovchain/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/spedygiorgio/markovchain/issues">https://​github.com/​spedygiorgio/​markovchain/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=markovchain" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/spedygiorgio/markovchain/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/spedygiorgio/markovchain/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-2">GPL-2</a></li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html">Citing markovchain</a></li>
+<li><a href="authors.html#citation">Citing markovchain</a></li>
 </ul>
 </div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Giorgio Alfredo Spedicato <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-0315-8888" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Giorgio Alfredo Spedicato <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-0315-8888" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Tae Seung Kang <br><small class="roles"> Author </small>  </li>
 <li>Sai Bhargav Yalamanchi <br><small class="roles"> Author </small>  </li>
 <li>Deepak Yadav <br><small class="roles"> Author </small>  </li>
-<li>Ignacio Cordón <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3152-0231" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li><a href="authors.html">All authors...</a></li>
+<li>Ignacio Cordón <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3152-0231" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/spedygiorgio/markovchain/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/spedygiorgio/markovchain/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/spedygiorgio/markovchain" class="external-link"><img src="https://codecov.io/gh/spedygiorgio/markovchain/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
@@ -150,17 +156,21 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón.</p>
+  <p></p>
+<p>Developed by Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>
 </div>
 
-  
+
+
+
 
 
   </body>

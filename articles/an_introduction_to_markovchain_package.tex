@@ -1,10 +1,10 @@
 \documentclass[
   nojss]{jss}
 
-\usepackage[utf8]{inputenc}
+%% recommended packages
+\usepackage{orcidlink,thumbpdf,lmodern}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage[utf8]{inputenc}
 
 \author{
 Giorgio Alfredo Spedicato\\Ph.D C.Stat FCAS, FSA, CSPA Unipol Group \And Tae Seung Kang\\Ph.D student, Computer \& Information Science \& Engineering \And Sai Bhargav Yalamanchi\\B-Tech student, Electrical Engineering \And Deepak Yadav\\B-Tech student, Computer Science and Engineering \And Ignacio Cordón\\Software Engineer
@@ -14,6 +14,7 @@ Giorgio Alfredo Spedicato\\Ph.D C.Stat FCAS, FSA, CSPA Unipol Group \And Tae Seu
 \Plainauthor{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}
 \Plaintitle{The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R}
 \Shorttitle{\pkg{markovchain} package: discrete Markov chains in \proglang{R}}
+
 
 \Abstract{
 The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framework providing S4 classes and methods for easily handling discrete time Markov chains, homogeneous and simple inhomogeneous ones as well as continuous time Markov chains. The S4 classes for handling and analysing discrete and continuous time Markov chains are presented, as well as functions and method for performing probabilistic and statistical analysis. Finally, some examples in which the package's functions are applied to Economics, Finance and Natural Sciences topics are shown.
@@ -59,16 +60,39 @@ The \pkg{markovchain} package aims to fill a gap within the \proglang{R} framewo
   }
 
 
-% Pandoc header
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% From pandoc table feature
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
+
 
 \author{\small{Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón}}
 
-\Plainauthor{G.A. Spedicato, T.S. Kang, S.B. Yalamanchi, D. Yadav, I. Cordón} \usepackage{graphicx} \usepackage{amsmath} \usepackage{longtable} \usepackage{booktabs} \setkeys{Gin}{width=0.8\textwidth} \usepackage{amsfonts}
+\Plainauthor{G.A. Spedicato, T.S. Kang, S.B. Yalamanchi, D. Yadav, I. Cordón}
+
+\usepackage{graphicx} \usepackage{amsmath} \usepackage{longtable} \usepackage{booktabs}
+
+\setkeys{Gin}{width=0.8\textwidth}
+
+\usepackage{amsfonts}
 
 \begin{document}
 
-\hypertarget{introduction}{%
-\section{Introduction}\label{introduction}}
+
+
+\section{Introduction}\label{introduction}
 
 Markov chains represent a class of stochastic processes of great interest for the wide spectrum of practical applications. In particular, discrete time Markov chains (DTMC) permit to model the transition probabilities between discrete states by the aid of matrices.Various \proglang{R} packages deal with models that are based on Markov chains:
 
@@ -84,17 +108,15 @@ Markov chains represent a class of stochastic processes of great interest for th
   \pkg{mstate} fits `Multi-State Models based on Markov chains for survival analysis \citep{mstateR}.
 \end{itemize}
 
-Nevertheless, the \proglang{R} statistical environment \citep{rSoftware} seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} \citep{DTMCPackR} the first one. Notwithstanding, \pkg{markovchain} package \citep{pkg:markovchain} aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and non-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
+Nevertheless, the \proglang{R} statistical environment \citep{rSoftware} seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} \citep{DTMCPackR} the first one. Notwithstanding, \pkg{markovchain} package \citep{pkg:markovchain} aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and semi-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
 
 The \pkg{markovchain} package depends on the following \proglang{R} packages: \pkg{expm} \citep{expmR} to perform efficient matrices powers; \pkg{igraph} \citep{pkg:igraph} to perform pretty plotting of \texttt{markovchain} objects and \pkg{matlab} \citep{pkg:matlab}, that contains functions for matrix management and calculations that emulate those within \proglang{MATLAB} environment. Moreover, other scientific softwares provide functions specifically designed to analyze DTMC, as \proglang{Mathematica} 9 \citep{mathematica9}.
 
 The paper is structured as follows: Section \ref{sec:mathematics} briefly reviews mathematics and definitions regarding DTMC, Section \ref{sec:structure} discusses how to handle and manage Markov chain objects within the package, Section \ref{sec:probability} and Section \ref{sec:statistics} show how to perform probabilistic and statistical modelling, while Section \ref{sec:applications} presents some applied examples from various fields analyzed by means of the \pkg{markovchain} package.
 
-\hypertarget{sec:mathematics}{%
-\section{Review of core mathematical concepts}\label{sec:mathematics}}
+\section{Review of core mathematical concepts}\label{sec:mathematics}
 
-\hypertarget{general-definitions}{%
-\subsection{General Definitions}\label{general-definitions}}
+\subsection{General Definitions}\label{general-definitions}
 
 A DTMC is a sequence of random variables \(X_{1},\: X_{2}\: ,\ldots,\:X_{n},\ldots\) characterized by the Markov property (also known as memoryless property, see Equation \ref{eq:markovProp}). The Markov property states that the distribution of the forthcoming state \(X_{n+1}\) depends only on the current state \(X_{n}\) and doesn't depend on the previous ones \(X_{n-1},\: X_{n-2},\ldots,\: X_{1}\).
 
@@ -137,8 +159,7 @@ The distribution over the states can be written in the form of a stochastic row 
 
 DTMC are explained in most theory books on stochastic processes, see \cite{bremaud1999discrete} and \cite{dobrow2016introduction} for example. Valuable references online available are: \cite{konstantopoulos2009markov}, \cite{probBook} and \cite{bardPpt}.
 
-\hypertarget{sec:properties}{%
-\subsection{Properties and classification of states}\label{sec:properties}}
+\subsection{Properties and classification of states}\label{sec:properties}
 
 A state \(s_{j}\) is said accessible from state \(s_{i}\) (written \(s_{i}\rightarrow s_{j}\)) if a system starting in state \(s_{i}\) has a positive probability to reach the state \(s_{j}\) at a certain point, i.e., \(\exists n>0:\: p_{ij}^{n}>0\). If both \(s_{i}\rightarrow s_{j}\) and \(s_{j}\rightarrow s_{i}\), then
 \(s_{i}\) and \(s_{j}\) are said to communicate.
@@ -225,8 +246,7 @@ h_{i,j} = Pr(T_{ij} < \infty) = \sum_{n = 0}^{\infty} h_{ij}^{(n)}
 
 In a DTMC with finite set of states, we know that a transient state communicates at least with one recurrent state. If the chain starts in a transient element, once it hits a recurrent state, it is going to be caught in its recurrent state, and we cannot expect it would go back to the initial state. Given a transient state \(i\) we can define the \emph{absorption probability} to the recurrent state \(j\) as the probability that the first recurrent state that the Markov chain visits (and therefore gets absorbed by its recurrent class) is \(j\), \(f^{*}_ij\). We can also define the \emph{mean absorption time} as the mean number of steps the transient state \(i\) would take until it hits any recurrent state, \(b_i\).
 
-\hypertarget{a-short-example}{%
-\subsection{A short example}\label{a-short-example}}
+\subsection{A short example}\label{a-short-example}
 
 Consider the following numerical example. Suppose we have a DTMC with a set of 3 possible states \(S=\{s_{1}, s_{2}, s_{3}\}\). Let the transition matrix be:
 \begin{equation}
@@ -264,55 +284,21 @@ If we were interested in the probability of being in the state \(s_{3}\) in the 
 
 \newpage
 
-\hypertarget{sec:structure}{%
-\section{The structure of the package}\label{sec:structure}}
+\section{The structure of the package}\label{sec:structure}
 
-\hypertarget{creating-markovchain-objects}{%
-\subsection{Creating markovchain objects}\label{creating-markovchain-objects}}
+\subsection{Creating markovchain objects}\label{creating-markovchain-objects}
 
 The package is loaded within the \proglang{R} command line as follows:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> library("markovchain")
 \end{CodeInput}
 \end{CodeChunk}
 
-\begin{CodeChunk}
-
-\begin{CodeOutput}
-Loading required package: matlab
-\end{CodeOutput}
-
-\begin{CodeOutput}
-
-Attaching package: 'matlab'
-\end{CodeOutput}
-
-\begin{CodeOutput}
-The following object is masked from 'package:stats':
-
-    reshape
-\end{CodeOutput}
-
-\begin{CodeOutput}
-The following objects are masked from 'package:utils':
-
-    find, fix
-\end{CodeOutput}
-
-\begin{CodeOutput}
-The following object is masked from 'package:base':
-
-    sum
-\end{CodeOutput}
-\end{CodeChunk}
-
 The \texttt{markovchain} and \texttt{markovchainList} S4 classes \citep{chambers} are defined within the \pkg{markovchain} package as displayed:
 
 \begin{CodeChunk}
-
 \begin{CodeOutput}
 Class "markovchain" [package "markovchain"]
 
@@ -321,7 +307,6 @@ Slots:
 Name:            states            byrow transitionMatrix             name
 Class:        character          logical           matrix        character
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Class "markovchainList" [package "markovchain"]
 
@@ -332,7 +317,7 @@ Class:         list    character
 \end{CodeOutput}
 \end{CodeChunk}
 
-The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of \texttt{markovchain} objects) has been designed to handle non-homogeneous Markov chains processes.
+The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of \texttt{markovchain} objects) has been designed to handle semi-homogeneous Markov chains processes.
 
 Any element of \texttt{markovchain} class is comprised by following slots:
 
@@ -363,7 +348,6 @@ The \texttt{markovchainList} objects are defined by following slots:
 The \texttt{markovchain} objects can be created either in a long way, as the following code shows
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherStates <- c("sunny", "cloudy", "rain")
 R> byRow <- TRUE
@@ -379,7 +363,6 @@ R> mcWeather <- new("markovchain", states = weatherStates, byrow = byRow,
 or in a shorter way, displayed below
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
 +                  transitionMatrix = matrix(data = c(0.70, 0.2, 0.1,
@@ -392,7 +375,6 @@ R> mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
 When \texttt{new("markovchain")} is called alone, a default Markov chain is created.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> defaultMc <- new("markovchain")
 \end{CodeInput}
@@ -403,7 +385,7 @@ The quicker way to create \texttt{markovchain} objects is made possible thanks t
 \begin{itemize}
 \tightlist
 \item
-  the \texttt{transitionMatrix} to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
+  the \texttt{transitionMatrix}, either of class matrix or Matrix, to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
 \item
   the columns and rows names of \texttt{transitionMatrix} to be defined and to coincide with \texttt{states} vector slot.
 \end{itemize}
@@ -411,15 +393,13 @@ The quicker way to create \texttt{markovchain} objects is made possible thanks t
 The \texttt{markovchain} objects can be collected in a list within \texttt{markovchainList} S4 objects as following example shows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcList <- new("markovchainList", markovchains = list(mcWeather, defaultMc), 
 +                 name = "A list of Markov chains")
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{handling-markovchain-objects}{%
-\subsection{Handling markovchain objects}\label{handling-markovchain-objects}}
+\subsection{Handling markovchain objects}\label{handling-markovchain-objects}
 
 Table \ref{tab:methodsToHandleMc} lists which methods handle and manipulate \texttt{markovchain} objects.
 
@@ -457,23 +437,19 @@ Table \ref{tab:methodsToHandleMc} lists which methods handle and manipulate \tex
 The examples that follow shows how operations on \texttt{markovchain} objects can be easily performed. For example, using the previously defined matrix we can find what is the probability distribution of expected weather states in two and seven days, given the actual state to be cloudy.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> initialState <- c(0, 1, 0)
 R> after2Days <- initialState * (mcWeather * mcWeather)
 R> after7Days <- initialState * (mcWeather ^ 7)
 R> after2Days
 \end{CodeInput}
-
 \begin{CodeOutput}
      sunny cloudy  rain
 [1,]  0.39  0.355 0.255
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> round(after7Days, 3)
 \end{CodeInput}
-
 \begin{CodeOutput}
      sunny cloudy  rain
 [1,] 0.462  0.319 0.219
@@ -483,25 +459,21 @@ R> round(after7Days, 3)
 A similar answer could have been obtained defining the vector of probabilities as a column vector. A column - defined probability matrix could be set up either creating a new matrix or transposing an existing \texttt{markovchain} object thanks to the \texttt{t} method.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> initialState <- c(0, 1, 0)
 R> after2Days <- (t(mcWeather) * t(mcWeather)) * initialState
 R> after7Days <- (t(mcWeather) ^ 7) * initialState
 R> after2Days
 \end{CodeInput}
-
 \begin{CodeOutput}
         [,1]
 sunny  0.390
 cloudy 0.355
 rain   0.255
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> round(after7Days, 3)
 \end{CodeInput}
-
 \begin{CodeOutput}
         [,1]
 sunny  0.462
@@ -513,7 +485,6 @@ rain   0.219
 The initial state vector previously shown can not necessarily be a probability vector, as the code that follows shows:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> fvals<-function(mchain,initialstate,n) {
 +   out<-data.frame()
@@ -529,13 +500,12 @@ R> fvals<-function(mchain,initialstate,n) {
 + }
 R> fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
 \end{CodeInput}
-
 \begin{CodeOutput}
   i    sunny   cloudy     rain
 1 0 90.00000  5.00000  5.00000
 2 1 65.50000 22.25000 12.25000
 3 2 54.97500 27.51250 17.51250
-4 3 50.23875 29.88063 19.88062
+4 3 50.23875 29.88062 19.88062
 5 4 48.10744 30.94628 20.94628
 \end{CodeOutput}
 \end{CodeChunk}
@@ -543,27 +513,21 @@ R> fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
 Basic methods have been defined for \texttt{markovchain} objects to quickly get states and transition matrix dimension.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> states(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "sunny"  "cloudy" "rain"  
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> names(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "sunny"  "cloudy" "rain"  
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> dim(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 3
 \end{CodeOutput}
@@ -572,20 +536,16 @@ R> dim(mcWeather)
 Methods are available to set and get the name of \texttt{markovchain} object.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> name(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "Weather"
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> name(mcWeather) <- "New Name"
 R> name(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "New Name"
 \end{CodeOutput}
@@ -594,11 +554,9 @@ R> name(mcWeather)
 Also it is possible to alphabetically sort the transition matrix:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> markovchain:::sort(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 New Name 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -614,19 +572,15 @@ sunny    0.20 0.10   0.7
 A direct access to transition probabilities is provided both by \texttt{transitionProbability} method and \texttt{"{[}"} method.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> transitionProbability(mcWeather, "cloudy", "rain")
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 0.3
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> mcWeather[2,3]
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 0.3
 \end{CodeOutput}
@@ -635,22 +589,18 @@ R> mcWeather[2,3]
 The transition matrix of a \texttt{markovchain} object can be displayed using \texttt{print} or \texttt{show} methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of \texttt{plot} method (as shown in Figure \ref{fig:mcPlot}) which is based on \pkg{igraph} package \citep{pkg:igraph}. \texttt{plot} method for \texttt{markovchain} objects is a wrapper of \texttt{plot.igraph} for \texttt{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \texttt{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \ref{fig:mcPlotdiagram}. The \texttt{plot} function also uses \texttt{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> print(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
        sunny cloudy rain
 sunny    0.7   0.20 0.10
 cloudy   0.3   0.40 0.30
 rain     0.2   0.45 0.35
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> show(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 New Name 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -664,18 +614,15 @@ rain     0.2   0.45 0.35
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
 \begin{CodeOutput}
 
 Attaching package: 'igraph'
 \end{CodeOutput}
-
 \begin{CodeOutput}
 The following objects are masked from 'package:stats':
 
     decompose, spectrum
 \end{CodeOutput}
-
 \begin{CodeOutput}
 The following object is masked from 'package:base':
 
@@ -683,7 +630,7 @@ The following object is masked from 'package:base':
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1} 
 
 }
 
@@ -692,13 +639,12 @@ The following object is masked from 'package:base':
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
 \begin{CodeOutput}
 Loading required package: shape
 \end{CodeOutput}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1} 
 
 }
 
@@ -709,13 +655,11 @@ Loading required package: shape
 Import and export from some specific classes is possible, as shown in Figure \ref{fig:fromAndTo} and in the following code.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcDf <- as(mcWeather, "data.frame")
 R> mcNew <- as(mcDf, "markovchain")
 R> mcDf
 \end{CodeInput}
-
 \begin{CodeOutput}
       t0     t1 prob
 1  sunny  sunny 0.70
@@ -728,14 +672,12 @@ R> mcDf
 8   rain cloudy 0.45
 9   rain   rain 0.35
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> mcIgraph <- as(mcWeather, "igraph")
 \end{CodeInput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> if (requireNamespace("msm", quietly = TRUE)) {
 + require(msm)
@@ -750,11 +692,9 @@ R> if (requireNamespace("msm", quietly = TRUE)) {
 +   message("msm unavailable")
 +   }
 \end{CodeInput}
-
 \begin{CodeOutput}
 Loading required package: msm
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Unnamed Markov chain 
  A  4 - dimensional discrete Markov Chain defined by the following states: 
@@ -771,7 +711,6 @@ State 4 0.000000000 0.00000000 0.00000000 1.00000000
 from etm (now archived as of September 2020):
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> if (requireNamespace("etm", quietly = TRUE)) {
 + library(etm)
@@ -795,16 +734,22 @@ R> if (requireNamespace("etm", quietly = TRUE)) {
 +   message("etm unavailable")
 + }
 \end{CodeInput}
-
 \begin{CodeOutput}
-etm unavailable
+Unnamed Markov chain 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ 0, 1, 2 
+ The transition matrix  (by rows)  is defined as follows: 
+          0         1         2
+0 0.0000000 0.5000000 0.5000000
+1 0.5000000 0.0000000 0.5000000
+2 0.3333333 0.3333333 0.3333333
 \end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1} 
 
 }
 
@@ -815,13 +760,11 @@ etm unavailable
 Coerce from \texttt{matrix} method, as the code below shows, represents another approach to create a \texttt{markovchain} method starting from a given squared probability matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> myMatr<-matrix(c(.1,.8,.1,.2,.6,.2,.3,.4,.3), byrow=TRUE, ncol=3)
 R> myMc<-as(myMatr, "markovchain")
 R> myMc
 \end{CodeInput}
-
 \begin{CodeOutput}
 Unnamed Markov chain 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -834,10 +777,9 @@ s3 0.3 0.4 0.3
 \end{CodeOutput}
 \end{CodeChunk}
 
-Non-homogeneous Markov chains can be created with the aid of \texttt{markovchainList} object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modeled by a non-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for \texttt{markovchainList} objects are: \texttt{print}, \texttt{show}, \texttt{dim} and \texttt{{[}}.
+Semi-homogeneous Markov chains can be created with the aid of \texttt{markovchainList} object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modeled by a semi-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for \texttt{markovchainList} objects are: \texttt{print}, \texttt{show}, \texttt{dim} and \texttt{{[}}.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> stateNames = c("H", "I", "D")
 R> Q0 <- new("markovchain", states = stateNames, 
@@ -856,7 +798,6 @@ R> mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3),
 +       name = "Continuous Care Health Community")
 R> print(mcCCRC)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Continuous Care Health Community  list of Markov chain(s) 
 Markovchain  1 
@@ -904,11 +845,9 @@ D 0 0 1
 It is possible to perform direct access to \texttt{markovchainList} elements, as well as to determine the number of \texttt{markovchain} objects by which a \texttt{markovchainList} object is composed.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcCCRC[[1]]
 \end{CodeInput}
-
 \begin{CodeOutput}
 state t0 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -919,11 +858,9 @@ H 0.7 0.2 0.1
 I 0.1 0.6 0.3
 D 0.0 0.0 1.0
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> dim(mcCCRC)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 4
 \end{CodeOutput}
@@ -968,8 +905,7 @@ Finally, Table \ref{tab:demos} lists the demos included in the demo directory of
 \label{tab:demos}
 \end{table}
 
-\hypertarget{sec:probability}{%
-\section{Probability with markovchain objects}\label{sec:probability}}
+\section{Probability with markovchain objects}\label{sec:probability}
 
 The \pkg{markovchain} package contains functions to analyse DTMC from a probabilistic perspective. For example, the package provides methods to find stationary distributions and identifying absorbing and transient states. Many of these methods come from \proglang{MATLAB} listings that have been ported into \proglang{R}. For a full description of the underlying theory and algorithm the interested reader can overview the original \proglang{MATLAB} listings, \cite{renaldoMatlab} and \cite{montgomery}.
 
@@ -1010,26 +946,22 @@ Table \ref{tab:methodsToStats} shows methods that can be applied on \texttt{mark
 \label{tab:methodsToStats}
 \end{table}
 
-\hypertarget{conditional-distributions}{%
-\subsection{Conditional distributions}\label{conditional-distributions}}
+\subsection{Conditional distributions}\label{conditional-distributions}
 
 The conditional distribution of weather states, given that current day's weather
 is sunny, is given by following code.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> conditionalDistribution(mcWeather, "sunny")
 \end{CodeInput}
-
 \begin{CodeOutput}
  sunny cloudy   rain 
    0.7    0.2    0.1 
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{stationary-states}{%
-\subsection{Stationary states}\label{stationary-states}}
+\subsection{Stationary states}\label{stationary-states}
 
 A stationary (steady state, or equilibrium) vector is a probability vector such that Equation \ref{eq:steadystat2} holds
 
@@ -1095,11 +1027,9 @@ Also, we should note that a Markov chain has exactly the same name of steady sta
 The result is returned in matrix form.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> steadyStates(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
          sunny    cloudy      rain
 [1,] 0.4636364 0.3181818 0.2181818
@@ -1109,10 +1039,9 @@ R> steadyStates(mcWeather)
 It is possible for a Markov chain to have more than one stationary distribution, as the gambler ruin example shows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
-+   m <- matlab::zeros(moneyMax + 1)
++   m <- markovchain:::zeros(moneyMax + 1)
 +   m[1,1] <- m[moneyMax + 1,moneyMax + 1] <- 1
 +   states <- as.character(0:moneyMax)
 +   rownames(m) <- colnames(m) <- states
@@ -1129,7 +1058,6 @@ R>
 R> mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 R> steadyStates(mcGR4)
 \end{CodeInput}
-
 \begin{CodeOutput}
      0 1 2 3 4
 [1,] 0 0 0 0 1
@@ -1137,25 +1065,20 @@ R> steadyStates(mcGR4)
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{classification-of-states}{%
-\subsection{Classification of states}\label{classification-of-states}}
+\subsection{Classification of states}\label{classification-of-states}
 
 Absorbing states are determined by means of \texttt{absorbingStates} method.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> absorbingStates(mcGR4)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "0" "4"
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> absorbingStates(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
 character(0)
 \end{CodeOutput}
@@ -1179,9 +1102,8 @@ These functions are used by two other internal functions on which the \texttt{su
 The example matrix used in \cite{renaldoMatlab} well exemplifies the purpose of the function.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
-R> P <- matlab::zeros(10)
+R> P <- markovchain:::zeros(10)
 R> P[1, c(1, 3)] <- 1/2;
 R> P[2, 2] <- 1/3; P[2,7] <- 2/3;
 R> P[3, 1] <- 1;
@@ -1198,7 +1120,6 @@ R> probMc <- new("markovchain", transitionMatrix = P,
 +               name = "Probability MC")
 R> summary(probMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Probability MC  Markov chain that is composed by: 
 Closed classes: 
@@ -1218,11 +1139,9 @@ All states that pertain to a transient class are named ``transient'' and a
 specific method has been written to elicit them.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> transientStates(probMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "d" "e" "h" "j"
 \end{CodeOutput}
@@ -1232,12 +1151,10 @@ R> transientStates(probMc)
 recurrent classes and then the transient states.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> probMcCanonic <- canonicForm(probMc)
 R> probMc
 \end{CodeInput}
-
 \begin{CodeOutput}
 Probability MC 
  A  10 - dimensional discrete Markov Chain defined by the following states: 
@@ -1255,11 +1172,9 @@ h 0.0 0.0000000 0.25 0.2500000 0.0000000 0 0.0000000 0.25 0.0000000 0.2500000
 i 0.0 1.0000000 0.00 0.0000000 0.0000000 0 0.0000000 0.00 0.0000000 0.0000000
 j 0.0 0.3333333 0.00 0.0000000 0.3333333 0 0.0000000 0.00 0.0000000 0.3333333
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> probMcCanonic
 \end{CodeInput}
-
 \begin{CodeOutput}
 Probability MC 
  A  10 - dimensional discrete Markov Chain defined by the following states: 
@@ -1282,19 +1197,15 @@ j 0.0 0.00 0.3333333 0.0000000 0.0000000 0 0.0000000 0.3333333 0.00 0.3333333
 The function \texttt{is.accessible} permits to investigate whether a state \(s_{j}\) is accessible from state \(s_i\), that is whether the probability to eventually reach \(s_j\) starting from \(s_{i}\) is greater than zero.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> is.accessible(object = probMc, from = "a", to = "c")
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] TRUE
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> is.accessible(object = probMc, from = "g", to = "c")
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] FALSE
 \end{CodeOutput}
@@ -1303,7 +1214,6 @@ R> is.accessible(object = probMc, from = "g", to = "c")
 In Section \ref{sec:properties} we observed that, if a DTMC is irreducible, all its states share the same periodicity. Then, the \texttt{period} function returns the periodicity of the DTMC, provided that it is irreducible. The example that follows shows how to find if a DTMC is reducible or irreducible by means of the function \texttt{is.irreducible} and, in the latter case, the method \texttt{period} is used to compute the periodicity of the chain.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> E <- matrix(0, nrow = 4, ncol = 4)
 R> E[1, 2] <- 1
@@ -1316,15 +1226,12 @@ R> mcE <- new("markovchain", states = c("a", "b", "c", "d"),
 +       name = "E")
 R> is.irreducible(mcE)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] TRUE
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> period(mcE)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 2
 \end{CodeOutput}
@@ -1334,10 +1241,8 @@ The example Markov chain found in \proglang{Mathematica} web site \citep{mathema
 been used, and is plotted in Figure \ref{fig:mcMathematics}.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
-R> require(matlab)
-R> mathematicaMatr <- zeros(5)
+R> mathematicaMatr <- markovchain:::zeros(5)
 R> mathematicaMatr[1,] <- c(0, 1/3, 0, 2/3, 0)
 R> mathematicaMatr[2,] <- c(1/2, 0, 0, 0, 1/2)
 R> mathematicaMatr[3,] <- c(0, 0, 1/2, 1/2, 0)
@@ -1352,7 +1257,7 @@ R> mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1} 
 
 }
 
@@ -1361,7 +1266,6 @@ R> mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
 \begin{CodeOutput}
 Mathematica MC  Markov chain that is composed by: 
 Closed classes: 
@@ -1376,13 +1280,11 @@ The absorbing states are: e
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{first-passage-time-distributions-and-means}{%
-\subsection{First passage time distributions and means}\label{first-passage-time-distributions-and-means}}
+\subsection{First passage time distributions and means}\label{first-passage-time-distributions-and-means}
 
 \cite{renaldoMatlab} provides code to compute first passage time (within \(1,2,\ldots, n\) steps) given the initial state to be \(i\). The \proglang{MATLAB} listings translated into \proglang{R} on which the \texttt{firstPassage} function is based are:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> .firstpassageKernel <- function(P, i, n){
 +   G <- P
@@ -1400,13 +1302,11 @@ R> .firstpassageKernel <- function(P, i, n){
 We conclude that the probability for the \emph{first} rainy day to be the third one, given that the current state is sunny, is given by:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> firstPassagePdF <- firstPassage(object = mcWeather, state = "sunny", 
 +                                 n = 10)
 R> firstPassagePdF[3, 3]
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 0.121
 \end{CodeOutput}
@@ -1416,11 +1316,9 @@ To compute the \emph{mean} first passage times, i.e.~the expected number of days
 given that today is sunny, we can use the \texttt{meanFirstPassageTime} function:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> meanFirstPassageTime(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
           sunny   cloudy     rain
 sunny  0.000000 4.285714 6.666667
@@ -1434,11 +1332,9 @@ counting from a sunny day, and 5 if we start from a cloudy day. Note that
 we can also specify one or more destination states:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> meanFirstPassageTime(mcWeather,"rain")
 \end{CodeInput}
-
 \begin{CodeOutput}
    sunny   cloudy 
 6.666667 5.000000 
@@ -1448,28 +1344,23 @@ R> meanFirstPassageTime(mcWeather,"rain")
 The implementation follows the matrix solutions by \citep{GrinsteadSnell}. We can check the result by averaging the first passage probability density function:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> firstPassagePdF.long <- firstPassage(object = mcWeather, state = "sunny",  n = 100)
 R> sum(firstPassagePdF.long[,"rain"] * 1:100)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 6.666664
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{mean-recurrence-time}{%
-\subsection{Mean recurrence time}\label{mean-recurrence-time}}
+\subsection{Mean recurrence time}\label{mean-recurrence-time}
 
 The \texttt{meanRecurrenceTime} method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> meanRecurrenceTime(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
    sunny   cloudy     rain 
 2.156863 3.142857 4.583333 
@@ -1479,34 +1370,28 @@ R> meanRecurrenceTime(mcWeather)
 Another example, with not all of its states being recurrent:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> recurrentStates(probMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "a" "b" "c" "f" "g" "i"
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> meanRecurrenceTime(probMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
        f        b        g        i        a        c 
 1.000000 2.555556 2.875000 3.833333 1.500000 3.000000 
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{absorption-probabilities-and-mean-absorption-time}{%
-\subsection{Absorption probabilities and mean absorption time}\label{absorption-probabilities-and-mean-absorption-time}}
+\subsection{Absorption probabilities and mean absorption time}\label{absorption-probabilities-and-mean-absorption-time}
 
 We are going to use the Drunkard's random walk from \citep{GrinsteadSnell}. We have a drunk person walking through the street. Each move the person does, if they have not arrived to either home (corner 1) or to the bar (corner 5) could be to the left corner or to the right one, with equal probability. In case of arrival to the bar or to home, the person stays there.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
-R> drunkProbs <- matlab::zeros(5, 5)
+R> drunkProbs <- markovchain:::zeros(5)
 R> drunkProbs[1,1] <- drunkProbs[5,5] <- 1
 R> drunkProbs[2,1] <- drunkProbs[2,3] <- 1/2
 R> drunkProbs[3,2] <- drunkProbs[3,4] <- 1/2
@@ -1515,7 +1400,6 @@ R>
 R> drunkMc <- new("markovchain", transitionMatrix = drunkProbs)
 R> drunkMc
 \end{CodeInput}
-
 \begin{CodeOutput}
 Unnamed Markov chain 
  A  5 - dimensional discrete Markov Chain defined by the following states: 
@@ -1533,11 +1417,9 @@ Unnamed Markov chain
 Recurrent (in fact absorbing states) are:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> recurrentStates(drunkMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "1" "5"
 \end{CodeOutput}
@@ -1546,11 +1428,9 @@ R> recurrentStates(drunkMc)
 Transient states are the rest:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> transientStates(drunkMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "2" "3" "4"
 \end{CodeOutput}
@@ -1559,11 +1439,9 @@ R> transientStates(drunkMc)
 The probability of either being absorbed by the bar or by the sofa at home are:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> absorptionProbabilities(drunkMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
      1    5
 2 0.75 0.25
@@ -1577,11 +1455,9 @@ which means that the probability of arriving home / bar is inversely proportiona
 But we also would like to know how much time does the person take to arrive there, which can be done with \texttt{meanAbsorptionTime}:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> meanAbsorptionTime(drunkMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 2 3 4 
 3 4 3 
@@ -1590,27 +1466,23 @@ R> meanAbsorptionTime(drunkMc)
 
 So it would take \texttt{3} steps to arrive to the destiny if the person is either in the second or fourth corner, and \texttt{4} steps in case of being at the same distance from home than to the bar.
 
-\hypertarget{committor-probability}{%
-\subsection{Committor probability}\label{committor-probability}}
+\subsection{Committor probability}\label{committor-probability}
 
 The committor probability tells us the probability to reach a given state before another given.
 Suppose that we start in a cloudy day, the probabilities of experiencing a rainy day before
 a sunny one is 0.5:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> committorAB(mcWeather,3,1)
 \end{CodeInput}
-
 \begin{CodeOutput}
  sunny cloudy   rain 
    0.0    0.5    1.0 
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{hitting-probabilities}{%
-\subsection{Hitting probabilities}\label{hitting-probabilities}}
+\subsection{Hitting probabilities}\label{hitting-probabilities}
 
 Rewriting the system \eqref{eq:hitting-probs} as:
 
@@ -1679,16 +1551,15 @@ Let us imagine the \(i\) -th state has transition probabilities: \((0, \ldots, 0
 (0, \ldots, 0, \underset{i)}{1},  0, \ldots, 0, \underset{j)}{-1}, 0, \ldots, 0)
 \end{eqnarray*}
 
-which are linearly dependent. Our hypothesis is that if we treat the closed communicating classes differently, we \emph{might} delete the linearity in the system. If we have a closed communicating class \(C_u\), then \(h_{i,j} = 1\) for all \(i,j \in C_u\) and \(h_{k,j} = 0\) for all \(k\not\in C_u\). Then we can set \(X_u\) appropriately and solve the other \(X_v\) using those values.
+which are linearly dependent. Our hypothesis is that if we treat the closed communicating classes differently, we \emph{might} delete the linearity in the system. If we have a closed communicating class \(C_u\), then \(h_{i,j} = 1\) for all \(i,j \in C_u\) and \(h_{k,j}  = 0\) for all \(k\not\in C_u\). Then we can set \(X_u\) appropriately and solve the other \(X_v\) using those values.
 
 The method in charge of that in \texttt{markovchain} package is \texttt{hittingProbabilities}, which receives a Markov chain and computes the matrix \((h_{ij})_{i,j = 1,\ldots, n}\) where \(S = \{s_1, \ldots, s_n\}\) is the set of all states of the chain.
 
 For the following chain:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
-R> M <- matlab::zeros(5, 5)
+R> M <- markovchain:::zeros(5)
 R> M[1,1] <- M[5,5] <- 1
 R> M[2,1] <- M[2,3] <- 1/2
 R> M[3,2] <- M[3,4] <- 1/2
@@ -1697,7 +1568,6 @@ R>
 R> hittingTest <- new("markovchain", transitionMatrix = M)
 R> hittingProbabilities(hittingTest)
 \end{CodeInput}
-
 \begin{CodeOutput}
     1     2     3         4   5
 1 1.0 0.000 0.000 0.0000000 0.0
@@ -1711,11 +1581,9 @@ R> hittingProbabilities(hittingTest)
 we want to compute the hitting probabilities. That can be done with:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> hittingProbabilities(hittingTest)
 \end{CodeInput}
-
 \begin{CodeOutput}
     1     2     3         4   5
 1 1.0 0.000 0.000 0.0000000 0.0
@@ -1729,11 +1597,9 @@ R> hittingProbabilities(hittingTest)
 In the case of the \texttt{mcWeather} Markov chain we would obtain a matrix with all its elements set to \(1\). That makes sense (and is desirable) since if today is sunny, we expect it would be sunny again at certain point in the time, and the same with rainy weather (that way we assure good harvests):
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> hittingProbabilities(mcWeather)
 \end{CodeInput}
-
 \begin{CodeOutput}
        sunny cloudy rain
 sunny      1      1    1
@@ -1742,8 +1608,7 @@ rain       1      1    1
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{sec:statistics}{%
-\section{Statistical analysis}\label{sec:statistics}}
+\section{Statistical analysis}\label{sec:statistics}
 
 Table \ref{tab:funs4Stats} lists the functions and methods implemented within the package which help to fit, simulate and predict DTMC.
 
@@ -1764,18 +1629,15 @@ Table \ref{tab:funs4Stats} lists the functions and methods implemented within th
 \label{tab:funs4Stats}
 \end{table}
 
-\hypertarget{simulation}{%
-\subsection{Simulation}\label{simulation}}
+\subsection{Simulation}\label{simulation}
 
 Simulating a random sequence from an underlying DTMC is quite easy thanks to the function \texttt{rmarkovchain}. The following code generates a year of weather states according to \texttt{mcWeather} underlying stochastic process.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 R> weathersOfDays[1:30]
 \end{CodeInput}
-
 \begin{CodeOutput}
  [1] "cloudy" "rain"   "rain"   "rain"   "cloudy" "rain"   "rain"   "cloudy"
  [9] "sunny"  "rain"   "cloudy" "cloudy" "cloudy" "rain"   "rain"   "rain"  
@@ -1784,17 +1646,15 @@ R> weathersOfDays[1:30]
 \end{CodeOutput}
 \end{CodeChunk}
 
-Similarly, it is possible to simulate one or more sequences from a non-homogeneous Markov chain,
+Similarly, it is possible to simulate one or more sequences from a semi-homogeneous Markov chain,
 as the following code (applied on CCHC example) exemplifies.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H", 
 +                               include.t0 = TRUE)
 R> patientStates[1:10,]
 \end{CodeInput}
-
 \begin{CodeOutput}
    iteration values
 1          1      H
@@ -1810,10 +1670,9 @@ R> patientStates[1:10,]
 \end{CodeOutput}
 \end{CodeChunk}
 
-Two advance parameters are available to the \texttt{rmarkovchain} method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters \texttt{useRcpp} and \texttt{parallel} will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the \texttt{R} implementation. If you have multicore processors then you can take advantage of \texttt{parallel} parameter by setting it to \texttt{TRUE}. When both \texttt{Rcpp=TRUE} and \texttt{parallel=TRUE} the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+Two advance parameters are available to the \texttt{rmarkovchain} method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters \texttt{useRcpp} and \texttt{parallel} will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e.~\proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the \texttt{R} implementation. If you have multicore processors then you can take advantage of \texttt{parallel} parameter by setting it to \texttt{TRUE}. When both \texttt{Rcpp=TRUE} and \texttt{parallel=TRUE} the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
 
-\hypertarget{estimation}{%
-\subsection{Estimation}\label{estimation}}
+\subsection{Estimation}\label{estimation}
 
 A time homogeneous Markov chain can be fit from given data. Four methods have been implemented within current version of \pkg{markovchain} package: maximum likelihood, maximum likelihood with Laplace smoothing, Bootstrap approach, maximum a posteriori.
 
@@ -1832,12 +1691,10 @@ SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
 \end{equation}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedMLE <- markovchainFit(data = weathersOfDays, method = "mle",name = "Weather MLE")
 R> weatherFittedMLE$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 Weather MLE 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -1848,11 +1705,9 @@ cloudy 0.4033613 0.35294118 0.2436975
 rain   0.4242424 0.43434343 0.1414141
 sunny  0.1917808 0.09589041 0.7123288
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> weatherFittedMLE$standardError
 \end{CodeInput}
-
 \begin{CodeOutput}
            cloudy       rain      sunny
 cloudy 0.05822020 0.05446001 0.04525349
@@ -1871,14 +1726,12 @@ is substituted by \(n_{ij}+\alpha\) (see Equation \ref{eq:LAPLACE}), being
 \end{equation}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedLAPLACE <- markovchainFit(data = weathersOfDays, 
 +                                     method = "laplace", laplacian = 0.01,
 +                                     name = "Weather LAPLACE")
 R> weatherFittedLAPLACE$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 Weather LAPLACE 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -1894,11 +1747,9 @@ sunny  0.1918099 0.09593919 0.7122509
 (NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.) Both MLE and Laplace approach are based on the \texttt{createSequenceMatrix} functions that returns the raw counts transition matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> createSequenceMatrix(stringchar = weathersOfDays)
 \end{CodeInput}
-
 \begin{CodeOutput}
        cloudy rain sunny
 cloudy     48   42    29
@@ -1914,12 +1765,10 @@ An issue occurs when the sample contains only one realization of a state (say \(
 Create sequence matrix can also be used to obtain raw count transition matrices from a given \(n*2\) matrix as the following example shows:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2)
 R> createSequenceMatrix(stringchar = myMatr,toRowProbs = TRUE)
 \end{CodeInput}
-
 \begin{CodeOutput}
           a         b
 a 0.6666667 0.3333333
@@ -1944,13 +1793,11 @@ these steps:
 \end{enumerate}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
 +                                     method = "bootstrap", nboot = 20)
 R> weatherFittedBOOT$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 BootStrap Estimate 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -1961,11 +1808,9 @@ cloudy 0.3990505 0.3539818 0.2469677
 rain   0.4237268 0.4321171 0.1441561
 sunny  0.2034519 0.0922343 0.7043138
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> weatherFittedBOOT$standardError
 \end{CodeInput}
-
 \begin{CodeOutput}
             cloudy        rain       sunny
 cloudy 0.008481846 0.005603080 0.007281995
@@ -1977,7 +1822,6 @@ sunny  0.005844212 0.005584338 0.008358063
 The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Parallelized implementation is definitively suggested when the data sample size or the required number of bootstrap runs is high.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
 +                                     method = "bootstrap", nboot = 200, 
@@ -1993,7 +1837,6 @@ Note that this should be done in R before calling the \texttt{markovchainFit} fu
 For example, the following code will set the number of threads to 4.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> RcppParallel::setNumThreads(2)
 \end{CodeInput}
@@ -2010,19 +1853,15 @@ LLH = \sum_{i,j} n_{ij} * log (p_{ij})
 where \(n_{ij}\) is the entry of the frequency matrix and \(p_{ij}\) is the entry of the transition probability matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedMLE$logLikelihood
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] -341.8621
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> weatherFittedBOOT$logLikelihood
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] -341.9377
 \end{CodeOutput}
@@ -2038,19 +1877,15 @@ UpperEndpoint_{ij} = p_{ij} + zscore (CL) * SE_{ij}
 \end{align}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherFittedMLE$confidenceInterval
 \end{CodeInput}
-
 \begin{CodeOutput}
 NULL
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> weatherFittedBOOT$confidenceInterval
 \end{CodeInput}
-
 \begin{CodeOutput}
 $confidenceLevel
 [1] 0.95
@@ -2072,13 +1907,11 @@ sunny  0.2130648 0.1014197 0.7180616
 A special function, \texttt{multinomialConfidenceIntervals}, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package's \pkg{MultinomialCI} functions \cite{pkg:MultinomialCI} that were themselves based on the \cite{sison1995simultaneous} paper.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> multinomialConfidenceIntervals(transitionMatrix = 
 +         weatherFittedMLE$estimate@transitionMatrix, 
 +         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 \end{CodeInput}
-
 \begin{CodeOutput}
 $confidenceLevel
 [1] 0.95
@@ -2102,7 +1935,6 @@ The functions for fitting DTMC have mostly been rewritten in \proglang{C++} usin
 It is also possible to fit a DTMC object from \texttt{matrix} or \texttt{data.frame} objects as shown in following code.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data(holson)
 R> singleMc<-markovchainFit(data=holson[,2:12],name="holson")
@@ -2112,33 +1944,31 @@ R> singleMc<-markovchainFit(data=holson[,2:12],name="holson")
 The same applies for \texttt{markovchainList} (output length has been limited).
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcListFit<-markovchainListFit(data=holson[,2:6],name="holson")
 R> mcListFit$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 holson  list of Markov chain(s) 
 Markovchain  1 
 Unnamed Markov chain 
- A  1 - dimensional discrete Markov Chain defined by the following states: 
- 1 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ 1, 2, 3 
  The transition matrix  (by rows)  is defined as follows: 
-  1
-1 1
+           1          2         3
+1 0.94609164 0.05390836 0.0000000
+2 0.26356589 0.62790698 0.1085271
+3 0.02325581 0.18604651 0.7906977
 
 Markovchain  2 
 Unnamed Markov chain 
- A  1 - dimensional discrete Markov Chain defined by the following states: 
- 1 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ 1, 2, 3 
  The transition matrix  (by rows)  is defined as follows: 
-  1
-1 1
-
-Markovchain  3 
-Unnamed Markov chain 
- A  2 - dimensional discrete Markov Chain defined by the following states: 
+          1         2         3
+1 0.9323410 0.0676590 0.0000000
+2 0.2551724 0.5103448 0.2344828
+3 0.0000000 0.0862069 0.9137931
 ...
 \end{CodeOutput}
 \end{CodeChunk}
@@ -2146,7 +1976,6 @@ Unnamed Markov chain
 Finally, given a \texttt{list} object, it is possible to fit a \texttt{markovchain} object or to obtain the raw transition matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> c1<-c("a","b","a","a","c","c","a")
 R> c2<-c("b")
@@ -2158,7 +1987,6 @@ R> mylist<-list(c1,c2,c3,c4,c5,c6)
 R> mylistMc<-markovchainFit(data=mylist)
 R> mylistMc
 \end{CodeInput}
-
 \begin{CodeOutput}
 $estimate
 MLE Fit 
@@ -2197,11 +2025,9 @@ c 1.0000000 0.7953014 0.4933274
 The same works for \texttt{markovchainFitList}.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> markovchainListFit(data=mylist)
 \end{CodeInput}
-
 \begin{CodeOutput}
 $estimate
   list of Markov chain(s) 
@@ -2224,66 +2050,55 @@ Unnamed Markov chain
 
 If any transition contains \texttt{NA}, it will be ignored in the results as the above example showed.
 
-\hypertarget{prediction}{%
-\subsection{Prediction}\label{prediction}}
+\subsection{Prediction}\label{prediction}
 
-The \(n\)-step forward predictions can be obtained using the \texttt{predict} methods explicitly written for \texttt{markovchain} and \texttt{markovchainList} objects. The prediction is the mode of the conditional distribution of \(X_{t+1}\) given \(X_{t}=s_{j}\), being \(s_{j}\) the last realization of the DTMC (homogeneous or non-homogeneous).
+The \(n\)-step forward predictions can be obtained using the \texttt{predict} methods explicitly written for \texttt{markovchain} and \texttt{markovchainList} objects. The prediction is the mode of the conditional distribution of \(X_{t+1}\) given \(X_{t}=s_{j}\), being \(s_{j}\) the last realization of the DTMC (homogeneous or semi-homogeneous).
 
-\hypertarget{predicting-from-a-markovchain-object}{%
-\subsubsection{Predicting from a markovchain object}\label{predicting-from-a-markovchain-object}}
+\subsubsection{Predicting from a markovchain object}\label{predicting-from-a-markovchain-object}
 
 The 3-days forward predictions from \texttt{markovchain} object can be generated as follows, assuming that the last two days were respectively ``cloudy'' and ``sunny''.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> predict(object = weatherFittedMLE$estimate, newdata = c("cloudy", "sunny"),
 +         n.ahead = 3)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "sunny" "sunny" "sunny"
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{predicting-from-a-markovchainlist-object}{%
-\subsubsection{Predicting from a markovchainList object}\label{predicting-from-a-markovchainlist-object}}
+\subsubsection{Predicting from a markovchainList object}\label{predicting-from-a-markovchainlist-object}
 
 Given an initial two years health status, the 5-year ahead prediction of any CCRC guest is
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "H" "D" "D"
 \end{CodeOutput}
 \end{CodeChunk}
 
-The prediction has stopped at time sequence since the underlying non-homogeneous Markov chain has a length of four. In order to continue five years ahead, the \texttt{continue=TRUE} parameter setting makes the \texttt{predict} method keeping to use the last \texttt{markovchain} in the sequence list.
+The prediction has stopped at time sequence since the underlying semi-homogeneous Markov chain has a length of four. In order to continue five years ahead, the \texttt{continue=TRUE} parameter setting makes the \texttt{predict} method keeping to use the last \texttt{markovchain} in the sequence list.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "H" "D" "D" "D" "D"
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{statistical-tests}{%
-\subsection{Statistical Tests}\label{statistical-tests}}
+\subsection{Statistical Tests}\label{statistical-tests}
 
 In this section, we describe the statistical tests: assessing the Markov property (\texttt{verifyMarkovProperty}), the order (\texttt{assessOrder}), the stationary (\texttt{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\texttt{divergenceTest}). Most of such tests are based on the \(\chi ^2\) statistics. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
 All such tests have been designed for small samples, since it is easy to detect departures from Markov property as long as the sample size increases. In addition, the accuracy of the statistical inference functions has been questioned and will be thoroughly investigated in future versions of the package.
 
-\hypertarget{assessing-the-markov-property-of-a-markov-chain-sequence}{%
-\subsubsection{Assessing the Markov property of a Markov chain sequence}\label{assessing-the-markov-property-of-a-markov-chain-sequence}}
+\subsubsection{Assessing the Markov property of a Markov chain sequence}\label{assessing-the-markov-property-of-a-markov-chain-sequence}
 
 The \texttt{verifyMarkovProperty} function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If \(x_1, x_2, \ldots, x_N\) is a set of observations and \(n_{ijk}\) is the number of times \(t\) \(\left(1 \le t \le N-2 \right)\) such that \(x_t=i, x_{t+1}=j, x_{x+2}=k\), then if the Markov property holds \(n_{ijk}\) follows a Binomial distribution with parameters \(n_{ij}\) and \(p_{jk}\). A classical \(\chi^2\) test can check this distributional assumption, since \(\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p_{jk}})^2}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(q \right )\) where q is the number of degrees of freedom.
 The number of degrees of freedom q of the distribution of \(\chi^2\) is given by the formula r-q+s-1, where:
@@ -2292,13 +2107,11 @@ q denotes the number of pairs (i, j) for which n\_\{ij\} \textgreater{} 0 and
 r denotes the number of triplets (i, j, k) for which n\_\{ij\}n\_\{jk\} \textgreater{} 0
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
 +                    "b", "a", "a", "b", "b", "b", "a")
 R> verifyMarkovProperty(sample_sequence)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Testing markovianity property on given data sequence
 Chi - square statistic is: 0.28 
@@ -2307,8 +2120,7 @@ And corresponding p-value is: 0.9980024
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{assessing-the-order-of-a-markov-chain-sequence}{%
-\subsubsection{Assessing the order of a Markov chain sequence}\label{assessing-the-order-of-a-markov-chain-sequence}}
+\subsubsection{Assessing the order of a Markov chain sequence}\label{assessing-the-order-of-a-markov-chain-sequence}
 
 The \texttt{assessOrder} function checks whether the given chain is of first order or of second order. For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
 
@@ -2331,18 +2143,15 @@ Using the table, the function performs the \(\chi ^2\) test by calling the \text
 This test returns a list of the chi-squared value and the p-value. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is of first order.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data(rain)
 R> assessOrder(rain$rain)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Warning in assessOrder(rain$rain): The accuracy of the statistical inference
 functions has been questioned. It will be thoroughly investigated in future
 versions of the package.
 \end{CodeOutput}
-
 \begin{CodeOutput}
 The assessOrder test statistic is:  26.09575 
 The Chi-Square d.f. are:  12 
@@ -2350,8 +2159,7 @@ The p-value is:  0.01040395
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{assessing-the-stationarity-of-a-markov-chain-sequence}{%
-\subsubsection{Assessing the stationarity of a Markov chain sequence}\label{assessing-the-stationarity-of-a-markov-chain-sequence}}
+\subsubsection{Assessing the stationarity of a Markov chain sequence}\label{assessing-the-stationarity-of-a-markov-chain-sequence}
 
 The \texttt{assessStationarity} function assesses if the transition probabilities of the given chain change over time. To be more specific, the chain is stationary if the following condition meets.
 
@@ -2385,29 +2193,23 @@ This test returns a list of the chi-squared value and the p-value.
 If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is stationary.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> assessStationarity(rain$rain, 10)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Warning in assessStationarity(rain$rain, 10): The accuracy of the statistical
 inference functions has been questioned. It will be thoroughly investigated in
 future versions of the package.
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Warning in chisq.test(mat): Chi-squared approximation may be incorrect
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Warning in chisq.test(mat): Chi-squared approximation may be incorrect
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Warning in chisq.test(mat): Chi-squared approximation may be incorrect
 \end{CodeOutput}
-
 \begin{CodeOutput}
 The assessStationarity test statistic is:  4.181815 
 The Chi-Square d.f. are:  54 
@@ -2415,8 +2217,7 @@ The p-value is:  1
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{divergence-tests-for-empirically-estimated-transition-matrices}{%
-\subsubsection{Divergence tests for empirically estimated transition matrices}\label{divergence-tests-for-empirically-estimated-transition-matrices}}
+\subsubsection{Divergence tests for empirically estimated transition matrices}\label{divergence-tests-for-empirically-estimated-transition-matrices}
 
 This section discusses tests developed to verify whether:
 
@@ -2432,7 +2233,6 @@ This section discusses tests developed to verify whether:
 The first test is implemented by the \texttt{verifyEmpiricalToTheoretical} function. Being \(f_{ij}\) the raw transition count, \cite{kullback1962tests} shows that \(2*\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i.}P\left( E_j | E_i\right)} \sim \chi^2\left ( r*(r-1) \right )\). The following example is taken from \cite{kullback1962tests}:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
 + 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
@@ -2443,7 +2243,6 @@ R> mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 R> rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 R> verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Testing whether the
    0  1  2
@@ -2458,7 +2257,6 @@ transition matrix is compatible with
 [1] "theoretical transition matrix"
 ChiSq statistic is 6.551795 d.o.f are 6 corresponding p-value is 0.3642899 
 \end{CodeOutput}
-
 \begin{CodeOutput}
 $statistic
        0 
@@ -2476,23 +2274,19 @@ $pvalue
 The second one is implemented by the \texttt{verifyHomogeneity} function, inspired by \cite[section~9]{kullback1962tests}. Assuming that \(i=1,2, \ldots, s\) DTMC samples are available and that the cardinality of the state space is \(r\) it verifies whether the \(s\) chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, \(2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )\). Also the following example is taken from \cite{kullback1962tests}:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data(kullback)
 R> verifyHomogeneity(inputList=kullback,verbose=TRUE)
 \end{CodeInput}
-
 \begin{CodeOutput}
 Warning in verifyHomogeneity(inputList = kullback, verbose = TRUE): The
 accuracy of the statistical inference functions has been questioned. It will be
 thoroughly investigated in future versions of the package.
 \end{CodeOutput}
-
 \begin{CodeOutput}
 Testing homogeneity of DTMC underlying input list 
 ChiSq statistic is 275.9963 d.o.f are 35 corresponding p-value is 0 
 \end{CodeOutput}
-
 \begin{CodeOutput}
 $statistic
 [1] 275.9963
@@ -2505,11 +2299,9 @@ $pvalue
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{continuous-times-markov-chains}{%
-\subsection{Continuous Times Markov Chains}\label{continuous-times-markov-chains}}
+\subsection{Continuous Times Markov Chains}\label{continuous-times-markov-chains}
 
-\hypertarget{intro}{%
-\subsubsection{Intro}\label{intro}}
+\subsubsection{Intro}\label{intro}
 
 The \pkg{markovchain} package provides functionality for continuous time Markov chains (CTMCs). CTMCs are a generalization of discrete time Markov chains (DTMCs) in that we allow time to be continuous. We assume a finite state space \(S\) (for an infinite state space wouldn't fit in memory). We can think of CTMCs as Markov chains in which state transitions can happen at any time.
 
@@ -2541,8 +2333,7 @@ A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mb
 \]
 Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix.
 
-\hypertarget{stationary-distributions}{%
-\subsubsection{Stationary Distributions}\label{stationary-distributions}}
+\subsubsection{Stationary Distributions}\label{stationary-distributions}
 
 The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that \(X(t)\) being irreducible and recurrent is the same as \(X_n(t)\) being irreducible and recurrent.
 
@@ -2556,8 +2347,7 @@ where \(\pi\) is the unique invariant measure of the embedded discrete time Mark
 
 and if \(\sum_i \eta_i < \infty\) then \(\eta\) can be normalized to get a stationary distribution.
 
-\hypertarget{estimation-1}{%
-\subsubsection{Estimation}\label{estimation-1}}
+\subsubsection{Estimation}\label{estimation-1}
 
 Let the data set be \(D = \{(s_0, t_0), (s_1, t_1), ..., (s_{N-1}, t_{N-1})\}\) where \(N=|D|\). Each \(s_i\) is a state from the state space \(S\) and during the time \([t_i,t_{i+1}]\) the chain is in state \(s_i\). Let the parameters be represented by \(\theta = \{\lambda, P\}\) where \(\lambda\) is the vector of holding parameters for each state and \(P\) the transition matrix of the embedded discrete time Markov chain.
 
@@ -2575,8 +2365,7 @@ Then the MLEs are given by
 \hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}
 \]
 
-\hypertarget{expected-hitting-time}{%
-\subsubsection{Expected Hitting Time}\label{expected-hitting-time}}
+\subsubsection{Expected Hitting Time}\label{expected-hitting-time}
 
 The package provides a function \texttt{ExpectedTime} to calculate average hitting time from one state to another. Let the final state be j, then for every state \(i \in S\), where \(S\) is the set of all states and holding time \(q_{i} > 0\) for every \(i \neq j\). Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector \(p\) to the system of linear equations:
 \begin{equation}
@@ -2587,20 +2376,17 @@ The package provides a function \texttt{ExpectedTime} to calculate average hitti
 \label{eq:EHT}
 \end{equation}
 
-\hypertarget{probability-at-time-t}{%
-\subsubsection{Probability at time t}\label{probability-at-time-t}}
+\subsubsection{Probability at time t}\label{probability-at-time-t}
 
 The package provides a function \texttt{probabilityatT} to calculate probability of every state according to given \texttt{ctmc} object. Here we use Kolmogorov's backward equation \(P(t) = P(0)e^{tQ}\) for \(t \geq 0\) and \(P(0) = I\). Here \(P(t)\) is the transition function at time t. The value \(P(t)[i][j]\) at time \(P(t)\) describes the probability of the state at time \(t\) to be equal to j if it was equal to i at time \(t=0\).
 It takes care of the case when \texttt{ctmc} object has a generator represented by columns.
 If initial state is not provided, the function returns the whole transition matrix \(P(t)\).
 
-\hypertarget{examples}{%
-\subsubsection{Examples}\label{examples}}
+\subsubsection{Examples}\label{examples}
 
 To create a CTMC object, you need to provide a valid generator matrix, say \(Q\). The CTMC object has the following slots - states, generator, by row, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the \(\sigma\) state to the \(\sigma^*\) state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> energyStates <- c("sigma", "sigma_star")
 R> byRow <- TRUE
@@ -2616,12 +2402,10 @@ R> molecularCTMC <- new("ctmc", states = energyStates,
 To generate random CTMC transitions, we provide an initial distribution of the states. This must be in the same order as the dimnames of the generator. The output can be returned either as a list or a data frame.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> statesDist <- c(0.8, 0.2)
 R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
 \end{CodeInput}
-
 \begin{CodeOutput}
       states              time
 1 sigma_star 0.103381332786133
@@ -2633,12 +2417,10 @@ R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", in
 \(n\) represents the number of samples to generate. There is an optional argument \(T\) for \texttt{rctmc}. It represents the time of termination of the simulation. To use this feature, set \(n\) to a very high value, say \texttt{Inf} (since we do not know the number of transitions before hand) and set \(T\) accordingly.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> statesDist <- c(0.8, 0.2)
 R> rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [[1]]
 [1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
@@ -2651,11 +2433,9 @@ R> rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 To obtain the stationary distribution simply invoke the \texttt{steadyStates} function
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> steadyStates(molecularCTMC)
 \end{CodeInput}
-
 \begin{CodeOutput}
      sigma sigma_star
 [1,]  0.25       0.75
@@ -2665,13 +2445,11 @@ R> steadyStates(molecularCTMC)
 For fitting, use the \texttt{ctmcFit} function. It returns the MLE values for the parameters along with the confidence intervals.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
 +              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
 R> ctmcFit(data)
 \end{CodeInput}
-
 \begin{CodeOutput}
 $estimate
 An object of class "ctmc"
@@ -2721,12 +2499,10 @@ $errors$lambdaConfidenceInterval$upperEndpointVector
 One approach to obtain the generator matrix is to apply the \texttt{logm} function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see \cite{israel2001finding}. For example, applying the standard \texttt{method} (`Higham08') on \texttt{mcWeather} raises an error, whilst the alternative method (eigenvalue decomposition) is OK. The following code estimates the generator matrix of the \texttt{mcWeather} transition matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
 R> mcWeatherQ
 \end{CodeInput}
-
 \begin{CodeOutput}
            sunny     cloudy       rain
 sunny  -0.863221   2.428723  -1.565502
@@ -2738,13 +2514,11 @@ rain   -4.414019  24.175251 -19.761232
 Therefore, the ``half - day'' transition probability for mcWeather DTMC is
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
 R> mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
 R> mcWeatherHalfDay
 \end{CodeInput}
-
 \begin{CodeOutput}
 Half Day Weather Transition Matrix 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -2760,41 +2534,12 @@ rain   0.07063048 0.5146848 0.41468476
 The \pkg{ctmcd} package \citep{pkg:ctmcd} provides various functions to estimate the generator matrix (GM) of a CTMC process using different methods. The following code provides a way to join \pkg{markovchain} and \pkg{ctmcd} computations.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
-R> require(ctmcd)
-\end{CodeInput}
-
-\begin{CodeOutput}
-Loading required package: ctmcd
-\end{CodeOutput}
-
-\begin{CodeInput}
-R> require(expm)
-\end{CodeInput}
-
-\begin{CodeOutput}
-Loading required package: expm
-\end{CodeOutput}
-
-\begin{CodeOutput}
-Loading required package: Matrix
-\end{CodeOutput}
-
-\begin{CodeOutput}
-
-Attaching package: 'expm'
-\end{CodeOutput}
-
-\begin{CodeOutput}
-The following object is masked from 'package:Matrix':
-
-    expm
-\end{CodeOutput}
-
-\begin{CodeInput}
-R> #defines a function to transform a GM into a TM
-R> gm_to_markovchain<-function(object, t=1) {
+R> if(requireNamespace(package='ctmcd', quietly = TRUE)) {
++ require(ctmcd)
++ require(expm)
++ #defines a function to transform a GM into a TM
++ gm_to_markovchain<-function(object, t=1) {
 +   if(!(class(object) %in% c("gm","matrix","Matrix")))
 +     stop("Error! Expecting either a matrix or a gm object")
 +   if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
@@ -2804,19 +2549,36 @@ R> gm_to_markovchain<-function(object, t=1) {
 +   out<-as(transitionMatrix,"markovchain")
 +   return(out)
 + }
-R> #loading ctmcd dataset
-R> data(tm_abs)
-R> gm0=matrix(1,8,8) #initializing
-R> diag(gm0)=0
-R> diag(gm0)=-rowSums(gm0)
-R> gm0[8,]=0
-R> gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
-R> mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
++ #loading ctmcd dataset
++ data(tm_abs)
++ gm0=matrix(1,8,8) #initializing
++ diag(gm0)=0
++ diag(gm0)=-rowSums(gm0)
++ gm0[8,]=0
++ gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
++ mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
++ } else {
++   warning('package ctmcd unavailable')
++ }
 \end{CodeInput}
+\begin{CodeOutput}
+Loading required package: ctmcd
+\end{CodeOutput}
+\begin{CodeOutput}
+Loading required package: expm
+\end{CodeOutput}
+\begin{CodeOutput}
+
+Attaching package: 'expm'
+\end{CodeOutput}
+\begin{CodeOutput}
+The following object is masked from 'package:Matrix':
+
+    expm
+\end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{pseudo---bayesian-estimation}{%
-\subsection{Pseudo - Bayesian Estimation}\label{pseudo---bayesian-estimation}}
+\subsection{Pseudo - Bayesian Estimation}\label{pseudo---bayesian-estimation}
 
 \cite{Hu2002} shows an empirical quasi-Bayesian method to estimate transition matrices, given an empirical \(\hat{P}\) transition matrix (estimated using the classical approach) and an a - priori estimate \(Q\). In particular, each row of the matrix is estimated using the linear combination \(\alpha \cdot Q+\left(1-1alpha\right) \cdot P\), where \(\alpha\) is defined for each row as Equation \ref{eq:pseudobayes} shows
 
@@ -2831,7 +2593,6 @@ R> mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
 The following code returns the pseudo Bayesian estimate of the transition matrix:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> pseudoBayesEstimator <- function(raw, apriori){
 +   v_i <- rowSums(raw) 
@@ -2868,7 +2629,6 @@ R> pseudoBayesEstimator <- function(raw, apriori){
 We then apply it to the weather example:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> trueMc<-as(matrix(c(0.1, .9,.7,.3),nrow = 2, byrow = 2),"markovchain")
 R> aprioriMc<-as(matrix(c(0.5, .5,.5,.5),nrow = 2, byrow = 2),"markovchain")
@@ -2880,13 +2640,11 @@ R> pseudoBayesEstimator(
 +   apriori = aprioriMc@transitionMatrix
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
-
 \begin{CodeOutput}
-          s1       s2
-s1 -0.100000 0.100000
-s2 -0.136019 0.136019
+            s1          s2
+s1 -0.10000000  0.10000000
+s2  0.05471698 -0.05471698
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> biggerSample<-rmarkovchain(n=100,object = trueMc)
 R> biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample)
@@ -2895,13 +2653,11 @@ R> pseudoBayesEstimator(
 +   apriori = aprioriMc@transitionMatrix
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
-
 \begin{CodeOutput}
             s1          s2
 s1  0.02240738 -0.02240738
-s2 -0.02107810  0.02107810
+s2 -0.04086569  0.04086569
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> bigSample<-rmarkovchain(n=1000,object = trueMc)
 R> bigSampleRawTransitions<-createSequenceMatrix(stringchar = bigSample)
@@ -2910,21 +2666,18 @@ R> pseudoBayesEstimator(
 +   apriori = aprioriMc@transitionMatrix
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
-
 \begin{CodeOutput}
             s1           s2
-s1 0.011686151 -0.011686151
-s2 0.002490415 -0.002490415
+s1 0.011431966 -0.011431966
+s2 0.003767055 -0.003767055
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{bayesian-estimation}{%
-\subsection{Bayesian Estimation}\label{bayesian-estimation}}
+\subsection{Bayesian Estimation}\label{bayesian-estimation}
 
 The \pkg{markovchain} package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters (at the time of writing this document, only first order models are supported) by Bayesian inference. It also computes the probability of observing a new data set, given a (different) data set. This vignette provides the mathematical description for the methods employed by the package.
 
-\hypertarget{notation-and-set-up}{%
-\subsubsection{Notation and set-up}\label{notation-and-set-up}}
+\subsubsection{Notation and set-up}\label{notation-and-set-up}
 
 The data is denoted by \(D\), the model parameters (transition matrix) by \(\theta\). The object of interest is \(P(\theta | D)\) (posterior density). \(\mathcal{A}\) represents an alphabet class, each of whose members represent a state of the chain. Therefore
 
@@ -2943,8 +2696,7 @@ where the search space is the set of right stochastic matrices of dimension \(|\
 
 \(n(u, s)\) denotes the number of times the word \(us\) occurs in \(D\) and \(n(u)=\sum_{s \in \mathcal{A}}n(u, s)\). The hyper-parameters are similarly denoted by \(\alpha(u, s)\) and \(\alpha(u)\) respectively.
 
-\hypertarget{methods}{%
-\subsubsection{Methods}\label{methods}}
+\subsubsection{Methods}\label{methods}
 
 Given \(D\), its likelihood conditioned on the observed initial state in D is given by
 \[P(D|\theta) = \prod_{s \in \mathcal{A}} \prod_{u \in \mathcal{A}} p(s|u)^{n(u, s)}\]
@@ -3005,8 +2757,7 @@ The square root of this quantity is the standard error, which is returned by the
 
 The confidence intervals are constructed by computing the inverse of the beta integral.
 
-\hypertarget{predictive-distribution}{%
-\subsubsection{Predictive distribution}\label{predictive-distribution}}
+\subsubsection{Predictive distribution}\label{predictive-distribution}
 
 Given the old data set, the probability of observing new data is \(P(D'|D)\) where \(D'\) is the new data set. Let \(m(u, s), m(u)\) denote the corresponding counts for the new data. Then,
 \[
@@ -3017,8 +2768,7 @@ We already know the expressions for both quantities in the integral and it turns
 P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \frac{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + m(u, s) + \alpha(u, s))}{\Gamma(\alpha(u) + n(u) + m(u))} \Big\}
 \]
 
-\hypertarget{choosing-the-hyper-parameters}{%
-\subsubsection{Choosing the hyper-parameters}\label{choosing-the-hyper-parameters}}
+\subsubsection{Choosing the hyper-parameters}\label{choosing-the-hyper-parameters}
 
 The hyper parameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation
 \[
@@ -3035,11 +2785,9 @@ Alternatively, the function accepts a data sample and infers the hyper-parameter
 
 where \(m(u, s)\) is the \(u\rightarrow s\) transition count in the data sample. This is regarded as a `fake count' which helps \(\alpha(u, s)\) to reflect knowledge of the data sample.
 
-\hypertarget{usage-and-examples}{%
-\subsubsection{Usage and examples}\label{usage-and-examples}}
+\subsubsection{Usage and examples}\label{usage-and-examples}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> weatherStates <- c("sunny", "cloudy", "rain")
 R> byRow <- TRUE
@@ -3060,7 +2808,6 @@ For the purpose of this section, we shall continue to use the weather of days ex
 Let us invoke the fit function to estimate the MAP parameters with 92\% confidence bounds and hyper-parameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> hyperMatrix<-matrix(c(1, 1, 2, 
 +                       3, 2, 1,
@@ -3070,30 +2817,29 @@ R> hyperMatrix<-matrix(c(1, 1, 2,
 R> markovchainFit(weathersOfDays[1:200], method = "map", 
 +                confidencelevel = 0.92, hyperparam = hyperMatrix)
 \end{CodeInput}
-
 \begin{CodeOutput}
 $estimate
 Bayesian Fit 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy      rain     sunny
-cloudy 0.3709677 0.2741935 0.3548387
-rain   0.3809524 0.3809524 0.2380952
-sunny  0.2135922 0.0776699 0.7087379
+          cloudy       rain     sunny
+cloudy 0.3709677 0.27419355 0.3548387
+rain   0.3902439 0.36585366 0.2439024
+sunny  0.2115385 0.08653846 0.7019231
 
 
 $expectedValue
           cloudy       rain     sunny
 cloudy 0.3692308 0.27692308 0.3538462
-rain   0.3777778 0.37777778 0.2444444
-sunny  0.2169811 0.08490566 0.6981132
+rain   0.3863636 0.36363636 0.2500000
+sunny  0.2149533 0.09345794 0.6915888
 
 $standardError
            [,1]       [,2]       [,3]
 [1,] 0.05940353 0.05508075 0.05885769
-[2,] 0.07148453 0.07148453 0.06336426
-[3,] 0.03984788 0.02694693 0.04438059
+[2,] 0.07258509 0.07171006 0.06454972
+[3,] 0.03952828 0.02800852 0.04444032
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -3102,63 +2848,59 @@ $confidenceInterval$confidenceLevel
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
 [1,] 0.2788643 0.1837403 0.2628715
-[2,] 0.2728115 0.2728115 0.1312487
-[3,] 0.1436350 0.0000000 0.6344429
+[2,] 0.2810536 0.2567113 0.1359961
+[3,] 0.1419778 0.0000000 0.6278822
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
 [1,] 0.4955338 0.3757588 0.4749592
-[2,] 0.5431506 0.5431506 0.3509441
-[3,] 0.2829567 0.1249744 1.0000000
+[2,] 0.5612194 0.5223839 0.3596630
+[3,] 0.2802414 0.1349873 1.0000000
 
 
 $logLikelihood
-[1] -182.4175
+[1] -184.008
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix) 
 \end{CodeInput}
-
 \begin{CodeOutput}
-[1] -151.6332
+[1] -151.5932
 \end{CodeOutput}
 \end{CodeChunk}
 
 The results should not change after permuting the dimensions of the matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> hyperMatrix2<- hyperMatrix[c(2,3,1), c(2,3,1)]
 R> markovchainFit(weathersOfDays[1:200], method = "map", 
 +                confidencelevel = 0.92, hyperparam = hyperMatrix2)
 \end{CodeInput}
-
 \begin{CodeOutput}
 $estimate
 Bayesian Fit 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy      rain     sunny
-cloudy 0.3709677 0.2741935 0.3548387
-rain   0.3809524 0.3809524 0.2380952
-sunny  0.2135922 0.0776699 0.7087379
+          cloudy       rain     sunny
+cloudy 0.3709677 0.27419355 0.3548387
+rain   0.3902439 0.36585366 0.2439024
+sunny  0.2115385 0.08653846 0.7019231
 
 
 $expectedValue
           cloudy       rain     sunny
 cloudy 0.3692308 0.27692308 0.3538462
-rain   0.3777778 0.37777778 0.2444444
-sunny  0.2169811 0.08490566 0.6981132
+rain   0.3863636 0.36363636 0.2500000
+sunny  0.2149533 0.09345794 0.6915888
 
 $standardError
            [,1]       [,2]       [,3]
 [1,] 0.05940353 0.05508075 0.05885769
-[2,] 0.07148453 0.07148453 0.06336426
-[3,] 0.03984788 0.02694693 0.04438059
+[2,] 0.07258509 0.07171006 0.06454972
+[3,] 0.03952828 0.02800852 0.04444032
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -3167,27 +2909,25 @@ $confidenceInterval$confidenceLevel
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
 [1,] 0.2788643 0.1837403 0.2628715
-[2,] 0.2728115 0.2728115 0.1312487
-[3,] 0.1436350 0.0000000 0.6344429
+[2,] 0.2810536 0.2567113 0.1359961
+[3,] 0.1419778 0.0000000 0.6278822
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
 [1,] 0.4955338 0.3757588 0.4749592
-[2,] 0.5431506 0.5431506 0.3509441
-[3,] 0.2829567 0.1249744 1.0000000
+[2,] 0.5612194 0.5223839 0.3596630
+[3,] 0.2802414 0.1349873 1.0000000
 
 
 $logLikelihood
-[1] -182.4175
+[1] -184.008
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeInput}
-
 \begin{CodeOutput}
-[1] -151.6332
+[1] -151.5932
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3195,11 +2935,9 @@ Note that the predictive probability is very small. However, this can be useful 
 Suppose we have an idea of the (prior) transition matrix corresponding to the expected value of the parameters, and have a data set from which we want to deduce the MAP estimates. We can infer the hyper-parameters from this known transition matrix itself, and use this to obtain our MAP estimates.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
 \end{CodeInput}
-
 \begin{CodeOutput}
 $scaledInference
        cloudy rain sunny
@@ -3212,24 +2950,21 @@ sunny       2    1     7
 Alternatively, we can use a data sample to infer the hyper-parameters.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> inferHyperparam(data = weathersOfDays[1:15])
 \end{CodeInput}
-
 \begin{CodeOutput}
 $dataInference
        cloudy rain sunny
 cloudy      3    2     3
 rain        3    4     1
-sunny       2    1     4
+sunny       2    2     3
 \end{CodeOutput}
 \end{CodeChunk}
 
 In order to use the inferred hyper-parameter matrices, we do
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> hyperMatrix3 <- inferHyperparam(transMatr = weatherMatrix, 
 +                                 scale = c(10, 10, 10))
@@ -3244,7 +2979,6 @@ Now we can safely use \texttt{hyperMatrix3} and \texttt{hyperMatrix4} with \text
 Supposing we don't provide any hyper-parameters, then the prior is uniform. This is the same as maximum likelihood.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data(preproglucacon)
 R> preproglucacon <- preproglucacon[[2]]
@@ -3252,7 +2986,6 @@ R> MLEest <- markovchainFit(preproglucacon, method = "mle")
 R> MAPest <- markovchainFit(preproglucacon, method = "map")
 R> MLEest$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 MLE Fit 
  A  4 - dimensional discrete Markov Chain defined by the following states: 
@@ -3264,11 +2997,9 @@ C 0.3840304 0.1558935 0.02281369 0.4372624
 G 0.3053097 0.1991150 0.15044248 0.3451327
 T 0.2844523 0.1819788 0.17667845 0.3568905
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> MAPest$estimate
 \end{CodeInput}
-
 \begin{CodeOutput}
 Bayesian Fit 
  A  4 - dimensional discrete Markov Chain defined by the following states: 
@@ -3282,18 +3013,15 @@ T 0.2844523 0.1819788 0.17667845 0.3568905
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{sec:applications}{%
-\section{Applications}\label{sec:applications}}
+\section{Applications}\label{sec:applications}
 
 This section shows applications of DTMC in various fields.
 
-\hypertarget{app:weather}{%
-\subsection{Weather forecasting}\label{app:weather}}
+\subsection{Weather forecasting}\label{app:weather}
 
 Markov chains provide a simple model to predict the next day's weather given the current meteorological condition. The first application herewith shown is the ``Land of Oz example'' from \cite{landOfOz}, the second is the ``Alofi Island Rainfall'' from \cite{averyHenderson}.
 
-\hypertarget{sec:wfLandOfOz}{%
-\subsubsection{Land of Oz}\label{sec:wfLandOfOz}}
+\subsubsection{Land of Oz}\label{sec:wfLandOfOz}
 
 The Land of Oz is
 acknowledged not to have ideal weather conditions at all:
@@ -3301,7 +3029,6 @@ the weather is snowy or rainy very often and, once more, there are never two
 nice days in a row. Consider three weather states: rainy, nice and snowy. Let the transition matrix be as in the following:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcWP <- new("markovchain", states = c("rainy", "nice", "snowy"),
 +          transitionMatrix = matrix(c(0.5, 0.25, 0.25,
@@ -3314,30 +3041,24 @@ Given that today it is a nice day, the corresponding stochastic row vector is
 \(w_{0}=(0\:,1\:,0)\) and the forecast after 1, 2 and 3 days are given by
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> W0 <- t(as.matrix(c(0, 1, 0)))
 R> W1 <- W0 * mcWP; W1
 \end{CodeInput}
-
 \begin{CodeOutput}
      rainy nice snowy
 [1,]   0.5    0   0.5
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> W2 <- W0 * (mcWP ^ 2); W2
 \end{CodeInput}
-
 \begin{CodeOutput}
      rainy nice snowy
 [1,] 0.375 0.25 0.375
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> W3 <- W0 * (mcWP ^ 3); W3
 \end{CodeInput}
-
 \begin{CodeOutput}
        rainy   nice   snowy
 [1,] 0.40625 0.1875 0.40625
@@ -3347,12 +3068,10 @@ R> W3 <- W0 * (mcWP ^ 3); W3
 As can be seen from \(w_{1}\), if in the Land of Oz today is a nice day, tomorrow it will rain or snow with probability 1. One week later, the prediction can be computed as
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> W7 <- W0 * (mcWP ^ 7)
 R> W7
 \end{CodeInput}
-
 \begin{CodeOutput}
          rainy      nice     snowy
 [1,] 0.4000244 0.1999512 0.4000244
@@ -3362,12 +3081,10 @@ R> W7
 The steady state of the chain can be computed by means of the \texttt{steadyStates} method.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> q <- steadyStates(mcWP)
 R> q
 \end{CodeInput}
-
 \begin{CodeOutput}
      rainy nice snowy
 [1,]   0.4  0.2   0.4
@@ -3377,42 +3094,35 @@ R> q
 Note that, from the seventh day on, the predicted probabilities are substantially equal to the steady state of the chain and they don't depend from the starting point, as the following code shows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> R0 <- t(as.matrix(c(1, 0, 0)))
 R> R7 <- R0 * (mcWP ^ 7); R7
 \end{CodeInput}
-
 \begin{CodeOutput}
          rainy      nice     snowy
 [1,] 0.4000244 0.2000122 0.3999634
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> S0 <- t(as.matrix(c(0, 0, 1)))
 R> S7 <- S0 * (mcWP ^ 7); S7
 \end{CodeInput}
-
 \begin{CodeOutput}
          rainy      nice     snowy
 [1,] 0.3999634 0.2000122 0.4000244
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{sec:wfAlofi}{%
-\subsubsection{Alofi Island Rainfall}\label{sec:wfAlofi}}
+\subsubsection{Alofi Island Rainfall}\label{sec:wfAlofi}
 
 Alofi Island daily rainfall
 data were recorded from January 1st, 1987 until December 31st, 1989 and
 classified into three states: ``0'' (no rain), ``1-5'' (from non zero until 5 mm) and ``6+'' (more than 5mm). The corresponding dataset is provided within the \pkg{markovchain} package.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data("rain", package = "markovchain")
 R> table(rain$rain)
 \end{CodeInput}
-
 \begin{CodeOutput}
 
   0 1-5  6+ 
@@ -3423,12 +3133,10 @@ R> table(rain$rain)
 The underlying transition matrix is estimated as follows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcAlofi <- markovchainFit(data = rain$rain, name = "Alofi MC")$estimate
 R> mcAlofi
 \end{CodeInput}
-
 \begin{CodeOutput}
 Alofi MC 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -3444,31 +3152,26 @@ Alofi MC
 The long term daily rainfall distribution is obtained by means of the \texttt{steadyStates} method.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> steadyStates(mcAlofi)
 \end{CodeInput}
-
 \begin{CodeOutput}
              0       1-5        6+
 [1,] 0.5008871 0.2693656 0.2297473
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{app:fin}{%
-\subsection{Finance and Economics}\label{app:fin}}
+\subsection{Finance and Economics}\label{app:fin}
 
 Other relevant applications of DTMC can be found in Finance and Economics.
 
-\hypertarget{fin:fin}{%
-\subsubsection{Finance}\label{fin:fin}}
+\subsubsection{Finance}\label{fin:fin}
 
 Credit ratings transitions have been successfully modeled with discrete time Markov chains. Some rating agencies publish transition matrices that show the empirical transition probabilities across credit ratings. The example that follows
 comes from \pkg{CreditMetrics} \proglang{R} package \citep{CreditMetricsR},
 carrying Standard \& Poor's published data.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
 R> creditMatrix <- matrix(
@@ -3487,20 +3190,17 @@ R> creditMatrix <- matrix(
 It is easy to convert such matrices into \texttt{markovchain} objects and to perform some analyses
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> creditMc <- new("markovchain", transitionMatrix = creditMatrix, 
 +                 name = "S&P Matrix")
 R> absorbingStates(creditMc)
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] "D"
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{fin:ec}{%
-\subsubsection{Economics}\label{fin:ec}}
+\subsubsection{Economics}\label{fin:ec}
 
 For a recent application of \pkg{markovchain} in Economic, see \cite{manchesterR}.
 
@@ -3532,20 +3232,18 @@ E\left[ {{f_n}\left( {{X_n}} \right)|{X_0} = i} \right] = {e_i}{P^n}\bar c.
 The following example assumes that a telephone company models the transition probabilities between customer/non-customer status by matrix \(P\) and the cost associated to states by matrix \(M\).
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> statesNames <- c("customer", "non customer")
-R> P <- zeros(2); P[1, 1] <- .9; P[1, 2] <- .1; P[2, 2] <- .95; P[2, 1] <- .05;
+R> P <- markovchain:::zeros(2); P[1, 1] <- .9; P[1, 2] <- .1; P[2, 2] <- .95; P[2, 1] <- .05;
 R> rownames(P) <- statesNames; colnames(P) <- statesNames
 R> mcP <- new("markovchain", transitionMatrix = P, name = "Telephone company")
-R> M <- zeros(2); M[1, 1] <- -20; M[1, 2] <- -30; M[2, 1] <- -40; M[2, 2] <- 0
+R> M <- markovchain:::zeros(2); M[1, 1] <- -20; M[1, 2] <- -30; M[2, 1] <- -40; M[2, 2] <- 0
 \end{CodeInput}
 \end{CodeChunk}
 
 If the average revenue for existing customer is +100, the cost per state is computed as follows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> c1 <- 100 + conditionalDistribution(mcP, state = "customer") %*% M[1,]
 R> c2 <- 0 + conditionalDistribution(mcP, state = "non customer") %*% M[2,]
@@ -3555,26 +3253,22 @@ R> c2 <- 0 + conditionalDistribution(mcP, state = "non customer") %*% M[2,]
 For an existing customer, the expected gain (loss) at the fifth year is given by the following code.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> as.numeric((c(1, 0)* mcP ^ 5) %*% (as.vector(c(c1, c2))))
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 48.96009
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{app:act}{%
-\subsection{Actuarial science}\label{app:act}}
+\subsection{Actuarial science}\label{app:act}
 
 Markov chains are widely applied in the field of actuarial science. Two
 classical applications are policyholders' distribution across Bonus Malus
 classes in Motor Third Party Liability (MTPL) insurance (Section \ref{sec:bm}) and health insurance pricing and reserving
 (Section \ref{sec:hi}).
 
-\hypertarget{sec:bm}{%
-\subsubsection{MPTL Bonus Malus}\label{sec:bm}}
+\subsubsection{MPTL Bonus Malus}\label{sec:bm}
 
 Bonus Malus (BM) contracts grant the policyholder a discount (enworsen) as a function of the number of claims in the experience period. The discount (enworsen) is applied on a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial} and it usually depends on vehicle, territory, the demographic profile of the policyholder, and policy coverage deep (deductible and policy limits).\textbackslash{}
 Since the proposed BM level depends on the claim on the previous period, it can be modeled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation \ref{eq:BM}:
@@ -3588,10 +3282,9 @@ The number of claim \(\tilde N\) is a random variable that is assumed
 to be Poisson distributed.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> getBonusMalusMarkovChain <- function(lambda) {
-+   bmMatr <- zeros(5)
++   bmMatr <- markovchain:::zeros(5)
 +   bmMatr[1, 1] <- dpois(x = 0, lambda)
 +   bmMatr[1, 3] <- dpois(x = 1, lambda)
 +   bmMatr[1, 5] <- 1 - ppois(q = 1, lambda)
@@ -3619,12 +3312,10 @@ R> getBonusMalusMarkovChain <- function(lambda) {
 Assuming that the a-priori claim frequency per car-year is 0.05 in the class (being the class the group of policyholders that share the same common characteristics), the underlying BM transition matrix and its underlying steady state are as follows.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> bmMc <- getBonusMalusMarkovChain(0.05)
 R> as.numeric(steadyStates(bmMc))
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 0.895836079 0.045930498 0.048285405 0.005969247 0.003978772
 \end{CodeOutput}
@@ -3633,11 +3324,9 @@ R> as.numeric(steadyStates(bmMc))
 If the underlying BM coefficients of the class are 0.5, 0.7, 0.9, 1.0, 1.25, this means that the average BM coefficient applied on the long run to the class is given by
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> sum(as.numeric(steadyStates(bmMc)) * c(0.5, 0.7, 0.9, 1, 1.25))
 \end{CodeInput}
-
 \begin{CodeOutput}
 [1] 0.534469
 \end{CodeOutput}
@@ -3645,15 +3334,13 @@ R> sum(as.numeric(steadyStates(bmMc)) * c(0.5, 0.7, 0.9, 1, 1.25))
 
 This means that the average premium paid by policyholders in the portfolio almost halves in the long run.
 
-\hypertarget{sec:hi}{%
-\subsubsection{Health insurance example}\label{sec:hi}}
+\subsubsection{Health insurance example}\label{sec:hi}
 
 Actuaries quantify the risk inherent in insurance contracts evaluating the premium of insurance contract to be sold (therefore covering future risk) and evaluating the actuarial reserves of existing portfolios (the liabilities in terms of benefits or claims payments due to policyholder arising from previously sold contracts), see \cite{deshmukh2012multiple} for details.
 
 An applied example can be performed using the data from \cite{de2016assicurazioni} that has been saved in the \texttt{exdata} folder.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> ltcDemoPath<-system.file("extdata", "ltdItaData.txt", 
 +                          package = "markovchain")
@@ -3661,7 +3348,6 @@ R> ltcDemo<-read.table(file = ltcDemoPath, header=TRUE,
 +                     sep = ";", dec = ".")
 R> head(ltcDemo)
 \end{CodeInput}
-
 \begin{CodeOutput}
   age          pAD        pID          pAI       pAA
 1  20 0.0004616002 0.01083364 0.0001762467 0.9993622
@@ -3677,7 +3363,6 @@ The data shows the probability of transition between the state of (A)ctive, to (
 transition matrix.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> ltcDemo<-transform(ltcDemo,
 +                    pIA=0,
@@ -3691,7 +3376,6 @@ R> ltcDemo<-transform(ltcDemo,
 Now we build a function that returns the transition during the \(t+1\) th year, assuming that the subject has attained year \(t\).
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> possibleStates<-c("A","I","D")
 R> getMc4Age<-function(age) {
@@ -3719,7 +3403,6 @@ R> getMc4Age<-function(age) {
 Cause transitions are not homogeneous across ages, we use a \texttt{markovchainList} object to describe the transition probabilities for a guy starting at age 100.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> getFullTransitionTable<-function(age){
 +   ageSequence<-seq(from=age, to=120)
@@ -3741,24 +3424,22 @@ R> transitionsSince100<-getFullTransitionTable(age=100)
 We can use such transition for simulating ten life trajectories for a guy that begins ``active'' (A) aged 100:
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> rmarkovchain(n = 10, object = transitionsSince100,
 +              what = "matrix", t0 = "A", include.t0 = TRUE)
 \end{CodeInput}
-
 \begin{CodeOutput}
       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
- [1,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [2,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [3,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [4,] "A"  "A"  "I"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [5,] "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [6,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "I"   "D"   "D"   "D"  
- [7,] "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [8,] "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [9,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-[10,] "A"  "A"  "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [1,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [2,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [3,] "A"  "I"  "I"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [4,] "A"  "A"  "A"  "I"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [5,] "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [6,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "I"   "D"   "D"  
+ [7,] "A"  "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [8,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [9,] "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+[10,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "I"  "D"  "D"   "D"   "D"   "D"  
       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
  [1,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
  [2,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
@@ -3776,7 +3457,6 @@ R> rmarkovchain(n = 10, object = transitionsSince100,
 Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> transitionsSince80<-getFullTransitionTable(age=80)
 R> lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,
@@ -3786,38 +3466,32 @@ R> temp[lifeTrajectories=="I"]<-1
 R> expected_period_disabled<-mean(rowSums((temp)))
 R> expected_period_disabled
 \end{CodeInput}
-
 \begin{CodeOutput}
-[1] 1.361
+[1] 1.392
 \end{CodeOutput}
 \end{CodeChunk}
 
 Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
 \end{CodeInput}
-
 \begin{CodeOutput}
-[1] 13621.67
+[1] 13863.9
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{app:sociology}{%
-\subsection{Sociology}\label{app:sociology}}
+\subsection{Sociology}\label{app:sociology}
 
 Markov chains have been actively used to model progressions and regressions between social classes. The first study was performed by \cite{glassHall}, while a more recent application can be found in \cite{blandenEtAlii}. The table that follows shows the income quartile of the father when the son was 16 (in 1984) and the income quartile of the son when aged 30 (in 2000) for the 1970 cohort.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data("blanden")
 R> mobilityMc <- as(blanden, "markovchain")
 R> mobilityMc
 \end{CodeInput}
-
 \begin{CodeOutput}
 Unnamed Markov chain 
  A  4 - dimensional discrete Markov Chain defined by the following states: 
@@ -3836,7 +3510,7 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 \begin{CodeChunk}
 \begin{figure}
 
-{\centering \includegraphics[width=0.7\linewidth]{/tmp/RtmptSs4AV/file502375a6376a/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1} 
 
 }
 
@@ -3847,29 +3521,24 @@ The underlying transition graph is plotted in Figure \ref{fig:mobility}.
 The steady state distribution is computed as follows. Since transition across quartiles are shown, the probability function is evenly 0.25.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> round(steadyStates(mobilityMc), 2)
 \end{CodeInput}
-
 \begin{CodeOutput}
      Bottom  2nd  3rd  Top
 [1,]   0.25 0.25 0.25 0.25
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{sec:gen}{%
-\subsection{Genetics and Medicine}\label{sec:gen}}
+\subsection{Genetics and Medicine}\label{sec:gen}
 
 This section contains two examples: the first shows the use of Markov chain models in genetics, the second shows an application of Markov chains in modelling diseases' dynamics.
 
-\hypertarget{sec:genetics}{%
-\subsubsection{Genetics}\label{sec:genetics}}
+\subsubsection{Genetics}\label{sec:genetics}
 
 \cite{averyHenderson} discusses the use of Markov chains in model Preprogucacon gene protein bases sequence. The \texttt{preproglucacon} dataset in \pkg{markovchain} contains the dataset shown in the package.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> data("preproglucacon", package = "markovchain")
 \end{CodeInput}
@@ -3878,13 +3547,11 @@ R> data("preproglucacon", package = "markovchain")
 It is possible to model the transition probabilities between bases as shown in the following code.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> mcProtein <- markovchainFit(preproglucacon$preproglucacon, 
 +                           name = "Preproglucacon MC")$estimate
 R> mcProtein
 \end{CodeInput}
-
 \begin{CodeOutput}
 Preproglucacon MC 
  A  4 - dimensional discrete Markov Chain defined by the following states: 
@@ -3898,13 +3565,11 @@ T 0.2844523 0.1819788 0.17667845 0.3568905
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{sec:medicine}{%
-\subsubsection{Medicine}\label{sec:medicine}}
+\subsubsection{Medicine}\label{sec:medicine}
 
 Discrete-time Markov chains are also employed to study the progression of chronic diseases. The following example is taken from \cite{craigSendi}. Starting from six month follow-up data, the maximum likelihood estimation of the monthly transition matrix is obtained. This transition matrix aims to describe the monthly progression of CD4-cell counts of HIV infected subjects.
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> craigSendiMatr <- matrix(c(682, 33, 25,
 +               154, 64, 47,
@@ -3917,7 +3582,6 @@ R> mcM6 <- as(craigSendiTable, "markovchain")
 R> mcM6@name <- "Zero-Six month CD4 cells transition"
 R> mcM6
 \end{CodeInput}
-
 \begin{CodeOutput}
 Zero-Six month CD4 cells transition 
  A  3 - dimensional discrete Markov Chain defined by the following states: 
@@ -3933,7 +3597,6 @@ Zero-Six month CD4 cells transition
 As shown in the paper, the second passage consists in the decomposition of \(M_{6}=V \cdot D \cdot V^{-1}\) in order to obtain \(M_{1}\) as \(M_{1}=V \cdot D^{1/6} \cdot V^{-1}\) .
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> eig <- eigen(mcM6@transitionMatrix)
 R> D <- diag(eig$values)
@@ -3941,19 +3604,16 @@ R> D <- diag(eig$values)
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
 \begin{CodeInput}
 R> V <- eig$vectors 
 R> V %*% D %*% solve(V)
 \end{CodeInput}
-
 \begin{CodeOutput}
           [,1]       [,2]       [,3]
 [1,] 0.9216216 0.04459459 0.03378378
 [2,] 0.5811321 0.24150943 0.17735849
 [3,] 0.2345679 0.23456790 0.53086420
 \end{CodeOutput}
-
 \begin{CodeInput}
 R> d <- D ^ (1/6)
 R> M <- V %*% d %*% solve(V)
@@ -3961,15 +3621,13 @@ R> mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{discussion-issues-and-future-plans}{%
-\section{Discussion, issues and future plans}\label{discussion-issues-and-future-plans}}
+\section{Discussion, issues and future plans}\label{discussion-issues-and-future-plans}
 
 The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
 
 The package has known several improvements in the recent years: many functions added, porting the software in Rcpp \pkg{Rcpp} package \citep{RcppR} and many methodological improvements that have improved the software reliability.
 
-\hypertarget{sec:aknowledgements}{%
-\section{Acknowledgments}\label{sec:aknowledgements}}
+\section{Acknowledgments}\label{sec:aknowledgements}
 
 The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr.~Simona C. Minotti and Dr.~Mirko Signorelli for their support in drafting this version of the vignettes.
 
@@ -3979,5 +3637,5 @@ The package was selected for Google Summer of Code 2015 support. The authors wis
 \bibliography{markovchainBiblio.bib}
 
 
-\end{document}
 
+\end{document}

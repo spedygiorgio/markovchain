@@ -325,7 +325,7 @@ defaultMc <- new("markovchain")
 
 The quicker way to create `markovchain` objects is made possible thanks to the implemented `initialize` S4 method that checks that:
 
-  * the `transitionMatrix` to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
+  * the `transitionMatrix`, either of class matrix or Matrix, to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
   * the columns and rows names of `transitionMatrix` to be defined and to coincide with `states` vector slot. 
 
 The `markovchain` objects can be collected in a list within `markovchainList` S4 objects as following example shows.

@@ -12,7 +12,7 @@ using namespace std;
 using namespace arma;
 
 template <typename T>
-T sortByDimNames(const T mat);
+T sortByDimNames(const T m);
 
 typedef unsigned int uint;
 

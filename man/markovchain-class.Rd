@@ -38,6 +38,7 @@
 \alias{coerce,markovchain,sparseMatrix-method}
 \alias{coerce,sparseMatrix,markovchain-method}
 \alias{coerce,matrix,markovchain-method}
+\alias{coerce,Matrix,markovchain-method}
 \alias{coerce,msm,markovchain-method}
 \alias{coerce,msm.est,markovchain-method}
 \alias{coerce,etm,markovchain-method}
@@ -72,7 +73,7 @@ The S4 class that describes \code{markovchain} objects.
 \item \code{markovchain} object are backed by S4 Classes.
 \item Validation method is used to assess whether either columns or rows totals to one. 
 Rounding is used up to \code{.Machine$double.eps * 100}. If state names are not properly
-defined for a probability  \code{matrix}, coercing to \code{markovhcain} object leads 
+defined for a probability  \code{matrix}, coercing to \code{markovchain} object leads 
 to overriding states name with artificial "s1", "s2", ... sequence. In addition, operator
 overloading has been applied for \eqn{+,*,^,==,!=} operators.
 }

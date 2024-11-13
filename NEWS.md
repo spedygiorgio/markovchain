@@ -1,6 +1,6 @@
 # markovchain 0.10.0
 
--  Uptick pandoc requirements
+-  Uptick pandoc requirements and handling of sparse matrices
 
 # News for version 0.9.6
 

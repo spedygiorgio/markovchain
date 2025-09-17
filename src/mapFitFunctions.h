@@ -147,7 +147,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   for(int k = 0;k < seqs.size();k++) {
     CharacterVector stringchar  = as<CharacterVector>(seqs[k]);
     int posFrom = 0, posTo = 0;
-    for(long int i = 0; i < stringchar.size() - 1; i ++) {
+    for(R_xlen_t i = 0; i < stringchar.size() - 1; i ++) {
       if(stringchar[i] != "NA" && stringchar[i+1] != "NA"){
         for (int j = 0; j < sizeMatr; j ++) {
           if(stringchar[i] == elements[j]) posFrom = j;

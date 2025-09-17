@@ -554,7 +554,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     
     // populate frequency matrix
     int posFrom = 0, posTo = 0;
-    for (long int i = 0; i < seqMat.nrow(); i ++) {
+    for (R_xlen_t i = 0; i < seqMat.nrow(); i ++) {
       if (seqMat(i, 0) != "NA" && seqMat(i, 1) != "NA") {
         for (int j = 0; j < rnames.size(); j ++) {
           if (seqMat(i, 0) == rnames[j]) posFrom = j;
@@ -568,7 +568,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   else {
     
     int posFrom = 0, posTo = 0;
-    for (long int i = 0; i < stringChar.size() - 1; i ++) {
+    for (R_xlen_t i = 0; i < stringChar.size() - 1; i ++) {
       if (stringChar[i] != "NA" && stringChar[i+1] != "NA") {
         for (int j = 0; j < rnames.size(); j ++) {
           if (stringChar[i] == rnames[j]) posFrom = j;
@@ -609,7 +609,7 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   
   // caculate out
   int from = 0, to = 0; 
-  for (long int i = 0; i < seq.size() - 1; i ++) {
+  for (R_xlen_t i = 0; i < seq.size() - 1; i ++) {
     if (seq[i] != "NA" && seq[i+1] != "NA") {
       for (int r = 0; r < rnames.size(); r ++) {
         if (rnames[r] == seq[i]) from = r; 
@@ -860,7 +860,7 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
 }
 
 // bootstrap a sequence to produce a list of sample sequences
-List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long int size = -1, 
+List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t size = -1, 
                                   CharacterVector possibleStates = CharacterVector()) {
   
   // store length of sequence
@@ -899,7 +899,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, long int si
     charseq.push_back(ch);
     
     
-    for (long int j = 1; j < size; j ++) {
+    for (R_xlen_t j = 1; j < size; j ++) {
       // store row probability
       NumericVector probsVector;
       
@@ -1052,7 +1052,7 @@ struct BootstrapList : public Worker {
   
 };
 
-List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, long int size = -1, 
+List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, R_xlen_t size = -1, 
                                           CharacterVector possibleStates = CharacterVector()) {
   // store length of sequence
   if (size == -1) {
@@ -1164,14 +1164,14 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
             CharacterVector possibleStates = CharacterVector()) {
   
   // dimension of input matrix
-  long int nRows = matrData.nrow(), nCols = matrData.ncol();
+  R_xlen_t nRows = matrData.nrow(), nCols = matrData.ncol();
   
   // set of states
   std::set<std::string> uniqueVals;
   
   // populate uniqueVals set
-  for (long int i = 0; i < nRows; i++) 
-    for (long int j = 0; j < nCols; j++) {
+  for (R_xlen_t i = 0; i < nRows; i++) 
+    for (R_xlen_t j = 0; j < nCols; j++) {
       if (matrData(i,j) != "NA")
         uniqueVals.insert((std::string)matrData(i, j));	
     }
@@ -1194,8 +1194,8 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   
   // populate contingency matrix
   int stateBegin = 0, stateEnd = 0;
-  for (long int i = 0; i < nRows; i ++) {
-    for (long int j = 1; j < nCols; j ++) {
+  for (R_xlen_t i = 0; i < nRows; i ++) {
+    for (R_xlen_t j = 1; j < nCols; j ++) {
       if (matrData(i,j-1) != "NA" && matrData(i,j) != "NA") {
         // row and column number of begin state and end state
         int k = 0;
@@ -1260,9 +1260,9 @@ S4 _list2Mc(List data, double laplacian = 0, bool sanitize = false) {
   std::set<std::string> uniqueVals;
   
   // populate uniqueVals set
-  for (long int i = 0; i < data.size(); i++) {
+  for (R_xlen_t i = 0; i < data.size(); i++) {
     CharacterVector temp = as<CharacterVector>(data[i]);
-    for (long int j = 0; j < temp.size(); j++) {
+    for (R_xlen_t j = 0; j < temp.size(); j++) {
       uniqueVals.insert((std::string)temp[j]);
     }
   }
@@ -1281,9 +1281,9 @@ S4 _list2Mc(List data, double laplacian = 0, bool sanitize = false) {
   
   // populate contingency matrix
   int stateBegin = 0, stateEnd = 0;
-  for (long int i = 0; i < data.size(); i ++) {
+  for (R_xlen_t i = 0; i < data.size(); i ++) {
     CharacterVector temp = as<CharacterVector>(data[i]);
-    for (long int j = 1; j < temp.size(); j ++) {
+    for (R_xlen_t j = 1; j < temp.size(); j ++) {
       
       // row and column number of begin state and end state
       int k = 0;
@@ -1492,7 +1492,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     
     // populate hyper param matrix
     int posFrom = 0, posTo = 0;
-    for (long int i = 0; i < data.size() - 1; i ++) {
+    for (R_xlen_t i = 0; i < data.size() - 1; i ++) {
       for (int j = 0; j < sizeMatr; j ++) {
         if (data[i] == elements[j]) posFrom = j;
         if (data[i + 1] == elements[j]) posTo = j;
@@ -1605,7 +1605,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       // matrix : no of rows = no of rows in df : same for number of columns
       mat = CharacterMatrix(df.nrows(), df.size());
 
-      for (long int i = 0; i < df.size(); i++)
+      for (R_xlen_t i = 0; i < df.size(); i++)
         mat(_,i) = CharacterVector(df[i]);
     
     } else {

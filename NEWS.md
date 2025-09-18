@@ -1,3 +1,7 @@
+# markovchain 0.10.2
+
+# markovchain 0.10.1
+
 # markovchain 0.10.0
 
 -  Uptick pandoc requirements and handling of sparse matrices

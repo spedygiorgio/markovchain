@@ -33,6 +33,21 @@
 
 markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 1),
                                include.t0 = FALSE, useRCpp = TRUE) {
+
+  # validate requested sequence length
+  if (!is.numeric(n) || length(n) != 1 || is.na(n) || !is.finite(n)) {
+    stop("`n` must be a finite numeric scalar")
+  }
+
+  if (!isTRUE(all.equal(n, round(n)))) {
+    stop("`n` must be an integer value")
+  }
+
+  n <- as.integer(n)
+
+  if (n < 0) {
+    stop("`n` must be greater than or equal to 0")
+  }
   
   # check whether given initial state is possible state or not
   if (!(t0 %in% markovchain@states))
@@ -42,17 +57,17 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   if (useRCpp) {
     return(.markovchainSequenceRcpp(n, markovchain, t0, include.t0))
   }
-  
+
   # R implementation of the function
-  
+
   # create a sequence of size n initially not initialized
-  chain <- rep(NA,n)
+  chain <- character(n)
   
   # initial state
   state <- t0
   
   # populate the sequence
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     # row probabilty corresponding to the current state
     rowProbs <- markovchain@transitionMatrix[state, ]
     

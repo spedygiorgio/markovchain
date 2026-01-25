@@ -245,6 +245,18 @@ test_that("Output format of markovchainSequence", {
   expect_equal(s6[1], "b")
 })
 
+test_that("markovchainSequence validates the requested length", {
+  expect_error(markovchainSequence(NA, mcB), "`n` must be a finite numeric scalar")
+  expect_error(markovchainSequence(1.5, mcB), "`n` must be an integer value")
+  expect_error(markovchainSequence(-1, mcB), "`n` must be greater than or equal to 0")
+})
+
+test_that("markovchainSequence returns zero-length sequences when requested", {
+  expect_equal(length(markovchainSequence(0, mcB)), 0)
+  expect_identical(markovchainSequence(0, mcB, include.t0 = TRUE, t0 = "b"), "b")
+  expect_identical(markovchainSequence(0, mcB, include.t0 = TRUE, t0 = "b", useRCpp = FALSE), "b")
+})
+
 statesNames <- c("a", "b", "c")
 mcA <- new("markovchain", states = statesNames, transitionMatrix = 
              matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 

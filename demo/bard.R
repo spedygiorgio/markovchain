@@ -34,7 +34,7 @@ pg10Mc<-new("markovchain",
 summary(pg10Mc)
 #Page 11
 statesNames=as.character(1:5)
-pg11<-zeros(5)
+pg11<-markovchain::zeros(5)
 pg11[1,c(1,2)]<-c(0.4,0.6)
 pg11[2,c(1,2)]<-c(0.5,0.5)
 pg11[3,c(3,4)]<-c(0.3,0.7)

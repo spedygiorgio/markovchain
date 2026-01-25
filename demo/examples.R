@@ -6,8 +6,7 @@ transitionMatrix=matrix(c(0,1,1,0),nrow=2, byrow=TRUE),name="UpDown")
 #gamblers ruin
 
 gamblerRuinMarkovChain<-function(moneyMax, prob=0.5) {
-  require(matlab)
-  matr<-zeros(moneyMax+1)
+  matr<-markovchain::zeros(moneyMax+1)
   states<-as.character(seq(from=0, to=moneyMax, by=1))
   rownames(matr)=states; colnames(matr)=states
   matr[1,1]=1;matr[moneyMax+1,moneyMax+1]=1

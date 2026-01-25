@@ -2,7 +2,7 @@
 # 
 # Author: Giorgio Spedicato
 ###############################################################################
-
+require(markovchain)
 
 #creates some markovchain objects
 statesNames=c("a","b")
@@ -36,7 +36,7 @@ mcFit<-markovchainFit(data=sequence,byrow=FALSE)
 
 #from https://math.dartmouth.edu/archive/m20x06/public_html/Lecture14.pdf
 
-P<-zeros(5)
+P<-markovchain::zeros(5)
 P[1,1]<-P[5,5]<-1
 P[2,1]<-P[2,3]<-0.5
 P[3,2]<-P[3,4]<-0.5

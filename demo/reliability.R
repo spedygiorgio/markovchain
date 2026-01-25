@@ -1,4 +1,8 @@
 #load required libraries
+if (!requireNamespace("microbenchmark", quietly = TRUE)) {
+  message("Skipping microbenchmark demo: package not installed.")
+  return(invisible(NULL))
+}
 library(parallel)
 require(MCMCpack)
 require(markovchain)

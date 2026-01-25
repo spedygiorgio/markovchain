@@ -48,7 +48,9 @@ Suggests:
     rmarkdown,
     ctmcd,
     bookdown,
-    rticles
+    rticles,
+    MCMCpack,
+    microbenchmark
 Enhances:
     etm
 VignetteBuilder: rmarkdown, knitr, bookdown, rticles

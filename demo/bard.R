@@ -1,8 +1,8 @@
 #Bard PPT examples
 #Page 8
-require(matlab)
+#require(matlab)
 statesNames=as.character(0:3)
-pg8<-zeros(4)
+pg8<-markovchain::zeros(4)
 pg8[1,c(2,3)]<-0.5
 pg8[2,1]<-1
 pg8[3,4]<-1
@@ -11,7 +11,7 @@ pg8Mc<-new("markovchain",transitionMatrix=pg8,states=statesNames, name="Page 8")
 summary(pg8Mc)
 #Page 9
 statesNames=as.character(0:4)
-pg9<-zeros(5)
+pg9<-markovchain::zeros(5)
 pg9[c(1,2),c(1,2)]<-0.5
 pg9[3,3]<-1
 pg9[4,c(3,4)]<-1/2
@@ -23,7 +23,7 @@ pg9Mc<-new("markovchain",
 summary(pg9Mc)
 #Page 10
 statesNames=as.character(0:3)
-pg10<-zeros(4)
+pg10<-markovchain::zeros(4)
 pg10[1,c(2,3)]<-1/2
 pg10[c(2,3),4]<-1
 pg10[4,1]<-1

@@ -1,6 +1,9 @@
+if (!requireNamespace("microbenchmark", quietly = TRUE)) {
+  message("Skipping microbenchmark demo: package not installed.")
+  return(invisible(NULL))
+}
 library(microbenchmark)
 library(markovchain)
-
 #using the rain data sequence
 data(rain)
 rainSequence<-rain$rain

@@ -1,7 +1,8 @@
 #function to extract matrices 
+require(markovchain)
 extractMatrices <- function(mcObj) {
-  require(matlab)
-  mcObj <- canonicForm(object = mcObj)
+  
+  mcObj <- canonicalForm(object = mcObj)
   #get the indices of transient and absorbing
   transIdx <- which(states(mcObj) %in% transientStates(mcObj))
   absIdx <- which(states(mcObj) %in% absorbingStates(mcObj))

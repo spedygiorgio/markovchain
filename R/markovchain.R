@@ -1,6 +1,3 @@
-#' @docType package
-#' @name markovchain-package
-#' @rdname markovchain
 #' @title Easy Handling Discrete Time Markov Chains
 #'
 #' @description The package contains classes and method to create and manage
@@ -36,7 +33,7 @@
 #' steadyStates(mcB)
 #' absorbingStates(mcB)
 #' markovchainSequence(n=20, markovchain=mcC, include=TRUE)
-NULL
+"_PACKAGE"
 
 #' @useDynLib markovchain, .registration = TRUE
 #' @import igraph

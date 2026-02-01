@@ -61,4 +61,4 @@ ByteCompile: yes
 Encoding: UTF-8
 BugReports: https://github.com/spedygiorgio/markovchain/issues
 URL: https://github.com/spedygiorgio/markovchain/
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

@@ -6,10 +6,10 @@
 \alias{markovchain-package}
 \title{Easy Handling Discrete Time Markov Chains}
 \description{
-The package contains classes and methods to create and manage
-  (e.g., plot, print, export) discrete-time Markov chains (DTMCs). In
-  addition, it provides functions to perform statistical (fitting and drawing
-  random variates) and probabilistic (analysis of DTMC properties) analyses.
+The package contains classes and method to create and manage
+  (plot, print, export for example) discrete time Markov chains (DTMC). In
+  addition it provide functions to perform statistical (fitting and drawing
+  random variates) and probabilistic (analysis of DTMC proprieties) analysis
 }
 \examples{
 # create some markov chains

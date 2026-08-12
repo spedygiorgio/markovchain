@@ -897,6 +897,104 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
   return logProbVec;
 }
 
+// Computes hittingProbs(., j), the j-th column of the hitting-probability
+// matrix, as the minimal non-negative solution of
+//
+//   h = R + Q h ,   R(i) = P(i, j) + sum_{k closed, k ~ j} P(i, k)
+//                   Q(i, k) = P(i, k)  for k != j  (0 otherwise)
+//
+// restricted to the "free" states (states not in a closed communicating
+// class; closed-class states are resolved directly as boundary values
+// below). This is exactly the linear system the previous implementation
+// built and solved with arma::solve(coeffs, right_part) -- see
+// areHittingProbabilities() in utils.cpp for the recurrence this must
+// satisfy, including for i == j (the diagonal holds a *return*
+// probability, not a trivial 1, for transient states).
+//
+// Instead of a direct solve of (I - Q), which can become numerically
+// singular when transition probabilities span a very wide dynamic range
+// (e.g. absorbing/near-absorbing states mixed with entries far below
+// machine epsilon relative to others in the same row), h is computed via
+// doubling of the Neumann series:
+//
+//   sum_{t=0}^{2^n - 1} Q^t = prod_{i=0}^{n-1} (I + Q^(2^i))
+//
+// Every intermediate quantity is a sum/product of non-negative transition
+// probabilities, so each iterate -- and hence the result -- is
+// structurally guaranteed to lie in [0, 1], regardless of how
+// ill-conditioned (I - Q) would have been for a direct solve. Convergence
+// is quadratic (the number of chain steps covered doubles every
+// iteration), so this typically takes well under 30 iterations even for
+// chains with self-loops arbitrarily close to 1.
+void hittingProbabilitiesColumn(const arma::mat& P, int j, int numStates,
+                                const LogicalVector& closedClass,
+                                const LogicalMatrix& communicating,
+                                arma::mat& hittingProbs,
+                                double tol, int maxDoublings,
+                                const CharacterVector& states) {
+  std::vector<int> freeIdx;
+  freeIdx.reserve(numStates);
+  for (int i = 0; i < numStates; ++i)
+    if (!closedClass(i))
+      freeIdx.push_back(i);
+
+  int m = freeIdx.size();
+
+  if (m > 0) {
+    arma::mat Q(m, m);
+    arma::vec R(m);
+
+    for (int a = 0; a < m; ++a) {
+      int i = freeIdx[a];
+      double r = P(i, j);
+
+      // Direct contribution of states whose hitting probability towards
+      // j is already known because they belong to a closed class.
+      for (int k = 0; k < numStates; ++k)
+        if (k != j && closedClass(k) && communicating(k, j))
+          r += P(i, k);
+
+      R(a) = r;
+
+      for (int b = 0; b < m; ++b) {
+        int k = freeIdx[b];
+        Q(a, b) = (k == j) ? 0.0 : P(i, k);
+      }
+    }
+
+    arma::mat Qk = Q;
+    arma::vec acc = R;
+    double delta = arma::datum::inf;
+
+    for (int it = 0; it < maxDoublings; ++it) {
+      arma::vec accNew = acc + Qk * acc;
+      delta = arma::max(arma::abs(accNew - acc));
+      acc = accNew;
+      if (delta < tol)
+        break;
+      Qk = Qk * Qk;
+    }
+
+    if (delta >= tol) {
+      std::string stateName = std::string(states(j));
+      warning("hittingProbabilities(): target state \"" + stateName +
+              "\" did not fully converge (last change = " + std::to_string(delta) +
+              "); values may be slightly imprecise but remain valid probabilities.");
+    }
+
+    // Safety net for residual floating-point overshoot only: by
+    // construction acc already lies in [0, 1] up to rounding error.
+    arma::vec h = arma::clamp(acc, 0.0, 1.0);
+
+    for (int a = 0; a < m; ++a)
+      hittingProbs(freeIdx[a], j) = h(a);
+  }
+
+  for (int i = 0; i < numStates; ++i)
+    if (closedClass(i))
+      hittingProbs(i, j) = communicating(i, j) ? 1.0 : 0.0;
+}
+
 // [[Rcpp::export(.hittingProbabilitiesRcpp)]]
 NumericMatrix hittingProbabilities(S4 object) {
   NumericMatrix transitionMatrix = object.slot("transitionMatrix");
@@ -908,49 +1006,19 @@ NumericMatrix hittingProbabilities(S4 object) {
   
   int numStates = transitionMatrix.nrow();
   arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
-  arma::mat hittingProbs(numStates, numStates);
+  arma::mat hittingProbs(numStates, numStates, arma::fill::zeros);
   // Compute closed communicating classes
   List commClasses = commClassesKernel(transitionMatrix);
-  List closedClass = commClasses["closed"];
+  LogicalVector closedClass = commClasses["closed"];
   LogicalMatrix communicating = commClasses["classes"];
 
-  
-  for (int j = 0; j < numStates; ++j) {
-    arma::mat coeffs = as<arma::mat>(transitionMatrix);
-    arma::vec right_part = -transitionProbs.col(j);
-    
-    for (int i = 0; i < numStates; ++i) {
-      coeffs(i, j) = 0;
-      coeffs(i, i) -= 1;
-    }
+  const double tol = 1e-13;
+  const int maxDoublings = 200;
 
-    for (int i = 0; i < numStates; ++i) {
-      if (closedClass(i)) {
-        for (int k = 0; k < numStates; ++k)
-          if (k != i)
-            coeffs(i, k) = 0;
-          else
-            coeffs(i, i) = 1;
-          
-        if (communicating(i, j))
-          right_part(i) = 1;
-        else
-          right_part(i) = 0;
-      }
-    }
-
-    arma::vec solution = arma::solve(coeffs, right_part);
-    const double tol = 1e-12;
-    const bool hasInvalidProbability = !arma::all(solution.is_finite()) ||
-      arma::any(solution < -tol) || arma::any(solution > 1.0 + tol);
-
-    if (hasInvalidProbability) {
-      solution = arma::clamp(solution, 0.0, 1.0);
-      warning("hittingProbabilities(): numerically unstable solution detected; values outside [0, 1] were clipped to remain valid probabilities. This can happen for ill-conditioned transition matrices with very small non-zero probabilities.");
-    }
-
-    hittingProbs.col(j) = solution;
-  }
+  for (int j = 0; j < numStates; ++j)
+    hittingProbabilitiesColumn(transitionProbs, j, numStates, closedClass,
+                               communicating, hittingProbs, tol, maxDoublings,
+                               states);
   
   NumericMatrix result = wrap(hittingProbs);
   colnames(result) = states;

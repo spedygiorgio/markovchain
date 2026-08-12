@@ -1,5 +1,8 @@
 # markovchain 0.11.0
 
+- Fix for numerical issues
+- Removed deprecated .Dim methods
+
 # markovchain 0.10.3
 
 Handled _R_CHECK_PACKAGES_USED_IN_DEMO_

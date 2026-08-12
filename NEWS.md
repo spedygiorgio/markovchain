@@ -1,3 +1,5 @@
+# markovchain 0.11.0
+
 # markovchain 0.10.3
 
 Handled _R_CHECK_PACKAGES_USED_IN_DEMO_

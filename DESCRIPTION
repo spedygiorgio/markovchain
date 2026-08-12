@@ -25,7 +25,7 @@ Description: Functions and S4 methods to create and manage discrete time Markov
     Some functions for continuous times Markov chains depend on the suggested ctmcd package.
 License: MIT + file LICENSE
 Depends:
-    R (>= 4.2.0),
+    R (>= 4.4.0),
     Matrix (>= 1.5-0),
     methods
 Imports:
@@ -61,4 +61,4 @@ ByteCompile: yes
 Encoding: UTF-8
 BugReports: https://github.com/spedygiorgio/markovchain/issues
 URL: https://github.com/spedygiorgio/markovchain/
-RoxygenNote: 7.3.3
+RoxygenNote: 8.0.0

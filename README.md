@@ -23,3 +23,21 @@ devtools::install_github('spedygiorgio/markovchain')
 [![R-CMD-check](https://github.com/spedygiorgio/markovchain/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/spedygiorgio/markovchain/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/spedygiorgio/markovchain/graph/badge.svg)](https://app.codecov.io/gh/spedygiorgio/markovchain)
 <!-- badges: end -->
+
+## License and citation
+
+The package is distributed under the [MIT License](LICENSE), which permits commercial and non-commercial use, modification, distribution, and private use, provided the copyright notice and permission notice are retained in copies or substantial portions of the software.
+
+If you use `markovchain` in published work, please cite the package as follows:
+
+```r
+citation("markovchain")
+```
+
+or in bibliography form:
+
+```text
+Spedicato, G. A. (2017). Discrete Time Markov Chains with R. The R Journal, 9(2), 84-104.
+```
+
+This citation is also provided in [inst/CITATION](inst/CITATION).

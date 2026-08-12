@@ -938,8 +938,18 @@ NumericMatrix hittingProbabilities(S4 object) {
           right_part(i) = 0;
       }
     }
-    
-    hittingProbs.col(j) = arma::solve(coeffs, right_part);
+
+    arma::vec solution = arma::solve(coeffs, right_part);
+    const double tol = 1e-12;
+    const bool hasInvalidProbability = !arma::all(solution.is_finite()) ||
+      arma::any(solution < -tol) || arma::any(solution > 1.0 + tol);
+
+    if (hasInvalidProbability) {
+      solution = arma::clamp(solution, 0.0, 1.0);
+      warning("hittingProbabilities(): numerically unstable solution detected; values outside [0, 1] were clipped to remain valid probabilities. This can happen for ill-conditioned transition matrices with very small non-zero probabilities.");
+    }
+
+    hittingProbs.col(j) = solution;
   }
   
   NumericMatrix result = wrap(hittingProbs);

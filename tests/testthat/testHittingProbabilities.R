@@ -147,7 +147,15 @@ test_that("hittingProbabilities on an ill-conditioned chain agrees with a Monte 
   }
   monteCarloEstimate <- visited / nSim
 
-  ## Generous tolerance: this is a statistical estimate with ~2e4 draws,
-  ## not an exact check (that role is filled by the recurrence test above).
-  expect_equal(unname(hp["WT", ]), unname(monteCarloEstimate), tolerance = 0.02)
+  ## The starting state's own column is deliberately excluded: hp["WT", "WT"]
+  ## is a *return* probability that includes the immediate self-loop
+  ## (P(WT, WT) = 0.634...), but the jump chain above strips self-loops by
+  ## construction (that's what makes it a jump chain) and so can only ever
+  ## measure returns via an indirect path -- which for this chain is exactly
+  ## 0, since none of the edges lead back to WT once it's left. Comparing
+  ## that entry would be comparing two different definitions, not checking
+  ## for a bug; every off-diagonal entry uses the same "ever visited" notion
+  ## in both hp and the simulation and is fully comparable.
+  off <- states != "WT"
+  expect_equal(unname(hp["WT", off]), unname(monteCarloEstimate[off]), tolerance = 0.02)
 })

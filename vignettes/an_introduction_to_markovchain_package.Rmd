@@ -66,8 +66,13 @@ pkgdown:
 knitr::opts_chunk$set(fig.width=8.5, fig.height=6, out.width = "70%")
 set.seed(123)
 library(knitr)
+# ANSI colour codes (U+001B) break the LaTeX build, so keep the output plain
+options(crayon.enabled = FALSE, cli.num_colors = 1, cli.hyperlink = FALSE)
+Sys.setenv(NO_COLOR = "1")
 hook_output <- knit_hooks$get("output")
 knit_hooks$set(output = function(x, options) {
+   x <- gsub("\033\\[[0-9;]*[A-Za-z]", "", x)
+   x <- gsub("\033", "", x, fixed = TRUE)
    lines <- options$output.lines
    if (is.null(lines)) {
      return(hook_output(x, options))  # pass to default hook

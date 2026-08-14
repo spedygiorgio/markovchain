@@ -59,14 +59,16 @@
 #' 
 #' @export
 setClass("ctmc",
-         representation(states = "character",
-                        byrow = "logical",
-                        generator = "matrix",
-                        name = "character"),
-         prototype(states = c("a", "b"), byrow = TRUE,
-                   generator = matrix(data = c(-1, 1, 1, -1), byrow = TRUE, nrow = 2,
-                                      dimnames = list(c("a", "b"), c("a", "b"))),
-                   name = "Unnamed CTMC")
+         slots = list(states = "character",
+                      byrow = "logical",
+                      generator = "matrix",
+                      name = "character"),
+         prototype = list(
+           states = c("a", "b"),
+           byrow = TRUE,
+           generator = matrix(data = c(-1, 1, 1, -1), byrow = TRUE, nrow = 2,
+                              dimnames = list(c("a", "b"), c("a", "b"))),
+           name = "Unnamed CTMC")
 )
 
 setMethod("initialize",
@@ -79,21 +81,11 @@ setMethod("initialize",
                                                     dimnames=list(c("a", "b"), c("a", "b"))
             )
             
-            # check names of transition matrix
-            if(all(is.null(rownames(generator)), is.null(colnames(generator)))==TRUE) { #if all names are missing it initializes them to "1", "2",...
-              if(missing(states)) {
-                nr=nrow(generator)
-                stateNames<-as.character(seq(1:nr))
-              } else {stateNames=states}
-              
-              rownames(generator)=stateNames
-              colnames(generator)=stateNames
-            } else if(is.null(rownames(generator))) { #fix when rownames null
-              rownames(generator)=colnames(generator)
-            } else if(is.null(colnames(generator))) { #fix when colnames null
-              colnames(generator)=rownames(generator)
-            } else if(!setequal(rownames(generator),colnames(generator)))  colnames(generator)=rownames(generator) #fix when different
-            if(missing(states)) states=rownames(generator) #assign
+            # check names of transition matrix, filling in missing/inconsistent
+            # row or column names and resolving the states vector accordingly
+            filled <- .fillDimNames(generator, if (missing(states)) NULL else states)
+            generator <- filled$matrix
+            states <- filled$states
             if(missing(byrow)) byrow=TRUE #set byrow as true by default
             if(missing(name)) name="Unnamed Markov chain"  #generic name to the object
             callNextMethod(.Object, states = states, byrow = byrow, generator=generator,name=name,...)
@@ -120,8 +112,8 @@ setValidity("ctmc",
             function(object) {
               check<-NULL
               # performs a set of check whose results are saved in check
-              if (.isGenRcpp(object@generator)==FALSE) check <- "Error! Not a generator matrix" 
-              if (object@byrow==TRUE) {
+              if (!.isGenRcpp(object@generator)) check <- "Error! Not a generator matrix" 
+              if (object@byrow) {
                 if(any(round(rowSums(object@generator),5)!=0)) check <- "Error! Row sums not equal to zero"
               } else {
                 if(any(round(colSums(object@generator),5)!=0)) check <- "Error! Col sums not equal to zero"
@@ -156,7 +148,7 @@ setValidity("ctmc",
     warning("Eigenvalue = 1 multiplicity > 1! - the embedded Markov Chain must be irreducible, recurrent")
     return(NULL)
   }
-  if (transpose==TRUE)
+  if (transpose)
   {
     eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
     if(rowSums(Im(eigenTake)) != 0){
@@ -177,21 +169,20 @@ setValidity("ctmc",
 
 setMethod("steadyStates", "ctmc", 
           function(object) {
-            transposeYN <- FALSE
-            if(object@byrow==TRUE) transposeYN <- TRUE		
+            transposeYN <- object@byrow
             transMatr <- generatorToTransitionMatrix(object@generator, byrow = object@byrow)
             out<-.ctmcEigen(matr=transMatr, transpose=transposeYN) 
             if(is.null(out)) {
               warning("Warning! No steady state")
               return(NULL)
             }
-            if(transposeYN==TRUE) { 
+            if (transposeYN) { 
               colnames(out) <- object@states
             } else {
               rownames(out) <- object@states
             }
             out <- - out / diag(object@generator)
-            if(transposeYN==TRUE){
+            if (transposeYN) {
               out <- out / rowSums(out)
             }
             else{
@@ -215,13 +206,13 @@ setMethod("steadyStates", "ctmc",
   #
   # a graph adjacency
   
-  if (object@byrow == FALSE) {
+  if (!object@byrow) {
     object <- t(object)
   }
   
   #gets the generator matrix
   matr <- object@generator * 100
-  if(round == TRUE) {
+  if (round) {
     matr <- round(matr, 2)
   }
   
@@ -293,20 +284,9 @@ setMethod("initialize",
                                               nrow = 2,
                                               byrow = 2)
             #if all names are missing it initializes them to "1", "2",...
-            if(all(is.null(rownames(Q)), is.null(colnames(Q)))==TRUE) { 
-              if(missing(states)) {
-                nr=nrow(Q)
-                stateNames<-as.character(seq(1:nr))
-              } else {stateNames=states}
-              
-              rownames(Q)=stateNames
-              colnames(Q)=stateNames
-            } else if(is.null(rownames(Q))) { #fix when rownames null
-              rownames(Q)=colnames(Q)
-            } else if(is.null(colnames(Q))) { #fix when colnames null
-              colnames(Q)=rownames(Q)
-            } else if(!setequal(rownames(Q),colnames(Q)))  colnames(Q)=rownames(Q) #fix when different
-            if(missing(states)) states=rownames(Q) #assign
+            filled <- .fillDimNames(Q, if (missing(states)) NULL else states)
+            Q <- filled$matrix
+            states <- filled$states
             
             if(missing(name)) name="Unnamed imprecise CTMC"  #generic name to the object
             callNextMethod(.Object, states = states, Q = Q, range=range,name=name,...)
@@ -321,7 +301,7 @@ setValidity("ictmc",
             function(object) {
               check<-NULL
               # performs a set of check whose results are saved in check
-              if (.isGenRcpp(object@Q)==FALSE) check <- "Error! Not a generator matrix" 
+              if (!.isGenRcpp(object@Q)) check <- "Error! Not a generator matrix" 
               if(any(round(rowSums(object@Q),5)!=0)) check <- "Error! Row sums not equal to zero"
               if ( nrow(object@Q) != ncol(object@Q )) check <- "Error! Not squared matrix" #check if square matrix
               if ( !setequal(colnames(object@Q),object@states )) check <- "Error! Colnames <> states" 

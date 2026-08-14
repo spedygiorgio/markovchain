@@ -52,7 +52,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
   
   states <- c()
   time <- c()
-  if (include.T0 == TRUE){
+  if (include.T0) {
     states <- c(states, state)
     time <- c(time, 0)
   }
@@ -192,7 +192,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   Q <- C@generator
   
   # in case where generator is written column wise
-  if(C@byrow==FALSE){
+  if (!C@byrow) {
     Q <- t(Q)
   }
   NoofStates <- dim(C)
@@ -213,7 +213,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   b <- rep(-1,dim(Q_Exceptj)[1])
   
   # use solve function from base packge to solve Ax = b
-  if(useRCpp == TRUE){
+  if (useRCpp) {
     out <- .ExpectedTimeRCpp(Q_Exceptj,b)
   } else {
     out <- solve(Q_Exceptj,b)
@@ -272,14 +272,14 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   Q <- C@generator
   
   # in case where generator is written column wise
-  if(C@byrow==FALSE){
+  if (!C@byrow) {
     Q <- t(Q)
   }
   NoofStates <- dim(C)
   
   
   # calculate transition functoin at time t using Kolmogorov backward equation
-  if(useRCpp == TRUE){
+  if (useRCpp) {
     P <- .probabilityatTRCpp(t*Q);
   }
   else{
@@ -346,7 +346,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
     stop("Please provide a valid initial state")
   }
   ### validity checking ends
-  if(useRCpp == TRUE) {
+  if (useRCpp) {
     Qgx <- .impreciseProbabilityatTRCpp(C,i,t,s,error)
   } else {
   ## extract values from ictmc object 
@@ -496,7 +496,7 @@ is.TimeReversible <- function(ctmc) {
   m <- length(ctmc@states)
   
   ## checks for byrow
-  if(ctmc@byrow == FALSE)
+  if (!ctmc@byrow)
     gen <- t(ctmc@generator)
   else
     gen <- ctmc@generator

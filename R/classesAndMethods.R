@@ -187,35 +187,11 @@ setMethod(
         dimnames = list(c("a", "b"), c("a", "b")))
     }
     
-    rowNames <- rownames(transitionMatrix)
-    colNames <- colnames(transitionMatrix)
-    
-    # Check names of transition matrix
-    # if all names are missing it initializes them to "1", "2", ....
-    if (all(is.null(rowNames), is.null(colNames)) == TRUE) {
-      if (missing(states)) {
-        numRows <- nrow(transitionMatrix)
-        stateNames <- as.character(seq(1:numRows))
-      } else {
-        stateNames <- states
-      }
-      
-      rownames(transitionMatrix) <- stateNames
-      colnames(transitionMatrix) <- stateNames
-      
-    # Fix when rownames null
-    } else if (is.null(rowNames)) {
-      rownames(transitionMatrix) <- colNames
-    # Fix when colnames null
-    } else if (is.null(colNames)) {
-      colnames(transitionMatrix) <- rowNames
-    # Fix when different
-    } else if (! setequal(rowNames, colNames)) {
-      colnames(transitionMatrix) <- rowNames
-    }
-    
-    if (missing(states))
-      states <- rownames(transitionMatrix)
+    # Check names of transition matrix, filling in missing/inconsistent
+    # row or column names and resolving the states vector accordingly.
+    filled <- .fillDimNames(transitionMatrix, if (missing(states)) NULL else states)
+    transitionMatrix <- filled$matrix
+    states <- filled$states
     
     if (missing(byrow))
       byrow <- TRUE
@@ -314,14 +290,13 @@ setClass(
 setValidity(
   "markovchainList",
   function(object) {
-    check <- FALSE
     markovchains <- object@markovchains
     
-    classes <- sapply(markovchains, class)
-    nonMarkovchain <- which(classes != "markovchain")
-    errors <- sapply(nonMarkovchain, function(i) {
+    isMarkovchain <- vapply(markovchains, is, logical(1), class2 = "markovchain")
+    nonMarkovchain <- which(!isMarkovchain)
+    errors <- vapply(nonMarkovchain, function(i) {
       paste(i, "-th element class is not 'markovchain'")
-    })
+    }, character(1))
     
     if (length(errors) == 0) TRUE else errors
   }
@@ -496,7 +471,7 @@ setValidity(
     # Check all values of transition matrix belongs to [0, 1]
     maybeProbabilities <- sapply(as.numeric(transitionMatrix), .isProbability)
     
-    if (any(maybeProbabilities) == FALSE) {
+    if (!any(maybeProbabilities)) {
       msg    <- "Error! Some elements of transitionMatrix are not probabilities"
       errors <- c(errors, msg)
     }
@@ -569,7 +544,7 @@ setMethod("transitionProbability", "markovchain",
   function(object, t0, t1) {
     fromState <- which(object@states == t0)
     toState <- which(object@states == t1)
-    out <- ifelse(object@byrow == TRUE, object@transitionMatrix[fromState, toState] , 
+    out <- ifelse(object@byrow, object@transitionMatrix[fromState, toState] , 
                   object@transitionMatrix[toState, fromState])
     return(out)
   }
@@ -580,13 +555,13 @@ setMethod("transitionProbability", "markovchain",
 .showInt <- function(object, verbose = TRUE) {
 	
   # find the direction
-  if (object@byrow == TRUE) {
+  if (object@byrow) {
 	  direction <- "(by rows)" 
 	} else {
 	  direction <- "(by cols)" 
 	}
   
-	if (verbose == TRUE) {
+	if (verbose) {
 	  cat(object@name, "\n A ", dim(object), "- dimensional discrete Markov Chain defined by the following states: \n",
 	      paste(states(object), collapse=", "), "\n The transition matrix ", 
 	      direction, " is defined as follows: \n")
@@ -640,12 +615,12 @@ setMethod("print", "markovchain",
 	#
 	# a graph adjacency
   
-	if (object@byrow == FALSE) {
+	if (!object@byrow) {
 	  object <- t(object)
 	}
   
 	matr <- object@transitionMatrix*100
-	if(round == TRUE) {
+	if (round) {
 	  matr <- round(matr, 2)
 	}
 	
@@ -831,7 +806,7 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 	for(i in 1:ncol(df)) {
 	    
 	  # when found the first numeric and probability col
-			if((is(df[, i], "numeric")) & (all(sapply(df[, i], .isProbability) == TRUE))) {
+			if (is(df[, i], "numeric") && all(vapply(df[, i], .isProbability, logical(1)))) {
 					out <- i
 					break
 			}
@@ -1249,7 +1224,7 @@ setMethod("conditionalDistribution", "markovchain",
     # states are assumed to be sorted
     index2Take <- which(stateNames == state) 
     
-    if(object@byrow == TRUE) {
+    if (object@byrow) {
       out <- object@transitionMatrix[index2Take, ]
     } else {
       out <- object@transitionMatrix[, index2Take]
@@ -1327,7 +1302,7 @@ setMethod("predict", "markovchainList",
         out <- c(out, newState)
         lastState <- newState
       } else {
-          if(continue == TRUE) {
+          if (continue) {
             newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
             out <- c(out, newState)
             lastState <- newState

@@ -803,7 +803,13 @@ setMethod("is.stochasticallyMonotone",
           function(object) {
             return(.is_stochastically_monotone_cpp(object))
           })
-
+#' @rdname is.stochasticallyMonotone
+#' @aliases is.stochasticallyMonotone,ANY-method
+setMethod("is.stochasticallyMonotone", 
+          signature(object = "ANY"), 
+          function(object) {
+            stop("must be a `markovchain` object or a matrix")
+          })
 
 #' Hitting probabilities for markovchain
 #' 

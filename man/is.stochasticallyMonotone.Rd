@@ -4,6 +4,7 @@
 \alias{is.stochasticallyMonotone}
 \alias{is.stochasticallyMonotone,markovchain-method}
 \alias{is.stochasticallyMonotone,matrix-method}
+\alias{is.stochasticallyMonotone,ANY-method}
 \title{Check if a Markov chain is stochastically monotone}
 \usage{
 is.stochasticallyMonotone(object)
@@ -11,6 +12,8 @@ is.stochasticallyMonotone(object)
 \S4method{is.stochasticallyMonotone}{markovchain}(object)
 
 \S4method{is.stochasticallyMonotone}{matrix}(object)
+
+\S4method{is.stochasticallyMonotone}{ANY}(object)
 }
 \arguments{
 \item{object}{A markovchain object or a transition matrix.}

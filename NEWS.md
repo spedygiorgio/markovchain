@@ -2,6 +2,7 @@
 
 - Fix for numerical issues
 - Removed deprecated .Dim methods
+- Add check monotonicity
 
 # markovchain 0.10.3
 

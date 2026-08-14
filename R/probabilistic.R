@@ -187,8 +187,12 @@ firstPassageMultiple <- function(object,state,set, n){
 
 #' @name communicatingClasses
 #' @rdname structuralAnalysis
-#' @aliases transientStates recurrentStates absorbingStates communicatingClasses
-#'   transientClasses recurrentClasses
+#' @aliases transientStates
+#' @aliases recurrentStates
+#' @aliases absorbingStates
+#' @aliases communicatingClasses
+#' @aliases transientClasses
+#' @aliases recurrentClasses
 #' @title Various function to perform structural analysis of DTMC
 #' @description These functions return absorbing and transient states of the \code{markovchain} objects.
 #' 
@@ -775,6 +779,40 @@ setGeneric("is.regular", function(object) standardGeneric("is.regular"))
 setMethod("is.regular", "markovchain", function(object) {
   .isRegularRcpp(object)
 })
+
+
+#' @title Check if a Markov chain is stochastically monotone
+#'
+#' @description Verifies whether a transition matrix is stochastically monotone.
+#'
+#' @param object A \code{markovchain} object or a transition matrix.
+#'
+#' @return A boolean value.
+#'
+#' @examples
+#' P <- matrix(c(0.8, 0.2,
+#'               0.3, 0.7), nrow = 2, byrow = TRUE)
+#' is.stochasticallyMonotone(P)
+#'
+#' @export
+is.stochasticallyMonotone <- function(object) {
+  if (inherits(object, "markovchain")) {
+    transitionMatrix <- object@transitionMatrix
+  } else if (is.matrix(object)) {
+    transitionMatrix <- object
+  } else {
+    stop("`object` must be a `markovchain` object or a matrix.")
+  }
+
+  if (nrow(transitionMatrix) <= 1) {
+    return(TRUE)
+  }
+
+  cumulativeProbabilities <- t(apply(transitionMatrix, 1, cumsum))
+  tolerance <- .Machine$double.eps ^ 0.5
+
+  all(diff(cumulativeProbabilities) <= tolerance)
+}
 
 
 #' Hitting probabilities for markovchain

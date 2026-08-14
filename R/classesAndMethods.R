@@ -1,35 +1,57 @@
 #' @title Markov Chain class
 #' @name markovchain-class
-#' @aliases markovchain-class *,markovchain,markovchain-method
-#'   *,markovchain,matrix-method *,markovchain,numeric-method
-#'   *,matrix,markovchain-method *,numeric,markovchain-method
-#'   ==,markovchain,markovchain-method !=,markovchain,markovchain-method
-#'   absorbingStates,markovchain-method transientStates,markovchain-method
-#'   recurrentStates,markovchain-method transientClasses,markovchain-method
-#'   recurrentClasses,markovchain-method communicatingClasses,markovchain-method
-#'   steadyStates,markovchain-method meanNumVisits,markovchain-method
-#'   is.regular,markovchain-method is.irreducible,markovchain-method
-#'   is.accessible,markovchain,character,character-method
-#'   is.accessible,markovchain,missing,missing-method
-#'   absorptionProbabilities,markovchain-method
-#'   meanFirstPassageTime,markovchain,character-method 
-#'   meanFirstPassageTime,markovchain,missing-method
-#'   meanAbsorptionTime,markovchain-method
-#'   meanRecurrenceTime,markovchain-method
-#'   conditionalDistribution,markovchain-method hittingProbabilities,markovchain-method
-#'   canonicForm,markovchain-method coerce,data.frame,markovchain-method
-#'   coerce,markovchain,data.frame-method coerce,table,markovchain-method
-#'   coerce,markovchain,igraph-method coerce,markovchain,matrix-method
-#'   coerce,markovchain,sparseMatrix-method coerce,sparseMatrix,markovchain-method
-#'   coerce,matrix,markovchain-method coerce,Matrix,markovchain-method
-#'   coerce,msm,markovchain-method
-#'   coerce,msm.est,markovchain-method coerce,etm,markovchain-method
-#'   dim,markovchain-method initialize,markovchain-method
-#'   names<-,markovchain-method plot,markovchain,missing-method
-#'   predict,markovchain-method print,markovchain-method
-#'   show,markovchain-method summary,markovchain-method
-#'   sort,markovchain-method t,markovchain-method
-#'   [,markovchain,ANY,ANY,ANY-method ^,markovchain,numeric-method
+#' @aliases markovchain-class
+#' @aliases *,markovchain,markovchain-method
+#' @aliases *,markovchain,matrix-method
+#' @aliases *,markovchain,numeric-method
+#' @aliases *,matrix,markovchain-method
+#' @aliases *,numeric,markovchain-method
+#' @aliases ==,markovchain,markovchain-method
+#' @aliases !=,markovchain,markovchain-method
+#' @aliases absorbingStates,markovchain-method
+#' @aliases transientStates,markovchain-method
+#' @aliases recurrentStates,markovchain-method
+#' @aliases transientClasses,markovchain-method
+#' @aliases recurrentClasses,markovchain-method
+#' @aliases communicatingClasses,markovchain-method
+#' @aliases steadyStates,markovchain-method
+#' @aliases meanNumVisits,markovchain-method
+#' @aliases is.regular,markovchain-method
+#' @aliases is.irreducible,markovchain-method
+#' @aliases is.accessible,markovchain,character,character-method
+#' @aliases is.accessible,markovchain,missing,missing-method
+#' @aliases absorptionProbabilities,markovchain-method
+#' @aliases meanFirstPassageTime,markovchain,character-method
+#' @aliases meanFirstPassageTime,markovchain,missing-method
+#' @aliases meanAbsorptionTime,markovchain-method
+#' @aliases meanRecurrenceTime,markovchain-method
+#' @aliases conditionalDistribution,markovchain-method
+#' @aliases hittingProbabilities,markovchain-method
+#' @aliases canonicForm,markovchain-method
+#' @aliases coerce,data.frame,markovchain-method
+#' @aliases coerce,markovchain,data.frame-method
+#' @aliases coerce,table,markovchain-method
+#' @aliases coerce,markovchain,igraph-method
+#' @aliases coerce,markovchain,matrix-method
+#' @aliases coerce,markovchain,sparseMatrix-method
+#' @aliases coerce,sparseMatrix,markovchain-method
+#' @aliases coerce,matrix,markovchain-method
+#' @aliases coerce,Matrix,markovchain-method
+#' @aliases coerce,msm,markovchain-method
+#' @aliases coerce,msm.est,markovchain-method
+#' @aliases coerce,etm,markovchain-method
+#' @aliases dim,markovchain-method
+#' @aliases initialize,markovchain-method
+#' @aliases names<-,markovchain-method
+#' @aliases plot,markovchain,missing-method
+#' @aliases predict,markovchain-method
+#' @aliases print,markovchain-method
+#' @aliases show,markovchain-method
+#' @aliases summary,markovchain-method
+#' @aliases sort,markovchain-method
+#' @aliases t,markovchain-method
+#' @aliases [,markovchain,ANY,ANY,ANY-method
+#' @aliases ^,markovchain,numeric-method
 #' @description The S4 class that describes \code{markovchain} objects.
 #' 
 #' @param states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
@@ -214,9 +236,11 @@ setMethod(
 
 #' @title Non homogeneus discrete time Markov Chains class
 #' @name markovchainList-class
-#' @aliases [[,markovchainList-method dim,markovchainList-method
-#'   predict,markovchainList-method print,markovchainList-method
-#'   show,markovchainList-method
+#' @aliases [[,markovchainList-method
+#' @aliases dim,markovchainList-method
+#' @aliases predict,markovchainList-method
+#' @aliases print,markovchainList-method
+#' @aliases show,markovchainList-method
 #' @description A class to handle non homogeneous discrete Markov chains
 #' 
 #' @param markovchains Object of class \code{"list"}: a list of markovchains

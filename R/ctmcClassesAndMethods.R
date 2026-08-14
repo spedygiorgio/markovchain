@@ -1,7 +1,10 @@
 #' @title Continuous time Markov Chains class
 #' @name ctmc-class
-#' @aliases dim,ctmc-method initialize,ctmc_method states,ctmc-method
-#'   steadyStates,ctmc-method plot,ctmc,missing-method
+#' @aliases dim,ctmc-method
+#' @aliases initialize,ctmc_method
+#' @aliases states,ctmc-method
+#' @aliases steadyStates,ctmc-method
+#' @aliases plot,ctmc,missing-method
 #' @description The S4 class that describes \code{ctmc} (continuous 
 #' time Markov chain) objects.
 #' 

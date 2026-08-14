@@ -941,6 +941,7 @@ Table \ref{tab:methodsToStats} shows methods that can be applied on \texttt{mark
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
   \code{is.irreducible} & checks whether a DTMC is irreducible. \\
   \code{is.regular} & checks whether a DTMC is regular. \\
+  \code{is.stochasticallyMonotone} & checks whether a DTMC (or a Matrix) is stochastically monotone. \\
   \code{period} & the period of an irreducible DTMC. \\
   \code{recurrentClasses} & list of recurrent communicating classes. \\
   \code{transientClasses} & list of transient communicating classes. \\
@@ -1612,6 +1613,65 @@ R> hittingProbabilities(mcWeather)
 sunny      1      1    1
 cloudy     1      1    1
 rain       1      1    1
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Stochastic Monotonicity}\label{stochastic-monotonicity}
+
+A transition matrix \(P\) is stochastically monotone if the probability of moving to higher states is non-decreasing with respect to the starting state.
+In other words, row \(i\) is stochastically dominated by row \(j\) whenever \(i < j\).
+This property is fundamental in many applied models, such as credit ratings or social mobility,
+because it guarantees that the Markov chain preserves the initial ordering of states over time.
+
+For instance, in an income mobility model, if you start in a higher income class,
+your probability of moving to or staying in a high income class should ideally be greater than or equal to someone starting in a lower income class.
+
+The \texttt{is.stochasticallyMonotone} method allows verifying this property for any \texttt{markovchain} object{[}cite: 1{]}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # Define the state space for income classes
+R> incomeStates <- c("low", "mid", "high")
+R> 
+R> # Example 1: A stochastically monotone transition matrix
+R> # Higher starting income leads to higher probabilities of reaching/staying in higher brackets
+R> monotoneMatrix <- matrix(c(0.6, 0.3, 0.1,
++                            0.3, 0.5, 0.2,
++                            0.1, 0.4, 0.5), 
++                          byrow = TRUE, nrow = 3, 
++                          dimnames = list(incomeStates, incomeStates))
+R> 
+R> mcIncomeMonotone <- new("markovchain", states = incomeStates, 
++                         transitionMatrix = monotoneMatrix, 
++                         name = "Monotone Income MC")
+R> 
+R> is.stochasticallyMonotone(mcIncomeMonotone)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # Example 2: A non-monotone transition matrix
+R> # Here, a person in the "mid" class has an unusually high chance of dropping 
+R> # to "low" (0.7), which is worse than a person already in the "low" class (0.5).
+R> # This violates the stochastic monotonicity property.
+R> notMonotoneMatrix <- matrix(c(0.5, 0.3, 0.2,
++                               0.7, 0.2, 0.1,
++                               0.1, 0.4, 0.5), 
++                             byrow = TRUE, nrow = 3, 
++                             dimnames = list(incomeStates, incomeStates))
+R> 
+R> mcIncomeNotMonotone <- new("markovchain", states = incomeStates, 
++                            transitionMatrix = notMonotoneMatrix, 
++                            name = "Non-Monotone Income MC")
+R> 
+R> is.stochasticallyMonotone(mcIncomeNotMonotone)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] FALSE
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2512,9 +2572,9 @@ R> mcWeatherQ
 \end{CodeInput}
 \begin{CodeOutput}
            sunny     cloudy       rain
-sunny  -0.863221   2.428723  -1.565502
-cloudy  4.284592 -20.116312  15.831720
-rain   -4.414019  24.175251 -19.761232
+sunny  -0.841941   2.322323  -1.480382
+cloudy  4.093072 -19.158709  15.065637
+rain   -4.179938  23.004848 -18.824909
 \end{CodeOutput}
 \end{CodeChunk}
 

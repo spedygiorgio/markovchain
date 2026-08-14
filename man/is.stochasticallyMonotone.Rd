@@ -2,22 +2,22 @@
 % Please edit documentation in R/probabilistic.R
 \name{is.stochasticallyMonotone}
 \alias{is.stochasticallyMonotone}
+\alias{is.stochasticallyMonotone,markovchain-method}
+\alias{is.stochasticallyMonotone,matrix-method}
 \title{Check if a Markov chain is stochastically monotone}
 \usage{
 is.stochasticallyMonotone(object)
+
+\S4method{is.stochasticallyMonotone}{markovchain}(object)
+
+\S4method{is.stochasticallyMonotone}{matrix}(object)
 }
 \arguments{
-\item{object}{A \code{markovchain} object or a transition matrix.}
+\item{object}{A markovchain object or a transition matrix.}
 }
 \value{
 A boolean value.
 }
 \description{
-Verifies whether a transition matrix is stochastically monotone.
-}
-\examples{
-P <- matrix(c(0.8, 0.2,
-              0.3, 0.7), nrow = 2, byrow = TRUE)
-is.stochasticallyMonotone(P)
-
+Verifies if the transition matrix of the Markov chain is stochastically monotone.
 }

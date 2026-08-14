@@ -442,6 +442,10 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_meanNumVisits`, obj)
 }
 
+.is_stochastically_monotone_cpp <- function(P) {
+    .Call(`_markovchain_is_stochastically_monotone_cpp`, P)
+}
+
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
 }

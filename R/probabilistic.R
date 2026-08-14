@@ -782,37 +782,27 @@ setMethod("is.regular", "markovchain", function(object) {
 
 
 #' @title Check if a Markov chain is stochastically monotone
-#'
-#' @description Verifies whether a transition matrix is stochastically monotone.
-#'
-#' @param object A \code{markovchain} object or a transition matrix.
-#'
+#' @description Verifies if the transition matrix of the Markov chain is stochastically monotone.
+#' @param object A markovchain object or a transition matrix.
 #' @return A boolean value.
-#'
-#' @examples
-#' P <- matrix(c(0.8, 0.2,
-#'               0.3, 0.7), nrow = 2, byrow = TRUE)
-#' is.stochasticallyMonotone(P)
-#'
 #' @export
-is.stochasticallyMonotone <- function(object) {
-  if (inherits(object, "markovchain")) {
-    transitionMatrix <- object@transitionMatrix
-  } else if (is.matrix(object)) {
-    transitionMatrix <- object
-  } else {
-    stop("`object` must be a `markovchain` object or a matrix.")
-  }
+setGeneric("is.stochasticallyMonotone", function(object) standardGeneric("is.stochasticallyMonotone"))
 
-  if (nrow(transitionMatrix) <= 1) {
-    return(TRUE)
-  }
+#' @rdname is.stochasticallyMonotone
+#' @aliases is.stochasticallyMonotone,markovchain-method
+setMethod("is.stochasticallyMonotone", 
+          signature(object = "markovchain"), 
+          function(object) {
+            return(.is_stochastically_monotone_cpp(object@transitionMatrix))
+          })
 
-  cumulativeProbabilities <- t(apply(transitionMatrix, 1, cumsum))
-  tolerance <- .Machine$double.eps ^ 0.5
-
-  all(diff(cumulativeProbabilities) <= tolerance)
-}
+#' @rdname is.stochasticallyMonotone
+#' @aliases is.stochasticallyMonotone,matrix-method
+setMethod("is.stochasticallyMonotone", 
+          signature(object = "matrix"), 
+          function(object) {
+            return(.is_stochastically_monotone_cpp(object))
+          })
 
 
 #' Hitting probabilities for markovchain

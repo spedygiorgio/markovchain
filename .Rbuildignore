@@ -11,3 +11,4 @@ vignettes/*.log
 ^LICENSE\.md$
 ^\.github$
 support/*.*
+^figure$

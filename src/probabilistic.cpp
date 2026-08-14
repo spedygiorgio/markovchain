@@ -1565,3 +1565,30 @@ NumericMatrix meanNumVisits(S4 obj) {
   
   return result;
 }
+
+
+// [[Rcpp::export(.is_stochastically_monotone_cpp)]]
+bool is_stochastically_monotone_cpp(NumericMatrix P) {
+  int n = P.nrow();
+  int m = P.ncol();
+  
+  if (n <= 1) return true;
+  
+  double tol = 1e-10; 
+  
+  for (int i = 0; i < n - 1; ++i) {
+    double cumsum_i = 0.0;
+    double cumsum_next = 0.0;
+    
+    for (int j = 0; j < m; ++j) {
+      cumsum_i += P(i, j);
+      cumsum_next += P(i + 1, j);
+      
+      if (cumsum_next > cumsum_i + tol) {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}

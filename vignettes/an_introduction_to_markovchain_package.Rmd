@@ -1082,7 +1082,7 @@ mcIncomeMonotone <- new("markovchain", states = incomeStates,
 is.stochasticallyMonotone(mcIncomeMonotone)
 ```
 
-```{r stochasticMonotonicity}
+```{r stochasticMonotonicityNonMonotone}
 # Example 2: A non-monotone transition matrix
 # Here, a person in the "mid" class has an unusually high chance of dropping 
 # to "low" (0.7), which is worse than a person already in the "low" class (0.5).

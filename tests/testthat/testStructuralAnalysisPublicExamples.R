@@ -11,19 +11,19 @@ context("Structural analysis - public textbook examples")
 ### States: Rainy, Nice, Snowy. The chain is regular (P^6 already has all
 ### positive entries, converging to the stationary row (.4, .2, .4) -- see
 ### Grinstead & Snell, Table 11.1), hence irreducible and aperiodic. This
-### makes it a good public reference case for isRegular(), which currently
+### makes it a good public reference case for is.regular(), which currently
 ### has no test coverage anywhere in the package's test suite.
 
 ozMatr <- matrix(c(1/2, 1/4, 1/4,
-                    1/2,  0 , 1/2,
-                    1/4, 1/4, 1/2),
-                  nrow = 3, byrow = TRUE,
-                  dimnames = list(c("R", "N", "S"), c("R", "N", "S")))
+                   1/2,  0 , 1/2,
+                   1/4, 1/4, 1/2),
+                 nrow = 3, byrow = TRUE,
+                 dimnames = list(c("R", "N", "S"), c("R", "N", "S")))
 mcOz <- new("markovchain", states = c("R", "N", "S"), byrow = TRUE,
             transitionMatrix = ozMatr, name = "Land of Oz")
 
 test_that("Land of Oz weather chain is regular, irreducible and aperiodic", {
-  expect_true(isRegular(mcOz))
+  expect_true(is.regular(mcOz))
   expect_true(is.irreducible(mcOz))
   expect_equal(period(mcOz), 1)
   expect_equal(communicatingClasses(mcOz), list(c("R", "N", "S")))
@@ -44,13 +44,13 @@ test_that("Land of Oz stationary distribution matches the textbook value", {
 ### Useful as a negative control alongside the positive one above.
 
 cycMatr <- matrix(c(0, 1, 1, 0), nrow = 2, byrow = TRUE,
-                   dimnames = list(c("a", "b"), c("a", "b")))
+                  dimnames = list(c("a", "b"), c("a", "b")))
 mcCycle <- new("markovchain", states = c("a", "b"), byrow = TRUE,
                transitionMatrix = cycMatr, name = "2-cycle")
 
 test_that("An irreducible periodic chain is not regular", {
   expect_true(is.irreducible(mcCycle))
-  expect_false(isRegular(mcCycle))
+  expect_false(is.regular(mcCycle))
   expect_equal(period(mcCycle), 2)
 })
 
@@ -58,7 +58,7 @@ test_that("An irreducible periodic chain is not regular", {
 ### Wolfram Mathematica's MarkovProcessProperties documentation examples,
 ### and reused in the package vignette). It is reducible, so it must not be
 ### regular; this strengthens the existing coverage, which so far checked
-### recurrentClasses()/transientStates() but never isRegular() or
+### recurrentClasses()/transientStates() but never is.regular() or
 ### communicatingClasses() directly, and only checked canonicForm() for
 ### self-consistency against the internal Rcpp call rather than against a
 ### known-correct reordering.
@@ -74,7 +74,7 @@ mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
                      name = "Mathematica MC", states = statesNames)
 
 test_that("mathematicaMc is reducible and therefore not regular", {
-  expect_false(isRegular(mathematicaMc))
+  expect_false(is.regular(mathematicaMc))
   expect_false(is.irreducible(mathematicaMc))
   expect_equal(
     communicatingClasses(mathematicaMc),

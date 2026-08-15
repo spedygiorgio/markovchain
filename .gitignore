@@ -51,3 +51,5 @@ figure/
 # TAGS file generated from Emacs Projectile
 TAGS
 .Rproj.user
+.gitmessage
+.vscode/

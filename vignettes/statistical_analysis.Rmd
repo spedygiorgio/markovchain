@@ -1,0 +1,114 @@
+---
+title: "Statistical analysis of Markov chain sequences"
+author: "Giorgio Alfredo Spedicato"
+output: rmarkdown::html_vignette
+vignette: >
+  %\\VignetteIndexEntry{Statistical analysis of Markov chain sequences}
+  %\\VignetteEngine{knitr::rmarkdown}
+  %\\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(markovchain)
+```
+
+# Statistical analysis
+
+## Testing the first-order Markov property
+
+For an observed sequence $X_1,\ldots,X_n$ with $r$ possible states, the first-order Markov property requires that
+
+$$
+P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)
+=
+P(X_{t+1}=k\mid X_t=j).
+$$
+
+Thus, the first-order property can be formulated as the conditional independence statement
+
+$$
+X_{t-1}\perp X_{t+1}\mid X_t.
+$$
+
+Let $N_{ijk}$ denote the number of consecutive triples $(i,j,k)$. Under the null hypothesis of a first-order Markov chain, the maximum-likelihood fitted expected count is
+
+$$
+E_{ijk}=N_{ij+}\frac{N_{+jk}}{N_{+j+}},
+$$
+
+where a `+` denotes summation over the corresponding index. The package implements two classical goodness-of-fit statistics. The Pearson statistic is
+
+$$
+X^2=\sum_{i,j,k}\frac{(N_{ijk}-E_{ijk})^2}{E_{ijk}},
+$$
+
+whereas the likelihood-ratio statistic is
+
+$$
+G^2=2\sum_{N_{ijk}>0}N_{ijk}\log\left(\frac{N_{ijk}}{E_{ijk}}\right).
+$$
+
+These tests compare a first-order Markov model with a second-order alternative. For a complete $r$-state support, the asymptotic degrees of freedom are
+
+$$
+r(r-1)^2.
+$$
+
+This formulation follows the likelihood-based theory of Anderson and Goodman (1957). In sparse data, the implementation computes the degrees of freedom from the observed conditional support rather than assuming that every possible transition is represented. A parametric Monte Carlo option is also available when the usual chi-squared approximation is questionable.
+
+A non-rejection should be interpreted as *absence of evidence against* the first-order Markov property; it does not prove that the data-generating process is Markovian.
+
+## Example: Alofi daily rainfall
+
+A useful published example is the three-state daily rainfall series from Alofi, Niue, originally analysed by Avery and Henderson (1999). The states are no rain, rainfall up to 5 mm, and rainfall above 5 mm. The series contains 1096 observations and is included in `markovchain` as `rain`. The same data are used in Davison's *Statistical Models* to compare Markov chains of different orders by likelihood-ratio tests and AIC.
+
+```{r alofi-data}
+data(rain)
+table(rain$rain)
+```
+
+The empirical first-order transition counts are obtained with:
+
+```{r alofi-counts}
+createSequenceMatrix(rain$rain)
+```
+
+The published maximized log-likelihoods for first- and second-order models are approximately -1038.06 and -1025.10, respectively. Their likelihood-ratio comparison gives
+
+$$
+G^2=2\{(-1025.10)-(-1038.06)\}=25.92.
+$$
+
+For three states, the first-order versus second-order comparison has $3(3-1)^2=12$ degrees of freedom, giving an asymptotic p-value of approximately 0.011. Thus, at the 5% level, the first-order model would be rejected in favour of the second-order alternative for this published example.
+
+The same question can be examined directly from the sequence with `verifyMarkovProperty`:
+
+```{r alofi-test}
+verifyMarkovProperty(rain$rain, method = "G", verbose = FALSE)
+```
+
+The exact statistic can differ slightly from the rounded published likelihoods because the package works from the original observations and computes the likelihood-ratio statistic directly from the observed triple counts. The important point is that the test has the same statistical interpretation: it asks whether the distribution of the next rainfall state contains information about the state immediately preceding the current one, after conditioning on the current state.
+
+The Pearson version is available through:
+
+```{r alofi-pearson}
+verifyMarkovProperty(rain$rain, method = "Pearson", verbose = FALSE)
+```
+
+For small samples or sparse contingency tables, a parametric Monte Carlo calibration can be requested instead:
+
+```{r alofi-simulation}
+verifyMarkovProperty(rain$rain, method = "simulation", B = 999,
+                     seed = 123, verbose = FALSE)$p.value
+```
+
+The simulation test generates sequences under the fitted first-order Markov model and re-estimates the transition probabilities in every replicate. It should therefore be regarded as a parametric Monte Carlo test, not as an exact finite-sample test.
+
+## References
+
+Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about Markov chains. *The Annals of Mathematical Statistics*, 28(1), 89--110.
+
+Avery, P. J. and Henderson, D. A. (1999). Fitting Markov chain models to discrete state series such as DNA sequences. *Applied Statistics*, 48, 53--61.
+
+Davison, A. C. (2003). *Statistical Models*. Cambridge University Press, Section 6.1.

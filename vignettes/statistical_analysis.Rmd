@@ -3,9 +3,9 @@ title: "Statistical analysis of Markov chain sequences"
 author: "Giorgio Alfredo Spedicato"
 output: rmarkdown::html_vignette
 vignette: >
-  %\\VignetteIndexEntry{Statistical analysis of Markov chain sequences}
-  %\\VignetteEngine{knitr::rmarkdown}
-  %\\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Statistical analysis of Markov chain sequences}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 bibliography: markovchainBiblio.bib
 ---
 
@@ -19,21 +19,21 @@ library(markovchain)
 
 ## Testing the first-order Markov property
 
-For an observed sequence $X_1,\\ldots,X_n$ with $r$ possible states, the first-order Markov property requires that
+For an observed sequence $X_1,\ldots,X_n$ with $r$ possible states, the first-order Markov property requires that
 
-$$P(X_{t+1}=k\\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\\mid X_t=j).$$
+$$P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\mid X_t=j).$$
 
 Equivalently, $X_{t-1}$ and $X_{t+1}$ are conditionally independent given $X_t$. Let $N_{ijk}$ denote the number of consecutive triples $(i,j,k)$. Under the first-order null model,
 
-$$E_{ijk}=N_{ij+}\\frac{N_{+jk}}{N_{+j+}}.$$
+$$E_{ijk}=N_{ij+}\frac{N_{+jk}}{N_{+j+}}.$$
 
 The package implements the Pearson statistic
 
-$$X^2=\\sum_{i,j,k}\\frac{(N_{ijk}-E_{ijk})^2}{E_{ijk}}$$
+$$X^2=\sum_{i,j,k}\frac{(N_{ijk}-E_{ijk})^2}{E_{ijk}}$$
 
 and the likelihood-ratio statistic
 
-$$G^2=2\\sum_{N_{ijk}>0}N_{ijk}\\log\\left(\\frac{N_{ijk}}{E_{ijk}}\\right).$$
+$$G^2=2\sum_{N_{ijk}>0}N_{ijk}\log\left(\frac{N_{ijk}}{E_{ijk}}\right).$$
 
 For complete support the asymptotic degrees of freedom are $r(r-1)^2$. With sparse support the implementation derives the degrees of freedom from the observed conditional support. A non-rejection means only that the data provide insufficient evidence against the first-order model; it does not prove the Markov property.
 
@@ -45,7 +45,7 @@ verifyMarkovProperty(rain$rain, method = "Pearson", verbose = FALSE)
 
 ## Empirical versus theoretical transition probabilities
 
-`verifyEmpiricalToTheoretical()` tests whether observed transition counts are compatible with a specified transition matrix. For each origin state $i$, the null model is multinomial with probabilities given by row $i$ of the theoretical transition matrix.
+`verifyEmpiricalToTheoretical()` tests whether observed transition counts are compatible with a specified transition matrix. For each origin state $i$, the null model is multinomial with probabilities given by row $i$ of the theoretical transition matrix. The likelihood-ratio and Pearson versions use the same observed row totals and differ only in their goodness-of-fit statistic.
 
 ```{r empirical-theoretical}
 P <- matrix(c(.70, .20, .10,
@@ -65,11 +65,22 @@ counts <- createSequenceMatrix(x)
 verifyEmpiricalToTheoretical(counts, mc, method = "Pearson", verbose = FALSE)
 ```
 
-The likelihood-ratio formulation is the standard contingency-table approach to comparing observed multinomial counts with a specified probability vector. If an observed transition has positive count while the theoretical probability is zero, the theoretical model is incompatible with the data.
+If an observed transition has positive count while the theoretical probability is zero, the theoretical model is incompatible with the data. Conversely, a zero observed count where the theoretical probability is positive is not by itself evidence against the model.
+
+For small or sparse samples, the asymptotic chi-squared approximation can be replaced by a parametric Monte Carlo calibration. The observed row totals are retained and multinomial transition counts are simulated under the theoretical matrix:
+
+```{r empirical-theoretical-simulation}
+verifyEmpiricalToTheoretical(
+  counts, mc, method = "simulation", B = 999,
+  seed = 123, verbose = FALSE
+)$p.value
+```
+
+The resulting p-value uses the usual Monte Carlo correction $(1+B_{\geq})/(B+1)$. This is a parametric Monte Carlo test, not an exact finite-sample test.
 
 ## Homogeneity across samples
 
-`verifyHomogeneity()` tests whether several empirical sequences share the same transition probabilities. For each origin state, the individual rows form a multinomial homogeneity problem and the pooled row provides the null transition probabilities.
+`verifyHomogeneity()` tests whether several empirical sequences or transition-count matrices share the same transition probabilities. Under the null hypothesis, a common transition matrix is estimated by pooling the transition counts across samples. The test can therefore be viewed, row by row, as a multinomial homogeneity test.
 
 ```{r homogeneity}
 set.seed(123)
@@ -79,7 +90,22 @@ x3 <- rmarkovchain(500, mc, t0 = "c")
 verifyHomogeneity(list(x1, x2, x3), method = "G", verbose = FALSE)
 ```
 
-This test is useful when transition data come from different periods, regions, portfolios, or cohorts and one wants to assess whether a common homogeneous transition matrix is adequate. The likelihood-ratio formulation follows the classical contingency-table and Markov-chain framework of Kullback, Kupperman and Ku (1962).
+Pearson and likelihood-ratio versions are available:
+
+```{r homogeneity-pearson}
+verifyHomogeneity(list(x1, x2, x3), method = "Pearson", verbose = FALSE)
+```
+
+A parametric Monte Carlo version simulates multinomial rows under the pooled transition matrix while retaining the observed number of transitions originating from each state in each sample. The pooled model is re-estimated for each replicate:
+
+```{r homogeneity-simulation}
+verifyHomogeneity(
+  list(x1, x2, x3), method = "simulation", B = 999,
+  seed = 123, verbose = FALSE
+)$p.value
+```
+
+These tests are useful when transition data come from different periods, regions, portfolios, or cohorts and one wants to assess whether a common homogeneous transition matrix is adequate. The likelihood-ratio formulation follows the classical contingency-table and Markov-chain framework of Kullback, Kupperman and Ku (1962).
 
 ## Published example: Alofi daily rainfall
 
@@ -93,7 +119,7 @@ createSequenceMatrix(rain$rain)
 
 The same data are discussed by Davison (2003) when comparing Markov models of different orders. His reported maximized log-likelihoods for first- and second-order models are approximately -1038.06 and -1025.10, giving
 
-$$G^2=2\\{(-1025.10)-(-1038.06)\\}=25.92.$$
+$$G^2=2\{(-1025.10)-(-1038.06)\}=25.92.$$
 
 For three states the comparison has 12 degrees of freedom, giving an asymptotic p-value of approximately 0.011. Thus the first-order model is rejected at the 5% level in that published likelihood comparison.
 
@@ -107,29 +133,26 @@ The exact value need not equal the rounded published likelihood calculation, but
 
 ## Monte Carlo calibration and validation
 
-For sparse sequences, the asymptotic chi-squared approximation can be poor. `verifyMarkovProperty()` therefore provides a parametric Monte Carlo option:
+The three statistical tests provide asymptotic G and Pearson tests and, where appropriate, a parametric Monte Carlo alternative. Monte Carlo calibration is particularly useful when expected counts are small or the transition support is sparse.
 
-```{r alofi-simulation}
+For `verifyMarkovProperty()`, a first-order transition matrix is fitted under the null, sequences are simulated from it, and the first-order model is re-fitted in every replicate. For `verifyEmpiricalToTheoretical()` and `verifyHomogeneity()`, the simulation conditions on the observed row totals and samples multinomial transition counts under the theoretical or pooled transition probabilities. In all cases the Monte Carlo p-value is
+
+$$\frac{1+\sum_{b=1}^B I(T_b\ge T_{obs})}{B+1},$$
+
+where $T$ is the selected test statistic.
+
+For example:
+
+```{r all-simulation}
 verifyMarkovProperty(rain$rain, method = "simulation", B = 999,
                      seed = 123, verbose = FALSE)$p.value
+verifyEmpiricalToTheoretical(counts, mc, method = "simulation", B = 999,
+                             seed = 123, verbose = FALSE)$p.value
+verifyHomogeneity(list(x1, x2, x3), method = "simulation", B = 999,
+                  seed = 123, verbose = FALSE)$p.value
 ```
 
-Under the null, a first-order transition matrix is fitted, sequences are simulated from it, and the first-order model is re-fitted in every replicate. The Monte Carlo p-value is
-
-$$\\frac{1+\\sum_{b=1}^B I(G_b^2\\ge G_{obs}^2)}{B+1}.$$
-
-This is a parametric Monte Carlo test, not an exact finite-sample test.
-
-A larger Monte Carlo validation study is deliberately kept outside `R CMD check` because it is computationally expensive. It should evaluate at least:
-
-1. **Type-I error:** simulate under the null and estimate rejection rates at 1%, 5% and 10%.
-2. **Power:** simulate second-order alternatives with controlled departure from first-order behaviour.
-3. **Sample-size sensitivity:** repeat for several sequence lengths, e.g. 50, 100, 250, 500 and 1000.
-4. **State-space sensitivity:** use 2, 3 and 5 states.
-5. **Sparsity:** include transition matrices with structural zeros and highly unbalanced probabilities.
-6. **Calibration:** compare asymptotic Pearson/G tests with the parametric Monte Carlo p-value.
-
-The validation script is stored under `inst/validation/` and should be run manually rather than as a package test.
+These procedures are parametric Monte Carlo tests, not exact finite-sample tests. A separate validation study is deliberately kept outside `R CMD check` because it is computationally expensive. It should evaluate Type-I error, power, sample-size sensitivity, state-space size, sparse transition matrices, and calibration of the asymptotic tests against the Monte Carlo alternatives. The validation script is stored under `inst/validation/` and can be run manually.
 
 ## References
 

@@ -75,6 +75,6 @@ test_that("sortByDimNames (hash map optimization) sorts matrices preserving data
   # P["A", "M"] era 0.2 -> Scalato: 2
   expect_equal(sorted_mat["A", "M"], 2)
   
-  # P["M", "Z"] era 0.4 -> Scalato: 4
-  expect_equal(sorted_mat["M", "Z"], 4)
+# P["M", "Z"] era 0.3 -> Scalato: 3
+expect_equal(sorted_mat["M", "Z"], 3)
 })

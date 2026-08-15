@@ -302,7 +302,7 @@ b &amp; -b
 </section><section class="section level2"><h2 id="committor-of-a-markovchain">Committor of a markovchain<a class="anchor" aria-label="anchor" href="#committor-of-a-markovchain"></a>
 </h2>
 <p>Consider set of states A,B comprising of states from a markovchain with transition matrix P. The committor vector of a markovchain with respect to sets A and B gives the probability that the process will hit a state from set A before any state from set B.</p>
-<p>Committor vector u can be calculated by solving the following system of linear equations <span class="citation" data-cites="committorlink">(<a href="#ref-committorlink" role="doc-biblioref">StackOverflow 2015</a>)</span>:</p>
+<p>Committor vector u can be calculated by solving the following system of linear equations <span class="citation" data-cites="committorlink">(<a href="#ref-committorlink" role="doc-biblioref">Mathematics Stack Exchange 2015</a>)</span>:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>L</mi><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mi>x</mi><mo>∉</mo><mi>A</mi><mo>∪</mo><mi>B</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>,</mo><mi>x</mi><mo>∈</mo><mi>A</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mi>x</mi><mo>∈</mo><mi>B</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{array}{l}
 Lu(x) = 0,  x \notin A \cup B \\
@@ -425,7 +425,7 @@ X_{r+1}^{j} = \sum_{k=1}^{s}\sum_{h=1}^n{\lambda_{jk}^{(h)}P_{h}^{(jk)}X_{r-h+1}
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Rsolnp unavailable"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt;      [,1] [,2] [,3]</span></span>
-<span><span class="co">#&gt; [1,] "b"  "b"  "a" </span></span>
+<span><span class="co">#&gt; [1,] "b"  "b"  "b" </span></span>
 <span><span class="co">#&gt; [2,] "a"  "a"  "a"</span></span></code></pre></div>
 </div>
 </section><section class="section level2"><h2 id="check-time-reversibility-of-continuous-time-markovchains">Check Time Reversibility of Continuous-time markovchains<a class="anchor" aria-label="anchor" href="#check-time-reversibility-of-continuous-time-markovchains"></a>
@@ -465,14 +465,14 @@ Dobrow, Robert P. 2016. <em>Introduction to Stochastic Processes with r</em>. Jo
 <div id="ref-GallagerBook" class="csl-entry" role="listitem">
 Gallager, Robert G. 2013. <em>Stochastic Processes: Theory for Applications</em>. Cambridge University Press.
 </div>
+<div id="ref-committorlink" class="csl-entry" role="listitem">
+Mathematics Stack Exchange. 2015. <em>Probability That a Chain Will Enter State 5 Before It Enters State 3</em>. <a href="https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915" class="external-link">https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915</a>.
+</div>
 <div id="ref-NorrisBook" class="csl-entry" role="listitem">
 Norris, J. R. 1998. <em>Markovchains</em>. Cambridge University Press.
 </div>
 <div id="ref-Sigman" class="csl-entry" role="listitem">
 Sigman, Karl. 2009. <em>Continuous Time Markovchains</em>. Columbia University.
-</div>
-<div id="ref-committorlink" class="csl-entry" role="listitem">
-StackOverflow. 2015. <a href="https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915" class="external-link">https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915</a>.
 </div>
 <div id="ref-ictmcpaper" class="csl-entry" role="listitem">
 Thomas Krak, Arno Siebes, Jasper De Bock. 2017. <span>“Imprecise Continuous Time Markov Chains.”</span> <em>International Journal of Approximate Reasoning</em> 88: 452–528.

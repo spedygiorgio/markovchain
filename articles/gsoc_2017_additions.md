@@ -389,7 +389,8 @@ to sets A and B gives the probability that the process will hit a state
 from set A before any state from set B.
 
 Committor vector u can be calculated by solving the following system of
-linear equations ([StackOverflow 2015](#ref-committorlink)):
+linear equations ([Mathematics Stack Exchange
+2015](#ref-committorlink)):
 
 $$\begin{array}{l}
 {Lu(x) = 0,x \notin A \cup B} \\
@@ -570,7 +571,7 @@ predictHommc(ob,3)
   print("Rsolnp unavailable")
 }
 #>      [,1] [,2] [,3]
-#> [1,] "b"  "b"  "a" 
+#> [1,] "b"  "b"  "b" 
 #> [2,] "a"  "a"  "a"
 ```
 
@@ -621,12 +622,13 @@ John Wiley & Sons.
 Gallager, Robert G. 2013. *Stochastic Processes: Theory for
 Applications*. Cambridge University Press.
 
+Mathematics Stack Exchange. 2015. *Probability That a Chain Will Enter
+State 5 Before It Enters State 3*.
+<https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915>.
+
 Norris, J. R. 1998. *Markovchains*. Cambridge University Press.
 
 Sigman, Karl. 2009. *Continuous Time Markovchains*. Columbia University.
-
-StackOverflow. 2015.
-<https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915>.
 
 Thomas Krak, Arno Siebes, Jasper De Bock. 2017. “Imprecise Continuous
 Time Markov Chains.” *International Journal of Approximate Reasoning*

@@ -1,7 +1,7 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.11.0
+Version: 0.2.0
 Authors@R: c(
     person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
       email = "spedicato_giorgio@yahoo.it",comment = c(ORCID = "0000-0002-0315-8888")),
@@ -53,7 +53,7 @@ Suggests:
     microbenchmark
 Enhances:
     etm
-VignetteBuilder: rmarkdown, knitr, bookdown, rticles
+VignetteBuilder: rmarkdown, knitr, bookdown, rticles, quarto
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)
 SystemRequirements: GNU make
 LazyLoad: yes

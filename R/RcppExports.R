@@ -30,8 +30,7 @@
 #' 
 #' @export
 generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
-  # Utilizziamo la funzione C++ nascosta generata da Rcpp
-  return(.generatorToTransitionMatrix(gen, byrow))
+    .Call(`_markovchain_generatorToTransitionMatrix`, gen, byrow)
 }
 
 #' @name ctmcFit

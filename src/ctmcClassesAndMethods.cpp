@@ -25,7 +25,7 @@ using namespace Rcpp;
 //' generatorToTransitionMatrix(gen)
 //' 
 //' @export
-// [[Rcpp::export(.generatorToTransitionMatrix)]]
+// [[Rcpp::export]]
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow = true){
   // Ho anche corretto la dimensione: usare gen.nrow(), gen.ncol() è più sicuro
   // rispetto a passare un solo argomento al costruttore di Rcpp

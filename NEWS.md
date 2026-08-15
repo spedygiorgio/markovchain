@@ -1,3 +1,8 @@
+# markovchain 0.2.0
+
+- Corrected tests
+
+
 # markovchain 0.11.0
 
 - Fix for numerical issues

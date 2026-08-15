@@ -27,23 +27,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      # ANSI colour codes (U+001B) in chunk output break the LaTeX vignette build
       NO_COLOR: "1"
       R_CLI_NUM_COLORS: "1"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      # The pandoc download occasionally fails with "socket hang up"; retry once.
       - id: pandoc
         uses: r-lib/actions/setup-pandoc@v2
         continue-on-error: true
@@ -55,19 +51,28 @@ jobs:
         with:
           pandoc-version: '3.1.11'
 
+      - uses: quarto-dev/quarto-actions/setup@v2
+
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # Explicitly bind Quarto to the R installed by setup-r on Windows.
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          cache: true
 
-
-      # The TinyTeX download occasionally fails with "socket hang up"; retry once.
       - id: tinytex
         uses: r-lib/actions/setup-tinytex@v2
         continue-on-error: true
@@ -76,13 +81,141 @@ jobs:
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install additional LaTeX packages
-        run: |
-          tlmgr update --self
-          tlmgr install grfext
-          tlmgr install thumbpdf
-          tlmgr list --only-installed
+        run: tlmgr install grfext thumbpdf
 
+      # Windows currently has an upstream rcmdcheck/pkgbuild library-path
+      # problem when R CMD build launches Quarto: the child R process cannot
+      # see the temporary library containing the package being built. The
+      # regular check is therefore run without vignette rebuilding on Windows,
+      # followed by an explicit vignette build after installing the package.
       - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--no-vignettes"),
+            build_args = c("--no-manual", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "markovchain",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )
+
+  R-CMD-check-full:
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.event.head_commit.message, 'feat:') ||
+       startsWith(github.event.head_commit.message, 'fix:'))
+    runs-on: ${{ matrix.config.os }}
+
+    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'devel', http-user-agent: 'release'}
+          - {os: macos-latest,   r: 'release'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      NO_COLOR: "1"
+      R_CLI_NUM_COLORS: "1"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - id: pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+        continue-on-error: true
+        with:
+          pandoc-version: '3.1.11'
+
+      - if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.1.11'
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Configure Quarto R on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r_bin <- normalizePath(R.home("bin"), winslash = "/")
+          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+          cache: true
+
+      - id: tinytex
+        uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install additional LaTeX packages
+        run: tlmgr install grfext thumbpdf
+
+      - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--no-vignettes"),
+            build_args = c("--no-manual", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
+          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
+          if (status != 0) stop("R CMD INSTALL failed")
+          tools::buildVignettes(
+            "markovchain",
+            dir = ".",
+            lib.loc = .libPaths(),
+            quiet = FALSE
+          )

@@ -180,6 +180,11 @@ cl <- makeCluster(cores, type = "PSOCK", outfile = "")
 on.exit(stopCluster(cl), add = TRUE)
 clusterSetRNGStream(cl, iseed = seed)
 clusterEvalQ(cl, library(markovchain))
+clusterExport(cl,
+             c("run_task", "run_markov_property", "run_empirical_theoretical",
+               "run_homogeneity", "random_transition_matrix", "make_mc",
+               "second_order_sequence", "alpha", "nrep", "mc_B"),
+             envir = environment())
 
 # Load balancing is useful because the 15 Markov-property scenarios have
 # different computational costs. Reproducibility is preserved by task seeds.

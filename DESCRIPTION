@@ -50,12 +50,13 @@ Suggests:
     bookdown,
     rticles,
     MCMCpack,
-    microbenchmark
+    microbenchmark,
+    quarto
 Enhances:
     etm
 VignetteBuilder: rmarkdown, knitr, bookdown, rticles, quarto
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)
-SystemRequirements: GNU make
+SystemRequirements: GNU make, Quarto
 LazyLoad: yes
 ByteCompile: yes
 Encoding: UTF-8

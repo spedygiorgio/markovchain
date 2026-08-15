@@ -69,6 +69,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          cache: true
 
       # The TinyTeX download occasionally fails with "socket hang up"; retry once.
       - id: tinytex

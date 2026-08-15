@@ -1,37 +1,13 @@
 ---
 title: "Higher order Markov chains"
-pagetitle: "Higher order Markov chains"
+author: "Deepak Yadav, Tae Seung Kang, Giorgio Alfredo Spedicato"
 format: html
-author:
-  - name: "Deepak Yadav"
-    affiliation: B-Tech student, Computer Science and Engineering
-    address: >
-      Indian Institute of Technology, Varanasi 
-      Uttar Pradesh - 221 005, India
-    email: deepakyadav.iitbhu@gmail.com
-  - name: "Tae Seung Kang"
-    affiliation: Ph.D student, Computer \& Information Science \& Engineering
-    address: >
-      University of Florida
-      Gainesville, FL, USA
-    email: tskang3@gmail.com
-  - name: "Giorgio Alfredo Spedicato"
-    affiliation: Ph.D FCAS FSA CSPA C.Stat, Unipol Group
-    address: >
-      Via Firenze 11
-      Paderno Dugnano 20037 Italy
-    email: spedicato_giorgio@yahoo.it
-abstract: |
-  The `markovchain` package contains functions to fit higher (possibly) multivariate order Markov chains. The functions are shown as well as simple exmaples
-vignette: >
-  %\VignetteIndexEntry{Higher order Markov chains} 
-  %\VignetteEngine{quarto::html}  
-  %\VignetteEncoding{UTF-8}
-keywords:
-  plain: [Higher order Markov chains]
-  formatted: [Higher order Markov chains]
 bibliography:
   - markovchainBiblio.bib
+vignette: >
+  %\VignetteIndexEntry{Higher order Markov chains}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r}
@@ -236,15 +212,15 @@ $\widehat{\boldsymbol{x}}^{(2)} = \begin{pmatrix}
 \end{pmatrix}^{\boldsymbol{T}}$
 
 $\widehat{\boldsymbol{x}}^{(3)} = \begin{pmatrix}
-0.1450&  0.2045&  0.0186&  0.0000& 0.0037& 0.6283 
+0.1450& 0.2045& 0.0186& 0.0000& 0.0037& 0.6283 
 \end{pmatrix}^{\boldsymbol{T}}$
 
 $\widehat{\boldsymbol{x}}^{(4)} = \begin{pmatrix}
-0.0000&  0.3569&  0.1338&  0.1896& 0.0632& 0.2565
+0.0000& 0.3569& 0.1338& 0.1896& 0.0632& 0.2565
 \end{pmatrix}^{\boldsymbol{T}}$
 
 $\widehat{\boldsymbol{x}}^{(5)} = \begin{pmatrix}
-0.0000&  0.3569& 0.1227& 0.2268& 0.0520& 0.2416
+0.0000& 0.3569& 0.1227& 0.2268& 0.0520& 0.2416
 \end{pmatrix}^{\boldsymbol{T}}$
 
 By solving the corresponding linear programming problems, we obtain the following higher-order multivariate Markov chain model:
@@ -301,11 +277,11 @@ cat("\n")
 cat("List of Lambda's and the corresponding transition matrix", direction,":\n")
 
 for(p in 1:10) {
-  t <- 8*5*(i[p]-1) + (j[p]-1)*8
-  cat("Lambda", k[p], "(", i[p], ",", j[p], ") : ", object@Lambda[t+k[p]],"\n", sep = "")
-  cat("P", k[p], "(", i[p], ",", j[p], ") : \n", sep = "")
-  print(object@P[, , t+k[p]])
-  cat("\n")
+    t <- 8*5*(i[p]-1) + (j[p]-1)*8
+    cat("Lambda", k[p], "(", i[p], ",", j[p], ") : ", object@Lambda[t+k[p]],"\n", sep = "")
+    cat("P", k[p], "(", i[p], ",", j[p], ") : \n", sep = "")
+    print(object@P[, , t+k[p]])
+    cat("\n")
 }
 } else {
   print("package Rsolnp unavailable")

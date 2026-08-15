@@ -80,7 +80,7 @@ run_markov_property <- function(n, r, nrep, mc_B, task_seed) {
 }
 
 run_empirical_theoretical <- function(n_per_state = 100, r = 3, nrep = 500,
-                                      task_seed) {
+                                      mc_B = 199, task_seed) {
   set.seed(task_seed)
   P <- random_transition_matrix(r)
   mc <- make_mc(P)
@@ -101,7 +101,7 @@ run_empirical_theoretical <- function(n_per_state = 100, r = 3, nrep = 500,
 }
 
 run_homogeneity <- function(n = 500, r = 3, groups = 3, nrep = 500,
-                            task_seed) {
+                            mc_B = 199, task_seed) {
   set.seed(task_seed)
   P <- random_transition_matrix(r)
   mc <- make_mc(P)
@@ -161,8 +161,8 @@ run_task <- function(task) {
   if (task$type == "markov")
     return(run_markov_property(task$n, task$r, nrep, mc_B, task$seed))
   if (task$type == "empirical")
-    return(run_empirical_theoretical(task$n, task$r, nrep, task$seed))
-  run_homogeneity(task$n, task$r, nrep = nrep, task_seed = task$seed)
+    return(run_empirical_theoretical(task$n, task$r, nrep, mc_B, task$seed))
+  run_homogeneity(task$n, task$r, nrep = nrep, mc_B = mc_B, task_seed = task$seed)
 }
 
 available <- detectCores(logical = TRUE)

@@ -4,139 +4,90 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Higher order Markov chains • markovchain</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Higher order Markov chains">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="higher_order_markov_chains_files/libs/quarto-html/popper.min.js"></script><script src="higher_order_markov_chains_files/libs/quarto-html/tippy.umd.min.js"></script><link href="higher_order_markov_chains_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="higher_order_markov_chains_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Higher order Markov chains">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">markovchain</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    <a class="navbar-brand me-2" href="../index.html">markovchain</a>
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a>
-    </li>
-    <li>
-      <a href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a>
-    </li>
-    <li>
-      <a href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a>
-    </li>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a></li>
+    <li><a class="dropdown-item" href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a></li>
+    <li><a class="dropdown-item" href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical_analysis.html">Statistical analysis of Markov chain sequences</a></li>
   </ul>
 </li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/spedygiorgio/markovchain/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-
-  </a>
-</li>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/spedygiorgio/markovchain/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-quarto">
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Higher order Markov chains</h1>
+
+      <p class="author">Deepak Yadav, Tae Seung Kang, Giorgio Alfredo Spedicato</p>
 
 
-
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Higher order Markov chains</h1>
-                        <h4 data-toc-skip class="author">Deepak
-Yadav</h4>
-            <address class="author_afil">
-      B-Tech student, Computer Science and
-Engineering<br><h4 data-toc-skip class="author">Tae
-Seung Kang</h4>
-            <address class="author_afil">
-      Ph.D student, Computer &amp; Information Science &amp;
-Engineering<br><h4 data-toc-skip class="author">Giorgio
-Alfredo Spedicato</h4>
-            <address class="author_afil">
-      Ph.D FCAS FSA CSPA C.Stat, Unipol Group<br><small class="dont-index">Source: <a href="https://github.com/spedygiorgio/markovchain/blob/master/vignettes/higher_order_markov_chains.Rmd" class="external-link"><code>vignettes/higher_order_markov_chains.Rmd</code></a></small>
-      <div class="hidden name"><code>higher_order_markov_chains.Rmd</code></div>
-
-    </address>
-</address>
-</address>
-</div>
-
-    
-        <div class="abstract">
-      <p class="abstract">Abstract</p>
-      <p>The package contains functions to fit higher (possibly)
-      multivariate order Markov chains. The functions are shown as well
-      as simple exmaples</p>
+      <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/markovchain/blob/master/vignettes/higher_order_markov_chains.qmd" class="external-link"><code>vignettes/higher_order_markov_chains.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
-    
-<div class="section level2">
-<h2 id="higher-order-markov-chains">Higher Order Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-markov-chains"></a>
+
+
+
+
+
+
+    <section class="section level2"><h2 id="higher-order-markov-chains">Higher Order Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-markov-chains"></a>
 </h2>
-<p>Continuous time Markov chains are discussed in the CTMC vignette
-which is a part of the package.</p>
-<p>An experimental <code>fitHigherOrder</code> function has been written
-in order to fit a higher order Markov chain (<span class="citation">Ching, Ng, and Fung (2008)</span>).
-<code>fitHigherOrder</code> takes two inputs</p>
-<ol style="list-style-type: decimal">
+<p>Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.</p>
+<p>An experimental <code>fitHigherOrder</code> function has been written in order to fit a higher order Markov chain (<span class="citation" data-cites="ching2013higher">Ching et al. (<a href="#ref-ching2008higher" role="doc-biblioref">2008</a>)</span>). <code>fitHigherOrder</code> takes two inputs</p>
+<ol type="1">
 <li>sequence: a categorical data sequence.</li>
 <li>order: order of Markov chain to fit with default value 2.</li>
 </ol>
 <p>The output will be a <code>list</code> which consists of</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li>lambda: model parameter(s).</li>
-<li>Q: a list of transition matrices.
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math>
-is the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mi>t</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">ith</annotation></semantics></math>
-step transition matrix stored column-wise.</li>
+<li>Q: a list of transition matrices. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> is the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mi>t</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">ith</annotation></semantics></math> step transition matrix stored column-wise.</li>
 <li>X: frequency probability vector of the given sequence.</li>
 </ol>
-<p>Its quadratic programming problem is solved using <code>solnp</code>
-function of the Rsolnp package <span class="citation">(Ghalanos and
-Theussl 2014)</span>.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>Its quadratic programming problem is solved using <code>solnp</code> function of the Rsolnp package <span class="citation" data-cites="pkg:Rsolnp">(<a href="#ref-pkg:Rsolnp" role="doc-biblioref">Ghalanos and Theussl 2014</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"Rsolnp"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Rsolnp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rain</span><span class="op">)</span></span>
@@ -170,124 +121,86 @@ Theussl 2014)</span>.</p>
 <span><span class="co">#&gt;         0       1-5        6+ </span></span>
 <span><span class="co">#&gt; 0.5000000 0.2691606 0.2308394</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="higher-order-multivariate-markov-chains">Higher Order Multivariate Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-multivariate-markov-chains"></a>
+</section><section class="section level2"><h2 id="higher-order-multivariate-markov-chains">Higher Order Multivariate Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-multivariate-markov-chains"></a>
 </h2>
-<div class="section level3">
-<h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<section class="level2"><h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h3>
-<p>HOMMC model is used for modeling behaviour of multiple categorical
-sequences generated by similar sources. The main reference is <span class="citation">(Ching, Ng, and Fung 2008)</span>. Assume that there
-are s categorical sequences and each has possible states in M. In nth
-order MMC the state probability distribution of the jth sequence at time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>r</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t = r + 1</annotation></semantics></math>
-depend on the state probability distribution of all the sequences
-(including itself) at times
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>r</mi><mo>,</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>r</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t = r, r - 1, ..., r - n + 1</annotation></semantics></math>.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>x</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>s</mi></munderover><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>λ</mi><mrow><mi>j</mi><mi>k</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>x</mi><mrow><mi>r</mi><mo>−</mo><mi>h</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mi>j</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mo>,</mo><mi>r</mi><mo>=</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>n</mi><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
-x_{r+1}^{(j)} = \sum_{k=1}^{s}\sum_{h=1}^{n}\lambda_{jk}^{(h)}P_{h}^{(jk)}x_{r-h+1}^{(k)}, j = 1, 2, ..., s, r = n-1, n, ...
-</annotation></semantics></math></p>
-<p>with initial distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>x</mi><mn>0</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>x</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msubsup><mi>x</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">x_{0}^{(k)}, x_{1}^{(k)}, ... , x_{n-1}^{(k)} (k = 1, 2, ... , s)</annotation></semantics></math>.
-Here</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>λ</mi><mrow><mi>j</mi><mi>k</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>≤</mo><mi>j</mi><mo>,</mo><mi>k</mi><mo>≤</mo><mi>s</mi><mo>,</mo><mn>1</mn><mo>≤</mo><mi>h</mi><mo>≤</mo><mi>n</mi><mspace width="0.5em"></mspace><mi>a</mi><mi>n</mi><mi>d</mi><mspace width="0.5em"></mspace><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>s</mi></munderover><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>λ</mi><mrow><mi>j</mi><mi>k</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>1</mn><mo>,</mo><mi>j</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
-\lambda _{jk}^{(h)} \geq 0, 1\leq j, k\leq s, 1\leq h\leq  n \enspace and \enspace \sum_{k=1}^{s}\sum_{h=1}^{n} \lambda_{jk}^{(h)} = 1, j = 1, 2, 3, ... , s.
-</annotation></semantics></math></p>
-<p>Now we will see the simpler representation of the model which will
-help us understand the result of <code>fitHighOrderMultivarMC</code>
-method.</p>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>x</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></msup><mo>,</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>x</mi><mrow><mi>r</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>x</mi><mrow><mi>r</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></msup><mi>f</mi><mi>o</mi><mi>r</mi><mspace width="0.5em"></mspace><mi>j</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">X_{r}^{(j)} = ((x_{r}^{(j)})^{T}, (x_{r-1}^{(j)})^{T}, ..., (x_{r-n+1}^{(j)})^{T})^{T} for \enspace j = 1, 2, 3, ... , s.</annotation></semantics></math>
-Then</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>11</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>12</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mn>1</mn><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>21</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>22</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mn>2</mn><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mn>1</mn></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mn>2</mn></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mtext mathvariant="normal">where</mtext></mrow><annotation encoding="application/x-tex">
-\begin{pmatrix}
-X_{r+1}^{(1)}\\ 
-X_{r+1}^{(2)}\\ 
-.\\ 
-.\\ 
-.\\ 
+<p>HOMMC model is used for modeling behaviour of multiple categorical sequences generated by similar sources. The main reference is <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span>. Assume that there are s categorical sequences and each has possible states in M. In nth order MMC the state probability distribution of the jth sequence at time <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>r</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t = r + 1</annotation></semantics></math> depend on the state probability distribution of all the sequences (including itself) at times <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>r</mi><mo>,</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>r</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t = r, r - 1, ..., r - n + 1</annotation></semantics></math>.</p>
+<p>[ x_{r+1}^{(j)} = <em>{k=1}<sup>{s}_{h=1}</sup>{n}</em>{jk}<sup>{(h)}P_{h}</sup>{(jk)}x_{r-h+1}^{(k)}, j = 1, 2, …, s, r = n-1, n, … ]</p>
+<p>with initial distribution <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>x</mi><mn>0</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>x</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msubsup><mi>x</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">x_{0}^{(k)}, x_{1}^{(k)}, ... , x_{n-1}^{(k)} (k = 1, 2, ... , s)</annotation></semantics></math>. Here</p>
+<p>[ <em>{jk}^{(h)} , 1j, ks, 1hn and </em>{k=1}<sup>{s}_{h=1}</sup>{n} _{jk}^{(h)} = 1, j = 1, 2, 3, … , s. ]</p>
+<p>Now we will see the simpler representation of the model which will help us understand the result of <code>fitHighOrderMultivarMC</code> method.</p>
+<p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>x</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>x</mi><mrow><mi>r</mi><mo>−</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>x</mi><mrow><mi>r</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><msup><mo stretchy="false" form="postfix">)</mo><mi>T</mi></msup><mi>f</mi><mi>o</mi><mi>r</mi><mspace width="0.5em"></mspace><mi>j</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">X_{r}^{(j)} = ((x_{r}^{(j)})^{T}, (x_{r-1}^{(j)})^{T}, ..., (x_{r-n+1}^{(j)})^{T})^{T} for \enspace j = 1, 2, 3, ... , s.</annotation></semantics></math> Then</p>
+[
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\begin{pmatrix}
+X_{r+1}^{(1)}\\
+X_{r+1}^{(2)}\\
+.\\
+.\\
+.\\
 X_{r+1}^{(s)}
-\end{pmatrix} = \begin{pmatrix}
- B^{11}&amp;  B^{12}&amp;  .&amp;  .&amp;  B^{1s}&amp; \\ 
- B^{21}&amp;  B^{22}&amp;  .&amp;  .&amp;  B^{2s}&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- B^{s1}&amp;  B^{s2}&amp;  .&amp;  .&amp;  B^{ss}&amp; \\ 
+\end{pmatrix}</annotation></semantics></math>
+=
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>11</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>12</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mn>1</mn><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>21</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mn>22</mn></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mn>2</mn><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mn>1</mn></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mn>2</mn></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msup><mi>B</mi><mrow><mi>s</mi><mi>s</mi></mrow></msup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>X</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\begin{pmatrix}
+ B^{11}&amp;  B^{12}&amp;  .&amp;  .&amp;  B^{1s}&amp; \\
+ B^{21}&amp;  B^{22}&amp;  .&amp;  .&amp;  B^{2s}&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ B^{s1}&amp;  B^{s2}&amp;  .&amp;  .&amp;  B^{ss}&amp; \\
 \end{pmatrix} \begin{pmatrix}
-X_{r}^{(1)}\\ 
-X_{r}^{(2)}\\ 
-.\\ 
-.\\ 
-.\\ 
+X_{r}^{(1)}\\
+X_{r}^{(2)}\\
+.\\
+.\\
+.\\
 X_{r}^{(s)}
-\end{pmatrix} \textrm{where}
-</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>B</mi><mrow><mi>i</mi><mi>i</mi></mrow></msup><mo>=</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>m</mi><mi>n</mi><mo>*</mo><mi>m</mi><mi>n</mi></mrow></msub><mtext mathvariant="normal">and</mtext></mrow><annotation encoding="application/x-tex">B^{ii} = \begin{pmatrix}
- \lambda _{ii}^{(1)}P_{1}^{(ii)}&amp;  \lambda _{ii}^{(2)}P_{2}^{(ii)}&amp;  .&amp;  .&amp;  \lambda _{ii}^{(n)}P_{n}^{(ii)}&amp; \\ 
- I&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\ 
- 0&amp;  I&amp;  .&amp;  .&amp;  0&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- 0&amp;  .&amp;  .&amp;  I&amp;  0&amp; 
-\end{pmatrix}_{mn*mn} \textrm{and}
-</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>B</mi><mrow><mi>i</mi><mi>j</mi></mrow></msup><mo>=</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>m</mi><mi>n</mi><mo>*</mo><mi>m</mi><mi>n</mi></mrow></msub><mrow><mtext mathvariant="normal">when </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi><mo>≠</mo><mi>j</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
-B^{ij} = \begin{pmatrix}
- \lambda _{ij}^{(1)}P_{1}^{(ij)}&amp;  \lambda _{ij}^{(2)}P_{2}^{(ij)}&amp;  .&amp;  .&amp;  \lambda _{ij}^{(n)}P_{n}^{(ij)}&amp; \\ 
- 0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\ 
- 0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\ 
- 0&amp;  .&amp;  .&amp;  0&amp;  0&amp; 
-\end{pmatrix}_{mn*mn} \textrm{when } i\neq j.
-</annotation></semantics></math></p>
-</div>
-<div class="section level3">
-<h3 id="representation-of-parameters-in-the-code">Representation of parameters in the code<a class="anchor" aria-label="anchor" href="#representation-of-parameters-in-the-code"></a>
+\end{pmatrix}</annotation></semantics></math><p> ]</p>
+[B^{ii} =
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>i</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mi>n</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>I</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\begin{pmatrix}
+ \lambda _{ii}^{(1)}P_{1}^{(ii)}&amp;  \lambda _{ii}^{(2)}P_{2}^{(ii)}&amp;  .&amp;  .&amp;  \lambda _{ii}^{(n)}P_{n}^{(ii)}&amp; \\
+ I&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+ 0&amp;  I&amp;  .&amp;  .&amp;  0&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ 0&amp;  .&amp;  .&amp;  I&amp;  0&amp;
+\end{pmatrix}</annotation></semantics></math><p>_{mn*mn} ]</p>
+[ B^{ij} =
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi>P</mi><mi>n</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mi>.</mi></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\begin{pmatrix}
+ \lambda _{ij}^{(1)}P_{1}^{(ij)}&amp;  \lambda _{ij}^{(2)}P_{2}^{(ij)}&amp;  .&amp;  .&amp;  \lambda _{ij}^{(n)}P_{n}^{(ij)}&amp; \\
+ 0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+ 0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ .&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+ 0&amp;  .&amp;  .&amp;  0&amp;  0&amp;
+\end{pmatrix}</annotation></semantics></math><p>_{mn*mn} ij. ]</p>
+</section><section class="level2"><h3 id="representation-of-parameters-in-the-code">Representation of parameters in the code<a class="anchor" aria-label="anchor" href="#representation-of-parameters-in-the-code"></a>
 </h3>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{(ij)}</annotation></semantics></math>
-is represented as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Ph(i,j)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\lambda _{ij}^{(h)}</annotation></semantics></math>
-as Lambdah(i,j). For example:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>13</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">P_{2}^{(13)}</annotation></semantics></math>
-as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P2(1,3)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>λ</mi><mn>45</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\lambda _{45}^{(3)}</annotation></semantics></math>
-as Lambda3(4,5).</p>
-</div>
-<div class="section level3">
-<h3 id="definition-of-hommc-class">Definition of HOMMC class<a class="anchor" aria-label="anchor" href="#definition-of-hommc-class"></a>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{(ij)}</annotation></semantics></math> is represented as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Ph(i,j)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>j</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\lambda _{ij}^{(h)}</annotation></semantics></math> as Lambdah(i,j). For example: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>13</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">P_{2}^{(13)}</annotation></semantics></math> as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P2(1,3)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>λ</mi><mn>45</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\lambda _{45}^{(3)}</annotation></semantics></math> as Lambda3(4,5).</p>
+</section><section class="level2"><h3 id="definition-of-hommc-class">Definition of HOMMC class<a class="anchor" aria-label="anchor" href="#definition-of-hommc-class"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/methods/RClassUtils.html" class="external-link">showClass</a></span><span class="op">(</span><span class="st">"hommc"</span><span class="op">)</span></span>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">showClass</span><span class="op">(</span><span class="st">"hommc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Class "hommc" [package "markovchain"]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Slots:</span></span>
 <span><span class="co">#&gt;                                                                   </span></span>
 <span><span class="co">#&gt; Name:      order    states         P    Lambda     byrow      name</span></span>
 <span><span class="co">#&gt; Class:   numeric character     array   numeric   logical character</span></span></code></pre></div>
-<p>Any element of <code>hommc</code> class is comprised by following
-slots:</p>
-<ol style="list-style-type: decimal">
-<li>states: a character vector, listing the states for which transition
-probabilities are defined.</li>
-<li>byrow: a logical element, indicating whether transition
-probabilities are shown by row or by column.</li>
+</div>
+<p>Any element of <code>hommc</code> class is comprised by following slots:</p>
+<ol type="1">
+<li>states: a character vector, listing the states for which transition probabilities are defined.</li>
+<li>byrow: a logical element, indicating whether transition probabilities are shown by row or by column.</li>
 <li>order: order of Multivariate Markov chain.</li>
 <li>P: an array of all transition matrices.</li>
-<li>Lambda: a vector to store the weightage of each transition
-matrix.</li>
+<li>Lambda: a vector to store the weightage of each transition matrix.</li>
 <li>name: optional character element to name the HOMMC</li>
-</ol>
-</div>
-<div class="section level3">
-<h3 id="how-to-create-an-object-of-class-hommc">How to create an object of class HOMMC<a class="anchor" aria-label="anchor" href="#how-to-create-an-object-of-class-hommc"></a>
+</ol></section><section class="level2"><h3 id="how-to-create-an-object-of-class-hommc">How to create an object of class HOMMC<a class="anchor" aria-label="anchor" href="#how-to-create-an-object-of-class-hommc"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>, <span class="st">'b'</span><span class="op">)</span></span>
 <span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">states</span>, <span class="va">states</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">P</span><span class="op">[</span> , , <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, byrow <span class="op">=</span> <span class="cn">FALSE</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -300,7 +213,7 @@ matrix.</li>
 <span></span>
 <span><span class="va">Lambda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.7</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">hob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/new.html" class="external-link">new</a></span><span class="op">(</span><span class="st">"hommc"</span>, order <span class="op">=</span> <span class="fl">1</span>, Lambda <span class="op">=</span> <span class="va">Lambda</span>, P <span class="op">=</span> <span class="va">P</span>, states <span class="op">=</span> <span class="va">states</span>, </span>
+<span><span class="va">hob</span> <span class="op">&lt;-</span> <span class="fu">new</span><span class="op">(</span><span class="st">"hommc"</span>, order <span class="op">=</span> <span class="fl">1</span>, Lambda <span class="op">=</span> <span class="va">Lambda</span>, P <span class="op">=</span> <span class="va">P</span>, states <span class="op">=</span> <span class="va">states</span>, </span>
 <span>           byrow <span class="op">=</span> <span class="cn">FALSE</span>, name <span class="op">=</span> <span class="st">"FOMMC"</span><span class="op">)</span></span>
 <span><span class="va">hob</span></span>
 <span><span class="co">#&gt; Order of multivariate markov chain = 1 </span></span>
@@ -331,36 +244,18 @@ matrix.</li>
 <span><span class="co">#&gt; a 0.5 0.5</span></span>
 <span><span class="co">#&gt; b 0.5 0.5</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="fit-hommc">Fit HOMMC<a class="anchor" aria-label="anchor" href="#fit-hommc"></a>
+</section><section class="level2"><h3 id="fit-hommc">Fit HOMMC<a class="anchor" aria-label="anchor" href="#fit-hommc"></a>
 </h3>
-<p><code>fitHighOrderMultivarMC</code> method is available to fit HOMMC.
-Below are the 3 parameters of this method.</p>
-<ol style="list-style-type: decimal">
-<li>seqMat: a character matrix or a data frame, each column represents a
-categorical sequence.</li>
+<p><code>fitHighOrderMultivarMC</code> method is available to fit HOMMC. Below are the 3 parameters of this method.</p>
+<ol type="1">
+<li>seqMat: a character matrix or a data frame, each column represents a categorical sequence.</li>
 <li>order: order of Multivariate Markov chain. Default is 2.</li>
 <li>Norm: Norm to be used. Default is 2.</li>
-</ol>
-</div>
-</div>
-<div class="section level2">
-<h2 id="a-marketing-example">A Marketing Example<a class="anchor" aria-label="anchor" href="#a-marketing-example"></a>
+</ol></section></section><section class="section level2"><h2 id="a-marketing-example">A Marketing Example<a class="anchor" aria-label="anchor" href="#a-marketing-example"></a>
 </h2>
-<p>We tried to replicate the example found in <span class="citation">(Ching, Ng, and Fung 2008)</span> for an application of
-HOMMC. A soft-drink company in Hong Kong is facing an in-house problem
-of production planning and inventory control. A pressing issue is the
-storage space of its central warehouse, which often finds itself in the
-state of overflow or near capacity. The company is thus in urgent needs
-to study the interplay between the storage space requirement and the
-overall growing sales demand. The product can be classified into six
-possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All
-products are labeled as 1 = no sales volume, 2 = very slow-moving (very
-low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 =
-very fast-moving (very high sales volume). Such labels are useful from
-both marketing and production planning points of view. The data is
-cointaind in <code>sales</code> object.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>We tried to replicate the example found in <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> for an application of HOMMC. A soft-drink company in Hong Kong is facing an in-house problem of production planning and inventory control. A pressing issue is the storage space of its central warehouse, which often finds itself in the state of overflow or near capacity. The company is thus in urgent needs to study the interplay between the storage space requirement and the overall growing sales demand. The product can be classified into six possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All products are labeled as 1 = no sales volume, 2 = very slow-moving (very low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 = very fast-moving (very high sales volume). Such labels are useful from both marketing and production planning points of view. The data is cointaind in <code>sales</code> object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sales</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sales</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      A   B   C   D   E  </span></span>
@@ -370,73 +265,49 @@ cointaind in <code>sales</code> object.</p>
 <span><span class="co">#&gt; [4,] "6" "1" "6" "2" "2"</span></span>
 <span><span class="co">#&gt; [5,] "2" "6" "6" "2" "2"</span></span>
 <span><span class="co">#&gt; [6,] "6" "1" "6" "3" "3"</span></span></code></pre></div>
-<p>The company would also like to predict sales demand for an important
-customer in order to minimize its inventory build-up. More importantly,
-the company can understand the sales pattern of this customer and then
-develop a marketing strategy to deal with this customer. Customer’s
-sales demand sequences of five important products of the company for a
-year. We expect sales demand sequences generated by the same customer to
-be correlated to each other. Therefore by exploring these relationships,
-one can obtain a better higher-order multivariate Markov model for such
-demand sequences, hence obtain better prediction rules.</p>
-<p>In <span class="citation">(Ching, Ng, and Fung 2008)</span>
-application, they choose the order arbitrarily to be eight, i.e., n = 8.
-We first estimate all the transition probability matrices
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mi>i</mi><mi>j</mi></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{ij}</annotation></semantics></math>
-and we also have the estimates of the stationary probability
-distributions of the five products:.</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>𝐱</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0818</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4052</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0483</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0335</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4275</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐓</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(1)} = \begin{pmatrix}
+</div>
+<p>The company would also like to predict sales demand for an important customer in order to minimize its inventory build-up. More importantly, the company can understand the sales pattern of this customer and then develop a marketing strategy to deal with this customer. Customer’s sales demand sequences of five important products of the company for a year. We expect sales demand sequences generated by the same customer to be correlated to each other. Therefore by exploring these relationships, one can obtain a better higher-order multivariate Markov model for such demand sequences, hence obtain better prediction rules.</p>
+<p>In <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> application, they choose the order arbitrarily to be eight, i.e., n = 8. We first estimate all the transition probability matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mi>i</mi><mi>j</mi></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{ij}</annotation></semantics></math> and we also have the estimates of the stationary probability distributions of the five products:.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0818</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4052</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0483</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0335</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4275</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(1)} = \begin{pmatrix}
 0.0818&amp;  0.4052&amp;  0.0483&amp;  0.0335&amp; 0.0037&amp; 0.4275
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>𝐱</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.3680</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1970</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0335</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3978</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐓</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(2)} = \begin{pmatrix}
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.3680</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1970</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0335</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3978</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(2)} = \begin{pmatrix}
 0.3680&amp;  0.1970&amp;  0.0335&amp;  0.0000&amp; 0.0037&amp; 0.3978
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>𝐱</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.1450</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2045</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0186</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.6283</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐓</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(3)} = \begin{pmatrix}
-0.1450&amp;  0.2045&amp;  0.0186&amp;  0.0000&amp; 0.0037&amp; 0.6283
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.1450</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2045</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0186</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.6283</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(3)} = \begin{pmatrix}
+0.1450&amp; 0.2045&amp; 0.0186&amp; 0.0000&amp; 0.0037&amp; 0.6283
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>𝐱</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3569</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1338</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1896</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0632</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2565</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐓</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(4)} = \begin{pmatrix}
-0.0000&amp;  0.3569&amp;  0.1338&amp;  0.1896&amp; 0.0632&amp; 0.2565
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3569</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1338</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1896</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0632</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2565</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(4)} = \begin{pmatrix}
+0.0000&amp; 0.3569&amp; 0.1338&amp; 0.1896&amp; 0.0632&amp; 0.2565
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>𝐱</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3569</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1227</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2268</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0520</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2416</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐓</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(5)} = \begin{pmatrix}
-0.0000&amp;  0.3569&amp;  0.1227&amp;  0.2268&amp; 0.0520&amp; 0.2416
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0000</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.3569</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.1227</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2268</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0520</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.2416</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(5)} = \begin{pmatrix}
+0.0000&amp; 0.3569&amp; 0.1227&amp; 0.2268&amp; 0.0520&amp; 0.2416
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
-<p>By solving the corresponding linear programming problems, we obtain
-the following higher-order multivariate Markov chain model:</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐱</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>𝐏</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(1)} = \boldsymbol{P}_{1}^{(12)}\boldsymbol{x}_{r}^{(2)}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐱</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.6364</mn><msubsup><mi>𝐏</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>22</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.3636</mn><msubsup><mi>𝐏</mi><mn>3</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>22</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(2)} = 0.6364\boldsymbol{P}_{1}^{(22)}\boldsymbol{x}_{r}^{(2)} +
+<p>By solving the corresponding linear programming problems, we obtain the following higher-order multivariate Markov chain model:</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>12</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(1)} = \boldsymbol{P}_{1}^{(12)}\boldsymbol{x}_{r}^{(2)}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.6364</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>22</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.3636</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>3</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>22</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(2)} = 0.6364\boldsymbol{P}_{1}^{(22)}\boldsymbol{x}_{r}^{(2)} +
 0.3636\boldsymbol{P}_{3}^{(22)}\boldsymbol{x}_{r}^{(2)}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐱</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>3</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>𝐏</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>35</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(3)} = \boldsymbol{P}_{1}^{(35)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐱</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.2994</mn><msubsup><mi>𝐏</mi><mn>8</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>42</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.4324</mn><msubsup><mi>𝐏</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>45</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.2681</mn><msubsup><mi>𝐏</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>45</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(4)} = 0.2994\boldsymbol{P}_{8}^{(42)}\boldsymbol{x}_{r}^{(2)} +
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>35</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(3)} = \boldsymbol{P}_{1}^{(35)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.2994</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>8</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>42</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.4324</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>45</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.2681</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>45</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(4)} = 0.2994\boldsymbol{P}_{8}^{(42)}\boldsymbol{x}_{r}^{(2)} +
 0.4324\boldsymbol{P}_{1}^{(45)}\boldsymbol{x}_{r}^{(5)} + 0.2681\boldsymbol{P}_{2}^{(45)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐱</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.2718</mn><msubsup><mi>𝐏</mi><mn>8</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>52</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.6738</mn><msubsup><mi>𝐏</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>54</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>4</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.0544</mn><msubsup><mi>𝐏</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>55</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><msubsup><mi>𝐱</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(5)} = 0.2718\boldsymbol{P}_{8}^{(52)}\boldsymbol{x}_{r}^{(2)} +
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.2718</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>8</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>52</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.6738</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>54</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.0544</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>55</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(5)} = 0.2718\boldsymbol{P}_{8}^{(52)}\boldsymbol{x}_{r}^{(2)} +
 0.6738\boldsymbol{P}_{1}^{(54)}\boldsymbol{x}_{r}^{(4)} + 0.0544\boldsymbol{P}_{2}^{(55)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
-<p>According to the constructed 8th order multivariate Markov model,
-Products A and B are closely related. In particular, the sales demand of
-Product A depends strongly on Product B. The main reason is that the
-chemical nature of Products A and B is the same, but they have different
-packaging for marketing purposes. Moreover, Products B, C, D and E are
-closely related. Similarly, products C and E have the same product
-flavor, but different packaging. In this model, it is interesting to
-note that both Product D and E quite depend on Product B at order of 8,
-this relationship is hardly to be obtained in conventional Markov model
-owing to huge amount of parameters. The results show that higher-order
-multivariate Markov model is quite significant to analyze the
-relationship of sales demand.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship is hardly to be obtained in conventional Markov model owing to huge amount of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit 8th order multivariate markov chain</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"Rsolnp"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fitHighOrderMultivarMC.html">fitHighOrderMultivarMC</a></span><span class="op">(</span><span class="va">sales</span>, order <span class="op">=</span> <span class="fl">8</span>, Norm <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We choose to show only results shown in the paper. We see that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
-values are quite close, but not equal, to those shown in the original
-paper.</p>
-<pre><code><span><span class="co">#&gt; Order of multivariate markov chain = 8 </span></span>
-<span><span class="co">#&gt; states = 1 2 3 4 5 6 </span></span>
-<span><span class="co">#&gt; </span></span>
+</div>
+<p>We choose to show only results shown in the paper. We see that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> values are quite close, but not equal, to those shown in the original paper.</p>
+<div class="cell">
+<pre><code><span><span class="co">#&gt; Order of multivariate markov chain = 8</span></span>
+<span><span class="co">#&gt; states = 1 2 3 4 5 6</span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; List of Lambda's and the corresponding transition matrix (by cols) :</span></span>
 <span><span class="co">#&gt; Lambda1(1,2) : 0.9999989</span></span>
-<span><span class="co">#&gt; P1(1,2) : </span></span>
+<span><span class="co">#&gt; P1(1,2) :</span></span>
 <span><span class="co">#&gt;            1         2         3         4 5          6</span></span>
 <span><span class="co">#&gt; 1 0.06060606 0.1509434 0.0000000 0.1666667 0 0.07547170</span></span>
 <span><span class="co">#&gt; 2 0.44444444 0.4716981 0.4444444 0.1666667 1 0.33018868</span></span>
@@ -444,9 +315,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.01010101 0.0754717 0.2222222 0.1666667 0 0.01886792</span></span>
 <span><span class="co">#&gt; 5 0.01010101 0.0000000 0.0000000 0.1666667 0 0.00000000</span></span>
 <span><span class="co">#&gt; 6 0.46464646 0.1698113 0.1111111 0.1666667 0 0.54716981</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda1(2,2) : 0.4804717</span></span>
-<span><span class="co">#&gt; P1(2,2) : </span></span>
+<span><span class="co">#&gt; P1(2,2) :</span></span>
 <span><span class="co">#&gt;            1          2         3         4 5           6</span></span>
 <span><span class="co">#&gt; 1 0.40404040 0.20754717 0.0000000 0.1666667 1 0.433962264</span></span>
 <span><span class="co">#&gt; 2 0.11111111 0.47169811 0.3333333 0.1666667 0 0.132075472</span></span>
@@ -454,9 +325,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.00000000 0.00000000 0.0000000 0.1666667 0 0.000000000</span></span>
 <span><span class="co">#&gt; 5 0.00000000 0.00000000 0.1111111 0.1666667 0 0.000000000</span></span>
 <span><span class="co">#&gt; 6 0.46464646 0.26415094 0.2222222 0.1666667 0 0.424528302</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda3(2,2) : 0.3872859</span></span>
-<span><span class="co">#&gt; P3(2,2) : </span></span>
+<span><span class="co">#&gt; P3(2,2) :</span></span>
 <span><span class="co">#&gt;            1          2         3         4 5          6</span></span>
 <span><span class="co">#&gt; 1 0.40404040 0.16981132 0.3333333 0.1666667 0 0.44230769</span></span>
 <span><span class="co">#&gt; 2 0.18181818 0.33962264 0.2222222 0.1666667 0 0.14423077</span></span>
@@ -464,9 +335,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.00000000 0.00000000 0.0000000 0.1666667 0 0.00000000</span></span>
 <span><span class="co">#&gt; 5 0.00000000 0.00000000 0.1111111 0.1666667 0 0.00000000</span></span>
 <span><span class="co">#&gt; 6 0.38383838 0.43396226 0.3333333 0.1666667 1 0.38461538</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda1(3,5) : 0.6756704</span></span>
-<span><span class="co">#&gt; P1(3,5) : </span></span>
+<span><span class="co">#&gt; P1(3,5) :</span></span>
 <span><span class="co">#&gt;           1          2         3         4          5          6</span></span>
 <span><span class="co">#&gt; 1 0.1666667 0.09473684 0.1515152 0.1639344 0.07142857 0.21538462</span></span>
 <span><span class="co">#&gt; 2 0.1666667 0.18947368 0.2727273 0.2295082 0.14285714 0.18461538</span></span>
@@ -474,9 +345,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.1666667 0.00000000 0.0000000 0.0000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 5 0.1666667 0.01052632 0.0000000 0.0000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 6 0.1666667 0.66315789 0.5757576 0.6065574 0.78571429 0.58461538</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda8(4,2) : 0.2723349</span></span>
-<span><span class="co">#&gt; P8(4,2) : </span></span>
+<span><span class="co">#&gt; P8(4,2) :</span></span>
 <span><span class="co">#&gt;            1          2         3         4 5          6</span></span>
 <span><span class="co">#&gt; 1 0.00000000 0.00000000 0.0000000 0.1666667 0 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.34343434 0.18867925 0.6666667 0.1666667 0 0.42424242</span></span>
@@ -484,9 +355,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.20202020 0.22641509 0.1111111 0.1666667 0 0.17171717</span></span>
 <span><span class="co">#&gt; 5 0.08080808 0.09433962 0.1111111 0.1666667 0 0.03030303</span></span>
 <span><span class="co">#&gt; 6 0.27272727 0.32075472 0.1111111 0.1666667 0 0.23232323</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda1(4,5) : 0.2297785</span></span>
-<span><span class="co">#&gt; P1(4,5) : </span></span>
+<span><span class="co">#&gt; P1(4,5) :</span></span>
 <span><span class="co">#&gt;           1          2          3          4          5          6</span></span>
 <span><span class="co">#&gt; 1 0.1666667 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.1666667 0.47368421 0.21212121 0.03278689 0.00000000 0.64615385</span></span>
@@ -494,9 +365,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.1666667 0.00000000 0.24242424 0.54098361 0.57142857 0.03076923</span></span>
 <span><span class="co">#&gt; 5 0.1666667 0.01052632 0.03030303 0.18032787 0.28571429 0.00000000</span></span>
 <span><span class="co">#&gt; 6 0.1666667 0.41052632 0.30303030 0.04918033 0.07142857 0.23076923</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda2(4,5) : 0.2989415</span></span>
-<span><span class="co">#&gt; P2(4,5) : </span></span>
+<span><span class="co">#&gt; P2(4,5) :</span></span>
 <span><span class="co">#&gt;           1          2          3          4          5          6</span></span>
 <span><span class="co">#&gt; 1 0.1666667 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.1666667 0.55319149 0.36363636 0.06557377 0.00000000 0.41538462</span></span>
@@ -504,9 +375,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.1666667 0.05319149 0.24242424 0.40983607 0.64285714 0.06153846</span></span>
 <span><span class="co">#&gt; 5 0.1666667 0.02127660 0.06060606 0.16393443 0.07142857 0.03076923</span></span>
 <span><span class="co">#&gt; 6 0.1666667 0.23404255 0.24242424 0.14754098 0.00000000 0.44615385</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda8(5,2) : 0.2273945</span></span>
-<span><span class="co">#&gt; P8(5,2) : </span></span>
+<span><span class="co">#&gt; P8(5,2) :</span></span>
 <span><span class="co">#&gt;            1          2         3         4 5          6</span></span>
 <span><span class="co">#&gt; 1 0.00000000 0.00000000 0.0000000 0.1666667 0 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.35353535 0.20754717 0.6666667 0.1666667 1 0.39393939</span></span>
@@ -514,9 +385,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.22222222 0.30188679 0.2222222 0.1666667 0 0.20202020</span></span>
 <span><span class="co">#&gt; 5 0.09090909 0.03773585 0.0000000 0.1666667 0 0.03030303</span></span>
 <span><span class="co">#&gt; 6 0.23232323 0.30188679 0.1111111 0.1666667 0 0.24242424</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda1(5,4) : 0.2264493</span></span>
-<span><span class="co">#&gt; P1(5,4) : </span></span>
+<span><span class="co">#&gt; P1(5,4) :</span></span>
 <span><span class="co">#&gt;           1          2          3          4          5          6</span></span>
 <span><span class="co">#&gt; 1 0.1666667 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.1666667 0.48421053 0.16666667 0.01960784 0.05882353 0.60869565</span></span>
@@ -524,9 +395,9 @@ paper.</p>
 <span><span class="co">#&gt; 4 0.1666667 0.00000000 0.44444444 0.62745098 0.64705882 0.02898551</span></span>
 <span><span class="co">#&gt; 5 0.1666667 0.01052632 0.02777778 0.15686275 0.23529412 0.00000000</span></span>
 <span><span class="co">#&gt; 6 0.1666667 0.40000000 0.19444444 0.03921569 0.00000000 0.24637681</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Lambda2(5,5) : 0.5396229</span></span>
-<span><span class="co">#&gt; P2(5,5) : </span></span>
+<span><span class="co">#&gt; P2(5,5) :</span></span>
 <span><span class="co">#&gt;           1          2          3          4          5          6</span></span>
 <span><span class="co">#&gt; 1 0.1666667 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000</span></span>
 <span><span class="co">#&gt; 2 0.1666667 0.52127660 0.42424242 0.04918033 0.07142857 0.43076923</span></span>
@@ -535,49 +406,117 @@ paper.</p>
 <span><span class="co">#&gt; 5 0.1666667 0.02127660 0.03030303 0.11475410 0.21428571 0.01538462</span></span>
 <span><span class="co">#&gt; 6 0.1666667 0.27659574 0.18181818 0.09836066 0.00000000 0.40000000</span></span></code></pre>
 </div>
-<div class="section level2">
-<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
-<div id="ref-ching2013higher" class="csl-entry">
-Ching, Wai-Ki, Ximin Huang, Michael K Ng, and Tak-Kuen Siu. 2013.
-<span>“Higher-Order Markov Chains.”</span> In <em>Markov Chains</em>,
-141–76. Springer.
+<section class="level2"><h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-ching2013higher" class="csl-entry" role="listitem">
+Ching, Wai-Ki, Ximin Huang, Michael K Ng, and Tak-Kuen Siu. 2013. <span>“Higher-Order Markov Chains.”</span> In <em>Markov Chains</em>. Springer.
 </div>
-<div id="ref-ching2008higher" class="csl-entry">
-Ching, Wai-Ki, Michael K Ng, and Eric S Fung. 2008. <span>“Higher-Order
-Multivariate Markov Chains and Their Applications.”</span> <em>Linear
-Algebra and Its Applications</em> 428 (2): 492–507.
+<div id="ref-ching2008higher" class="csl-entry" role="listitem">
+Ching, Wai-Ki, Michael K Ng, and Eric S Fung. 2008. <span>“Higher-Order Multivariate Markov Chains and Their Applications.”</span> <em>Linear Algebra and Its Applications</em> 428 (2): 492–507.
 </div>
-<div id="ref-pkg:Rsolnp" class="csl-entry">
-Ghalanos, Alexios, and Stefan Theussl. 2014. <em>Rsolnp: General
-Non-Linear Optimization Using Augmented Lagrange Multiplier Method</em>.
+<div id="ref-pkg:Rsolnp" class="csl-entry" role="listitem">
+Ghalanos, Alexios, and Stefan Theussl. 2014. <em>Rsolnp: General Non-Linear Optimization Using Augmented Lagrange Multiplier Method</em>.
 </div>
 </div>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
+    }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
-  </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
-
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón.</p>
 </div>
 
-
-
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Giorgio Alfredo Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi, Deepak Yadav, Ignacio Cordón.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+    </footer>
 </div>
-
-      </footer>
-</div>
-
 
 
 

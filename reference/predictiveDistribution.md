@@ -1,0 +1,69 @@
+# predictiveDistribution
+
+The function computes the probability of observing a new data set, given
+a data set
+
+## Usage
+
+``` r
+predictiveDistribution(stringchar, newData, hyperparam = matrix())
+```
+
+## Arguments
+
+- stringchar:
+
+  This is the data using which the Bayesian inference is performed.
+
+- newData:
+
+  This is the data whose predictive probability is computed.
+
+- hyperparam:
+
+  This determines the shape of the prior distribution of the parameters.
+  If none is provided, default value of 1 is assigned to each parameter.
+  This must be of size kxk where k is the number of states in the chain
+  and the values should typically be non-negative integers.
+
+## Value
+
+The log of the probability is returned.
+
+## Details
+
+The underlying method is Bayesian inference. The probability is computed
+by averaging the likelihood of the new data with respect to the
+posterior. Since the method assumes conjugate priors, the result can be
+represented in a closed form (see the vignette for more details), which
+is what is returned.
+
+## References
+
+Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy
+Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P.
+Crutchfield, Alfred Hubler, Santa Fe Institute
+
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order
+Markov Chains. R package version 0.2.5
+
+## See also
+
+[`markovchainFit`](markovchainFit.md)
+
+## Author
+
+Sai Bhargav Yalamanchi
+
+## Examples
+
+``` r
+sequence<- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
+             "b", "b", "b", "a")
+hyperMatrix<-matrix(c(1, 2, 1, 4), nrow = 2,dimnames=list(c("a","b"),c("a","b")))
+predProb <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix )
+hyperMatrix2<-hyperMatrix[c(2,1),c(2,1)]
+predProb2 <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam =hyperMatrix2 )
+predProb2==predProb
+#> [1] TRUE
+```

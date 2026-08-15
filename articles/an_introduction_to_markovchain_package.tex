@@ -2180,10 +2180,11 @@ R> sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a",
 R> verifyMarkovProperty(sample_sequence)
 \end{CodeInput}
 \begin{CodeOutput}
-Testing markovianity property on given data sequence
-Chi - square statistic is: 0.28 
-Degrees of freedom are: 5 
-And corresponding p-value is: 0.9980024 
+Testing compatibility with a first-order Markov model
+ Method: G 
+Statistic: 0.5991613 
+Degrees of freedom: 2 
+p-value: 0.741129 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2311,30 +2312,11 @@ R> rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 R> verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
 \end{CodeInput}
 \begin{CodeOutput}
-Testing whether the
-   0  1  2
-0 51 11  8
-1 12 31  9
-2  6 11 10
-transition matrix is compatible with
-      0     1     2
-0 0.625 0.250 0.125
-1 0.250 0.500 0.250
-2 0.250 0.375 0.375
-[1] "theoretical transition matrix"
-ChiSq statistic is 6.551795 d.o.f are 6 corresponding p-value is 0.3642899 
-\end{CodeOutput}
-\begin{CodeOutput}
-$statistic
-       0 
-6.551795 
-
-$dof
-[1] 6
-
-$pvalue
-        0 
-0.3642899 
+Testing compatibility of empirical and theoretical transition probabilities
+ Method: G 
+Statistic: 6.518384 
+Degrees of freedom: 6 
+p-value: 0.3676877 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2346,23 +2328,11 @@ R> data(kullback)
 R> verifyHomogeneity(inputList=kullback,verbose=TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
-Warning in verifyHomogeneity(inputList = kullback, verbose = TRUE): The
-accuracy of the statistical inference functions has been questioned. It will be
-thoroughly investigated in future versions of the package.
-\end{CodeOutput}
-\begin{CodeOutput}
-Testing homogeneity of DTMC underlying input list 
-ChiSq statistic is 275.9963 d.o.f are 35 corresponding p-value is 0 
-\end{CodeOutput}
-\begin{CodeOutput}
-$statistic
-[1] 275.9963
-
-$dof
-[1] 35
-
-$pvalue
-[1] 0
+Testing homogeneity of transition probabilities across sequences
+ Method: G 
+Statistic: 160.9606 
+Degrees of freedom: 29 
+p-value: 3.087972e-20 
 \end{CodeOutput}
 \end{CodeChunk}
 

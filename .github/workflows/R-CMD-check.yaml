@@ -13,9 +13,12 @@ permissions: read-all
 jobs:
   R-CMD-check:
     if: >-
-      github.event_name == 'push' &&
-      (startsWith(github.event.head_commit.message, 'feat:') ||
-       startsWith(github.event.head_commit.message, 'fix:'))
+      (github.event_name == 'push' &&
+       (startsWith(github.event.head_commit.message, 'feat:') ||
+        startsWith(github.event.head_commit.message, 'fix:'))) ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.event.pull_request.title, 'feat:') ||
+        startsWith(github.event.pull_request.title, 'fix:')))
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})

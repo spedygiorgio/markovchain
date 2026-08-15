@@ -5,6 +5,8 @@
 #' alternative. Equivalently, the test assesses
 #' `X[t-1] independent of X[t+1] | X[t]`.
 #'
+#' @rdname statisticalTests
+#' @family statisticalTests
 #' @param sequence An empirical sequence of states.
 #' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
 #' @param B Number of Monte Carlo replicates for `method = "simulation"`.
@@ -39,7 +41,6 @@ verifyMarkovProperty <- function(sequence,
   n <- length(sequence)
   idx <- match(sequence, states)
 
-  # Counts N_ijk for consecutive triples.
   Nijk <- array(0L, dim = c(r, r, r),
                 dimnames = list(states, states, states))
   linear <- idx[-c(1L, 2L)] +
@@ -47,12 +48,10 @@ verifyMarkovProperty <- function(sequence,
     (idx[1:(n - 2L)] - 1L) * r * r
   Nijk[] <- tabulate(linear, nbins = r^3L)
 
-  # N_ij+ and N_+jk, and N_+j+.
   Nij <- apply(Nijk, c(1L, 2L), sum)
   Njk <- apply(Nijk, c(2L, 3L), sum)
   Nj <- rowSums(Njk)
 
-  # Under H0: E_ijk = N_ij+ * N_+jk / N_+j+.
   expected <- array(0, dim = c(r, r, r),
                     dimnames = dimnames(Nijk))
   for (j in seq_len(r)) {
@@ -80,8 +79,8 @@ verifyMarkovProperty <- function(sequence,
 
   # Conditional-independence degrees of freedom. For each current state j,
   # the contribution is (number of observed previous states - 1) times
-  # (number of observed future states - 1). For a complete r-state support
-  # this reduces to r * (r - 1)^2.
+  # (number of observed future states - 1). For complete support this is
+  # r * (r - 1)^2.
   df <- 0L
   for (j in seq_len(r)) {
     previous <- sum(Nij[, j] > 0)
@@ -90,8 +89,6 @@ verifyMarkovProperty <- function(sequence,
       df <- df + (previous - 1L) * (future - 1L)
   }
 
-  # Estimated first-order transition matrix. Rows with no observed outgoing
-  # transitions are unidentifiable and are set to zero in the returned object.
   transition_matrix <- matrix(
     0, r, r, dimnames = list(states, states)
   )
@@ -122,9 +119,8 @@ verifyMarkovProperty <- function(sequence,
     if (!is.null(seed)) set.seed(seed)
 
     # Parametric bootstrap under the fitted first-order Markov model.
-    # The observed initial state is kept fixed. The transition matrix is
-    # re-estimated in every replicate, so parameter estimation is included
-    # in the simulated null distribution.
+    # The transition matrix is re-estimated in every replicate, so parameter
+    # estimation is included in the simulated null distribution.
     simulated <- numeric(B)
     initial <- idx[1L]
     P <- transition_matrix

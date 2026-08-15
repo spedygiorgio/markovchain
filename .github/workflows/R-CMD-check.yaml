@@ -29,9 +29,9 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -70,7 +70,6 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-
       # The TinyTeX download occasionally fails with "socket hang up"; retry once.
       - id: tinytex
         uses: r-lib/actions/setup-tinytex@v2
@@ -79,12 +78,11 @@ jobs:
       - if: steps.tinytex.outcome == 'failure'
         uses: r-lib/actions/setup-tinytex@v2
 
+      # Do not update tlmgr itself in CI: it can make the TeX environment
+      # non-reproducible and, on Windows, can trigger repository-signature
+      # problems ("pubkey missing"). Install only the packages we need.
       - name: Install additional LaTeX packages
-        run: |
-          tlmgr update --self
-          tlmgr install grfext
-          tlmgr install thumbpdf
-          tlmgr list --only-installed
+        run: tlmgr install grfext thumbpdf
 
       - uses: r-lib/actions/check-r-package@v2
         with:

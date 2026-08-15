@@ -5,6 +5,8 @@
 #include <RcppArmadillo.h>
 #include <algorithm>
 #include <vector>
+#include <unordered_map> // Added for O(1) hash map lookups
+#include <string>        // Added for std::string
 using namespace Rcpp;
 using namespace std;
 
@@ -16,51 +18,39 @@ T sortByDimNames(const T mat){
   int n = colNames.size();
   CharacterVector sortedNames(n);
 
+  // Copy and sort the row names to get the target alphabetical order
   copy(rowNames.begin(), rowNames.end(), sortedNames.begin());
   sortedNames.sort();
   
   NumericVector colIdx(n);
   NumericVector rowIdx(n);
   
+  // Level 2 Optimization: Use hash maps for O(1) lookups instead of O(N^2) nested loops
+  std::unordered_map<std::string, int> colMap;
+  std::unordered_map<std::string, int> rowMap;
+  
+  // Populate the hash maps with the original indices
+  for (int j = 0; j < n; j++) {
+    colMap[as<std::string>(colNames(j))] = j;
+    rowMap[as<std::string>(rowNames(j))] = j;
+  }
+  
+  // Retrieve the new indices based on the sorted names
   for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (colNames(j) == sortedNames(i))
-        colIdx(i) = j;
-      if (rowNames(j) == sortedNames(i))
-        rowIdx(i) = j;
-    }
+    std::string current_name = as<std::string>(sortedNames(i));
+    colIdx(i) = colMap[current_name];
+    rowIdx(i) = rowMap[current_name];
   }
   
   T sortedMatrix(n);
   sortedMatrix.attr("dimnames") = List::create(sortedNames, sortedNames);
   
+  // Populate the new sorted matrix
   for (int i = 0; i < n; i++)
     for (int j = 0; j < n; j++)
       sortedMatrix(i, j) = mat(rowIdx(i), colIdx(j));
       
   return sortedMatrix;
-}
-
-
-double lbeta(double p, double q){
-  return lgamma(p) + lgamma(q) - lgamma(p + q);
-}
-
-
-template <typename T>
-T transposeMatrix(T & mat) {      
-  int numRows = mat.nrow();
-  int numCols = mat.ncol();
-  
-  T transpose(numCols, numRows);
-  // Assign dim names transposed (rows to cols and viceversa)
-  transpose.attr("dimnames") = List::create(colnames(mat), rownames(mat));
-
-  for (int i = 0; i < numCols; ++i) {
-    transpose(i, _) = mat(_, i);
-  }
-  
-  return transpose;
 }
 
 

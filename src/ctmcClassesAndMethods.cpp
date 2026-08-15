@@ -25,23 +25,37 @@ using namespace Rcpp;
 //' generatorToTransitionMatrix(gen)
 //' 
 //' @export
-// [[Rcpp::export]]
+// [[Rcpp::export(.generatorToTransitionMatrix)]]
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow = true){
-  NumericMatrix transMatr(gen.nrow());
+  // Ho anche corretto la dimensione: usare gen.nrow(), gen.ncol() è più sicuro
+  // rispetto a passare un solo argomento al costruttore di Rcpp
+  NumericMatrix transMatr(gen.nrow(), gen.ncol());
   transMatr.attr("dimnames") = gen.attr("dimnames");
+  
+  double tol = 1e-10;
   
   if (byrow) {
     for (int i = 0; i < gen.nrow(); i++){
-      for (int j = 0; j < gen.ncol(); j++){
-        if (i != j)
-          transMatr(i, j) = -gen(i, j) / gen(i, i);
+      if (std::abs(gen(i, i)) < tol) {
+        // Issue#211: remaining probability is 1 for absorbing states
+        transMatr(i, i) = 1.0; 
+      } else {
+        for (int j = 0; j < gen.ncol(); j++){
+          if (i != j)
+            transMatr(i, j) = -gen(i, j) / gen(i, i);
+        }
       }
     }
   } else {
     for (int j = 0; j < gen.ncol(); j++){
-      for (int i = 0; i < gen.nrow(); i++){
-        if (i != j)
-          transMatr(i, j) = -gen(i, j) / gen(j, j);
+      if (std::abs(gen(j, j)) < tol) {
+        // Issue 211: absorbing state for column-wise logic
+        transMatr(j, j) = 1.0; 
+      } else {
+        for (int i = 0; i < gen.nrow(); i++){
+          if (i != j)
+            transMatr(i, j) = -gen(i, j) / gen(j, j);
+        }
       }
     }
   }

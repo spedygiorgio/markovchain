@@ -53,6 +53,25 @@ T sortByDimNames(const T mat){
   return sortedMatrix;
 }
 
+double lbeta(double p, double q){
+  return lgamma(p) + lgamma(q) - lgamma(p + q);
+}
+
+template <typename T>
+T transposeMatrix(T & mat) {      
+  int numRows = mat.nrow();
+  int numCols = mat.ncol();
+  
+  T transpose(numCols, numRows);
+  // Assign dim names transposed (rows to cols and viceversa)
+  transpose.attr("dimnames") = List::create(colnames(mat), rownames(mat));
+
+  for (int i = 0; i < numCols; ++i) {
+    transpose(i, _) = mat(_, i);
+  }
+  
+  return transpose;
+}
 
 /*
  Purpose:

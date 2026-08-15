@@ -1,0 +1,2 @@
+#' @importFrom stats rmultinom
+NULL

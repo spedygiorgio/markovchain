@@ -88,11 +88,13 @@ run_empirical_theoretical <- function(n_per_state = 100, r = 3, nrep = 500,
   for (b in seq_len(nrep)) {
     counts <- matrix(0, r, r, dimnames = dimnames(P))
     for (i in seq_len(r)) counts[i, ] <- rmultinom(1, n_per_state, P[i, ])
-    p_G[b] <- verifyEmpiricalToTheoretical(counts, mc, "G", FALSE)$p.value
-    p_P[b] <- verifyEmpiricalToTheoretical(counts, mc, "Pearson", FALSE)$p.value
-    p_MC[b] <- verifyEmpiricalToTheoretical(counts, mc, "simulation",
-                                             B = mc_B, seed = b,
-                                             verbose = FALSE)$p.value
+    p_G[b] <- verifyEmpiricalToTheoretical(
+      counts, mc, method = "G", verbose = FALSE)$p.value
+    p_P[b] <- verifyEmpiricalToTheoretical(
+      counts, mc, method = "Pearson", verbose = FALSE)$p.value
+    p_MC[b] <- verifyEmpiricalToTheoretical(
+      counts, mc, method = "simulation", B = mc_B, seed = b,
+      verbose = FALSE)$p.value
   }
   do.call(rbind, lapply(alpha, function(a)
     data.frame(test = c("G", "Pearson", "MonteCarlo"), scenario = "null",
@@ -114,19 +116,25 @@ run_homogeneity <- function(n = 500, r = 3, groups = 3, nrep = 500,
   for (b in seq_len(nrep)) {
     null_data <- lapply(seq_len(groups), function(g)
       rmarkovchain(n, mc, t0 = rownames(P)[1L]))
-    p_G[b] <- verifyHomogeneity(null_data, "G", FALSE)$p.value
-    p_P[b] <- verifyHomogeneity(null_data, "Pearson", FALSE)$p.value
-    p_MC[b] <- verifyHomogeneity(null_data, "simulation", B = mc_B,
-                                  seed = b, verbose = FALSE)$p.value
+    p_G[b] <- verifyHomogeneity(
+      null_data, method = "G", verbose = FALSE)$p.value
+    p_P[b] <- verifyHomogeneity(
+      null_data, method = "Pearson", verbose = FALSE)$p.value
+    p_MC[b] <- verifyHomogeneity(
+      null_data, method = "simulation", B = mc_B, seed = b,
+      verbose = FALSE)$p.value
 
     alt_data <- lapply(seq_len(groups), function(g) {
       P_use <- if (g == 2L) P_alt else P
       rmarkovchain(n, make_mc(P_use), t0 = rownames(P)[1L])
     })
-    alt_G[b] <- verifyHomogeneity(alt_data, "G", FALSE)$p.value
-    alt_P[b] <- verifyHomogeneity(alt_data, "Pearson", FALSE)$p.value
-    alt_MC[b] <- verifyHomogeneity(alt_data, "simulation", B = mc_B,
-                                    seed = b, verbose = FALSE)$p.value
+    alt_G[b] <- verifyHomogeneity(
+      alt_data, method = "G", verbose = FALSE)$p.value
+    alt_P[b] <- verifyHomogeneity(
+      alt_data, method = "Pearson", verbose = FALSE)$p.value
+    alt_MC[b] <- verifyHomogeneity(
+      alt_data, method = "simulation", B = mc_B, seed = b,
+      verbose = FALSE)$p.value
   }
 
   do.call(rbind, lapply(alpha, function(a)

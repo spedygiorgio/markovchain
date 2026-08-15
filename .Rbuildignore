@@ -14,3 +14,4 @@ support/*.*
 ^figure$
 ^\.gitmessage$
 ^\.vscode$
+leftovers/*.*

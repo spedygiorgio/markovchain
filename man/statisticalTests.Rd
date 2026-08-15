@@ -8,7 +8,8 @@
 \alias{verifyHomogeneity}
 \title{Various functions to perform statistical inference of DTMC}
 \usage{
-verifyMarkovProperty(sequence, verbose = TRUE)
+verifyMarkovProperty(sequence, method = c("G", "Pearson", "simulation"),
+B = 9999, seed = NULL, verbose = TRUE)
 
 assessOrder(sequence, verbose = TRUE)
 
@@ -19,7 +20,13 @@ verifyEmpiricalToTheoretical(data, object, verbose = TRUE)
 verifyHomogeneity(inputList, verbose = TRUE)
 }
 \arguments{
-\item{sequence}{An empirical sequence.}
+\item{sequence}{An empirical sequence of states.}
+
+\item{method}{Test statistic: \code{"G"}, \code{"Pearson"}, or \code{"simulation"}.}
+
+\item{B}{Number of Monte Carlo replicates for \code{method = "simulation"}.}
+
+\item{seed}{Optional random seed.}
 
 \item{verbose}{Should test results be printed out?}
 
@@ -32,53 +39,51 @@ verifyHomogeneity(inputList, verbose = TRUE)
 \item{inputList}{A list of items that can coerced to transition matrices}
 }
 \value{
-Verification result
+A list with statistic, degrees of freedom, p-value, method, observed and expected triple-transition counts, and the fitted first-order transition matrix. For \code{method = "simulation"}, simulated statistics, \code{B}, and the initial state are also returned.
 
-a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0
-that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
+Verification result.
+
+a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0 that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
 
 a list of transition matrices?
 }
 \description{
-These functions verify the Markov property, assess 
-             the order and stationarity of the Markov chain.
+\code{verifyMarkovProperty} tests the null hypothesis that the conditional distribution of the next state depends only on the current state, against a second-order Markov alternative. Equivalently, it tests the conditional independence \code{X[t-1] independent of X[t+1] | X[t]}. The \code{"G"} and \code{"Pearson"} methods use asymptotic chi-squared approximations; \code{"simulation"} uses a parametric Monte Carlo calibration under the fitted first-order model.
 
-This function tests whether an empirical transition matrix is statistically compatible
-with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
-that is 0 in the theoretical transition matrix the null hypothesis is rejected.
+These functions assess the Markov property, the order and stationarity of a Markov chain.
 
-Verifies that the s elements in the input list belongs to the same DTMC
+This function tests whether an empirical transition matrix is statistically compatible with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0 that is 0 in the theoretical transition matrix the null hypothesis is rejected.
+
+Verifies that the s elements in the input list belongs to the same DTMC.
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
               "a", "b", "a", "a", "b", "b", "b", "a")
 mcFit <- markovchainFit(data = sequence, byrow = FALSE)
 verifyMarkovProperty(sequence)
+verifyMarkovProperty(sequence, method = "Pearson")
+verifyMarkovProperty(sequence, method = "simulation", B = 99, seed = 123)
 assessOrder(sequence)
 assessStationarity(sequence, 1)
 
-
-
-#Example taken from Kullback Kupperman Tests for Contingency Tables and Markov Chains
-
+# Example taken from Kullback-Kupperman Tests for Contingency Tables and Markov Chains
 sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
-0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
+0,0,0,0,0,2,2,1,1,1,2,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
 
 mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 
 verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
 
-
 data(kullback)
 verifyHomogeneity(inputList=kullback,verbose=TRUE)
 
 }
 \references{
-Anderson and Goodman.
+Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about Markov chains. The Annals of Mathematical Statistics, 28(1), 89--110.
 }
 \seealso{
 \code{markovchain}

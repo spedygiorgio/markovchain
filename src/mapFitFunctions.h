@@ -3,12 +3,21 @@
  */
 
 CharacterVector clean_nas(CharacterVector elements_na){
-  CharacterVector elements;
-    
-  for(int i = 0; i < elements_na.size();i++)
-    if(elements_na[i] != "NA")
-      elements.push_back(elements_na[i]);
-
+  int count = 0;
+  // first cycle: count the number of non-NA elements
+  for(int i = 0; i < elements_na.size(); i++) {
+    if(elements_na[i] != "NA") count++;
+  }
+  
+  // create a new vector with the correct size
+  CharacterVector elements(count);
+  int idx = 0;
+  // Second cycle: populate the vector
+  for(int i = 0; i < elements_na.size(); i++) {
+    if(elements_na[i] != "NA") {
+      elements[idx++] = elements_na[i];
+    }
+  }
   return elements;
 }
   

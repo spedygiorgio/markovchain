@@ -51,6 +51,7 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
+          cache: true
 
       - name: Install TinyTeX
         run: |

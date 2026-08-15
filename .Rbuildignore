@@ -12,3 +12,5 @@ vignettes/*.log
 ^\.github$
 support/*.*
 ^figure$
+^\.gitmessage$
+^\.vscode$

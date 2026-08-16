@@ -7,6 +7,7 @@
 - Added explicit structural-zero support to `assessStationarity()`.
 - Statistical inference functions now return R-standard `htest` objects and use the standard `print.htest()` output, while retaining the legacy `dof` field for compatibility.
 - Expanded the `statistical_analysis` vignette with numerical test results and time-homogeneity examples.
+- Corrected structural-zero regression tests and the `assessStationarity()` documentation example used by package checks.
 
 # markovchain 0.11.0
 

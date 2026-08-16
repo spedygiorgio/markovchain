@@ -127,7 +127,7 @@ sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
 mcFit <- markovchainFit(data = sequence, byrow = FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
-assessStationarity(sequence, 1)
+assessStationarity(sequence, 2)
 
 # Structural zeros: a -> a is impossible.
 structural.zeros <- matrix(FALSE, 2, 2,

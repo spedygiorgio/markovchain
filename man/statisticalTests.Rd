@@ -37,51 +37,17 @@ verifyHomogeneity(
   seed = NULL,
   verbose = TRUE
 )
-
-verifyMarkovProperty(
-  sequence,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyEmpiricalToTheoretical(
-  data,
-  object,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyHomogeneity(
-  inputList,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
 }
 \arguments{
 \item{sequence}{An empirical sequence of states.}
-
 \item{method}{Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.}
-
 \item{B}{Number of Monte Carlo replicates for `method = "simulation"`.}
-
 \item{seed}{Optional random seed.}
-
 \item{verbose}{Should results be printed?}
-
 \item{nblocks}{Number of blocks.}
-
 \item{structural.zeros}{Optional logical transition matrix. `TRUE` marks a structurally impossible transition. Sampling zeros are not removed.}
-
 \item{data}{An empirical sequence or a matrix of transition counts.}
-
 \item{object}{A `markovchain` object specifying theoretical probabilities.}
-
 \item{inputList}{A list whose elements are empirical sequences or matrices.}
 }
 \value{
@@ -104,7 +70,7 @@ pooled transition counts, and individual transition counts.
 }
 \description{
 These functions verify the Markov property, assess 
-             the order and stationarity of the Markov chain.
+the order and stationarity of the Markov chain.
 
 This function tests whether an empirical transition matrix is statistically compatible
 with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0

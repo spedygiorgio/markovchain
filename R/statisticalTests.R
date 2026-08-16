@@ -108,6 +108,62 @@ verifyMarkovProperty <- function(sequence,
   invisible(result)
 }
 
+#' Assess the order of an empirical Markov chain
+#'
+#' Tests the first-order Markov property state by state by comparing the
+#' distribution of the state two steps ahead across possible predecessor
+#' states. The statistic is the sum of Pearson chi-squared statistics.
+#'
+#' @rdname statisticalTests
+#' @family statisticalTests
+#' @param sequence An empirical sequence of states.
+#' @param verbose Should test results be printed?
+#' @return A list containing the statistic, degrees of freedom and p-value.
+#' @export
+assessOrder <- function(sequence, verbose = TRUE) {
+  if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
+  if (anyNA(sequence)) stop("sequence must not contain missing values.")
+
+  states <- unique(sequence)
+  k <- length(states)
+  n <- length(sequence)
+  statistic <- 0
+
+  for (present in states) {
+    mat <- matrix(0, nrow = k, ncol = k,
+                  dimnames = list(states, states))
+    for (i in seq_len(n - 2L)) {
+      if (identical(sequence[i + 1L], present)) {
+        past <- as.character(sequence[i])
+        future <- as.character(sequence[i + 2L])
+        mat[past, future] <- mat[past, future] + 1
+      }
+    }
+
+    row_totals <- rowSums(mat)
+    active <- row_totals > 0
+    if (sum(active) > 1L && sum(colSums(mat) > 0) > 1L) {
+      expected <- outer(row_totals[active], colSums(mat)) /
+        sum(row_totals[active])
+      observed <- mat[active, , drop = FALSE]
+      positive <- expected > 0
+      statistic <- statistic +
+        sum((observed[positive] - expected[positive])^2 / expected[positive])
+    }
+  }
+
+  dof <- k * (k - 1L)^2
+  p.value <- if (dof > 0L) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_
+  result <- list(statistic = statistic, dof = dof, p.value = p.value)
+
+  if (verbose) {
+    cat("The assessOrder test statistic is:", statistic, "\n",
+        "The Chi-Square d.f. are:", dof, "\n",
+        "The p-value is:", p.value, "\n")
+  }
+  invisible(result)
+}
+
 #' Test compatibility of an empirical transition matrix with a theoretical one
 #'
 #' @rdname statisticalTests
@@ -218,7 +274,7 @@ verifyHomogeneity <- function(inputList, method = c("G", "Pearson", "simulation"
     out <- matrix(0, length(states), length(states), dimnames = list(states, states))
     out[rownames(m), colnames(m)] <- m; out
   })
-  pooled <- Reduce("+", mats); statistic <- 0; dof <- 0L
+  pooled <- Reduce("+", mats)
   hom_stat <- function(mats0) {
     pooled0 <- Reduce("+", mats0); stat <- 0
     for (i in seq_along(states)) {
@@ -235,7 +291,7 @@ verifyHomogeneity <- function(inputList, method = c("G", "Pearson", "simulation"
     }
     stat
   }
-  statistic <- hom_stat(mats)
+  statistic <- hom_stat(mats); dof <- 0L
   for (i in seq_along(states)) {
     totals <- vapply(mats, function(m) sum(m[i, ]), numeric(1)); active <- totals > 0
     destinations <- pooled[i, ] > 0; k <- sum(destinations)

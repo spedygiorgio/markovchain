@@ -1,6 +1,13 @@
+# markovchain 0.9.0
+
+- Added lumpability
+
+
 # markovchain 0.2.0
 
 - Corrected tests
+- added autoplot
+
 
 # markovchain 0.11.1
 

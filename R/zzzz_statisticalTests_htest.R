@@ -1,12 +1,24 @@
 # Standardize statistical inference results to R's htest convention.
 
 .asHtest <- function(result, method, data.name) {
-  statistic.name <- if (identical(method, "Pearson")) "X-squared" else "G-squared"
+  statistic.name <- switch(
+    method,
+    Pearson = "X-squared",
+    G = "G-squared",
+    simulation = "G-squared"
+  )
+  method.name <- switch(
+    method,
+    Pearson = "Pearson's Chi-squared test",
+    G = "Likelihood-ratio test",
+    simulation = "Parametric Monte Carlo test (likelihood-ratio statistic)"
+  )
+
   result$statistic <- setNames(as.numeric(result$statistic), statistic.name)
   result$parameter <- setNames(as.numeric(result$dof), "df")
   # Keep `dof` as a backward-compatible alias while exposing the standard
   # `htest` component `parameter`.
-  result$method <- method
+  result$method <- method.name
   result$data.name <- data.name
   class(result) <- c("htest", setdiff(class(result), "htest"))
   result

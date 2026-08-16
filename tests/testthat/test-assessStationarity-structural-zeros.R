@@ -1,6 +1,7 @@
 test_that("assessStationarity handles explicitly declared structural zeros", {
-  sequence <- c(1, 2, 1, 2, 1, 2, 2, 1, 2, 1,
-                1, 2, 1, 2, 1, 2, 2, 1, 2, 1)
+  # Alternating states ensures that 1 -> 1 is genuinely absent.
+  sequence <- c(1, 2, 1, 2, 1, 2, 1, 2,
+                1, 2, 1, 2, 1, 2, 1, 2)
 
   structural.zeros <- matrix(FALSE, 2, 2,
                               dimnames = list(c("1", "2"), c("1", "2")))

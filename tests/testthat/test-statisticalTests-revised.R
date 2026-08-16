@@ -80,3 +80,19 @@ test_that("assessStationarity returns a standard htest object", {
   expect_true(any(grepl("df", printed, fixed = TRUE)))
   expect_true(any(grepl("p-value", printed, fixed = TRUE)))
 })
+
+test_that("statistical test methods use descriptive htest labels", {
+  P <- matrix(c(.7, .3, .2, .8), 2, 2, byrow = TRUE,
+              dimnames = list(c("a", "b"), c("a", "b")))
+  mc <- new("markovchain", states = c("a", "b"), transitionMatrix = P)
+  counts <- matrix(c(70, 30, 20, 80), 2, 2, byrow = TRUE,
+                   dimnames = dimnames(P))
+
+  g <- verifyEmpiricalToTheoretical(counts, mc, method = "G", verbose = FALSE)
+  pearson <- verifyEmpiricalToTheoretical(counts, mc, method = "Pearson", verbose = FALSE)
+
+  expect_identical(g$method, "Likelihood-ratio test")
+  expect_identical(pearson$method, "Pearson's Chi-squared test")
+  expect_identical(g$data.name, "counts")
+  expect_identical(pearson$data.name, "counts")
+})

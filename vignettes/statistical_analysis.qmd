@@ -113,7 +113,7 @@ kullback_result <- verifyEmpiricalToTheoretical(
 kullback_result
 ```
 
-The published likelihood-ratio calculation gives $G^2=6.551795$, $df=6$ and $p=0.3642899$, so the theoretical transition matrix is **not rejected** at conventional significance levels. The example is especially useful because all numerical inputs are published and the null hypothesis is not rejected.
+The published likelihood-ratio calculation gives $G^2=6.551795$, $df=6$ and $p=0.3642899$, so the theoretical transition matrix is **not rejected** at conventional significance levels. The published calculation uses its own likelihood construction; the package's row-wise multinomial implementation is therefore used as a reproducible comparison rather than being asserted to reproduce the historical statistic exactly. The important common conclusion is the non-rejection of the theoretical transition matrix.
 
 For comparison, the Pearson version can be obtained directly with:
 
@@ -161,8 +161,7 @@ structural.zeros <- matrix(FALSE, 6, 6)
 # rules out particular transitions.
 structural.zeros[1, 1] <- TRUE
 
-# A compact artificial sequence is used here only to demonstrate the API;
-# the published contractor-payment application is discussed above.
+# A compact sequence is used here only to demonstrate the structural-zero API.
 structural.sequence <- c(2, 3, 4, 5, 6, 2, 3, 4, 5, 6,
                          2, 3, 4, 5, 6, 2, 3, 4, 5, 6)
 assessStationarity(

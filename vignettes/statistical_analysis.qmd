@@ -56,9 +56,11 @@ For complete support the asymptotic degrees of freedom are $r(r-1)^2$. With spar
 #| label: markov-test
 
 data(rain)
-verifyMarkovProperty(rain$rain, method = "G", verbose = FALSE)
-verifyMarkovProperty(rain$rain, method = "Pearson", verbose = FALSE)
+verifyMarkovProperty(rain$rain, method = "G", verbose = TRUE)
+verifyMarkovProperty(rain$rain, method = "Pearson", verbose = TRUE)
 ```
+
+The printed output above reports the statistic, degrees of freedom and p-value for the two asymptotic tests. Keeping `verbose = TRUE` in the vignette makes the numerical result part of the rendered example rather than silently suppressing it.
 
 ## Empirical versus theoretical transition probabilities
 
@@ -74,7 +76,7 @@ P <- matrix(c(.70, .20, .10,
 mc <- new("markovchain", states = c("a", "b", "c"), transitionMatrix = P)
 set.seed(1)
 x <- rmarkovchain(1000, mc, t0 = "a")
-verifyEmpiricalToTheoretical(x, mc, method = "G", verbose = FALSE)
+verifyEmpiricalToTheoretical(x, mc, method = "G", verbose = TRUE)
 ```
 
 The function also accepts a raw transition-count matrix:
@@ -83,7 +85,7 @@ The function also accepts a raw transition-count matrix:
 #| label: empirical-counts
 
 counts <- createSequenceMatrix(x)
-verifyEmpiricalToTheoretical(counts, mc, method = "Pearson", verbose = FALSE)
+verifyEmpiricalToTheoretical(counts, mc, method = "Pearson", verbose = TRUE)
 ```
 
 If an observed transition has positive count while the theoretical probability is zero, the theoretical model is incompatible with the data. Conversely, a zero observed count where the theoretical probability is positive is not by itself evidence against the model.
@@ -95,8 +97,8 @@ For small or sparse samples, the asymptotic chi-squared approximation can be rep
 
 verifyEmpiricalToTheoretical(
   counts, mc, method = "simulation", B = 999,
-  seed = 123, verbose = FALSE
-)$p.value
+  seed = 123, verbose = TRUE
+)
 ```
 
 The resulting p-value uses the usual Monte Carlo correction
@@ -118,7 +120,7 @@ set.seed(123)
 x1 <- rmarkovchain(500, mc, t0 = "a")
 x2 <- rmarkovchain(500, mc, t0 = "b")
 x3 <- rmarkovchain(500, mc, t0 = "c")
-verifyHomogeneity(list(x1, x2, x3), method = "G", verbose = FALSE)
+verifyHomogeneity(list(x1, x2, x3), method = "G", verbose = TRUE)
 ```
 
 Pearson and likelihood-ratio versions are available:
@@ -126,7 +128,7 @@ Pearson and likelihood-ratio versions are available:
 ```{r}
 #| label: homogeneity-pearson
 
-verifyHomogeneity(list(x1, x2, x3), method = "Pearson", verbose = FALSE)
+verifyHomogeneity(list(x1, x2, x3), method = "Pearson", verbose = TRUE)
 ```
 
 A parametric Monte Carlo version simulates multinomial rows under the pooled transition matrix while retaining the observed number of transitions originating from each state in each sample. The pooled model is re-estimated for each replicate:
@@ -136,11 +138,80 @@ A parametric Monte Carlo version simulates multinomial rows under the pooled tra
 
 verifyHomogeneity(
   list(x1, x2, x3), method = "simulation", B = 999,
-  seed = 123, verbose = FALSE
-)$p.value
+  seed = 123, verbose = TRUE
+)
 ```
 
 These tests are useful when transition data come from different periods, regions, portfolios, or cohorts and one wants to assess whether a common homogeneous transition matrix is adequate. The likelihood-ratio formulation follows the classical contingency-table and Markov-chain framework of @kullback1962tests.
+
+## Testing time-homogeneity of transition probabilities
+
+`assessStationarity()` tests a different form of stability: whether the transition probabilities are constant across a specified number of consecutive blocks of the sequence. For each origin state, the transition counts in the blocks form a contingency table. The null hypothesis is that the conditional distribution of the next state, given the current state, is the same in every informative block.
+
+This distinction is important. `verifyHomogeneity()` compares **different samples** and asks whether they share a common transition matrix, whereas `assessStationarity()` splits **one sequence into consecutive blocks** and asks whether its transition matrix is stable over time. The latter is therefore a test of time-homogeneity of a first-order Markov chain.
+
+The test is based on the Pearson chi-squared statistic. Transition counts are retained as counts; zero counts caused merely by finite sampling are not treated as impossible transitions. Blocks in which a particular origin state is never observed contain no information about that state's conditional distribution and are therefore omitted from that state's contingency table.
+
+```{r}
+#| label: stationarity
+
+set.seed(123)
+stationary.sequence <- rmarkovchain(1000, mc, t0 = "a")
+assessStationarity(stationary.sequence, nblocks = 4, verbose = TRUE)
+```
+
+The output gives the combined Pearson statistic, its degrees of freedom, and the asymptotic p-value. A large p-value does not establish stationarity; it means that the data do not provide sufficient evidence against constant transition probabilities across the blocks.
+
+### Structural zeros
+
+A zero transition count can have two very different meanings. A **sampling zero** is simply a transition that did not occur in the observed sample. A **structural zero** is a transition that is impossible by construction of the process. Only the latter should be excluded from the contingency table and from the corresponding degrees of freedom.
+
+`assessStationarity()` therefore accepts the optional `structural.zeros` argument. It is a logical transition matrix with `TRUE` marking transitions that are structurally impossible. Its rows and columns correspond to the states of the sequence; when dimnames are supplied they are used to match the states explicitly.
+
+For example, suppose state `a` can never be followed by `a`:
+
+```{r}
+#| label: stationarity-structural-zeros
+
+structural.zeros <- matrix(FALSE, 3, 3,
+                           dimnames = list(c("a", "b", "c"),
+                                           c("a", "b", "c")))
+structural.zeros["a", "a"] <- TRUE
+
+# Generate a sequence respecting the structural constraint.
+structural.sequence <- c("a", "b", "a", "c", "a", "b", "c", "a",
+                         "b", "c", "b", "a", "c", "b", "a", "c",
+                         "a", "b", "c", "a", "b", "c", "b", "a")
+
+assessStationarity(
+  structural.sequence,
+  nblocks = 4,
+  structural.zeros = structural.zeros,
+  verbose = TRUE
+)
+```
+
+A structural-zero transition that is actually observed is rejected as inconsistent with the supplied model:
+
+```{r}
+#| label: stationarity-invalid-structural-zero
+
+invalid.zeros <- matrix(FALSE, 3, 3,
+                        dimnames = list(c("a", "b", "c"),
+                                        c("a", "b", "c")))
+invalid.zeros["a", "b"] <- TRUE
+
+try(
+  assessStationarity(
+    structural.sequence,
+    nblocks = 4,
+    structural.zeros = invalid.zeros,
+    verbose = TRUE
+  )
+)
+```
+
+The distinction between sampling and structural zeros is especially relevant for sparse transition matrices. Automatically interpreting every observed zero as a structural zero would change the null model and can substantially inflate or otherwise distort the degrees of freedom.
 
 ## Published example: Alofi daily rainfall
 
@@ -167,7 +238,7 @@ The package performs the corresponding first-order goodness-of-fit calculation d
 ```{r}
 #| label: alofi-test
 
-verifyMarkovProperty(rain$rain, method = "G", verbose = FALSE)
+verifyMarkovProperty(rain$rain, method = "G", verbose = TRUE)
 ```
 
 The exact value need not equal the rounded published likelihood calculation, but the hypothesis is the same: whether the state immediately preceding the current rainfall state contains additional information about the next state.
@@ -190,11 +261,11 @@ For example:
 #| label: all-simulation
 
 verifyMarkovProperty(rain$rain, method = "simulation", B = 999,
-                     seed = 123, verbose = FALSE)$p.value
+                     seed = 123, verbose = TRUE)
 verifyEmpiricalToTheoretical(counts, mc, method = "simulation", B = 999,
-                             seed = 123, verbose = FALSE)$p.value
+                             seed = 123, verbose = TRUE)
 verifyHomogeneity(list(x1, x2, x3), method = "simulation", B = 999,
-                  seed = 123, verbose = FALSE)$p.value
+                  seed = 123, verbose = TRUE)
 ```
 
 These procedures are parametric Monte Carlo tests, not exact finite-sample tests. A separate validation study is deliberately kept outside `R CMD check` because it is computationally expensive. It should evaluate Type-I error, power, sample-size sensitivity, state-space size, sparse transition matrices, and calibration of the asymptotic tests against the Monte Carlo alternatives. The validation script is stored under `inst/validation/` and can be run manually.

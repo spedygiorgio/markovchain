@@ -26,7 +26,6 @@
 #' @export
 assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
                                 verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
   if (length(sequence) < 2L) stop("sequence must contain at least two observations")
   if (length(nblocks) != 1L || !is.numeric(nblocks) || !is.finite(nblocks) ||
       nblocks < 2 || nblocks != as.integer(nblocks))
@@ -89,16 +88,6 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
     df <- df + df.i
   }
 
-  if (df <= 0) {
-    pvalue <- NA_real_
-    warning("Insufficient non-structural observations to perform the stationarity test")
-  } else {
-    pvalue <- pchisq(TStat, df = df, lower.tail = FALSE)
-  }
-
-  if (verbose) {
-    .printTestResult("Testing time-homogeneity of transition probabilities",
-                     TStat, df, pvalue, method = "Pearson chi-squared")
-  }
+  pvalue <- if (df > 0) pchisq(TStat, df = df, lower.tail = FALSE) else NA_real_
   invisible(list(statistic = TStat, dof = df, p.value = pvalue))
 }

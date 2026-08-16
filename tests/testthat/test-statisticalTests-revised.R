@@ -73,4 +73,10 @@ test_that("assessStationarity returns a standard htest object", {
   expect_true(ans$parameter[["df"]] > 0)
   expect_equal(names(ans$statistic), "X-squared")
   expect_true(grepl("time-homogeneity", ans$method, fixed = TRUE))
+
+  printed <- capture.output(print(ans))
+  expect_true(any(grepl("Pearson's Chi-squared test for time-homogeneity", printed, fixed = TRUE)))
+  expect_true(any(grepl("X-squared", printed, fixed = TRUE)))
+  expect_true(any(grepl("df", printed, fixed = TRUE)))
+  expect_true(any(grepl("p-value", printed, fixed = TRUE)))
 })

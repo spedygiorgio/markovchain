@@ -7,7 +7,7 @@
 \alias{assessStationarity}
 \alias{verifyEmpiricalToTheoretical}
 \alias{verifyHomogeneity}
-\title{Various functions to perform statistical inference of DTMC}
+\title{Various functions for statistical inference of DTMC}
 \usage{
 verifyMarkovProperty(
   sequence,
@@ -19,32 +19,7 @@ verifyMarkovProperty(
 
 assessOrder(sequence, verbose = TRUE)
 
-assessStationarity(sequence, nblocks, verbose = TRUE)
-
-verifyEmpiricalToTheoretical(
-  data,
-  object,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyHomogeneity(
-  inputList,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyMarkovProperty(
-  sequence,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
+assessStationarity(sequence, nblocks, structural.zeros = NULL, verbose = TRUE)
 
 verifyEmpiricalToTheoretical(
   data,
@@ -76,6 +51,8 @@ verifyHomogeneity(
 
 \item{nblocks}{Number of blocks.}
 
+\item{structural.zeros}{Optional logical transition matrix. `TRUE` marks a structurally impossible transition. Sampling zeros are not removed.}
+
 \item{data}{An empirical sequence or a matrix of transition counts.}
 
 \item{object}{A `markovchain` object specifying theoretical probabilities.}
@@ -101,8 +78,12 @@ A list containing statistic, degrees of freedom, p-value, method,
 pooled transition counts, and individual transition counts.
 }
 \description{
-These functions verify the Markov property, assess 
-             the order and stationarity of the Markov chain.
+These functions verify the Markov property, assess the order and the
+time-homogeneity of the transition probabilities of a first-order Markov chain.
+
+\code{assessStationarity} tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+\code{structural.zeros}; sampling zeros remain part of the contingency table.
 
 This function tests whether an empirical transition matrix is statistically compatible
 with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
@@ -123,35 +104,31 @@ verifyMarkovProperty(sequence)
 assessOrder(sequence)
 assessStationarity(sequence, 1)
 
+# Structural zeros: a -> a is impossible.
+sequence <- c("a", "b", "a", "b", "a", "b", "b", "a")
+structural.zeros <- matrix(FALSE, 2, 2,
+                           dimnames = list(c("a", "b"), c("a", "b")))
+structural.zeros["a", "a"] <- TRUE
+assessStationarity(sequence, nblocks = 2,
+                   structural.zeros = structural.zeros)
 
-
-#Example taken from Kullback Kupperman Tests for Contingency Tables and Markov Chains
-
+# Example taken from Kullback, Kupperman and Ku.
 sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
+0,1,1,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
-
 mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
-
 verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
-
 
 data(kullback)
 verifyHomogeneity(inputList=kullback,verbose=TRUE)
-
 }
 \references{
-Anderson and Goodman.
-
 Anderson, T. W. and Goodman, L. A. (1957). Statistical
 inference about Markov chains. *The Annals of Mathematical Statistics*,
 28(1), 89--110.
-
-Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for
-Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573--608.
 
 Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for
 Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573--608.

@@ -128,11 +128,18 @@ kullback_result
 class(kullback_result)
 ```
 
-Kullback et al. report $G^2=6.551795$, $df=6$ and $p=0.3642899$, so their
-null hypothesis is not rejected. The historical likelihood construction is
-not identical to the row-wise multinomial calculation used by the package;
-therefore the comparison is made at the level of the inferential conclusion,
-not by asserting equality of the numerical statistic.
+Kullback et al. report $G^2=6.551795$, $df=6$ and $p=0.3642899$.
+The historical `markovchain` implementation reproduced the published value
+by using column totals when constructing expected counts. For the row-wise
+multinomial null implemented by the current package, expected counts are
+constructed as
+
+$$E_{ij}=n_{i+}P_{ij},$$
+
+where $n_{i+}$ is the observed total in row $i$. This gives
+$G^2=6.518384$, with $df=6$ and the same non-rejection of the null hypothesis.
+The small numerical discrepancy is therefore a correction of the historical
+implementation rather than a change in the inferential conclusion.
 
 ## Homogeneity across samples
 

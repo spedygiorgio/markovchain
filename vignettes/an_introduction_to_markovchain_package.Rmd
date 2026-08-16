@@ -461,7 +461,7 @@ ggplot2::autoplot(mcWeather,
                   show_probabilities = FALSE,
                   threshold = 0.2)
 ```
- `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
+`plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 ```{r printAndShow}
 print(mcWeather)

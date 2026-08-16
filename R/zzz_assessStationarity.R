@@ -27,11 +27,9 @@
 assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
                                 verbose = TRUE) {
   warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
-
-  if (length(sequence) < 2L)
-    stop("sequence must contain at least two observations")
-  if (length(nblocks) != 1L || !is.numeric(nblocks) ||
-      !is.finite(nblocks) || nblocks < 2 || nblocks != as.integer(nblocks))
+  if (length(sequence) < 2L) stop("sequence must contain at least two observations")
+  if (length(nblocks) != 1L || !is.numeric(nblocks) || !is.finite(nblocks) ||
+      nblocks < 2 || nblocks != as.integer(nblocks))
     stop("nblocks must be a positive integer greater than one")
 
   nblocks <- as.integer(nblocks)
@@ -43,9 +41,7 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
       stop("structural.zeros must be a logical matrix")
     if (!all(dim(structural.zeros) == c(nstates, nstates)))
       stop("structural.zeros must have dimensions length(unique(sequence)) x length(unique(sequence))")
-    if (anyNA(structural.zeros))
-      stop("structural.zeros cannot contain NA values")
-
+    if (anyNA(structural.zeros)) stop("structural.zeros cannot contain NA values")
     if (!is.null(rownames(structural.zeros)) || !is.null(colnames(structural.zeros))) {
       if (is.null(rownames(structural.zeros)) || is.null(colnames(structural.zeros)) ||
           !setequal(rownames(structural.zeros), as.character(states)) ||
@@ -57,7 +53,6 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
     structural.zeros <- matrix(FALSE, nstates, nstates)
   }
 
-  # A transition marked structural zero must never occur in the data.
   observed <- matrix(FALSE, nstates, nstates,
                       dimnames = list(as.character(states), as.character(states)))
   for (j in seq_len(length(sequence) - 1L)) {
@@ -71,11 +66,9 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
   blocksize <- length(sequence) / nblocks
   TStat <- 0
   df <- 0
-
   for (i in seq_len(nstates)) {
     counts <- matrix(0, nrow = nblocks, ncol = nstates,
                      dimnames = list(seq_len(nblocks), as.character(states)))
-
     for (j in seq_len(length(sequence) - 1L)) {
       if (sequence[j] == states[i]) {
         block <- min(nblocks, ceiling(j / blocksize))
@@ -83,25 +76,15 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
         counts[block, future] <- counts[block, future] + 1
       }
     }
-
-    # A block with no observations from state i carries no information about
-    # the conditional distribution P(X[t+1] | X[t] = i).
     counts <- counts[rowSums(counts) > 0, , drop = FALSE]
-
-    # Remove only transitions explicitly declared structurally impossible.
-    # Sampling zeros remain in the table and therefore contribute correctly
-    # to the Pearson statistic and its degrees of freedom.
     counts <- counts[, !structural.zeros[i, ], drop = FALSE]
-
-    if (nrow(counts) < 2L || ncol(counts) < 2L)
-      next
+    if (nrow(counts) < 2L || ncol(counts) < 2L) next
 
     expected <- outer(rowSums(counts), colSums(counts) / sum(counts))
     positive.expected <- expected > 0
     statistic.i <- sum((counts[positive.expected] - expected[positive.expected])^2 /
                        expected[positive.expected])
     df.i <- (nrow(counts) - 1L) * (ncol(counts) - 1L)
-
     TStat <- TStat + statistic.i
     df <- df + df.i
   }
@@ -114,10 +97,8 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
   }
 
   if (verbose) {
-    cat("The assessStationarity test statistic is: ", TStat, "\n")
-    cat("The Chi-Square d.f. are: ", df, "\n")
-    cat("The p-value is: ", pvalue, "\n")
+    .printTestResult("Testing time-homogeneity of transition probabilities",
+                     TStat, df, pvalue, method = "Pearson chi-squared")
   }
-
   invisible(list(statistic = TStat, dof = df, p.value = pvalue))
 }

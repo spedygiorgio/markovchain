@@ -48,7 +48,7 @@ The Pearson test on these published counts does not reject the null hypothesis t
 #| label: burkett-markov-test
 
 burkett.test <- stats::chisq.test(burkett, correct = FALSE)
-burkkett.test
+burkett.test
 ```
 
 This example is deliberately presented as a literature benchmark for the contingency-table test underlying Markov-property inference. It should not be interpreted as a direct call to `verifyMarkovProperty()` on a sequence: the paper performs a cell-wise conditional test, whereas `verifyMarkovProperty()` evaluates the first-order Markov property jointly over the observed triple-transition table.

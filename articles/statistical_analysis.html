@@ -38,7 +38,6 @@
 <li><a class="dropdown-item" href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a></li>
     <li><a class="dropdown-item" href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a></li>
     <li><a class="dropdown-item" href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a></li>
-    <li><a class="dropdown-item" href="../articles/markov_property_literature.html">Published literature benchmarks for Markov-chain tests</a></li>
     <li><a class="dropdown-item" href="../articles/statistical_analysis.html">Statistical analysis of Markov chain sequences</a></li>
   </ul>
 </li>
@@ -130,7 +129,7 @@ P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\mid X_t=j).
 <span><span class="co">#&gt; data:  burkett_counts</span></span>
 <span><span class="co">#&gt; X-squared = 0.63611, df = 3, p-value = 0.8881</span></span></code></pre></div>
 </div>
-<p>The paper reports a non-significant test (p-value about 0.98). The calculation above uses the published contingency table directly. It is included as an independent literature example of a non-rejection; it is not claimed to be numerically identical to <code><a href="../reference/statisticalTests.html">verifyMarkovProperty()</a></code>, because the published test is a cell-wise test for a particular transition rather than the package’s global first-order Markov-property test.</p>
+<p>The published contingency table gives a non-significant Pearson test (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>χ</mi><mn>2</mn></msup><mo>≈</mo><mn>0.64</mn></mrow><annotation encoding="application/x-tex">\chi^2\approx0.64</annotation></semantics></math>, 3 degrees of freedom, p-value about 0.89). It is included as an independent literature example of a non-rejection; it is not claimed to be numerically identical to <code><a href="../reference/statisticalTests.html">verifyMarkovProperty()</a></code>, because the published test is a cell-wise test for a particular transition rather than the package’s global first-order Markov-property test.</p>
 </section><section class="level2"><h3 id="empirical-versus-theoretical-transition-probabilities">Empirical versus theoretical transition probabilities<a class="anchor" aria-label="anchor" href="#empirical-versus-theoretical-transition-probabilities"></a>
 </h3>
 <p><code><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical()</a></code> tests whether observed transition counts are compatible with a specified transition matrix. The following example is from Kullback, Kupperman and Ku (1962) <span class="citation" data-cites="kullback1962tests">(<a href="#ref-kullback1962tests" role="doc-biblioref">Kullback et al. 1962</a>)</span>. The paper gives both the empirical counts and the theoretical transition matrix.</p>

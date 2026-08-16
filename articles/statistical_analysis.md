@@ -70,10 +70,10 @@ chisq.test(burkett_counts, correct = FALSE)
 #> X-squared = 0.63611, df = 3, p-value = 0.8881
 ```
 
-The paper reports a non-significant test (p-value about 0.98). The
-calculation above uses the published contingency table directly. It is
-included as an independent literature example of a non-rejection; it is
-not claimed to be numerically identical to
+The published contingency table gives a non-significant Pearson test
+($\chi^{2} \approx 0.64$, 3 degrees of freedom, p-value about 0.89). It
+is included as an independent literature example of a non-rejection; it
+is not claimed to be numerically identical to
 [`verifyMarkovProperty()`](../reference/statisticalTests.md), because
 the published test is a cell-wise test for a particular transition
 rather than the package’s global first-order Markov-property test.

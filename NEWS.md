@@ -5,7 +5,8 @@
 # markovchain 0.11.1
 
 - Added explicit structural-zero support to `assessStationarity()`.
-- Standardized statistical test console output and expanded the `statistical_analysis` vignette with numerical test results and time-homogeneity examples.
+- Statistical inference functions now return R-standard `htest` objects while retaining the legacy `dof` field for compatibility.
+- Expanded the `statistical_analysis` vignette with numerical test results and time-homogeneity examples.
 
 # markovchain 0.11.0
 
@@ -105,13 +106,13 @@ Handled _R_CHECK_PACKAGES_USED_IN_DEMO_
 -   15-06-2015 Version 0.3 Added a CrashIntro vignette Most probability function rewritten in Rcpp Added standard errors and confidence intervals for MLE (thanks to Tae) Added confidence intervals for bootstap fit Added bayesian Maximum A Posteriori estimation (thanks to Sai)
 -   12-05-2015 Version 0.2.1 Fixed a compatibility issue with R 3 development
 -   12-04-2015 Version 0.2 This is a milestone for markovchain package, since the package project has been selected within the funded GSOC 2015 projects. Thanks to Tae support now the fitting functions have been rewritten in Rcpp.
--   20-03-2015 Version 0.1.3 Fastened the firstpassage time code thanks to Thoralf suggestion
+-   20-03-2015 Version 0.1.3 Fastened the firstpassage time code thanks to Mildenberger Thoralf suggestion
 -   01-03-2015 Version 0.1.2 Add GitHub project url
 -   17-02-2015 Version 0.1.1 Fasten markovchain sequence thanks to Mildenberger Thoralf suggestion
 -   04-01-2015 Version 0.1.0 It is now possible to fit a markovchain and a markovchainList object from a matrix or data.frame Updated vignettes Added tests
 -   21-06-2014 Version 0.0.9.5 Updated vignettes Added a method to convert a square matrix into a markovchain object.
 -   20-04-2014 Version 0.0.9 Updated vignette Added parallel processing for bootstrap estimation
 -   09-02-2014 Version 0.0.8 Minor vignette enhancements Added function to find period of a DTMC
--   12-01-2014 Version 0.0.7 Deeply improved vignettes Added predict and summary methods Added function to perform probabilistic analysis
+-   12-01-2014 Version 0.0.7 Deeply improved vignettes Added predict and summary methods Added function to find probabilistic analysis
 -   31-12-2013 Version 0.0.5 Improved vignettes Add predict methods Add methods for transitory states
 -   04-11-2013 Version 0.0.3 Added various method to easily handle markovchain and markovchainList objects Implemented rmarkovchain and bootstrap fit Improved vignettes

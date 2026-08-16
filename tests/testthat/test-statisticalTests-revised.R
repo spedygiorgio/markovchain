@@ -96,3 +96,27 @@ test_that("statistical test methods use descriptive htest labels", {
   expect_identical(g$data.name, "counts")
   expect_identical(pearson$data.name, "counts")
 })
+
+test_that("assessOrder returns a standard htest object", {
+  sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
+                "a", "b", "a", "a", "b", "b", "b", "a")
+
+  ans <- suppressWarnings(assessOrder(sequence, verbose = FALSE))
+
+  expect_s3_class(ans, "htest")
+  expect_true(all(c("statistic", "parameter", "p.value", "method", "data.name") %in% names(ans)))
+  expect_equal(names(ans$statistic), "X-squared")
+  expect_equal(names(ans$parameter), "df")
+  expect_equal(ans$dof, unname(ans$parameter))
+  expect_equal(ans$parameter[["df"]], 2)
+  expect_true(is.finite(ans$statistic))
+  expect_true(ans$p.value >= 0 && ans$p.value <= 1)
+  expect_identical(ans$method, "Pearson's Chi-squared test for Markov order")
+  expect_identical(ans$data.name, "sequence")
+
+  printed <- capture.output(print(ans))
+  expect_true(any(grepl("Pearson's Chi-squared test for Markov order", printed, fixed = TRUE)))
+  expect_true(any(grepl("X-squared", printed, fixed = TRUE)))
+  expect_true(any(grepl("df", printed, fixed = TRUE)))
+  expect_true(any(grepl("p-value", printed, fixed = TRUE)))
+})

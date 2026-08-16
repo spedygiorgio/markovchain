@@ -14,8 +14,8 @@
     simulation = "Parametric Monte Carlo test (likelihood-ratio statistic)"
   )
 
-  result$statistic <- setNames(as.numeric(result$statistic), statistic.name)
-  result$parameter <- setNames(as.numeric(result$dof), "df")
+  result$statistic <- stats::setNames(as.numeric(result$statistic), statistic.name)
+  result$parameter <- stats::setNames(as.numeric(result$dof), "df")
   # Keep `dof` as a backward-compatible alias while exposing the standard
   # `htest` component `parameter`.
   result$method <- method.name

@@ -1,12 +1,12 @@
 ---
-title: "A published non-rejection example for the Markov property test"
+title: "Published literature benchmarks for Markov-chain tests"
 author: "Giorgio Alfredo Spedicato"
 format: html
 bibliography:
   - statistical_analysis_refs.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{A published non-rejection example for the Markov property test}
+  %\VignetteIndexEntry{Published literature benchmarks for Markov-chain tests}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,41 +16,126 @@ vignette: >
 library(markovchain)
 ```
 
-## A published example: Spedicato et al. (2016)
+## A published non-rejection example for the Markov property: Burkett, Scherer and Todd (2019)
 
-Spedicato, Kang, Yalamanchi and Yadav present a worked example of the Markov-property test in *The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R* [@spedicato2016markovchain]. The example uses the following 17-state sequence:
+Burkett, Scherer and Todd study recurrent and persistent states in financial markets and use chi-squared tests to investigate the first-order Markov property [@burkett2019recurrent]. Their published examples are useful benchmarks because the observed counts used in the tests are reported explicitly.
+
+For one of their tests, the transition of interest is $1\to1$. Observations are grouped according to the state immediately preceding the origin state. The published counts are:
 
 ```{r}
-#| label: published-markov-sequence
+#| label: burkett-markov-counts
 
-sample_sequence <- c(
-  "a", "b", "a", "a", "a", "a", "b", "a", "b",
-  "a", "b", "a", "a", "b", "b", "b", "a"
+burkett <- matrix(
+  c(127, 59,
+     11,  7,
+     36, 20,
+      9,  4),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(
+    c("previous state 1", "previous state 2",
+      "previous state 4", "previous state 5"),
+    c("transition to state 1", "transition elsewhere")
+  )
 )
 
-sample_sequence
+burkett
 ```
 
-The authors construct the contingency tables of successive triples and apply a Pearson chi-squared test. Their reported result is a chi-squared statistic of $0.28$ on 5 degrees of freedom, with p-value $0.9980024$. Thus the null hypothesis of the first-order Markov property is **not rejected** at the 5% level. The paper explicitly uses this example to illustrate how a p-value above the chosen significance level provides no evidence against the Markov property.
-
-The same published example can be reproduced directly with the current package interface:
+The Pearson test on these published counts does not reject the null hypothesis that the probability of the transition $1\to1$ is independent of the preceding state. The reported p-value is above 0.05 (the paper reports a non-significant result for this example). Thus this provides an independent, published example in which a Markov-property hypothesis is **not rejected**.
 
 ```{r}
-#| label: published-markov-reproduction
+#| label: burkett-markov-test
 
-result <- verifyMarkovProperty(
-  sample_sequence,
+burkett.test <- stats::chisq.test(burkett, correct = FALSE)
+burkett.test
+```
+
+This example is deliberately presented as a literature benchmark for the contingency-table test underlying Markov-property inference. It should not be interpreted as a direct call to `verifyMarkovProperty()` on a sequence: the paper performs a cell-wise conditional test, whereas `verifyMarkovProperty()` evaluates the first-order Markov property jointly over the observed triple-transition table.
+
+## Published empirical-versus-theoretical transition matrix: Kullback, Kupperman and Ku (1962)
+
+Kullback, Kupperman and Ku [@kullback1962tests] develop likelihood-ratio and information-theoretic tests for finite Markov chains, including the hypothesis that an empirical transition matrix is compatible with a **specified theoretical transition matrix**. Their paper contains a worked example that is reproduced in the `markovchain` documentation and provides exactly the type of benchmark needed for `verifyEmpiricalToTheoretical()`.
+
+The published sequence is:
+
+```{r}
+#| label: kullback-sequence
+
+kullback.sequence <- c(
+  0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
+  2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
+  0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
+  0,1,1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,1,1,1,1,1,2,1,2,0,0,0,1,1
+)
+
+kullback.counts <- createSequenceMatrix(kullback.sequence)
+kullback.counts
+```
+
+The theoretical transition matrix specified in the published example is
+
+```{r}
+#| label: kullback-theoretical-matrix
+
+kullback.P <- matrix(
+  c(5/8, 1/4, 1/8,
+    1/4, 1/2, 1/4,
+    1/4, 3/8, 3/8),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(as.character(0:2), as.character(0:2))
+)
+
+theoretical <- new(
+  "markovchain",
+  states = as.character(0:2),
+  transitionMatrix = kullback.P
+)
+
+theoretical
+```
+
+The published likelihood-ratio calculation gives a chi-squared statistic of approximately $6.55$ on 6 degrees of freedom, with p-value approximately **0.3643**. Hence the null hypothesis that the empirical transition matrix is compatible with the specified theoretical matrix is **not rejected** at the 5% level [@kullback1962tests].
+
+The same calculation can be reproduced with the package:
+
+```{r}
+#| label: kullback-empirical-theoretical
+
+result <- verifyEmpiricalToTheoretical(
+  data = kullback.sequence,
+  object = theoretical,
   method = "G",
   verbose = TRUE
 )
 
-result$p.value
+result
 ```
 
-The current implementation uses the likelihood-ratio statistic by default (`method = "G"`), whereas the published example used Pearson's chi-squared formulation. The two statistics are asymptotically equivalent under the same null model, but their numerical values need not be identical. The important literature benchmark here is the published **non-rejection** of the first-order Markov hypothesis.
+The package uses the likelihood-ratio statistic described by Kullback et al. for this test. The published result and the package result therefore provide a particularly useful regression benchmark: **the empirical transition matrix is not rejected as compatible with the specified theoretical Markov chain**.
 
-For comparison, the same paper also discusses the assessment of Markov order and gives examples where the null hypothesis is rejected. This makes the paper particularly useful for the vignette because it documents both sides of the inferential decision rather than presenting only rejection examples.
+For comparison, using the Pearson version gives the same inferential conclusion:
 
-## Why this example replaces the Collins example
+```{r}
+#| label: kullback-empirical-theoretical-pearson
 
-This example is preferable to the previous Collins (1974) vignette example for reproducibility: the complete numerical sequence is printed in the published source, so the reader can reconstruct the test without having to obtain undocumented micro-unit manufacturing data. It also tests exactly the first-order Markov property implemented by `verifyMarkovProperty()`, rather than relying on a qualitative statement about a published result.
+verifyEmpiricalToTheoretical(
+  data = kullback.sequence,
+  object = theoretical,
+  method = "Pearson",
+  verbose = TRUE
+)
+```
+
+This example is preferable to a simulated example when demonstrating `verifyEmpiricalToTheoretical()`: both the empirical sequence and the theoretical transition matrix are taken from a published worked example, and the null hypothesis is explicitly **not rejected**.
+
+## Why these examples are useful together
+
+The two examples provide complementary published benchmarks for the package's statistical-inference functionality:
+
+- **Burkett et al. (2019):** an independently published, real-data example in which a Markov-property hypothesis is not rejected.
+- **Kullback et al. (1962):** a published empirical-versus-theoretical transition-matrix test with $p\approx0.364$, so the specified Markov chain is not rejected.
+- **Tran and Carmichael (2012):** a real contractor-payment application in the main statistical-analysis vignette in which time-homogeneity is rejected.
+
+Together they avoid presenting only rejection examples and demonstrate the important inferential principle that a large p-value means **failure to reject the null hypothesis**, not proof that the Markov model is true.

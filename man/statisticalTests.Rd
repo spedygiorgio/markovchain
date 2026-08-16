@@ -19,7 +19,7 @@ verifyMarkovProperty(
 
 assessOrder(sequence, verbose = TRUE)
 
-assessStationarity(sequence, nblocks, verbose = TRUE)
+assessStationarity(sequence, nblocks, structural.zeros = NULL, verbose = TRUE)
 
 verifyEmpiricalToTheoretical(
   data,
@@ -76,6 +76,8 @@ verifyHomogeneity(
 
 \item{nblocks}{Number of blocks.}
 
+\item{structural.zeros}{Optional logical transition matrix. `TRUE` marks a structurally impossible transition. Sampling zeros are not removed.}
+
 \item{data}{An empirical sequence or a matrix of transition counts.}
 
 \item{object}{A `markovchain` object specifying theoretical probabilities.}
@@ -114,6 +116,10 @@ Tests the null hypothesis that the conditional distribution of the next
 state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
 previous and next states given the current state.
+
+\code{assessStationarity} tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+\code{structural.zeros}; sampling zeros remain part of the contingency table.
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
@@ -121,7 +127,14 @@ sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
 mcFit <- markovchainFit(data = sequence, byrow = FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
-assessStationarity(sequence, 1)
+assessStationarity(sequence, 2)
+
+# Structural zeros: a -> a is impossible.
+structural.zeros <- matrix(FALSE, 2, 2,
+                           dimnames = list(c("a", "b"), c("a", "b")))
+structural.zeros["a", "a"] <- TRUE
+assessStationarity(c("a", "b", "a", "b", "a", "b", "b", "a"),
+                   nblocks = 2, structural.zeros = structural.zeros)
 
 
 

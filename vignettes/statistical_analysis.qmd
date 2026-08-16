@@ -2,9 +2,7 @@
 title: "Statistical analysis of Markov chain sequences"
 author: "Giorgio Alfredo Spedicato"
 format: html
-bibliography:
-  - markovchainBiblio.bib
-  - statistical_analysis_refs.bib
+bibliography: statistical_analysis_refs.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{Statistical analysis of Markov chain sequences}
@@ -24,72 +22,83 @@ library(markovchain)
 
 # Statistical analysis
 
+This vignette illustrates the statistical inference functions for empirical
+Markov chains. Test results are returned as objects of class `htest`, following
+R's standard convention for hypothesis tests.
+
 ## Testing the first-order Markov property
 
-For an observed sequence $X_1,\ldots,X_n$ with $r$ possible states, the first-order Markov property requires that
+For an observed sequence $X_1,\ldots,X_n$, the first-order Markov property
+requires that
 
 $$
 P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\mid X_t=j).
 $$
 
-Equivalently, $X_{t-1}$ and $X_{t+1}$ are conditionally independent given $X_t$. Let $N_{ijk}$ denote the number of consecutive triples $(i,j,k)$. Under the first-order null model,
-
-$$
-E_{ijk}=N_{ij+}\frac{N_{+jk}}{N_{+j+}}.
-$$
-
-The package implements Pearson and likelihood-ratio statistics. A non-rejection means only that the data provide insufficient evidence against the first-order model; it does not prove the Markov property.
+The package implements Pearson and likelihood-ratio tests of this property.
+A non-rejection means that the data provide insufficient evidence against the
+null hypothesis; it does not prove that the process is Markovian.
 
 ```{r}
 #| label: markov-test
 
-data(rain)
-verifyMarkovProperty(rain$rain, method = "G", verbose = TRUE)
-verifyMarkovProperty(rain$rain, method = "Pearson", verbose = TRUE)
+sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
+              "a", "b", "a", "a", "b", "b", "b", "a")
+
+markov_test <- verifyMarkovProperty(sequence, method = "G", verbose = TRUE)
+markov_test
+class(markov_test)
 ```
 
-## Published example: a non-rejection of the Markov property
+## Published example: non-rejection of the Markov property
 
-Burkett, Scherer and Todd (2019) [@burkett2019recurrent] present a chi-squared test of the Markov property for financial market states. For the transition into state 1, their published counts are:
+Burkett, Scherer and Todd (2019) [@burkett2019recurrent] study recurrent and
+persistent financial-market states. One of their published tests considers
+the transition into state 1 and reports the following counts:
 
 ```{r}
 #| label: burkett-markov
 
 burkett_counts <- matrix(
   c(127, 59,
-     11,   7,
-     36,  20,
-      9,   4),
-  nrow = 4, byrow = TRUE,
+     11,  7,
+     36, 20,
+      9,  4),
+  nrow = 4,
+  byrow = TRUE,
   dimnames = list(
     c("previous state 1", "previous state 2",
       "previous state 4", "previous state 5"),
-    c("transition to state 1", "elsewhere")
+    c("transition to state 1", "transition elsewhere")
   )
 )
 
-burkett_test <- chisq.test(burkett_counts, correct = FALSE)
-burkett_test
+chisq.test(burkett_counts, correct = FALSE)
 ```
 
-The published analysis reports a chi-squared statistic of about 0.21 and a p-value of about 0.98 for this cell-wise comparison. The corresponding Pearson test on the published $2$-column table is also non-significant. The two calculations are not expected to have identical statistics because the paper's test is a cell-wise test of a particular transition probability rather than the package's global first-order Markov-property test. The example is included as an independent published benchmark showing a non-rejection of a Markov hypothesis.
+The paper reports a non-significant test (p-value about 0.98). The calculation
+above uses the published contingency table directly. It is included as an
+independent literature example of a non-rejection; it is not claimed to be
+numerically identical to `verifyMarkovProperty()`, because the published test
+is a cell-wise test for a particular transition rather than the package's
+global first-order Markov-property test.
 
 ## Empirical versus theoretical transition probabilities
 
-`verifyEmpiricalToTheoretical()` tests whether observed transition counts are compatible with a specified transition matrix. For each origin state $i$, the null model is multinomial with probabilities given by row $i$ of the theoretical transition matrix.
-
-### Published example: Kullback, Kupperman and Ku (1962)
-
-Kullback, Kupperman and Ku (1962) [@kullback1962tests] give a complete numerical example consisting of an empirical transition-count matrix and a theoretical transition matrix. The empirical counts are
+`verifyEmpiricalToTheoretical()` tests whether observed transition counts are
+compatible with a specified transition matrix. The following example is from
+Kullback, Kupperman and Ku (1962) [@kullback1962tests]. The paper gives both
+the empirical counts and the theoretical transition matrix.
 
 ```{r}
-#| label: kullback-counts
+#| label: kullback-example
 
 kullback_counts <- matrix(
   c(51, 11,  8,
     12, 31,  9,
      6, 11, 10),
-  nrow = 3, byrow = TRUE,
+  nrow = 3,
+  byrow = TRUE,
   dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
 )
 
@@ -97,7 +106,8 @@ kullback_P <- matrix(
   c(5/8, 1/4, 1/8,
     1/4, 1/2, 1/4,
     1/4, 3/8, 3/8),
-  nrow = 3, byrow = TRUE,
+  nrow = 3,
+  byrow = TRUE,
   dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
 )
 
@@ -108,70 +118,99 @@ kullback_mc <- new(
 )
 
 kullback_result <- verifyEmpiricalToTheoretical(
-  kullback_counts, kullback_mc, method = "G", verbose = TRUE
+  kullback_counts,
+  kullback_mc,
+  method = "G",
+  verbose = TRUE
 )
+
 kullback_result
+class(kullback_result)
 ```
 
-The published likelihood-ratio calculation gives $G^2=6.551795$, $df=6$ and $p=0.3642899$, so the theoretical transition matrix is **not rejected** at conventional significance levels. The published calculation uses its own likelihood construction; the package's row-wise multinomial implementation is therefore used as a reproducible comparison rather than being asserted to reproduce the historical statistic exactly. The important common conclusion is the non-rejection of the theoretical transition matrix.
-
-For comparison, the Pearson version can be obtained directly with:
-
-```{r}
-#| label: kullback-pearson
-
-verifyEmpiricalToTheoretical(
-  kullback_counts, kullback_mc, method = "Pearson", verbose = TRUE
-)
-```
+Kullback et al. report $G^2=6.551795$, $df=6$ and $p=0.3642899$, so their
+null hypothesis is not rejected. The historical likelihood construction is
+not identical to the row-wise multinomial calculation used by the package;
+therefore the comparison is made at the level of the inferential conclusion,
+not by asserting equality of the numerical statistic.
 
 ## Homogeneity across samples
 
-`verifyHomogeneity()` tests whether several empirical sequences or transition-count matrices share the same transition probabilities. Under the null hypothesis, a common transition matrix is estimated by pooling the transition counts across samples.
+`verifyHomogeneity()` tests whether several empirical transition-count
+matrices are compatible with a common transition mechanism.
 
 ```{r}
 #| label: homogeneity
 
-P <- matrix(c(.70, .20, .10,
-              .20, .50, .30,
-              .10, .30, .60), 3, 3, byrow = TRUE,
-            dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
-mc <- new("markovchain", states = c("a", "b", "c"), transitionMatrix = P)
+P <- matrix(
+  c(.70, .20, .10,
+    .20, .50, .30,
+    .10, .30, .60),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+mc <- new("markovchain",
+          states = c("a", "b", "c"),
+          transitionMatrix = P)
+
 set.seed(123)
 x1 <- rmarkovchain(500, mc, t0 = "a")
 x2 <- rmarkovchain(500, mc, t0 = "a")
-verifyHomogeneity(list(x1, x2), method = "G", verbose = TRUE)
+
+homogeneity_test <- verifyHomogeneity(
+  list(x1, x2), method = "G", verbose = TRUE
+)
+homogeneity_test
 ```
 
-## Stationarity / time-homogeneity
+## Stationarity and time-homogeneity
 
-`assessStationarity()` tests whether transition probabilities are constant over blocks of an empirical sequence. This is a test of **time-homogeneity of the transition mechanism**, not merely of a stationary marginal distribution.
+`assessStationarity()` tests whether transition probabilities remain constant
+across blocks of an empirical sequence. This is a test of time-homogeneity of
+the transition mechanism, rather than a test of the marginal stationary
+distribution.
 
 ### Published example: contractor payments
 
-Tran and Carmichael (2012) [@tranCarmichael2012] apply likelihood-ratio tests of the homogeneity of transition probabilities to real contractor-payment data. Their steel-fabrication example rejects the null hypothesis of time-homogeneous transition probabilities. The application is particularly relevant to `structural.zeros`, because the payment-state model imposes impossible transitions by construction.
+Tran and Carmichael (2012) [@tranCarmichael2012] apply likelihood-ratio tests
+to transition probabilities in a real contractor-payment application. Their
+analysis provides an example where the null hypothesis of time-homogeneous
+transition probabilities is rejected. The application also motivates explicit
+handling of structural zeros, i.e. transitions that are impossible under the
+state-space model.
 
-The package implementation uses Pearson or likelihood-ratio statistics on the corresponding empirical transition counts. We therefore compare the inferential conclusion with the published result rather than requiring numerical identity with the paper's model-specific likelihood-ratio statistic.
+The package allows such transitions to be specified through the
+`structural.zeros` argument.
 
 ```{r}
-#| label: structural-zeros-example
+#| label: structural-zeros
 
-structural.zeros <- matrix(FALSE, 6, 6)
-# Structural zeros can be declared explicitly when the state-space model
-# rules out particular transitions.
-structural.zeros[1, 1] <- TRUE
+structural.zeros <- matrix(FALSE, 3, 3,
+                           dimnames = list(c("a", "b", "c"),
+                                           c("a", "b", "c")))
+structural.zeros["a", "a"] <- TRUE
 
-# A compact sequence is used here only to demonstrate the structural-zero API.
-structural.sequence <- c(2, 3, 4, 5, 6, 2, 3, 4, 5, 6,
-                         2, 3, 4, 5, 6, 2, 3, 4, 5, 6)
-assessStationarity(
-  structural.sequence,
-  nblocks = 2,
+structural_sequence <- c(
+  "a", "b", "a", "c", "a", "b", "c", "a",
+  "b", "c", "b", "a", "c", "b", "a", "c",
+  "a", "b", "c", "a", "b", "c", "b", "a"
+)
+
+stationarity_test <- assessStationarity(
+  structural_sequence,
+  nblocks = 4,
   structural.zeros = structural.zeros,
   verbose = TRUE
 )
+stationarity_test
+class(stationarity_test)
 ```
 
-The structural-zero argument identifies transitions that are impossible under the model. Sampling zeros—transitions with zero observed frequency but positive theoretical possibility—remain ordinary observations and are not removed.
+A structural zero represents a transition ruled out by the model. It is
+therefore different from a sampling zero: an unobserved but possible
+transition remains part of the statistical analysis.
 
-For a small or sparse sample, the asymptotic chi-squared approximation should be interpreted cautiously; the package also provides simulation-based calibration where available.
+For sparse data, the asymptotic chi-squared approximation should be interpreted
+with care.

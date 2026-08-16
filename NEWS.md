@@ -11,6 +11,7 @@
 - Added published literature examples for non-rejection of the Markov property and for empirical-versus-theoretical transition matrices.
 - Corrected structural-zero regression tests and the `assessStationarity()` documentation example used by package checks.
 - Corrected `verifyEmpiricalToTheoretical()` to use row totals when constructing expected transition counts for its row-wise multinomial likelihood-ratio test. This fixes a historical use of column totals and changes the Kullback et al. benchmark from 6.551795 to 6.518384, without changing its inferential conclusion.
+- Added explicit `absorbingStates` support to `markovchainFit()` for MLE fits of sequence data with known terminal states.
 
 # markovchain 0.11.0
 

@@ -4,7 +4,8 @@
   statistic.name <- if (identical(method, "Pearson")) "X-squared" else "G-squared"
   result$statistic <- setNames(as.numeric(result$statistic), statistic.name)
   result$parameter <- setNames(as.numeric(result$dof), "df")
-  result$dof <- NULL
+  # Keep `dof` as a backward-compatible alias while exposing the standard
+  # `htest` component `parameter`.
   result$method <- method
   result$data.name <- data.name
   class(result) <- c("htest", setdiff(class(result), "htest"))
@@ -22,8 +23,7 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
   method <- match.arg(method)
   result <- .verifyMarkovProperty(sequence, method = method, B = B,
                                   seed = seed, verbose = FALSE)
-  result <- .asHtest(result, method,
-                     deparse(substitute(sequence)))
+  result <- .asHtest(result, method, deparse(substitute(sequence)))
   if (verbose) print(result)
   invisible(result)
 }
@@ -34,8 +34,7 @@ verifyEmpiricalToTheoretical <- function(data, object,
   method <- match.arg(method)
   result <- .verifyEmpiricalToTheoretical(data, object, method = method,
                                           B = B, seed = seed, verbose = FALSE)
-  result <- .asHtest(result, method,
-                     deparse(substitute(data)))
+  result <- .asHtest(result, method, deparse(substitute(data)))
   if (verbose) print(result)
   invisible(result)
 }
@@ -46,8 +45,7 @@ verifyHomogeneity <- function(inputList,
   method <- match.arg(method)
   result <- .verifyHomogeneity(inputList, method = method, B = B,
                                seed = seed, verbose = FALSE)
-  result <- .asHtest(result, method,
-                     deparse(substitute(inputList)))
+  result <- .asHtest(result, method, deparse(substitute(inputList)))
   if (verbose) print(result)
   invisible(result)
 }
@@ -58,10 +56,7 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
     sequence, nblocks = nblocks, structural.zeros = structural.zeros,
     verbose = FALSE
   )
-  result <- .asHtest(
-    result, "Pearson",
-    deparse(substitute(sequence))
-  )
+  result <- .asHtest(result, "Pearson", deparse(substitute(sequence)))
   result$method <- "Pearson's Chi-squared test for time-homogeneity"
   if (verbose) print(result)
   invisible(result)

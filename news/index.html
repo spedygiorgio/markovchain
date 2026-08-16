@@ -21,6 +21,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a></li>
     <li><a class="dropdown-item" href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a></li>
     <li><a class="dropdown-item" href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a></li>
+    <li><a class="dropdown-item" href="../articles/markov_property_literature.html">Published literature benchmarks for Markov-chain tests</a></li>
     <li><a class="dropdown-item" href="../articles/statistical_analysis.html">Statistical analysis of Markov chain sequences</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -49,8 +50,9 @@
 <li>Statistical inference functions now return R-standard <code>htest</code> objects and use the standard <code>print.htest()</code> output, while retaining the legacy <code>dof</code> field for compatibility.</li>
 <li>Standardized <code><a href="../reference/statisticalTests.html">assessOrder()</a></code> on the same <code>htest</code> convention, including <code>parameter = c(df = ...)</code> and the standard test output.</li>
 <li>Expanded the <code>statistical_analysis</code> vignette with numerical test results and time-homogeneity examples.</li>
-<li>Added published real-data examples from Collins (1974) and Tran and Carmichael (2012), including reconstruction of the latter’s steel-fabrication transition-flow data and comparison with the package homogeneity test.</li>
+<li>Added published literature examples for non-rejection of the Markov property and for empirical-versus-theoretical transition matrices.</li>
 <li>Corrected structural-zero regression tests and the <code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> documentation example used by package checks.</li>
+<li>Corrected <code><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical()</a></code> to use row totals when constructing expected transition counts for its row-wise multinomial likelihood-ratio test. This fixes a historical use of column totals and changes the Kullback et al. benchmark from 6.551795 to 6.518384, without changing its inferential conclusion.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.11.0" id="markovchain-0110">markovchain 0.11.0<a class="anchor" aria-label="anchor" href="#markovchain-0110"></a></h2>

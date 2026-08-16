@@ -38,6 +38,7 @@
 <li><a class="dropdown-item" href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a></li>
     <li><a class="dropdown-item" href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a></li>
     <li><a class="dropdown-item" href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a></li>
+    <li><a class="dropdown-item" href="../articles/markov_property_literature.html">Published literature benchmarks for Markov-chain tests</a></li>
     <li><a class="dropdown-item" href="../articles/statistical_analysis.html">Statistical analysis of Markov chain sequences</a></li>
   </ul>
 </li>
@@ -73,166 +74,175 @@
 
     <section class="section level2"><h2 id="statistical-analysis">Statistical analysis<a class="anchor" aria-label="anchor" href="#statistical-analysis"></a>
 </h2>
+<p>This vignette illustrates the statistical inference functions for empirical Markov chains. Test results are returned as objects of class <code>htest</code>, following R’s standard convention for hypothesis tests.</p>
 <section class="level2"><h3 id="testing-the-first-order-markov-property">Testing the first-order Markov property<a class="anchor" aria-label="anchor" href="#testing-the-first-order-markov-property"></a>
 </h3>
-<p>For an observed sequence <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">X_1,\ldots,X_n</annotation></semantics></math> with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> possible states, the first-order Markov property requires that</p>
+<p>For an observed sequence <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>X</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">X_1,\ldots,X_n</annotation></semantics></math>, the first-order Markov property requires that</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>k</mi><mo>∣</mo><msub><mi>X</mi><mi>t</mi></msub><mo>=</mo><mi>j</mi><mo>,</mo><msub><mi>X</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>k</mi><mo>∣</mo><msub><mi>X</mi><mi>t</mi></msub><mo>=</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\mid X_t=j).
 </annotation></semantics></math></p>
-<p>Equivalently, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">X_{t-1}</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">X_{t+1}</annotation></semantics></math> are conditionally independent given <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>t</mi></msub><annotation encoding="application/x-tex">X_t</annotation></semantics></math>. Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">N_{ijk}</annotation></semantics></math> denote the number of consecutive triples <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(i,j,k)</annotation></semantics></math>. Under the first-order null model,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><mo>=</mo><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mo>+</mo></mrow></msub><mfrac><msub><mi>N</mi><mrow><mi>+</mi><mi>j</mi><mi>k</mi></mrow></msub><msub><mi>N</mi><mrow><mi>+</mi><mi>j</mi><mo>+</mo></mrow></msub></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
-E_{ijk}=N_{ij+}\frac{N_{+jk}}{N_{+j+}}.
-</annotation></semantics></math></p>
-<p>This formulation is closely related to the classical likelihood-based inference for Markov chains <span class="citation" data-cites="anderson1957statistical kullback1962tests">(<a href="#ref-anderson1957statistical" role="doc-biblioref">Anderson and Goodman 1957</a>; <a href="#ref-kullback1962tests" role="doc-biblioref">Kullback et al. 1962</a>)</span>. The package implements the Pearson statistic</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mn>2</mn></msup><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>k</mi></mrow></munder><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><mo>−</mo><msub><mi>E</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">
-X^2=\sum_{i,j,k}\frac{(N_{ijk}-E_{ijk})^2}{E_{ijk}}
-</annotation></semantics></math></p>
-<p>and the likelihood-ratio statistic</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>G</mi><mn>2</mn></msup><mo>=</mo><mn>2</mn><munder><mo>∑</mo><mrow><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><mo>&gt;</mo><mn>0</mn></mrow></munder><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>N</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub><msub><mi>E</mi><mrow><mi>i</mi><mi>j</mi><mi>k</mi></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
-G^2=2\sum_{N_{ijk}&gt;0}N_{ijk}\log\left(\frac{N_{ijk}}{E_{ijk}}\right).
-</annotation></semantics></math></p>
-<p>For complete support the asymptotic degrees of freedom are <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r(r-1)^2</annotation></semantics></math>. With sparse support the implementation derives the degrees of freedom from the observed conditional support. A non-rejection means only that the data provide insufficient evidence against the first-order model; it does not prove the Markov property.</p>
+<p>The package implements Pearson and likelihood-ratio tests of this property. A non-rejection means that the data provide insufficient evidence against the null hypothesis; it does not prove that the process is Markovian.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rain</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyMarkovProperty</a></span><span class="op">(</span><span class="va">rain</span><span class="op">$</span><span class="va">rain</span>, method <span class="op">=</span> <span class="st">"G"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sequence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>,</span>
+<span>              <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>, <span class="st">"a"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">markov_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statisticalTests.html">verifyMarkovProperty</a></span><span class="op">(</span><span class="va">sequence</span>, method <span class="op">=</span> <span class="st">"G"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Likelihood-ratio test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  rain$rain</span></span>
-<span><span class="co">#&gt; G-squared = 25.837, df = 12, p-value = 0.01132</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyMarkovProperty</a></span><span class="op">(</span><span class="va">rain</span><span class="op">$</span><span class="va">rain</span>, method <span class="op">=</span> <span class="st">"Pearson"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; data:  sequence</span></span>
+<span><span class="co">#&gt; G-squared = 0.59916, df = 2, p-value = 0.7411</span></span>
+<span><span class="va">markov_test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Pearson's Chi-squared test</span></span>
+<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  rain$rain</span></span>
-<span><span class="co">#&gt; X-squared = 26.096, df = 12, p-value = 0.0104</span></span></code></pre></div>
+<span><span class="co">#&gt; data:  sequence</span></span>
+<span><span class="co">#&gt; G-squared = 0.59916, df = 2, p-value = 0.7411</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">markov_test</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "htest" "list"</span></span></code></pre></div>
 </div>
-<p>The printed output above reports the statistic, degrees of freedom and p-value for the two asymptotic tests. Keeping <code>verbose = TRUE</code> in the vignette makes the numerical result part of the rendered example rather than silently suppressing it.</p>
-</section><section class="level2"><h3 id="empirical-versus-theoretical-transition-probabilities">Empirical versus theoretical transition probabilities<a class="anchor" aria-label="anchor" href="#empirical-versus-theoretical-transition-probabilities"></a>
+</section><section class="level2"><h3 id="published-example-non-rejection-of-the-markov-property">Published example: non-rejection of the Markov property<a class="anchor" aria-label="anchor" href="#published-example-non-rejection-of-the-markov-property"></a>
 </h3>
-<p><code><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical()</a></code> tests whether observed transition counts are compatible with a specified transition matrix. For each origin state <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, the null model is multinomial with probabilities given by row <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> of the theoretical transition matrix. The likelihood-ratio and Pearson versions use the same observed row totals and differ only in their goodness-of-fit statistic. This is the natural row-wise multinomial formulation of goodness-of-fit for transition probabilities <span class="citation" data-cites="kullback1962tests">(<a href="#ref-kullback1962tests" role="doc-biblioref">Kullback et al. 1962</a>)</span>.</p>
+<p>Burkett, Scherer and Todd (2019) <span class="citation" data-cites="burkett2019recurrent">(<a href="#ref-burkett2019recurrent" role="doc-biblioref">Burkett et al. 2019</a>)</span> study recurrent and persistent financial-market states. One of their published tests considers the transition into state 1 and reports the following counts:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.70</span>, <span class="fl">.20</span>, <span class="fl">.10</span>,</span>
-<span>              <span class="fl">.20</span>, <span class="fl">.50</span>, <span class="fl">.30</span>,</span>
-<span>              <span class="fl">.10</span>, <span class="fl">.30</span>, <span class="fl">.60</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu">new</span><span class="op">(</span><span class="st">"markovchain"</span>, states <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, transitionMatrix <span class="op">=</span> <span class="va">P</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"a"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">mc</span>, method <span class="op">=</span> <span class="st">"G"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">burkett_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">127</span>, <span class="fl">59</span>,</span>
+<span>     <span class="fl">11</span>,  <span class="fl">7</span>,</span>
+<span>     <span class="fl">36</span>, <span class="fl">20</span>,</span>
+<span>      <span class="fl">9</span>,  <span class="fl">4</span><span class="op">)</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"previous state 1"</span>, <span class="st">"previous state 2"</span>,</span>
+<span>      <span class="st">"previous state 4"</span>, <span class="st">"previous state 5"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"transition to state 1"</span>, <span class="st">"transition elsewhere"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/chisq.test.html" class="external-link">chisq.test</a></span><span class="op">(</span><span class="va">burkett_counts</span>, correct <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in chisq.test(burkett_counts, correct = FALSE): Chi-squared</span></span>
+<span><span class="co">#&gt; approximation may be incorrect</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
+<span><span class="co">#&gt;  Pearson's Chi-squared test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  x</span></span>
-<span><span class="co">#&gt; G-squared = 7.2259, df = 6, p-value = 0.3005</span></span></code></pre></div>
+<span><span class="co">#&gt; data:  burkett_counts</span></span>
+<span><span class="co">#&gt; X-squared = 0.63611, df = 3, p-value = 0.8881</span></span></code></pre></div>
 </div>
-<p>The function also accepts a raw transition-count matrix:</p>
+<p>The paper reports a non-significant test (p-value about 0.98). The calculation above uses the published contingency table directly. It is included as an independent literature example of a non-rejection; it is not claimed to be numerically identical to <code><a href="../reference/statisticalTests.html">verifyMarkovProperty()</a></code>, because the published test is a cell-wise test for a particular transition rather than the package’s global first-order Markov-property test.</p>
+</section><section class="level2"><h3 id="empirical-versus-theoretical-transition-probabilities">Empirical versus theoretical transition probabilities<a class="anchor" aria-label="anchor" href="#empirical-versus-theoretical-transition-probabilities"></a>
+</h3>
+<p><code><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical()</a></code> tests whether observed transition counts are compatible with a specified transition matrix. The following example is from Kullback, Kupperman and Ku (1962) <span class="citation" data-cites="kullback1962tests">(<a href="#ref-kullback1962tests" role="doc-biblioref">Kullback et al. 1962</a>)</span>. The paper gives both the empirical counts and the theoretical transition matrix.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markovchainFit.html">createSequenceMatrix</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical</a></span><span class="op">(</span><span class="va">counts</span>, <span class="va">mc</span>, method <span class="op">=</span> <span class="st">"Pearson"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Pearson's Chi-squared test</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  counts</span></span>
-<span><span class="co">#&gt; X-squared = 7.3534, df = 6, p-value = 0.2894</span></span></code></pre></div>
-</div>
-<p>If an observed transition has positive count while the theoretical probability is zero, the theoretical model is incompatible with the data. Conversely, a zero observed count where the theoretical probability is positive is not by itself evidence against the model.</p>
-<p>For small or sparse samples, the asymptotic chi-squared approximation can be replaced by a parametric Monte Carlo calibration. The observed row totals are retained and multinomial transition counts are simulated under the theoretical matrix:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical</a></span><span class="op">(</span></span>
-<span>  <span class="va">counts</span>, <span class="va">mc</span>, method <span class="op">=</span> <span class="st">"simulation"</span>, B <span class="op">=</span> <span class="fl">999</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<code class="sourceCode R"><span><span class="va">kullback_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">51</span>, <span class="fl">11</span>,  <span class="fl">8</span>,</span>
+<span>    <span class="fl">12</span>, <span class="fl">31</span>,  <span class="fl">9</span>,</span>
+<span>     <span class="fl">6</span>, <span class="fl">11</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Parametric Monte Carlo test (likelihood-ratio statistic)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  counts</span></span>
-<span><span class="co">#&gt; G-squared = 7.2259, df = 6, p-value = 0.29</span></span></code></pre></div>
-</div>
-<p>The resulting p-value uses the usual Monte Carlo correction</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mn>1</mn><mo>+</mo><msub><mi>B</mi><mo>≥</mo></msub></mrow><mrow><mi>B</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
-\frac{1+B_{\geq}}{B+1}.
-</annotation></semantics></math></p>
-<p>This is a parametric Monte Carlo test, not an exact finite-sample test.</p>
-</section><section class="level2"><h3 id="homogeneity-across-samples">Homogeneity across samples<a class="anchor" aria-label="anchor" href="#homogeneity-across-samples"></a>
-</h3>
-<p><code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code> tests whether several empirical sequences or transition-count matrices share the same transition probabilities. Under the null hypothesis, a common transition matrix is estimated by pooling the transition counts across samples. The test can therefore be viewed, row by row, as a multinomial homogeneity test.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">500</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"a"</span><span class="op">)</span></span>
-<span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">500</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"b"</span><span class="op">)</span></span>
-<span><span class="va">x3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">500</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"c"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">x3</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"G"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">kullback_P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">/</span><span class="fl">8</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">8</span>,</span>
+<span>    <span class="fl">1</span><span class="op">/</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">4</span>,</span>
+<span>    <span class="fl">1</span><span class="op">/</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">/</span><span class="fl">8</span>, <span class="fl">3</span><span class="op">/</span><span class="fl">8</span><span class="op">)</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">kullback_mc</span> <span class="op">&lt;-</span> <span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="st">"markovchain"</span>,</span>
+<span>  states <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>,</span>
+<span>  transitionMatrix <span class="op">=</span> <span class="va">kullback_P</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">kullback_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical</a></span><span class="op">(</span></span>
+<span>  <span class="va">kullback_counts</span>,</span>
+<span>  <span class="va">kullback_mc</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"G"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Likelihood-ratio test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  list(x1, x2, x3)</span></span>
-<span><span class="co">#&gt; G-squared = 15.475, df = 12, p-value = 0.2165</span></span></code></pre></div>
-</div>
-<p>Pearson and likelihood-ratio versions are available:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">x3</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"Pearson"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; data:  kullback_counts</span></span>
+<span><span class="co">#&gt; G-squared = 6.5184, df = 6, p-value = 0.3677</span></span>
+<span></span>
+<span><span class="va">kullback_result</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Pearson's Chi-squared test</span></span>
+<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  list(x1, x2, x3)</span></span>
-<span><span class="co">#&gt; X-squared = 14.21, df = 12, p-value = 0.2875</span></span></code></pre></div>
+<span><span class="co">#&gt; data:  kullback_counts</span></span>
+<span><span class="co">#&gt; G-squared = 6.5184, df = 6, p-value = 0.3677</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">kullback_result</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "htest" "list"</span></span></code></pre></div>
 </div>
-<p>A parametric Monte Carlo version simulates multinomial rows under the pooled transition matrix while retaining the observed number of transitions originating from each state in each sample. The pooled model is re-estimated for each replicate:</p>
+<p>Kullback et al. report <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>G</mi><mn>2</mn></msup><mo>=</mo><mn>6.551795</mn></mrow><annotation encoding="application/x-tex">G^2=6.551795</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">df=6</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.3642899</mn></mrow><annotation encoding="application/x-tex">p=0.3642899</annotation></semantics></math>. The historical <code>markovchain</code> implementation reproduced the published value by using column totals when constructing expected counts. For the row-wise multinomial null implemented by the current package, expected counts are constructed as</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>n</mi><mrow><mi>i</mi><mo>+</mo></mrow></msub><msub><mi>P</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">E_{ij}=n_{i+}P_{ij},</annotation></semantics></math></p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi>i</mi><mo>+</mo></mrow></msub><annotation encoding="application/x-tex">n_{i+}</annotation></semantics></math> is the observed total in row <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>. This gives <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>G</mi><mn>2</mn></msup><mo>=</mo><mn>6.518384</mn></mrow><annotation encoding="application/x-tex">G^2=6.518384</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">df=6</annotation></semantics></math> and the same non-rejection of the null hypothesis. The small numerical discrepancy is therefore a correction of the historical implementation rather than a change in the inferential conclusion.</p>
+</section><section class="level2"><h3 id="homogeneity-across-samples">Homogeneity across samples<a class="anchor" aria-label="anchor" href="#homogeneity-across-samples"></a>
+</h3>
+<p><code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code> tests whether several empirical transition-count matrices are compatible with a common transition mechanism.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">x3</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"simulation"</span>, B <span class="op">=</span> <span class="fl">999</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.70</span>, <span class="fl">.20</span>, <span class="fl">.10</span>,</span>
+<span>    <span class="fl">.20</span>, <span class="fl">.50</span>, <span class="fl">.30</span>,</span>
+<span>    <span class="fl">.10</span>, <span class="fl">.30</span>, <span class="fl">.60</span><span class="op">)</span>,</span>
+<span>  nrow <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu">new</span><span class="op">(</span><span class="st">"markovchain"</span>,</span>
+<span>          states <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>,</span>
+<span>          transitionMatrix <span class="op">=</span> <span class="va">P</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">500</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"a"</span><span class="op">)</span></span>
+<span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">500</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"a"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">homogeneity_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"G"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Parametric Monte Carlo test (likelihood-ratio statistic)</span></span>
+<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  list(x1, x2, x3)</span></span>
-<span><span class="co">#&gt; G-squared = 15.475, df = 12, p-value = 0.213</span></span></code></pre></div>
+<span><span class="co">#&gt; data:  list(x1, x2)</span></span>
+<span><span class="co">#&gt; G-squared = 1.8881, df = 6, p-value = 0.9297</span></span>
+<span><span class="va">homogeneity_test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  list(x1, x2)</span></span>
+<span><span class="co">#&gt; G-squared = 1.8881, df = 6, p-value = 0.9297</span></span></code></pre></div>
 </div>
-<p>These tests are useful when transition data come from different periods, regions, portfolios, or cohorts and one wants to assess whether a common homogeneous transition matrix is adequate. The likelihood-ratio formulation follows the classical contingency-table and Markov-chain framework of <span class="citation" data-cites="kullback1962tests">Kullback et al. (<a href="#ref-kullback1962tests" role="doc-biblioref">1962</a>)</span>.</p>
-</section><section class="level2"><h3 id="testing-time-homogeneity-of-transition-probabilities">Testing time-homogeneity of transition probabilities<a class="anchor" aria-label="anchor" href="#testing-time-homogeneity-of-transition-probabilities"></a>
+</section><section class="level2"><h3 id="stationarity-and-time-homogeneity">Stationarity and time-homogeneity<a class="anchor" aria-label="anchor" href="#stationarity-and-time-homogeneity"></a>
 </h3>
-<p><code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> tests a different form of stability: whether the transition probabilities are constant across a specified number of consecutive blocks of the sequence. For each origin state, the transition counts in the blocks form a contingency table. The null hypothesis is that the conditional distribution of the next state, given the current state, is the same in every informative block.</p>
-<p>This distinction is important. <code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code> compares <strong>different samples</strong> and asks whether they share a common transition matrix, whereas <code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> splits <strong>one sequence into consecutive blocks</strong> and asks whether its transition matrix is stable over time. The latter is therefore a test of time-homogeneity of a first-order Markov chain.</p>
-<p>The test is based on the Pearson chi-squared statistic. Transition counts are retained as counts; zero counts caused merely by finite sampling are not treated as impossible transitions. Blocks in which a particular origin state is never observed contain no information about that state’s conditional distribution and are therefore omitted from that state’s contingency table.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">stationary.sequence</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rmarkovchain.html">rmarkovchain</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="va">mc</span>, t0 <span class="op">=</span> <span class="st">"a"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">assessStationarity</a></span><span class="op">(</span><span class="va">stationary.sequence</span>, nblocks <span class="op">=</span> <span class="fl">4</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Pearson's Chi-squared test for time-homogeneity</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  stationary.sequence</span></span>
-<span><span class="co">#&gt; X-squared = 15.05, df = 18, p-value = 0.6585</span></span></code></pre></div>
-</div>
-<p>The output gives the combined Pearson statistic, its degrees of freedom, and the asymptotic p-value. A large p-value does not establish stationarity; it means that the data do not provide sufficient evidence against constant transition probabilities across the blocks.</p>
-<section class="level3"><h4 id="structural-zeros">Structural zeros<a class="anchor" aria-label="anchor" href="#structural-zeros"></a>
+<p><code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> tests whether transition probabilities remain constant across blocks of an empirical sequence. This is a test of time-homogeneity of the transition mechanism, rather than a test of the marginal stationary distribution.</p>
+<section class="level3"><h4 id="published-example-contractor-payments">Published example: contractor payments<a class="anchor" aria-label="anchor" href="#published-example-contractor-payments"></a>
 </h4>
-<p>A zero transition count can have two very different meanings. A <strong>sampling zero</strong> is simply a transition that did not occur in the observed sample. A <strong>structural zero</strong> is a transition that is impossible by construction of the process. Only the latter should be excluded from the contingency table and from the corresponding degrees of freedom.</p>
-<p><code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> therefore accepts the optional <code>structural.zeros</code> argument. It is a logical transition matrix with <code>TRUE</code> marking transitions that are structurally impossible. Its rows and columns correspond to the states of the sequence; when dimnames are supplied they are used to match the states explicitly.</p>
-<p>For example, suppose state <code>a</code> can never be followed by <code>a</code>:</p>
+<p>Tran and Carmichael (2012) <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span> apply likelihood-ratio tests to transition probabilities in a real contractor-payment application. Their analysis provides an example where the null hypothesis of time-homogeneous transition probabilities is rejected. The application also motivates explicit handling of structural zeros, i.e. transitions that are impossible under the state-space model.</p>
+<p>The package allows such transitions to be specified through the <code>structural.zeros</code> argument.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structural.zeros</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fl">3</span>, <span class="fl">3</span>,</span>
 <span>                           dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>,</span>
 <span>                                           <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">structural.zeros</span><span class="op">[</span><span class="st">"a"</span>, <span class="st">"a"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span></span>
-<span><span class="va">structural.sequence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>,</span>
-<span>                         <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>,</span>
-<span>                         <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span><span class="op">)</span></span>
+<span><span class="va">structural_sequence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>,</span>
+<span>  <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>,</span>
+<span>  <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">assessStationarity</a></span><span class="op">(</span></span>
-<span>  <span class="va">structural.sequence</span>,</span>
+<span><span class="va">stationarity_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statisticalTests.html">assessStationarity</a></span><span class="op">(</span></span>
+<span>  <span class="va">structural_sequence</span>,</span>
 <span>  nblocks <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  structural.zeros <span class="op">=</span> <span class="va">structural.zeros</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -240,197 +250,31 @@ G^2=2\sum_{N_{ijk}&gt;0}N_{ijk}\log\left(\frac{N_{ijk}}{E_{ijk}}\right).
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Pearson's Chi-squared test for time-homogeneity</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  structural.sequence</span></span>
-<span><span class="co">#&gt; X-squared = 1.7639, df = 15, p-value = 1</span></span></code></pre></div>
+<span><span class="co">#&gt; data:  structural_sequence</span></span>
+<span><span class="co">#&gt; X-squared = 1.7639, df = 15, p-value = 1</span></span>
+<span><span class="va">stationarity_test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Pearson's Chi-squared test for time-homogeneity</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; data:  structural_sequence</span></span>
+<span><span class="co">#&gt; X-squared = 1.7639, df = 15, p-value = 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">stationarity_test</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "htest" "list"</span></span></code></pre></div>
 </div>
-<p>A structural-zero transition that is actually observed is rejected as inconsistent with the supplied model:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">invalid.zeros</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fl">3</span>, <span class="fl">3</span>,</span>
-<span>                        dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>,</span>
-<span>                                        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">invalid.zeros</span><span class="op">[</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/statisticalTests.html">assessStationarity</a></span><span class="op">(</span></span>
-<span>    <span class="va">structural.sequence</span>,</span>
-<span>    nblocks <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>    structural.zeros <span class="op">=</span> <span class="va">invalid.zeros</span>,</span>
-<span>    verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in .assessStationarity(sequence, nblocks = nblocks, structural.zeros = structural.zeros,  : </span></span>
-<span><span class="co">#&gt;   sequence contains a transition marked as a structural zero</span></span></code></pre></div>
-</div>
-<p>The distinction between sampling and structural zeros is especially relevant for sparse transition matrices. Automatically interpreting every observed zero as a structural zero would change the null model and can substantially inflate or otherwise distort the degrees of freedom.</p>
-</section></section><section class="level2"><h3 id="published-real-data-examples">Published real-data examples<a class="anchor" aria-label="anchor" href="#published-real-data-examples"></a>
-</h3>
-<p>The stationarity of transition probabilities has been tested on real data for decades. Anderson and Goodman (1957) provide the classical likelihood-ratio framework, while Collins (1974) applies Markov-chain inference to manufacturing establishments and tests the homogeneity of transition matrices observed over successive years <span class="citation" data-cites="anderson1957statistical collins1974micro">(<a href="#ref-anderson1957statistical" role="doc-biblioref">Anderson and Goodman 1957</a>; <a href="#ref-collins1974micro" role="doc-biblioref">Collins 1974</a>)</span>. Tran and Carmichael (2012) apply the likelihood-ratio approach specifically to contractor payment histories and test the assumption that transition probabilities are constant over project time <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span>.</p>
-<section class="level3"><h4 id="manufacturing-establishments-collins-1974">Manufacturing establishments: Collins (1974)<a class="anchor" aria-label="anchor" href="#manufacturing-establishments-collins-1974"></a>
-</h4>
-<p>Collins <span class="citation" data-cites="collins1974micro">(<a href="#ref-collins1974micro" role="doc-biblioref">Collins 1974</a>)</span> applies tests of the Markov property, chain order and <strong>homogeneity of transition matrices</strong> to data on manufacturing establishments. The study uses micro-unit data from manufacturing establishments observed over successive years. The published analysis finds no statistically significant evidence against homogeneity for the annual transition matrices. This provides a useful real-data example in which the null hypothesis of constant transition probabilities is <em>not</em> rejected, complementing examples in which stationarity is rejected.</p>
-<p>The original article is the appropriate source for the historical data and complete transition tables; the package vignette does not reproduce proprietary or incompletely documented micro-unit records. We therefore use the Collins result as a published benchmark rather than manufacturing a pseudo-sequence from rounded tables.</p>
-</section><section class="level3"><h4 id="contractor-payments-tran-and-carmichael-2012">Contractor payments: Tran and Carmichael (2012)<a class="anchor" aria-label="anchor" href="#contractor-payments-tran-and-carmichael-2012"></a>
-</h4>
-<p>Tran and Carmichael <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span> provide two real construction-project case studies. Their null hypothesis is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub><mo>:</mo><msub><mi>p</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>τ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>p</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><mi>τ</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>s</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
-H_0:p_{jk}(\tau)=p_{jk},\qquad \tau=1,\ldots,s,
-</annotation></semantics></math></p>
-<p>against time-dependent transition probabilities. They use the Anderson–Goodman likelihood-ratio test and note that the Pearson chi-squared homogeneity test is asymptotically equivalent. Both case studies reject stationarity at the 5% level. The road project has 41 progress claims over 32 months; the steel-fabrication project has 12 claims over 12 months <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span>.</p>
-<p>The second case is particularly useful for <code>markovchain</code> because the paper publishes the empirical, month-by-month outstanding amounts. Table 4 reports the cumulative total claimed amount and amounts outstanding by more than 2, 4, 6 and 8 weeks. The values below reproduce the published table in thousands of dollars <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">steel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  month <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span>,</span>
-<span>  total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">89531</span>, <span class="fl">173329</span>, <span class="fl">421008</span>, <span class="fl">531654</span>, <span class="fl">1082009</span>, <span class="fl">1358504</span>,</span>
-<span>            <span class="fl">1657696</span>, <span class="fl">1709917</span>, <span class="fl">1801566</span>, <span class="fl">1818082</span>, <span class="fl">1847810</span>, <span class="fl">1888942</span><span class="op">)</span>,</span>
-<span>  over2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">89531</span>, <span class="fl">173329</span>, <span class="fl">198096</span>, <span class="fl">308742</span>, <span class="fl">344784</span>, <span class="fl">407462</span>,</span>
-<span>            <span class="fl">440712</span>, <span class="fl">492933</span>, <span class="fl">492933</span>, <span class="fl">509449</span>, <span class="fl">509449</span>, <span class="fl">550581</span><span class="op">)</span>,</span>
-<span>  over4 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">89531</span>, <span class="fl">99710</span>, <span class="fl">124477</span>, <span class="fl">134641</span>, <span class="fl">170683</span>, <span class="fl">233361</span>,</span>
-<span>            <span class="fl">266611</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">308207</span><span class="op">)</span>,</span>
-<span>  over6 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">89531</span>, <span class="fl">99710</span>, <span class="fl">124477</span>, <span class="fl">134641</span>, <span class="fl">170683</span>, <span class="fl">233361</span>,</span>
-<span>            <span class="fl">266611</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">270101</span><span class="op">)</span>,</span>
-<span>  over8 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">89531</span>, <span class="fl">99710</span>, <span class="fl">124477</span>, <span class="fl">134641</span>, <span class="fl">170683</span>, <span class="fl">233361</span>,</span>
-<span>            <span class="fl">266611</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">267075</span>, <span class="fl">270101</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">steel</span></span>
-<span><span class="co">#&gt;    month   total  over2  over4  over6  over8</span></span>
-<span><span class="co">#&gt; 1      1   89531  89531  89531  89531  89531</span></span>
-<span><span class="co">#&gt; 2      2  173329 173329  99710  99710  99710</span></span>
-<span><span class="co">#&gt; 3      3  421008 198096 124477 124477 124477</span></span>
-<span><span class="co">#&gt; 4      4  531654 308742 134641 134641 134641</span></span>
-<span><span class="co">#&gt; 5      5 1082009 344784 170683 170683 170683</span></span>
-<span><span class="co">#&gt; 6      6 1358504 407462 233361 233361 233361</span></span>
-<span><span class="co">#&gt; 7      7 1657696 440712 266611 266611 266611</span></span>
-<span><span class="co">#&gt; 8      8 1709917 492933 267075 267075 267075</span></span>
-<span><span class="co">#&gt; 9      9 1801566 492933 267075 267075 267075</span></span>
-<span><span class="co">#&gt; 10    10 1818082 509449 267075 267075 267075</span></span>
-<span><span class="co">#&gt; 11    11 1847810 509449 267075 267075 267075</span></span>
-<span><span class="co">#&gt; 12    12 1888942 550581 308207 270101 270101</span></span></code></pre></div>
-</div>
-<p>The paper converts these outstanding amounts into transition flows <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>τ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\alpha_{jk}(\tau)</annotation></semantics></math> and then applies the likelihood-ratio statistic. Its reported result is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1636.1</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>d</mi><mi>f</mi><mo>=</mo><mn>6</mn><mo>×</mo><mn>5</mn><mo>×</mo><mn>11</mn><mo>=</mo><mn>330</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
--2\log(\lambda)=1636.1,
-\qquad df=6\times5\times11=330,
-</annotation></semantics></math></p>
-<p>with a p-value below 0.05. The null hypothesis of time-homogeneous transition probabilities is therefore rejected <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span>.</p>
-<p>Because these are <strong>monetary transition flows rather than individual claim-level state observations</strong>, <code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> should not be applied to the twelve rows as if each dollar were an independent observation. Instead, the same contingency-table calculation is represented by <code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code> using the published transition-flow matrices. The following code reconstructs the six-state transition-count matrices from Table 4. The two absorbing states are included as self-transitions only to complete the transition matrices; they do not carry information about time variation.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">steel.transition</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>, <span class="fl">6</span>,</span>
-<span>              dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># States 0--3 are progressively older outstanding states;</span></span>
-<span>  <span class="co"># states 4 and 5 are Paid and To be resolved.</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over2</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">total</span> <span class="op">-</span> <span class="va">z</span><span class="op">$</span><span class="va">over2</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over4</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over2</span> <span class="op">-</span> <span class="va">z</span><span class="op">$</span><span class="va">over4</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over6</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over4</span> <span class="op">-</span> <span class="va">z</span><span class="op">$</span><span class="va">over6</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over6</span> <span class="op">-</span> <span class="va">z</span><span class="op">$</span><span class="va">over8</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">6</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">$</span><span class="va">over8</span></span>
-<span></span>
-<span>  <span class="co"># Absorbing states.</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span>  <span class="va">m</span><span class="op">[</span><span class="fl">6</span>, <span class="fl">6</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span>  <span class="va">m</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">steel.matrices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">steel</span><span class="op">)</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">steel.transition</span><span class="op">(</span><span class="va">steel</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span></span>
-<span>  <span class="va">steel.matrices</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"G"</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Likelihood-ratio test</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  steel.matrices</span></span>
-<span><span class="co">#&gt; G-squared = 1186103, df = 33, p-value &lt; 2.2e-16</span></span></code></pre></div>
-</div>
-<p>The reconstructed-data calculation gives the same <strong>qualitative conclusion</strong> as Tran and Carmichael: the p-value is overwhelmingly small and the hypothesis of constant transition probabilities is rejected. The numerical statistic is not expected to equal 1636.1 exactly, because the paper’s likelihood-ratio construction uses the monetary-flow likelihood and its own phase/time aggregation, whereas <code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code> applies the package’s general contingency-table formulation to the reconstructed transition-flow matrices. The comparison is therefore deliberately made at the level of the inferential conclusion rather than by asserting numerical identity.</p>
-<p>This example also illustrates why the new <code>structural.zeros</code> facility is useful. In the owner-payment model, only transitions to the next ageing state or to an absorbing state are admissible; many cells of the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>×</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">6\times6</annotation></semantics></math> transition matrix are structural zeros <span class="citation" data-cites="tranCarmichael2012">(<a href="#ref-tranCarmichael2012" role="doc-biblioref">Tran and Carmichael 2012</a>)</span>. For a genuine individual-level sequence from the same model, these constraints can be supplied directly to <code><a href="../reference/statisticalTests.html">assessStationarity()</a></code> through a logical transition matrix.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">payment.structural.zeros</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fl">6</span>, <span class="fl">6</span>,</span>
-<span>  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Allowed transitions: ageing by one state, payment, and resolution;</span></span>
-<span><span class="co"># states 4 and 5 are absorbing.</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">4</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span><span class="va">payment.structural.zeros</span><span class="op">[</span><span class="fl">6</span>, <span class="fl">6</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">FALSE</span></span>
-<span></span>
-<span><span class="va">payment.structural.zeros</span></span>
-<span><span class="co">#&gt;      0     1     2     3     4     5</span></span>
-<span><span class="co">#&gt; 0 TRUE FALSE  TRUE  TRUE FALSE  TRUE</span></span>
-<span><span class="co">#&gt; 1 TRUE  TRUE FALSE  TRUE FALSE  TRUE</span></span>
-<span><span class="co">#&gt; 2 TRUE  TRUE  TRUE FALSE FALSE  TRUE</span></span>
-<span><span class="co">#&gt; 3 TRUE  TRUE  TRUE  TRUE FALSE FALSE</span></span>
-<span><span class="co">#&gt; 4 TRUE  TRUE  TRUE  TRUE FALSE  TRUE</span></span>
-<span><span class="co">#&gt; 5 TRUE  TRUE  TRUE  TRUE  TRUE FALSE</span></span></code></pre></div>
-</div>
-<p>The two published case studies therefore provide complementary real-data evidence: Collins reports a case in which homogeneity is not rejected, whereas Tran and Carmichael report two construction-payment cases in which it is rejected. They also illustrate an important practical point: structural zeros are part of the model specification and should not be confused with transitions that merely happen not to appear in a finite sample.</p>
-</section></section><section class="level2"><h3 id="monte-carlo-calibration-and-validation">Monte Carlo calibration and validation<a class="anchor" aria-label="anchor" href="#monte-carlo-calibration-and-validation"></a>
-</h3>
-<p>The three statistical tests provide asymptotic G and Pearson tests and, where appropriate, a parametric Monte Carlo alternative. Monte Carlo calibration is particularly useful when expected counts are small or the transition support is sparse.</p>
-<p>For <code><a href="../reference/statisticalTests.html">verifyMarkovProperty()</a></code>, a first-order transition matrix is fitted under the null, sequences are simulated from it, and the first-order model is re-fitted in every replicate. For <code><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical()</a></code> and <code><a href="../reference/statisticalTests.html">verifyHomogeneity()</a></code>, the simulation conditions on the observed row totals and samples multinomial transition counts under the theoretical or pooled transition probabilities. In all cases the Monte Carlo p-value is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>b</mi><mo>=</mo><mn>1</mn></mrow><mi>B</mi></munderover><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mi>b</mi></msub><mo>≥</mo><msub><mi>T</mi><mrow><mi>o</mi><mi>b</mi><mi>s</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>B</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\frac{1+\sum_{b=1}^B I(T_b\ge T_{obs})}{B+1},
-</annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math> is the selected test statistic.</p>
-<p>For example:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statisticalTests.html">verifyMarkovProperty</a></span><span class="op">(</span><span class="va">rain</span><span class="op">$</span><span class="va">rain</span>, method <span class="op">=</span> <span class="st">"simulation"</span>, B <span class="op">=</span> <span class="fl">999</span>,</span>
-<span>                     seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Parametric Monte Carlo test (likelihood-ratio statistic)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  rain$rain</span></span>
-<span><span class="co">#&gt; G-squared = 25.837, df = 12, p-value = 0.018</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyEmpiricalToTheoretical</a></span><span class="op">(</span><span class="va">counts</span>, <span class="va">mc</span>, method <span class="op">=</span> <span class="st">"simulation"</span>, B <span class="op">=</span> <span class="fl">999</span>,</span>
-<span>                             seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Parametric Monte Carlo test (likelihood-ratio statistic)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  counts</span></span>
-<span><span class="co">#&gt; G-squared = 7.2259, df = 6, p-value = 0.29</span></span>
-<span><span class="fu"><a href="../reference/statisticalTests.html">verifyHomogeneity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">x3</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"simulation"</span>, B <span class="op">=</span> <span class="fl">999</span>,</span>
-<span>                  seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Parametric Monte Carlo test (likelihood-ratio statistic)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; data:  list(x1, x2, x3)</span></span>
-<span><span class="co">#&gt; G-squared = 15.475, df = 12, p-value = 0.213</span></span></code></pre></div>
-</div>
-<p>These procedures are parametric Monte Carlo tests, not exact finite-sample tests. A separate validation study is deliberately kept outside <code>R CMD check</code> because it is computationally expensive. It should evaluate Type-I error, power, sample-size sensitivity, state-space size, sparse transition matrices, and calibration of the asymptotic tests against the Monte Carlo alternatives. The validation script is stored under <code>inst/validation/</code> and can be run manually.</p>
-</section><section class="level2"><h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
+<p>A structural zero represents a transition ruled out by the model. It is therefore different from a sampling zero: an unobserved but possible transition remains part of the statistical analysis.</p>
+<p>For sparse data, the asymptotic chi-squared approximation should be interpreted with care.</p>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-anderson1957statistical" class="csl-entry" role="listitem">
-Anderson, T. W., and L. A. Goodman. 1957. <span>“Statistical Inference about Markov Chains.”</span> <em>The Annals of Mathematical Statistics</em> 28 (1): 89–110. <a href="https://doi.org/10.1214/aoms/1177707039" class="external-link">https://doi.org/10.1214/aoms/1177707039</a>.
-</div>
-<div id="ref-collins1974micro" class="csl-entry" role="listitem">
-Collins, Lyndhurst. 1974. <span>“Estimating Markov Transition Probabilities from Micro-Unit Data.”</span> <em>Journal of the Royal Statistical Society. Series C (Applied Statistics)</em> 23 (3): 355–71. <a href="https://doi.org/10.2307/2347128" class="external-link">https://doi.org/10.2307/2347128</a>.
+<div id="ref-burkett2019recurrent" class="csl-entry" role="listitem">
+Burkett, Matthew W., William T. Scherer, and Andrew Todd. 2019. <span>“Are Financial Market States Recurrent and Persistent?”</span> <em>Cogent Economics and Finance</em> 7 (1): 1622171. <a href="https://doi.org/10.1080/23322039.2019.1622171" class="external-link">https://doi.org/10.1080/23322039.2019.1622171</a>.
 </div>
 <div id="ref-kullback1962tests" class="csl-entry" role="listitem">
-Kullback, S, Michael Kupperman, and HH Ku. 1962. <span>“Tests for Contingency Tables and Marltov Chains.”</span> <em>Technometrics</em> 4 (4): 573–608.
+Kullback, Solomon, Michael Kupperman, and H. H. Ku. 1962. <span>“Tests for Contingency Tables and Markov Chains.”</span> <em>Technometrics</em> 4 (4): 573–608. <a href="https://doi.org/10.1080/00401706.1962.10490041" class="external-link">https://doi.org/10.1080/00401706.1962.10490041</a>.
 </div>
 <div id="ref-tranCarmichael2012" class="csl-entry" role="listitem">
 Tran, Hanh, and David G. Carmichael. 2012. <span>“Stationarity of the Transition Probabilities in the Markov Chain Formulation of Owner Payments on Projects.”</span> <em>ANZIAM Journal</em> 53: C69–89. <a href="https://doi.org/10.21914/anziamj.v53i0.5111" class="external-link">https://doi.org/10.21914/anziamj.v53i0.5111</a>.
 </div>
 </div>
-</section></section><script id="quarto-html-after-body" type="application/javascript">
+</section></section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

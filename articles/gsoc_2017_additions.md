@@ -571,7 +571,7 @@ predictHommc(ob,3)
   print("Rsolnp unavailable")
 }
 #>      [,1] [,2] [,3]
-#> [1,] "a"  "b"  "b" 
+#> [1,] "b"  "b"  "b" 
 #> [2,] "a"  "a"  "a"
 ```
 

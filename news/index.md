@@ -16,13 +16,17 @@
   the standard test output.
 - Expanded the `statistical_analysis` vignette with numerical test
   results and time-homogeneity examples.
-- Added published real-data examples from Collins (1974) and Tran and
-  Carmichael (2012), including reconstruction of the latter’s
-  steel-fabrication transition-flow data and comparison with the package
-  homogeneity test.
+- Added published literature examples for non-rejection of the Markov
+  property and for empirical-versus-theoretical transition matrices.
 - Corrected structural-zero regression tests and the
   [`assessStationarity()`](../reference/statisticalTests.md)
   documentation example used by package checks.
+- Corrected
+  [`verifyEmpiricalToTheoretical()`](../reference/statisticalTests.md)
+  to use row totals when constructing expected transition counts for its
+  row-wise multinomial likelihood-ratio test. This fixes a historical
+  use of column totals and changes the Kullback et al. benchmark from
+  6.551795 to 6.518384, without changing its inferential conclusion.
 
 ## markovchain 0.11.0
 

@@ -155,14 +155,11 @@ verifyMarkovProperty(sequence)
 #> G-squared = 0.59916, df = 2, p-value = 0.7411
 #> 
 assessOrder(sequence)
-#> Warning: The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.
-#> Warning: Chi-squared approximation may be incorrect
-#> Warning: Chi-squared approximation may be incorrect
 #> 
 #>  Pearson's Chi-squared test for Markov order
 #> 
 #> data:  sequence
-#> X-squared = 1.5531e-31, df = 2, p-value = 1
+#> X-squared = 0.63, df = 2, p-value = 0.7298
 #> 
 assessStationarity(sequence, 2)
 #> 

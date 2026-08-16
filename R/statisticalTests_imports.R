@@ -1,2 +1,0 @@
-#' @importFrom stats rmultinom
-NULL

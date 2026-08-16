@@ -19,32 +19,7 @@ verifyMarkovProperty(
 
 assessOrder(sequence, verbose = TRUE)
 
-assessStationarity(sequence, nblocks, verbose = TRUE)
-
-verifyEmpiricalToTheoretical(
-  data,
-  object,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyHomogeneity(
-  inputList,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyMarkovProperty(
-  sequence,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
+assessStationarity(sequence, nblocks, structural.zeros = NULL, verbose = TRUE)
 
 verifyEmpiricalToTheoretical(
   data,
@@ -65,21 +40,14 @@ verifyHomogeneity(
 }
 \arguments{
 \item{sequence}{An empirical sequence of states.}
-
 \item{method}{Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.}
-
 \item{B}{Number of Monte Carlo replicates for `method = "simulation"`.}
-
 \item{seed}{Optional random seed.}
-
 \item{verbose}{Should results be printed?}
-
 \item{nblocks}{Number of blocks.}
-
+\item{structural.zeros}{Optional logical transition matrix. `TRUE` marks a structurally impossible transition. Sampling zeros are not removed.}
 \item{data}{An empirical sequence or a matrix of transition counts.}
-
 \item{object}{A `markovchain` object specifying theoretical probabilities.}
-
 \item{inputList}{A list whose elements are empirical sequences or matrices.}
 }
 \value{
@@ -102,7 +70,7 @@ pooled transition counts, and individual transition counts.
 }
 \description{
 These functions verify the Markov property, assess 
-             the order and stationarity of the Markov chain.
+the order and stationarity of the Markov chain.
 
 This function tests whether an empirical transition matrix is statistically compatible
 with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
@@ -114,6 +82,10 @@ Tests the null hypothesis that the conditional distribution of the next
 state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
 previous and next states given the current state.
+
+\code{assessStationarity} tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+\code{structural.zeros}; sampling zeros remain part of the contingency table.
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
@@ -121,7 +93,14 @@ sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
 mcFit <- markovchainFit(data = sequence, byrow = FALSE)
 verifyMarkovProperty(sequence)
 assessOrder(sequence)
-assessStationarity(sequence, 1)
+assessStationarity(sequence, 2)
+
+# Structural zeros: a -> a is impossible.
+structural.zeros <- matrix(FALSE, 2, 2,
+                           dimnames = list(c("a", "b"), c("a", "b")))
+structural.zeros["a", "a"] <- TRUE
+assessStationarity(c("a", "b", "a", "b", "a", "b", "b", "a"),
+                   nblocks = 2, structural.zeros = structural.zeros)
 
 
 

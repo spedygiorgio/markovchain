@@ -2,9 +2,7 @@
 title: "Statistical analysis of Markov chain sequences"
 author: "Giorgio Alfredo Spedicato"
 format: html
-bibliography:
-  - markovchainBiblio.bib
-  - statistical_analysis_refs.bib
+bibliography: statistical_analysis_refs.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{Statistical analysis of Markov chain sequences}
@@ -24,182 +22,202 @@ library(markovchain)
 
 # Statistical analysis
 
+This vignette illustrates the statistical inference functions for empirical
+Markov chains. Test results are returned as objects of class `htest`, following
+R's standard convention for hypothesis tests.
+
 ## Testing the first-order Markov property
 
-For an observed sequence $X_1,\ldots,X_n$ with $r$ possible states, the first-order Markov property requires that
+For an observed sequence $X_1,\ldots,X_n$, the first-order Markov property
+requires that
 
 $$
 P(X_{t+1}=k\mid X_t=j,X_{t-1}=i)=P(X_{t+1}=k\mid X_t=j).
 $$
 
-Equivalently, $X_{t-1}$ and $X_{t+1}$ are conditionally independent given $X_t$. Let $N_{ijk}$ denote the number of consecutive triples $(i,j,k)$. Under the first-order null model,
-
-$$
-E_{ijk}=N_{ij+}\frac{N_{+jk}}{N_{+j+}}.
-$$
-
-This formulation is closely related to the classical likelihood-based inference for Markov chains [@anderson1957statistical; @kullback1962tests]. The package implements the Pearson statistic
-
-$$
-X^2=\sum_{i,j,k}\frac{(N_{ijk}-E_{ijk})^2}{E_{ijk}}
-$$
-
-and the likelihood-ratio statistic
-
-$$
-G^2=2\sum_{N_{ijk}>0}N_{ijk}\log\left(\frac{N_{ijk}}{E_{ijk}}\right).
-$$
-
-For complete support the asymptotic degrees of freedom are $r(r-1)^2$. With sparse support the implementation derives the degrees of freedom from the observed conditional support. A non-rejection means only that the data provide insufficient evidence against the first-order model; it does not prove the Markov property.
+The package implements Pearson and likelihood-ratio tests of this property.
+A non-rejection means that the data provide insufficient evidence against the
+null hypothesis; it does not prove that the process is Markovian.
 
 ```{r}
 #| label: markov-test
 
-data(rain)
-verifyMarkovProperty(rain$rain, method = "G", verbose = FALSE)
-verifyMarkovProperty(rain$rain, method = "Pearson", verbose = FALSE)
+sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
+              "a", "b", "a", "a", "b", "b", "b", "a")
+
+markov_test <- verifyMarkovProperty(sequence, method = "G", verbose = TRUE)
+markov_test
+class(markov_test)
 ```
+
+## Published example: non-rejection of the Markov property
+
+Burkett, Scherer and Todd (2019) [@burkett2019recurrent] study recurrent and
+persistent financial-market states. One of their published tests considers
+the transition into state 1 and reports the following counts:
+
+```{r}
+#| label: burkett-markov
+
+burkett_counts <- matrix(
+  c(127, 59,
+     11,  7,
+     36, 20,
+      9,  4),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(
+    c("previous state 1", "previous state 2",
+      "previous state 4", "previous state 5"),
+    c("transition to state 1", "transition elsewhere")
+  )
+)
+
+chisq.test(burkett_counts, correct = FALSE)
+```
+
+The published contingency table gives a non-significant Pearson test
+($\chi^2\approx0.64$, 3 degrees of freedom, p-value about 0.89). It is
+included as an independent literature example of a non-rejection; it is not
+claimed to be numerically identical to `verifyMarkovProperty()`, because the
+published test is a cell-wise test for a particular transition rather than the
+package's global first-order Markov-property test.
 
 ## Empirical versus theoretical transition probabilities
 
-`verifyEmpiricalToTheoretical()` tests whether observed transition counts are compatible with a specified transition matrix. For each origin state $i$, the null model is multinomial with probabilities given by row $i$ of the theoretical transition matrix. The likelihood-ratio and Pearson versions use the same observed row totals and differ only in their goodness-of-fit statistic. This is the natural row-wise multinomial formulation of goodness-of-fit for transition probabilities [@kullback1962tests].
+`verifyEmpiricalToTheoretical()` tests whether observed transition counts are
+compatible with a specified transition matrix. The following example is from
+Kullback, Kupperman and Ku (1962) [@kullback1962tests]. The paper gives both
+the empirical counts and the theoretical transition matrix.
 
 ```{r}
-#| label: empirical-theoretical
+#| label: kullback-example
 
-P <- matrix(c(.70, .20, .10,
-              .20, .50, .30,
-              .10, .30, .60), 3, 3, byrow = TRUE,
-            dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
-mc <- new("markovchain", states = c("a", "b", "c"), transitionMatrix = P)
-set.seed(1)
-x <- rmarkovchain(1000, mc, t0 = "a")
-verifyEmpiricalToTheoretical(x, mc, method = "G", verbose = FALSE)
+kullback_counts <- matrix(
+  c(51, 11,  8,
+    12, 31,  9,
+     6, 11, 10),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+kullback_P <- matrix(
+  c(5/8, 1/4, 1/8,
+    1/4, 1/2, 1/4,
+    1/4, 3/8, 3/8),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+kullback_mc <- new(
+  "markovchain",
+  states = c("a", "b", "c"),
+  transitionMatrix = kullback_P
+)
+
+kullback_result <- verifyEmpiricalToTheoretical(
+  kullback_counts,
+  kullback_mc,
+  method = "G",
+  verbose = TRUE
+)
+
+kullback_result
+class(kullback_result)
 ```
 
-The function also accepts a raw transition-count matrix:
+Kullback et al. report $G^2=6.551795$, $df=6$ and $p=0.3642899$.
+The historical `markovchain` implementation reproduced the published value
+by using column totals when constructing expected counts. For the row-wise
+multinomial null implemented by the current package, expected counts are
+constructed as
 
-```{r}
-#| label: empirical-counts
+$$E_{ij}=n_{i+}P_{ij},$$
 
-counts <- createSequenceMatrix(x)
-verifyEmpiricalToTheoretical(counts, mc, method = "Pearson", verbose = FALSE)
-```
-
-If an observed transition has positive count while the theoretical probability is zero, the theoretical model is incompatible with the data. Conversely, a zero observed count where the theoretical probability is positive is not by itself evidence against the model.
-
-For small or sparse samples, the asymptotic chi-squared approximation can be replaced by a parametric Monte Carlo calibration. The observed row totals are retained and multinomial transition counts are simulated under the theoretical matrix:
-
-```{r}
-#| label: empirical-theoretical-simulation
-
-verifyEmpiricalToTheoretical(
-  counts, mc, method = "simulation", B = 999,
-  seed = 123, verbose = FALSE
-)$p.value
-```
-
-The resulting p-value uses the usual Monte Carlo correction
-
-$$
-\frac{1+B_{\geq}}{B+1}.
-$$
-
-This is a parametric Monte Carlo test, not an exact finite-sample test.
+where $n_{i+}$ is the observed total in row $i$. This gives
+$G^2=6.518384$, with $df=6$ and the same non-rejection of the null hypothesis.
+The small numerical discrepancy is therefore a correction of the historical
+implementation rather than a change in the inferential conclusion.
 
 ## Homogeneity across samples
 
-`verifyHomogeneity()` tests whether several empirical sequences or transition-count matrices share the same transition probabilities. Under the null hypothesis, a common transition matrix is estimated by pooling the transition counts across samples. The test can therefore be viewed, row by row, as a multinomial homogeneity test.
+`verifyHomogeneity()` tests whether several empirical transition-count
+matrices are compatible with a common transition mechanism.
 
 ```{r}
 #| label: homogeneity
 
+P <- matrix(
+  c(.70, .20, .10,
+    .20, .50, .30,
+    .10, .30, .60),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+mc <- new("markovchain",
+          states = c("a", "b", "c"),
+          transitionMatrix = P)
+
 set.seed(123)
 x1 <- rmarkovchain(500, mc, t0 = "a")
-x2 <- rmarkovchain(500, mc, t0 = "b")
-x3 <- rmarkovchain(500, mc, t0 = "c")
-verifyHomogeneity(list(x1, x2, x3), method = "G", verbose = FALSE)
+x2 <- rmarkovchain(500, mc, t0 = "a")
+
+homogeneity_test <- verifyHomogeneity(
+  list(x1, x2), method = "G", verbose = TRUE
+)
+homogeneity_test
 ```
 
-Pearson and likelihood-ratio versions are available:
+## Stationarity and time-homogeneity
+
+`assessStationarity()` tests whether transition probabilities remain constant
+across blocks of an empirical sequence. This is a test of time-homogeneity of
+the transition mechanism, rather than a test of the marginal stationary
+distribution.
+
+### Published example: contractor payments
+
+Tran and Carmichael (2012) [@tranCarmichael2012] apply likelihood-ratio tests
+to transition probabilities in a real contractor-payment application. Their
+analysis provides an example where the null hypothesis of time-homogeneous
+transition probabilities is rejected. The application also motivates explicit
+handling of structural zeros, i.e. transitions that are impossible under the
+state-space model.
+
+The package allows such transitions to be specified through the
+`structural.zeros` argument.
 
 ```{r}
-#| label: homogeneity-pearson
+#| label: structural-zeros
 
-verifyHomogeneity(list(x1, x2, x3), method = "Pearson", verbose = FALSE)
+structural.zeros <- matrix(FALSE, 3, 3,
+                           dimnames = list(c("a", "b", "c"),
+                                           c("a", "b", "c")))
+structural.zeros["a", "a"] <- TRUE
+
+structural_sequence <- c(
+  "a", "b", "a", "c", "a", "b", "c", "a",
+  "b", "c", "b", "a", "c", "b", "a", "c",
+  "a", "b", "c", "a", "b", "c", "b", "a"
+)
+
+stationarity_test <- assessStationarity(
+  structural_sequence,
+  nblocks = 4,
+  structural.zeros = structural.zeros,
+  verbose = TRUE
+)
+stationarity_test
+class(stationarity_test)
 ```
 
-A parametric Monte Carlo version simulates multinomial rows under the pooled transition matrix while retaining the observed number of transitions originating from each state in each sample. The pooled model is re-estimated for each replicate:
+A structural zero represents a transition ruled out by the model. It is
+therefore different from a sampling zero: an unobserved but possible
+transition remains part of the statistical analysis.
 
-```{r}
-#| label: homogeneity-simulation
-
-verifyHomogeneity(
-  list(x1, x2, x3), method = "simulation", B = 999,
-  seed = 123, verbose = FALSE
-)$p.value
-```
-
-These tests are useful when transition data come from different periods, regions, portfolios, or cohorts and one wants to assess whether a common homogeneous transition matrix is adequate. The likelihood-ratio formulation follows the classical contingency-table and Markov-chain framework of @kullback1962tests.
-
-## Published example: Alofi daily rainfall
-
-Avery and Henderson [@averyHenderson] analysed discrete-state time series including the Alofi daily rainfall data distributed with `markovchain`. The data classify successive days into three rainfall states and are included as `rain`.
-
-```{r}
-#| label: alofi-data
-
-data(rain)
-table(rain$rain)
-createSequenceMatrix(rain$rain)
-```
-
-A published likelihood comparison of first- and second-order Markov models for these data reports maximized log-likelihoods of approximately -1038.06 and -1025.10, respectively [@davison2003statistical]. Thus
-
-$$
-G^2=2\{(-1025.10)-(-1038.06)\}=25.92.
-$$
-
-For three states the comparison has 12 degrees of freedom, giving an asymptotic p-value of approximately 0.011. Thus the first-order model is rejected at the 5% level in that likelihood comparison.
-
-The package performs the corresponding first-order goodness-of-fit calculation directly from the sequence:
-
-```{r}
-#| label: alofi-test
-
-verifyMarkovProperty(rain$rain, method = "G", verbose = FALSE)
-```
-
-The exact value need not equal the rounded published likelihood calculation, but the hypothesis is the same: whether the state immediately preceding the current rainfall state contains additional information about the next state.
-
-## Monte Carlo calibration and validation
-
-The three statistical tests provide asymptotic G and Pearson tests and, where appropriate, a parametric Monte Carlo alternative. Monte Carlo calibration is particularly useful when expected counts are small or the transition support is sparse.
-
-For `verifyMarkovProperty()`, a first-order transition matrix is fitted under the null, sequences are simulated from it, and the first-order model is re-fitted in every replicate. For `verifyEmpiricalToTheoretical()` and `verifyHomogeneity()`, the simulation conditions on the observed row totals and samples multinomial transition counts under the theoretical or pooled transition probabilities. In all cases the Monte Carlo p-value is
-
-$$
-\frac{1+\sum_{b=1}^B I(T_b\ge T_{obs})}{B+1},
-$$
-
-where $T$ is the selected test statistic.
-
-For example:
-
-```{r}
-#| label: all-simulation
-
-verifyMarkovProperty(rain$rain, method = "simulation", B = 999,
-                     seed = 123, verbose = FALSE)$p.value
-verifyEmpiricalToTheoretical(counts, mc, method = "simulation", B = 999,
-                             seed = 123, verbose = FALSE)$p.value
-verifyHomogeneity(list(x1, x2, x3), method = "simulation", B = 999,
-                  seed = 123, verbose = FALSE)$p.value
-```
-
-These procedures are parametric Monte Carlo tests, not exact finite-sample tests. A separate validation study is deliberately kept outside `R CMD check` because it is computationally expensive. It should evaluate Type-I error, power, sample-size sensitivity, state-space size, sparse transition matrices, and calibration of the asymptotic tests against the Monte Carlo alternatives. The validation script is stored under `inst/validation/` and can be run manually.
-
-## References
-
-::: {#refs}
-:::
+For sparse data, the asymptotic chi-squared approximation should be interpreted
+with care.

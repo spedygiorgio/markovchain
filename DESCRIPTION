@@ -1,7 +1,7 @@
 Package: markovchain
 Type: Package
 Title: Easy Handling Discrete Time Markov Chains
-Version: 0.2.0
+Version: 0.11.1
 Authors@R: c(
     person("Giorgio Alfredo", "Spedicato", role = c("aut", "cre"),
       email = "spedicato_giorgio@yahoo.it",comment = c(ORCID = "0000-0002-0315-8888")),
@@ -43,6 +43,7 @@ Suggests:
     testthat,
     diagram,
     DiagrammeR,
+    ggplot2 (>= 3.4.0),
     msm,
     Rsolnp,
     rmarkdown,

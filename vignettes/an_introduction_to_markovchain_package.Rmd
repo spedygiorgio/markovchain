@@ -442,7 +442,31 @@ transitionProbability(mcWeather, "cloudy", "rain")
 mcWeather[2,3]
 ```
 
-The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
+The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. The standard `plot` method remains the default plotting approach in the package and provides direct access to the underlying `igraph` representation.
+
+### Alternative ggplot2-based plotting
+
+For users who prefer the grammar of graphics, the package also provides an optional `autoplot` method based on \pkg{ggplot2}. This is a **supplementary alternative** to `plot`, not a replacement. The method returns a regular `ggplot` object, allowing the Markov chain representation to be further customised with the usual `ggplot2` layers and scales. States are represented as nodes, transition probabilities as directed edges, and communicating classes are shown with different node fills.
+
+The two approaches can be compared directly using the same `mcWeather` object. The left panel uses the traditional `plot` method, while the right panel uses `ggplot2::autoplot`:
+
+```{r mcPlotComparison, fig.cap="The same Markov chain represented with the traditional `plot` method (left) and the optional `ggplot2`-based `autoplot` method (right).", fig.width=6, fig.height=5, fig.show="hold", out.width="49%"}
+plot(mcWeather, main = "Traditional plot()")
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  print(ggplot2::autoplot(mcWeather) +
+          ggplot2::labs(title = "ggplot2::autoplot()"))
+}
+```
+
+The `autoplot` method is available when the optional `ggplot2` package is installed. By default, transitions with positive probability are displayed and labelled with their probabilities. The `threshold` argument can be used to omit very small transition probabilities, while `show_probabilities = FALSE` suppresses edge labels. For example:
+
+```{r mcAutoplotCustom, eval=FALSE}
+ggplot2::autoplot(mcWeather,
+                  show_probabilities = FALSE,
+                  threshold = 0.2)
+```
+
+The existing `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 ```{r printAndShow}
 print(mcWeather)

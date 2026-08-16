@@ -1,0 +1,30 @@
+name: Fix autoplot vignette formatting
+
+on:
+  push:
+    branches:
+      - feature/ggplot2-autoplot
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fix vignette
+        run: python .github/scripts/fix_vignette.py
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vignettes/an_introduction_to_markovchain_package.Rmd .github
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: tidy autoplot vignette section"
+            git push
+          fi

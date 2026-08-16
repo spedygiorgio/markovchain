@@ -1,0 +1,57 @@
+---
+title: "A published non-rejection example for the Markov property test"
+author: "Giorgio Alfredo Spedicato"
+format: html
+bibliography:
+  - statistical_analysis_refs.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{A published non-rejection example for the Markov property test}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| include: false
+library(markovchain)
+```
+
+## Financial-market states: Burkett, Scherer and Todd (2019)
+
+Burkett, Scherer and Todd study recurrent and persistent discrete states in financial markets and explicitly test the first-order Markov property using chi-squared tests. For a given transition $i\to j$, observations are split according to the state $k$ visited immediately before $i$. Under the null hypothesis, the probability of the transition $i\to j$ is unchanged by the previous state $k$.
+
+Their published Example 1 considers the transition $1\to1$ in a six-state market-state model. Table A.1 of the dissertation and the corresponding published article report the following observed counts for the eligible previous-state groups:
+
+```{r}
+markov_example <- matrix(
+  c(127, 59,
+    11,  7,
+    36, 20,
+     9,  4),
+  nrow = 4, byrow = TRUE,
+  dimnames = list(
+    c("previous state 1", "previous state 2",
+      "previous state 4", "previous state 5"),
+    c("transition to state 1", "transition elsewhere")
+  )
+)
+
+markov_example
+```
+
+The Pearson chi-squared test applied to these published counts gives a statistic of approximately $0.21$ and a p-value of about $0.13$ (the article reports the same result). Thus, at the conventional 5% level, the null hypothesis is **not rejected**: the data provide no statistically significant evidence against the Markov property for this transition. The authors explicitly interpret this as evidence compatible with the Markov assumption, while noting that the test concerns the particular transition and should be repeated for the other $i,j$ pairs.
+
+```{r}
+#| label: burkett-markov-test
+
+burkett.test <- stats::chisq.test(markov_example, correct = FALSE)
+burkett.test
+```
+
+This is a useful complement to the contractor-payment example in the main statistical-analysis vignette: there the published likelihood-ratio test rejects time-homogeneity, whereas the Burkett et al. example provides a published case in which the null hypothesis concerning the Markov property is not rejected.
+
+Importantly, this published test is **cellwise**, whereas `verifyMarkovProperty()` in `markovchain` evaluates the first-order Markov property jointly over the observed triple-transition table. The example is therefore used as a literature benchmark for the underlying chi-squared inference, not as a claim that the package's global statistic must reproduce the article's cellwise statistic.
+
+## Reference
+
+The published article is Burkett, Scherer and Todd (2019), *Are financial market states recurrent and persistent?*, **Cogent Economics & Finance**, 7, 1622171. The article reports, for one of its case studies, p-values of 0.61, 0.92 and 0.72 for three eligible Markov-property tests, all above 0.05. The paper therefore provides several independent non-rejection examples in addition to the detailed $p=0.13$ example reproduced above.

@@ -52,31 +52,6 @@ verifyHomogeneity(
   seed = NULL,
   verbose = TRUE
 )
-
-verifyMarkovProperty(
-  sequence,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyEmpiricalToTheoretical(
-  data,
-  object,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
-
-verifyHomogeneity(
-  inputList,
-  method = c("G", "Pearson", "simulation"),
-  B = 9999,
-  seed = NULL,
-  verbose = TRUE
-)
 ```
 
 ## Arguments

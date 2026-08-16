@@ -1,17 +1,14 @@
 # Author: Giorgio
 ###############################################################################
 
-# Imports used by statistical tests.
 #' @importFrom stats rmultinom
 NULL
 
-# Global variables used in ggplot2 aesthetics.
 utils::globalVariables(c(
   "group", "label_x", "label_y", "state",
   "x", "xend", "y", "yend"
 ))
 
-# Register optional ggplot2 methods when the package is available.
 .onLoad <- function(libname, pkgname) {
   if (requireNamespace("ggplot2", quietly = TRUE)) {
     registerS3method(

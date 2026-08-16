@@ -14,7 +14,6 @@
 #' @param ... Currently unused, reserved for future extensions.
 #'
 #' @return A ggplot object.
-#' @export
 #' @examples
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   weather <- matrix(c(0.7, 0.2, 0.1,

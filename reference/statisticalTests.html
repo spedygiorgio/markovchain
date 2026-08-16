@@ -8,7 +8,10 @@ Verifies that the s elements in the input list belongs to the same DTMC
 Tests the null hypothesis that the conditional distribution of the next
 state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
-previous and next states given the current state."><meta property="og:description" content="These functions verify the Markov property, assess
+previous and next states given the current state.
+assessStationarity tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+structural.zeros; sampling zeros remain part of the contingency table."><meta property="og:description" content="These functions verify the Markov property, assess
              the order and stationarity of the Markov chain.
 This function tests whether an empirical transition matrix is statistically compatible
 with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is &amp;gt;0
@@ -17,7 +20,10 @@ Verifies that the s elements in the input list belongs to the same DTMC
 Tests the null hypothesis that the conditional distribution of the next
 state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
-previous and next states given the current state."></head><body>
+previous and next states given the current state.
+assessStationarity tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+structural.zeros; sampling zeros remain part of the contingency table."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +31,7 @@ previous and next states given the current state."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">markovchain</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +75,9 @@ that is 0 in the theoretical transition matrix the null hypothesis is rejected.<
 state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
 previous and next states given the current state.</p>
+<p><code>assessStationarity</code> tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly with
+<code>structural.zeros</code>; sampling zeros remain part of the contingency table.</p>
     </div>
 
     <div class="section level2">
@@ -83,7 +92,7 @@ previous and next states given the current state.</p>
 <span></span>
 <span><span class="fu">assessOrder</span><span class="op">(</span><span class="va">sequence</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">assessStationarity</span><span class="op">(</span><span class="va">sequence</span>, <span class="va">nblocks</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">assessStationarity</span><span class="op">(</span><span class="va">sequence</span>, <span class="va">nblocks</span>, structural.zeros <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">verifyEmpiricalToTheoretical</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
@@ -156,6 +165,10 @@ previous and next states given the current state.</p>
 <dd><p>Number of blocks.</p></dd>
 
 
+<dt id="arg-structural-zeros">structural.zeros<a class="anchor" aria-label="anchor" href="#arg-structural-zeros"></a></dt>
+<dd><p>Optional logical transition matrix. `TRUE` marks a structurally impossible transition. Sampling zeros are not removed.</p></dd>
+
+
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>An empirical sequence or a matrix of transition counts.</p></dd>
 
@@ -208,25 +221,42 @@ Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573–608.</p>
 <span class="r-in"><span>              <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>, <span class="st">"a"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mcFit</span> <span class="op">&lt;-</span> <span class="fu"><a href="markovchainFit.html">markovchainFit</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sequence</span>, byrow <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">verifyMarkovProperty</span><span class="op">(</span><span class="va">sequence</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Testing compatibility with a first-order Markov model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Method: G </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Statistic: 0.5991613 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of freedom: 2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> p-value: 0.741129 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Likelihood-ratio test</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  sequence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> G-squared = 0.59916, df = 2, p-value = 0.7411</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">assessOrder</span><span class="op">(</span><span class="va">sequence</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chi-squared approximation may be incorrect</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chi-squared approximation may be incorrect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The assessOrder test statistic is:  1.55307e-31 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The Chi-Square d.f. are:  2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The p-value is:  1 </span>
-<span class="r-in"><span><span class="fu">assessStationarity</span><span class="op">(</span><span class="va">sequence</span>, <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chi-squared approximation may be incorrect</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chi-squared approximation may be incorrect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The assessStationarity test statistic is:  0.1960191 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The Chi-Square d.f. are:  0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The p-value is:  0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Pearson's Chi-squared test for Markov order</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  sequence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X-squared = 1.5531e-31, df = 2, p-value = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu">assessStationarity</span><span class="op">(</span><span class="va">sequence</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Pearson's Chi-squared test for time-homogeneity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  sequence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X-squared = 1.345, df = 2, p-value = 0.5104</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Structural zeros: a -&gt; a is impossible.</span></span></span>
+<span class="r-in"><span><span class="va">structural.zeros</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="fl">2</span>, <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                           dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">structural.zeros</span><span class="op">[</span><span class="st">"a"</span>, <span class="st">"a"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="fu">assessStationarity</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"b"</span>, <span class="st">"a"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   nblocks <span class="op">=</span> <span class="fl">2</span>, structural.zeros <span class="op">=</span> <span class="va">structural.zeros</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Pearson's Chi-squared test for time-homogeneity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  c("a", "b", "a", "b", "a", "b", "b", "a")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X-squared = 1.3333, df = 1, p-value = 0.2482</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -242,20 +272,22 @@ Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573–608.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span><span class="op">&lt;-</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span>; <span class="va">theoreticalMc</span><span class="op">&lt;-</span><span class="fu">as</span><span class="op">(</span><span class="va">mc</span>, <span class="st">"markovchain"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">verifyEmpiricalToTheoretical</span><span class="op">(</span>data<span class="op">=</span><span class="va">sequence</span>,object<span class="op">=</span><span class="va">theoreticalMc</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Testing compatibility of empirical and theoretical transition probabilities</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Method: G </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Statistic: 6.518384 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of freedom: 6 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> p-value: 0.3676877 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Likelihood-ratio test</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  sequence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> G-squared = 6.5184, df = 6, p-value = 0.3677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">kullback</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">verifyHomogeneity</span><span class="op">(</span>inputList<span class="op">=</span><span class="va">kullback</span>,verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Testing homogeneity of transition probabilities across sequences</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Method: G </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Statistic: 160.9606 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Degrees of freedom: 29 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> p-value: 3.087972e-20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	Likelihood-ratio test</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data:  kullback</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> G-squared = 160.96, df = 29, p-value &lt; 2.2e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

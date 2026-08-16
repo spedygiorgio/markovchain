@@ -16,6 +16,11 @@ state depends only on the current state, against a second-order Markov
 alternative. Equivalently, it tests conditional independence of the
 previous and next states given the current state.
 
+`assessStationarity` tests whether transition probabilities are constant
+across the specified blocks. Structural zeros can be supplied explicitly
+with `structural.zeros`; sampling zeros remain part of the contingency
+table.
+
 ## Usage
 
 ``` r
@@ -29,7 +34,7 @@ verifyMarkovProperty(
 
 assessOrder(sequence, verbose = TRUE)
 
-assessStationarity(sequence, nblocks, verbose = TRUE)
+assessStationarity(sequence, nblocks, structural.zeros = NULL, verbose = TRUE)
 
 verifyEmpiricalToTheoretical(
   data,
@@ -100,6 +105,11 @@ verifyHomogeneity(
 
   Number of blocks.
 
+- structural.zeros:
+
+  Optional logical transition matrix. \`TRUE\` marks a structurally
+  impossible transition. Sampling zeros are not removed.
+
 - data:
 
   An empirical sequence or a matrix of transition counts.
@@ -163,25 +173,42 @@ sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
               "a", "b", "a", "a", "b", "b", "b", "a")
 mcFit <- markovchainFit(data = sequence, byrow = FALSE)
 verifyMarkovProperty(sequence)
-#> Testing compatibility with a first-order Markov model
-#>  Method: G 
-#> Statistic: 0.5991613 
-#> Degrees of freedom: 2 
-#> p-value: 0.741129 
+#> 
+#>  Likelihood-ratio test
+#> 
+#> data:  sequence
+#> G-squared = 0.59916, df = 2, p-value = 0.7411
+#> 
 assessOrder(sequence)
 #> Warning: The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.
 #> Warning: Chi-squared approximation may be incorrect
 #> Warning: Chi-squared approximation may be incorrect
-#> The assessOrder test statistic is:  1.55307e-31 
-#> The Chi-Square d.f. are:  2 
-#> The p-value is:  1 
-assessStationarity(sequence, 1)
-#> Warning: The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.
-#> Warning: Chi-squared approximation may be incorrect
-#> Warning: Chi-squared approximation may be incorrect
-#> The assessStationarity test statistic is:  0.1960191 
-#> The Chi-Square d.f. are:  0 
-#> The p-value is:  0 
+#> 
+#>  Pearson's Chi-squared test for Markov order
+#> 
+#> data:  sequence
+#> X-squared = 1.5531e-31, df = 2, p-value = 1
+#> 
+assessStationarity(sequence, 2)
+#> 
+#>  Pearson's Chi-squared test for time-homogeneity
+#> 
+#> data:  sequence
+#> X-squared = 1.345, df = 2, p-value = 0.5104
+#> 
+
+# Structural zeros: a -> a is impossible.
+structural.zeros <- matrix(FALSE, 2, 2,
+                           dimnames = list(c("a", "b"), c("a", "b")))
+structural.zeros["a", "a"] <- TRUE
+assessStationarity(c("a", "b", "a", "b", "a", "b", "b", "a"),
+                   nblocks = 2, structural.zeros = structural.zeros)
+#> 
+#>  Pearson's Chi-squared test for time-homogeneity
+#> 
+#> data:  c("a", "b", "a", "b", "a", "b", "b", "a")
+#> X-squared = 1.3333, df = 1, p-value = 0.2482
+#> 
 
 
 
@@ -197,18 +224,20 @@ mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
 rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
 
 verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
-#> Testing compatibility of empirical and theoretical transition probabilities
-#>  Method: G 
-#> Statistic: 6.518384 
-#> Degrees of freedom: 6 
-#> p-value: 0.3676877 
+#> 
+#>  Likelihood-ratio test
+#> 
+#> data:  sequence
+#> G-squared = 6.5184, df = 6, p-value = 0.3677
+#> 
 
 
 data(kullback)
 verifyHomogeneity(inputList=kullback,verbose=TRUE)
-#> Testing homogeneity of transition probabilities across sequences
-#>  Method: G 
-#> Statistic: 160.9606 
-#> Degrees of freedom: 29 
-#> p-value: 3.087972e-20 
+#> 
+#>  Likelihood-ratio test
+#> 
+#> data:  kullback
+#> G-squared = 160.96, df = 29, p-value < 2.2e-16
+#> 
 ```

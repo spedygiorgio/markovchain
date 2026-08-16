@@ -1,518 +1,327 @@
-#helper functions
+# Revised statistical inference functions for empirical Markov chains.
 
-
-#helper function for checkMP
-
-.findNijPjk<-function(Nijk = Nijk, Nij = Nij, trans, row = 1){
-  i <- Nijk[row,1]
-  j <- Nijk[row,2]
-  k <- Nijk[row,3]
-  
-  fromCh <- as.character(j)
-  toCh <- as.character(k)
-  Pjk <- trans[fromCh,toCh]
-  
-  m1 <- which(Nij[, 1] == i)
-  m2 <- which(Nij[, 2] == j)
-  m <- c(m1, m2)
-  return(Nij[m[anyDuplicated(m)], 3] * Pjk)
-}
-
-
-
-
-#' @name verifyMarkovProperty
-#' 
+#' Test the first-order Markov property of an empirical sequence
+#'
+#' Tests the null hypothesis that the conditional distribution of the next
+#' state depends only on the current state, against a second-order Markov
+#' alternative. Equivalently, it tests conditional independence of the
+#' previous and next states given the current state.
+#'
 #' @rdname statisticalTests
 #' @family statisticalTests
-#' 
-#' @title Various functions to perform statistical inference of DTMC
-#' @description These functions verify the Markov property, assess 
-#'              the order and stationarity of the Markov chain.
-#' 
-#' @param sequence An empirical sequence.
-#' @param verbose Should test results be printed out?
-#' @param nblocks Number of blocks.
-#' 
-#' @return Verification result
-#' 
-#' @references Anderson and Goodman.
-#' 
-#' @author Tae Seung Kang, Giorgio Alfredo Spedicato
-#' 
-#' @seealso \code{markovchain}
-#' 
-#' @examples 
-#' sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b",
-#'               "a", "b", "a", "a", "b", "b", "b", "a")
-#' mcFit <- markovchainFit(data = sequence, byrow = FALSE)
-#' verifyMarkovProperty(sequence)
-#' assessOrder(sequence)
-#' assessStationarity(sequence, 1)
-#' 
-#' 
+#' @param sequence An empirical sequence of states.
+#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
+#' @param B Number of Monte Carlo replicates for `method = "simulation"`.
+#' @param seed Optional random seed.
+#' @param verbose Should results be printed?
+#' @return A list with statistic, degrees of freedom, p-value, observed and
+#' expected triple-transition counts, and the fitted first-order transition
+#' matrix. For simulation, simulated statistics and `B` are also returned.
+#' @references Anderson, T. W. and Goodman, L. A. (1957). Statistical
+#' inference about Markov chains. *The Annals of Mathematical Statistics*,
+#' 28(1), 89--110.
 #' @export
+verifyMarkovProperty <- function(sequence,
+                                 method = c("G", "Pearson", "simulation"),
+                                 B = 9999, seed = NULL, verbose = TRUE) {
+  method <- match.arg(method)
+  if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
+  if (anyNA(sequence)) stop("sequence must not contain missing values.")
+  if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B))
+    stop("B must be a positive integer.")
 
-# check if the sequence holds the Markov property
-verifyMarkovProperty <- function(sequence, verbose = TRUE) {
-  #warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
-  
-  #fitting the markovchain
-  
-  transMatrix <- markovchainFit(data = sequence)$estimate@transitionMatrix
-  
-  #make the (n-2)x3 matrix for observations
-  subSample<-sequence[1:(length(sequence) - (length(sequence)%%3))]
-  
-  seqSet1<-matrix(c(subSample[1:(length(subSample) - 2)],
-                    subSample[2:(length(subSample) - 1)],
-                    subSample[3:(length(subSample))]
-  ),ncol = 3) #fill the matrix in reverse order so position 11 is the first obersvation,12 second and 13 third
-  #compute row frequencies
-  temp<-as.data.frame(seqSet1)
-  Nijk<-aggregate(temp, by = temp, length)[1:(ncol(temp) + 1)]
-  
-  seqSet2 <- seqSet1[, -3] #make matrix of couples
-  temp2 <- as.data.frame(seqSet2)
-  Nij <- aggregate(temp2, by = temp2, length)[1:(ncol(temp2) + 1)] #rowfrequencies included
-  
-  
-  test<-c(length = dim(Nijk)[1])
-  #compute the test statistic
-  invisible(lapply(seq_len(dim(Nijk)[1]),function(i)
-    {
-    foundNijPjk <- .findNijPjk(Nijk = Nijk, Nij = Nij, trans = transMatrix, row = i)
-    test[i] <<- ((Nijk[i,4]-foundNijPjk)^2)/foundNijPjk
-  })
-  )
-  statistic <- sum(test)
-  #return value of the test statistic and test at confience level 95% and 99%
-  
-  #dof
-  #Steps : No. of df = No. of triplets - No. of doubles + No. of observations - 1
-
-#Creating vector of doubles/pairs
-doubles = numeric(length(sequence)-1)
-for(i in 1:(length(doubles))) {doubles[i] = paste(sequence[i], sequence[i+1], sep="", collapse = NULL)}
-
-#Creating vector of triplets
-triples = numeric(length(sequence)-2)
-for(i in 1:(length(triples))) {triples[i] = paste(sequence[i], sequence[i+1], sequence[i+2], sep="", collapse = NULL)}
-
-#Hence no. of df is---
-dof = length(unique(triples)) - length(unique(doubles)) + length(unique(sequence)) - 1 
-
-  
-  
-  
-  pvalue <- 1-pchisq(q = statistic,df = dof)
-  
-  out <- list(statistic = statistic,dof = dof,p.value = pvalue)
-  
-
-  if (verbose == TRUE) {
-    cat("Testing markovianity property on given data sequence\n")
-    cat("Chi - square statistic is:", statistic, "\n")
-    cat("Degrees of freedom are:", dof, "\n")
-    cat("And corresponding p-value is:", pvalue, "\n")  
-  }
-  
-  invisible(out)
-}
-
-
-
-#' @rdname statisticalTests
-#' @export
-
-# check if sequence is of first order or of second order
-assessOrder <- function(sequence, verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
-  # length of sequence
-  n <- length(sequence)
-  
-  # unique states
   states <- unique(sequence)
-  
-  # number of unique states
-  nelements <- length(states)
-  
-  TStat <- 0
-  for(present in states) {
-    # going to be a transition matrix 
-    mat <- zeros(nelements)
-    dimnames(mat) <- list(states, states)
-    
-    # populate transition matrix
-    for(i in 1:(n - 2)) {
-      if(present == sequence[i + 1]) {
-        past <- sequence[i]
-        future <- sequence[i + 2]
-        mat[past, future] <- mat[past, future] + 1 
-      }
-    }
-    
-    # chi-squared test
-    res <- chisq.test(mat)
-    TStat <- TStat + res$statistic
-  }
-  
-  k <- nelements
-  df <- k * (k - 1)^2
-  pvalue <- 1-pchisq(q = TStat, df)
-  out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
-  
-  # returning the output
-  if (verbose == TRUE) {
-    cat("The assessOrder test statistic is: ", TStat, "\n")
-    cat("The Chi-Square d.f. are: ", df, "\n")
-    cat("The p-value is: ", pvalue, "\n")
-  }
-  
-  invisible(out)
-}
-
-#' @rdname statisticalTests
-#' @export
-
-# check if sequence is stationary
-assessStationarity <- function(sequence, nblocks, verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")
-  # length of sequence
+  r <- length(states)
   n <- length(sequence)
-  
-  # size of each block
-  blocksize <- n / nblocks
-  
-  # vector of unique states
-  states <- unique(sequence)
-  
-  # number of states
-  nstates <- length(states) 
-  
-  # sum of the statistics
-  TStat <- 0 
-  
-  # chi-squared test for each state
-  for(i in states) {
-    
-    # init matrix
-    mat <- matrix(0,nblocks, nstates)
-    dimnames(mat) <- list(1:nblocks, states)
-    
-    # compute the transition matrix from sequence
-    for(j in 1:(n - 1)) {
-      if(sequence[j] == i) {
-        # row index
-        b <- ceiling(j / blocksize) 
-        
-        # next state
-        future <- sequence[j+1] 
-        
-        # update transition matrix
-        mat[b, future] <- mat[b, future] + 1 
-      }
-    }
-    
-    # vector to store row sum of matrix
-    rowsums <- rowSums(mat)
-    
-    # store the indices with zero row sum
-    indices <- which(rowsums == 0) 
-    
-    # update rows with zero sum
-    for(k in indices) mat[k, ] <- 1/nstates 
-    
-    # update row sum after checking zero sum row
-    rowsums <- rowSums(mat)
-    
-    # row-wise normalize. 
-    mat <- mat/rowsums 
-    
-    # Some columns may still be all zeros. This causes NaN for chi-squared test.
-    # chi-squared test
-    res <- chisq.test(mat)
-    TStat <- TStat + res$statistic
+  idx <- match(sequence, states)
+
+  Nijk <- array(0L, dim = c(r, r, r), dimnames = list(states, states, states))
+  linear <- idx[-c(1L, 2L)] +
+    (idx[2:(n - 1L)] - 1L) * r +
+    (idx[1:(n - 2L)] - 1L) * r * r
+  Nijk[] <- tabulate(linear, nbins = r^3L)
+
+  Nij <- apply(Nijk, c(1L, 2L), sum)
+  Njk <- apply(Nijk, c(2L, 3L), sum)
+  Nj <- rowSums(Njk)
+  expected <- array(0, dim = c(r, r, r), dimnames = dimnames(Nijk))
+  for (j in seq_len(r)) if (Nj[j] > 0L)
+    expected[, j, ] <- outer(Nij[, j], Njk[j, ]) / Nj[j]
+
+  statistic_fun <- function(observed, expected, method) {
+    positive_expected <- expected > 0
+    if (method == "Pearson")
+      return(sum((observed[positive_expected] - expected[positive_expected])^2 /
+                 expected[positive_expected]))
+    positive <- positive_expected & observed > 0
+    2 * sum(observed[positive] * log(observed[positive] / expected[positive]))
   }
-  
-  k <- nstates
-  
-  # degree of freedom
-  df <- k * (nblocks - 1) * (k - 1)
-  pvalue <- 1 - pchisq(TStat, df)
-  
-  # returning the output
-  
-  if (verbose==TRUE) {
-    cat("The assessStationarity test statistic is: ", TStat, "\n")
-    cat("The Chi-Square d.f. are: ", df, "\n")
-    cat("The p-value is: ", pvalue, "\n")
+
+  statistic <- statistic_fun(Nijk, expected,
+                             if (method == "Pearson") "Pearson" else "G")
+  dof <- 0L
+  for (j in seq_len(r)) {
+    previous <- sum(Nij[, j] > 0)
+    future <- sum(Njk[j, ] > 0)
+    if (previous > 0L && future > 0L)
+      dof <- dof + (previous - 1L) * (future - 1L)
   }
-  
-  out <- list(statistic = TStat[[1]], p.value = pvalue[[1]])
-  
-  invisible(out)
-}
 
-# sequence to transition frequencey matrix
-.seq2mat <- function(sequence) {
-  
-  # basic requirement to create transition matrix
-  n <- length(sequence)
-  states <- unique(sequence)
-  nstates <- length(states)
-  
-  # create transition matrix
-  mat <- zeros(nstates)
-  dimnames(mat) <- list(states, states)
-  
-  # populate transition matrix
-  for(i in 1:(n - 1)) {
-    from <- sequence[i]
-    to <- sequence[i+1]
-    mat[from, to] <- mat[from, to] + 1
-  }
-  
-  return (mat)
-}
+  P <- matrix(0, r, r, dimnames = list(states, states))
+  informative <- Nj > 0
+  P[informative, ] <- sweep(Njk[informative, , drop = FALSE], 1L,
+                            Nj[informative], "/")
 
-
-
-
-#' @title test whether an empirical transition matrix is compatible to a theoretical one
-#' 
-#' @description This function tests whether an empirical transition matrix is statistically compatible
-#' with a theoretical one. It is a chi-square based test. In case a cell in the empirical transition matrix is >0
-#' that is 0 in the theoretical transition matrix the null hypothesis is rejected.
-#' 
-#' @rdname statisticalTests
-#' @family statisticalTests
-#'
-#' @param data matrix, character or list to be converted in a raw transition matrix
-#' @param object a markovchain object
-#'
-#' @return a list with following slots: statistic (the chi - square statistic), dof (degrees of freedom), and corresponding p-value. In case a cell in the empirical transition matrix is >0
-#' that is 0 in the theoretical transition matrix the null hypothesis is rejected. In that case a p-value of 0 and statistic and dof of NA are returned.
-#' @export
-#'
-#' @examples
-#' 
-#' #Example taken from Kullback Kupperman Tests for Contingency Tables and Markov Chains
-#' 
-#' sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
-#' 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
-#' 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-#' 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
-#' 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
-#' 
-#' mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
-#' rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
-#' 
-#' verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
-#' 
-
-verifyEmpiricalToTheoretical <- function(data, object, verbose = TRUE) {
-  #warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
-  if (!is(object,'markovchain')  ) stop("Error! Object should belong to the markovchain class")
-  if (missing(data) | missing(object)) stop("Error! Required inputs missing")
-  if (  !is.numeric(data) || is.character(data) || is.matrix(data)) stop("Error! Data should be either a raw transition matrix or 
-                                                                  either a character or a numeric element")
-  
-  if (is.numeric(data)  || is.character(data) ) data<-createSequenceMatrix(stringchar = data, possibleStates = states(object))
-  
-  if (length(setdiff(names(data),names(object))) > 0) stop("Error! Empirical and theoretical tm have different support")
-  
-  # (possibly rearrange columns and rownames)
-  
-  data <- data[match(rownames(data),names(object)),] #matching rows
-  data <- data[,match(colnames(data),names(object))] #matching cols
-  
-  if (sum((data == 0) == (object@transitionMatrix == 0)) == (nrow(data) * ncol(data))) {
-    f_i_dot <-colSums(data)
-    
-    statistic <- 0
-    
-    for (i in 1:dim(object)) {
-      for (j in 1:dim(object)) {
-        if (data[i, j]>0&object[i, j]>0) statistic <- statistic + data[i, j]*log(data[i, j]/(f_i_dot[i]*object[i, j]))
-      }
-    }
-    
-    statistic <- statistic * 2
-    
-    null_elements <- sum(object@transitionMatrix == 0)
-    
-    dof <- dim(object) * (dim(object) - 1) - null_elements #r(r-1) - c, c null element ob objects
-    
-    p.value <- 1 - pchisq(q = statistic,df = dof)
-    
-    if (verbose == TRUE) {
-      cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
-      cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")  
-    }
-    
-    out <- list(statistic = statistic, dof = dof,pvalue = p.value)
+  if (method != "simulation") {
+    p.value <- if (dof > 0) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_
+    result <- list(statistic = statistic, dof = dof, p.value = p.value,
+                   method = method, observed = Nijk, expected = expected,
+                   transitionMatrix = P)
   } else {
-    statistic <- NA
-    dof <- NA
-    p.value <- 0
-    
-    if (verbose == TRUE) {
-      cat("Testing whether the\n");print(data);cat("transition matrix is compatible with\n");print(object@transitionMatrix);print("theoretical transition matrix")
-      cat("ChiSq statistic is",statistic,"d.o.f are",dof,"corresponding p-value is",p.value,"\n")
-      cat("At least one transition is >0 in the data that is 0 in the object. Therefore the null hypothesis is rejected. \n") 
+    if (!all(informative)) stop("method = 'simulation' requires at least one observed outgoing transition from every state appearing in the sequence.")
+    if (!is.null(seed)) set.seed(seed)
+    simulated <- numeric(B)
+    for (b in seq_len(B)) {
+      x <- integer(n); x[1L] <- idx[1L]
+      for (t in seq_len(n - 1L)) x[t + 1L] <- sample.int(r, 1L, prob = P[x[t], ])
+      a <- x[-c(1L, 2L)] + (x[2:(n - 1L)] - 1L) * r +
+        (x[1:(n - 2L)] - 1L) * r * r
+      Ns <- array(tabulate(a, nbins = r^3L), dim = c(r, r, r))
+      Nijs <- apply(Ns, c(1L, 2L), sum)
+      Njks <- apply(Ns, c(2L, 3L), sum)
+      Njs <- rowSums(Njks)
+      Es <- array(0, dim = c(r, r, r))
+      for (j in seq_len(r)) if (Njs[j] > 0L)
+        Es[, j, ] <- outer(Nijs[, j], Njks[j, ]) / Njs[j]
+      simulated[b] <- statistic_fun(Ns, Es,
+                                     if (method == "Pearson") "Pearson" else "G")
     }
-    
-    out <- list(statistic = statistic, dof = dof,pvalue = p.value)
+    p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
+    result <- list(statistic = statistic, dof = dof, p.value = p.value,
+                   method = method, observed = Nijk, expected = expected,
+                   transitionMatrix = P, simulations = simulated, B = B,
+                   initial.state = states[idx[1L]])
   }
-
-  #return output
-  return(out)
+  if (verbose) cat("Testing compatibility with a first-order Markov model\n",
+                   "Method:", method, "\nStatistic:", statistic,
+                   "\nDegrees of freedom:", dof, "\np-value:", p.value, "\n")
+  invisible(result)
 }
 
-
-
-
-.checkMatrix4Homogeneity<-function(matr) {
-  out<-TRUE
-  if (length(colnames(matr)) == 0) {message("Error! No colnames in input matrix"); out = FALSE}
-  if (length(rownames(matr)) == 0) {message("Error! No rownames in input matrix"); out = FALSE}
-  if (!all.equal(rownames(matr),colnames(matr))) {message("Error! Colnames <> Rownames")}
-  if (any(matr<0)) {message("Error! Negative elements"); out = FALSE}
-  return(out)
-}
-
-.addNamedColumns <- function(matr, fullnames) {
-  if ( length( setdiff(names(matr),fullnames) )>0)  stop("Error! Names in matr not in fullnames")
-  fullnames<-sort(fullnames)
-  newMatr<-matrix(0,nrow = length(fullnames),ncol = length(fullnames),dimnames = list(fullnames,fullnames))
-  
-  current_support = colnames(matr)
-  current_dim = dim(matr)
-  
-  for (i in 1:current_dim[1]) { #cycle on row
-    for (j in 1:current_dim[2]) { #cycle on cols
-      item<-matr[i,j] #take the element
-      which_row_trans<-current_support[i] #define current row and cols
-      which_col_trans<-current_support[j]
-      # lookup element in the pooled table
-      row_to_write <-match(x=which_row_trans,table = fullnames)
-      col_to_write <-match(x=which_col_trans,table = fullnames)
-      # write element into the pooled table
-      newMatr[row_to_write,col_to_write] <- newMatr[row_to_write,col_to_write] + item
-    }
-  }
-
-  return(newMatr)
-}
-
-
-#' @title Verify Homogeneity across transition matrices
-#' 
-#' @description Verifies that the s elements in the input list belongs to the same DTMC
-#' 
+#' Assess the order of an empirical Markov chain
+#'
+#' Tests the first-order Markov property state by state by comparing the
+#' distribution of the state two steps ahead across possible predecessor
+#' states. The statistic is the sum of Pearson chi-squared statistics.
+#'
 #' @rdname statisticalTests
 #' @family statisticalTests
-#'
-#' @param inputList A list of items that can coerced to transition matrices
-#'
-#' @return a list of transition matrices?
+#' @param sequence An empirical sequence of states.
+#' @param verbose Should test results be printed?
+#' @return A list containing the statistic, degrees of freedom and p-value.
 #' @export
-#'
-#' @examples
-#' 
-#' data(kullback)
-#' verifyHomogeneity(inputList=kullback,verbose=TRUE)
-#' 
-verifyHomogeneity<-function(inputList, verbose = TRUE) {
-  warning("The accuracy of the statistical inference functions has been questioned. It will be thoroughly investigated in future versions of the package.")  
-  if (!is.list(inputList) ) stop("Error! inputList should be a string")
-  if (length(inputList) < 2) stop("Error! inputList length lower than 2")
-  
-  #checks whether all inputs can be put as transition matrices
-  
-  for (i in 1:length(inputList)) {
-    if (is.matrix(inputList[[i]]) == TRUE) {
-      checks<-.checkMatrix4Homogeneity(inputList[[i]])
-      if (!checks) stop("Error! Element ", i, " to be checked")
-    } else {
-      inputList[[i]]<-createSequenceMatrix(stringchar = inputList[[i]]) #convert all elements into transition matrices
-    }
-  }
-  
-  # create the pooled raw transition matrix and the matrix of rowsums
-  all.names<-character()
-  for (i in 1:length(inputList)) {
-    all.names<-c(all.names, rownames(inputList[[i]]))
-  }
-  all.names<-sort(unique(all.names))
-  ##initialize
-  PooledRawTransitionMatrix <- matrix(0,nrow = length(all.names),ncol = length(all.names),dimnames = list(all.names, all.names))
-  RowSumsMatrix <- matrix(0, nrow = length(inputList),ncol=length(all.names),dimnames = list(1:length(inputList),all.names))
-  ##sum for each element in the list
-  
-  for (k in 1:length(inputList)) {
-    current_support = rownames(inputList[[k]])
-    current_dim = dim(inputList[[k]])
-    
-    for (i in 1:current_dim[1]) { #cycle on row
-      for (j in 1:current_dim[2]) { #cycle on cols
-        num_trans<-inputList[[k]][i, j] #take the element
-        which_row_trans <- current_support[i] #define current row and cols
-        which_col_trans <- current_support[j]
-        # lookup element in the pooled table
-        row_to_write <-match(x = which_row_trans,table = all.names)
-        col_to_write <-match(x = which_col_trans,table = all.names)
-        # write element into the pooled table
-        PooledRawTransitionMatrix[row_to_write,col_to_write]=PooledRawTransitionMatrix[row_to_write,col_to_write]+num_trans
+assessOrder <- function(sequence, verbose = TRUE) {
+  if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
+  if (anyNA(sequence)) stop("sequence must not contain missing values.")
+
+  states <- unique(sequence)
+  k <- length(states)
+  n <- length(sequence)
+  statistic <- 0
+
+  for (present in states) {
+    mat <- matrix(0, nrow = k, ncol = k,
+                  dimnames = list(states, states))
+    for (i in seq_len(n - 2L)) {
+      if (identical(sequence[i + 1L], present)) {
+        past <- as.character(sequence[i])
+        future <- as.character(sequence[i + 2L])
+        mat[past, future] <- mat[past, future] + 1
       }
     }
-  }
-  
-  #create the matrix of rowsums fij.
-  for (k in 1:length(inputList)) {
-    my_row_sums <- rowSums(inputList[[k]])
-    current_support = names(my_row_sums)
-    for (i in 1:length(current_support)) {
-      my_element<-my_row_sums[i]
-      col_to_write<-match(x=current_support[i],table = all.names)
-      RowSumsMatrix[k, col_to_write]<-RowSumsMatrix[k, col_to_write] + my_element
+
+    row_totals <- rowSums(mat)
+    active <- row_totals > 0
+    if (sum(active) > 1L && sum(colSums(mat) > 0) > 1L) {
+      expected <- outer(row_totals[active], colSums(mat)) /
+        sum(row_totals[active])
+      observed <- mat[active, , drop = FALSE]
+      positive <- expected > 0
+      statistic <- statistic +
+        sum((observed[positive] - expected[positive])^2 / expected[positive])
     }
   }
-  
-  # compute the chi - square statistic
-  
-  statistic <- 0
- # degreesOfFreedomLess <- 0
-  newInputList <- lapply(inputList, .addNamedColumns,fullnames = all.names)
-  number_of_transitions <- sapply(newInputList,sum)
-  total_transitions <- sum(number_of_transitions)
-  
-  for (s in 1:length(inputList)) { #cycle across inputs
-    for (j in 1:length(all.names)) { #cycle across rows
-      for (k in 1:length(all.names)) { #cycle across cols
-       if (any(newInputList[[s]][j,k] == 0, number_of_transitions[s] == 0, PooledRawTransitionMatrix[j,k] == 0)) {
-         statistic <- statistic + 0 # zero element in log expr does not contribute to statistics 
-#         degreesOfFreedomLess <- degreesOfFreedomLess +1
-       } else {
-         statistic <- statistic + newInputList[[s]][j, k] * log((total_transitions*newInputList[[s]][j, k])/(number_of_transitions[s]*PooledRawTransitionMatrix[j,k]))
-       }
-    }
-    }
+
+  dof <- k * (k - 1L)^2
+  p.value <- if (dof > 0L) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_
+  result <- list(statistic = statistic, dof = dof, p.value = p.value)
+
+  if (verbose) {
+    cat("The assessOrder test statistic is:", statistic, "\n",
+        "The Chi-Square d.f. are:", dof, "\n",
+        "The p-value is:", p.value, "\n")
   }
-  
-  statistic <- statistic * 2
-  #dof (s-1)*(r^2-1)-#zeros
-  degrees_of_freedom <- (length(inputList) - 1)*(length(all.names)^2 - 1)#-degreesOfFreedomLess
-  
-  p.value <- 1 - pchisq(q = statistic,df = degrees_of_freedom)
-  
-  if (verbose == TRUE) {
-    cat("Testing homogeneity of DTMC underlying input list \n")
-    cat("ChiSq statistic is",statistic,"d.o.f are",degrees_of_freedom,"corresponding p-value is",p.value,"\n")  
+  invisible(result)
+}
+
+#' Test compatibility of an empirical transition matrix with a theoretical one
+#'
+#' @rdname statisticalTests
+#' @family statisticalTests
+#' @param data An empirical sequence or a matrix of transition counts.
+#' @param object A `markovchain` object specifying theoretical probabilities.
+#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
+#' @param B Number of Monte Carlo replicates for `method = "simulation"`.
+#' @param seed Optional random seed.
+#' @param verbose Should results be printed?
+#' @return A list containing statistic, degrees of freedom, p-value, method,
+#' observed counts, expected counts, and theoretical transition matrix.
+#' @references Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for
+#' Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573--608.
+#' @export
+verifyEmpiricalToTheoretical <- function(data, object,
+                                         method = c("G", "Pearson", "simulation"),
+                                         B = 9999, seed = NULL, verbose = TRUE) {
+  method <- match.arg(method)
+  if (missing(data) || missing(object)) stop("Both data and object must be supplied.")
+  if (!methods::is(object, "markovchain")) stop("object must be a markovchain object.")
+  if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B)) stop("B must be a positive integer.")
+  states <- names(object); P <- object@transitionMatrix
+  if (is.matrix(data)) {
+    observed <- data
+    if (is.null(rownames(observed)) || is.null(colnames(observed))) stop("A transition-count matrix must have row and column names.")
+  } else if (is.atomic(data)) observed <- createSequenceMatrix(stringchar = data, possibleStates = states)
+  else stop("data must be an empirical sequence or a transition-count matrix.")
+  if (anyNA(observed) || any(observed < 0) || any(observed != floor(observed))) stop("Observed transition counts must be non-negative integers.")
+  if (!setequal(rownames(observed), states) || !setequal(colnames(observed), states)) stop("Empirical and theoretical transition matrices must have the same state support.")
+  observed <- observed[states, states, drop = FALSE]
+  row_totals <- rowSums(observed)
+  expected <- sweep(P, 1L, row_totals, "*")
+  informative <- row_totals > 0
+  if (any(observed > 0 & P == 0)) {
+    result <- list(statistic = Inf, dof = NA_integer_, p.value = 0, method = method,
+                   observed = observed, expected = expected, transitionMatrix = P)
+    if (verbose) cat("At least one observed transition has zero theoretical probability; the null hypothesis is rejected.\n")
+    return(invisible(result))
   }
-  
-  #return output
-  out <- list(statistic = statistic, dof = degrees_of_freedom,pvalue = p.value)
-  return(out)
+  statistic <- if (method == "Pearson") {
+    pos <- outer(informative, rep(TRUE, length(states))) & P > 0
+    sum((observed[pos] - expected[pos])^2 / expected[pos])
+  } else {
+    pos <- P > 0 & observed > 0
+    2 * sum(observed[pos] * log(observed[pos] / expected[pos]))
+  }
+  dof <- sum(vapply(which(informative), function(i) sum(P[i, ] > 0) - 1L, integer(1)))
+  if (method != "simulation") {
+    p.value <- if (dof > 0) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_
+    result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
+                   observed = observed, expected = expected, transitionMatrix = P)
+  } else {
+    if (!is.null(seed)) set.seed(seed)
+    simulated <- numeric(B)
+    for (b in seq_len(B)) {
+      sim <- matrix(0, nrow(P), ncol(P), dimnames = dimnames(P))
+      for (i in which(informative)) sim[i, ] <- as.vector(rmultinom(1L, row_totals[i], P[i, ]))
+      if (method == "Pearson") {
+        pos <- outer(informative, rep(TRUE, length(states))) & P > 0
+        simulated[b] <- sum((sim[pos] - expected[pos])^2 / expected[pos])
+      } else {
+        pos <- P > 0 & sim > 0
+        simulated[b] <- 2 * sum(sim[pos] * log(sim[pos] / expected[pos]))
+      }
+    }
+    p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
+    result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
+                   observed = observed, expected = expected, transitionMatrix = P,
+                   simulations = simulated, B = B)
+  }
+  if (verbose) cat("Testing compatibility of empirical and theoretical transition probabilities\n",
+                   "Method:", method, "\nStatistic:", statistic,
+                   "\nDegrees of freedom:", dof, "\np-value:", p.value, "\n")
+  invisible(result)
+}
+
+#' Test homogeneity of transition probabilities across empirical sequences
+#'
+#' @rdname statisticalTests
+#' @family statisticalTests
+#' @param inputList A list whose elements are empirical sequences or matrices.
+#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
+#' @param B Number of Monte Carlo replicates for `method = "simulation"`.
+#' @param seed Optional random seed.
+#' @param verbose Should results be printed?
+#' @return A list containing statistic, degrees of freedom, p-value, method,
+#' pooled transition counts, and individual transition counts.
+#' @references Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for
+#' Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573--608.
+#' @export
+verifyHomogeneity <- function(inputList, method = c("G", "Pearson", "simulation"),
+                              B = 9999, seed = NULL, verbose = TRUE) {
+  method <- match.arg(method)
+  if (!is.list(inputList) || length(inputList) < 2L) stop("inputList must contain at least two sequences or matrices.")
+  if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B)) stop("B must be a positive integer.")
+  mats <- lapply(inputList, function(x) {
+    if (is.matrix(x)) {
+      if (is.null(rownames(x)) || is.null(colnames(x))) stop("Transition-count matrices must have row and column names.")
+      m <- x
+    } else if (is.atomic(x)) m <- createSequenceMatrix(stringchar = x)
+    else stop("Each element must be a sequence or transition-count matrix.")
+    if (anyNA(m) || any(m < 0) || any(m != floor(m))) stop("Transition counts must be non-negative integers.")
+    m
+  })
+  states <- sort(unique(unlist(lapply(mats, rownames))))
+  mats <- lapply(mats, function(m) {
+    out <- matrix(0, length(states), length(states), dimnames = list(states, states))
+    out[rownames(m), colnames(m)] <- m; out
+  })
+  pooled <- Reduce("+", mats)
+  hom_stat <- function(mats0) {
+    pooled0 <- Reduce("+", mats0); stat <- 0
+    for (i in seq_along(states)) {
+      totals <- vapply(mats0, function(m) sum(m[i, ]), numeric(1)); active <- totals > 0
+      if (sum(active) < 2L) next
+      destinations <- pooled0[i, ] > 0; k <- sum(destinations)
+      if (k < 2L) next
+      p <- pooled0[i, destinations] / sum(pooled0[i, destinations])
+      for (s in which(active)) {
+        obs <- mats0[[s]][i, destinations]; exp <- totals[s] * p
+        if (method == "Pearson") stat <- stat + sum((obs - exp)^2 / exp)
+        else { pos <- obs > 0; stat <- stat + 2 * sum(obs[pos] * log(obs[pos] / exp[pos])) }
+      }
+    }
+    stat
+  }
+  statistic <- hom_stat(mats); dof <- 0L
+  for (i in seq_along(states)) {
+    totals <- vapply(mats, function(m) sum(m[i, ]), numeric(1)); active <- totals > 0
+    destinations <- pooled[i, ] > 0; k <- sum(destinations)
+    if (sum(active) >= 2L && k >= 2L) dof <- dof + (sum(active) - 1L) * (k - 1L)
+  }
+  if (method != "simulation") {
+    p.value <- if (dof > 0) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_; simulated <- NULL
+  } else {
+    if (!is.null(seed)) set.seed(seed)
+    simulated <- numeric(B)
+    for (b in seq_len(B)) {
+      sim_mats <- lapply(mats, function(m) matrix(0, nrow(m), ncol(m), dimnames = dimnames(m)))
+      pooled0 <- pooled
+      for (i in seq_along(states)) {
+        destinations <- pooled0[i, ] > 0; if (!any(destinations)) next
+        p <- pooled0[i, destinations] / sum(pooled0[i, destinations])
+        for (s in seq_along(mats)) {
+          total_s <- sum(mats[[s]][i, ])
+          if (total_s > 0) sim_mats[[s]][i, destinations] <- as.vector(rmultinom(1L, total_s, p))
+        }
+      }
+      simulated[b] <- hom_stat(sim_mats)
+    }
+    p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
+  }
+  result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
+                 pooled = pooled, transitionCounts = mats)
+  if (method == "simulation") { result$simulations <- simulated; result$B <- B }
+  if (verbose) cat("Testing homogeneity of transition probabilities across sequences\n",
+                   "Method:", method, "\nStatistic:", statistic,
+                   "\nDegrees of freedom:", dof, "\np-value:", p.value, "\n")
+  invisible(result)
 }

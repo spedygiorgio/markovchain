@@ -73,3 +73,17 @@ assessStationarity <- function(sequence, nblocks, structural.zeros = NULL,
   if (verbose) print(result)
   invisible(result)
 }
+
+# Standardize assessOrder() while preserving its existing statistical
+# calculation and backward-compatible `dof` component.
+.assessOrder <- assessOrder
+assessOrder <- function(sequence, verbose = TRUE) {
+  result <- .assessOrder(sequence, verbose = FALSE)
+  k <- length(unique(sequence))
+  dof <- k * (k - 1)^2
+  result$dof <- dof
+  result <- .asHtest(result, "Pearson", deparse(substitute(sequence)))
+  result$method <- "Pearson's Chi-squared test for Markov order"
+  if (verbose) print(result)
+  invisible(result)
+}

@@ -43,7 +43,7 @@ Suggests:
     testthat,
     diagram,
     DiagrammeR,
-    ggplot2,
+    ggplot2 (>= 3.4.0),
     msm,
     Rsolnp,
     rmarkdown,

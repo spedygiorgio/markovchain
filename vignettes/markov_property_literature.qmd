@@ -42,20 +42,20 @@ burkett <- matrix(
 burkett
 ```
 
-The Pearson test on these published counts does not reject the null hypothesis that the probability of the transition $1\to1$ is independent of the preceding state. The reported p-value is above 0.05 (the paper reports a non-significant result for this example). Thus this provides an independent, published example in which a Markov-property hypothesis is **not rejected**.
+The Pearson test on these published counts does not reject the null hypothesis that the probability of the transition $1\to1$ is independent of the preceding state. The Pearson calculation gives $\chi^2\approx0.64$ with 3 degrees of freedom and a p-value of about 0.89, comfortably above 0.05. This provides an independent, published example in which a Markov-property hypothesis is **not rejected**.
 
 ```{r}
 #| label: burkett-markov-test
 
 burkett.test <- stats::chisq.test(burkett, correct = FALSE)
-burkett.test
+burkkett.test
 ```
 
 This example is deliberately presented as a literature benchmark for the contingency-table test underlying Markov-property inference. It should not be interpreted as a direct call to `verifyMarkovProperty()` on a sequence: the paper performs a cell-wise conditional test, whereas `verifyMarkovProperty()` evaluates the first-order Markov property jointly over the observed triple-transition table.
 
 ## Published empirical-versus-theoretical transition matrix: Kullback, Kupperman and Ku (1962)
 
-Kullback, Kupperman and Ku [@kullback1962tests] develop likelihood-ratio and information-theoretic tests for finite Markov chains, including the hypothesis that an empirical transition matrix is compatible with a **specified theoretical transition matrix**. Their paper contains a worked example that is reproduced in the `markovchain` documentation and provides exactly the type of benchmark needed for `verifyEmpiricalToTheoretical()`.
+Kullback, Kupperman and Ku [@kullback1962tests] develop likelihood-ratio and information-theoretic tests for finite Markov chains, including the hypothesis that an empirical transition matrix is compatible with a **specified theoretical transition matrix**. Their paper contains a worked example that is reproduced in the historical `markovchain` documentation and provides exactly the type of benchmark needed for `verifyEmpiricalToTheoretical()`.
 
 The published sequence is:
 
@@ -66,7 +66,8 @@ kullback.sequence <- c(
   0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
   2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
   0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-  0,1,1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,1,1,1,1,1,2,1,2,0,0,0,1,1
+  0,1,1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,1,1,1,1,1,2,1,2,0,0,0,1,1,
+  0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1
 )
 
 kullback.counts <- createSequenceMatrix(kullback.sequence)
@@ -96,7 +97,7 @@ theoretical <- new(
 theoretical
 ```
 
-The published likelihood-ratio calculation gives a chi-squared statistic of approximately $6.55$ on 6 degrees of freedom, with p-value approximately **0.3643**. Hence the null hypothesis that the empirical transition matrix is compatible with the specified theoretical matrix is **not rejected** at the 5% level [@kullback1962tests].
+The published calculation gives a likelihood-ratio chi-squared statistic of approximately $6.55$ on 6 degrees of freedom, with p-value approximately **0.3643**. Hence the null hypothesis that the empirical transition matrix is compatible with the specified theoretical matrix is **not rejected** at the 5% level [@kullback1962tests].
 
 The same calculation can be reproduced with the package:
 
@@ -113,7 +114,7 @@ result <- verifyEmpiricalToTheoretical(
 result
 ```
 
-The package uses the likelihood-ratio statistic described by Kullback et al. for this test. The published result and the package result therefore provide a particularly useful regression benchmark: **the empirical transition matrix is not rejected as compatible with the specified theoretical Markov chain**.
+The historical `markovchain` article reproduces the transition counts as $\begin{pmatrix}51&11&8\\12&31&9\\6&11&10\end{pmatrix}$ and reports the likelihood-ratio statistic 6.551795, 6 degrees of freedom and p-value 0.3642899 [@kullback1962tests]. This gives us an unusually useful regression benchmark: the empirical transition matrix is not rejected as compatible with the specified theoretical Markov chain.
 
 For comparison, using the Pearson version gives the same inferential conclusion:
 
@@ -132,7 +133,7 @@ This example is preferable to a simulated example when demonstrating `verifyEmpi
 
 ## Why these examples are useful together
 
-The two examples provide complementary published benchmarks for the package's statistical-inference functionality:
+The examples provide complementary published benchmarks for the package's statistical-inference functionality:
 
 - **Burkett et al. (2019):** an independently published, real-data example in which a Markov-property hypothesis is not rejected.
 - **Kullback et al. (1962):** a published empirical-versus-theoretical transition-matrix test with $p\approx0.364$, so the specified Markov chain is not rejected.

@@ -36,17 +36,15 @@ NULL
     countData <- t(data)
   }
 
+  # Include explicitly declared absorbing states so that their rows are retained
+  # even when they have no observed outgoing transitions. This is consistent with
+  # the existing `possibleStates` mechanism for unobserved states.
   counts <- createSequenceMatrix(
     countData,
     toRowProbs = FALSE,
     sanitize = FALSE,
     possibleStates = unique(c(possibleStates, absorbingStates))
   )
-
-  missingStates <- setdiff(absorbingStates, rownames(counts))
-  if (length(missingStates) > 0L) {
-    stop(sprintf("Unknown absorbing state(s): %s", paste(missingStates, collapse = ", ")))
-  }
 
   rowTotals <- rowSums(counts)
   hasOutgoing <- absorbingStates[rowTotals[absorbingStates] > 0]

@@ -48,7 +48,7 @@ test_that("absorbing states respect byrow = FALSE", {
 
   expect_equal(p[, "end"], c(a = 0, b = 0, c = 0, end = 1))
   expect_equal(sum(p[, "end"]), 1)
-  expect_equal(p["b", "a"], 2 / 3)
+  expect_equal(p["b", "a"], 1)
 })
 
 test_that("declared absorbing states cannot have observed outgoing transitions", {

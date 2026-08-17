@@ -1793,6 +1793,7 @@ where the search space is the set of right stochastic matrices of dimension $|\m
 $n(u, s)$ denotes the number of times the word $us$ occurs in $D$ and $n(u)=\sum_{s \in \mathcal{A}}n(u, s)$. The hyper-parameters are similarly denoted by $\alpha(u, s)$ and $\alpha(u)$ respectively.
 
 ### Methods
+
 Given $D$, its likelihood conditioned on the observed initial state in D is given by
 \[P(D|\theta) = \prod_{s \in \mathcal{A}} \prod_{u \in \mathcal{A}} p(s|u)^{n(u, s)}\]
 
@@ -1857,6 +1858,7 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 \]
 
 ### Choosing the hyper-parameters
+
 The hyper parameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
 \[
 \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)}

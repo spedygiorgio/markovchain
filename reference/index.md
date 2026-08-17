@@ -11,6 +11,9 @@
 - [`absorptionProbabilities()`](absorptionProbabilities.md) : Absorption
   probabilities
 
+- [`autoplot.markovchain()`](autoplot.markovchain.md) : Plot a Markov
+  chain with ggplot2
+
 - [`blanden`](blanden.md) : Mobility between income quartiles
 
 - [`committorAB()`](committorAB.md) : Calculates committor of a
@@ -227,10 +230,10 @@
 
 - [`verifyMarkovProperty()`](statisticalTests.md)
   [`assessOrder()`](statisticalTests.md)
-  [`assessStationarity()`](statisticalTests.md)
   [`verifyEmpiricalToTheoretical()`](statisticalTests.md)
-  [`verifyHomogeneity()`](statisticalTests.md) : Various functions to
-  perform statistical inference of DTMC
+  [`verifyHomogeneity()`](statisticalTests.md)
+  [`assessStationarity()`](statisticalTests.md) : Test the first-order
+  Markov property of an empirical sequence
 
 - [`steadyStates()`](steadyStates.md) :
 

@@ -1,7 +1,9 @@
 #' @rdname markovchainFit
 #' @param absorbingStates Character vector of states that are known a priori to be
 #'   absorbing. The corresponding rows are set to the identity row after MLE
-#'   fitting. The argument is currently supported only for \code{method = "mle"}.
+#'   fitting when \code{byrow = TRUE}; the corresponding columns are set to the
+#'   identity column when \code{byrow = FALSE}. The argument is currently
+#'   supported only for \code{method = "mle"}.
 #' @details When \code{absorbingStates} is supplied, the declared states must have
 #'   no observed outgoing transitions. This allows terminal states in censored
 #'   customer journeys to be represented as absorbing states without adding
@@ -60,8 +62,13 @@ NULL
                hyperparam, sanitize, possibleStates)
 
   transitionMatrix <- fit$estimate@transitionMatrix
-  transitionMatrix[absorbingStates, ] <- 0
-  transitionMatrix[cbind(absorbingStates, absorbingStates)] <- 1
+  if (byrow) {
+    transitionMatrix[absorbingStates, ] <- 0
+    transitionMatrix[cbind(absorbingStates, absorbingStates)] <- 1
+  } else {
+    transitionMatrix[, absorbingStates] <- 0
+    transitionMatrix[cbind(absorbingStates, absorbingStates)] <- 1
+  }
   fit$estimate@transitionMatrix <- transitionMatrix
 
   fit

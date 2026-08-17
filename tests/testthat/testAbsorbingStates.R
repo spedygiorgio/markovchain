@@ -32,6 +32,25 @@ test_that("multiple absorbing states are supported", {
   expect_equal(p["death", ], c(a = 0, b = 0, death = 1, end = 0))
 })
 
+test_that("absorbing states respect byrow = FALSE", {
+  journeys <- list(
+    c("a", "b", "end"),
+    c("a", "b", "end"),
+    c("a", "c", "end")
+  )
+
+  fit <- markovchainFit(
+    journeys,
+    byrow = FALSE,
+    absorbingStates = "end"
+  )
+  p <- fit$estimate@transitionMatrix
+
+  expect_equal(p[, "end"], c(a = 0, b = 0, c = 0, end = 1))
+  expect_equal(sum(p[, "end"]), 1)
+  expect_equal(p["b", "a"], 2 / 3)
+})
+
 test_that("declared absorbing states cannot have observed outgoing transitions", {
   journeys <- list(
     c("a", "end", "b"),

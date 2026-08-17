@@ -586,47 +586,7 @@ R> mcWeather[2,3]
 \end{CodeOutput}
 \end{CodeChunk}
 
-The transition matrix of a \texttt{markovchain} object can be displayed using \texttt{print} or \texttt{show} methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of \texttt{plot} method (as shown in Figure \ref{fig:mcPlot}) which is based on \pkg{igraph} package \citep{pkg:igraph}. The standard \texttt{plot} method remains the default plotting approach in the package and provides direct access to the underlying \texttt{igraph} representation.
-
-\subsubsection{Alternative ggplot2-based plotting}\label{alternative-ggplot2-based-plotting}
-
-For users who prefer the grammar of graphics, the package also provides an optional \texttt{autoplot} method based on \pkg{ggplot2}. This is a \textbf{supplementary alternative} to \texttt{plot}, not a replacement. The method returns a regular \texttt{ggplot} object, allowing the Markov chain representation to be further customised with the usual \texttt{ggplot2} layers and scales. States are represented as nodes, transition probabilities as directed edges, and communicating classes are shown with different node fills.
-
-The two approaches can be compared directly using the same \texttt{mcWeather} object. The left panel uses the traditional \texttt{plot} method, while the right panel uses \texttt{ggplot2::autoplot}:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> plot(mcWeather, main = "Traditional plot()")
-R> if (requireNamespace("ggplot2", quietly = TRUE)) {
-+   print(ggplot2::autoplot(mcWeather) +
-+           ggplot2::labs(title = "ggplot2::autoplot()"))
-+ }
-\end{CodeInput}
-\begin{CodeOutput}
-Scale for linewidth is already present.
-Adding another scale for linewidth, which will replace the existing scale.
-\end{CodeOutput}
-\begin{figure}
-
-{\centering \includegraphics[width=0.49\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotComparison-1} \includegraphics[width=0.49\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotComparison-2} 
-
-}
-
-\caption[The same Markov chain represented with the traditional `plot` method (left) and the optional `ggplot2`-based `autoplot` method (right)]{The same Markov chain represented with the traditional `plot` method (left) and the optional `ggplot2`-based `autoplot` method (right).}\label{fig:mcPlotComparison}
-\end{figure}
-\end{CodeChunk}
-
-The \texttt{autoplot} method is available when the optional \texttt{ggplot2} package is installed. By default, transitions with positive probability are displayed and labelled with their probabilities. The \texttt{threshold} argument can be used to omit very small transition probabilities, while \texttt{show\_probabilities\ =\ FALSE} suppresses edge labels. For example:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> ggplot2::autoplot(mcWeather,
-+                   show_probabilities = FALSE,
-+                   threshold = 0.2)
-\end{CodeInput}
-\end{CodeChunk}
-
-The existing \texttt{plot} method for \texttt{markovchain} objects is a wrapper of \texttt{plot.igraph} for \texttt{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \texttt{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \ref{fig:mcPlotdiagram}. The \texttt{plot} function also uses \texttt{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same color.
+The transition matrix of a \texttt{markovchain} object can be displayed using \texttt{print} or \texttt{show} methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of \texttt{plot} method (as shown in Figure \ref{fig:mcPlot}) which is based on \pkg{igraph} package \citep{pkg:igraph}. \texttt{plot} method for \texttt{markovchain} objects is a wrapper of \texttt{plot.igraph} for \texttt{igraph} S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to \texttt{plot} function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \ref{fig:mcPlotdiagram}. The \texttt{plot} function also uses \texttt{communicatingClasses} function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1746,10 +1706,10 @@ R> weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 R> weathersOfDays[1:30]
 \end{CodeInput}
 \begin{CodeOutput}
- [1] "sunny"  "cloudy" "cloudy" "rain"   "rain"   "rain"   "cloudy" "sunny" 
- [9] "sunny"  "cloudy" "sunny"  "sunny"  "sunny"  "sunny"  "rain"   "sunny" 
-[17] "cloudy" "cloudy" "cloudy" "cloudy" "cloudy" "cloudy" "cloudy" "cloudy"
-[25] "sunny"  "sunny"  "cloudy" "cloudy" "cloudy" "rain"  
+ [1] "cloudy" "rain"   "rain"   "rain"   "cloudy" "rain"   "rain"   "cloudy"
+ [9] "sunny"  "rain"   "cloudy" "cloudy" "cloudy" "rain"   "rain"   "rain"  
+[17] "cloudy" "rain"   "rain"   "rain"   "rain"   "cloudy" "cloudy" "sunny" 
+[25] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "sunny" 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1771,7 +1731,7 @@ R> patientStates[1:10,]
 5          1      D
 6          2      H
 7          2      H
-8          2      I
+8          2      H
 9          2      D
 10         2      D
 \end{CodeOutput}
@@ -1807,19 +1767,19 @@ Weather MLE
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy      rain     sunny
-cloudy 0.3962264 0.2641509 0.3396226
-rain   0.3918919 0.3918919 0.2162162
-sunny  0.1956522 0.0923913 0.7119565
+          cloudy       rain     sunny
+cloudy 0.4033613 0.35294118 0.2436975
+rain   0.4242424 0.43434343 0.1414141
+sunny  0.1917808 0.09589041 0.7123288
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedMLE$standardError
 \end{CodeInput}
 \begin{CodeOutput}
            cloudy       rain      sunny
-cloudy 0.06113906 0.04991984 0.05660377
-rain   0.07277250 0.07277250 0.05405405
-sunny  0.03260870 0.02240818 0.06220393
+cloudy 0.05822020 0.05446001 0.04525349
+rain   0.06546203 0.06623675 0.03779452
+sunny  0.03624317 0.02562779 0.06984958
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1845,9 +1805,9 @@ Weather LAPLACE
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
           cloudy       rain     sunny
-cloudy 0.3962086 0.26417052 0.3396209
-rain   0.3918682 0.39186816 0.2162637
-sunny  0.1956746 0.09243058 0.7118948
+cloudy 0.4033437 0.35293623 0.2437201
+rain   0.4242149 0.43431283 0.1414723
+sunny  0.1918099 0.09593919 0.7122509
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1859,9 +1819,9 @@ R> createSequenceMatrix(stringchar = weathersOfDays)
 \end{CodeInput}
 \begin{CodeOutput}
        cloudy rain sunny
-cloudy     42   28    36
-rain       29   29    16
-sunny      36   17   131
+cloudy     48   42    29
+rain       42   43    14
+sunny      28   14   104
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1910,19 +1870,19 @@ BootStrap Estimate
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.3966050 0.26561493 0.3377801
-rain   0.3790049 0.38640218 0.2345930
-sunny  0.2111173 0.08892659 0.6999561
+          cloudy      rain     sunny
+cloudy 0.3990505 0.3539818 0.2469677
+rain   0.4237268 0.4321171 0.1441561
+sunny  0.2034519 0.0922343 0.7043138
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedBOOT$standardError
 \end{CodeInput}
 \begin{CodeOutput}
             cloudy        rain       sunny
-cloudy 0.010035562 0.009666209 0.008927217
-rain   0.013670167 0.014235242 0.009277122
-sunny  0.008574579 0.004640807 0.007152438
+cloudy 0.008481846 0.005603080 0.007281995
+rain   0.008398085 0.008606468 0.005544826
+sunny  0.005844212 0.005584338 0.008358063
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1964,13 +1924,13 @@ where \(n_{ij}\) is the entry of the frequency matrix and \(p_{ij}\) is the entr
 R> weatherFittedMLE$logLikelihood
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -337.5963
+[1] -341.8621
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedBOOT$logLikelihood
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -337.8088
+[1] -341.9377
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1999,15 +1959,15 @@ $confidenceLevel
 
 $lowerEndpointMatrix
           cloudy       rain     sunny
-cloudy 0.3800980 0.24971543 0.3230961
-rain   0.3565194 0.36298729 0.2193334
-sunny  0.1970133 0.08129314 0.6881914
+cloudy 0.3850991 0.34476555 0.2349899
+rain   0.4099132 0.41796070 0.1350357
+sunny  0.1938390 0.08304888 0.6905660
 
 $upperEndpointMatrix
-          cloudy       rain     sunny
-cloudy 0.4131120 0.28151443 0.3524641
-rain   0.4014903 0.40981707 0.2498525
-sunny  0.2252212 0.09656004 0.7117208
+          cloudy      rain     sunny
+cloudy 0.4130019 0.3631980 0.2589455
+rain   0.4375404 0.4462735 0.1532766
+sunny  0.2130648 0.1014197 0.7180616
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2024,16 +1984,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.3018868 0.1698113 0.2452830
-rain   0.2837838 0.2837838 0.1081081
-sunny  0.1358696 0.0326087 0.6521739
+          cloudy       rain      sunny
+cloudy 0.3109244 0.26050420 0.15126050
+rain   0.3232323 0.33333333 0.04040404
+sunny  0.1232877 0.02739726 0.64383562
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5053440 0.3732685 0.4487402
-rain   0.5231769 0.5231769 0.3475012
-sunny  0.2633034 0.1600426 0.7796078
+cloudy 0.5031240 0.4527039 0.3434602
+rain   0.5284189 0.5385200 0.2455907
+sunny  0.2655683 0.1696779 0.7861162
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2201,23 +2161,26 @@ R> predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}\label{statistical-tests}
 
-In this section, we describe the statistical tests: assessing the Markov property (\texttt{verifyMarkovProperty}), the order (\texttt{assessOrder}), the stationary (\texttt{assessStationarity}) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (\texttt{divergenceTest}). Most of such tests are based on the \(\chi ^2\) statistics. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the Markov property (\texttt{verifyMarkovProperty}), the order (\texttt{assessOrder}), the time-homogeneity (\texttt{assessStationarity}) of a Markov chain sequence, and the divergence tests for empirically estimated transition matrices (\texttt{verifyEmpiricalToTheoretical}, \texttt{verifyHomogeneity}). Most of such tests are based on the \(\chi ^2\) statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (\texttt{method\ =\ "simulation"}) that avoids the asymptotic \(\chi^2\) approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class \texttt{htest}, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of \texttt{stats::chisq.test}. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
-All such tests have been designed for small samples, since it is easy to detect departures from Markov property as long as the sample size increases. In addition, the accuracy of the statistical inference functions has been questioned and will be thoroughly investigated in future versions of the package.
+All such tests have been designed for small samples, since it is easy to detect departures from the Markov property as long as the sample size increases. The Monte Carlo option is particularly useful in this regime, since the asymptotic \(\chi^2\) approximation can be unreliable when expected counts are small; the simulated \(p\)-value is computed as \((1+\#\{G^*\ge G\})/(B+1)\) over \(B\) parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}\label{assessing-the-markov-property-of-a-markov-chain-sequence}
 
-The \texttt{verifyMarkovProperty} function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If \(x_1, x_2, \ldots, x_N\) is a set of observations and \(n_{ijk}\) is the number of times \(t\) \(\left(1 \le t \le N-2 \right)\) such that \(x_t=i, x_{t+1}=j, x_{x+2}=k\), then if the Markov property holds \(n_{ijk}\) follows a Binomial distribution with parameters \(n_{ij}\) and \(p_{jk}\). A classical \(\chi^2\) test can check this distributional assumption, since \(\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p_{jk}})^2}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(q \right )\) where q is the number of degrees of freedom.
-The number of degrees of freedom q of the distribution of \(\chi^2\) is given by the formula r-q+s-1, where:
-s denotes the number of states i in the state space such that n\_\{i\} \textgreater{} 0
-q denotes the number of pairs (i, j) for which n\_\{ij\} \textgreater{} 0 and
-r denotes the number of triplets (i, j, k) for which n\_\{ij\}n\_\{jk\} \textgreater{} 0
+The \texttt{verifyMarkovProperty} function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If \(x_1, x_2, \ldots, x_N\) is a set of observations and \(n_{ijk}\) is the number of times \(t\) \(\left(1 \le t \le N-2 \right)\) such that \(x_t=i, x_{t+1}=j, x_{t+2}=k\), then, if the Markov property holds, \(n_{ijk}\) is expected to be close to \(n_{ij}\hat p_{jk} = n_{ij}\,n_{jk}/n_j\), where \(n_{ij}=\sum_k n_{ijk}\), \(n_{jk}=\sum_i n_{ijk}\) and \(n_j = \sum_k n_{jk}\). The corresponding Pearson and likelihood-ratio statistics are
+
+\[
+X^2=\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p}_{jk})^2}{n_{ij}\hat{p}_{jk}}, \qquad
+G^2=2\sum_{i}\sum_{j}\sum_{k} n_{ijk}\log\frac{n_{ijk}}{n_{ij}\hat{p}_{jk}},
+\]
+
+both asymptotically \(\chi^2(q)\) under the null hypothesis \citep{anderson1957statistical}. The number of degrees of freedom \(q\) is obtained by summing, over each present state \(j\), the degrees of freedom of the corresponding (past \(\times\) future) contingency table restricted to the past and future states that were actually observed together with \(j\): \(q=\sum_j (s_j-1)(r_j-1)\), where \(s_j\) is the number of past states \(i\) with \(n_{ij}>0\) and \(r_j\) is the number of future states \(k\) with \(n_{jk}>0\).
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
-+                    "b", "a", "a", "b", "b", "b", "a")
-R> verifyMarkovProperty(sample_sequence)
+R> sample_sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
++                      "b", "a", "a", "b", "b", "b", "a")
+R> verifyMarkovProperty(sample_sequence, method = "G")
 \end{CodeInput}
 \begin{CodeOutput}
 
@@ -2228,9 +2191,43 @@ G-squared = 0.59916, df = 2, p-value = 0.7411
 \end{CodeOutput}
 \end{CodeChunk}
 
+Burkett, Scherer and Todd (2019) \citep{burkett2019recurrent} study recurrent and persistent financial-market states. One of their published tests considers the transition into state 1 and reports the following counts, for which a standard Pearson test of independence gives a non-significant result:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> burkett_counts <- matrix(
++   c(127, 59,
++      11,  7,
++      36, 20,
++       9,  4),
++   nrow = 4,
++   byrow = TRUE,
++   dimnames = list(
++     c("previous state 1", "previous state 2",
++       "previous state 4", "previous state 5"),
++     c("transition to state 1", "transition elsewhere")
++   )
++ )
+R> chisq.test(burkett_counts, correct = FALSE)
+\end{CodeInput}
+\begin{CodeOutput}
+Warning in chisq.test(burkett_counts, correct = FALSE): Chi-squared
+approximation may be incorrect
+\end{CodeOutput}
+\begin{CodeOutput}
+
+    Pearson's Chi-squared test
+
+data:  burkett_counts
+X-squared = 0.63611, df = 3, p-value = 0.8881
+\end{CodeOutput}
+\end{CodeChunk}
+
+The published contingency table gives a non-significant Pearson test (\(\chi^2\approx0.64\), 3 degrees of freedom, \(p\approx0.89\)). It is included as an independent literature example of a non-rejection; it is not claimed to be numerically identical to \texttt{verifyMarkovProperty}, since the published test is a cell-wise test for a particular transition rather than the package's global first-order Markov-property test.
+
 \subsubsection{Assessing the order of a Markov chain sequence}\label{assessing-the-order-of-a-markov-chain-sequence}
 
-The \texttt{assessOrder} function checks whether the given chain is of first order or of second order. For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
+The \texttt{assessOrder} function checks whether the given chain is of first order or of second order. For each possible present state, we construct a contingency table of the frequency of the future state for each past-to-present state transition, as shown in Table \ref{tab:order}, and performs a Pearson \(\chi^2\) test of independence between past and future conditionally on the present state, summing the resulting statistics over all present states.
 
 \begin{table}[h]
   \centering
@@ -2247,8 +2244,13 @@ The \texttt{assessOrder} function checks whether the given chain is of first ord
 \label{tab:order}
 \end{table}
 
-Using the table, the function performs the \(\chi ^2\) test by calling the \texttt{chisq.test} function.
-This test returns a list of the chi-squared value and the p-value. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is of first order.
+As for \texttt{verifyMarkovProperty}, degrees of freedom are summed over present states
+using only the past and future states actually observed together with that present
+state, \(q=\sum_j (s_j-1)(r_j-1)\), rather than a fixed \(k(k-1)^2\); the two coincide
+whenever every state is observed as both a past and a future state for every present
+state, and only differ -- correctly reducing \(q\) -- when some transitions are unobserved.
+If the p-value is greater than the given significance level, we cannot reject the
+hypothesis that the sequence is of first order.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -2264,16 +2266,16 @@ X-squared = 26.096, df = 12, p-value = 0.0104
 \end{CodeOutput}
 \end{CodeChunk}
 
-\subsubsection{Assessing the stationarity of a Markov chain sequence}\label{assessing-the-stationarity-of-a-markov-chain-sequence}
+\subsubsection{Assessing the stationarity and time-homogeneity of a Markov chain sequence}\label{assessing-the-stationarity-and-time-homogeneity-of-a-markov-chain-sequence}
 
-The \texttt{assessStationarity} function assesses if the transition probabilities of the given chain change over time. To be more specific, the chain is stationary if the following condition meets.
+The \texttt{assessStationarity} function assesses whether the transition probabilities of the given chain change over time, i.e.~whether
 
 \begin{equation}
-p_{ij}(t) = p_{ij} ~\textrm{ for all }~t
+p_{ij}(t) = p_{ij} ~\textrm{ for all }~t.
 \label{eq:stationarity}
 \end{equation}
 
-For each possible state, we construct a contingency table of the estimated transition probabilities over time as shown in Table \ref{tab:stationarity}.
+For each state, the observed sequence is split into \texttt{nblocks} contiguous blocks and a (block \(\times\) destination state) contingency table of one-step-ahead transition counts is built, as shown in Table \ref{tab:stationarity}; a Pearson \(\chi^2\) test of homogeneity across blocks is then performed and the resulting statistics summed across states, with degrees of freedom adapted, state by state, to the blocks and destinations that were actually observed.
 
 \begin{table}[h]
   \centering
@@ -2293,10 +2295,6 @@ For each possible state, we construct a contingency table of the estimated trans
 \label{tab:stationarity}
 \end{table}
 
-Using the table, the function performs the \(\chi ^2\) test by calling the \texttt{chisq.test} function.
-This test returns a list of the chi-squared value and the p-value.
-If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is stationary.
-
 \begin{CodeChunk}
 \begin{CodeInput}
 R> assessStationarity(rain$rain, 10)
@@ -2310,6 +2308,33 @@ X-squared = 110.02, df = 54, p-value = 1.05e-05
 \end{CodeOutput}
 \end{CodeChunk}
 
+Tran and Carmichael (2012) \citep{tranCarmichael2012} apply likelihood-ratio tests to transition probabilities in a real contractor-payment application, and provide an example where the null hypothesis of time-homogeneous transition probabilities is rejected. Their application also motivates explicit handling of \emph{structural zeros}, i.e.~transitions that are impossible under the state-space model, as opposed to \emph{sampling zeros}, i.e.~transitions that are possible but were simply not observed. The package allows structural zeros to be specified through the \texttt{structural.zeros} argument, so that they are excluded from the contingency tables rather than treated as evidence of homogeneity:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> structural.zeros <- matrix(FALSE, 3, 3,
++                            dimnames = list(c("a", "b", "c"),
++                                            c("a", "b", "c")))
+R> structural.zeros["a", "a"] <- TRUE
+R> 
+R> structural_sequence <- c(
++   "a", "b", "a", "c", "a", "b", "c", "a",
++   "b", "c", "b", "a", "c", "b", "a", "c",
++   "a", "b", "c", "a", "b", "c", "b", "a"
++ )
+R> 
+R> assessStationarity(structural_sequence, nblocks = 4,
++                    structural.zeros = structural.zeros)
+\end{CodeInput}
+\begin{CodeOutput}
+
+    Pearson's Chi-squared test for time-homogeneity
+
+data:  structural_sequence
+X-squared = 1.7639, df = 15, p-value = 1
+\end{CodeOutput}
+\end{CodeChunk}
+
 \subsubsection{Divergence tests for empirically estimated transition matrices}\label{divergence-tests-for-empirically-estimated-transition-matrices}
 
 This section discusses tests developed to verify whether:
@@ -2320,48 +2345,86 @@ This section discusses tests developed to verify whether:
 \item
   An empirical transition matrix is consistent with a theoretical one.\\
 \item
-  Two or more empirical transition matrices belongs to the same DTMC.
+  Two or more empirical transition matrices belong to the same DTMC.
 \end{enumerate}
 
-The first test is implemented by the \texttt{verifyEmpiricalToTheoretical} function. Being \(f_{ij}\) the raw transition count, \cite{kullback1962tests} shows that \(2*\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i.}P\left( E_j | E_i\right)} \sim \chi^2\left ( r*(r-1) \right )\). The following example is taken from \cite{kullback1962tests}:
+The first test is implemented by the \texttt{verifyEmpiricalToTheoretical} function. Denoting by \(f_{ij}\) the raw empirical transition count and by \(P_{ij}\) the theoretical (fully specified) transition probability, expected counts are constructed row-wise as \(E_{ij}=f_{i+}P_{ij}\), where \(f_{i+}=\sum_j f_{ij}\), and
+
+\[
+G^2 = 2\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i+}P_{ij}} \sim \chi^2\left ( \textstyle\sum_i (k_i - 1) \right ),
+\]
+
+where \(k_i\) is the number of states reachable with positive probability from \(i\) under the theoretical matrix; since \(P\) is fully specified rather than estimated, no degrees of freedom are lost to parameter estimation. The following example is taken from \cite{kullback1962tests}:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
-+ 2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
-+ 0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-+ 0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
-+ 0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
-R> mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
-R> rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
-R> verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
+R> kullback_counts <- matrix(
++   c(51, 11,  8,
++     12, 31,  9,
++      6, 11, 10),
++   nrow = 3,
++   byrow = TRUE,
++   dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
++ )
+R> 
+R> kullback_P <- matrix(
++   c(5/8, 1/4, 1/8,
++     1/4, 1/2, 1/4,
++     1/4, 3/8, 3/8),
++   nrow = 3,
++   byrow = TRUE,
++   dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
++ )
+R> 
+R> kullback_mc <- new("markovchain", states = c("a", "b", "c"),
++                    transitionMatrix = kullback_P)
+R> 
+R> verifyEmpiricalToTheoretical(kullback_counts, kullback_mc, method = "G")
 \end{CodeInput}
 \begin{CodeOutput}
 
     Likelihood-ratio test
 
-data:  sequence
+data:  kullback_counts
 G-squared = 6.5184, df = 6, p-value = 0.3677
 \end{CodeOutput}
 \end{CodeChunk}
 
-The second one is implemented by the \texttt{verifyHomogeneity} function, inspired by \cite[section~9]{kullback1962tests}. Assuming that \(i=1,2, \ldots, s\) DTMC samples are available and that the cardinality of the state space is \(r\) it verifies whether the \(s\) chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, \(2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )\). Also the following example is taken from \cite{kullback1962tests}:
+Kullback et al.~report \(G^2=6.551795\), \(df=6\) and \(p=0.3642899\) for this table. The historical \texttt{markovchain} implementation reproduced this published value by using column totals when constructing expected counts. For the row-wise multinomial null implemented by the current package -- the standard construction for this kind of test, since each row of a transition matrix is itself a separate multinomial sample -- expected counts are \(E_{ij}=f_{i+}P_{ij}\), which gives \(G^2=6.518384\) with the same \(df=6\) and the same non-rejection of the null hypothesis. The small numerical discrepancy with the published value is therefore a correction of the historical implementation rather than a change in the inferential conclusion.
+
+The second test is implemented by the \texttt{verifyHomogeneity} function, inspired by \cite[section~9]{kullback1962tests}. Assuming that \(i=1,2, \ldots, s\) DTMC samples are available and that the cardinality of the state space is \(r\), it verifies whether the \(s\) chains belong to the same unknown one. Pooling counts across samples for each state \(i\) and comparing each sample's destination distribution to the pooled one, the resulting statistic is asymptotically \(\chi^2\) with degrees of freedom summed, state by state, over the samples and destinations actually observed for that state. The following example generates two independent sequences from the same chain, for which the homogeneity hypothesis should not be rejected:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data(kullback)
-R> verifyHomogeneity(inputList=kullback,verbose=TRUE)
+R> homogeneity_P <- matrix(
++   c(.70, .20, .10,
++     .20, .50, .30,
++     .10, .30, .60),
++   nrow = 3,
++   byrow = TRUE,
++   dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
++ )
+R> 
+R> homogeneity_mc <- new("markovchain", states = c("a", "b", "c"),
++                       transitionMatrix = homogeneity_P)
+R> 
+R> set.seed(123)
+R> x1 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
+R> x2 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
+R> 
+R> verifyHomogeneity(list(x1, x2), method = "G")
 \end{CodeInput}
 \begin{CodeOutput}
 
     Likelihood-ratio test
 
-data:  kullback
-G-squared = 160.96, df = 29, p-value < 2.2e-16
+data:  list(x1, x2)
+G-squared = 1.8881, df = 6, p-value = 0.9297
 \end{CodeOutput}
 \end{CodeChunk}
 
-\subsection{Continuous Times Markov Chains}\label{continuous-times-markov-chains}
+For sparse data, the asymptotic \(\chi^2\) approximation underlying any of the tests above should be interpreted with care; the \texttt{method\ =\ "simulation"} option, illustrated in the package's \texttt{statistical\_analysis} vignette, provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
+\#\# Continuous Times Markov Chains
 
 \subsubsection{Intro}\label{intro}
 
@@ -2470,9 +2533,9 @@ R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", in
 \end{CodeInput}
 \begin{CodeOutput}
       states               time
-1 sigma_star 0.0901202508248389
-2      sigma  0.852040347135526
-3 sigma_star   1.19581702415532
+1 sigma_star 0.0625779551143447
+2      sigma   0.39382385184532
+3 sigma_star  0.685406352703829
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2485,11 +2548,10 @@ R> rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 \end{CodeInput}
 \begin{CodeOutput}
 [[1]]
-[1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
-[6] "sigma_star"
+[1] "sigma"      "sigma_star"
 
 [[2]]
-[1] 0.0000000 0.3786518 1.1312378 1.2080221 1.4304333 1.7083551
+[1] 0.0000000 0.2738256
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2704,9 +2766,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-           s1          s2
-s1 0.02130178 -0.02130178
-s2 0.30000000 -0.30000000
+           s1         s2
+s1 -0.1000000  0.1000000
+s2  0.0806874 -0.0806874
 \end{CodeOutput}
 \begin{CodeInput}
 R> biggerSample<-rmarkovchain(n=100,object = trueMc)
@@ -2717,9 +2779,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-             s1           s2
-s1  0.019471768 -0.019471768
-s2 -0.007429331  0.007429331
+           s1        s2
+s1 -0.0444545 0.0444545
+s2 -0.1207489 0.1207489
 \end{CodeOutput}
 \begin{CodeInput}
 R> bigSample<-rmarkovchain(n=1000,object = trueMc)
@@ -2730,9 +2792,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-           s1          s2
-s1 0.02115826 -0.02115826
-s2 0.01335777 -0.01335777
+            s1           s2
+s1 0.003660933 -0.003660933
+s2 0.019890804 -0.019890804
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2886,23 +2948,23 @@ Bayesian Fit
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.4500000 0.23333333 0.3166667
-rain   0.3235294 0.26470588 0.4117647
-sunny  0.1858407 0.09734513 0.7168142
+          cloudy      rain     sunny
+cloudy 0.4864865 0.2297297 0.2837838
+rain   0.4523810 0.3333333 0.2142857
+sunny  0.1978022 0.1098901 0.6923077
 
 
 $expectedValue
           cloudy      rain     sunny
-cloudy 0.4444444 0.2380952 0.3174603
-rain   0.3243243 0.2702703 0.4054054
-sunny  0.1896552 0.1034483 0.7068966
+cloudy 0.4805195 0.2337662 0.2857143
+rain   0.4444444 0.3333333 0.2222222
+sunny  0.2021277 0.1170213 0.6808511
 
 $standardError
            [,1]       [,2]       [,3]
-[1,] 0.06211300 0.05323971 0.05818602
-[2,] 0.07593939 0.07204243 0.07964590
-[3,] 0.03624302 0.02815505 0.04208191
+[1,] 0.05657087 0.04792082 0.05115106
+[2,] 0.07326450 0.06950480 0.06129748
+[3,] 0.04120195 0.03297963 0.04782566
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -2910,26 +2972,26 @@ $confidenceInterval$confidenceLevel
 
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.3569837 0.1423703 0.2239816
-[2,] 0.2063382 0.1480376 0.2943080
-[3,] 0.1198403 0.0000000 0.6465303
+[1,] 0.4009417 0.1472755 0.1998862
+[2,] 0.3417736 0.2255342 0.1063531
+[3,] 0.1238051 0.0000000 0.6122700
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.6351166 0.3275604 0.4294573
-[2,] 0.4774736 0.3976886 0.6726141
-[3,] 0.2476661 0.1450055 1.0000000
+[1,] 1.0000000 0.3142254 0.3786316
+[2,] 1.0000000 0.4745857 0.3205344
+[3,] 0.2685751 0.1657608 1.0000000
 
 
 $logLikelihood
-[1] -178.4103
+[1] -186.1499
 \end{CodeOutput}
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix) 
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -167.389
+[1] -161.7511
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2947,23 +3009,23 @@ Bayesian Fit
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.4500000 0.23333333 0.3166667
-rain   0.3235294 0.26470588 0.4117647
-sunny  0.1858407 0.09734513 0.7168142
+          cloudy      rain     sunny
+cloudy 0.4864865 0.2297297 0.2837838
+rain   0.4523810 0.3333333 0.2142857
+sunny  0.1978022 0.1098901 0.6923077
 
 
 $expectedValue
           cloudy      rain     sunny
-cloudy 0.4444444 0.2380952 0.3174603
-rain   0.3243243 0.2702703 0.4054054
-sunny  0.1896552 0.1034483 0.7068966
+cloudy 0.4805195 0.2337662 0.2857143
+rain   0.4444444 0.3333333 0.2222222
+sunny  0.2021277 0.1170213 0.6808511
 
 $standardError
            [,1]       [,2]       [,3]
-[1,] 0.06211300 0.05323971 0.05818602
-[2,] 0.07593939 0.07204243 0.07964590
-[3,] 0.03624302 0.02815505 0.04208191
+[1,] 0.05657087 0.04792082 0.05115106
+[2,] 0.07326450 0.06950480 0.06129748
+[3,] 0.04120195 0.03297963 0.04782566
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
@@ -2971,26 +3033,26 @@ $confidenceInterval$confidenceLevel
 
 $confidenceInterval$lowerEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.3569837 0.1423703 0.2239816
-[2,] 0.2063382 0.1480376 0.2943080
-[3,] 0.1198403 0.0000000 0.6465303
+[1,] 0.4009417 0.1472755 0.1998862
+[2,] 0.3417736 0.2255342 0.1063531
+[3,] 0.1238051 0.0000000 0.6122700
 
 $confidenceInterval$upperEndpointMatrix
           [,1]      [,2]      [,3]
-[1,] 0.6351166 0.3275604 0.4294573
-[2,] 0.4774736 0.3976886 0.6726141
-[3,] 0.2476661 0.1450055 1.0000000
+[1,] 1.0000000 0.3142254 0.3786316
+[2,] 1.0000000 0.4745857 0.3205344
+[3,] 0.2685751 0.1657608 1.0000000
 
 
 $logLikelihood
-[1] -178.4103
+[1] -186.1499
 \end{CodeOutput}
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -167.389
+[1] -161.7511
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3019,9 +3081,9 @@ R> inferHyperparam(data = weathersOfDays[1:15])
 \begin{CodeOutput}
 $dataInference
        cloudy rain sunny
-cloudy      1    2     1
-rain        1    2     3
-sunny       2    3     8
+cloudy      8    2     2
+rain        2    4     1
+sunny       2    1     1
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3493,16 +3555,16 @@ R> rmarkovchain(n = 10, object = transitionsSince100,
 \end{CodeInput}
 \begin{CodeOutput}
       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
- [1,] "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [2,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [3,] "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [4,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [1,] "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [2,] "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [3,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [4,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
  [5,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [6,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [7,] "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [8,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "D"   "D"  
+ [6,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [7,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [8,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
  [9,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-[10,] "A"  "A"  "I"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+[10,] "A"  "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
  [1,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
  [2,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
@@ -3530,7 +3592,7 @@ R> expected_period_disabled<-mean(rowSums((temp)))
 R> expected_period_disabled
 \end{CodeInput}
 \begin{CodeOutput}
-[1] 1.316
+[1] 1.301
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3541,7 +3603,7 @@ Assuming that the health insurance will pay a benefit of 12000 per year disabled
 R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
 \end{CodeInput}
 \begin{CodeOutput}
-[1] 13186.74
+[1] 13004.55
 \end{CodeOutput}
 \end{CodeChunk}
 

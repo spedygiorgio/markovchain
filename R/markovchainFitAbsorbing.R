@@ -1,4 +1,8 @@
 #' @rdname markovchainFit
+#' @usage markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
+#'   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
+#'   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
+#'   possibleStates = character(), absorbingStates = character())
 #' @param absorbingStates Character vector of states that are known a priori to be
 #'   absorbing. The corresponding rows are set to the identity row after MLE
 #'   fitting when \code{byrow = TRUE}; the corresponding columns are set to the

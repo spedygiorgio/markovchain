@@ -1,9 +1,10 @@
 name: Update autoplot vignette
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize]
     branches:
-      - docs/autoplot-vignette
+      - master
 
 permissions:
   contents: write

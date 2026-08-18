@@ -1,0 +1,53 @@
+name: Update autoplot vignette
+
+on:
+  push:
+    branches:
+      - docs/autoplot-vignette
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Update plotting section
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("vignettes/an_introduction_to_markovchain_package.Rmd")
+          text = path.read_text(encoding="utf-8")
+          old = '''The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \\@ref(fig:mcPlot)) which is based on \\pkg{igraph} package [@pkg:igraph]. `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \\pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \\pkg{diagram} and \\pkg{DiagrammeR} ways available for plotting as shown in Figure \\@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.'''
+          new = '''The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). The underlying transition probability diagram can be plotted with the standard `plot` method, which is based on \\pkg{igraph} [@pkg:igraph]. The `plot` method for `markovchain` objects is a wrapper around `plot.igraph` for `igraph` S4 objects. Additional parameters can be passed to `plot` to control the network graph layout. The `plot` function also uses `communicatingClasses` to separate states belonging to different communicating classes; states in the same class are shown with the same color. Alternative plotting backends based on \\pkg{diagram} and \\pkg{DiagrammeR} are also available.
+
+As an alternative to the standard `plot` method, `markovchain` provides an optional `ggplot2`-based `autoplot` method. The call `ggplot2::autoplot(mcWeather)` returns a regular `ggplot` object, allowing the graph to be further customised using the grammar of graphics. States are displayed as nodes, transitions as directed edges, transition probabilities can be shown as labels, and communicating classes are represented using different node fills. The `threshold` argument can be used to hide transitions with very small probabilities, while `show_probabilities = FALSE` suppresses probability labels. The existing `plot` method remains unchanged, so the two approaches are complementary.
+
+For the same weather example, the standard and `ggplot2`-based representations can be compared directly:
+
+```{r mcPlotComparison, fig.cap="Weather example: standard plot and ggplot2-based autoplot", fig.show="hold", out.width="49%"}
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(mcWeather, layout = igraph::layout_with_fr)
+  print(ggplot2::autoplot(mcWeather))
+} else {
+  plot(mcWeather, layout = igraph::layout_with_fr)
+}
+```
+
+The `autoplot` method is intentionally optional: `ggplot2` is listed in `Suggests`, so users who only need the standard plotting functionality do not need to install it.'''
+          if old not in text:
+              raise SystemExit("Expected plotting paragraph was not found")
+          text = text.replace(old, new, 1)
+          path.write_text(text, encoding="utf-8")
+          PY
+      - name: Commit documentation update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/update-autoplot-vignette.yml
+          git add vignettes/an_introduction_to_markovchain_package.Rmd
+          git commit -m "docs: document ggplot2 autoplot in plotting section"
+          git push

@@ -66,7 +66,7 @@ test_that("declared absorbing states cannot have observed outgoing transitions",
 test_that("absorbingStates is only available for MLE", {
   expect_error(
     markovchainFit(c("a", "b", "a"), method = "laplace", absorbingStates = "b"),
-    "only supported with method = \"mle\""
+    "supported only with method = \"mle\""
   )
 })
 

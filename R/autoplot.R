@@ -153,7 +153,7 @@ autoplot.markovchain <- function(object,
         ggplot2::aes(x = label_x, y = label_y,
                      label = formatC(probability, format = "f", digits = digits)),
         size = 3,
-        label.size = 0,
+        linewidth = 0,
         fill = "white"
       )
     }
@@ -182,7 +182,7 @@ autoplot.markovchain <- function(object,
         ggplot2::aes(x = x, y = y,
                      label = formatC(probability, format = "f", digits = digits)),
         size = 3,
-        label.size = 0,
+        linewidth = 0,
         fill = "white"
       )
     }

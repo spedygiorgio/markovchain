@@ -1592,3 +1592,129 @@ bool is_stochastically_monotone_cpp(NumericMatrix P) {
   
   return true;
 }
+
+
+//' Check if a transition matrix is exactly lumpable
+//' 
+//' @description This function checks the strong lumpability condition.
+//' A Markov chain is strongly lumpable with respect to a partition if, 
+//' for any two macro-states (C_i and C_j), the sum of transition probabilities 
+//' from a micro-state in C_i to all micro-states in C_j is identical 
+//' for ALL micro-states belonging to C_i.
+//' 
+// [[Rcpp::export(.is_lumpable_cpp)]]
+ bool is_lumpable_cpp(NumericMatrix P, List partition) {
+   int k = partition.size(); // Number of macro-states
+   double tol = 1e-10;       // Tolerance for floating-point comparisons
+   
+   // Iterate over every possible destination macro-state (C_j)
+   for (int c_j = 0; c_j < k; ++c_j) {
+     IntegerVector dest_indices = partition[c_j];
+     
+     // Iterate over every possible source macro-state (C_i)
+     for (int c_i = 0; c_i < k; ++c_i) {
+       IntegerVector src_indices = partition[c_i];
+       
+       // If the source macro-state contains only one micro-state, 
+       // the lumpability condition is trivially satisfied for this block.
+       if (src_indices.size() <= 1) continue;
+       
+       double expected_sum = -1.0;
+       
+       // For each micro-state inside the source macro-state C_i...
+       for (int i = 0; i < src_indices.size(); ++i) {
+         int row = src_indices[i];
+         double current_sum = 0.0;
+         
+         // ...calculate the total probability of jumping to ANY state in C_j
+         for (int j = 0; j < dest_indices.size(); ++j) {
+           int col = dest_indices[j];
+           current_sum += P(row, col);
+         }
+         
+         // The first micro-state establishes the "expected" sum.
+         // All subsequent micro-states in this macro-state MUST match this sum.
+         if (i == 0) {
+           expected_sum = current_sum;
+         } else if (std::abs(current_sum - expected_sum) > tol) {
+           // If any micro-state deviates, the chain is NOT exactly lumpable.
+           return false;
+         }
+       }
+     }
+   }
+   // If all checks passed, the chain is strongly lumpable.
+   return true;
+ }
+
+//' Create a lumped transition matrix
+ //' 
+ //' @description Computes the aggregated transition matrix. If the chain is 
+ //' not exactly lumpable (i.e., forced lumping), the function uses the 
+ //' stationary weights to compute a weighted average of the transition probabilities.
+ //' 
+ // [[Rcpp::export(.lump_cpp)]]
+ NumericMatrix lump_cpp(NumericMatrix P, List partition, NumericVector weights) {
+   int k = partition.size();
+   NumericMatrix P_lumped(k, k);
+   
+   // Iterate over the source macro-state
+   for (int c_i = 0; c_i < k; ++c_i) {
+     IntegerVector src_indices = partition[c_i];
+     double w_sum = 0.0;
+     
+     // Calculate the total stationary weight of the source macro-state
+     for (int i = 0; i < src_indices.size(); ++i) {
+       w_sum += weights[src_indices[i]];
+     }
+     
+     // Iterate over the destination macro-state
+     for (int c_j = 0; c_j < k; ++c_j) {
+       IntegerVector dest_indices = partition[c_j];
+       double block_sum = 0.0;
+       
+       if (w_sum > 0) {
+         // Standard case: compute the weighted average of transition probabilities
+         for (int i = 0; i < src_indices.size(); ++i) {
+           int row = src_indices[i];
+           double row_to_block_sum = 0.0;
+           
+           for (int j = 0; j < dest_indices.size(); ++j) {
+             row_to_block_sum += P(row, dest_indices[j]);
+           }
+           block_sum += (weights[row] / w_sum) * row_to_block_sum;
+         }
+       } else {
+         // Fallback case: if stationary weights sum to 0 (e.g., transient states),
+         // we use a simple arithmetic mean (equiprobable weights) to avoid division by zero.
+         double n_src = src_indices.size();
+         for (int i = 0; i < src_indices.size(); ++i) {
+           int row = src_indices[i];
+           double row_to_block_sum = 0.0;
+           for (int j = 0; j < dest_indices.size(); ++j) {
+             row_to_block_sum += P(row, dest_indices[j]);
+           }
+           block_sum += (1.0 / n_src) * row_to_block_sum;
+         }
+       }
+       P_lumped(c_i, c_j) = block_sum;
+     }
+   }
+   
+   // Final safeguard: Row normalization
+   // This removes any tiny floating-point drift (e.g., 0.9999999999999998)
+   // to ensure the resulting matrix is strictly stochastic.
+   for (int i = 0; i < k; ++i) {
+     double rsum = 0.0;
+     for (int j = 0; j < k; ++j) {
+       rsum += P_lumped(i, j);
+     }
+     if (rsum > 0) {
+       for (int j = 0; j < k; ++j) {
+         P_lumped(i, j) /= rsum;
+       }
+     }
+   }
+   
+   return P_lumped;
+ }

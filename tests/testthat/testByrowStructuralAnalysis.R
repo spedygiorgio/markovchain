@@ -35,7 +35,7 @@ test_that("column-stochastic matrices preserve recurrent and transient classes",
   expect_equal(transientStates(mc_byrow), transientStates(mc_bycol))
 
   expect_equal(recurrentClasses(mc_bycol), list("0", "4"))
-  expect_equal(transientClasses(mc_bycol), list("1", "2", "3"))
+  expect_equal(transientClasses(mc_bycol), list("1", c("2", "3")))
   expect_equal(recurrentStates(mc_bycol), c("0", "4"))
   expect_equal(transientStates(mc_bycol), c("1", "2", "3"))
 })

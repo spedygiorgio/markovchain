@@ -8,7 +8,19 @@
 #'   no observed outgoing transitions. This allows terminal states in censored
 #'   customer journeys to be represented as absorbing states without adding
 #'   artificial observations.
-NULL
+#' @export
+markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
+                           laplacian = 0, name = "", parallel = FALSE,
+                           confidencelevel = 0.95, confint = TRUE,
+                           hyperparam = matrix(), sanitize = FALSE,
+                           possibleStates = character(),
+                           absorbingStates = character()) {
+  .markovchainFitWithAbsorbingStates(
+    data, method, byrow, nboot, laplacian, name, parallel,
+    confidencelevel, confint, hyperparam, sanitize, possibleStates,
+    absorbingStates
+  )
+}
 
 # Wrapper adding explicit absorbing-state constraints to the MLE fit.
 .markovchainFitWithAbsorbingStates <- function(data, method, byrow, nboot,
@@ -39,13 +51,14 @@ NULL
   }
 
   # Include explicitly declared absorbing states so that their rows are retained
-  # even when they have no observed outgoing transitions. This is consistent with
-  # the existing `possibleStates` mechanism for unobserved states.
+  # both during validation and in the final fitted transition matrix.
+  fitPossibleStates <- unique(c(possibleStates, absorbingStates))
+
   counts <- createSequenceMatrix(
     countData,
     toRowProbs = FALSE,
     sanitize = FALSE,
-    possibleStates = unique(c(possibleStates, absorbingStates))
+    possibleStates = fitPossibleStates
   )
 
   rowTotals <- rowSums(counts)
@@ -59,7 +72,7 @@ NULL
 
   fit <- .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot,
                laplacian, name, parallel, confidencelevel, confint,
-               hyperparam, sanitize, possibleStates)
+               hyperparam, sanitize, fitPossibleStates)
 
   transitionMatrix <- fit$estimate@transitionMatrix
   if (byrow) {
@@ -72,19 +85,4 @@ NULL
   fit$estimate@transitionMatrix <- transitionMatrix
 
   fit
-}
-
-# RcppExports.R is generated and defines the original public function. This
-# source file is loaded afterwards and extends that API with absorbingStates.
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
-                           laplacian = 0, name = "", parallel = FALSE,
-                           confidencelevel = 0.95, confint = TRUE,
-                           hyperparam = matrix(), sanitize = FALSE,
-                           possibleStates = character(),
-                           absorbingStates = character()) {
-  .markovchainFitWithAbsorbingStates(
-    data, method, byrow, nboot, laplacian, name, parallel,
-    confidencelevel, confint, hyperparam, sanitize, possibleStates,
-    absorbingStates
-  )
 }

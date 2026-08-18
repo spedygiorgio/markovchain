@@ -28,8 +28,8 @@ test_that("multiple absorbing states are supported", {
   )
   p <- fit$estimate@transitionMatrix
 
-  expect_equal(p["end", ], c(a = 0, b = 0, death = 0, end = 1))
-  expect_equal(p["death", ], c(a = 0, b = 0, death = 1, end = 0))
+  expect_equal(p["end", ], c(a = 0, b = 0, c = 0, death = 0, end = 1))
+  expect_equal(p["death", ], c(a = 0, b = 0, c = 0, death = 1, end = 0))
 })
 
 test_that("absorbing states respect byrow = FALSE", {
@@ -48,7 +48,7 @@ test_that("absorbing states respect byrow = FALSE", {
 
   expect_equal(p[, "end"], c(a = 0, b = 0, c = 0, end = 1))
   expect_equal(sum(p[, "end"]), 1)
-  expect_equal(p["b", "a"], 1)
+  expect_equal(p["b", "a"], 2 / 3)
 })
 
 test_that("declared absorbing states cannot have observed outgoing transitions", {

@@ -442,31 +442,7 @@ transitionProbability(mcWeather, "cloudy", "rain")
 mcWeather[2,3]
 ```
 
-The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. The standard `plot` method remains the default plotting approach in the package and provides direct access to the underlying `igraph` representation.
-
-### Alternative ggplot2-based plotting
-
-For users who prefer the grammar of graphics, the package also provides an optional `autoplot` method based on \pkg{ggplot2}. This is a **supplementary alternative** to `plot`, not a replacement. The method returns a regular `ggplot` object, allowing the Markov chain representation to be further customised with the usual `ggplot2` layers and scales. States are represented as nodes, transition probabilities as directed edges, and communicating classes are shown with different node fills.
-
-The two approaches can be compared directly using the same `mcWeather` object. The left panel uses the traditional `plot` method, while the right panel uses `ggplot2::autoplot`:
-
-```{r mcPlotComparison, fig.cap="The same Markov chain represented with the traditional `plot` method (left) and the optional `ggplot2`-based `autoplot` method (right).", fig.width=6, fig.height=5, fig.show="hold", out.width="49%"}
-plot(mcWeather, main = "Traditional plot()")
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  print(ggplot2::autoplot(mcWeather) +
-          ggplot2::labs(title = "ggplot2::autoplot()"))
-}
-```
-
-The `autoplot` method is available when the optional `ggplot2` package is installed. By default, transitions with positive probability are displayed and labelled with their probabilities. The `threshold` argument can be used to omit very small transition probabilities, while `show_probabilities = FALSE` suppresses edge labels. For example:
-
-```{r mcAutoplotCustom, eval=FALSE}
-ggplot2::autoplot(mcWeather,
-                  show_probabilities = FALSE,
-                  threshold = 0.2)
-```
-
-The existing `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
+The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
 
 ```{r printAndShow}
 print(mcWeather)
@@ -1363,27 +1339,51 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 ## Statistical Tests
 
-In this section, we describe the statistical tests: assessing the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the stationary (`assessStationarity`) of a Markov chain sequence, and the divergence test for empirically estimated transition matrices (`divergenceTest`). Most of such tests are based on the $\chi ^2$ statistics. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the time-homogeneity (`assessStationarity`) of a Markov chain sequence, and the divergence tests for empirically estimated transition matrices (`verifyEmpiricalToTheoretical`, `verifyHomogeneity`). Most of such tests are based on the $\chi ^2$ statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (`method = "simulation"`) that avoids the asymptotic $\chi^2$ approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class `htest`, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of `stats::chisq.test`. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
-All such tests have been designed for small samples, since it is easy to detect departures from Markov property as long as the sample size increases. In addition, the accuracy of the statistical inference functions has been questioned and will be thoroughly investigated in future versions of the package.
+All such tests have been designed for small samples, since it is easy to detect departures from the Markov property as long as the sample size increases. The Monte Carlo option is particularly useful in this regime, since the asymptotic $\chi^2$ approximation can be unreliable when expected counts are small; the simulated $p$-value is computed as $(1+\#\{G^*\ge G\})/(B+1)$ over $B$ parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
 
 ### Assessing the Markov property of a Markov chain sequence
 
-The `verifyMarkovProperty` function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{x+2}=k$, then if the Markov property holds $n_{ijk}$ follows a Binomial distribution with parameters $n_{ij}$ and $p_{jk}$. A classical $\chi^2$ test can check this distributional assumption, since $\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p_{jk}})^2}{n_{ij}\hat{p_{jk}}}\sim \chi^2\left(q \right )$ where q is the number of degrees of freedom. 
-The number of degrees of freedom q of the distribution of $\chi^2$ is given by the formula r-q+s-1, where:
- s denotes the number of states i in the state space such that n_{i} > 0 
- q denotes the number of pairs (i, j) for which n_{ij} > 0 and 
- r denotes the number of triplets (i, j, k) for which n_{ij}n_{jk} > 0 
+The `verifyMarkovProperty` function verifies whether the Markov property holds for the given chain. The test implemented in the package looks at triplets of successive observations. If $x_1, x_2, \ldots, x_N$ is a set of observations and $n_{ijk}$ is the number of times $t$ $\left(1 \le t \le N-2 \right)$ such that $x_t=i, x_{t+1}=j, x_{t+2}=k$, then, if the Markov property holds, $n_{ijk}$ is expected to be close to $n_{ij}\hat p_{jk} = n_{ij}\,n_{jk}/n_j$, where $n_{ij}=\sum_k n_{ijk}$, $n_{jk}=\sum_i n_{ijk}$ and $n_j = \sum_k n_{jk}$. The corresponding Pearson and likelihood-ratio statistics are
 
+$$
+X^2=\sum_{i}\sum_{j}\sum_{k}\frac{(n_{ijk}-n_{ij}\hat{p}_{jk})^2}{n_{ij}\hat{p}_{jk}}, \qquad
+G^2=2\sum_{i}\sum_{j}\sum_{k} n_{ijk}\log\frac{n_{ijk}}{n_{ij}\hat{p}_{jk}},
+$$
+
+both asymptotically $\chi^2(q)$ under the null hypothesis \citep{anderson1957statistical}. The number of degrees of freedom $q$ is obtained by summing, over each present state $j$, the degrees of freedom of the corresponding (past $\times$ future) contingency table restricted to the past and future states that were actually observed together with $j$: $q=\sum_j (s_j-1)(r_j-1)$, where $s_j$ is the number of past states $i$ with $n_{ij}>0$ and $r_j$ is the number of future states $k$ with $n_{jk}>0$.
 
 ```{r test1}
-sample_sequence<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
-                   "b", "a", "a", "b", "b", "b", "a")
-verifyMarkovProperty(sample_sequence)
+sample_sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", 
+                     "b", "a", "a", "b", "b", "b", "a")
+verifyMarkovProperty(sample_sequence, method = "G")
 ```
 
+Burkett, Scherer and Todd (2019) \citep{burkett2019recurrent} study recurrent and persistent financial-market states. One of their published tests considers the transition into state 1 and reports the following counts, for which a standard Pearson test of independence gives a non-significant result:
+
+```{r test1b}
+burkett_counts <- matrix(
+  c(127, 59,
+     11,  7,
+     36, 20,
+      9,  4),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(
+    c("previous state 1", "previous state 2",
+      "previous state 4", "previous state 5"),
+    c("transition to state 1", "transition elsewhere")
+  )
+)
+chisq.test(burkett_counts, correct = FALSE)
+```
+
+The published contingency table gives a non-significant Pearson test ($\chi^2\approx0.64$, 3 degrees of freedom, $p\approx0.89$). It is included as an independent literature example of a non-rejection; it is not claimed to be numerically identical to `verifyMarkovProperty`, since the published test is a cell-wise test for a particular transition rather than the package's global first-order Markov-property test.
+
 ### Assessing the order of a Markov chain sequence
-The `assessOrder` function checks whether the given chain is of first order or of second order. For each possible present state, we construct a contingency table of the frequency of the future state for each past to present state transition as shown in Table \ref{tab:order}.
+
+The `assessOrder` function checks whether the given chain is of first order or of second order. For each possible present state, we construct a contingency table of the frequency of the future state for each past-to-present state transition, as shown in Table \ref{tab:order}, and performs a Pearson $\chi^2$ test of independence between past and future conditionally on the present state, summing the resulting statistics over all present states.
 
 \begin{table}[h]
   \centering
@@ -1400,24 +1400,29 @@ The `assessOrder` function checks whether the given chain is of first order or o
 \label{tab:order}
 \end{table} 
 
-Using the table, the function performs the $\chi ^2$ test by calling the `chisq.test` function.
-This test returns a list of the chi-squared value and the p-value. If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is of first order. 
+As for `verifyMarkovProperty`, degrees of freedom are summed over present states
+using only the past and future states actually observed together with that present
+state, $q=\sum_j (s_j-1)(r_j-1)$, rather than a fixed $k(k-1)^2$; the two coincide
+whenever every state is observed as both a past and a future state for every present
+state, and only differ -- correctly reducing $q$ -- when some transitions are unobserved.
+If the p-value is greater than the given significance level, we cannot reject the
+hypothesis that the sequence is of first order.
 
 ```{r test2}
 data(rain)
 assessOrder(rain$rain)
 ```
 
-### Assessing the stationarity of a Markov chain sequence
+### Assessing the stationarity and time-homogeneity of a Markov chain sequence
 
-The `assessStationarity` function assesses if the transition probabilities of the given chain change over time. To be more specific, the chain is stationary if the following condition meets.
+The `assessStationarity` function assesses whether the transition probabilities of the given chain change over time, i.e. whether
 
 \begin{equation}
-p_{ij}(t) = p_{ij} ~\textrm{ for all }~t
+p_{ij}(t) = p_{ij} ~\textrm{ for all }~t.
 \label{eq:stationarity}
 \end{equation}
 
-For each possible state, we construct a contingency table of the estimated transition probabilities over time as shown in Table \ref{tab:stationarity}.
+For each state, the observed sequence is split into `nblocks` contiguous blocks and a (block $\times$ destination state) contingency table of one-step-ahead transition counts is built, as shown in Table \ref{tab:stationarity}; a Pearson $\chi^2$ test of homogeneity across blocks is then performed and the resulting statistics summed across states, with degrees of freedom adapted, state by state, to the blocks and destinations that were actually observed.
 
 \begin{table}[h]
   \centering
@@ -1437,12 +1442,26 @@ For each possible state, we construct a contingency table of the estimated trans
 \label{tab:stationarity}
 \end{table} 
 
-Using the table, the function performs the $\chi ^2$ test by calling the `chisq.test` function.
-This test returns a list of the chi-squared value and the p-value.
-If the p-value is greater than the given significance level, we cannot reject the hypothesis that the sequence is stationary.
-
 ```{r test3}
 assessStationarity(rain$rain, 10)
+```
+
+Tran and Carmichael (2012) \citep{tranCarmichael2012} apply likelihood-ratio tests to transition probabilities in a real contractor-payment application, and provide an example where the null hypothesis of time-homogeneous transition probabilities is rejected. Their application also motivates explicit handling of *structural zeros*, i.e. transitions that are impossible under the state-space model, as opposed to *sampling zeros*, i.e. transitions that are possible but were simply not observed. The package allows structural zeros to be specified through the `structural.zeros` argument, so that they are excluded from the contingency tables rather than treated as evidence of homogeneity:
+
+```{r test4}
+structural.zeros <- matrix(FALSE, 3, 3,
+                           dimnames = list(c("a", "b", "c"),
+                                           c("a", "b", "c")))
+structural.zeros["a", "a"] <- TRUE
+
+structural_sequence <- c(
+  "a", "b", "a", "c", "a", "b", "c", "a",
+  "b", "c", "b", "a", "c", "b", "a", "c",
+  "a", "b", "c", "a", "b", "c", "b", "a"
+)
+
+assessStationarity(structural_sequence, nblocks = 4,
+                   structural.zeros = structural.zeros)
 ```
 
 ### Divergence tests for empirically estimated transition matrices
@@ -1450,28 +1469,66 @@ assessStationarity(rain$rain, 10)
 This section discusses tests developed to verify whether: 
 
   1. An empirical transition matrix is consistent with a theoretical one.  
-  2. Two or more empirical transition matrices belongs to the same DTMC. 
+  2. Two or more empirical transition matrices belong to the same DTMC. 
 
-The first test is implemented by the `verifyEmpiricalToTheoretical` function. Being $f_{ij}$ the raw transition count, \cite{kullback1962tests} shows that $2*\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i.}P\left( E_j | E_i\right)} \sim \chi^2\left ( r*(r-1) \right )$. The following example is taken from \cite{kullback1962tests}:
+The first test is implemented by the `verifyEmpiricalToTheoretical` function. Denoting by $f_{ij}$ the raw empirical transition count and by $P_{ij}$ the theoretical (fully specified) transition probability, expected counts are constructed row-wise as $E_{ij}=f_{i+}P_{ij}$, where $f_{i+}=\sum_j f_{ij}$, and
+
+$$
+G^2 = 2\sum_{i=1}^{r}\sum_{j=1}^{r}f_{ij}\ln\frac{f_{ij}}{f_{i+}P_{ij}} \sim \chi^2\left ( \textstyle\sum_i (k_i - 1) \right ),
+$$
+
+where $k_i$ is the number of states reachable with positive probability from $i$ under the theoretical matrix; since $P$ is fully specified rather than estimated, no degrees of freedom are lost to parameter estimation. The following example is taken from \cite{kullback1962tests}:
 
 ```{r divergence1}
-sequence<-c(0,1,2,2,1,0,0,0,0,0,0,1,2,2,2,1,0,0,1,0,0,0,0,0,0,1,1,
-2,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,2,1,0,
-0,2,1,0,0,0,0,0,0,1,1,1,2,2,0,0,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,0,2,
-0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,2,2,2,1,1,1,1,0,1,1,1,1,0,0,2,1,1,
-0,0,0,0,0,2,2,1,1,1,1,1,2,1,2,0,0,0,1,2,2,2,0,0,0,1,1)
-mc=matrix(c(5/8,1/4,1/8,1/4,1/2,1/4,1/4,3/8,3/8),byrow=TRUE, nrow=3)
-rownames(mc)<-colnames(mc)<-0:2; theoreticalMc<-as(mc, "markovchain")
-verifyEmpiricalToTheoretical(data=sequence,object=theoreticalMc)
+kullback_counts <- matrix(
+  c(51, 11,  8,
+    12, 31,  9,
+     6, 11, 10),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+kullback_P <- matrix(
+  c(5/8, 1/4, 1/8,
+    1/4, 1/2, 1/4,
+    1/4, 3/8, 3/8),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+kullback_mc <- new("markovchain", states = c("a", "b", "c"),
+                   transitionMatrix = kullback_P)
+
+verifyEmpiricalToTheoretical(kullback_counts, kullback_mc, method = "G")
 ```
 
-The second one is implemented by the `verifyHomogeneity` function, inspired by \cite[section~9]{kullback1962tests}. Assuming that $i=1,2, \ldots, s$ DTMC samples are available and that the cardinality of the state space is $r$ it verifies whether the $s$ chains belongs to the same unknown one. \cite{kullback1962tests} shows that its test statistics follows a chi-square law, $2*\sum_{i=1}^{s}\sum_{j=1}^{r}\sum_{k=1}^{r}f_{ijk}\ln\frac{n*f_{ijk}}{f_{i..}f_{.jk}} \sim \chi^2\left ( r*(r-1) \right )$. Also the following example is taken from \cite{kullback1962tests}:
+Kullback et al. report $G^2=6.551795$, $df=6$ and $p=0.3642899$ for this table. The historical `markovchain` implementation reproduced this published value by using column totals when constructing expected counts. For the row-wise multinomial null implemented by the current package -- the standard construction for this kind of test, since each row of a transition matrix is itself a separate multinomial sample -- expected counts are $E_{ij}=f_{i+}P_{ij}$, which gives $G^2=6.518384$ with the same $df=6$ and the same non-rejection of the null hypothesis. The small numerical discrepancy with the published value is therefore a correction of the historical implementation rather than a change in the inferential conclusion.
+
+The second test is implemented by the `verifyHomogeneity` function, inspired by \cite[section~9]{kullback1962tests}. Assuming that $i=1,2, \ldots, s$ DTMC samples are available and that the cardinality of the state space is $r$, it verifies whether the $s$ chains belong to the same unknown one. Pooling counts across samples for each state $i$ and comparing each sample's destination distribution to the pooled one, the resulting statistic is asymptotically $\chi^2$ with degrees of freedom summed, state by state, over the samples and destinations actually observed for that state. The following example generates two independent sequences from the same chain, for which the homogeneity hypothesis should not be rejected:
 
 ```{r divergence2}
-data(kullback)
-verifyHomogeneity(inputList=kullback,verbose=TRUE)
+homogeneity_P <- matrix(
+  c(.70, .20, .10,
+    .20, .50, .30,
+    .10, .30, .60),
+  nrow = 3,
+  byrow = TRUE,
+  dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+)
+
+homogeneity_mc <- new("markovchain", states = c("a", "b", "c"),
+                      transitionMatrix = homogeneity_P)
+
+set.seed(123)
+x1 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
+x2 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
+
+verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
+For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option, illustrated in the package's `statistical_analysis` vignette, provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
 ## Continuous Times Markov Chains
 
 ### Intro
@@ -1736,6 +1793,7 @@ where the search space is the set of right stochastic matrices of dimension $|\m
 $n(u, s)$ denotes the number of times the word $us$ occurs in $D$ and $n(u)=\sum_{s \in \mathcal{A}}n(u, s)$. The hyper-parameters are similarly denoted by $\alpha(u, s)$ and $\alpha(u)$ respectively.
 
 ### Methods
+
 Given $D$, its likelihood conditioned on the observed initial state in D is given by
 \[P(D|\theta) = \prod_{s \in \mathcal{A}} \prod_{u \in \mathcal{A}} p(s|u)^{n(u, s)}\]
 
@@ -1800,6 +1858,7 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 \]
 
 ### Choosing the hyper-parameters
+
 The hyper parameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
 \[
 \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)}

@@ -48,7 +48,7 @@ fitHighOrderMultivarMC(data, order = 2, Norm = 2)
 #> states = 1 2 3 4 
 #> 
 #> List of Lambda's and the corresponding transition matrix (by cols) :
-#> Lambda1(1,1) : 0.2496704
+#> Lambda1(1,1) : 0.2496703
 #> P1(1,1) : 
 #>   1 2   3 4
 #> 1 0 1 0.0 0
@@ -56,7 +56,7 @@ fitHighOrderMultivarMC(data, order = 2, Norm = 2)
 #> 3 1 0 0.4 1
 #> 4 0 0 0.2 0
 #> 
-#> Lambda2(1,1) : 6.559697e-05
+#> Lambda2(1,1) : 6.559805e-05
 #> P2(1,1) : 
 #>   1 2   3 4
 #> 1 0 0 0.4 0
@@ -72,7 +72,7 @@ fitHighOrderMultivarMC(data, order = 2, Norm = 2)
 #> 3 1 0.0 0.3333333 0.6
 #> 4 0 0.0 0.0000000 0.2
 #> 
-#> Lambda2(1,2) : 6.559662e-05
+#> Lambda2(1,2) : 6.559841e-05
 #> P2(1,2) : 
 #>   1   2 3   4
 #> 1 0 0.5 0 0.2
@@ -104,7 +104,7 @@ fitHighOrderMultivarMC(data, order = 2, Norm = 2)
 #> 3 0 0.5 0.6666667 0.2
 #> 4 1 0.5 0.0000000 0.6
 #> 
-#> Lambda2(2,2) : 8.014082e-09
+#> Lambda2(2,2) : 8.013877e-09
 #> P2(2,2) : 
 #>   1   2   3   4
 #> 1 0 0.0 0.5 0.0

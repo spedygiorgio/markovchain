@@ -28,11 +28,11 @@ test_that("zero transition probabilities contribute zero", {
   # This irreducible chain contains a structural zero.
   structural_zero <- new("markovchain",
                          states = states,
-                         transitionMatrix = matrix(c(0.5, 0.5, 0, 1),
+                         transitionMatrix = matrix(c(0.5, 0.5, 1, 0),
                                                     byrow = TRUE, nrow = 2,
                                                     dimnames = list(states, states)))
   expect_true(is.finite(entropyRate(structural_zero)))
-  expect_equal(entropyRate(structural_zero), 0.5, tolerance = 1e-12)
+  expect_equal(entropyRate(structural_zero), 2 / 3, tolerance = 1e-12)
 })
 
 test_that("entropy rate is zero for a one-state chain", {

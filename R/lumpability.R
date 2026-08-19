@@ -1,3 +1,29 @@
+#' Test whether a partition is lumpable for a Markov chain
+#'
+#' @param object a `markovchain` object.
+#' @param partition a named list defining the macro-states of the partition.
+#' @return A logical value indicating whether the partition is exactly lumpable.
+#' @export
+setGeneric("is.lumpable", function(object, partition) standardGeneric("is.lumpable"))
+
+#' Lump a Markov chain according to a partition
+#'
+#' @param object a `markovchain` object.
+#' @param partition a named list defining the macro-states of the partition.
+#' @param force logical; if `TRUE`, perform weighted approximate lumping when
+#'   the partition is not exactly lumpable.
+#' @return A lumped `markovchain` object.
+#' @export
+setGeneric("lump", function(object, partition, force = FALSE) standardGeneric("lump"))
+
+#' Automatically construct a lumped Markov chain
+#'
+#' @param object a `markovchain` object.
+#' @param k the requested number of macro-states.
+#' @return A list containing the generated partition and lumped chain.
+#' @export
+setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
+
 # Lumpability methods are defined here so that they are loaded after
 # probabilistic.R. The helpers normalize column-stochastic chains before
 # passing matrices to the row-stochastic lumpability kernels.

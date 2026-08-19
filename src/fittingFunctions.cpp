@@ -1578,7 +1578,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' 
 //' @export
 //' 
-// [[Rcpp::export]]
+// [[Rcpp::export(.markovchainFitRcpp)]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10,
                     double laplacian = 0, String name = "", bool parallel = false,
                     double confidencelevel = 0.95, bool confint = true, 

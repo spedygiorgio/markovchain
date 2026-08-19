@@ -232,7 +232,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' 
 #' @export
 #' 
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
+.markovchainFitRcpp <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
     .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 

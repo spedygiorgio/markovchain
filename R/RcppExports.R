@@ -28,29 +28,13 @@
 #' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method is used, the lower and upper confidence bounds are returned along with the standard error. The "map" method also returns the expected value of the parameters with respect to the posterior distribution.
 #' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 #' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
-#' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". In addition, parallel facility is not complete, involving only a part of the bootstrap process. When \code{data} is either a \code{data.frame"} or a \code{matrix"} object, only MLE fit is currently available.
+#' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". In addition, parallel facility is not complete, involving only a part of the bootstrap process. When \code{data} or \code{stringchar} contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 #' @seealso \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}
 #' @examples
 #' sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-#' sequenceMatr <- createSequenceMatrix(sequence, sanitize = FALSE)
 #' mcFitMLE <- markovchainFit(data = sequence)
-#' mcFitBSP <- markovchainFit(data = sequence, method = "bootstrap", nboot = 5, name = "Bootstrap Mc")
-#' na.sequence <- c("a", NA, "a", "b")
-#' na.sequenceMatr <- createSequenceMatrix(na.sequence, sanitize = FALSE)
-#' mcFitMLE <- markovchainFit(data = na.sequence)
-#' sequences <- list(x = c("a", "b", "a"), y = c("b", "a", "b", "a", "c"))
-#' mcFitMap <- markovchainFit(sequences, method = "map")
-#' mcFitMle <- markovchainFit(sequences, method = "mle")
 #' @rdname markovchainFit
 #' @export
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character(), absorbingStates = character()) {
     .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
-}
-
-.noofVisitsDistRCpp <- function(matrix, i, N) {
-    .Call(`_markovchain_noofVisitsDistRCpp`, matrix, i, N)
-}
-
-.multinomialCIForRowRcpp <- function(x, confidencelevel) {
-    .Call(`_markovchain_multinomCI`, x, confidencelevel)
 }

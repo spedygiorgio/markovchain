@@ -101,7 +101,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 # check the validity of non homogeneous markovchain list
 # object is a list of markovchain object
 .checkSequence <- function(object) {
-  # assume non homogeneous markovchain list is valid
+  # assume non homogeneous markov chain list is valid
   out <- TRUE
   
   # list of one transition matrix implies valid
@@ -145,7 +145,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' states coming from the underlying stationary distribution. 
 #' 
 #' @param n Sample size
-#' @param object Either a \code{markovchain} or a \code{markovchainList} object
+#' @param object Either a \code{markovchain} or \code{markovchainList} object
 #' @param what It specifies whether either a \code{data.frame} or a \code{matrix} 
 #'        (each rows represent a simulation) or a \code{list} is returned.
 #' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
@@ -332,7 +332,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     # store list of markovchain object in object
     object <- object@markovchains
     
-    # check the validity of markovchainList object
+    # check the validity of markovchain list object
     verify <- .checkSequence(object = object)
     
     # show warning if sequence is invalid
@@ -483,39 +483,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 
 ######################################################################
 
-# function to fit a DTMC with Laplacian Smoother
-.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01) {
-  
-  # every element of the matrix store the number of times jth state appears just
-  # after the ith state
-  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
-  
-  # add laplacian  to the sequence matrix
-  # why? to avoid the cases where sum of row is zero
-  newNum <- origNum + laplacian
-  
-  # store sum of each row  in the vector
-  newSumOfRow <- rowSums(newNum)
-  
-  # helper matrix to convert frequency matrix to transition matrix
-  newDen <- matrix(rep(newSumOfRow, length(newSumOfRow)), byrow = FALSE, ncol = length(newSumOfRow))
-  
-  # transition matrix
-  transMatr <- newNum / newDen
-  
-  # create a markovchain object
-  outMc <- new("markovchain", transitionMatrix = transMatr, name = "Laplacian Smooth Fit")
-
-  # transpose the transition matrix
-  if (!byrow) {
-    outMc@transitionMatrix <- t(outMc@transitionMatrix)
-    outMc@byrow <- FALSE
-  }
-  
-  # wrap markovchain object in a list
-  out <- list(estimate = outMc)
-  return(out)
-}
+# NOTE: the R implementation of Laplacian-smoothed fitting that used to
+# live here (.mcFitLaplacianSmooth) was dead code -- markovchainFit()
+# dispatches method = "laplace" to the C++ _mcFitLaplacianSmooth
+# (src/fittingFunctions.cpp) instead, which implements the same formula
+# and is the one actually used. Removed to avoid the two copies silently
+# drifting apart.
 
 # function that return a Markov Chain from a given matrix of observations
 # .matr2Mc <- function(matrData, laplacian = 0) {
@@ -526,7 +499,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #   # an empty character vector to store names of possible states
 #   uniqueVals <- character()
 #   
-#   # populate uniqueVals with names of states 
+#   # populate uniqueVals with names of possible states
 #   for(i in 1:nCols) {
 #     uniqueVals <- union(uniqueVals, unique(as.character(matrData[,i]))) 
 #   }
@@ -553,7 +526,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #       # state in the ith row and jth column
 #       stateEnd <- as.character(matrData[i, j])
 #       
-#       # index of ending state 
+#       # index of ending state
 #       whichCols <- which(uniqueVals == stateEnd)
 #       
 #       # update the contingency matrix
@@ -647,7 +620,6 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
       
       if(validTransition)
         createSequenceMatrix(matrData, toRowProbs = FALSE, sanitize = TRUE)
-    
     })
     
     freqMatrixes <- freqMatrixes[ !sapply(freqMatrixes, is.null) ]
@@ -681,7 +653,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   }
   
   return(out)
-}  
+}
 
 #' A function to compute multinomial confidence intervals of DTMC
 #' 
@@ -693,7 +665,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' 
 #' @return Two matrices containing the confidence intervals.
 #' 
-#' @seealso \code{markovchainFit}
+#' @seealso \code{\link{markovchainFit}}
 #' 
 #' @references Constructing two-sided simultaneous confidence intervals 
 #' for multinomial proportions for small counts in a large number of cells. 

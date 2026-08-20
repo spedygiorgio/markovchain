@@ -44,7 +44,7 @@ markovchainFit(
 
 \item{nboot}{Number of bootstrap replicates in case "bootstrap" is used.}
 
-\item{laplacian}{Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
+\item{laplacian}{Laplacian smoothing parameter, default 0.01. It is only used when "laplace" method 
 is chosen.}
 
 \item{name}{Optional character for name slot.}

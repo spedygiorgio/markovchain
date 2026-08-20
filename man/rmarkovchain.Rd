@@ -17,7 +17,7 @@ rmarkovchain(
 \arguments{
 \item{n}{Sample size}
 
-\item{object}{Either a \code{markovchain} or a \code{markovchainList} object}
+\item{object}{Either a \code{markovchain} or \code{markovchainList} object}
 
 \item{what}{It specifies whether either a \code{data.frame} or a \code{matrix} 
 (each rows represent a simulation) or a \code{list} is returned.}

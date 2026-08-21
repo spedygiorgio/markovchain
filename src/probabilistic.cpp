@@ -537,7 +537,7 @@ int gcd (int a, int b) {
 }
 
 // function to get the period of a DTMC
-
+//' @name period
 //' @rdname structuralAnalysis
 //' 
 //' @export

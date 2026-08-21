@@ -304,6 +304,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_gcd`, a, b)
 }
 
+#' @name period
 #' @rdname structuralAnalysis
 #' 
 #' @export

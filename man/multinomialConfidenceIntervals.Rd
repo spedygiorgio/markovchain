@@ -35,5 +35,5 @@ for multinomial proportions for small counts in a large number of cells.
 Journal of Statistical Software 5(6) (2000)
 }
 \seealso{
-\code{markovchainFit}
+\code{\link{markovchainFit}}
 }

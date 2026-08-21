@@ -612,6 +612,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// is_lumpable_cpp
+bool is_lumpable_cpp(NumericMatrix P, List partition);
+RcppExport SEXP _markovchain_is_lumpable_cpp(SEXP PSEXP, SEXP partitionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
+    Rcpp::traits::input_parameter< List >::type partition(partitionSEXP);
+    rcpp_result_gen = Rcpp::wrap(is_lumpable_cpp(P, partition));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lump_cpp
+NumericMatrix lump_cpp(NumericMatrix P, List partition, NumericVector weights);
+RcppExport SEXP _markovchain_lump_cpp(SEXP PSEXP, SEXP partitionSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
+    Rcpp::traits::input_parameter< List >::type partition(partitionSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(lump_cpp(P, partition, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isProb
 bool isProb(double prob);
 RcppExport SEXP _markovchain_isProb(SEXP probSEXP) {
@@ -796,6 +821,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_meanRecurrenceTime", (DL_FUNC) &_markovchain_meanRecurrenceTime, 1},
     {"_markovchain_meanNumVisits", (DL_FUNC) &_markovchain_meanNumVisits, 1},
     {"_markovchain_is_stochastically_monotone_cpp", (DL_FUNC) &_markovchain_is_stochastically_monotone_cpp, 1},
+    {"_markovchain_is_lumpable_cpp", (DL_FUNC) &_markovchain_is_lumpable_cpp, 2},
+    {"_markovchain_lump_cpp", (DL_FUNC) &_markovchain_lump_cpp, 3},
     {"_markovchain_isProb", (DL_FUNC) &_markovchain_isProb, 1},
     {"_markovchain_isStochasticMatrix", (DL_FUNC) &_markovchain_isStochasticMatrix, 2},
     {"_markovchain_isProbVector", (DL_FUNC) &_markovchain_isProbVector, 1},

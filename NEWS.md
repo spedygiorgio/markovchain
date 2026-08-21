@@ -1,9 +1,17 @@
+# markovchain 0.9.0
+
+- Added lumpability
+
+
 # markovchain 0.2.0
 
 - Corrected tests
+- added autoplot
+
 
 # markovchain 0.11.1
 
+- Added exact and approximate lumpability analysis for discrete-time Markov chains, including state-space aggregation and automatic spectral clustering.
 - Added explicit structural-zero support to `assessStationarity()`.
 - Statistical inference functions now return R-standard `htest` objects and use the standard `print.htest()` output, while retaining the legacy `dof` field for compatibility.
 - Standardized `assessOrder()` on the same `htest` convention, including `parameter = c(df = ...)` and the standard test output.

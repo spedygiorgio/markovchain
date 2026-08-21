@@ -2110,6 +2110,82 @@ For an existing customer, the expected gain (loss) at the fifth year is given by
 as.numeric((c(1, 0)* mcP ^ 5) %*% (as.vector(c(c1, c2))))
 ```
 
+## Lumpability of Markov Chains
+
+In many practical applications, the state space of a Markov chain can be extremely large, making analysis difficult. *Lumpability* (or aggregability) is a property that allows partitioning the state space into mutually exclusive subsets (macro-states) such that the aggregated process remains a Markov chain. 
+
+The mathematical foundation for this was extensively formalized by Kemeny and Snell in their seminal work *Finite Markov Chains* (1960). A Markov chain is **strongly lumpable** with respect to a partition if, for any two macro-states $C_I$ and $C_J$, the probability of transitioning from a micro-state $i \in C_I$ to the macro-state $C_J$ is the same for all $i$ in $C_I$:
+
+$$
+\sum_{m \in C_J} P_{i,m} = \sum_{m \in C_J} P_{j,m} \quad \forall i, j \in C_I
+$$
+
+The `markovchain` package provides functions to verify exact lumpability (`is.lumpable`), manually aggregate the chain (`lump`), and automatically discover approximate macro-states using spectral clustering (`autoLump`).
+
+### Exact Lumpability Example: The Land of Oz
+
+A classic example of strong lumpability is the "Land of Oz" weather model (Grinstead and Snell). The states are **rainy**, **nice**, and **snowy**. The chain can be exactly lumped by grouping "rainy" and "snowy" into a single macro-state ("bad weather"), while keeping "nice" as its own class.
+
+```{r exactLumpability}
+library(markovchain)
+
+# Land of Oz transition matrix
+states_oz <- c("rainy", "nice", "snowy")
+P_oz <- matrix(c(0.5,  0.25, 0.25,
+                 0.5,  0.0,  0.5,
+                 0.25, 0.25, 0.5), 
+               byrow = TRUE, nrow = 3, dimnames = list(states_oz, states_oz))
+
+mcOz <- new("markovchain", states = states_oz, transitionMatrix = P_oz, name = "Land of Oz")
+
+# Define the exact partition
+partition_oz <- list(
+  Bad_Weather = c("rainy", "snowy"),
+  Nice_Weather = c("nice")
+)
+
+# Verify strong lumpability
+is.lumpable(mcOz, partition_oz)
+
+# Create the exactly aggregated Markov chain
+lumped_oz <- lump(mcOz, partition_oz)
+print(lumped_oz)
+```
+### Approximate Lumpability (Spectral Clustering)
+
+In real-world scenarios (e.g., credit ratings, molecular dynamics, web traffic), transition matrices are rarely perfectly lumpable due to noise in the empirical data. However, they often contain *metastable* basins—clusters of micro-states where the process tends to stay before jumping to another cluster.
+
+To handle this, we can use the `autoLump` function. It performs spectral clustering (similar to PCCA+) by extracting the right eigenvectors of the transition matrix and applying K-means to automatically discover the latent macro-states.
+
+Let's test this on the standard Standard & Poor's credit rating transition matrix included in the package, extracting $k=3$ latent macro-states:
+
+```{r approxLumpability}
+# Standard & Poor's empirical rating transition matrix
+rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
+creditMatrix <- matrix(
+  c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
+    0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
+    0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
+    0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
+    0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
+    0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
+    0.21, 0, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
+    0, 0, 0, 0, 0, 0, 0, 100
+   )/100, 8, 8, dimnames = list(rc, rc), byrow = TRUE)
+
+creditMc <- new("markovchain", states = rc, transitionMatrix = creditMatrix, name = "S&P Ratings")
+
+# Automatically discover 3 macro-states
+auto_credit <- autoLump(creditMc, k = 3)
+
+# View the discovered partition (e.g., Investment Grade, Speculative, Default)
+print(auto_credit$partition)
+
+# View the reduced 3x3 approximate Markov chain
+print(auto_credit$lumped_chain)
+```
+
+
 ## Actuarial science {#app:act}
 
 Markov chains are widely applied in the field of actuarial science. Two

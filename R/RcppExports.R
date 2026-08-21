@@ -248,6 +248,9 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, lapl
     .Call(`_markovchain_multinomCI`, transMat, seqMat, confidencelevel)
 }
 
+#' Create a lumped transition matrix
+NULL
+
 .commClassesKernelRcpp <- function(P) {
     .Call(`_markovchain_commClassesKernel`, P)
 }
@@ -445,6 +448,22 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .is_stochastically_monotone_cpp <- function(P) {
     .Call(`_markovchain_is_stochastically_monotone_cpp`, P)
+}
+
+#' Check if a transition matrix is exactly lumpable
+#' 
+#' @description This function checks the strong lumpability condition.
+#' A Markov chain is strongly lumpable with respect to a partition if, 
+#' for any two macro-states (C_i and C_j), the sum of transition probabilities 
+#' from a micro-state in C_i to all micro-states in C_j is identical 
+#' for ALL micro-states belonging to C_i.
+#' 
+.is_lumpable_cpp <- function(P, partition) {
+    .Call(`_markovchain_is_lumpable_cpp`, P, partition)
+}
+
+.lump_cpp <- function(P, partition, weights) {
+    .Call(`_markovchain_lump_cpp`, P, partition, weights)
 }
 
 .isProbability <- function(prob) {

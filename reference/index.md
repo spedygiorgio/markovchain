@@ -163,6 +163,7 @@
   Discrete Time Markov Chains
 
 - [`createSequenceMatrix()`](markovchainFit.md)
+  [`.markovchainFitRcpp()`](markovchainFit.md)
   [`markovchainFit()`](markovchainFit.md) : Function to fit a discrete
   Markov chain
 

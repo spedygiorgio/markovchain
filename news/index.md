@@ -27,6 +27,9 @@
   row-wise multinomial likelihood-ratio test. This fixes a historical
   use of column totals and changes the Kullback et al. benchmark from
   6.551795 to 6.518384, without changing its inferential conclusion.
+- Added explicit `absorbingStates` support to
+  [`markovchainFit()`](../reference/markovchainFit.md) for MLE fits of
+  sequence data with known terminal states.
 
 ## markovchain 0.11.0
 

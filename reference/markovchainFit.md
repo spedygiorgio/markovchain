@@ -14,7 +14,7 @@ createSequenceMatrix(
   possibleStates = character()
 )
 
-markovchainFit(
+.markovchainFitRcpp(
   data,
   method = "mle",
   byrow = TRUE,
@@ -28,6 +28,11 @@ markovchainFit(
   sanitize = FALSE,
   possibleStates = character()
 )
+
+markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
+  laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
+  confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
+  possibleStates = character(), absorbingStates = character())
 ```
 
 ## Arguments
@@ -96,6 +101,14 @@ markovchainFit(
   be of size \$\$k x k\$\$ where k is the number of states in the chain
   and the values should typically be non-negative integers.
 
+- absorbingStates:
+
+  Character vector of states that are known a priori to be absorbing.
+  The corresponding rows are set to the identity row after MLE fitting
+  when `byrow = TRUE`; the corresponding columns are set to the identity
+  column when `byrow = FALSE`. The argument is currently supported only
+  for `method = "mle"`.
+
 ## Value
 
 A list containing an estimate, log-likelihood, and, when "bootstrap"
@@ -110,6 +123,11 @@ respect to the posterior distribution.
 Disabling confint would lower the computation time on large datasets. If
 `data` or `stringchar` contain `NAs`, the related `NA` containing
 transitions will be ignored.
+
+When `absorbingStates` is supplied, the declared states must have no
+observed outgoing transitions. This allows terminal states in censored
+customer journeys to be represented as absorbing states without adding
+artificial observations.
 
 ## Note
 

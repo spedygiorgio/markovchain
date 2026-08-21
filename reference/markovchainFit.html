@@ -40,7 +40,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Function to fit a discrete Markov chain</h1>
-      <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R" class="external-link"><code>R/RcppExports.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spedygiorgio/markovchain/blob/master/R/RcppExports.R" class="external-link"><code>R/RcppExports.R</code></a>, <a href="https://github.com/spedygiorgio/markovchain/blob/master/R/markovchainFitAbsorbing.R" class="external-link"><code>R/markovchainFitAbsorbing.R</code></a></small>
       <div class="d-none name"><code>markovchainFit.Rd</code></div>
     </div>
 
@@ -59,7 +59,7 @@
 <span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">markovchainFit</span><span class="op">(</span></span>
+<span><span class="fu">.markovchainFitRcpp</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"mle"</span>,</span>
 <span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -72,7 +72,12 @@
 <span>  hyperparam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  sanitize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">markovchainFit</span><span class="op">(</span><span class="va">data</span>, method <span class="op">=</span> <span class="st">"mle"</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>, nboot <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  laplacian <span class="op">=</span> <span class="fl">0</span>, name <span class="op">=</span> <span class="st">""</span>, parallel <span class="op">=</span> <span class="cn">FALSE</span>, confidencelevel <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  confint <span class="op">=</span> <span class="cn">TRUE</span>, hyperparam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="op">)</span>, sanitize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>, absorbingStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -139,6 +144,14 @@ default value of 1 is assigned to each parameter. This must be of size
 $$k x k$$ where k is the number of states in the chain and the values
 should typically be non-negative integers.</p></dd>
 
+
+<dt id="arg-absorbingstates">absorbingStates<a class="anchor" aria-label="anchor" href="#arg-absorbingstates"></a></dt>
+<dd><p>Character vector of states that are known a priori to be
+absorbing. The corresponding rows are set to the identity row after MLE
+fitting when <code>byrow = TRUE</code>; the corresponding columns are set to the
+identity column when <code>byrow = FALSE</code>. The argument is currently
+supported only for <code>method = "mle"</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -152,6 +165,10 @@ should typically be non-negative integers.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Disabling confint would lower the computation time on large datasets. If <code>data</code> or <code>stringchar</code>
 contain <code>NAs</code>, the related <code>NA</code> containing transitions will be ignored.</p>
+<p>When <code>absorbingStates</code> is supplied, the declared states must have
+  no observed outgoing transitions. This allows terminal states in censored
+  customer journeys to be represented as absorbing states without adding
+  artificial observations.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>

@@ -572,7 +572,7 @@ predictHommc(ob,3)
 }
 #>      [,1] [,2] [,3]
 #> [1,] "b"  "b"  "b" 
-#> [2,] "a"  "a"  "b"
+#> [2,] "b"  "b"  "a"
 ```
 
 ## Check Time Reversibility of Continuous-time markovchains

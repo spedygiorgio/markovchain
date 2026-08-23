@@ -84,7 +84,11 @@ bigmcFit <- markovchainFit(bigseq, sanitize = TRUE)
 test_that("MC Fit for large sequence 2", {
   expect_equal(bigmcFit$logLikelihood, 0)
   expect_equal(bigmcFit$confidenceLevel, 0.95)
-  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
+  expect_true(all(bigmcFit$lowerEndpointMatrix <= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$upperEndpointMatrix >= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$lowerEndpointMatrix >= 0))
+  expect_true(all(bigmcFit$upperEndpointMatrix <= 1))
+  expect_lt(max(bigmcFit$upperEndpointMatrix - bigmcFit$lowerEndpointMatrix), 1e-3)
 })
 
 

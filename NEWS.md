@@ -1,13 +1,13 @@
-# markovchain 0.2.0
+# markovchain 0.9.0
 
-- Corrected tests
+- Fixed CI calculations
 
 # markovchain 0.11.1
 
 - Added explicit structural-zero support to `assessStationarity()`.
 - Statistical inference functions now return R-standard `htest` objects and use the standard `print.htest()` output, while retaining the legacy `dof` field for compatibility.
 - Standardized `assessOrder()` on the same `htest` convention, including `parameter = c(df = ...)` and the standard test output.
-- Expanded the `statistical_analysis` vignette with numerical test results and time-homogeneity examples.
+- Expanded the `statistical_analysis` section with numerical test results and time-homogeneity examples.
 - Added published literature examples for non-rejection of the Markov property and for empirical-versus-theoretical transition matrices.
 - Corrected structural-zero regression tests and the `assessStationarity()` documentation example used by package checks.
 - Corrected `verifyEmpiricalToTheoretical()` to use row totals when constructing expected transition counts for its row-wise multinomial likelihood-ratio test. This fixes a historical use of column totals and changes the Kullback et al. benchmark from 6.551795 to 6.518384, without changing its inferential conclusion.

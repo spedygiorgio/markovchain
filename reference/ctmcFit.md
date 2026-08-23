@@ -83,16 +83,16 @@ ctmcFit(data)
 #> [1] 0.95
 #> 
 #> $errors$dtmcConfidenceInterval$lowerEndpointMatrix
-#>   a b c
-#> a 0 0 0
-#> b 0 0 0
-#> c 0 0 0
+#>            a          b          c
+#> a 0.00000000 0.20765960 0.06149194
+#> b 0.06149194 0.00000000 0.20765960
+#> c 0.09453121 0.09453121 0.00000000
 #> 
 #> $errors$dtmcConfidenceInterval$upperEndpointMatrix
-#>           a b         c
-#> a 0.0000000 1 0.9866548
-#> b 0.9866548 0 1.0000000
-#> c 1.0000000 1 0.0000000
+#>           a         b         c
+#> a 0.5614970 0.9385081 0.7923404
+#> b 0.7923404 0.5614970 0.9385081
+#> c 0.9054688 0.9054688 0.6576198
 #> 
 #> 
 #> $errors$lambdaConfidenceInterval

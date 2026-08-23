@@ -1,8 +1,10 @@
 # Changelog
 
-## markovchain 0.2.0
+## markovchain 0.9.0
 
-- Corrected tests
+CRAN release: 2022-07-01
+
+- Fixed CI calculations
 
 ## markovchain 0.11.1
 
@@ -14,7 +16,7 @@
 - Standardized [`assessOrder()`](../reference/statisticalTests.md) on
   the same `htest` convention, including `parameter = c(df = ...)` and
   the standard test output.
-- Expanded the `statistical_analysis` vignette with numerical test
+- Expanded the `statistical_analysis` section with numerical test
   results and time-homogeneity examples.
 - Added published literature examples for non-rejection of the Markov
   property and for empirical-versus-theoretical transition matrices.

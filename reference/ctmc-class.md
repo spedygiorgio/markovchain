@@ -3,23 +3,23 @@
 The S4 class that describes `ctmc` (continuous time Markov chain)
 objects.
 
-## Arguments
+## Slots
 
-- states:
+- `states`:
 
   Name of the states. Must be the same of `colnames` and `rownames` of
   the generator matrix
 
-- byrow:
+- `byrow`:
 
   TRUE or FALSE. Indicates whether the given matrix is stochastic by
   rows or by columns
 
-- generator:
+- `generator`:
 
   Square generator matrix
 
-- name:
+- `name`:
 
   Optional character name of the Markov chain
 

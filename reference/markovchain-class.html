@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">markovchain</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,7 +21,6 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/an_introduction_to_markovchain_package.pdf">The markovchain Package: A Package for Easily Handling Discrete Markov Chains in R (PDF)</a></li>
     <li><a class="dropdown-item" href="../articles/gsoc_2017_additions.html">Google Summer of Code 2017 Additions</a></li>
     <li><a class="dropdown-item" href="../articles/higher_order_markov_chains.html">Higher order Markov chains</a></li>
-    <li><a class="dropdown-item" href="../articles/statistical_analysis.html">Statistical analysis of Markov chain sequences</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -46,24 +45,25 @@
 
 
     <div class="section level2">
-    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <h2 id="slots">Slots<a class="anchor" aria-label="anchor" href="#slots"></a></h2>
 
 
-<dl><dt id="arg-states">states<a class="anchor" aria-label="anchor" href="#arg-states"></a></dt>
+<dl><dt><code>states</code></dt>
 <dd><p>Name of the states. Must be the same of <code>colnames</code> and <code>rownames</code> of the transition matrix</p></dd>
 
 
-<dt id="arg-byrow">byrow<a class="anchor" aria-label="anchor" href="#arg-byrow"></a></dt>
+<dt><code>byrow</code></dt>
 <dd><p>TRUE or FALSE indicating whether the supplied matrix
 is either stochastic by rows or by columns</p></dd>
 
 
-<dt id="arg-transitionmatrix">transitionMatrix<a class="anchor" aria-label="anchor" href="#arg-transitionmatrix"></a></dt>
+<dt><code>transitionMatrix</code></dt>
 <dd><p>Square transition matrix</p></dd>
 
 
-<dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
+<dt><code>name</code></dt>
 <dd><p>Optional character name of the Markov chain</p></dd>
+
 
 </dl></div>
     <div class="section level2">

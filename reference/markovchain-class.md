@@ -2,23 +2,23 @@
 
 The S4 class that describes `markovchain` objects.
 
-## Arguments
+## Slots
 
-- states:
+- `states`:
 
   Name of the states. Must be the same of `colnames` and `rownames` of
   the transition matrix
 
-- byrow:
+- `byrow`:
 
   TRUE or FALSE indicating whether the supplied matrix is either
   stochastic by rows or by columns
 
-- transitionMatrix:
+- `transitionMatrix`:
 
   Square transition matrix
 
-- name:
+- `name`:
 
   Optional character name of the Markov chain
 

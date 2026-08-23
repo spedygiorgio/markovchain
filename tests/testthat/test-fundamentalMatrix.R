@@ -10,10 +10,36 @@ test_that("fundamentalMatrix returns the inverse complement of Q", {
 
   q <- matrix(c(0.5, 0.4, 0.2, 0.6), nrow = 2, byrow = TRUE)
   expected <- solve(diag(2) - q)
+  n <- fundamentalMatrix(mc)
 
-  expect_equal(fundamentalMatrix(mc), expected)
-  expect_identical(rownames(fundamentalMatrix(mc)), c("a", "b"))
-  expect_identical(colnames(fundamentalMatrix(mc)), c("a", "b"))
+  expect_equal(n, expected)
+  expect_equal((diag(2) - q) %*% n, diag(2))
+  expect_equal(n %*% (diag(2) - q), diag(2))
+  expect_identical(rownames(n), c("a", "b"))
+  expect_identical(colnames(n), c("a", "b"))
+})
+
+test_that("fundamentalMatrix agrees with the Neumann series", {
+  states <- c("a", "absorbed")
+  mc <- new("markovchain", states = states,
+    transitionMatrix = matrix(c(0.25, 0.75, 0, 1), nrow = 2, byrow = TRUE,
+      dimnames = list(states, states)))
+
+  n <- fundamentalMatrix(mc)
+  expected <- 1 / (1 - 0.25)
+
+  expect_equal(as.numeric(n), expected)
+  expect_equal(as.numeric(sum(0.25^(0:100))), as.numeric(n), tolerance = 1e-12)
+})
+
+test_that("fundamentalMatrix handles the one transient-state case", {
+  states <- c("transient", "absorbed")
+  mc <- new("markovchain", states = states,
+    transitionMatrix = matrix(c(0.5, 0.5, 0, 1), nrow = 2, byrow = TRUE,
+      dimnames = list(states, states)))
+
+  expect_equal(fundamentalMatrix(mc), matrix(2, nrow = 1,
+    dimnames = list("transient", "transient")))
 })
 
 test_that("fundamentalMatrix rejects non-absorbing chains", {

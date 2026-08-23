@@ -230,6 +230,7 @@ setMethod("show", "hommc",
 #' 
 #' @references W.-K. Ching et al. / Linear Algebra and its Applications
 #' 
+#' @usage fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
 #' @export

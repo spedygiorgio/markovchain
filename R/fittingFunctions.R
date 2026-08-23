@@ -483,39 +483,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 
 ######################################################################
 
-# function to fit a DTMC with Laplacian Smoother
-.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01) {
-  
-  # every element of the matrix store the number of times jth state appears just
-  # after the ith state
-  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
-  
-  # add laplacian  to the sequence matrix
-  # why? to avoid the cases where sum of row is zero
-  newNum <- origNum + laplacian
-  
-  # store sum of each row  in the vector
-  newSumOfRow <- rowSums(newNum)
-  
-  # helper matrix to convert frequency matrix to transition matrix
-  newDen <- matrix(rep(newSumOfRow, length(newSumOfRow)), byrow = FALSE, ncol = length(newSumOfRow))
-  
-  # transition matrix
-  transMatr <- newNum / newDen
-  
-  # create a markovchain object
-  outMc <- new("markovchain", transitionMatrix = transMatr, name = "Laplacian Smooth Fit")
-
-  # transpose the transition matrix
-  if (!byrow) {
-    outMc@transitionMatrix <- t(outMc@transitionMatrix)
-    outMc@byrow <- FALSE
-  }
-  
-  # wrap markovchain object in a list
-  out <- list(estimate = outMc)
-  return(out)
-}
+# NOTE: the R implementation of Laplacian-smoothed fitting that used to
+# live here (.mcFitLaplacianSmooth) was dead code -- markovchainFit()
+# dispatches method = "laplace" to the C++ _mcFitLaplacianSmooth
+# (src/fittingFunctions.cpp) instead, which implements the same formula
+# and is the one actually used. Removed to avoid the two copies silently
+# drifting apart.
 
 # function that return a Markov Chain from a given matrix of observations
 # .matr2Mc <- function(matrData, laplacian = 0) {

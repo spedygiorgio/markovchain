@@ -53,12 +53,18 @@ mcFit2 <- markovchainFit(c("a","b","a","b"), sanitize = TRUE)
 
 test_that("Fit should satisfy", {
   expect_equal((mcFit["logLikelihood"])[[1]], log(1/3) + 2*log(2/3))
-  expect_equal(markovchainFit(data = sequence2, method = "bootstrap")["confidenceInterval"]
-               [[1]]["confidenceLevel"][[1]], 0.95)
-  expect_equal(mcFit2$upperEndpointMatrix, matrix(c(0,1,1,0), nrow = 2, byrow = TRUE,
-                                                  dimnames = list(c("a", "b"), c("a", "b"))))
+  expect_equal(markovchainFit(data = sequence2, method = "bootstrap")[["confidenceInterval"]][["confidenceLevel"]], 0.95)
+  
+  expected_tm <- matrix(c(0, 1, 1, 0), nrow = 2, byrow = TRUE,
+                        dimnames = list(c("a", "b"), c("a", "b")))
+  
+  expect_equal(mcFit2$estimate@transitionMatrix, expected_tm)
+  
+  expect_true(all(mcFit2$lowerEndpointMatrix >= 0))
+  expect_true(all(mcFit2$upperEndpointMatrix <= 1))
+  expect_true(all(mcFit2$lowerEndpointMatrix <= mcFit2$estimate@transitionMatrix))
+  expect_true(all(mcFit2$upperEndpointMatrix >= mcFit2$estimate@transitionMatrix))
 })
-
 
 ### Markovchain Fitting for bigger markov chain
 bigseq <- rep(c("a", "b", "c"), 500000)
@@ -67,15 +73,22 @@ bigmcFit <- markovchainFit(bigseq)
 test_that("MC Fit for large sequence 1", {
   expect_equal(bigmcFit$logLikelihood, 0)
   expect_equal(bigmcFit$confidenceLevel, 0.95)
-  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
+  expect_true(all(bigmcFit$lowerEndpointMatrix <= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$upperEndpointMatrix >= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$lowerEndpointMatrix >= 0))
+  expect_true(all(bigmcFit$upperEndpointMatrix <= 1))
+  expect_lt(max(bigmcFit$upperEndpointMatrix - bigmcFit$lowerEndpointMatrix), 1e-3)
 })
-
 bigmcFit <- markovchainFit(bigseq, sanitize = TRUE)
 
 test_that("MC Fit for large sequence 2", {
   expect_equal(bigmcFit$logLikelihood, 0)
   expect_equal(bigmcFit$confidenceLevel, 0.95)
-  expect_equal(bigmcFit$estimate@transitionMatrix, bigmcFit$upperEndpointMatrix)
+  expect_true(all(bigmcFit$lowerEndpointMatrix <= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$upperEndpointMatrix >= bigmcFit$estimate@transitionMatrix))
+  expect_true(all(bigmcFit$lowerEndpointMatrix >= 0))
+  expect_true(all(bigmcFit$upperEndpointMatrix <= 1))
+  expect_lt(max(bigmcFit$upperEndpointMatrix - bigmcFit$lowerEndpointMatrix), 1e-3)
 })
 
 

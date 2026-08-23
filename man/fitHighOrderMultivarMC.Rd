@@ -4,7 +4,7 @@
 \alias{fitHighOrderMultivarMC}
 \title{Function to fit Higher Order Multivariate Markov chain}
 \usage{
-fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
+hommc
 }
 \arguments{
 \item{seqMat}{a matrix or a data frame where each column 

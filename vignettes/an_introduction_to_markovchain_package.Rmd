@@ -1143,19 +1143,19 @@ Two advance parameters are available to the `rmarkovchain` method which helps yo
 
 ## Estimation
 
-A time homogeneous Markov chain can be fit from given data. Four methods have been implemented within current version of \pkg{markovchain} package: maximum likelihood, maximum likelihood with Laplace smoothing, Bootstrap approach, maximum a posteriori. 
+A time-homogeneous Markov chain can be fitted from observed state sequences. The current version of \pkg{markovchain} implements four fitting methods: maximum likelihood (MLE), MLE with Laplace smoothing, bootstrap estimation and maximum a posteriori (MAP) estimation.
 
-Equation \ref{eq:MLE} shows the maximum likelihood estimator (MLE) of the $p_{ij}$ entry, where the $n_{ij}$ element consists in the number sequences $\left( X_{t}=s_{i}, X_{t+1}=s_{j}\right)$ found in the sample, that is
+Equation \ref{eq:MLE} shows the maximum likelihood estimator of the transition probability $p_{ij}$. Here $n_{ij}$ is the number of observed transitions $X_t=s_i, X_{t+1}=s_j$ and $n_i = \sum_{u=1}^k n_{iu}$ is the number of observed outgoing transitions from state $s_i$:
 
 \begin{equation}
-{\hat p^{MLE}}_{ij} = \frac{n_{ij}}{\sum\limits_{u = 1}^k {n_{iu}}}.
+{\hat p^{MLE}}_{ij} = \frac{n_{ij}}{n_i}.
 \label{eq:MLE}
 \end{equation}
 
-Equation \@ref(eq:SE) shows the `standardError` of the MLE \citep{MSkuriat}.
+For a fixed origin state $s_i$, the counts $(n_{i1}, \ldots, n_{ik})$ are treated as a multinomial sample with row total $n_i = \sum_{u=1}^k n_{iu}$. The `standardError` returned for each marginal transition probability is therefore the usual binomial standard error in Equation \@ref(eq:SE).
 
 \begin{equation}
-SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
+SE_{ij} = \sqrt{\frac{{\hat p^{MLE}}_{ij}(1-{\hat p^{MLE}}_{ij})}{n_i}}
 \label{eq:SE}
 \end{equation}
 
@@ -1165,9 +1165,7 @@ weatherFittedMLE$estimate
 weatherFittedMLE$standardError
 ```
 
-The Laplace smoothing approach is a variation of the MLE, where the $n_{ij}$
-is substituted by $n_{ij}+\alpha$ (see Equation \ref{eq:LAPLACE}), being
-$\alpha$ an arbitrary positive stabilizing parameter.
+The Laplace smoothing approach is a smoothed version of the MLE in which each count $n_{ij}$ is replaced by $n_{ij}+\alpha$ (Equation \ref{eq:LAPLACE}). The smoothing parameter $\alpha$ must be non-negative; $\alpha=0$ gives the unsmoothed MLE.
 
 \begin{equation}
 {\hat p^{LS}}_{ij} = \frac{{{n_{ij}} + \alpha }}{{\sum\limits_{u = 1}^k {\left( {{n_{iu}} + \alpha } \right)} }}
@@ -1182,7 +1180,7 @@ weatherFittedLAPLACE <- markovchainFit(data = weathersOfDays,
 weatherFittedLAPLACE$estimate
 ```
 
-(NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.) Both MLE and Laplace approach are based on the `createSequenceMatrix` functions that returns the raw counts transition matrix.
+The confidence interval option is enabled by default; set `confint = FALSE` to reduce computation time when intervals are not needed. Both MLE and Laplace fitting are based on `createSequenceMatrix`, which returns the raw transition-count matrix.
 
 ```{r fitSequenceMatrix}
 createSequenceMatrix(stringchar = weathersOfDays)
@@ -1190,7 +1188,7 @@ createSequenceMatrix(stringchar = weathersOfDays)
 
 `stringchar` could contain `NA` values, and the transitions containing `NA` would be ignored.
 
-An issue occurs when the sample contains only one realization of a state (say $X_{\beta}$) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional distribution of the transition). In this case the estimated transition matrix is corrected assuming $p_{\beta,j}=1/k$, being $k$ the possible states.
+If a state is observed only as the last element of a sequence, or is supplied through `possibleStates` but has no observed outgoing transition, its row has zero total count. In this case the point estimate follows the package convention of assigning a uniform row, $p_{\beta j}=1/k$. For MLE confidence intervals, such a row carries no empirical information, so the corresponding cell-wise intervals are uninformative.
 
 Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
 
@@ -1199,14 +1197,11 @@ myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2
 createSequenceMatrix(stringchar = myMatr,toRowProbs = TRUE)
 ```
 
-A bootstrap estimation approach has been developed within the package in order
-to provide an indication of the variability of ${\hat p}_{ij}$ estimates. The
-bootstrap approach implemented within the \pkg{markovchain} package follows
-these steps:
+A bootstrap estimation approach is also available to assess the variability of $\hat p_{ij}$. The implementation in \pkg{markovchain} proceeds as follows:
 
-  1. bootstrap the data sequences following the conditional distributions of states estimated from the original one. The default bootstrap samples is 10, as specified in `nboot` parameter of `markovchainFit` function.
-  2. apply MLE estimation on bootstrapped data sequences that are saved in `bootStrapSamples` slot of the returned list.
-  3. the ${p^{BOOTSTRAP}}_{ij}$ is the average of all ${p^{MLE}}_{ij}$ across the `bootStrapSamples` list, normalized by row. A `standardError` of $\hat{{p^{MLE}}_{ij}}$ estimate is provided as well.
+  1. generate bootstrap state sequences using the transition probabilities estimated from the original data. The number of bootstrap samples is controlled by the `nboot` argument of `markovchainFit`;
+  2. apply MLE estimation to each bootstrap sequence; the bootstrap estimates are saved in the `bootStrapSamples` component of the returned list;
+  3. compute the bootstrap transition estimate as the row-normalized average of the bootstrap MLE estimates. The reported `standardError` is the empirical standard deviation of the bootstrap estimates for each transition probability.
 
 ```{r fitMcbyBootStrap1}
 weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
@@ -1249,14 +1244,17 @@ weatherFittedMLE$logLikelihood
 weatherFittedBOOT$logLikelihood
 ```
 
-Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The `confidenceInterval` is provided with the two matrices: `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level (CL) is 0.95 by default and can be given as an argument of the function `markovchainFit`. This is used to obtain the standard score (z-score). From classical inference theory, if $ci$ is the level of confidence required assuming normal distribution the $zscore(ci)$ solves $\Phi \left ( 1-\left(\frac{1-ci}{2}\right) \right )$
-Equations \ref{eq:CIL} and \ref{eq:CIU} \citep{MSkuriat} show the `confidenceInterval` of a fitting. Note that each entry of the matrices is bounded between 0 and 1.
+Confidence matrices of estimated parameters are available as well. The `confidenceInterval` component contains two matrices, `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level is 0.95 by default and can be changed through the `confidencelevel` argument of `markovchainFit`.
+
+For MLE fits, \pkg{markovchain} reports cell-wise Wilson score intervals for the marginal transition probabilities \citep{brown2001interval}. Compared with the simple Wald interval $\hat p_{ij} \pm z SE_{ij}$, Wilson intervals have better small-sample behaviour and do not collapse to a zero-width interval when a transition is never observed or always observed. With $z = \Phi^{-1}(1 - \alpha/2)$, $n_i = \sum_u n_{iu}$, $\hat p_{ij}=n_{ij}/n_i$, and confidence level $1-\alpha$, the interval is
 
 \begin{align}
-LowerEndpoint_{ij} = p_{ij} - zscore (CL) * SE_{ij} \label{eq:CIL} \\
-UpperEndpoint_{ij} = p_{ij} + zscore (CL) * SE_{ij}
+LowerEndpoint_{ij} &= \frac{\hat p_{ij} + z^2/(2n_i) - z\sqrt{\hat p_{ij}(1-\hat p_{ij})/n_i + z^2/(4n_i^2)}}{1+z^2/n_i}, \label{eq:CIL} \\
+UpperEndpoint_{ij} &= \frac{\hat p_{ij} + z^2/(2n_i) + z\sqrt{\hat p_{ij}(1-\hat p_{ij})/n_i + z^2/(4n_i^2)}}{1+z^2/n_i}.
 \label{eq:CIU}
 \end{align}
+
+If no outgoing transition is available for a state, the point estimate follows the package convention of a uniform row, while the interval is left maximally uninformative. These intervals are cell-wise marginal intervals, not simultaneous multinomial confidence regions for a full row or matrix. For simultaneous multinomial intervals, use `multinomialConfidenceIntervals`. For bootstrap fits, intervals use the empirical standard deviation of the bootstrap transition-probability estimates and the two-sided normal quantile corresponding to `confidencelevel`. For MAP fits, credible intervals are equal-tailed beta posterior intervals, obtained from the inverse beta distribution \citep{strelioff2007inferring}.
 
 ```{r confint}
 weatherFittedMLE$confidenceInterval
@@ -1804,7 +1802,7 @@ Conjugate priors are used to model the prior $P(\theta)$. The reasons are two fo
 
 The hyper-parameters determine the form of the prior distribution, which is a product of Dirichlet distributions
 
-\[P(\theta) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{\alpha(u, s)) - 1} \Big\}\]
+\[P(\theta) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{\alpha(u, s) - 1} \Big\}\]
 
 where $\Gamma(.)$ is the Gamma function. The hyper-parameters are specified using the `hyperparam` argument in the `markovchainFit` function. If this argument is not specified, then a default value of 1 is assigned to each hyper-parameter resulting in the prior distribution of each chain parameter to be uniform over $[0,1]$.
 
@@ -1820,7 +1818,7 @@ P(D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \m
 
 Using Bayes' theorem, the posterior now becomes (thanks to the choice of conjugate priors)
 \[
-P(\theta | D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(n(u) + \alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + \alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{n(u, s) + \alpha(u, s)) - 1} \Big\}
+P(\theta | D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(n(u) + \alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + \alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{n(u, s) + \alpha(u, s) - 1} \Big\}
 \]
 
 Since this is again a product of Dirichlet distributions, the marginal distribution of a particular parameter $P(s|u)$ of our chain is given by 
@@ -1845,7 +1843,7 @@ The variance is given by
 
 The square root of this quantity is the standard error, which is returned by the function.
 
-The confidence intervals are constructed by computing the inverse of the beta integral. 
+The credible intervals are constructed as equal-tailed intervals by computing the inverse of the beta integral. 
 
 ### Predictive distribution
 Given the old data set, the probability of observing new data is $P(D'|D)$ where $D'$ is the new data set. Let $m(u, s), m(u)$ denote the corresponding counts for the new data. Then, 

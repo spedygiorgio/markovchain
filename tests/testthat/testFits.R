@@ -15,10 +15,21 @@ test_that("Check createSequenceMatrix", {
 ciao<-c("a","a","b","b","a",NA,"b","a","b","a","a")
 
 test_that("Check markovchainFit & listFit", {
-  expect_equal(markovchainFit(ciao), simpleMcCiaoFit)
-  expect_equal(markovchainListFit(data=myHolson), checkmarkovchainFitList)
+  ciaoFit <- markovchainFit(ciao)
+  
+  expect_equal(ciaoFit$estimate@transitionMatrix,
+               simpleMcCiaoFit$estimate@transitionMatrix)
+  
+  expect_equal(ciaoFit$logLikelihood,
+               simpleMcCiaoFit$logLikelihood)
+  
+  expect_true(all(ciaoFit$lowerEndpointMatrix >= 0))
+  expect_true(all(ciaoFit$upperEndpointMatrix <= 1))
+  expect_true(all(ciaoFit$lowerEndpointMatrix <= ciaoFit$estimate@transitionMatrix))
+  expect_true(all(ciaoFit$upperEndpointMatrix >= ciaoFit$estimate@transitionMatrix))
+  
+  expect_equal(markovchainListFit(data = myHolson), checkmarkovchainFitList)
 })
-
 
 #### tests for noofVisitsDist function
 

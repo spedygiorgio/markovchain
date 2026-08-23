@@ -7,6 +7,7 @@
 #' @slot byrow if FALSE each column sum of transition matrix is 1 else row sum = 1
 #' @slot name a name given to hommc
 #' 
+#' @usage hommc
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
 #' @examples 
@@ -230,6 +231,7 @@ setMethod("show", "hommc",
 #' 
 #' @references W.-K. Ching et al. / Linear Algebra and its Applications
 #' 
+#' @usage hommc
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
 #' @export

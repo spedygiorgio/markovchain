@@ -172,7 +172,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
 #' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
 #' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
-#' @param laplacian Laplacian smoothing parameter, default 0.01. It is only used when "laplace" method 
+#' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
 #'                  is chosen.  
 #' @param name Optional character for name slot. 
 #' @param parallel Use parallel processing when performing Boostrap estimates.
@@ -232,7 +232,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' 
 #' @export
 #' 
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
+.markovchainFitRcpp <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
     .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 

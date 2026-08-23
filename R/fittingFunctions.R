@@ -101,7 +101,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 # check the validity of non homogeneous markovchain list
 # object is a list of markovchain object
 .checkSequence <- function(object) {
-  # assume non homogeneous markov chain list is valid
+  # assume non homogeneous markovchain list is valid
   out <- TRUE
   
   # list of one transition matrix implies valid
@@ -145,7 +145,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' states coming from the underlying stationary distribution. 
 #' 
 #' @param n Sample size
-#' @param object Either a \code{markovchain} or \code{markovchainList} object
+#' @param object Either a \code{markovchain} or a \code{markovchainList} object
 #' @param what It specifies whether either a \code{data.frame} or a \code{matrix} 
 #'        (each rows represent a simulation) or a \code{list} is returned.
 #' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
@@ -332,7 +332,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     # store list of markovchain object in object
     object <- object@markovchains
     
-    # check the validity of markovchain list object
+    # check the validity of markovchainList object
     verify <- .checkSequence(object = object)
     
     # show warning if sequence is invalid
@@ -499,7 +499,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #   # an empty character vector to store names of possible states
 #   uniqueVals <- character()
 #   
-#   # populate uniqueVals with names of possible states
+#   # populate uniqueVals with names of states 
 #   for(i in 1:nCols) {
 #     uniqueVals <- union(uniqueVals, unique(as.character(matrData[,i]))) 
 #   }
@@ -526,7 +526,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #       # state in the ith row and jth column
 #       stateEnd <- as.character(matrData[i, j])
 #       
-#       # index of ending state
+#       # index of ending state 
 #       whichCols <- which(uniqueVals == stateEnd)
 #       
 #       # update the contingency matrix
@@ -620,6 +620,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
       
       if(validTransition)
         createSequenceMatrix(matrData, toRowProbs = FALSE, sanitize = TRUE)
+    
     })
     
     freqMatrixes <- freqMatrixes[ !sapply(freqMatrixes, is.null) ]
@@ -653,7 +654,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   }
   
   return(out)
-}
+}  
 
 #' A function to compute multinomial confidence intervals of DTMC
 #' 
@@ -665,7 +666,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' 
 #' @return Two matrices containing the confidence intervals.
 #' 
-#' @seealso \code{\link{markovchainFit}}
+#' @seealso \code{markovchainFit}
 #' 
 #' @references Constructing two-sided simultaneous confidence intervals 
 #' for multinomial proportions for small counts in a large number of cells. 

@@ -405,7 +405,7 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     
     // populate 3-D matrix
     for (int j = 0;j < tmat.nrow();j++) {
-      for (int k = 0;k < tmat.ncol();k++) {
+      for (int k = 0; k < tmat.ncol();k++) {
         
         mat(j, k, i) = tmat(j, k);
         
@@ -826,14 +826,14 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   // convert frequency matrix to transition matrix
   for (int i = 0; i < nRows; i ++) {
     double rowSum = 0;
-  	
+	  
     // add laplacian correction to each entry
     // also calculate row's sum
     for (int j = 0; j < nCols; j ++) {
       origNum(i,j) += laplacian;
       rowSum += origNum(i,j);
     }
-  	
+	  
     // get a transition matrix and a DTMC
     for (int j = 0; j < nCols; j ++) { 
       if (rowSum == 0)
@@ -1108,7 +1108,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   estimate.slot("name") = "BootStrap Estimate";  
 
   // z score for given confidence interval
-  double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
+  double alpha = 1.0 - confidencelevel;
+  double zscore = stats::qnorm_0(1.0 - alpha / 2.0, 1.0, 0.0);
   
   // store dimension of matrix
   int nrows = transMatr.nrow();
@@ -1132,7 +1133,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
       // the reported interval to shrink toward a single point as nboot
       // grows, even though the true sampling uncertainty of p_hat -- which
       // depends on the original data, not on how many bootstrap replicates
-      // were drawn at all with nboot. Verified by simulation: on fixed data, interval width dropped by >20x when
+      // were drawn -- does not change at all with nboot. Verified by
+      // simulation: on fixed data, interval width dropped by >20x when
       // increasing nboot from 10 to 5000, purely as an artifact of this
       // extra division.
       standardError(i, j) = sigma(i, j);
@@ -1526,7 +1528,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
 //' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
 //' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
-//' @param laplacian Laplacian smoothing parameter, default 0.01. It is only used when "laplace" method 
+//' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
 //'                  is chosen.  
 //' @param name Optional character for name slot. 
 //' @param parallel Use parallel processing when performing Boostrap estimates.
@@ -1586,7 +1588,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' 
 //' @export
 //' 
-// [[Rcpp::export]]
+// [[Rcpp::export(.markovchainFitRcpp)]]
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nboot = 10,
                     double laplacian = 0, String name = "", bool parallel = false,
                     double confidencelevel = 0.95, bool confint = true, 
@@ -1594,7 +1596,19 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
                     CharacterVector possibleStates = CharacterVector()) {
 
   if (method != "mle" && method != "bootstrap" && method != "map" && method != "laplace") {
-     stop ("method should be one of \"mle\", \"bootsrap\", \"map\" or \"laplace\"");
+     stop ("method should be one of \"mle\", \"bootstrap\", \"map\" or \"laplace\"");
+  }
+
+  if (confidencelevel <= 0.0 || confidencelevel >= 1.0) {
+    stop("confidencelevel must be strictly between 0 and 1.");
+  }
+
+  if (method == "bootstrap" && nboot <= 1) {
+    stop("nboot must be greater than 1.");
+  }
+
+  if (laplacian < 0.0) {
+    stop("laplacian must be non-negative.");
   }
   
   // list to store the output

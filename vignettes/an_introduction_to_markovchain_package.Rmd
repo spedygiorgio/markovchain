@@ -1526,7 +1526,7 @@ x2 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
 verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
-For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option, illustrated in the package's `statistical_analysis` vignette, provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
+For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
 ## Continuous Times Markov Chains
 
 ### Intro

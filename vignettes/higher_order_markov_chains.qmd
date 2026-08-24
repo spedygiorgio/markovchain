@@ -250,6 +250,8 @@ According to the constructed 8th order multivariate Markov model, Products A and
 #| warning: false
 #| message: false
 #| eval: false
+
+
 # fit 8th order multivariate markov chain
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
 object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
@@ -261,6 +263,9 @@ We choose to show only results shown in the paper. We see that $\lambda$ values 
 ```{r}
 #| label: result
 #| echo: false
+#| eval: false
+
+
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
 i <- c(1, 2, 2, 3, 4, 4, 4, 5, 5, 5)
 j <- c(2, 2, 2, 5, 2, 5, 5, 2, 4, 5)

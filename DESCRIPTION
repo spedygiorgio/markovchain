@@ -39,7 +39,6 @@ ByteCompile: yes
 Encoding: UTF-8
 BugReports: https://github.com/spedygiorgio/markovchain/issues
 URL: https://github.com/spedygiorgio/markovchain/
-RoxygenNote: 8.0.0
 NeedsCompilation: yes
 Packaged: 2026-08-21 21:37:50 UTC; LEI00010
 Author: Giorgio Alfredo Spedicato [aut, cre] (ORCID:
@@ -57,3 +56,4 @@ Author: Giorgio Alfredo Spedicato [aut, cre] (ORCID:
   Daniel Ebbert [ctb] (ORCID: <https://orcid.org/0000-0003-3666-7205>),
   Shreyash Maheshwari [ctb],
   Reinhold Koch [ctb]
+Config/roxygen2/version: 8.1.0

@@ -86,17 +86,23 @@ import(methods)
 import(parallel)
 importFrom(Rcpp,evalCpp)
 importFrom(RcppParallel,RcppParallelLibs)
-importFrom(expm,"%^%")
-importFrom(expm,logm)
+importFrom(expm,
+  "%^%",
+  logm
+)
 importFrom(grDevices,colors)
-importFrom(stats,aggregate)
-importFrom(stats,chisq.test)
-importFrom(stats,pchisq)
-importFrom(stats,predict)
-importFrom(stats,rexp)
-importFrom(stats,rmultinom)
-importFrom(stats,sd)
-importFrom(stats4,plot)
-importFrom(stats4,summary)
+importFrom(stats,
+  aggregate,
+  chisq.test,
+  pchisq,
+  predict,
+  rexp,
+  rmultinom,
+  sd
+)
+importFrom(stats4,
+  plot,
+  summary
+)
 importFrom(utils,packageDescription)
 useDynLib(markovchain, .registration = TRUE)

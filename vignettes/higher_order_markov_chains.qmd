@@ -57,11 +57,12 @@ require(markovchain)
 
 ```{r}
 #| label: higherOrder
+#| message: false
+#| warning: false
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
-library(Rsolnp)
-data(rain)
-fitHigherOrder(rain$rain, 2)
-fitHigherOrder(rain$rain, 3)
+  data(rain)
+  rain_small <- rain$rain[1:150]
+  fitHigherOrder(rain_small, 2)
 }
 ```
 
@@ -248,6 +249,7 @@ According to the constructed 8th order multivariate Markov model, Products A and
 #| label: hommcFit
 #| warning: false
 #| message: false
+#| eval: false
 # fit 8th order multivariate markov chain
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
 object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)

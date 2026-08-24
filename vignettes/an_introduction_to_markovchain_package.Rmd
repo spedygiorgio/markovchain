@@ -1126,7 +1126,7 @@ Table \@ref(tab:funs4Stats) lists the functions and methods implemented within t
 Simulating a random sequence from an underlying DTMC is quite easy thanks to the function `rmarkovchain`. The following code generates a year of weather states according to `mcWeather` underlying stochastic process.
 
 ```{r simulatingAMarkovChain}
-weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
+weathersOfDays <- rmarkovchain(n = 220, object = mcWeather, t0 = "sunny")
 weathersOfDays[1:30]
 ```
 
@@ -1205,7 +1205,7 @@ A bootstrap estimation approach is also available to assess the variability of $
 
 ```{r fitMcbyBootStrap1}
 weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
-                                    method = "bootstrap", nboot = 20)
+                                    method = "bootstrap", nboot = 10)
 weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 ```
@@ -1752,14 +1752,14 @@ pseudoBayesEstimator(
   apriori = aprioriMc@transitionMatrix
 ) - trueMc@transitionMatrix
 
-biggerSample<-rmarkovchain(n=100,object = trueMc)
+biggerSample<-rmarkovchain(n=60,object = trueMc)
 biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample)
 pseudoBayesEstimator(
   raw = biggerSampleRawTransitions,
   apriori = aprioriMc@transitionMatrix
 ) - trueMc@transitionMatrix
 
-bigSample<-rmarkovchain(n=1000,object = trueMc)
+bigSample<-rmarkovchain(n=100,object = trueMc)
 bigSampleRawTransitions<-createSequenceMatrix(stringchar = bigSample)
 pseudoBayesEstimator(
   raw = bigSampleRawTransitions,
@@ -1940,7 +1940,7 @@ Now we can safely use `hyperMatrix3` and `hyperMatrix4` with `markovchainFit` (i
 Supposing we don't provide any hyper-parameters, then the prior is uniform. This is the same as maximum likelihood. 
 ```{r MAPandMLE}
 data(preproglucacon)
-preproglucacon <- preproglucacon[[2]]
+preproglucacon <- preproglucacon[[2]][1:200]
 MLEest <- markovchainFit(preproglucacon, method = "mle")
 MAPest <- markovchainFit(preproglucacon, method = "map")
 MLEest$estimate
@@ -2252,7 +2252,7 @@ Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We ca
 
 ```{r healthIns10}
 transitionsSince80<-getFullTransitionTable(age=80)
-lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,
+lifeTrajectories<-rmarkovchain(n=1e2, object=transitionsSince80,
                                what="matrix",t0="A",include.t0=TRUE)
 temp<-matrix(0,nrow=nrow(lifeTrajectories),ncol = ncol(lifeTrajectories))
 temp[lifeTrajectories=="I"]<-1

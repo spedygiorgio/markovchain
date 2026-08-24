@@ -568,7 +568,9 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   else {
     
     int posFrom = 0, posTo = 0;
-    for (R_xlen_t i = 0; i < stringChar.size() - 1; i ++) {
+    for (R_xlen_t i = 0; i + 1 < stringChar.size(); i ++) {
+      // Use i + 1 < size() instead of i < size() - 1 to avoid
+      // underflow when the input sequence is empty.
       if (stringChar[i] != "NA" && stringChar[i+1] != "NA") {
         for (int j = 0; j < rnames.size(); j ++) {
           if (stringChar[i] == rnames[j]) posFrom = j;
@@ -611,7 +613,9 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   
   // caculate out
   int from = 0, to = 0; 
-  for (R_xlen_t i = 0; i < seq.size() - 1; i ++) {
+  for (R_xlen_t i = 0; i + 1 < seq.size(); i ++) {
+    // Use i + 1 < size() instead of i < size() - 1 to avoid
+    // underflow when the input sequence is empty.
     if (seq[i] != "NA" && seq[i+1] != "NA") {
       for (int r = 0; r < rnames.size(); r ++) {
         if (rnames[r] == seq[i]) from = r; 
@@ -707,7 +711,9 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   double zscore = stats::qnorm_0(1.0 - alpha / 2.0, 1.0, 0.0);
   double z2 = zscore * zscore;
 
-  NumericMatrix initialMatr(sizeMatr, sizeMatr);
+  // No point-estimate matrix is allocated here: generateCI() only returns
+  // standard errors and interval endpoints, so storing p_hat in a full
+  // k x k temporary matrix would waste memory for large state spaces.
   NumericMatrix lowerEndpointMatr(sizeMatr, sizeMatr);
   NumericMatrix upperEndpointMatr(sizeMatr, sizeMatr);
   NumericMatrix standardError(sizeMatr, sizeMatr);
@@ -724,7 +730,6 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
         // convention), and the confidence interval is maximally
         // uninformative -- [0, 1] -- rather than collapsed to a single
         // (essentially arbitrary) point.
-        initialMatr(i, j) = 1.0 / sizeMatr;
         standardError(i, j) = NA_REAL;
         lowerEndpointMatr(i, j) = 0.0;
         upperEndpointMatr(i, j) = 1.0;
@@ -734,8 +739,6 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
       double n = rowSum;
       double x = freqMatr(i, j);
       double p_hat = x / n;
-      initialMatr(i, j) = p_hat;
-
       standardError(i, j) = std::sqrt(p_hat * (1.0 - p_hat) / n);
 
       double center = (x + z2 / 2.0) / (n + z2);
@@ -1502,7 +1505,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     
     // populate hyper param matrix
     int posFrom = 0, posTo = 0;
-    for (R_xlen_t i = 0; i < data.size() - 1; i ++) {
+    for (R_xlen_t i = 0; i + 1 < data.size(); i ++) {
       for (int j = 0; j < sizeMatr; j ++) {
         if (data[i] == elements[j]) posFrom = j;
         if (data[i + 1] == elements[j]) posTo = j;

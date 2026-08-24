@@ -413,6 +413,7 @@ $$
 Now we run an example on sample hommc object for simulating next 3 steps using `predictHommc` function. The function provides a choice of entering initial states according to the hommc object. In case the user does not enter initial states, the function takes all initial states to be the first state from the set of states.
 
 ```{r}
+#| eval: false
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
 statesName <- c("a", "b")
 P <- array(0, dim = c(2, 2, 4), dimnames = list(statesName, statesName))

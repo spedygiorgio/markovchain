@@ -570,9 +570,6 @@ predictHommc(ob,3)
 } else {
   print("Rsolnp unavailable")
 }
-#>      [,1] [,2] [,3]
-#> [1,] "b"  "b"  "a" 
-#> [2,] "a"  "a"  "a"
 ```
 
 ## Check Time Reversibility of Continuous-time markovchains

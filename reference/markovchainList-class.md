@@ -4,13 +4,15 @@ A class to handle non homogeneous discrete Markov chains
 
 ## Arguments
 
-- markovchains:
-
-  Object of class `"list"`: a list of markovchains
-
 - name:
 
   Object of class `"character"`: optional name of the class
+
+## Slots
+
+- `markovchains`:
+
+  Object of class `"list"`: a list of markovchains
 
 ## Note
 

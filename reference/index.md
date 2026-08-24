@@ -67,8 +67,8 @@
 
 - [`holson`](holson.md) : Holson data set
 
-- [`hommc-class`](hommc-class.md) [`hommc`](hommc-class.md) : An S4
-  class for representing High Order Multivariate Markovchain (HOMMC)
+- [`hommc`](hommc-class.md) : An S4 class for representing High Order
+  Multivariate Markovchain (HOMMC)
 
 - [`show(`*`<hommc>`*`)`](hommc-show.md) : Function to display the
   details of hommc object

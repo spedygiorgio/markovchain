@@ -2,6 +2,12 @@
 
 An S4 class for representing High Order Multivariate Markovchain (HOMMC)
 
+## Usage
+
+``` r
+hommc
+```
+
 ## Slots
 
 - `order`:

@@ -9,9 +9,6 @@
 \alias{print,markovchainList-method}
 \alias{show,markovchainList-method}
 \title{Non homogeneus discrete time Markov Chains class}
-\arguments{
-\item{name}{Object of class \code{"character"}: optional name of the class}
-}
 \description{
 A class to handle non homogeneous discrete Markov chains
 }
@@ -19,6 +16,8 @@ A class to handle non homogeneous discrete Markov chains
 
 \describe{
 \item{\code{markovchains}}{Object of class \code{"list"}: a list of markovchains}
+
+\item{\code{name}}{Object of class \code{"character"}: optional name of the class}
 }}
 
 \note{

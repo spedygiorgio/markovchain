@@ -219,7 +219,7 @@ setMethod(
 #' @aliases show,markovchainList-method
 #' @description A class to handle non homogeneous discrete Markov chains
 #' 
-#' @param markovchains Object of class \code{"list"}: a list of markovchains
+#' @slot markovchains Object of class \code{"list"}: a list of markovchains
 #' @param name Object of class \code{"character"}: optional name of the class
 #' 
 #' @section Objects from the Class:

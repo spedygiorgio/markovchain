@@ -1,3 +1,7 @@
+# 1.1.0
+
+- Added lumpability
+
 # markovchain 0.9.0
 
 - Fixed CI calculations

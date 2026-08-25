@@ -1592,3 +1592,94 @@ bool is_stochastically_monotone_cpp(NumericMatrix P) {
   
   return true;
 }
+
+// [[Rcpp::export(.is_lumpable_cpp)]]
+bool is_lumpable_cpp(NumericMatrix P, List partition, double tol = 1e-10) {
+  int n = P.nrow();
+  if (P.ncol() != n) stop("P must be a square transition matrix.");
+  if (tol < 0.0) stop("tol must be non-negative.");
+
+  int k = partition.size();
+  for (int cj = 0; cj < k; ++cj) {
+    IntegerVector dest = partition[cj];
+    for (int ci = 0; ci < k; ++ci) {
+      IntegerVector src = partition[ci];
+      if (src.size() <= 1) continue;
+
+      double reference = NA_REAL;
+      for (int a = 0; a < src.size(); ++a) {
+        int row = src[a];
+        if (row < 0 || row >= n) stop("partition contains an out-of-range row index.");
+
+        double blockProb = 0.0;
+        for (int b = 0; b < dest.size(); ++b) {
+          int col = dest[b];
+          if (col < 0 || col >= n) stop("partition contains an out-of-range column index.");
+          blockProb += P(row, col);
+        }
+
+        if (a == 0) {
+          reference = blockProb;
+        } else if (std::abs(blockProb - reference) > tol) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+// [[Rcpp::export(.lump_cpp)]]
+NumericMatrix lump_cpp(NumericMatrix P, List partition, NumericVector weights) {
+  int n = P.nrow();
+  if (P.ncol() != n) stop("P must be a square transition matrix.");
+  if (weights.size() != n) stop("weights length must match the number of states.");
+
+  int k = partition.size();
+  NumericMatrix P_lumped(k, k);
+
+  for (int ci = 0; ci < k; ++ci) {
+    IntegerVector src = partition[ci];
+    if (src.size() == 0) stop("partition blocks must be non-empty.");
+
+    double w_sum = 0.0;
+    for (int a = 0; a < src.size(); ++a) {
+      int row = src[a];
+      if (row < 0 || row >= n) stop("partition contains an out-of-range row index.");
+      if (weights[row] > 0.0) w_sum += weights[row];
+    }
+
+    for (int cj = 0; cj < k; ++cj) {
+      IntegerVector dest = partition[cj];
+      double block_sum = 0.0;
+
+      for (int a = 0; a < src.size(); ++a) {
+        int row = src[a];
+        double row_to_block = 0.0;
+        for (int b = 0; b < dest.size(); ++b) {
+          int col = dest[b];
+          if (col < 0 || col >= n) stop("partition contains an out-of-range column index.");
+          row_to_block += P(row, col);
+        }
+
+        if (w_sum > 0.0 && weights[row] > 0.0) {
+          block_sum += (weights[row] / w_sum) * row_to_block;
+        } else if (w_sum <= 0.0) {
+          block_sum += row_to_block / static_cast<double>(src.size());
+        }
+      }
+      P_lumped(ci, cj) = block_sum;
+    }
+  }
+
+  // Guard against tiny floating-point drift so rows sum to one.
+  for (int i = 0; i < k; ++i) {
+    double rsum = 0.0;
+    for (int j = 0; j < k; ++j) rsum += P_lumped(i, j);
+    if (rsum > 0.0) {
+      for (int j = 0; j < k; ++j) P_lumped(i, j) /= rsum;
+    }
+  }
+
+  return P_lumped;
+}

@@ -1141,6 +1141,140 @@ patientStates[1:10,]
 
 Two advance parameters are available to the `rmarkovchain` method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `Rcpp=TRUE` and  `parallel=TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
 
+## Lumpability and aggregation of states
+
+In some applications the original state space is too detailed, and it is useful
+to aggregate several micro-states into a smaller number of macro-states. A Markov
+chain is said to be strongly lumpable with respect to a partition of the state
+space if, for every pair of macro-states, the total probability of moving from
+a micro-state in the source block to the destination block is the same for all
+micro-states in the source block. Under this condition, the aggregated process
+is again Markovian and its transition matrix is well defined.
+
+The function `is.lumpable` checks exact strong lumpability for a user-supplied
+partition. The function `lump` returns the aggregated Markov chain. By default,
+`lump` requires exact lumpability; setting `force = TRUE` performs an approximate
+weighted aggregation.
+
+The following example is the classical Land of Oz weather chain. We aggregate
+`rainy` and `snowy` into a single `Bad_Weather` macro-state, leaving `nice` as a
+separate macro-state.
+
+```{r lumpability-oz}
+states_oz <- c("rainy", "nice", "snowy")
+
+P_oz <- matrix(
+  c(0.5,  0.25, 0.25,
+    0.5,  0.00, 0.5,
+    0.25, 0.25, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(states_oz, states_oz)
+)
+
+mcOz <- new(
+  "markovchain",
+  states = states_oz,
+  transitionMatrix = P_oz,
+  name = "Land of Oz"
+)
+
+partition_oz <- list(
+  Bad_Weather = c("rainy", "snowy"),
+  Nice_Weather = c("nice")
+)
+
+is.lumpable(mcOz, partition_oz)
+
+lumped_oz <- lump(mcOz, partition_oz)
+lumped_oz
+```
+
+The lumped chain has two states. From either `rainy` or `snowy`, the probability
+of moving to `nice` is 0.25, so the transition probability from `Bad_Weather` to
+`Nice_Weather` is also 0.25. The remaining probability, 0.75, stays inside the
+`Bad_Weather` macro-state.
+
+If the exact lumpability condition is not satisfied, `lump` stops by default:
+
+```{r lumpability-nonexact}
+P_bad <- matrix(
+  c(0.5, 0.3, 0.2,
+    0.7, 0.2, 0.1,
+    0.1, 0.4, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(c("A1", "A2", "B"), c("A1", "A2", "B"))
+)
+
+mcBad <- new(
+  "markovchain",
+  states = c("A1", "A2", "B"),
+  transitionMatrix = P_bad
+)
+
+partition_bad <- list(
+  Group_A = c("A1", "A2"),
+  Group_B = c("B")
+)
+
+is.lumpable(mcBad, partition_bad)
+
+try(lump(mcBad, partition_bad))
+```
+
+For exploratory analyses, approximate lumping can be forced:
+
+```{r lumpability-forced}
+lump(mcBad, partition_bad, force = TRUE)
+```
+
+When `force = TRUE`, the aggregated transition probabilities are computed using
+stationary weights when available. If a macro-state has zero stationary mass, an
+arithmetic average over its micro-states is used as a fallback. This produces a
+valid coarse transition matrix, but it should be interpreted as an approximation:
+the aggregated process is not guaranteed to be exactly Markovian unless the
+strong lumpability condition holds.
+
+The helper `autoLump` provides a heuristic way to discover macro-states using
+spectral clustering. It should be regarded as an exploratory approximation, not
+as a test of exact lumpability.
+
+```{r autolump-example}
+rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
+
+creditMatrix <- matrix(
+  c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
+    0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
+    0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
+    0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
+    0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
+    0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
+    0.21, 0.00, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
+    0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100.00),
+  nrow = 8,
+  byrow = TRUE,
+  dimnames = list(rc, rc)
+) / 100
+
+creditMc <- new(
+  "markovchain",
+  states = rc,
+  transitionMatrix = creditMatrix,
+  name = "Credit ratings"
+)
+
+set.seed(123)
+auto_lumped <- autoLump(creditMc, k = 3)
+
+auto_lumped$partition
+auto_lumped$lumped_chain
+```
+
+To keep the vignette fast, the example uses a small transition matrix. In larger
+applications, the automatically discovered partition should be inspected and
+validated substantively before being used for modelling or forecasting.
+
 ## Estimation
 
 A time-homogeneous Markov chain can be fitted from observed state sequences. The current version of \pkg{markovchain} implements four fitting methods: maximum likelihood (MLE), MLE with Laplace smoothing, bootstrap estimation and maximum a posteriori (MAP) estimation.

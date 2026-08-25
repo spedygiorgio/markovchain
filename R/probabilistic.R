@@ -971,3 +971,156 @@ setMethod("summary", signature(object = "markovchain"),
     invisible(outs) 
   }
 )
+
+#' Validate and convert a partition to C++ indices
+#'
+#' @param state_names Character vector of micro-state names.
+#' @param partition A named list of character vectors defining macro-states.
+#' @return A list of zero-based integer vectors.
+#' @keywords internal
+.get_partition_indices <- function(state_names, partition) {
+  if (!is.list(partition) || length(partition) < 1L) {
+    stop("Invalid partition: partition must be a non-empty list.")
+  }
+  if (is.null(names(partition)) || any(!nzchar(names(partition)))) {
+    stop("Invalid partition: partition must be a named list.")
+  }
+  if (anyDuplicated(names(partition))) {
+    stop("Invalid partition: macro-state names must be unique.")
+  }
+
+  part_idx <- lapply(partition, function(x) {
+    if (!is.character(x) || length(x) < 1L) {
+      stop("Invalid partition: each macro-state must contain at least one state name.")
+    }
+    idx <- match(x, state_names)
+    if (any(is.na(idx))) {
+      stop("Invalid partition: Some states in the partition do not exist in the Markov chain.")
+    }
+    as.integer(idx - 1L)
+  })
+
+  all_idx <- unlist(part_idx, use.names = FALSE)
+  if (length(all_idx) != length(state_names)) {
+    stop("Invalid partition: The partition must contain all states of the Markov chain exactly once (no duplicates, no omissions).")
+  }
+  if (length(unique(all_idx)) != length(state_names)) {
+    stop("Invalid partition: The partition must contain all states of the Markov chain exactly once (no duplicates, no omissions).")
+  }
+
+  part_idx
+}
+
+#' Check exact lumpability of a Markov chain
+#'
+#' @description Verifies the strong lumpability condition with respect to a
+#' partition of the state space. For every pair of macro-states, all micro-states
+#' in the same source macro-state must have the same total probability of moving
+#' to the destination macro-state.
+#'
+#' @param object A \code{markovchain} object.
+#' @param partition A named list of character vectors defining macro-states.
+#' @param tol Non-negative numerical tolerance for equality checks.
+#' @return A logical value.
+#' @references Kemeny, J. G. and Snell, J. L. (1960). \emph{Finite Markov Chains}.
+#' @export
+setGeneric("is.lumpable", function(object, partition, tol = 1e-10) standardGeneric("is.lumpable"))
+
+#' @rdname is.lumpable
+#' @aliases is.lumpable,markovchain-method
+setMethod("is.lumpable", signature(object = "markovchain"),
+          function(object, partition, tol = 1e-10) {
+            part_idx <- .get_partition_indices(states(object), partition)
+            .is_lumpable_cpp(object@transitionMatrix, part_idx, tol)
+          })
+
+#' Aggregate a Markov chain over a partition
+#'
+#' @description Coarsens a Markov chain to a reduced state space. By default the
+#' function requires exact lumpability. With \code{force = TRUE}, it performs an
+#' approximate aggregation using stationary weights when available and arithmetic
+#' averages for macro-states with zero stationary mass.
+#'
+#' @param object A \code{markovchain} object.
+#' @param partition A named list of character vectors defining macro-states.
+#' @param force If \code{FALSE}, stop unless the chain is exactly lumpable. If
+#' \code{TRUE}, return a weighted approximate lumping.
+#' @return A \code{markovchain} object on the macro-state space.
+#' @export
+setGeneric("lump", function(object, partition, force = FALSE) standardGeneric("lump"))
+
+#' @rdname lump
+#' @aliases lump,markovchain-method
+setMethod("lump", signature(object = "markovchain"),
+          function(object, partition, force = FALSE) {
+            part_idx <- .get_partition_indices(states(object), partition)
+
+            if (!force && !.is_lumpable_cpp(object@transitionMatrix, part_idx, 1e-10)) {
+              stop("The Markov chain is not exactly lumpable. Use force = TRUE to perform an approximate weighted lumping.")
+            }
+
+            st <- steadyStates(object)
+            if (nrow(st) > 0L) {
+              # If several stationary distributions are returned, average them
+              # to obtain deterministic non-negative aggregation weights.
+              w <- colMeans(st)
+            } else {
+              w <- rep(1 / ncol(object@transitionMatrix), ncol(object@transitionMatrix))
+            }
+
+            P_lumped <- .lump_cpp(object@transitionMatrix, part_idx, as.numeric(w))
+            dimnames(P_lumped) <- list(names(partition), names(partition))
+
+            new("markovchain",
+                states = names(partition),
+                transitionMatrix = P_lumped,
+                byrow = object@byrow,
+                name = paste(object@name, "(Lumped)"))
+          })
+
+#' Automatically aggregate a Markov chain by spectral clustering
+#'
+#' @description Finds an approximate partition by clustering the leading right
+#' eigenvectors of the transition matrix, then returns the forced lumping over
+#' that partition. This is a heuristic for approximate lumping/metastable
+#' aggregation, not a proof of exact lumpability.
+#'
+#' @param object A \code{markovchain} object.
+#' @param k Number of macro-states to discover.
+#' @return A list with \code{partition} and \code{lumped_chain}.
+#' @export
+setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
+
+#' @rdname autoLump
+#' @aliases autoLump,markovchain-method
+setMethod("autoLump", signature(object = "markovchain"),
+          function(object, k) {
+            P <- object@transitionMatrix
+            state_names <- states(object)
+            n <- nrow(P)
+
+            if (length(k) != 1L || is.na(k) || k != as.integer(k)) {
+              stop("k must be a single integer.")
+            }
+            k <- as.integer(k)
+            if (k <= 1L || k >= n) {
+              stop("The number of macro-states 'k' must be between 2 and the number of states - 1.")
+            }
+
+            eig <- eigen(P)
+            ord <- order(Mod(eig$values), decreasing = TRUE)
+            V_eig <- Re(eig$vectors[, ord[seq_len(k)], drop = FALSE])
+
+            set.seed(42)
+            clust <- stats::kmeans(V_eig, centers = k, nstart = 25)
+
+            partition <- stats::setNames(vector("list", k), paste0("Macro_", seq_len(k)))
+            for (i in seq_len(k)) {
+              partition[[i]] <- state_names[clust$cluster == i]
+            }
+
+            list(
+              partition = partition,
+              lumped_chain = lump(object, partition, force = TRUE)
+            )
+          })

@@ -22,9 +22,9 @@
 #' state-independent quantity returned by this function is not defined in the
 #' same way; such inputs therefore produce an error.
 #'
-#' The implementation uses a linear solve rather than explicitly computing
-#' an inverse. This keeps the implementation numerically preferable to a
-#' direct matrix inversion while retaining the compact closed-form expression.
+#' The implementation solves a linear system rather than explicitly computing
+#' a matrix inverse. This is numerically preferable to direct matrix inversion
+#' while retaining the compact closed-form expression.
 #'
 #' @references
 #' Kemeny, J. G. and Snell, J. L. (1976). *Finite Markov Chains*.
@@ -56,6 +56,7 @@ setMethod("kemenyConstant", "markovchain", function(object) {
     stop("Unable to obtain a valid stationary distribution.")
   }
 
-  Z <- solve(diag(n) - P + matrix(1, n, 1) %*% matrix(pi, 1, n))
+  A <- diag(n) - P + matrix(1, n, 1) %*% matrix(pi, 1, n)
+  Z <- solve(A, diag(n))
   as.numeric(sum(diag(Z)) - 1)
 })

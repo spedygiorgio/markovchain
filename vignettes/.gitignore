@@ -6,3 +6,4 @@
 .sav
 # Ignore intermediate tex files created by R-markdown
 .tex
+*.R

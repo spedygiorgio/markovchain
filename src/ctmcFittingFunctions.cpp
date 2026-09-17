@@ -39,6 +39,33 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 //' 
 //' @export
 //' 
+// SUMMARY FOR REVIEWERS: ctmcFit() fits a continuous-time Markov chain
+// (CTMC) from event times. It works in two stages: (1) fit the *embedded*
+// discrete-time chain (which state follows which, ignoring timing) via
+// the existing markovchainFit(..., method = "mle"); (2) rescale each row
+// of that DTMC transition matrix by the estimated exponential holding-time
+// rate lambda_i = (number of departures from state i) / (total time spent
+// in state i) to get the CTMC generator matrix, and separately report a
+// confidence interval for each lambda_i.
+//
+// FIX (see git history / PR notes for details): the lambda confidence
+// interval block had two bugs, found by direct calculation, not just
+// inspection:
+//   1. `qnorm_0(confidencelevel, ...)` alone gives the ONE-sided normal
+//      quantile (1.645 for confidencelevel = 0.95), not the 1.96 a
+//      two-sided interval at that confidence level needs -- the same
+//      "true_confidence_level = 1-(1-cl)/2" transform used elsewhere in
+//      the package (e.g. generateCI in fittingFunctions.cpp) was missing
+//      here.
+//   2. lowerConfVecLambda and upperConfVecLambda were both derived from
+//      the SAME single `factor` value (lambda_hat * (1 - z/sqrt(n))),
+//      just clipped differently (max(0, factor) vs min(1, factor)).
+//      Whenever factor fell in [0, 1] -- the common case -- this made
+//      lower and upper IDENTICAL: a zero-width, non-informative interval.
+//      The upper bound needs the "+" version of the margin, not a second
+//      clipping of the same "-" value. Separately, lambda is a rate (not
+//      a probability), so clipping it above at 1 was never appropriate;
+//      only the lower clip at 0 (non-negativity) is kept.
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   
@@ -76,15 +103,21 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
       gen(i, i) = -1;
   }
   
-  double zscore = stats::qnorm_0(confidencelevel, 1.0, 0.0);
+  // Two-sided z quantile: qnorm_0(confidencelevel, ...) alone (as before)
+  // gives the ONE-sided quantile -- e.g. 1.645 for confidencelevel = 0.95 --
+  // rather than the 1.96 a two-sided 95% interval requires. The transition
+  // rate lambda is not a probability (it has no upper bound of 1), so only
+  // non-negativity is enforced, matching the definition of a rate.
+  double zscore = stats::qnorm_0(1.0 - (1.0 - confidencelevel) / 2.0, 1.0, 0.0);
   NumericVector lowerConfVecLambda(sortedStates.size()), upperConfVecLambda(sortedStates.size());
   
   for (int i = 0; i < sortedStates.size(); i++){
 
     if (stateCount[i] > 0){
-      auto factor = stateCount[i] / stateSojournTime[i] * (1 - zscore / sqrt(stateCount[i]));
-      lowerConfVecLambda(i) = std::max(0., factor);
-      upperConfVecLambda(i) = std::min(1., factor);
+      double lambdaHat = stateCount[i] / stateSojournTime[i];
+      double margin = zscore * lambdaHat / sqrt(stateCount[i]);
+      lowerConfVecLambda(i) = std::max(0., lambdaHat - margin);
+      upperConfVecLambda(i) = lambdaHat + margin;
     } else {
       lowerConfVecLambda(i) = 1;
       upperConfVecLambda(i) = 1;

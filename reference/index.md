@@ -57,6 +57,9 @@
 - [`freq2Generator()`](freq2Generator.md) : Returns a generator matrix
   corresponding to frequency matrix
 
+- [`fundamentalMatrix()`](fundamentalMatrix.md) : Fundamental matrix of
+  an absorbing Markov chain
+
 - [`generatorToTransitionMatrix()`](generatorToTransitionMatrix.md) :
   Function to obtain the transition matrix from the generator
 

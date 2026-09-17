@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.9.17)  17 SEP 2026 20:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.9.17)  17 SEP 2026 21:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1867,7 +1867,7 @@ Here is how much of TeX's memory you used:
  14 hyphenation exceptions out of 8191
  107i,14n,118p,1096b,690s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on an_introduction_to_markovchain_package.pdf (74 pages, 756137 bytes).
+Output written on an_introduction_to_markovchain_package.pdf (74 pages, 756131 bytes).
 PDF statistics:
  1179 PDF objects out of 1200 (max. 8388607)
  1028 compressed objects within 11 object streams

@@ -97,10 +97,10 @@ ctmcFit(data)
 #> 
 #> $errors$lambdaConfidenceInterval
 #> $errors$lambdaConfidenceInterval$lowerEndpointVector
-#> [1] 0.04576665 0.04871934 0.00000000
+#> [1] 0 0 0
 #> 
 #> $errors$lambdaConfidenceInterval$upperEndpointVector
-#> [1]  0.04576665  0.04871934 -0.12545166
+#> [1] 1.937805 2.062825 1.835311
 #> 
 #> 
 #> 

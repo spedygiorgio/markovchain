@@ -972,12 +972,11 @@ setMethod("summary", signature(object = "markovchain"),
   }
 )
 
-#' Validate and convert a partition to C++ indices
-#'
-#' @param state_names Character vector of micro-state names.
-#' @param partition A named list of character vectors defining macro-states.
-#' @return A list of zero-based integer vectors.
-#' @keywords internal
+# Validate and convert a partition to C++ indices.
+#
+# This internal helper checks that `partition` is a named, exhaustive and
+# mutually exclusive partition of the state space, then converts state names to
+# zero-based integer indices for the C++ backend.
 .get_partition_indices <- function(state_names, partition) {
   if (!is.list(partition) || length(partition) < 1L) {
     stop("Invalid partition: partition must be a non-empty list.")
@@ -1031,7 +1030,14 @@ setGeneric("is.lumpable", function(object, partition, tol = 1e-10) standardGener
 setMethod("is.lumpable", signature(object = "markovchain"),
           function(object, partition, tol = 1e-10) {
             part_idx <- .get_partition_indices(states(object), partition)
-            .is_lumpable_cpp(object@transitionMatrix, part_idx, tol)
+            P <- object@transitionMatrix
+            # The C++ backend checks row-wise transition probabilities.  If the
+            # object stores probabilities by column, transpose the matrix so the
+            # lumpability condition is still evaluated on outgoing probabilities.
+            if (!object@byrow) {
+              P <- t(P)
+            }
+            .is_lumpable_cpp(P, part_idx, tol)
           })
 
 #' Aggregate a Markov chain over a partition
@@ -1055,7 +1061,15 @@ setMethod("lump", signature(object = "markovchain"),
           function(object, partition, force = FALSE) {
             part_idx <- .get_partition_indices(states(object), partition)
 
-            if (!force && !.is_lumpable_cpp(object@transitionMatrix, part_idx, 1e-10)) {
+            P <- object@transitionMatrix
+            # Work internally with the usual row-stochastic convention.  The
+            # returned object is also row-stochastic, independently of the input
+            # storage orientation.
+            if (!object@byrow) {
+              P <- t(P)
+            }
+
+            if (!force && !.is_lumpable_cpp(P, part_idx, 1e-10)) {
               stop("The Markov chain is not exactly lumpable. Use force = TRUE to perform an approximate weighted lumping.")
             }
 
@@ -1068,13 +1082,13 @@ setMethod("lump", signature(object = "markovchain"),
               w <- rep(1 / ncol(object@transitionMatrix), ncol(object@transitionMatrix))
             }
 
-            P_lumped <- .lump_cpp(object@transitionMatrix, part_idx, as.numeric(w))
+            P_lumped <- .lump_cpp(P, part_idx, as.numeric(w))
             dimnames(P_lumped) <- list(names(partition), names(partition))
 
             new("markovchain",
                 states = names(partition),
                 transitionMatrix = P_lumped,
-                byrow = object@byrow,
+                byrow = TRUE,
                 name = paste(object@name, "(Lumped)"))
           })
 
@@ -1111,8 +1125,24 @@ setMethod("autoLump", signature(object = "markovchain"),
             ord <- order(Mod(eig$values), decreasing = TRUE)
             V_eig <- Re(eig$vectors[, ord[seq_len(k)], drop = FALSE])
 
+            # Make the example deterministic without permanently changing the
+            # user's random-number stream.
+            old_seed <- if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+              get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+            } else {
+              NULL
+            }
+            on.exit({
+              if (is.null(old_seed)) {
+                if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+                  rm(".Random.seed", envir = .GlobalEnv)
+                }
+              } else {
+                assign(".Random.seed", old_seed, envir = .GlobalEnv)
+              }
+            }, add = TRUE)
             set.seed(42)
-            clust <- stats::kmeans(V_eig, centers = k, nstart = 25)
+            clust <- stats::kmeans(V_eig, centers = k, nstart = 10)
 
             partition <- stats::setNames(vector("list", k), paste0("Macro_", seq_len(k)))
             for (i in seq_len(k)) {

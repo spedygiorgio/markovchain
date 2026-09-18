@@ -447,6 +447,14 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_is_stochastically_monotone_cpp`, P)
 }
 
+.is_lumpable_cpp <- function(P, partition, tol = 1e-10) {
+    .Call(`_markovchain_is_lumpable_cpp`, P, partition, tol)
+}
+
+.lump_cpp <- function(P, partition, weights) {
+    .Call(`_markovchain_lump_cpp`, P, partition, weights)
+}
+
 .isProbability <- function(prob) {
     .Call(`_markovchain_isProb`, prob)
 }

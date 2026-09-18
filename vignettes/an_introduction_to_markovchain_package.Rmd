@@ -164,7 +164,7 @@ If $p_{ii}=1$, $s_{i}$ is defined as absorbing state: an absorbing state corresp
 
 The canonical form of a DTMC transition matrix is a matrix having a block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
 
-A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiplies of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
+A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiples of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
 
 If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  It is possible to classify states according to their periodicity. Let $T^{x\rightarrow x}$ is the number of periods to go back to state $x$ knowing that the chain starts in $x$.  
 
@@ -639,7 +639,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{summary} & DTMC summary. \\
   \hline
   \end{tabular}
-\caption{\pkg{markovchain} methods: statistical operations.}
+\caption{\pkg{markovchain} methods: probabilistic operations.}
 \label{tab:methodsToStats}
 \end{table}
 
@@ -668,13 +668,13 @@ A stationary (steady state, or equilibrium) vector is a probability vector such 
 \end{equation}
 
 Steady states are associated to $P$ eigenvalues equal to one. We could be tempted to compute them 
-solving the eigen values / vectors of the matrix and taking real parts (since if $u + iv$ is a eigen vector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigen vectors) and normalizing by the vector sum, this carries some concerns:
+solving the eigenvalues and eigenvectors of the matrix and taking real parts (since if $u + iv$ is a eigenvector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigenvectors) and normalizing by the vector sum, this carries some concerns:
 
-1. If $u, v \in \mathbb{R}^n$ are linearly independent eigen vectors associated to $1$ eigen value, $u + iv$, $u + iu$ are also linearly independent eigen vectors, and their real parts coincide. Clearly if we took real parts, we would be loosing an eigen vector, because we cannot know in advance if the underlying algorithm to compute the eigen vectors is going to output something similar to what we described. We should be agnostic to the underlying eigen vector computation algorithm.
+1. If $u, v \in \mathbb{R}^n$ are linearly independent eigenvectors associated with the eigenvalue $1$, $u + iv$, $u + iu$ are also linearly independent eigenvectors, and their real parts coincide. Clearly if we took real parts, we would be losing an eigenvector, because we cannot know in advance if the underlying algorithm to compute the eigenvectors is going to output something similar to what we described. We should be agnostic to the underlying eigenvector computation algorithm.
 
-2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigen vectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigen vectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigen vectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
+2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigenvectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigenvectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigenvectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
 
-3. Algorithms to compute eigen values / vectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
+3. Algorithms to compute eigenvalues and eigenvectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
 
 We are going to use that every irreducible DTMC has a unique steady state, that is, if $M$ is the matrix for an irreducible DTMC (all states communicate with each other), then it exists a unique $v \in \mathbb{R}^m$ such that:
 
@@ -1061,7 +1061,7 @@ because it guarantees that the Markov chain preserves the initial ordering of st
 For instance, in an income mobility model, if you start in a higher income class, 
 your probability of moving to or staying in a high income class should ideally be greater than or equal to someone starting in a lower income class.
 
-The `is.stochasticallyMonotone` method allows verifying this property for any `markovchain` object[cite: 1]:
+The `is.stochasticallyMonotone` method allows verifying this property for any `markovchain` object:
 
 ```{r stochasticMonotonicity}
 # Define the state space for income classes
@@ -1139,7 +1139,141 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 ```
 
-Two advance parameters are available to the `rmarkovchain` method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `Rcpp=TRUE` and  `parallel=TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+Two advanced parameters are available to the `rmarkovchain` method which help users decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `useRcpp = TRUE` and `parallel = TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+
+## Lumpability and aggregation of states
+
+In some applications the original state space is too detailed, and it is useful
+to aggregate several micro-states into a smaller number of macro-states. A Markov
+chain is said to be strongly lumpable with respect to a partition of the state
+space if, for every pair of macro-states, the total probability of moving from
+a micro-state in the source block to the destination block is the same for all
+micro-states in the source block \citep{kemeny1960finite}. Under this condition,
+the aggregated process is again Markovian and its transition matrix is well defined.
+
+The function `is.lumpable` checks exact strong lumpability for a user-supplied
+partition. The function `lump` returns the aggregated Markov chain. By default,
+`lump` requires exact lumpability; setting `force = TRUE` performs an approximate
+weighted aggregation.
+
+The following example is the classical Land of Oz weather chain. We aggregate
+`rainy` and `snowy` into a single `Bad_Weather` macro-state, leaving `nice` as a
+separate macro-state.
+
+```{r lumpability-oz}
+states_oz <- c("rainy", "nice", "snowy")
+
+P_oz <- matrix(
+  c(0.5,  0.25, 0.25,
+    0.5,  0.00, 0.5,
+    0.25, 0.25, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(states_oz, states_oz)
+)
+
+mcOz <- new(
+  "markovchain",
+  states = states_oz,
+  transitionMatrix = P_oz,
+  name = "Land of Oz"
+)
+
+partition_oz <- list(
+  Bad_Weather = c("rainy", "snowy"),
+  Nice_Weather = c("nice")
+)
+
+is.lumpable(mcOz, partition_oz)
+
+lumped_oz <- lump(mcOz, partition_oz)
+lumped_oz
+```
+
+The lumped chain has two states. From either `rainy` or `snowy`, the probability
+of moving to `nice` is 0.25, so the transition probability from `Bad_Weather` to
+`Nice_Weather` is also 0.25. The remaining probability, 0.75, stays inside the
+`Bad_Weather` macro-state.
+
+If the exact lumpability condition is not satisfied, `lump` stops by default:
+
+```{r lumpability-nonexact}
+P_bad <- matrix(
+  c(0.5, 0.3, 0.2,
+    0.7, 0.2, 0.1,
+    0.1, 0.4, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(c("A1", "A2", "B"), c("A1", "A2", "B"))
+)
+
+mcBad <- new(
+  "markovchain",
+  states = c("A1", "A2", "B"),
+  transitionMatrix = P_bad
+)
+
+partition_bad <- list(
+  Group_A = c("A1", "A2"),
+  Group_B = c("B")
+)
+
+is.lumpable(mcBad, partition_bad)
+
+try(lump(mcBad, partition_bad))
+```
+
+For exploratory analyses, approximate lumping can be forced:
+
+```{r lumpability-forced}
+lump(mcBad, partition_bad, force = TRUE)
+```
+
+When `force = TRUE`, the aggregated transition probabilities are computed using
+stationary weights when available. If a macro-state has zero stationary mass, an
+arithmetic average over its micro-states is used as a fallback. This produces a
+valid coarse transition matrix, but it should be interpreted as an approximation:
+the aggregated process is not guaranteed to be exactly Markovian unless the
+strong lumpability condition holds.
+
+The helper `autoLump` provides a heuristic way to discover macro-states using
+spectral clustering. It should be regarded as an exploratory approximation, not
+as a test of exact lumpability.
+
+```{r autolump-example, eval=FALSE}
+rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
+
+creditMatrix <- matrix(
+  c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
+    0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
+    0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
+    0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
+    0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
+    0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
+    0.21, 0.00, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
+    0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100.00),
+  nrow = 8,
+  byrow = TRUE,
+  dimnames = list(rc, rc)
+) / 100
+
+creditMc <- new(
+  "markovchain",
+  states = rc,
+  transitionMatrix = creditMatrix,
+  name = "Credit ratings"
+)
+
+set.seed(123)
+auto_lumped <- autoLump(creditMc, k = 3)
+
+auto_lumped$partition
+auto_lumped$lumped_chain
+```
+
+To keep the vignette fast, the example uses a small transition matrix. In larger
+applications, the automatically discovered partition should be inspected and
+validated substantively before being used for modelling or forecasting.
 
 ## Estimation
 
@@ -1210,7 +1344,7 @@ weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 ```
 
-The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Parallelized implementation is definitively suggested when the data sample size or the required number of bootstrap runs is high.
+The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. The parallelized implementation is recommended when the data sample size or the required number of bootstrap runs is high.
 
 ```{r fitMcbyBootStrap2, eval=FALSE}
 weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
@@ -1527,7 +1661,7 @@ verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
 For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
-## Continuous Times Markov Chains
+## Continuous-Time Markov Chains
 
 ### Intro
 
@@ -1542,7 +1676,7 @@ If both the above properties are satisfied, it is referred to as a time-homogene
 
 Now, let $X(0)=x$ and let $T_x$ be the time a transition occurs from this state. We are interested in the distribution of $T_x$. For $s,t \geq 0$, it can be shown that $ P(T_x > s+t | T_x > s) = P(T_x > t)  $
 
-This is the memory less property that only the exponential random variable exhibits. Therefore, this is the sought distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, higher the rate $\lambda(x)$, smaller the expected time of transitioning out of the state $x$.
+This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is therefore the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
 
 However, specifying this parameter alone for each state would only paint an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
 
@@ -1695,7 +1829,7 @@ mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
 
 ## Pseudo - Bayesian Estimation
 
-\cite{Hu2002} shows an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-1alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
+\cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-\alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
 
 \begin{equation}
 \left\{\begin{matrix}
@@ -2248,7 +2382,7 @@ rmarkovchain(n = 10, object = transitionsSince100,
              what = "matrix", t0 = "A", include.t0 = TRUE)
 ```
 
-Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
+Let us consider 100 simulated life trajectories for a healthy individual aged 80. We can compute the expected time the individual is disabled, starting from the active state at age 80.
 
 ```{r healthIns10}
 transitionsSince80<-getFullTransitionTable(age=80)
@@ -2260,7 +2394,7 @@ expected_period_disabled<-mean(rowSums((temp)))
 expected_period_disabled
 ```
 
-Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.
+Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump-sum premium at 80.
 
 ```{r healthIns11}
 mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))

@@ -38,6 +38,8 @@
 
 - [`ctmcFit()`](ctmcFit.md) : Function to fit a CTMC
 
+- [`entropyRate()`](entropyRate.md) : Entropy rate of a Markov chain
+
 - [`expectedRewards()`](expectedRewards.md) : Expected Rewards for a
   markovchain
 

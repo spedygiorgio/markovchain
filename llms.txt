@@ -84,6 +84,8 @@ This citation is also provided in [inst/CITATION](inst/CITATION).
 
 - [`ctmcFit()`](ctmcFit.md) : Function to fit a CTMC
 
+- [`entropyRate()`](entropyRate.md) : Entropy rate of a Markov chain
+
 - [`expectedRewards()`](expectedRewards.md) : Expected Rewards for a
   markovchain
 

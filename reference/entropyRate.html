@@ -71,8 +71,8 @@ nats per transition.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A non-negative numeric scalar containing the entropy rate in units determined
-by <code>base</code>.</p>
+    <p>A non-negative numeric scalar containing the entropy rate in units
+  determined by <code>base</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -80,6 +80,7 @@ by <code>base</code>.</p>
 \(\pi\), the entropy rate is
 $$H = -\sum_i \pi_i \sum_j p_{ij}\log_b(p_{ij}),$$
 with zero-probability transitions contributing zero by continuity.</p>
+
 <p>For a stationary first-order Markov chain, the entropy rate equals the
 conditional entropy \(H(X_{t+1}\mid X_t)\). Irreducibility guarantees a
 unique stationary distribution; aperiodicity is not required.</p>

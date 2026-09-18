@@ -337,7 +337,7 @@ range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
 name <- "testictmc"
 ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
-#> [1] 0.008259774 0.140983476
+#> [1] 0.008259774 0.140983489
 ```
 
 The probabilities we get are with an error of $10^{-3}$

@@ -11,6 +11,9 @@
 - [`absorptionProbabilities()`](absorptionProbabilities.md) : Absorption
   probabilities
 
+- [`autoLump()`](autoLump.md) : Automatically aggregate a Markov chain
+  by spectral clustering
+
 - [`autoplot.markovchain()`](autoplot.markovchain.md) : Plot a Markov
   chain with ggplot2
 
@@ -99,6 +102,9 @@
 - [`is.irreducible()`](is.irreducible.md) : Function to check if a
   Markov chain is irreducible (i.e. ergodic)
 
+- [`is.lumpable()`](is.lumpable.md) : Check exact lumpability of a
+  Markov chain
+
 - [`is.regular()`](is.regular.md) : Check if a DTMC is regular
 
 - [`is.stochasticallyMonotone()`](is.stochasticallyMonotone.md) : Check
@@ -106,6 +112,8 @@
 
 - [`kullback`](kullback.md) : Example from Kullback and Kupperman Tests
   for Contingency Tables
+
+- [`lump()`](lump.md) : Aggregate a Markov chain over a partition
 
 - [`markovchain-class`](markovchain-class.md)
   [`*,markovchain,markovchain-method`](markovchain-class.md)

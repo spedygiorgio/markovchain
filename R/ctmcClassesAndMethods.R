@@ -8,12 +8,12 @@
 #' @description The S4 class that describes \code{ctmc} (continuous 
 #' time Markov chain) objects.
 #' 
-#' @param states Name of the states. Must be the same of
+#' @slot states Name of the states. Must be the same of
 #'   \code{colnames} and \code{rownames} of the generator matrix
-#' @param byrow TRUE or FALSE. Indicates whether the given matrix is
+#' @slot byrow TRUE or FALSE. Indicates whether the given matrix is
 #'    stochastic by rows or by columns
-#' @param generator Square generator matrix
-#' @param name Optional character name of the Markov chain
+#' @slot generator Square generator matrix
+#' @slot name Optional character name of the Markov chain
 #' 
 #' @section Methods:
 #' 

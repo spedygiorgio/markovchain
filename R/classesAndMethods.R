@@ -54,11 +54,11 @@
 #' @aliases ^,markovchain,numeric-method
 #' @description The S4 class that describes \code{markovchain} objects.
 #' 
-#' @param states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
-#' @param byrow TRUE or FALSE indicating whether the supplied matrix 
+#' @slot states Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix
+#' @slot byrow TRUE or FALSE indicating whether the supplied matrix 
 #'   is either stochastic by rows or by columns
-#' @param transitionMatrix Square transition matrix
-#' @param name Optional character name of the Markov chain
+#' @slot transitionMatrix Square transition matrix
+#' @slot name Optional character name of the Markov chain
 #' 
 #' @section Creation of objects:
 #' 
@@ -219,8 +219,8 @@ setMethod(
 #' @aliases show,markovchainList-method
 #' @description A class to handle non homogeneous discrete Markov chains
 #' 
-#' @param markovchains Object of class \code{"list"}: a list of markovchains
-#' @param name Object of class \code{"character"}: optional name of the class
+#' @slot markovchains Object of class \code{"list"}: a list of markovchains
+#' @slot name Object of class \code{"character"}: optional name of the class
 #' 
 #' @section Objects from the Class:
 #'

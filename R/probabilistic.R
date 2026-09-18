@@ -108,20 +108,27 @@ setMethod("is.irreducible", "markovchain", function(object) {
 #'
 #' @export
 firstPassage <- function(object, state, n) {
-  P <- object@transitionMatrix
+  if (!is(object, "markovchain")) {
+    stop("object must be a markovchain object")
+  }
   stateNames <- states(object)
-  
-  # row number
-  i <- which(stateNames == state)
+  if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
+    stop("state must identify exactly one state of the Markov chain")
+  }
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 1 || n != floor(n)) {
+    stop("n must be a positive integer")
+  }
 
-  
-  outMatr <- .firstpassageKernelRcpp(P = P, i = i, n = n)
+  outMatr <- .firstpassageKernelRcpp(
+    P = object@transitionMatrix,
+    i = match(state, stateNames),
+    n = as.integer(n)
+  )
   colnames(outMatr) <- stateNames
-  rownames(outMatr) <- 1:n
-  return(outMatr)
+  rownames(outMatr) <- seq_len(nrow(outMatr))
+  outMatr
 }
-
-
 
 
 #' function to calculate first passage probabilities
@@ -153,35 +160,31 @@ firstPassage <- function(object, state, n) {
 #' firstPassageMultiple(markovB,"a",c("b","c"),4)  
 #' 
 #' @export 
-firstPassageMultiple <- function(object,state,set, n){
-  
-  # gets the transition matrix
-  P <- object@transitionMatrix
-  
-  # character vector of states of the markovchain
-  stateNames <- states(object)
-  
-  k <- -1
-  k <- which(stateNames == state)
-  if(k==-1)
-    stop("please provide a valid initial state")
-  
-  # gets the set in numeric vector
-  setno <- rep(0,length(set))
-  for(i in 1:length(set))
-  {
-    setno[i] = which(set[i] == stateNames)
-    if(setno[i] == 0)
-      stop("please provide proper set of states")
+firstPassageMultiple <- function(object, state, set, n) {
+  if (!is(object, "markovchain")) {
+    stop("object must be a markovchain object")
   }
-  
-  # calls Rcpp implementation
-  outMatr <- .firstPassageMultipleRCpp(P,k,setno,n)
-  
-  #sets column and row names of output
-  colnames(outMatr) <- "set"
-  rownames(outMatr) <- 1:n
-  return(outMatr)
+  stateNames <- states(object)
+  if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
+    stop("state must identify exactly one initial state")
+  }
+  if (!is.character(set) || length(set) < 1L || anyNA(set) ||
+      any(!set %in% stateNames)) {
+    stop("set must contain valid state names")
+  }
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 1 || n != floor(n)) {
+    stop("n must be a positive integer")
+  }
+
+  out <- .firstPassageMultipleRCpp(
+    object@transitionMatrix,
+    match(state, stateNames),
+    match(unique(set), stateNames),
+    as.integer(n)
+  )
+  matrix(out, ncol = 1L,
+         dimnames = list(seq_along(out), "set"))
 }
 
 
@@ -373,84 +376,42 @@ setMethod("canonicForm", "markovchain", function(object) {
 #' committorAB(object,c(5),c(3))
 #' 
 #' @export
-committorAB <- function(object,A,B,p=1) {
-  
-  if(!is(object,"markovchain"))
-    stop("please provide a valid markovchain object")
-  
-  matrix <- object@transitionMatrix
-  
-  noofstates <- length(object@states)
-  
-  for(i in length(A))
-  {
-    if(A[i] <= 0 || A[i] > noofstates)
-      stop("please provide a valid set A")
+committorAB <- function(object, A, B, p = 1) {
+  if (!is(object, "markovchain")) {
+    stop("object must be a markovchain object")
   }
-  
-  for(i in length(B))
-  {
-    if(B[i] <= 0 || B[i] > noofstates)
-      stop("please provide a valid set B")
+
+  nstates <- length(object@states)
+  valid_indices <- function(x) {
+    is.numeric(x) && length(x) > 0L && !anyNA(x) &&
+      all(is.finite(x)) && all(x == floor(x)) &&
+      all(x >= 1L & x <= nstates)
   }
-  
-  for(i in 1:noofstates)
-  {
-    if(i %in% A && i %in% B)
-      stop("intersection of set A and B in not null")
+  if (!valid_indices(A)) stop("please provide a valid set A")
+  if (!valid_indices(B)) stop("please provide a valid set B")
+  A <- unique(as.integer(A))
+  B <- unique(as.integer(B))
+  if (length(intersect(A, B)) > 0L) {
+    stop("sets A and B must be disjoint")
   }
-  
-  if(p <=0 || p > noofstates)
+
+  return_all <- missing(p)
+  if (!return_all &&
+      (length(p) != 1L || is.na(p) || !is.finite(p) ||
+       p != floor(p) || p < 1L || p > nstates)) {
     stop("please provide a valid initial state")
-  
-  I <- diag(noofstates)
-  
-  matrix <- matrix - I
-  
-  A_size = length(A)
-  B_size = length(B)
-  
-  # sets the matrix according to the provided states
-  for(i in 1:A_size)
-  {
-    for(j in 1:noofstates)
-    {
-      if(A[i]==j)
-        matrix[A[i],j] = 1
-      else
-        matrix[A[i],j] = 0
-    }
   }
-  
-  # sets the matrix according to the provided states
-  for(i in 1:B_size)
-  {
-    for(j in 1:noofstates)
-    {
-      if(B[i]==j)
-        matrix[B[i],j] = 1
-      else
-        matrix[B[i],j] = 0
-    }
-  }
-  
-  # initialises b in the equation the system of equation AX =b
-  b <- rep(0,noofstates)
-  
-  
-  for(i in 1:A_size)
-  {
-    b[A[i]] = 1
-  }
-  
-  # solve AX = b according using solve function from base package
-  out <- solve(matrix,b)
-  
-  
-  if(missing(p))
-    return(out)
-  else
-    return(out[p])
+
+  coefficient <- object@transitionMatrix - diag(nstates)
+  coefficient[A, ] <- 0
+  coefficient[cbind(A, A)] <- 1
+  coefficient[B, ] <- 0
+  coefficient[cbind(B, B)] <- 1
+  rhs <- numeric(nstates)
+  rhs[A] <- 1
+  out <- solve(coefficient, rhs)
+
+  if (return_all) out else out[as.integer(p)]
 }
 
 
@@ -483,23 +444,23 @@ committorAB <- function(object,A,B,p=1) {
 #' expectedRewards(simpleMc,1,c(0,1))
 #' @export
 expectedRewards <- function(markovchain, n, rewards) {
-  
-  # gets the transition matrix
-  matrix <- markovchain@transitionMatrix
-  
-  # Rcpp implementation of the function
-  out <- .expectedRewardsRCpp(matrix,n, rewards)
-  
-  noofStates <- length(states(markovchain))
-  
-  result <- rep(0,noofStates)
-  
-  for(i in 1:noofStates)
-    result[i] = out[i]
-  
-  #names(result) <- states(markovchain)
-  return(result)
+  if (!is(markovchain, "markovchain")) {
+    stop("markovchain must be a markovchain object")
+  }
+  nstates <- length(states(markovchain))
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 0 || n != floor(n)) {
+    stop("n must be a non-negative integer")
+  }
+  if (!is.numeric(rewards) || length(rewards) != nstates || anyNA(rewards) ||
+      any(!is.finite(rewards))) {
+    stop("rewards must contain one finite numeric value for every state")
+  }
+  out <- .expectedRewardsRCpp(
+    markovchain@transitionMatrix, as.integer(n), rewards)
+  as.numeric(out)
 }
+
 
 #' Expected first passage Rewards for a set of states in a markovchain
 #' 
@@ -525,45 +486,39 @@ expectedRewards <- function(markovchain, n, rewards) {
 #'  
 #' @export
 expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
-  
-  ## gets the markovchain matrix
-  matrix <- markovchain@transitionMatrix
-  
-  # gets the names of states
-  stateNames <- states(markovchain)
-  
-  # no of states
-  S <- length(stateNames)
-  
-  # vectors for states in S-A
-  SAno <- rep(0,S-length(A))
-  rewardsSA <- rep(0,S-length(A))
-  
-  # for initialisation for set S-A 
-  i=1
-  ini = -1
-  for(j in 1:length(stateNames))
-  {
-    if(!(stateNames[j] %in% A)){
-      SAno[i] = j
-      rewardsSA[i] = rewards[j]
-      if(stateNames[j] == state)
-        ini = i
-      i = i+1
-    }
+  if (!is(markovchain, "markovchain")) {
+    stop("markovchain must be a markovchain object")
   }
-  
-  ## get the matrix coressponding to S-A
-  matrix <- matrix[SAno,SAno]
-  
-  ## cals the cpp implementation
-  out <- .expectedRewardsBeforeHittingARCpp(matrix, ini, rewardsSA, n)
-  
-  return(out)
-  
+  stateNames <- states(markovchain)
+  if (!is.character(A) || length(A) < 1L || anyNA(A) ||
+      any(!A %in% stateNames)) {
+    stop("A must contain valid state names")
+  }
+  A <- unique(A)
+  if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
+    stop("state must identify exactly one state")
+  }
+  if (state %in% A) {
+    stop("the initial state must not belong to A")
+  }
+  if (!is.numeric(rewards) || length(rewards) != length(stateNames) ||
+      anyNA(rewards) || any(!is.finite(rewards))) {
+    stop("rewards must contain one finite numeric value for every state")
+  }
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 0 || n != floor(n)) {
+    stop("n must be a non-negative integer")
+  }
+
+  keep <- which(!stateNames %in% A)
+  initial <- match(state, stateNames[keep])
+  .expectedRewardsBeforeHittingARCpp(
+    markovchain@transitionMatrix[keep, keep, drop = FALSE],
+    initial,
+    rewards[keep],
+    as.integer(n)
+  )
 }
-
-
 
 
 #' Mean First Passage Time for irreducible Markov chains
@@ -971,3 +926,186 @@ setMethod("summary", signature(object = "markovchain"),
     invisible(outs) 
   }
 )
+
+# Validate and convert a partition to C++ indices.
+#
+# This internal helper checks that `partition` is a named, exhaustive and
+# mutually exclusive partition of the state space, then converts state names to
+# zero-based integer indices for the C++ backend.
+.get_partition_indices <- function(state_names, partition) {
+  if (!is.list(partition) || length(partition) < 1L) {
+    stop("Invalid partition: partition must be a non-empty list.")
+  }
+  if (is.null(names(partition)) || any(!nzchar(names(partition)))) {
+    stop("Invalid partition: partition must be a named list.")
+  }
+  if (anyDuplicated(names(partition))) {
+    stop("Invalid partition: macro-state names must be unique.")
+  }
+
+  part_idx <- lapply(partition, function(x) {
+    if (!is.character(x) || length(x) < 1L) {
+      stop("Invalid partition: each macro-state must contain at least one state name.")
+    }
+    idx <- match(x, state_names)
+    if (any(is.na(idx))) {
+      stop("Invalid partition: Some states in the partition do not exist in the Markov chain.")
+    }
+    as.integer(idx - 1L)
+  })
+
+  all_idx <- unlist(part_idx, use.names = FALSE)
+  if (length(all_idx) != length(state_names)) {
+    stop("Invalid partition: The partition must contain all states of the Markov chain exactly once (no duplicates, no omissions).")
+  }
+  if (length(unique(all_idx)) != length(state_names)) {
+    stop("Invalid partition: The partition must contain all states of the Markov chain exactly once (no duplicates, no omissions).")
+  }
+
+  part_idx
+}
+
+#' Check exact lumpability of a Markov chain
+#'
+#' @description Verifies the strong lumpability condition with respect to a
+#' partition of the state space. For every pair of macro-states, all micro-states
+#' in the same source macro-state must have the same total probability of moving
+#' to the destination macro-state.
+#'
+#' @param object A \code{markovchain} object.
+#' @param partition A named list of character vectors defining macro-states.
+#' @param tol Non-negative numerical tolerance for equality checks.
+#' @return A logical value.
+#' @references Kemeny, J. G. and Snell, J. L. (1960). \emph{Finite Markov Chains}.
+#' @export
+setGeneric("is.lumpable", function(object, partition, tol = 1e-10) standardGeneric("is.lumpable"))
+
+#' @rdname is.lumpable
+#' @aliases is.lumpable,markovchain-method
+setMethod("is.lumpable", signature(object = "markovchain"),
+          function(object, partition, tol = 1e-10) {
+            part_idx <- .get_partition_indices(states(object), partition)
+            P <- object@transitionMatrix
+            # The C++ backend checks row-wise transition probabilities.  If the
+            # object stores probabilities by column, transpose the matrix so the
+            # lumpability condition is still evaluated on outgoing probabilities.
+            if (!object@byrow) {
+              P <- t(P)
+            }
+            .is_lumpable_cpp(P, part_idx, tol)
+          })
+
+#' Aggregate a Markov chain over a partition
+#'
+#' @description Coarsens a Markov chain to a reduced state space. By default the
+#' function requires exact lumpability. With \code{force = TRUE}, it performs an
+#' approximate aggregation using stationary weights when available and arithmetic
+#' averages for macro-states with zero stationary mass.
+#'
+#' @param object A \code{markovchain} object.
+#' @param partition A named list of character vectors defining macro-states.
+#' @param force If \code{FALSE}, stop unless the chain is exactly lumpable. If
+#' \code{TRUE}, return a weighted approximate lumping.
+#' @return A \code{markovchain} object on the macro-state space.
+#' @export
+setGeneric("lump", function(object, partition, force = FALSE) standardGeneric("lump"))
+
+#' @rdname lump
+#' @aliases lump,markovchain-method
+setMethod("lump", signature(object = "markovchain"),
+          function(object, partition, force = FALSE) {
+            part_idx <- .get_partition_indices(states(object), partition)
+
+            P <- object@transitionMatrix
+            # Work internally with the usual row-stochastic convention.  The
+            # returned object is also row-stochastic, independently of the input
+            # storage orientation.
+            if (!object@byrow) {
+              P <- t(P)
+            }
+
+            if (!force && !.is_lumpable_cpp(P, part_idx, 1e-10)) {
+              stop("The Markov chain is not exactly lumpable. Use force = TRUE to perform an approximate weighted lumping.")
+            }
+
+            st <- steadyStates(object)
+            if (nrow(st) > 0L) {
+              # If several stationary distributions are returned, average them
+              # to obtain deterministic non-negative aggregation weights.
+              w <- colMeans(st)
+            } else {
+              w <- rep(1 / ncol(object@transitionMatrix), ncol(object@transitionMatrix))
+            }
+
+            P_lumped <- .lump_cpp(P, part_idx, as.numeric(w))
+            dimnames(P_lumped) <- list(names(partition), names(partition))
+
+            new("markovchain",
+                states = names(partition),
+                transitionMatrix = P_lumped,
+                byrow = TRUE,
+                name = paste(object@name, "(Lumped)"))
+          })
+
+#' Automatically aggregate a Markov chain by spectral clustering
+#'
+#' @description Finds an approximate partition by clustering the leading right
+#' eigenvectors of the transition matrix, then returns the forced lumping over
+#' that partition. This is a heuristic for approximate lumping/metastable
+#' aggregation, not a proof of exact lumpability.
+#'
+#' @param object A \code{markovchain} object.
+#' @param k Number of macro-states to discover.
+#' @return A list with \code{partition} and \code{lumped_chain}.
+#' @export
+setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
+
+#' @rdname autoLump
+#' @aliases autoLump,markovchain-method
+setMethod("autoLump", signature(object = "markovchain"),
+          function(object, k) {
+            P <- object@transitionMatrix
+            state_names <- states(object)
+            n <- nrow(P)
+
+            if (length(k) != 1L || is.na(k) || k != as.integer(k)) {
+              stop("k must be a single integer.")
+            }
+            k <- as.integer(k)
+            if (k <= 1L || k >= n) {
+              stop("The number of macro-states 'k' must be between 2 and the number of states - 1.")
+            }
+
+            eig <- eigen(P)
+            ord <- order(Mod(eig$values), decreasing = TRUE)
+            V_eig <- Re(eig$vectors[, ord[seq_len(k)], drop = FALSE])
+
+            # Make the example deterministic without permanently changing the
+            # user's random-number stream.
+            old_seed <- if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+              get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+            } else {
+              NULL
+            }
+            on.exit({
+              if (is.null(old_seed)) {
+                if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+                  rm(".Random.seed", envir = .GlobalEnv)
+                }
+              } else {
+                assign(".Random.seed", old_seed, envir = .GlobalEnv)
+              }
+            }, add = TRUE)
+            set.seed(42)
+            clust <- stats::kmeans(V_eig, centers = k, nstart = 10)
+
+            partition <- stats::setNames(vector("list", k), paste0("Macro_", seq_len(k)))
+            for (i in seq_len(k)) {
+              partition[[i]] <- state_names[clust$cluster == i]
+            }
+
+            list(
+              partition = partition,
+              lumped_chain = lump(object, partition, force = TRUE)
+            )
+          })

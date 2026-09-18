@@ -6,6 +6,8 @@
 #include <string>
 #include <algorithm>
 #include <stack>
+#include <cmath>
+#include <queue>
 
 using namespace Rcpp;
 using namespace std;
@@ -419,6 +421,9 @@ List summaryKernel(S4 object) {
 //here the kernel function to compute the first passage
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n) {
+  if (P.nrow() != P.ncol()) stop("P must be square");
+  if (n < 1) stop("n must be positive");
+  if (i < 1 || i > P.nrow()) stop("initial-state index is out of range");
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::mat H(n, P.ncol()); 
@@ -446,6 +451,15 @@ NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n) {
 
 // [[Rcpp::export(.firstPassageMultipleRCpp)]]
 NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setno, int n) {
+  if (P.nrow() != P.ncol()) stop("P must be square");
+  if (n < 1) stop("n must be positive");
+  if (i < 1 || i > P.nrow()) stop("initial-state index is out of range");
+  if (setno.size() < 1) stop("target set must not be empty");
+  for (R_xlen_t k = 0; k < setno.size(); ++k) {
+    if (!R_FINITE(setno[k]) || setno[k] != std::floor(setno[k]) ||
+        setno[k] < 1 || setno[k] > P.nrow())
+      stop("target-state index is out of range");
+  }
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::vec H = arma::zeros(n); //here Thoralf suggestion
@@ -472,6 +486,10 @@ NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setn
 
 // [[Rcpp::export(.expectedRewardsRCpp)]]
 NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards) {
+  if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");
+  if (rewards.size() != matrix.nrow())
+    stop("rewards length must match matrix dimension");
+  if (n < 0) stop("n must be non-negative");
   // initialises output vector
   NumericVector out;
   
@@ -503,7 +521,13 @@ NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rew
 // [[Rcpp::export(.expectedRewardsBeforeHittingARCpp)]]
 double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
                                NumericVector rewards, int n ) {
-  float result = 0.0;
+  if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");
+  if (rewards.size() != matrix.nrow())
+    stop("rewards length must match matrix dimension");
+  if (s0 < 1 || s0 > matrix.nrow())
+    stop("initial-state index is out of range");
+  if (n < 0) stop("n must be non-negative");
+  double result = 0.0;
   int size = rewards.size();
   arma::mat matr = as<arma::mat>(matrix);
   arma::mat temp = as<arma::mat>(matrix);
@@ -897,102 +921,138 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
   return logProbVec;
 }
 
-// Computes hittingProbs(., j), the j-th column of the hitting-probability
-// matrix, as the minimal non-negative solution of
-//
-//   h = R + Q h ,   R(i) = P(i, j) + sum_{k closed, k ~ j} P(i, k)
-//                   Q(i, k) = P(i, k)  for k != j  (0 otherwise)
-//
-// restricted to the "free" states (states not in a closed communicating
-// class; closed-class states are resolved directly as boundary values
-// below). This is exactly the linear system the previous implementation
-// built and solved with arma::solve(coeffs, right_part) -- see
-// areHittingProbabilities() in utils.cpp for the recurrence this must
-// satisfy, including for i == j (the diagonal holds a *return*
-// probability, not a trivial 1, for transient states).
-//
-// Instead of a direct solve of (I - Q), which can become numerically
-// singular when transition probabilities span a very wide dynamic range
-// (e.g. absorbing/near-absorbing states mixed with entries far below
-// machine epsilon relative to others in the same row), h is computed via
-// doubling of the Neumann series:
-//
-//   sum_{t=0}^{2^n - 1} Q^t = prod_{i=0}^{n-1} (I + Q^(2^i))
-//
-// Every intermediate quantity is a sum/product of non-negative transition
-// probabilities, so each iterate -- and hence the result -- is
-// structurally guaranteed to lie in [0, 1], regardless of how
-// ill-conditioned (I - Q) would have been for a direct solve. Convergence
-// is quadratic (the number of chain steps covered doubles every
-// iteration), so this typically takes well under 30 iterations even for
-// chains with self-loops arbitrarily close to 1.
-void hittingProbabilitiesColumn(const arma::mat& P, int j, int numStates,
-                                const LogicalVector& closedClass,
-                                const LogicalMatrix& communicating,
-                                arma::mat& hittingProbs,
-                                double tol, int maxDoublings,
-                                const CharacterVector& states) {
+// Compute reverse reachability from a set of seed states. When excluded >= 0,
+// paths are not allowed to visit that state. Strict positivity is intentional:
+// even an arbitrarily small positive transition changes reachability.
+std::vector<bool> reverseReachable(
+    const std::vector<std::vector<int>>& predecessors,
+    const std::vector<int>& seeds,
+    int excluded = -1) {
+  const int n = static_cast<int>(predecessors.size());
+  std::vector<bool> reachable(n, false);
+  std::queue<int> pending;
+
+  for (int seed : seeds) {
+    if (seed != excluded && !reachable[seed]) {
+      reachable[seed] = true;
+      pending.push(seed);
+    }
+  }
+
+  while (!pending.empty()) {
+    const int current = pending.front();
+    pending.pop();
+    for (int predecessor : predecessors[current]) {
+      if (predecessor != excluded && !reachable[predecessor]) {
+        reachable[predecessor] = true;
+        pending.push(predecessor);
+      }
+    }
+  }
+  return reachable;
+}
+
+// Compute the off-diagonal hitting probabilities for target j as the minimal
+// non-negative solution h = R + Qh. Closed classes provide boundary values;
+// graph checks identify values that are structurally zero or one. Remaining
+// values use a doubled Neumann series with a relative fixed-point residual.
+void hittingProbabilitiesColumn(
+    const arma::mat& P,
+    const std::vector<std::vector<int>>& predecessors,
+    int j, int numStates,
+    const LogicalVector& closedClass,
+    const LogicalMatrix& communicating,
+    arma::mat& hittingProbs,
+    double tol, int maxDoublings,
+    const CharacterVector& states) {
+  const std::vector<int> targetSeed(1, j);
+  const std::vector<bool> canReachTarget =
+    reverseReachable(predecessors, targetSeed);
+
+  std::vector<int> badClosedSeeds;
+  badClosedSeeds.reserve(numStates);
+  for (int k = 0; k < numStates; ++k) {
+    if (closedClass(k) && !communicating(k, j))
+      badClosedSeeds.push_back(k);
+  }
+  const std::vector<bool> canReachBadClosed =
+    reverseReachable(predecessors, badClosedSeeds, j);
+
   std::vector<int> freeIdx;
   freeIdx.reserve(numStates);
-  for (int i = 0; i < numStates; ++i)
-    if (!closedClass(i))
+  for (int i = 0; i < numStates; ++i) {
+    if (!closedClass(i) && i != j)
       freeIdx.push_back(i);
+  }
 
-  int m = freeIdx.size();
-
+  const int m = static_cast<int>(freeIdx.size());
   if (m > 0) {
-    arma::mat Q(m, m);
-    arma::vec R(m);
+    arma::mat Q(m, m, arma::fill::zeros);
+    arma::vec R(m, arma::fill::zeros);
 
     for (int a = 0; a < m; ++a) {
-      int i = freeIdx[a];
+      const int i = freeIdx[a];
       double r = P(i, j);
 
-      // Direct contribution of states whose hitting probability towards
-      // j is already known because they belong to a closed class.
-      for (int k = 0; k < numStates; ++k)
+      // States in the target's closed communicating class have boundary value 1.
+      for (int k = 0; k < numStates; ++k) {
         if (k != j && closedClass(k) && communicating(k, j))
           r += P(i, k);
-
+      }
       R(a) = r;
 
       for (int b = 0; b < m; ++b) {
-        int k = freeIdx[b];
-        Q(a, b) = (k == j) ? 0.0 : P(i, k);
+        const int k = freeIdx[b];
+        Q(a, b) = P(i, k);
       }
     }
 
     arma::mat Qk = Q;
     arma::vec acc = R;
-    double delta = arma::datum::inf;
+    double relativeResidual = arma::datum::inf;
+    bool converged = false;
 
     for (int it = 0; it < maxDoublings; ++it) {
-      arma::vec accNew = acc + Qk * acc;
-      delta = arma::max(arma::abs(accNew - acc));
-      acc = accNew;
-      if (delta < tol)
+      acc += Qk * acc;
+
+      const arma::vec residual = R + Q * acc - acc;
+      const double residualNorm = arma::max(arma::abs(residual));
+      const double scale = std::max(arma::max(arma::abs(acc)),
+                                    arma::max(arma::abs(R)));
+      relativeResidual = (scale == 0.0)
+        ? (residualNorm == 0.0 ? 0.0 : arma::datum::inf)
+        : residualNorm / scale;
+
+      if (relativeResidual <= tol) {
+        converged = true;
         break;
+      }
       Qk = Qk * Qk;
     }
 
-    if (delta >= tol) {
-      std::string stateName = std::string(states(j));
+    if (!converged) {
+      const std::string stateName = std::string(states(j));
       warning("hittingProbabilities(): target state \"" + stateName +
-              "\" did not fully converge (last change = " + std::to_string(delta) +
-              "); values may be slightly imprecise but remain valid probabilities.");
+              "\" did not fully converge (last relative residual = " +
+              std::to_string(relativeResidual) +
+              "); values may be imprecise.");
     }
 
-    // Safety net for residual floating-point overshoot only: by
-    // construction acc already lies in [0, 1] up to rounding error.
     arma::vec h = arma::clamp(acc, 0.0, 1.0);
-
-    for (int a = 0; a < m; ++a)
-      hittingProbs(freeIdx[a], j) = h(a);
+    for (int a = 0; a < m; ++a) {
+      const int source = freeIdx[a];
+      if (!canReachTarget[source])
+        h(a) = 0.0;
+      else if (!canReachBadClosed[source])
+        h(a) = 1.0;
+      hittingProbs(source, j) = h(a);
+    }
   }
 
-  for (int i = 0; i < numStates; ++i)
+  for (int i = 0; i < numStates; ++i) {
     if (closedClass(i))
       hittingProbs(i, j) = communicating(i, j) ? 1.0 : 0.0;
+  }
 }
 
 // [[Rcpp::export(.hittingProbabilitiesRcpp)]]
@@ -1000,33 +1060,80 @@ NumericMatrix hittingProbabilities(S4 object) {
   NumericMatrix transitionMatrix = object.slot("transitionMatrix");
   CharacterVector states = object.slot("states");
   bool byrow = object.slot("byrow");
-  
+
   if (!byrow)
     transitionMatrix = transpose(transitionMatrix);
-  
-  int numStates = transitionMatrix.nrow();
+
+  const int numStates = transitionMatrix.nrow();
   arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
   arma::mat hittingProbs(numStates, numStates, arma::fill::zeros);
-  // Compute closed communicating classes
+
+  // Off-diagonal hitting probabilities are invariant under removal of
+  // self-loops. Build the embedded jump chain by summing off-diagonal mass
+  // directly; 1 - P(i,i) is unsafe when P(i,i) rounds to one.
+  arma::mat jumpProbs(numStates, numStates, arma::fill::zeros);
+  for (int i = 0; i < numStates; ++i) {
+    long double offDiagonalMass = 0.0L;
+    for (int k = 0; k < numStates; ++k) {
+      if (k != i)
+        offDiagonalMass += static_cast<long double>(transitionProbs(i, k));
+    }
+
+    if (offDiagonalMass > 0.0L) {
+      const double denominator = static_cast<double>(offDiagonalMass);
+      for (int k = 0; k < numStates; ++k) {
+        if (k != i)
+          jumpProbs(i, k) = transitionProbs(i, k) / denominator;
+      }
+    }
+  }
+
   List commClasses = commClassesKernel(transitionMatrix);
   LogicalVector closedClass = commClasses["closed"];
   LogicalMatrix communicating = commClasses["classes"];
 
+  // Build reverse adjacency once, making each reachability pass O(V + E).
+  std::vector<std::vector<int>> predecessors(numStates);
+  for (int i = 0; i < numStates; ++i) {
+    for (int j = 0; j < numStates; ++j) {
+      if (jumpProbs(i, j) > 0.0)
+        predecessors[j].push_back(i);
+    }
+  }
+
   const double tol = 1e-13;
   const int maxDoublings = 200;
+  for (int j = 0; j < numStates; ++j) {
+    hittingProbabilitiesColumn(jumpProbs, predecessors, j, numStates,
+                               closedClass, communicating, hittingProbs, tol,
+                               maxDoublings, states);
+  }
 
-  for (int j = 0; j < numStates; ++j)
-    hittingProbabilitiesColumn(transitionProbs, j, numStates, closedClass,
-                               communicating, hittingProbs, tol, maxDoublings,
-                               states);
-  
+  // Preserve the package convention that diagonal entries are return
+  // probabilities after at least one transition.
+  for (int j = 0; j < numStates; ++j) {
+    if (!closedClass(j)) {
+      long double returnProbability =
+        static_cast<long double>(transitionProbs(j, j));
+      for (int k = 0; k < numStates; ++k) {
+        if (k != j) {
+          returnProbability +=
+            static_cast<long double>(transitionProbs(j, k)) *
+            static_cast<long double>(hittingProbs(k, j));
+        }
+      }
+      hittingProbs(j, j) = std::max(
+        0.0, std::min(1.0, static_cast<double>(returnProbability)));
+    }
+  }
+
   NumericMatrix result = wrap(hittingProbs);
   colnames(result) = states;
   rownames(result) = states;
-  
+
   if (!byrow)
     result = transpose(result);
-  
+
   return result;
 }
 
@@ -1406,16 +1513,14 @@ NumericMatrix absorptionProbabilities(S4 obj) {
   uvec transientIndices(transientIndxs);
   uvec recurrentIndices(recurrentIndxs);
   
-  // Compute N = (1 - Q)^{-1}
+  // Compute B = (I - Q)^{-1} R by solving (I - Q) B = R directly.
   mat probs(transitions.begin(), m, m, true);
-  mat toInvert = eye(n, n) - probs(transientIndices, transientIndices);
-  mat fundamentalMatrix;
-  
-  if (!inv(fundamentalMatrix, toInvert))
-    stop("Could not compute fundamental matrix");
-  
-  // Compute the mean absorption probabilities as F* = N*P[transient, recurrent]
-  mat meanProbs = fundamentalMatrix * probs(transientIndices, recurrentIndices);
+  mat coeffs = eye(n, n) - probs(transientIndices, transientIndices);
+  mat rhs = probs(transientIndices, recurrentIndices);
+  mat meanProbs;
+
+  if (!solve(meanProbs, coeffs, rhs))
+    stop("Could not solve the absorption-probability system");
   NumericMatrix result = wrap(meanProbs);
   rownames(result) = transient;
   colnames(result) = recurrent;
@@ -1591,4 +1696,95 @@ bool is_stochastically_monotone_cpp(NumericMatrix P) {
   }
   
   return true;
+}
+
+// [[Rcpp::export(.is_lumpable_cpp)]]
+bool is_lumpable_cpp(NumericMatrix P, List partition, double tol = 1e-10) {
+  int n = P.nrow();
+  if (P.ncol() != n) stop("P must be a square transition matrix.");
+  if (tol < 0.0) stop("tol must be non-negative.");
+
+  int k = partition.size();
+  for (int cj = 0; cj < k; ++cj) {
+    IntegerVector dest = partition[cj];
+    for (int ci = 0; ci < k; ++ci) {
+      IntegerVector src = partition[ci];
+      if (src.size() <= 1) continue;
+
+      double reference = NA_REAL;
+      for (int a = 0; a < src.size(); ++a) {
+        int row = src[a];
+        if (row < 0 || row >= n) stop("partition contains an out-of-range row index.");
+
+        double blockProb = 0.0;
+        for (int b = 0; b < dest.size(); ++b) {
+          int col = dest[b];
+          if (col < 0 || col >= n) stop("partition contains an out-of-range column index.");
+          blockProb += P(row, col);
+        }
+
+        if (a == 0) {
+          reference = blockProb;
+        } else if (std::abs(blockProb - reference) > tol) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+// [[Rcpp::export(.lump_cpp)]]
+NumericMatrix lump_cpp(NumericMatrix P, List partition, NumericVector weights) {
+  int n = P.nrow();
+  if (P.ncol() != n) stop("P must be a square transition matrix.");
+  if (weights.size() != n) stop("weights length must match the number of states.");
+
+  int k = partition.size();
+  NumericMatrix P_lumped(k, k);
+
+  for (int ci = 0; ci < k; ++ci) {
+    IntegerVector src = partition[ci];
+    if (src.size() == 0) stop("partition blocks must be non-empty.");
+
+    double w_sum = 0.0;
+    for (int a = 0; a < src.size(); ++a) {
+      int row = src[a];
+      if (row < 0 || row >= n) stop("partition contains an out-of-range row index.");
+      if (weights[row] > 0.0) w_sum += weights[row];
+    }
+
+    for (int cj = 0; cj < k; ++cj) {
+      IntegerVector dest = partition[cj];
+      double block_sum = 0.0;
+
+      for (int a = 0; a < src.size(); ++a) {
+        int row = src[a];
+        double row_to_block = 0.0;
+        for (int b = 0; b < dest.size(); ++b) {
+          int col = dest[b];
+          if (col < 0 || col >= n) stop("partition contains an out-of-range column index.");
+          row_to_block += P(row, col);
+        }
+
+        if (w_sum > 0.0 && weights[row] > 0.0) {
+          block_sum += (weights[row] / w_sum) * row_to_block;
+        } else if (w_sum <= 0.0) {
+          block_sum += row_to_block / static_cast<double>(src.size());
+        }
+      }
+      P_lumped(ci, cj) = block_sum;
+    }
+  }
+
+  // Guard against tiny floating-point drift so rows sum to one.
+  for (int i = 0; i < k; ++i) {
+    double rsum = 0.0;
+    for (int j = 0; j < k; ++j) rsum += P_lumped(i, j);
+    if (rsum > 0.0) {
+      for (int j = 0; j < k; ++j) P_lumped(i, j) /= rsum;
+    }
+  }
+
+  return P_lumped;
 }

@@ -9,21 +9,24 @@
 \alias{steadyStates,ctmc-method}
 \alias{plot,ctmc,missing-method}
 \title{Continuous time Markov Chains class}
-\arguments{
-\item{states}{Name of the states. Must be the same of
-\code{colnames} and \code{rownames} of the generator matrix}
-
-\item{byrow}{TRUE or FALSE. Indicates whether the given matrix is
-stochastic by rows or by columns}
-
-\item{generator}{Square generator matrix}
-
-\item{name}{Optional character name of the Markov chain}
-}
 \description{
 The S4 class that describes \code{ctmc} (continuous 
 time Markov chain) objects.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{states}}{Name of the states. Must be the same of
+\code{colnames} and \code{rownames} of the generator matrix}
+
+\item{\code{byrow}}{TRUE or FALSE. Indicates whether the given matrix is
+stochastic by rows or by columns}
+
+\item{\code{generator}}{Square generator matrix}
+
+\item{\code{name}}{Optional character name of the Markov chain}
+}}
+
 \note{
 \enumerate{
 \item \code{ctmc} classes are written using S4 classes

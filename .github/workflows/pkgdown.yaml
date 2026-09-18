@@ -49,15 +49,15 @@ jobs:
           needs: website
           cache: true
 
-      - name: Install TinyTeX
-        run: |
-          for i in 1 2 3; do
-            Rscript -e 'tinytex::install_tinytex()' && exit 0
-            echo "TinyTeX install attempt $i failed, retrying..."
-            sleep 20
-          done
-          exit 1
-        shell: bash
+      - id: tinytex
+        uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install additional LaTeX packages
+        run: tlmgr install grfext thumbpdf
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

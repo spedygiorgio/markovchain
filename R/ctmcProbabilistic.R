@@ -38,9 +38,26 @@
 #' @export
 rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, 
                   out.type = "list") {
+  if (!is(ctmc, "ctmc")) stop("ctmc must be a ctmc object")
+  if (length(n) != 1L || is.na(n) || n <= 0 ||
+      (!is.finite(n) && !is.infinite(n)) ||
+      (is.finite(n) && (n != floor(n) || n > .Machine$integer.max))) {
+    stop("n must be a positive integer or Inf")
+  }
+  if (length(T) != 1L || is.na(T) || !is.finite(T) || T < 0) {
+    stop("T must be a finite non-negative number")
+  }
+  if (is.infinite(n) && T <= 0) {
+    stop("a finite positive T is required when n is infinite")
+  }
+  if (!out.type %in% c("list", "df")) {
+    stop("out.type must be 'list' or 'df'")
+  }
   if (identical(initDist, numeric()))
     state <- sample(ctmc@states, 1) # sample state randomly
-  else if (length(initDist) != dim(ctmc) | round(sum(initDist), 5) != 1)
+  else if (!is.numeric(initDist) || length(initDist) != dim(ctmc) ||
+           anyNA(initDist) || any(!is.finite(initDist)) || any(initDist < 0) ||
+           abs(sum(initDist) - 1) > 1e-8)
     stop("Error! Provide a valid initial state probability distribution")
   else 
     state <- sample(ctmc@states, 1, prob = initDist) # if valid probability distribution,
@@ -332,6 +349,13 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
 #' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 #' @export
 impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE){
+  if (length(error) != 1L || is.na(error) || !is.finite(error) || error <= 0) {
+    stop("error must be a finite positive number")
+  }
+  if (length(t) != 1L || length(s) != 1L || anyNA(c(t, s)) ||
+      any(!is.finite(c(t, s)))) {
+    stop("t and s must be finite scalar time points")
+  }
   ##  input validity checking
   if(s <= t){
     stop("Please provide time points such that initial time is greater than or equal to end point")
@@ -341,6 +365,12 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
     stop("Please provide a valid ictmc-class object")
   }
   noOfstates <-length(C@states)
+  if (length(i) != 1L || is.na(i) || !is.finite(i) || i != floor(i)) {
+    stop("Please provide a valid initial state")
+  }
+  if (useRCpp && (t != floor(t) || s != floor(s))) {
+    stop("t and s must be integer-valued when useRCpp is TRUE")
+  }
   
   if(i <= 0 || i > noOfstates){
     stop("Please provide a valid initial state")

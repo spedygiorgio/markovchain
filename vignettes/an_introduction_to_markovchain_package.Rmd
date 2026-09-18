@@ -164,7 +164,7 @@ If $p_{ii}=1$, $s_{i}$ is defined as absorbing state: an absorbing state corresp
 
 The canonical form of a DTMC transition matrix is a matrix having a block form, where the closed communicating classes are shown at the beginning of the diagonal matrix.
 
-A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiplies of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
+A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiples of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
 
 If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  It is possible to classify states according to their periodicity. Let $T^{x\rightarrow x}$ is the number of periods to go back to state $x$ knowing that the chain starts in $x$.  
 
@@ -639,7 +639,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{summary} & DTMC summary. \\
   \hline
   \end{tabular}
-\caption{\pkg{markovchain} methods: statistical operations.}
+\caption{\pkg{markovchain} methods: probabilistic operations.}
 \label{tab:methodsToStats}
 \end{table}
 
@@ -668,13 +668,13 @@ A stationary (steady state, or equilibrium) vector is a probability vector such 
 \end{equation}
 
 Steady states are associated to $P$ eigenvalues equal to one. We could be tempted to compute them 
-solving the eigen values / vectors of the matrix and taking real parts (since if $u + iv$ is a eigen vector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigen vectors) and normalizing by the vector sum, this carries some concerns:
+solving the eigenvalues and eigenvectors of the matrix and taking real parts (since if $u + iv$ is a eigenvector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigenvectors) and normalizing by the vector sum, this carries some concerns:
 
-1. If $u, v \in \mathbb{R}^n$ are linearly independent eigen vectors associated to $1$ eigen value, $u + iv$, $u + iu$ are also linearly independent eigen vectors, and their real parts coincide. Clearly if we took real parts, we would be loosing an eigen vector, because we cannot know in advance if the underlying algorithm to compute the eigen vectors is going to output something similar to what we described. We should be agnostic to the underlying eigen vector computation algorithm.
+1. If $u, v \in \mathbb{R}^n$ are linearly independent eigenvectors associated with the eigenvalue $1$, $u + iv$, $u + iu$ are also linearly independent eigenvectors, and their real parts coincide. Clearly if we took real parts, we would be losing an eigenvector, because we cannot know in advance if the underlying algorithm to compute the eigenvectors is going to output something similar to what we described. We should be agnostic to the underlying eigenvector computation algorithm.
 
-2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigen vectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigen vectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigen vectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
+2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigenvectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigenvectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigenvectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
 
-3. Algorithms to compute eigen values / vectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
+3. Algorithms to compute eigenvalues and eigenvectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
 
 We are going to use that every irreducible DTMC has a unique steady state, that is, if $M$ is the matrix for an irreducible DTMC (all states communicate with each other), then it exists a unique $v \in \mathbb{R}^m$ such that:
 
@@ -941,7 +941,26 @@ But we also would like to know how much time does the person take to arrive ther
 meanAbsorptionTime(drunkMc)
 ```
 
-So it would take `3` steps to arrive to the destiny if the person is either in the second or fourth corner, and `4` steps in case of being at the same distance from home than to the bar.
+Thus, the expected time to absorption is three steps from states 2 or 4 and four steps from state 3.
+
+### Fundamental matrix
+
+For an absorbing chain, let $Q$ be the transition submatrix among transient
+states. The fundamental matrix is
+
+\begin{equation}
+N=(I-Q)^{-1}=I+Q+Q^2+\cdots.
+\end{equation}
+
+Its $(i,j)$ entry is the expected number of visits to transient state $j$ before
+absorption when starting from transient state $i$, including the initial visit.
+The expected absorption-time vector is $N\mathbf{1}$, while absorption
+probabilities are obtained from $NR$, where $R$ contains transitions from
+transient to absorbing states [@GrinsteadSnell].
+
+```{r fundamental-matrix-drunkard}
+fundamentalMatrix(drunkMc)
+```
 
 ## Committor probability
 
@@ -955,78 +974,23 @@ committorAB(mcWeather,3,1)
 
 ## Hitting probabilities
 
-Rewriting the system \eqref{eq:hitting-probs} as:
-
-\begin{equation*}
-A = \left(\begin{array}{c|c|c|c}
-  A_1 & 0 & \ldots & 0 \\
-\hline
-  0 & A_2 & \ldots & 0 \\
-\hline
-  \vdots & \vdots & \ddots & 0 \\
-\hline
-  0 & 0 & \ldots & A_n
-\end{array}\right)
-\end{equation*}
-
-\begin{eqnarray*}
-A_1 &= 
-\left(\begin{matrix}
-  -1     & p_{1,2}       & p_{1,3}   & \ldots & p_{1,n} \\
-  0      & (p_{2,2} - 1) & p_{2,3}   & \ldots & p_{2,n} \\
-  \vdots & \vdots        & \vdots    & \ddots & \vdots  \\
-  0      & p_{n, 2}      & p_{n,3}   & \ldots & (p_{n,n} - 1)
-  \end{matrix}\right)\\
-A_2 &= \left(\begin{matrix}
-  (p_{1,1} - 1) & 0      & p_{1,3}   & \ldots & p_{1,n} \\
-  p_{2,1}       & -1     & p_{2,3}   & \ldots & p_{2,n} \\
-  \vdots        & \vdots & \vdots    & \ddots & \vdots  \\
-  p_{n,1}       & 0      & p_{n,3}   & \ldots & (p_{n,n} - 1)
-  \end{matrix}\right)\\
-\vdots & \vdots\\
-A_n &= \left(\begin{matrix}
-  (p_{1,1} - 1) & p_{1,2}      & p_{1,3}   & \ldots & 0 \\
-  p_{2,1}       & (p_{2,2} -1) & p_{2,3}   & \ldots & 0 \\
-  \vdots        & \vdots       & \vdots    & \ddots & \vdots  \\
-  p_{n,1}       & p_{n,2}      & p_{n,3}   & \ldots & -1
-  \end{matrix}\right)\\
-\end{eqnarray*}
-
-\begin{equation*}
-\begin{array}{lr}
-X_j = \left(\begin{array}{c}
-h_{1,j} \\
-h_{2,j} \\
-\vdots  \\
-h_{n,j}
-\end{array}\right) &
-C_j = - \left(\begin{array}{c}
-p_{1,j} \\
-p_{2,j} \\
-\vdots  \\
-p_{n,j}
-\end{array}\right)
-\end{array}
-\end{equation*}
-
-we end up having to solve the block systems:
+For states $i$ and $j$, the hitting probability $h_{ij}$ is the probability of
+ever visiting $j$ when the chain starts in $i$. For $i = j$, the package uses
+the return probability after at least one transition, rather than the trivial
+time-zero probability. The values are the minimal non-negative solution of the
+first-step equations
 
 \begin{equation}
-A_j \cdot X_j = C_j
+h_{ij}=p_{ij}+\sum_{k\ne j}p_{ik}h_{kj}.
 \end{equation}
 
-Let us imagine the $i$ -th state has transition probabilities: $(0, \ldots, 0, \underset{i)}{1}, 0, \ldots, 0)$. Then that same row would turn into $(0,0, \ldots, 0)$ for some block, thus obtaining a singular matrix. Another case which may give us problems could be: state $i$ has the following transition probabilities: $(0, \ldots, 0, \underset{j)}{1}, 0, \ldots, 0)$ and the state $j$ has the following transition probabilities: $(0, \ldots, 0, \underset{i)}{1}, 0, \ldots, 0)$. Then when building some blocks we will end up with rows:
-
-\begin{eqnarray*}
-(0, \ldots, 0, \underset{i)}{-1}, 0, \ldots, 0, \underset{j)}{1}, 0, \ldots, 0) \\
-(0, \ldots, 0, \underset{i)}{1},  0, \ldots, 0, \underset{j)}{-1}, 0, \ldots, 0)
-\end{eqnarray*}
-
-which are linearly dependent. Our hypothesis is that if we treat the closed communicating classes differently, we *might* delete the linearity in the system. If we have a closed communicating class $C_u$, then $h_{i,j} = 1$ for all $i,j \in C_u$ and $h_{k,j}  = 0$ for all $k\not\in C_u$. Then we can set $X_u$ appropriately and solve the other $X_v$ using those values.
-
-The method in charge of that in `markovchain` package is `hittingProbabilities`, which receives a Markov chain and computes the matrix $(h_{ij})_{i,j = 1,\ldots, n}$ where $S = \{s_1, \ldots, s_n\}$ is the set of all states of the chain.
-
-For the following chain:
+`hittingProbabilities` first analyses the directed graph of positive transitions.
+This identifies probabilities that are structurally zero or one, without
+discarding very small positive transitions. Remaining probabilities are computed
+from a convergent Neumann series using a relative residual stopping rule. This is
+important for nearly absorbing chains: a small transition probability may imply
+a long waiting time, but the probability of eventually taking that transition
+can still be exactly one.
 
 ```{r hitting-data}
 M <- markovchain:::zeros(5)
@@ -1039,13 +1003,8 @@ hittingTest <- new("markovchain", transitionMatrix = M)
 hittingProbabilities(hittingTest)
 ```
 
-we want to compute the hitting probabilities. That can be done with:
-
-```{r hitting-probabilities}
-hittingProbabilities(hittingTest)
-```
-
-In the case of the `mcWeather` Markov chain we would obtain a matrix with all its elements set to $1$. That makes sense (and is desirable) since if today is sunny, we expect it would be sunny again at certain point in the time, and the same with rainy weather (that way we assure good harvests):
+For the irreducible finite chain `mcWeather`, every state is eventually visited
+with probability one:
 
 ```{r hitting-weather}
 hittingProbabilities(mcWeather)
@@ -1061,7 +1020,7 @@ because it guarantees that the Markov chain preserves the initial ordering of st
 For instance, in an income mobility model, if you start in a higher income class, 
 your probability of moving to or staying in a high income class should ideally be greater than or equal to someone starting in a lower income class.
 
-The `is.stochasticallyMonotone` method allows verifying this property for any `markovchain` object[cite: 1]:
+The `is.stochasticallyMonotone` method allows verifying this property for any `markovchain` object:
 
 ```{r stochasticMonotonicity}
 # Define the state space for income classes
@@ -1126,7 +1085,7 @@ Table \@ref(tab:funs4Stats) lists the functions and methods implemented within t
 Simulating a random sequence from an underlying DTMC is quite easy thanks to the function `rmarkovchain`. The following code generates a year of weather states according to `mcWeather` underlying stochastic process.
 
 ```{r simulatingAMarkovChain}
-weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
+weathersOfDays <- rmarkovchain(n = 220, object = mcWeather, t0 = "sunny")
 weathersOfDays[1:30]
 ```
 
@@ -1139,23 +1098,157 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 ```
 
-Two advance parameters are available to the `rmarkovchain` method which helps you decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `Rcpp=TRUE` and  `parallel=TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+Two advanced parameters are available to the `rmarkovchain` method which help users decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `useRcpp = TRUE` and `parallel = TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+
+## Lumpability and aggregation of states
+
+In some applications the original state space is too detailed, and it is useful
+to aggregate several micro-states into a smaller number of macro-states. A Markov
+chain is said to be strongly lumpable with respect to a partition of the state
+space if, for every pair of macro-states, the total probability of moving from
+a micro-state in the source block to the destination block is the same for all
+micro-states in the source block \citep{kemeny1960finite}. Under this condition,
+the aggregated process is again Markovian and its transition matrix is well defined.
+
+The function `is.lumpable` checks exact strong lumpability for a user-supplied
+partition. The function `lump` returns the aggregated Markov chain. By default,
+`lump` requires exact lumpability; setting `force = TRUE` performs an approximate
+weighted aggregation.
+
+The following example is the classical Land of Oz weather chain. We aggregate
+`rainy` and `snowy` into a single `Bad_Weather` macro-state, leaving `nice` as a
+separate macro-state.
+
+```{r lumpability-oz}
+states_oz <- c("rainy", "nice", "snowy")
+
+P_oz <- matrix(
+  c(0.5,  0.25, 0.25,
+    0.5,  0.00, 0.5,
+    0.25, 0.25, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(states_oz, states_oz)
+)
+
+mcOz <- new(
+  "markovchain",
+  states = states_oz,
+  transitionMatrix = P_oz,
+  name = "Land of Oz"
+)
+
+partition_oz <- list(
+  Bad_Weather = c("rainy", "snowy"),
+  Nice_Weather = c("nice")
+)
+
+is.lumpable(mcOz, partition_oz)
+
+lumped_oz <- lump(mcOz, partition_oz)
+lumped_oz
+```
+
+The lumped chain has two states. From either `rainy` or `snowy`, the probability
+of moving to `nice` is 0.25, so the transition probability from `Bad_Weather` to
+`Nice_Weather` is also 0.25. The remaining probability, 0.75, stays inside the
+`Bad_Weather` macro-state.
+
+If the exact lumpability condition is not satisfied, `lump` stops by default:
+
+```{r lumpability-nonexact}
+P_bad <- matrix(
+  c(0.5, 0.3, 0.2,
+    0.7, 0.2, 0.1,
+    0.1, 0.4, 0.5),
+  byrow = TRUE,
+  nrow = 3,
+  dimnames = list(c("A1", "A2", "B"), c("A1", "A2", "B"))
+)
+
+mcBad <- new(
+  "markovchain",
+  states = c("A1", "A2", "B"),
+  transitionMatrix = P_bad
+)
+
+partition_bad <- list(
+  Group_A = c("A1", "A2"),
+  Group_B = c("B")
+)
+
+is.lumpable(mcBad, partition_bad)
+
+try(lump(mcBad, partition_bad))
+```
+
+For exploratory analyses, approximate lumping can be forced:
+
+```{r lumpability-forced}
+lump(mcBad, partition_bad, force = TRUE)
+```
+
+When `force = TRUE`, the aggregated transition probabilities are computed using
+stationary weights when available. If a macro-state has zero stationary mass, an
+arithmetic average over its micro-states is used as a fallback. This produces a
+valid coarse transition matrix, but it should be interpreted as an approximation:
+the aggregated process is not guaranteed to be exactly Markovian unless the
+strong lumpability condition holds.
+
+The helper `autoLump` provides a heuristic way to discover macro-states using
+spectral clustering. It should be regarded as an exploratory approximation, not
+as a test of exact lumpability.
+
+```{r autolump-example, eval=FALSE}
+rc <- c("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D")
+
+creditMatrix <- matrix(
+  c(90.81, 8.33, 0.68, 0.06, 0.08, 0.02, 0.01, 0.01,
+    0.70, 90.65, 7.79, 0.64, 0.06, 0.13, 0.02, 0.01,
+    0.09, 2.27, 91.05, 5.52, 0.74, 0.26, 0.01, 0.06,
+    0.02, 0.33, 5.95, 85.93, 5.30, 1.17, 1.12, 0.18,
+    0.03, 0.14, 0.67, 7.73, 80.53, 8.84, 1.00, 1.06,
+    0.01, 0.11, 0.24, 0.43, 6.48, 83.46, 4.07, 5.20,
+    0.21, 0.00, 0.22, 1.30, 2.38, 11.24, 64.86, 19.79,
+    0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 100.00),
+  nrow = 8,
+  byrow = TRUE,
+  dimnames = list(rc, rc)
+) / 100
+
+creditMc <- new(
+  "markovchain",
+  states = rc,
+  transitionMatrix = creditMatrix,
+  name = "Credit ratings"
+)
+
+set.seed(123)
+auto_lumped <- autoLump(creditMc, k = 3)
+
+auto_lumped$partition
+auto_lumped$lumped_chain
+```
+
+To keep the vignette fast, the example uses a small transition matrix. In larger
+applications, the automatically discovered partition should be inspected and
+validated substantively before being used for modelling or forecasting.
 
 ## Estimation
 
-A time homogeneous Markov chain can be fit from given data. Four methods have been implemented within current version of \pkg{markovchain} package: maximum likelihood, maximum likelihood with Laplace smoothing, Bootstrap approach, maximum a posteriori. 
+A time-homogeneous Markov chain can be fitted from observed state sequences. The current version of \pkg{markovchain} implements four fitting methods: maximum likelihood (MLE), MLE with Laplace smoothing, bootstrap estimation and maximum a posteriori (MAP) estimation.
 
-Equation \ref{eq:MLE} shows the maximum likelihood estimator (MLE) of the $p_{ij}$ entry, where the $n_{ij}$ element consists in the number sequences $\left( X_{t}=s_{i}, X_{t+1}=s_{j}\right)$ found in the sample, that is
+Equation \ref{eq:MLE} shows the maximum likelihood estimator of the transition probability $p_{ij}$. Here $n_{ij}$ is the number of observed transitions $X_t=s_i, X_{t+1}=s_j$ and $n_i = \sum_{u=1}^k n_{iu}$ is the number of observed outgoing transitions from state $s_i$:
 
 \begin{equation}
-{\hat p^{MLE}}_{ij} = \frac{n_{ij}}{\sum\limits_{u = 1}^k {n_{iu}}}.
+{\hat p^{MLE}}_{ij} = \frac{n_{ij}}{n_i}.
 \label{eq:MLE}
 \end{equation}
 
-Equation \@ref(eq:SE) shows the `standardError` of the MLE \citep{MSkuriat}.
+For a fixed origin state $s_i$, the counts $(n_{i1}, \ldots, n_{ik})$ are treated as a multinomial sample with row total $n_i = \sum_{u=1}^k n_{iu}$. The `standardError` returned for each marginal transition probability is therefore the usual binomial standard error in Equation \@ref(eq:SE).
 
 \begin{equation}
-SE_{ij} = \frac{ {\hat p^{MLE}}_{ij} }{\sqrt{n_{ij}}}
+SE_{ij} = \sqrt{\frac{{\hat p^{MLE}}_{ij}(1-{\hat p^{MLE}}_{ij})}{n_i}}
 \label{eq:SE}
 \end{equation}
 
@@ -1165,9 +1258,7 @@ weatherFittedMLE$estimate
 weatherFittedMLE$standardError
 ```
 
-The Laplace smoothing approach is a variation of the MLE, where the $n_{ij}$
-is substituted by $n_{ij}+\alpha$ (see Equation \ref{eq:LAPLACE}), being
-$\alpha$ an arbitrary positive stabilizing parameter.
+The Laplace smoothing approach is a smoothed version of the MLE in which each count $n_{ij}$ is replaced by $n_{ij}+\alpha$ (Equation \ref{eq:LAPLACE}). The smoothing parameter $\alpha$ must be non-negative; $\alpha=0$ gives the unsmoothed MLE.
 
 \begin{equation}
 {\hat p^{LS}}_{ij} = \frac{{{n_{ij}} + \alpha }}{{\sum\limits_{u = 1}^k {\left( {{n_{iu}} + \alpha } \right)} }}
@@ -1182,7 +1273,7 @@ weatherFittedLAPLACE <- markovchainFit(data = weathersOfDays,
 weatherFittedLAPLACE$estimate
 ```
 
-(NOTE: The Confidence Interval option is enabled by default. Remove this option to fasten computations.) Both MLE and Laplace approach are based on the `createSequenceMatrix` functions that returns the raw counts transition matrix.
+The confidence interval option is enabled by default; set `confint = FALSE` to reduce computation time when intervals are not needed. Both MLE and Laplace fitting are based on `createSequenceMatrix`, which returns the raw transition-count matrix.
 
 ```{r fitSequenceMatrix}
 createSequenceMatrix(stringchar = weathersOfDays)
@@ -1190,7 +1281,7 @@ createSequenceMatrix(stringchar = weathersOfDays)
 
 `stringchar` could contain `NA` values, and the transitions containing `NA` would be ignored.
 
-An issue occurs when the sample contains only one realization of a state (say $X_{\beta}$) which is located at the end of the data sequence, since it yields to a row of zero (no sample to estimate the conditional distribution of the transition). In this case the estimated transition matrix is corrected assuming $p_{\beta,j}=1/k$, being $k$ the possible states.
+If a state is observed only as the last element of a sequence, or is supplied through `possibleStates` but has no observed outgoing transition, its row has zero total count. In this case the point estimate follows the package convention of assigning a uniform row, $p_{\beta j}=1/k$. For MLE confidence intervals, such a row carries no empirical information, so the corresponding cell-wise intervals are uninformative.
 
 Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
 
@@ -1199,23 +1290,20 @@ myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2
 createSequenceMatrix(stringchar = myMatr,toRowProbs = TRUE)
 ```
 
-A bootstrap estimation approach has been developed within the package in order
-to provide an indication of the variability of ${\hat p}_{ij}$ estimates. The
-bootstrap approach implemented within the \pkg{markovchain} package follows
-these steps:
+A bootstrap estimation approach is also available to assess the variability of $\hat p_{ij}$. The implementation in \pkg{markovchain} proceeds as follows:
 
-  1. bootstrap the data sequences following the conditional distributions of states estimated from the original one. The default bootstrap samples is 10, as specified in `nboot` parameter of `markovchainFit` function.
-  2. apply MLE estimation on bootstrapped data sequences that are saved in `bootStrapSamples` slot of the returned list.
-  3. the ${p^{BOOTSTRAP}}_{ij}$ is the average of all ${p^{MLE}}_{ij}$ across the `bootStrapSamples` list, normalized by row. A `standardError` of $\hat{{p^{MLE}}_{ij}}$ estimate is provided as well.
+  1. generate bootstrap state sequences using the transition probabilities estimated from the original data. The number of bootstrap samples is controlled by the `nboot` argument of `markovchainFit`;
+  2. apply MLE estimation to each bootstrap sequence; the bootstrap estimates are saved in the `bootStrapSamples` component of the returned list;
+  3. compute the bootstrap transition estimate as the row-normalized average of the bootstrap MLE estimates. The reported `standardError` is the empirical standard deviation of the bootstrap estimates for each transition probability.
 
 ```{r fitMcbyBootStrap1}
 weatherFittedBOOT <- markovchainFit(data = weathersOfDays, 
-                                    method = "bootstrap", nboot = 20)
+                                    method = "bootstrap", nboot = 10)
 weatherFittedBOOT$estimate
 weatherFittedBOOT$standardError
 ```
 
-The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Parallelized implementation is definitively suggested when the data sample size or the required number of bootstrap runs is high.
+The bootstrapping process can be done in parallel thanks to \pkg{RcppParallel} package \citep{pkg:RcppParallel}. The parallelized implementation is recommended when the data sample size or the required number of bootstrap runs is high.
 
 ```{r fitMcbyBootStrap2, eval=FALSE}
 weatherFittedBOOTParallel <- markovchainFit(data = weathersOfDays, 
@@ -1249,14 +1337,17 @@ weatherFittedMLE$logLikelihood
 weatherFittedBOOT$logLikelihood
 ```
 
-Confidence matrices of estimated parameters (parametric for MLE, non - parametric for BootStrap) are available as well. The `confidenceInterval` is provided with the two matrices: `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level (CL) is 0.95 by default and can be given as an argument of the function `markovchainFit`. This is used to obtain the standard score (z-score). From classical inference theory, if $ci$ is the level of confidence required assuming normal distribution the $zscore(ci)$ solves $\Phi \left ( 1-\left(\frac{1-ci}{2}\right) \right )$
-Equations \ref{eq:CIL} and \ref{eq:CIU} \citep{MSkuriat} show the `confidenceInterval` of a fitting. Note that each entry of the matrices is bounded between 0 and 1.
+Confidence matrices of estimated parameters are available as well. The `confidenceInterval` component contains two matrices, `lowerEndpointMatrix` and `upperEndpointMatrix`. The confidence level is 0.95 by default and can be changed through the `confidencelevel` argument of `markovchainFit`.
+
+For MLE fits, \pkg{markovchain} reports cell-wise Wilson score intervals for the marginal transition probabilities \citep{brown2001interval}. Compared with the simple Wald interval $\hat p_{ij} \pm z SE_{ij}$, Wilson intervals have better small-sample behaviour and do not collapse to a zero-width interval when a transition is never observed or always observed. With $z = \Phi^{-1}(1 - \alpha/2)$, $n_i = \sum_u n_{iu}$, $\hat p_{ij}=n_{ij}/n_i$, and confidence level $1-\alpha$, the interval is
 
 \begin{align}
-LowerEndpoint_{ij} = p_{ij} - zscore (CL) * SE_{ij} \label{eq:CIL} \\
-UpperEndpoint_{ij} = p_{ij} + zscore (CL) * SE_{ij}
+LowerEndpoint_{ij} &= \frac{\hat p_{ij} + z^2/(2n_i) - z\sqrt{\hat p_{ij}(1-\hat p_{ij})/n_i + z^2/(4n_i^2)}}{1+z^2/n_i}, \label{eq:CIL} \\
+UpperEndpoint_{ij} &= \frac{\hat p_{ij} + z^2/(2n_i) + z\sqrt{\hat p_{ij}(1-\hat p_{ij})/n_i + z^2/(4n_i^2)}}{1+z^2/n_i}.
 \label{eq:CIU}
 \end{align}
+
+If no outgoing transition is available for a state, the point estimate follows the package convention of a uniform row, while the interval is left maximally uninformative. These intervals are cell-wise marginal intervals, not simultaneous multinomial confidence regions for a full row or matrix. For simultaneous multinomial intervals, use `multinomialConfidenceIntervals`. For bootstrap fits, intervals use the empirical standard deviation of the bootstrap transition-probability estimates and the two-sided normal quantile corresponding to `confidencelevel`. For MAP fits, credible intervals are equal-tailed beta posterior intervals, obtained from the inverse beta distribution \citep{strelioff2007inferring}.
 
 ```{r confint}
 weatherFittedMLE$confidenceInterval
@@ -1528,8 +1619,8 @@ x2 <- rmarkovchain(500, homogeneity_mc, t0 = "a")
 verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
-For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option, illustrated in the package's `statistical_analysis` vignette, provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
-## Continuous Times Markov Chains
+For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
+## Continuous-Time Markov Chains
 
 ### Intro
 
@@ -1544,7 +1635,7 @@ If both the above properties are satisfied, it is referred to as a time-homogene
 
 Now, let $X(0)=x$ and let $T_x$ be the time a transition occurs from this state. We are interested in the distribution of $T_x$. For $s,t \geq 0$, it can be shown that $ P(T_x > s+t | T_x > s) = P(T_x > t)  $
 
-This is the memory less property that only the exponential random variable exhibits. Therefore, this is the sought distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, higher the rate $\lambda(x)$, smaller the expected time of transitioning out of the state $x$.
+This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is therefore the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
 
 However, specifying this parameter alone for each state would only paint an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
 
@@ -1697,7 +1788,7 @@ mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
 
 ## Pseudo - Bayesian Estimation
 
-\cite{Hu2002} shows an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a - priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-1alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
+\cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-\alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
 
 \begin{equation}
 \left\{\begin{matrix}
@@ -1754,14 +1845,14 @@ pseudoBayesEstimator(
   apriori = aprioriMc@transitionMatrix
 ) - trueMc@transitionMatrix
 
-biggerSample<-rmarkovchain(n=100,object = trueMc)
+biggerSample<-rmarkovchain(n=60,object = trueMc)
 biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample)
 pseudoBayesEstimator(
   raw = biggerSampleRawTransitions,
   apriori = aprioriMc@transitionMatrix
 ) - trueMc@transitionMatrix
 
-bigSample<-rmarkovchain(n=1000,object = trueMc)
+bigSample<-rmarkovchain(n=100,object = trueMc)
 bigSampleRawTransitions<-createSequenceMatrix(stringchar = bigSample)
 pseudoBayesEstimator(
   raw = bigSampleRawTransitions,
@@ -1804,7 +1895,7 @@ Conjugate priors are used to model the prior $P(\theta)$. The reasons are two fo
 
 The hyper-parameters determine the form of the prior distribution, which is a product of Dirichlet distributions
 
-\[P(\theta) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{\alpha(u, s)) - 1} \Big\}\]
+\[P(\theta) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{\alpha(u, s) - 1} \Big\}\]
 
 where $\Gamma(.)$ is the Gamma function. The hyper-parameters are specified using the `hyperparam` argument in the `markovchainFit` function. If this argument is not specified, then a default value of 1 is assigned to each hyper-parameter resulting in the prior distribution of each chain parameter to be uniform over $[0,1]$.
 
@@ -1820,7 +1911,7 @@ P(D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \m
 
 Using Bayes' theorem, the posterior now becomes (thanks to the choice of conjugate priors)
 \[
-P(\theta | D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(n(u) + \alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + \alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{n(u, s) + \alpha(u, s)) - 1} \Big\}
+P(\theta | D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(n(u) + \alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(n(u, s) + \alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{n(u, s) + \alpha(u, s) - 1} \Big\}
 \]
 
 Since this is again a product of Dirichlet distributions, the marginal distribution of a particular parameter $P(s|u)$ of our chain is given by 
@@ -1845,7 +1936,7 @@ The variance is given by
 
 The square root of this quantity is the standard error, which is returned by the function.
 
-The confidence intervals are constructed by computing the inverse of the beta integral. 
+The credible intervals are constructed as equal-tailed intervals by computing the inverse of the beta integral. 
 
 ### Predictive distribution
 Given the old data set, the probability of observing new data is $P(D'|D)$ where $D'$ is the new data set. Let $m(u, s), m(u)$ denote the corresponding counts for the new data. Then, 
@@ -1942,7 +2033,7 @@ Now we can safely use `hyperMatrix3` and `hyperMatrix4` with `markovchainFit` (i
 Supposing we don't provide any hyper-parameters, then the prior is uniform. This is the same as maximum likelihood. 
 ```{r MAPandMLE}
 data(preproglucacon)
-preproglucacon <- preproglucacon[[2]]
+preproglucacon <- preproglucacon[[2]][1:200]
 MLEest <- markovchainFit(preproglucacon, method = "mle")
 MAPest <- markovchainFit(preproglucacon, method = "map")
 MLEest$estimate
@@ -2250,11 +2341,11 @@ rmarkovchain(n = 10, object = transitionsSince100,
              what = "matrix", t0 = "A", include.t0 = TRUE)
 ```
 
-Lets consider 1000 simulated live trajectories, for a healthy guy aged 80. We can compute the expected time a guy will be disabled starting active at age 80.
+Let us consider 100 simulated life trajectories for a healthy individual aged 80. We can compute the expected time the individual is disabled, starting from the active state at age 80.
 
 ```{r healthIns10}
 transitionsSince80<-getFullTransitionTable(age=80)
-lifeTrajectories<-rmarkovchain(n=1e3, object=transitionsSince80,
+lifeTrajectories<-rmarkovchain(n=1e2, object=transitionsSince80,
                                what="matrix",t0="A",include.t0=TRUE)
 temp<-matrix(0,nrow=nrow(lifeTrajectories),ncol = ncol(lifeTrajectories))
 temp[lifeTrajectories=="I"]<-1
@@ -2262,7 +2353,7 @@ expected_period_disabled<-mean(rowSums((temp)))
 expected_period_disabled
 ```
 
-Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump sum premium at 80.
+Assuming that the health insurance will pay a benefit of 12000 per year disabled and that the real interest rate is 0.02, we can compute the lump-sum premium at 80.
 
 ```{r healthIns11}
 mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))

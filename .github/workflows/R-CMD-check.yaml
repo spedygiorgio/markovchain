@@ -5,20 +5,16 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
 
-name: R-CMD-check.yaml
+name: R-CMD-check
 
 permissions: read-all
 
 jobs:
+  # Fast cross-platform matrix for every pull request.
   R-CMD-check:
-    if: >-
-      (github.event_name == 'push' &&
-       (startsWith(github.event.head_commit.message, 'feat:') ||
-        startsWith(github.event.head_commit.message, 'fix:'))) ||
-      (github.event_name == 'pull_request' &&
-       (startsWith(github.event.pull_request.title, 'feat:') ||
-        startsWith(github.event.pull_request.title, 'fix:')))
+    if: github.event_name == 'pull_request'
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -132,11 +128,9 @@ jobs:
             quiet = FALSE
           )
 
+  # Full matrix for every push to main/master and manual run.
   R-CMD-check-full:
-    if: >-
-      github.event_name == 'push' &&
-      (startsWith(github.event.head_commit.message, 'feat:') ||
-       startsWith(github.event.head_commit.message, 'fix:'))
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
 
     name: full ${{ matrix.config.os }} (${{ matrix.config.r }})

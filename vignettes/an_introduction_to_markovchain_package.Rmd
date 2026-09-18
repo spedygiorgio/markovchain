@@ -617,6 +617,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
+  \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -884,6 +885,33 @@ The implementation follows the matrix solutions  by [@GrinsteadSnell]. We can ch
 firstPassagePdF.long <- firstPassage(object = mcWeather, state = "sunny",  n = 100)
 sum(firstPassagePdF.long[,"rain"] * 1:100)
 ```
+
+## Kemeny's constant
+
+For a finite irreducible chain with stationary distribution $\pi$, let
+$m_{ij}$ denote the mean time to hit state $j$ from state $i$, using
+$m_{ii}=0$. Kemeny's constant is
+
+\[
+K=\sum_j \pi_j m_{ij}.
+\]
+
+Remarkably, $K$ does not depend on the starting state $i$. Equivalently, if
+$Z=(I-P+\mathbf{1}\pi^T)^{-1}$, then $K=\operatorname{tr}(Z)-1$
+\citep{kemeny1960finite}. The function `kemenyConstant` uses this formula and
+requires irreducibility, but not aperiodicity. If mean *return* times
+$m_{jj}=1/\pi_j$ are placed on the diagonal instead, the weighted sum is
+$K+1$.
+
+```{r kemeny-weather}
+kemenyConstant(mcWeather)
+
+piWeather <- as.numeric(steadyStates(mcWeather))
+meanFirstPassageTime(mcWeather) %*% piWeather
+```
+
+The second result has one entry for each possible starting state; apart from
+numerical rounding, all entries equal Kemeny's constant.
 
 ## Mean recurrence time
 

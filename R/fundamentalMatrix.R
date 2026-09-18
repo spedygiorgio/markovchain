@@ -58,22 +58,36 @@ fundamentalMatrix <- function(object) {
     stop("please provide a valid markovchain object")
   }
 
-  absorbing <- absorbingStates(object)
-  recurrent <- recurrentStates(object)
-
-  if (length(absorbing) == 0L || !all(recurrent %in% absorbing)) {
+  # A finite chain is absorbing precisely when every recurrent class is a
+  # singleton absorbing state. Using the graph classification avoids treating
+  # a near-absorbing state as absorbing merely because 1 - p_ii is tiny.
+  recurrent_classes <- recurrentClasses(object)
+  if (length(recurrent_classes) == 0L ||
+      any(lengths(recurrent_classes) != 1L)) {
     stop("fundamental matrix requires an absorbing Markov chain")
   }
 
-  transient <- transientStates(object)
+  recurrent <- unlist(recurrent_classes, use.names = FALSE)
+  transient <- states(object)[!states(object) %in% recurrent]
+
   if (length(transient) == 0L) {
     out <- matrix(numeric(0), nrow = 0L, ncol = 0L)
     dimnames(out) <- list(character(0), character(0))
     return(out)
   }
 
-  q <- object@transitionMatrix[transient, transient, drop = FALSE]
-  out <- solve(diag(nrow(q)) - q)
+  P <- object@transitionMatrix
+  if (!object@byrow) {
+    P <- t(P)
+  }
+
+  q <- P[transient, transient, drop = FALSE]
+  a <- diag(nrow(q)) - q
+
+  # The full inverse is part of the requested result. Expressing it as a
+  # linear solve with an identity right-hand side makes that intent explicit
+  # and uses LAPACK without forming any additional matrix inverse in R code.
+  out <- solve(a, diag(nrow(a)))
   dimnames(out) <- list(transient, transient)
   out
 }

@@ -61,6 +61,8 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
 #' 
 #' @export
 #' 
+NULL
+
 ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
     .Call(`_markovchain_ctmcFit`, data, byrow, name, confidencelevel)
 }

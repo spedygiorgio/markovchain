@@ -1,5 +1,6 @@
 # 1.1.1
 
+- Added `kemenyConstant()` for finite irreducible DTMCs, with support for both row- and column-stochastic storage and tests for the zero-diagonal hitting-time convention.
 - Hardened public R and native C++ entry points against invalid indices, negative sizes, integer overflow, and unbounded simulations.
 
 

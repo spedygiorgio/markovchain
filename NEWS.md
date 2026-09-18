@@ -1,6 +1,14 @@
+# 1.1.1
+
+- Hardened public R and native C++ entry points against invalid indices, negative sizes, integer overflow, and unbounded simulations.
+
+
 # 1.1.0
 
-- Added lumpability
+- Added exact and approximate lumpability tools.
+- Made `hittingProbabilities()` robust to arbitrarily small positive transitions by combining graph-based zero/one classification with a relative-residual Neumann iteration.
+- Added `fundamentalMatrix()` for finite absorbing chains, including support for column-stochastic storage.
+- Improved `absorptionProbabilities()` by solving `(I - Q) B = R` directly instead of explicitly forming `(I - Q)^{-1}`.
 
 # markovchain 0.9.0
 

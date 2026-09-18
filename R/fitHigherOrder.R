@@ -66,6 +66,14 @@ setClass("HigherOrderMarkovChain", #class name
 #'
 #' @export
 fitHigherOrder<-function(sequence, order = 2) {
+  if (!is.character(sequence) || length(sequence) < 2L || anyNA(sequence)) {
+    stop("sequence must be a non-empty character vector without missing values")
+  }
+  if (length(order) != 1L || is.na(order) || !is.finite(order) ||
+      order < 1 || order != floor(order) || order >= length(sequence)) {
+    stop("order must be a positive integer smaller than the sequence length")
+  }
+  order <- as.integer(order)
   # prbability of each states of sequence
   if (requireNamespace("Rsolnp", quietly = TRUE)) {
   X <- seq2freqProb(sequence)

@@ -129,7 +129,11 @@ test_that("hittingProbabilities on an ill-conditioned chain agrees with a Monte 
   Poff <- P
   diag(Poff) <- 0
   rowSumsOff <- rowSums(Poff)
-  absorbing <- rowSumsOff <= 1e-12
+
+  ## Eventual reachability depends on strict positivity, not on the size of a
+  ## transition. Treat only states with exactly zero off-diagonal mass as
+  ## absorbing in the jump-chain simulation.
+  absorbing <- rowSumsOff == 0
   J <- Poff
   J[!absorbing, ] <- Poff[!absorbing, ] / rowSumsOff[!absorbing]
 
@@ -158,4 +162,43 @@ test_that("hittingProbabilities on an ill-conditioned chain agrees with a Monte 
   ## in both hp and the simulation and is fully comparable.
   off <- states != "WT"
   expect_equal(unname(hp["WT", off]), unname(monteCarloEstimate[off]), tolerance = 0.02)
+})
+
+test_that("tiny positive transitions preserve almost-sure hitting", {
+  eps_values <- c(1e-9, 1e-11, 1e-12, 5e-13, 1e-13, 1e-14)
+
+  for (eps in eps_values) {
+    states <- c("s1", "s2")
+    P <- matrix(c(1 - eps, eps, 0, 1), nrow = 2, byrow = TRUE,
+      dimnames = list(states, states))
+    mc <- new("markovchain", transitionMatrix = P)
+    hp <- hittingProbabilities(mc)
+
+    expect_identical(unname(hp["s1", "s2"]), 1)
+  }
+})
+
+test_that("tiny non-certain hitting probabilities are not promoted to one", {
+  eps <- 1e-14
+  states <- c("start", "target", "failure")
+  P <- matrix(c(0, eps, 1 - eps,
+                0, 1,   0,
+                0, 0,   1),
+    nrow = 3, byrow = TRUE, dimnames = list(states, states))
+  mc <- new("markovchain", transitionMatrix = P)
+
+  expect_equal(unname(hittingProbabilities(mc)["start", "target"]),
+    eps, tolerance = 1e-16)
+})
+
+test_that("a mandatory transient target is hit almost surely", {
+  states <- c("start", "target", "absorbed")
+  P <- matrix(c(0, 1, 0,
+                0, 0, 1,
+                0, 0, 1),
+    nrow = 3, byrow = TRUE, dimnames = list(states, states))
+  mc <- new("markovchain", transitionMatrix = P)
+
+  expect_identical(
+    unname(hittingProbabilities(mc)["start", "target"]), 1)
 })

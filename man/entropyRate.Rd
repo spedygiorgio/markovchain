@@ -18,8 +18,8 @@ irreducible discrete-time Markov chain.}
 nats per transition.}
 }
 \value{
-A non-negative numeric scalar containing the entropy rate in units determined
-by \code{base}.
+A non-negative numeric scalar containing the entropy rate in units
+  determined by \code{base}.
 }
 \description{
 Computes the entropy rate of a finite, irreducible discrete-time Markov
@@ -30,6 +30,7 @@ For a row-stochastic transition matrix \eqn{P} and stationary distribution
 \eqn{\pi}, the entropy rate is
 \deqn{H = -\sum_i \pi_i \sum_j p_{ij}\log_b(p_{ij}),}
 with zero-probability transitions contributing zero by continuity.
+
 
 For a stationary first-order Markov chain, the entropy rate equals the
 conditional entropy \eqn{H(X_{t+1}\mid X_t)}. Irreducibility guarantees a

@@ -110,6 +110,9 @@
 - [`is.stochasticallyMonotone()`](is.stochasticallyMonotone.md) : Check
   if a Markov chain is stochastically monotone
 
+- [`kemenyConstant()`](kemenyConstant.md) : Kemeny's constant of a
+  Markov chain
+
 - [`kullback`](kullback.md) : Example from Kullback and Kupperman Tests
   for Contingency Tables
 

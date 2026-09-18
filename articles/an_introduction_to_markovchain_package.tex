@@ -928,6 +928,7 @@ Table \ref{tab:methodsToStats} shows methods that can be applied on \texttt{mark
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
+  \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -1360,6 +1361,45 @@ R> sum(firstPassagePdF.long[,"rain"] * 1:100)
 [1] 6.666664
 \end{CodeOutput}
 \end{CodeChunk}
+
+\subsection{Kemeny's constant}\label{kemenys-constant}
+
+For a finite irreducible chain with stationary distribution \(\pi\), let
+\(m_{ij}\) denote the mean time to hit state \(j\) from state \(i\), using
+\(m_{ii}=0\). Kemeny's constant is
+
+\[
+K=\sum_j \pi_j m_{ij}.
+\]
+
+Remarkably, \(K\) does not depend on the starting state \(i\). Equivalently, if
+\(Z=(I-P+\mathbf{1}\pi^T)^{-1}\), then \(K=\operatorname{tr}(Z)-1\)
+\citep{kemeny1960finite}. The function \texttt{kemenyConstant} uses this formula and
+requires irreducibility, but not aperiodicity. If mean \emph{return} times
+\(m_{jj}=1/\pi_j\) are placed on the diagonal instead, the weighted sum is
+\(K+1\).
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> kemenyConstant(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 2.818182
+\end{CodeOutput}
+\begin{CodeInput}
+R> piWeather <- as.numeric(steadyStates(mcWeather))
+R> meanFirstPassageTime(mcWeather) %*% piWeather
+\end{CodeInput}
+\begin{CodeOutput}
+           [,1]
+sunny  2.818182
+cloudy 2.818182
+rain   2.818182
+\end{CodeOutput}
+\end{CodeChunk}
+
+The second result has one entry for each possible starting state; apart from
+numerical rounding, all entries equal Kemeny's constant.
 
 \subsection{Mean recurrence time}\label{mean-recurrence-time}
 

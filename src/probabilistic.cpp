@@ -898,10 +898,9 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
   return logProbVec;
 }
 
-// Compute reverse reachability from a set of seed states.  When excluded >= 0,
-// paths are not allowed to visit that state.  Edges are classified by strict
-// positivity: even an arbitrarily small positive transition changes qualitative
-// reachability and must not be discarded by a numerical tolerance.
+// Compute reverse reachability from a set of seed states. When excluded >= 0,
+// paths are not allowed to visit that state. Strict positivity is intentional:
+// even an arbitrarily small positive transition changes reachability.
 std::vector<bool> reverseReachable(
     const std::vector<std::vector<int>>& predecessors,
     const std::vector<int>& seeds,
@@ -920,7 +919,6 @@ std::vector<bool> reverseReachable(
   while (!pending.empty()) {
     const int current = pending.front();
     pending.pop();
-
     for (int predecessor : predecessors[current]) {
       if (predecessor != excluded && !reachable[predecessor]) {
         reachable[predecessor] = true;
@@ -928,37 +926,23 @@ std::vector<bool> reverseReachable(
       }
     }
   }
-
   return reachable;
 }
 
-// Computes hittingProbs(., j), the j-th column of the hitting-probability
-// matrix, as the minimal non-negative solution of
-//
-//   h = R + Q h,   R(i) = P(i, j) + sum_{k closed, k ~ j} P(i, k),
-//                  Q(i, k) = P(i, k) for k != j (0 otherwise).
-//
-// Closed communicating classes provide exact boundary values.  Two additional
-// graph checks identify off-diagonal probabilities that are structurally zero
-// (the target is unreachable) or one (no closed class can be reached while
-// avoiding the target).  These checks are essential for tiny positive
-// transitions: their magnitude affects waiting time, but not eventual
-// reachability.
-//
-// Remaining values are computed with a doubled Neumann series.  Convergence is
-// assessed from a relative fixed-point residual, not an absolute increment;
-// otherwise a transition smaller than an absolute tolerance can cause an
-// immediate and incorrect return of approximately twice that transition.
+// Compute the off-diagonal hitting probabilities for target j as the minimal
+// non-negative solution h = R + Qh. Closed classes provide boundary values;
+// graph checks identify values that are structurally zero or one. Remaining
+// values use a doubled Neumann series with a relative fixed-point residual.
 void hittingProbabilitiesColumn(
-                                const arma::mat& P,
-                                const std::vector<std::vector<int>>& predecessors,
-                                int j, int numStates,
-                                const LogicalVector& closedClass,
-                                const LogicalMatrix& communicating,
-                                arma::mat& hittingProbs,
-                                double tol, int maxDoublings,
-                                const CharacterVector& states) {
-  std::vector<int> targetSeed(1, j);
+    const arma::mat& P,
+    const std::vector<std::vector<int>>& predecessors,
+    int j, int numStates,
+    const LogicalVector& closedClass,
+    const LogicalMatrix& communicating,
+    arma::mat& hittingProbs,
+    double tol, int maxDoublings,
+    const CharacterVector& states) {
+  const std::vector<int> targetSeed(1, j);
   const std::vector<bool> canReachTarget =
     reverseReachable(predecessors, targetSeed);
 
@@ -974,12 +958,11 @@ void hittingProbabilitiesColumn(
   std::vector<int> freeIdx;
   freeIdx.reserve(numStates);
   for (int i = 0; i < numStates; ++i) {
-    if (!closedClass(i))
+    if (!closedClass(i) && i != j)
       freeIdx.push_back(i);
   }
 
   const int m = static_cast<int>(freeIdx.size());
-
   if (m > 0) {
     arma::mat Q(m, m, arma::fill::zeros);
     arma::vec R(m, arma::fill::zeros);
@@ -988,8 +971,7 @@ void hittingProbabilitiesColumn(
       const int i = freeIdx[a];
       double r = P(i, j);
 
-      // Direct contribution of states whose hitting probability towards j is
-      // already known because they belong to j's closed class.
+      // States in the target's closed communicating class have boundary value 1.
       for (int k = 0; k < numStates; ++k) {
         if (k != j && closedClass(k) && communicating(k, j))
           r += P(i, k);
@@ -998,8 +980,7 @@ void hittingProbabilitiesColumn(
 
       for (int b = 0; b < m; ++b) {
         const int k = freeIdx[b];
-        if (k != j)
-          Q(a, b) = P(i, k);
+        Q(a, b) = P(i, k);
       }
     }
 
@@ -1015,7 +996,6 @@ void hittingProbabilitiesColumn(
       const double residualNorm = arma::max(arma::abs(residual));
       const double scale = std::max(arma::max(arma::abs(acc)),
                                     arma::max(arma::abs(R)));
-
       relativeResidual = (scale == 0.0)
         ? (residualNorm == 0.0 ? 0.0 : arma::datum::inf)
         : residualNorm / scale;
@@ -1024,7 +1004,6 @@ void hittingProbabilitiesColumn(
         converged = true;
         break;
       }
-
       Qk = Qk * Qk;
     }
 
@@ -1037,19 +1016,12 @@ void hittingProbabilitiesColumn(
     }
 
     arma::vec h = arma::clamp(acc, 0.0, 1.0);
-
     for (int a = 0; a < m; ++a) {
       const int source = freeIdx[a];
-
-      // The diagonal is a return probability and must not be replaced by the
-      // trivial time-zero hitting value.
-      if (source != j) {
-        if (!canReachTarget[source])
-          h(a) = 0.0;
-        else if (!canReachBadClosed[source])
-          h(a) = 1.0;
-      }
-
+      if (!canReachTarget[source])
+        h(a) = 0.0;
+      else if (!canReachBadClosed[source])
+        h(a) = 1.0;
       hittingProbs(source, j) = h(a);
     }
   }
@@ -1065,43 +1037,80 @@ NumericMatrix hittingProbabilities(S4 object) {
   NumericMatrix transitionMatrix = object.slot("transitionMatrix");
   CharacterVector states = object.slot("states");
   bool byrow = object.slot("byrow");
-  
+
   if (!byrow)
     transitionMatrix = transpose(transitionMatrix);
-  
-  int numStates = transitionMatrix.nrow();
+
+  const int numStates = transitionMatrix.nrow();
   arma::mat transitionProbs = as<arma::mat>(transitionMatrix);
   arma::mat hittingProbs(numStates, numStates, arma::fill::zeros);
-  // Compute closed communicating classes
+
+  // Off-diagonal hitting probabilities are invariant under removal of
+  // self-loops. Build the embedded jump chain by summing off-diagonal mass
+  // directly; 1 - P(i,i) is unsafe when P(i,i) rounds to one.
+  arma::mat jumpProbs(numStates, numStates, arma::fill::zeros);
+  for (int i = 0; i < numStates; ++i) {
+    long double offDiagonalMass = 0.0L;
+    for (int k = 0; k < numStates; ++k) {
+      if (k != i)
+        offDiagonalMass += static_cast<long double>(transitionProbs(i, k));
+    }
+
+    if (offDiagonalMass > 0.0L) {
+      const double denominator = static_cast<double>(offDiagonalMass);
+      for (int k = 0; k < numStates; ++k) {
+        if (k != i)
+          jumpProbs(i, k) = transitionProbs(i, k) / denominator;
+      }
+    }
+  }
+
   List commClasses = commClassesKernel(transitionMatrix);
   LogicalVector closedClass = commClasses["closed"];
   LogicalMatrix communicating = commClasses["classes"];
 
-  // Build reverse adjacency once. Structural reachability then costs O(V+E)
-  // per target instead of scanning the full matrix during each graph visit.
+  // Build reverse adjacency once, making each reachability pass O(V + E).
   std::vector<std::vector<int>> predecessors(numStates);
   for (int i = 0; i < numStates; ++i) {
     for (int j = 0; j < numStates; ++j) {
-      if (transitionProbs(i, j) > 0.0)
+      if (jumpProbs(i, j) > 0.0)
         predecessors[j].push_back(i);
     }
   }
 
   const double tol = 1e-13;
   const int maxDoublings = 200;
-
-  for (int j = 0; j < numStates; ++j)
-    hittingProbabilitiesColumn(transitionProbs, predecessors, j, numStates,
+  for (int j = 0; j < numStates; ++j) {
+    hittingProbabilitiesColumn(jumpProbs, predecessors, j, numStates,
                                closedClass, communicating, hittingProbs, tol,
                                maxDoublings, states);
-  
+  }
+
+  // Preserve the package convention that diagonal entries are return
+  // probabilities after at least one transition.
+  for (int j = 0; j < numStates; ++j) {
+    if (!closedClass(j)) {
+      long double returnProbability =
+        static_cast<long double>(transitionProbs(j, j));
+      for (int k = 0; k < numStates; ++k) {
+        if (k != j) {
+          returnProbability +=
+            static_cast<long double>(transitionProbs(j, k)) *
+            static_cast<long double>(hittingProbs(k, j));
+        }
+      }
+      hittingProbs(j, j) = std::max(
+        0.0, std::min(1.0, static_cast<double>(returnProbability)));
+    }
+  }
+
   NumericMatrix result = wrap(hittingProbs);
   colnames(result) = states;
   rownames(result) = states;
-  
+
   if (!byrow)
     result = transpose(result);
-  
+
   return result;
 }
 
@@ -1481,9 +1490,7 @@ NumericMatrix absorptionProbabilities(S4 obj) {
   uvec transientIndices(transientIndxs);
   uvec recurrentIndices(recurrentIndxs);
   
-  // Compute absorption probabilities B = (I - Q)^{-1} R without
-  // explicitly forming the inverse. Solving (I - Q) B = R is both faster and
-  // numerically preferable when only the product N R is required.
+  // Compute B = (I - Q)^{-1} R by solving (I - Q) B = R directly.
   mat probs(transitions.begin(), m, m, true);
   mat coeffs = eye(n, n) - probs(transientIndices, transientIndices);
   mat rhs = probs(transientIndices, recurrentIndices);

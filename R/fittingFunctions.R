@@ -198,6 +198,17 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' @export
 
 rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = FALSE, num.cores = NULL, ...) {
+  if (!is(object, "markovchain") && !is(object, "markovchainList")) {
+    stop("object must be a markovchain or markovchainList object")
+  }
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 1 || n != floor(n) || n > .Machine$integer.max) {
+    stop("n must be a positive integer not exceeding .Machine$integer.max")
+  }
+  n <- as.integer(n)
+  if (!what %in% c("data.frame", "matrix", "list")) {
+    stop("what must be one of 'data.frame', 'matrix', or 'list'")
+  }
   
   # check the class of the object
   if (is(object,"markovchain")) {
@@ -713,35 +724,23 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' noofVisitsDist(simpleMc,5,"a")
 #' 
 #' @export
-noofVisitsDist <- function(markovchain,N = 5,state) {
-  
-  if(!is(markovchain,"markovchain"))
+noofVisitsDist <- function(markovchain, N = 5, state) {
+  if (!is(markovchain, "markovchain")) {
     stop("please provide a valid markovchain-class object")
-  
-  if(N <= 0)
-    stop("please enter positive number of steps")
-  
-  # the transition matrix
-  Tmatrix <- markovchain@transitionMatrix
-  
-  # character vector of states of the markovchain
+  }
+  if (length(N) != 1L || is.na(N) || !is.finite(N) ||
+      N < 1 || N != floor(N)) {
+    stop("N must be a positive integer")
+  }
   stateNames <- states(markovchain)
-  
-  i<--1
-  
-  # initial state
-  i <- which(stateNames == state)
-  
-  if(i==-1)
-    stop("please provide a valid inital state")
-  
-  
-  # call to Rcpp implementation of the function
-  out <- .noofVisitsDistRCpp(Tmatrix,i,N)
-  
-  # adds state names names to the output vector
+  if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
+    stop("please provide a valid initial state")
+  }
+  out <- .noofVisitsDistRCpp(
+    markovchain@transitionMatrix,
+    match(state, stateNames),
+    as.integer(N)
+  )
   names(out) <- stateNames
-  out <- c(out)
-  return(out)
-  
+  as.numeric(out) |> stats::setNames(stateNames)
 }

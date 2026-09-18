@@ -1,3 +1,8 @@
+# 1.1.1
+
+- Hardened public R and native C++ entry points against invalid indices, negative sizes, integer overflow, and unbounded simulations.
+
+
 # 1.1.0
 
 - Added exact and approximate lumpability tools.

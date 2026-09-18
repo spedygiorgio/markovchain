@@ -20,6 +20,8 @@ using namespace std;
 // [[Rcpp::export(.markovchainSequenceRcpp)]]
 CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0,
                                         bool include_t0 = false) {
+  if (n < 0) stop("n must be non-negative");
+  if (t0.size() < 1) stop("t0 must contain an initial state");
   
   // character vector to store the result
   CharacterVector chain(n);
@@ -116,6 +118,8 @@ bool checkSequenceRcpp(List object) {
 // [[Rcpp::export(.markovchainListRcpp)]]
 List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterVector t0
                          = CharacterVector()) {
+  if (n < 0) stop("n must be non-negative");
+  if (object.size() < 1) stop("object must contain at least one Markov chain");
   
   bool verify = checkSequenceRcpp(object);
   
@@ -123,11 +127,13 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
     warning("Warning: some states in the markovchain sequences are not contained in the following states!");
   }
   
-  // size of result vector
-  int sz = n*object.size();
-  if (include_t0) sz += n;
+  // Compute the output size without signed integer overflow.
+  const R_xlen_t perSequence = object.size() + (include_t0 ? 1 : 0);
+  if (n > 0 && perSequence > R_XLEN_T_MAX / static_cast<R_xlen_t>(n))
+    stop("requested output is too large");
+  const R_xlen_t sz = static_cast<R_xlen_t>(n) * perSequence;
   
-  int vin = 0; // useful in filling below vectors
+  R_xlen_t vin = 0; // useful in filling below vectors
   NumericVector iteration(sz);
   CharacterVector values(sz); 
   
@@ -350,9 +356,11 @@ struct MCList : public Worker
 // [[Rcpp::export(.markovchainSequenceParallelRcpp)]]
 List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = false,
                                      CharacterVector init_state = CharacterVector()) {
+  if (n < 0) stop("n must be non-negative");
   
   // list of markovchain object
   List object = listObject.slot("markovchains");
+  if (object.size() < 1) stop("object must contain at least one Markov chain");
   
   bool verify = checkSequenceRcpp(object);
   if (not verify) {
@@ -1703,6 +1711,9 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
           
 // [[Rcpp::export(.noofVisitsDistRCpp)]]
 NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i,int N) {
+  if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");
+  if (i < 1 || i > matrix.nrow()) stop("initial-state index is out of range");
+  if (N < 1) stop("N must be positive");
     
   // no of states in the process
   int noOfStates = matrix.ncol();

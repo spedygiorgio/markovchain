@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <stack>
+#include <cmath>
 #include <queue>
 
 using namespace Rcpp;
@@ -420,6 +421,9 @@ List summaryKernel(S4 object) {
 //here the kernel function to compute the first passage
 // [[Rcpp::export(.firstpassageKernelRcpp)]]
 NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n) {
+  if (P.nrow() != P.ncol()) stop("P must be square");
+  if (n < 1) stop("n must be positive");
+  if (i < 1 || i > P.nrow()) stop("initial-state index is out of range");
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::mat H(n, P.ncol()); 
@@ -447,6 +451,15 @@ NumericMatrix firstpassageKernel(NumericMatrix P, int i, int n) {
 
 // [[Rcpp::export(.firstPassageMultipleRCpp)]]
 NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setno, int n) {
+  if (P.nrow() != P.ncol()) stop("P must be square");
+  if (n < 1) stop("n must be positive");
+  if (i < 1 || i > P.nrow()) stop("initial-state index is out of range");
+  if (setno.size() < 1) stop("target set must not be empty");
+  for (R_xlen_t k = 0; k < setno.size(); ++k) {
+    if (!R_FINITE(setno[k]) || setno[k] != std::floor(setno[k]) ||
+        setno[k] < 1 || setno[k] > P.nrow())
+      stop("target-state index is out of range");
+  }
   arma::mat G = as<arma::mat>(P);
   arma::mat Pa = G;
   arma::vec H = arma::zeros(n); //here Thoralf suggestion
@@ -473,6 +486,10 @@ NumericVector firstPassageMultipleRCpp(NumericMatrix P,int i, NumericVector setn
 
 // [[Rcpp::export(.expectedRewardsRCpp)]]
 NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rewards) {
+  if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");
+  if (rewards.size() != matrix.nrow())
+    stop("rewards length must match matrix dimension");
+  if (n < 0) stop("n must be non-negative");
   // initialises output vector
   NumericVector out;
   
@@ -504,7 +521,13 @@ NumericVector expectedRewardsRCpp(NumericMatrix matrix, int n, NumericVector rew
 // [[Rcpp::export(.expectedRewardsBeforeHittingARCpp)]]
 double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
                                NumericVector rewards, int n ) {
-  float result = 0.0;
+  if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");
+  if (rewards.size() != matrix.nrow())
+    stop("rewards length must match matrix dimension");
+  if (s0 < 1 || s0 > matrix.nrow())
+    stop("initial-state index is out of range");
+  if (n < 0) stop("n must be non-negative");
+  double result = 0.0;
   int size = rewards.size();
   arma::mat matr = as<arma::mat>(matrix);
   arma::mat temp = as<arma::mat>(matrix);

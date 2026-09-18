@@ -6,6 +6,10 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 NumericVector seq2freqProb(CharacterVector sequence) {
+  if (sequence.size() < 1) stop("sequence must not be empty");
+  for (R_xlen_t i = 0; i < sequence.size(); ++i)
+    if (CharacterVector::is_na(sequence[i]))
+      stop("sequence must not contain missing values");
   int n = sequence.size(); 
   CharacterVector states = unique(sequence).sort();
   int nstates = states.length();
@@ -45,7 +49,13 @@ NumericVector seq2freqProb(CharacterVector sequence) {
 //' @export
 // [[Rcpp::export]]
 NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
-  int n = sequence.size();
+  const int n = sequence.size();
+  if (n < 2) stop("sequence must contain at least two observations");
+  for (R_xlen_t i = 0; i < sequence.size(); ++i)
+    if (CharacterVector::is_na(sequence[i]))
+      stop("sequence must not contain missing values");
+  if (order < 1 || order >= n)
+    stop("order must be positive and smaller than the sequence length");
   CharacterVector states = unique(sequence).sort();
   int nstates = states.length();
   NumericVector colsums(nstates);

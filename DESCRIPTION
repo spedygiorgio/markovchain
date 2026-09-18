@@ -25,7 +25,7 @@ Description: Functions and S4 methods to create and manage discrete time Markov
     Some functions for continuous times Markov chains depend on the suggested ctmcd package.
 License: MIT + file LICENSE
 Depends: R (>= 4.4.0), Matrix (>= 1.5-0), methods
-Imports: igraph, expm, stats4, parallel, Rcpp (>= 1.0.2), RcppParallel,
+Imports: igraph (>= 1.0.0), expm, stats4, parallel, Rcpp (>= 1.0.2), RcppParallel,
         utils, stats, grDevices
 Suggests: knitr, testthat, diagram, DiagrammeR, ggplot2 (>= 3.4.0),
         msm, Rsolnp, rmarkdown, ctmcd, bookdown, rticles, MCMCpack,
@@ -40,7 +40,7 @@ Encoding: UTF-8
 BugReports: https://github.com/spedygiorgio/markovchain/issues
 URL: https://github.com/spedygiorgio/markovchain/
 NeedsCompilation: yes
-Packaged: 2026-08-21 21:37:50 UTC; LEI00010
+Packaged: 2026-09-18 06:09:46 UTC; LEI00010
 Author: Giorgio Alfredo Spedicato [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0315-8888>),
   Tae Seung Kang [aut],

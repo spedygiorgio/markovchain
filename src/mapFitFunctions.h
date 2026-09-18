@@ -45,8 +45,14 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   // number of unique states
   int sizeMatr = elements.size();
   
-  // if no hyperparam argument provided, use default value of 1 for all 
-  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1) {
+  // if no hyperparam argument provided, use default value of 1 for all.
+  // The R-level default is `matrix()`, which is a 1x1 matrix containing
+  // NA -- checking the NA is essential here, not just the 1x1 shape:
+  // otherwise a genuinely user-supplied 1x1 hyperparam matrix (e.g. one
+  // that mistakenly omits states actually present in the data, which
+  // happens to leave it 1x1) would be silently discarded and replaced by
+  // the default instead of being validated and rejected below.
+  if(hyperparam.nrow() == 1 && hyperparam.ncol() == 1 && NumericVector::is_na(hyperparam(0, 0))) {
     // matrix with all entries 1
     NumericMatrix temp(sizeMatr, sizeMatr);
     temp.attr("dimnames") = List::create(elements, elements);
@@ -193,26 +199,26 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
         mapEstMatr(i, j) = (p - 1) / (p + q - sizeMatr);
       }
 
-      // populate lowerEndPoint, upperEndPoint and stand error matrices              
+      // Equal-tailed credible interval: quantiles of the exact marginal
+      // Beta(p, q) posterior at (1-confidencelevel)/2 and
+      // 1-(1-confidencelevel)/2. (The previous construction centered the
+      // interval, in CDF space, at the posterior MODE rather than the
+      // median; that has exact nominal coverage too, since it is still of
+      // the form [F^-1(u - cl/2), F^-1(u + cl/2)] for a fixed u, but it is
+      // non-standard, needs special-casing near the boundary, and -- 
+      // verified by simulation -- tends to produce wider intervals with
+      // *worse* empirical coverage than the equal-tailed interval below.)
       double beta = lbeta(p, q);
-      double cdf = betain(double(mapEstMatr(i, j)), p, q, beta);
-
-      if(cdf + confidencelevel / 2 > 1.) {
-        upperEndpointMatr(i, j) = 1.;
-        lowerEndpointMatr(i, j) = xinbta(p, q, beta, 1 - confidencelevel);
-      }
-      else if(cdf - confidencelevel / 2 < 0.) {
-        lowerEndpointMatr(i, j) = 0.;
-        upperEndpointMatr(i, j) = xinbta(p, q, beta, confidencelevel);
-      }
-      else {
-        lowerEndpointMatr(i, j) = xinbta(p, q, beta, cdf - confidencelevel / 2);
-        upperEndpointMatr(i, j) = xinbta(p, q, beta, cdf + confidencelevel / 2);
-      }
+      double halfAlpha = (1.0 - confidencelevel) / 2.0;
+      lowerEndpointMatr(i, j) = xinbta(p, q, beta, halfAlpha);
+      upperEndpointMatr(i, j) = xinbta(p, q, beta, 1.0 - halfAlpha);
 
       stdError(i, j) = sqrt(p * q / (p + q) / (p + q) / (1 + p + q));
     }
   }
+
+  lowerEndpointMatr.attr("dimnames") = upperEndpointMatr.attr("dimnames")
+    = stdError.attr("dimnames") = List::create(elements, elements);
 
   // transpose the matrix if columwise result is required
   if(byrow == false) {

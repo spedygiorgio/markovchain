@@ -2,6 +2,8 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <armadillo>
 #include <Rcpp.h>
+#include <cmath>
+#include <limits>
 using namespace Rcpp;
 using namespace RcppArmadillo;
 using namespace arma;
@@ -54,6 +56,9 @@ NumericMatrix probabilityatTRCpp(NumericMatrix y) {
 
 // [[Rcpp::export(.impreciseProbabilityatTRCpp)]]
 NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error) {
+  if (!std::isfinite(error) || error <= 0.0)
+    stop("error must be finite and positive");
+  if (s <= t) stop("s must be greater than t");
   CharacterVector states = C.slot("states");
   int noOfstates = states.size();
   
@@ -91,15 +96,19 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
       QNorm = sum * range(p, 1);
   }
   
-  // calculates no. of iterations according to error rate, QNorm and other parameters
-  int n;
-  if ((s - t) * QNorm > (s - t) * (s - t) * QNorm * QNorm * 1/ (2 * error))
-    n = (int)(s - t) * QNorm;
-  else
-    n = (int)(s - t) * (s-t) * QNorm * QNorm * 1/(2 * error);
+  // Calculate the number of iterations in floating point, validate it before
+  // conversion to int, and guarantee at least one iteration.
+  const double horizon = static_cast<double>(s - t);
+  const double candidate = std::max(
+    horizon * QNorm,
+    horizon * horizon * QNorm * QNorm / (2.0 * error));
+  if (!std::isfinite(candidate) ||
+      candidate > static_cast<double>(std::numeric_limits<int>::max()))
+    stop("requested accuracy requires too many iterations");
+  const int n = std::max(1, static_cast<int>(std::ceil(candidate)));
   
   // sets delta value
-  float delta = (s - t) * 1.0/n;
+  const double delta = horizon / static_cast<double>(n);
   
   // declares and initialises initial f
   arma::vec Ii(noOfstates);

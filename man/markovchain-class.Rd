@@ -55,19 +55,22 @@
 \alias{[,markovchain,ANY,ANY,ANY-method}
 \alias{^,markovchain,numeric-method}
 \title{Markov Chain class}
-\arguments{
-\item{states}{Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix}
-
-\item{byrow}{TRUE or FALSE indicating whether the supplied matrix 
-is either stochastic by rows or by columns}
-
-\item{transitionMatrix}{Square transition matrix}
-
-\item{name}{Optional character name of the Markov chain}
-}
 \description{
 The S4 class that describes \code{markovchain} objects.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{states}}{Name of the states. Must be the same of \code{colnames} and \code{rownames} of the transition matrix}
+
+\item{\code{byrow}}{TRUE or FALSE indicating whether the supplied matrix 
+is either stochastic by rows or by columns}
+
+\item{\code{transitionMatrix}}{Square transition matrix}
+
+\item{\code{name}}{Optional character name of the Markov chain}
+}}
+
 \note{
 \enumerate{
 \item \code{markovchain} object are backed by S4 Classes.

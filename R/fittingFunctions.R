@@ -198,6 +198,17 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #' @export
 
 rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = FALSE, num.cores = NULL, ...) {
+  if (!is(object, "markovchain") && !is(object, "markovchainList")) {
+    stop("object must be a markovchain or markovchainList object")
+  }
+  if (length(n) != 1L || is.na(n) || !is.finite(n) ||
+      n < 1 || n != floor(n) || n > .Machine$integer.max) {
+    stop("n must be a positive integer not exceeding .Machine$integer.max")
+  }
+  n <- as.integer(n)
+  if (!what %in% c("data.frame", "matrix", "list")) {
+    stop("what must be one of 'data.frame', 'matrix', or 'list'")
+  }
   
   # check the class of the object
   if (is(object,"markovchain")) {
@@ -483,39 +494,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 
 ######################################################################
 
-# function to fit a DTMC with Laplacian Smoother
-.mcFitLaplacianSmooth <- function(stringchar, byrow, laplacian = 0.01) {
-  
-  # every element of the matrix store the number of times jth state appears just
-  # after the ith state
-  origNum <- createSequenceMatrix(stringchar = stringchar, toRowProbs = FALSE)
-  
-  # add laplacian  to the sequence matrix
-  # why? to avoid the cases where sum of row is zero
-  newNum <- origNum + laplacian
-  
-  # store sum of each row  in the vector
-  newSumOfRow <- rowSums(newNum)
-  
-  # helper matrix to convert frequency matrix to transition matrix
-  newDen <- matrix(rep(newSumOfRow, length(newSumOfRow)), byrow = FALSE, ncol = length(newSumOfRow))
-  
-  # transition matrix
-  transMatr <- newNum / newDen
-  
-  # create a markovchain object
-  outMc <- new("markovchain", transitionMatrix = transMatr, name = "Laplacian Smooth Fit")
-
-  # transpose the transition matrix
-  if (!byrow) {
-    outMc@transitionMatrix <- t(outMc@transitionMatrix)
-    outMc@byrow <- FALSE
-  }
-  
-  # wrap markovchain object in a list
-  out <- list(estimate = outMc)
-  return(out)
-}
+# NOTE: the R implementation of Laplacian-smoothed fitting that used to
+# live here (.mcFitLaplacianSmooth) was dead code -- markovchainFit()
+# dispatches method = "laplace" to the C++ _mcFitLaplacianSmooth
+# (src/fittingFunctions.cpp) instead, which implements the same formula
+# and is the one actually used. Removed to avoid the two copies silently
+# drifting apart.
 
 # function that return a Markov Chain from a given matrix of observations
 # .matr2Mc <- function(matrData, laplacian = 0) {
@@ -740,35 +724,23 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' noofVisitsDist(simpleMc,5,"a")
 #' 
 #' @export
-noofVisitsDist <- function(markovchain,N = 5,state) {
-  
-  if(!is(markovchain,"markovchain"))
+noofVisitsDist <- function(markovchain, N = 5, state) {
+  if (!is(markovchain, "markovchain")) {
     stop("please provide a valid markovchain-class object")
-  
-  if(N <= 0)
-    stop("please enter positive number of steps")
-  
-  # the transition matrix
-  Tmatrix <- markovchain@transitionMatrix
-  
-  # character vector of states of the markovchain
+  }
+  if (length(N) != 1L || is.na(N) || !is.finite(N) ||
+      N < 1 || N != floor(N)) {
+    stop("N must be a positive integer")
+  }
   stateNames <- states(markovchain)
-  
-  i<--1
-  
-  # initial state
-  i <- which(stateNames == state)
-  
-  if(i==-1)
-    stop("please provide a valid inital state")
-  
-  
-  # call to Rcpp implementation of the function
-  out <- .noofVisitsDistRCpp(Tmatrix,i,N)
-  
-  # adds state names names to the output vector
+  if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
+    stop("please provide a valid initial state")
+  }
+  out <- .noofVisitsDistRCpp(
+    markovchain@transitionMatrix,
+    match(state, stateNames),
+    as.integer(N)
+  )
   names(out) <- stateNames
-  out <- c(out)
-  return(out)
-  
+  as.numeric(out) |> stats::setNames(stateNames)
 }

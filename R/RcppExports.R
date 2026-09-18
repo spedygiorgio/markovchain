@@ -61,6 +61,8 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
 #' 
 #' @export
 #' 
+NULL
+
 ctmcFit <- function(data, byrow = TRUE, name = "", confidencelevel = 0.95) {
     .Call(`_markovchain_ctmcFit`, data, byrow, name, confidencelevel)
 }
@@ -232,7 +234,7 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' 
 #' @export
 #' 
-markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
+.markovchainFitRcpp <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
     .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
 }
 
@@ -445,6 +447,14 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
 
 .is_stochastically_monotone_cpp <- function(P) {
     .Call(`_markovchain_is_stochastically_monotone_cpp`, P)
+}
+
+.is_lumpable_cpp <- function(P, partition, tol = 1e-10) {
+    .Call(`_markovchain_is_lumpable_cpp`, P, partition, tol)
+}
+
+.lump_cpp <- function(P, partition, weights) {
+    .Call(`_markovchain_lump_cpp`, P, partition, weights)
 }
 
 .isProbability <- function(prob) {

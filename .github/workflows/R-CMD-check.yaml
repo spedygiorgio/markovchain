@@ -5,20 +5,16 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
 
-name: R-CMD-check.yaml
+name: R-CMD-check
 
 permissions: read-all
 
 jobs:
+  # Fast cross-platform matrix for every pull request.
   R-CMD-check:
-    if: >-
-      (github.event_name == 'push' &&
-       (startsWith(github.event.head_commit.message, 'feat:') ||
-        startsWith(github.event.head_commit.message, 'fix:'))) ||
-      (github.event_name == 'pull_request' &&
-       (startsWith(github.event.pull_request.title, 'feat:') ||
-        startsWith(github.event.pull_request.title, 'fix:')))
+    if: github.event_name == 'pull_request'
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -51,7 +47,20 @@ jobs:
         with:
           pandoc-version: '3.1.11'
 
-      - uses: quarto-dev/quarto-actions/setup@v2
+      # Quarto downloads can occasionally fail transiently at the
+      # release-assets.githubusercontent.com endpoint. Pinning the version
+      # makes the CI reproducible; retrying the setup avoids failing a run
+      # because of a transient network/TLS error.
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -119,11 +128,9 @@ jobs:
             quiet = FALSE
           )
 
+  # Full matrix for every push to main/master and manual run.
   R-CMD-check-full:
-    if: >-
-      github.event_name == 'push' &&
-      (startsWith(github.event.head_commit.message, 'feat:') ||
-       startsWith(github.event.head_commit.message, 'fix:'))
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.config.os }}
 
     name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -158,7 +165,17 @@ jobs:
         with:
           pandoc-version: '3.1.11'
 
-      - uses: quarto-dev/quarto-actions/setup@v2
+      # Keep the same pinned, retryable Quarto setup in the full matrix.
+      - id: quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        continue-on-error: true
+        with:
+          version: '1.10.18'
+
+      - if: steps.quarto.outcome == 'failure'
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.10.18'
 
       - uses: r-lib/actions/setup-r@v2
         with:

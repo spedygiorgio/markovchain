@@ -23,9 +23,17 @@ utils::globalVariables(c(
 # loading the markovchain package
 
 .onAttach <- function(libname, pkgname) {
-  desc  <- packageDescription(pkgname, libname)
+  desc <- utils::packageDescription(pkgname, lib.loc = libname)
+
+  # During devtools::load_all()/devtools::test(), packageDescription() can
+  # return NA if the package is loaded from sources rather than from an
+  # installed library. Avoid failing package attachment in that case.
+  if (is.na(desc)[1]) {
+    return(invisible())
+  }
+
   packageStartupMessage('Package:  ', desc$Package, '\n',
-                        'Version:  ', desc$Version, '\n', 
+                        'Version:  ', desc$Version, '\n',
                         'Date:     ', desc$Date, '\n',
                         'BugReport: ', desc$BugReports, '\n')
 }

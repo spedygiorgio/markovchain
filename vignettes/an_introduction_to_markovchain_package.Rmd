@@ -616,6 +616,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{absorbingStates} & the absorbing states of the transition
   matrix, if any.\\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
+  \code{entropyRate} & entropy rate of an irreducible Markov chain. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
   \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
@@ -733,6 +734,32 @@ gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
 mcGR4 <- gamblerRuinMarkovChain(moneyMax = 4, prob = 0.5)
 steadyStates(mcGR4)
 ```
+
+## Entropy rate
+
+For a stationary first-order Markov chain, the entropy rate is the conditional
+entropy of the next state given the current state:
+
+\[
+H(X) = H(X_{t+1}\mid X_t)
+     = -\sum_i \pi_i\sum_j p_{ij}\log_b p_{ij},
+\]
+
+where $\pi$ is the stationary distribution and $0\log(0)$ is interpreted as
+zero. With $b=2$ the result is measured in bits per transition; with $b=e$ it
+is measured in nats per transition \citep{coverThomas2006}. The method
+`entropyRate` uses the unique stationary distribution of a finite irreducible
+chain. Aperiodicity is not required; reducible chains are rejected because the
+result can depend on the chosen stationary distribution
+\citep{strelioff2007inferring}.
+
+```{r entropy-rate-weather}
+entropyRate(mcWeather)
+entropyRate(mcWeather, base = exp(1))
+```
+
+A deterministic chain has entropy rate zero, whereas a chain whose rows are all
+uniform on $n$ states has the maximum value $\log_b(n)$.
 
 ## Classification of states
 

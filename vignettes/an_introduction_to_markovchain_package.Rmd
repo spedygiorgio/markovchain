@@ -764,6 +764,14 @@ entropyRate(mcWeather, base = exp(1))
 A deterministic chain has entropy rate zero, whereas a chain whose rows are all
 uniform on $n$ states has the maximum value $\log_b(n)$.
 
+Beyond its role as a measure of predictability, the entropy rate has been used
+to compare the regularity of empirically estimated Markov chains across
+subjects or conditions: \cite{vegetabile2019entropy} estimate entropy rates of
+discretized behavioral state sequences (e.g., mother-infant interaction
+coding) to quantify how structured or erratic a process is, showing how the
+same computation implemented in `entropyRate` can serve as a summary
+statistic in applied behavioral and time-series studies.
+
 ## Classification of states
 
 Absorbing states are determined by means of `absorbingStates` method.
@@ -942,6 +950,17 @@ meanFirstPassageTime(mcWeather) %*% piWeather
 
 The second result has one entry for each possible starting state; apart from
 numerical rounding, all entries equal Kemeny's constant.
+
+Kemeny's constant also has an interpretation as an overall measure of a
+chain's connectivity: a small value indicates that, on average, states are
+reached quickly from one another, while a large value indicates a chain that
+mixes slowly. \cite{leveneLoizou2002} popularized this reading in the context
+of the "random surfer" model of web navigation, relating $K$ to the expected
+number of hyperlink clicks needed to move between pages of a web graph, and
+using it to compare the navigability of different graph topologies. The same
+idea applies to any network representable as a Markov chain (e.g., transport,
+social, or communication networks), where `kemenyConstant` can be used as a
+single-number summary of how well connected the underlying graph is.
 
 ## Spectral diagnostics: SLEM, spectral gap and implied timescales
 

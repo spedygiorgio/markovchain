@@ -1,5 +1,7 @@
 # 1.1.1
 
+- Added `slem()` and `spectralGap()` for finite irreducible DTMCs. Only irreducibility is required (not aperiodicity): a periodic chain correctly returns `SLEM = 1` and spectral gap `0` instead of being rejected, since it genuinely does not contract towards its stationary distribution.
+- Added `impliedTimescales()`, returning the relaxation timescale of every non-trivial eigenvalue of a finite irreducible DTMC, with `Inf`/`0` handled explicitly at the `|lambda| = 1`/`0` boundaries.
 - Added `entropyRate()` for finite irreducible DTMCs, with configurable logarithm base and support for row- and column-stochastic storage.
 - Added `kemenyConstant()` for finite irreducible DTMCs, with support for both row- and column-stochastic storage and tests for the zero-diagonal hitting-time convention.
 - Hardened public R and native C++ entry points against invalid indices, negative sizes, integer overflow, and unbounded simulations.

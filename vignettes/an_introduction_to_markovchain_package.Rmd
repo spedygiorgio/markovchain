@@ -619,6 +619,9 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{entropyRate} & entropy rate of an irreducible Markov chain. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
   \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
+  \code{slem} & second largest eigenvalue modulus of an irreducible chain. \\
+  \code{spectralGap} & one minus the SLEM, a lightweight mixing diagnostic. \\
+  \code{impliedTimescales} & per-eigenvalue relaxation timescales of an irreducible chain. \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -939,6 +942,95 @@ meanFirstPassageTime(mcWeather) %*% piWeather
 
 The second result has one entry for each possible starting state; apart from
 numerical rounding, all entries equal Kemeny's constant.
+
+## Spectral diagnostics: SLEM, spectral gap and implied timescales
+
+For a finite, irreducible chain, the Perron-Frobenius theorem guarantees a
+unique eigenvalue $\lambda_1=1$; every other eigenvalue satisfies
+$|\lambda_k|\le 1$. The *second largest eigenvalue modulus* (SLEM) is
+
+\[
+\mathrm{SLEM} = \max_{k>1} |\lambda_k|,
+\]
+
+and the *spectral gap* is $1-\mathrm{SLEM}$. Both are lightweight,
+eigenvalue-based diagnostics of how quickly a chain approaches its
+stationary distribution: a spectral gap close to $1$ indicates fast mixing,
+while a spectral gap close to $0$ indicates slow mixing \citep{levinPeres2017}.
+Only irreducibility is required; unlike some implementations, `slem` and
+`spectralGap` do not require aperiodicity, and correctly report
+$\mathrm{SLEM}=1$ (spectral gap $0$) for a periodic chain, reflecting that
+such a chain never contracts towards its stationary distribution.
+
+```{r spectral-weather}
+slem(mcWeather)
+spectralGap(mcWeather)
+```
+
+Each non-trivial eigenvalue $\lambda_k$, $k>1$, also has its own *implied
+timescale* $\tau_k=-1/\log|\lambda_k|$, measured in number of steps: it is
+the time the corresponding mode of the chain takes to decay by a factor of
+$1/e$. The largest such value, $\tau_2$, corresponds to the SLEM and is the
+slowest, dominant relaxation mode. The term comes from the Markov state
+model literature in molecular kinetics \citep{swope2004describing,
+prinz2011markov}, where implied timescales are additionally compared across
+chains fitted at increasing lag times as a check of the Markov
+approximation; `impliedTimescales` evaluates a single already-fitted chain,
+leaving that comparison to the user.
+
+```{r implied-weather}
+impliedTimescales(mcWeather)
+```
+
+As a textbook illustration with a known closed form, consider simple random
+walk on the cycle with $n$ states, which moves to either neighbour with
+probability $1/2$ \citep[Example 12.9]{levinPeres2017}. Its eigenvalues are
+$\lambda_k = \cos(2\pi k/n)$, $k=0,\ldots,n-1$, so the SLEM and spectral gap
+can be checked in closed form. For an *odd* $n$ the walk is aperiodic. Since
+$\cos$ is largest in modulus near $0$ and near $\pi$, the SLEM is the larger
+of the moduli attained near $k=1$ (angle near $0$) and near $k=n/2$ (angle
+near $\pi$); for $n=7$ the latter dominates, at $k=3$ (and, symmetrically,
+$k=4$):
+
+```{r cycle-walk-odd}
+randomWalkOnCycle <- function(n) {
+  cycleP <- matrix(0, n, n)
+  for (i in seq_len(n)) {
+    cycleP[i, ((i - 2) %% n) + 1] <- 1 / 2
+    cycleP[i, (i %% n) + 1] <- 1 / 2
+  }
+  new("markovchain", transitionMatrix = cycleP,
+      states = as.character(seq_len(n)),
+      name = paste("Random walk on the", n, "-cycle"))
+}
+
+mcCycle7 <- randomWalkOnCycle(7)
+slem(mcCycle7)
+abs(cos(2 * pi * 3 / 7)) # closed-form SLEM, attained at k = 3 and k = 4
+
+spectralGap(mcCycle7)
+impliedTimescales(mcCycle7)
+```
+
+For an *even* $n$ the cycle graph is bipartite and the walk is periodic
+(period $2$): it can only return to its starting state after an even number
+of steps. Correspondingly $\lambda_k$ reaches $-1$ at $k=n/2$, so the SLEM
+is $1$ regardless of $n$:
+
+```{r cycle-walk-even}
+mcCycle8 <- randomWalkOnCycle(8)
+slem(mcCycle8) # 1, attained at k = 4, where cos(2*pi*4/8) = cos(pi) = -1
+round(spectralGap(mcCycle8), 12) # numerically 0, up to floating-point error
+impliedTimescales(mcCycle8)["tau2"] # the k = 4 mode, sorted first, never decays
+```
+
+`slem`, `spectralGap` and `impliedTimescales` handle this periodic case
+directly, rather than treating it as an error: a spectral gap of (numerically)
+$0$ and an infinite implied timescale are the mathematically correct
+description of a chain that does not converge pointwise to its stationary
+distribution. The tiny residual before rounding is ordinary floating-point
+error from `eigen()`, of the same order as `.Machine$double.eps`, not a sign
+that the chain is "almost" aperiodic.
 
 ## Mean recurrence time
 

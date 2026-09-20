@@ -622,6 +622,11 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{slem} & second largest eigenvalue modulus of an irreducible chain. \\
   \code{spectralGap} & one minus the SLEM, a lightweight mixing diagnostic. \\
   \code{impliedTimescales} & per-eigenvalue relaxation timescales of an irreducible chain. \\
+  \code{is.reversible} & checks detailed balance with respect to the stationary distribution. \\
+  \code{closestReversible} & closest reversible chain for a fixed stationary distribution. \\
+  \code{mixingTime} & total-variation mixing time of an irreducible, aperiodic chain. \\
+  \code{lazyChain} & the chain $\alpha I + (1-\alpha)P$, used to remove periodicity. \\
+  \code{subchain} & restricts a chain to a subset of states (raw submatrix or renormalized). \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -763,14 +768,6 @@ entropyRate(mcWeather, base = exp(1))
 
 A deterministic chain has entropy rate zero, whereas a chain whose rows are all
 uniform on $n$ states has the maximum value $\log_b(n)$.
-
-Beyond its role as a measure of predictability, the entropy rate has been used
-to compare the regularity of empirically estimated Markov chains across
-subjects or conditions: \cite{vegetabile2019entropy} estimate entropy rates of
-discretized behavioral state sequences (e.g., mother-infant interaction
-coding) to quantify how structured or erratic a process is, showing how the
-same computation implemented in `entropyRate` can serve as a summary
-statistic in applied behavioral and time-series studies.
 
 ## Classification of states
 
@@ -951,17 +948,6 @@ meanFirstPassageTime(mcWeather) %*% piWeather
 The second result has one entry for each possible starting state; apart from
 numerical rounding, all entries equal Kemeny's constant.
 
-Kemeny's constant also has an interpretation as an overall measure of a
-chain's connectivity: a small value indicates that, on average, states are
-reached quickly from one another, while a large value indicates a chain that
-mixes slowly. \cite{leveneLoizou2002} popularized this reading in the context
-of the "random surfer" model of web navigation, relating $K$ to the expected
-number of hyperlink clicks needed to move between pages of a web graph, and
-using it to compare the navigability of different graph topologies. The same
-idea applies to any network representable as a Markov chain (e.g., transport,
-social, or communication networks), where `kemenyConstant` can be used as a
-single-number summary of how well connected the underlying graph is.
-
 ## Spectral diagnostics: SLEM, spectral gap and implied timescales
 
 For a finite, irreducible chain, the Perron-Frobenius theorem guarantees a
@@ -1051,6 +1037,197 @@ distribution. The tiny residual before rounding is ordinary floating-point
 error from `eigen()`, of the same order as `.Machine$double.eps`, not a sign
 that the chain is "almost" aperiodic.
 
+## Reversibility
+
+A chain is *reversible* with respect to its stationary distribution $\pi$
+if the detailed balance equations hold:
+
+\[
+\pi_i P_{ij} = \pi_j P_{ji} \quad \text{for every } i,j.
+\]
+
+Intuitively, a long stationary run of a reversible chain looks statistically
+the same whether played forwards or backwards in time: the flow of
+probability from $i$ to $j$ exactly balances the flow back
+\citep{NorrisBook,levinPeres2017}. `is.reversible` checks this directly, and
+only requires irreducibility, not aperiodicity -- reversibility and
+periodicity are independent properties.
+
+A canonical family of reversible chains is simple random walk on an
+undirected graph (move to a uniformly random neighbour at each step): the
+symmetry of "being neighbours" is exactly what makes detailed balance hold.
+The random walk on a cycle from the previous section, whether the aperiodic
+`mcCycle7` or the periodic `mcCycle8`, is reversible either way:
+
+```{r reversible-cycle}
+is.reversible(mcCycle7)
+is.reversible(mcCycle8)
+```
+
+By contrast, a directed cycle -- where probability only ever flows "one way
+around" -- is not reversible, since there is a net clockwise flow at
+stationarity with nothing flowing back:
+
+```{r reversible-directed-cycle}
+states3 <- c("a", "b", "c")
+directedCycle <- new("markovchain", states = states3,
+  transitionMatrix = matrix(c(0, 1, 0,
+                              0, 0, 1,
+                              1, 0, 0), byrow = TRUE, nrow = 3,
+                            dimnames = list(states3, states3)))
+is.reversible(directedCycle)
+```
+
+The weather chain `mcWeather` is a more realistic example of a non-reversible
+chain: nothing forces the flow from "sunny" to "rain" to balance the flow
+back, and indeed it does not:
+
+```{r reversible-weather}
+is.reversible(mcWeather)
+```
+
+### Closest reversible approximation
+
+Many results about Markov chains -- spectral bounds, much of MCMC theory --
+assume reversibility, so when a fitted chain turns out not to be reversible
+it is natural to ask which reversible chain is closest to it. Write the
+*time reversal* of $P$ with respect to $\pi$ as
+
+\[
+P^*_{ij} = \frac{\pi_j P_{ji}}{\pi_i},
+\]
+
+the chain run backwards in time; $P$ is reversible exactly when $P=P^*$.
+`closestReversible` returns the *additive reversibilization*
+$R=\tfrac12(P+P^*)$ \citep{fill1991eigenvalue}, which is automatically a
+valid transition matrix -- the rows of $P^*$ sum to
+$\sum_j \pi_j P_{ji}/\pi_i = (\pi P)_i/\pi_i = 1$ because $\pi$ is
+stationary -- and is reversible with respect to the same $\pi$.
+
+The clearest example is a chain that is as far from reversible as possible:
+a directed cycle, which only ever moves one way round. Its closest
+reversible approximation is the undirected random walk on the same triangle:
+
+```{r closest-reversible-cycle}
+approximation <- closestReversible(directedCycle)
+approximation$chain
+is.reversible(approximation$chain)
+```
+
+Applied to the weather chain, the approximation keeps the same stationary
+distribution and reports how far it had to move to become reversible:
+
+```{r closest-reversible-weather}
+weatherReversible <- closestReversible(mcWeather)
+weatherReversible$chain
+weatherReversible$distance
+
+steadyStates(mcWeather)
+steadyStates(weatherReversible$chain) # unchanged
+```
+
+In what sense is this the *closest* chain? Reversible chains are exactly the
+self-adjoint operators on $\ell^2(\pi)$, so the natural distance is the
+Hilbert--Schmidt norm of that space,
+
+\[
+\|A\|_\pi^2=\sum_{i,j}\frac{\pi_i}{\pi_j}A_{ij}^2,
+\]
+
+for which $A\mapsto A^*$ is an isometric involution: $R$ is then the
+orthogonal projection of $P$ onto the reversible subspace, and the
+stochasticity and non-negativity constraints are satisfied automatically, so
+no constrained optimization is needed. Two warnings follow from this, both
+documented in `?closestReversible`. First, $R$ does *not* minimize the plain
+Frobenius distance, which the return value reports separately as a
+descriptive figure only. Second, the minimization holds $\pi$ fixed; letting
+the stationary distribution vary as well is a harder optimization problem
+\citep{nielsen2015computing} that is not solved here.
+
+## Mixing time
+
+Where `spectralGap` summarises convergence to stationarity through the
+transition matrix's spectrum, `mixingTime` answers a more operational
+question directly: after how many steps is the chain's distribution close
+to $\pi$, no matter where it started? Formally, with total variation
+distance $d(t) = \max_i \tfrac12\sum_j |P^t_{ij}-\pi_j|$, the mixing time is
+the smallest $t$ with $d(t)\le\varepsilon$, for a threshold $\varepsilon$
+(conventionally $0.25$) \citep{levinPeres2017}.
+
+```{r mixing-weather}
+mixingTime(mcWeather)
+mixingTime(mcWeather, epsilon = 0.01) # a tighter threshold needs more steps
+```
+
+Spectral gap and mixing time are connected by a standard bound
+\citep[Theorem 12.3]{levinPeres2017}:
+
+\[
+t_{\mathrm{mix}}(\varepsilon) \le \frac{1}{\mathrm{gap}}
+  \log\!\left(\frac{1}{\varepsilon\,\pi_{\min}}\right),
+\]
+
+which we can check directly against the values already computed for
+`mcWeather` in the previous section:
+
+```{r mixing-bound-check}
+piWeather <- as.numeric(steadyStates(mcWeather))
+upperBound <- log(1 / (0.25 * min(piWeather))) / spectralGap(mcWeather)
+upperBound
+mixingTime(mcWeather) <= upperBound
+```
+
+`mixingTime` requires aperiodicity in addition to irreducibility, unlike
+`slem`, `spectralGap` and `impliedTimescales`: a periodic chain's
+distribution never settles down at all (it keeps cycling), so "the number of
+steps until it is close to $\pi$" is not a meaningful question to ask of it.
+Calling it on the periodic `mcCycle8` therefore raises an informative error
+rather than returning a misleading number:
+
+```{r mixing-periodic-error, error=TRUE}
+mixingTime(mcCycle8)
+```
+
+## Lazy chains
+
+The standard fix for periodicity is to make the chain *lazy*: stay in place
+with probability $\alpha$ at every step, and otherwise take a step of the
+original chain \citep{levinPeres2017}. For transition matrix $P$, the lazy
+chain's transition matrix is
+
+\[
+L = \alpha I + (1-\alpha) P.
+\]
+
+Adding positive probability of staying in every state rules out any period
+greater than $1$, while leaving the stationary distribution and reachability
+structure unchanged. Applying it to the periodic `mcCycle8` from before:
+
+```{r lazy-cycle}
+lazyCycle8 <- lazyChain(mcCycle8, alpha = 0.5)
+period(mcCycle8)
+period(lazyCycle8)
+steadyStates(mcCycle8)
+steadyStates(lazyCycle8) # unchanged by laziness
+```
+
+Now that the chain is aperiodic, `mixingTime` is well-defined for it:
+
+```{r lazy-mixing}
+mixingTime(lazyCycle8)
+```
+
+Laziness is not free, however: every non-trivial eigenvalue of $L$ equals
+$\alpha+(1-\alpha)\lambda$ for the corresponding eigenvalue $\lambda$ of
+$P$, so the whole non-trivial spectrum is pulled towards $\alpha$ and mixing
+generally gets *slower* as $\alpha$ grows:
+
+```{r lazy-slower}
+spectralGap(mcCycle7) # aperiodic already, no laziness needed
+spectralGap(lazyChain(mcCycle7, alpha = 0.5))
+spectralGap(lazyChain(mcCycle7, alpha = 0.9))
+```
+
 ## Mean recurrence time
 
 The `meanRecurrenceTime` method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
@@ -1127,6 +1304,46 @@ transient to absorbing states [@GrinsteadSnell].
 ```{r fundamental-matrix-drunkard}
 fundamentalMatrix(drunkMc)
 ```
+
+### Restricting a chain to a subset of states
+
+The matrix $Q$ above -- transitions among transient states only -- is
+exactly what `subchain(..., method = "submatrix")` returns when restricted
+to the transient states: the raw principal submatrix, with no adjustment.
+Its rows generally sum to *less than* one, because probability that leaves
+the subset (here, to the absorbing corners) is simply dropped, not
+redistributed:
+
+```{r subchain-submatrix}
+Q <- subchain(drunkMc, transientStates(drunkMc), method = "submatrix")
+Q
+rowSums(Q)
+```
+
+Feeding this $Q$ into $(I-Q)^{-1}$ by hand reproduces `fundamentalMatrix`
+exactly, confirming the two are the same object:
+
+```{r subchain-fundamental-check}
+solve(diag(nrow(Q)) - Q)
+```
+
+The second option, `method = "renormalize"`, instead divides each row by
+its own sum, giving a genuine `markovchain` object: the walk's position
+*conditioned on never having reached home or the bar* \citep{NorrisBook}.
+This requires every retained state to have some positive probability of
+staying inside the subset -- true here, since every transient corner can
+move to another transient corner:
+
+```{r subchain-renormalize}
+watchedDrunk <- subchain(drunkMc, transientStates(drunkMc), method = "renormalize")
+watchedDrunk
+rowSums(watchedDrunk@transitionMatrix)
+```
+
+The two methods answer different questions and are not interchangeable: use
+`"submatrix"` as a building block for further linear algebra (as
+`fundamentalMatrix` does internally), and `"renormalize"` when you want an
+actual Markov chain describing conditional behaviour on the subset.
 
 ## Committor probability
 

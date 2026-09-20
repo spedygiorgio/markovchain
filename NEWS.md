@@ -1,3 +1,14 @@
+# 1.1.3
+
+- Added `closestReversible()` (closes #253), returning the reversible chain closest to a given one for a fixed stationary distribution, together with the distance it minimizes. It is the additive reversibilization `(P + P*)/2` of Fill (1991), which is the orthogonal projection of `P` onto the reversible chains in the pi-weighted Hilbert-Schmidt norm of `l^2(pi)` and needs no numerical optimization: the stochasticity and non-negativity constraints hold automatically. The documentation states explicitly what is *not* solved -- the plain-Frobenius version of the same problem, and the harder problem of letting the stationary distribution vary (Nielsen & Weber, 2015).
+- `markovchainFit()` now accepts `method = "laplace"` for a list of sequences (closes #165), pooling the transition counts over the sequences and smoothing them exactly as it does for a single sequence. `method = "bootstrap"` on a list is still refused -- resampling whole sequences and resampling transitions within them are different procedures with different standard errors, and the package will not pick one silently -- but the old `"method not available for a list"` is replaced by a message that says which methods to use instead.
+- Fixed `markovchainFit(..., byrow = FALSE)` returning an **invalid** `markovchain` object from every sequence/list fitting path: `mle`, `laplace` and `map` transposed the transition matrix but left the `byrow` slot at its `TRUE` default, while `bootstrap` did the mirror image (slot set to `FALSE`, matrix left row-stochastic). Such objects failed `validObject()` and were silently misread by every method that consults the slot (`steadyStates()`, `is.irreducible()`, and so on), so fits made with `byrow = FALSE` could yield wrong results downstream. The accompanying `standardError` and confidence-interval matrices now follow the estimate's orientation as well. Matrix/data.frame input is unchanged: there `byrow` describes the layout of the observations, and the fitted chain stays row-stochastic.
+- Added `is.reversible()`, checking detailed balance with respect to the stationary distribution of a finite irreducible DTMC. Only irreducibility is required, not aperiodicity, since reversibility and periodicity are independent properties.
+- Added `mixingTime()`, the total-variation mixing time of a finite irreducible, *aperiodic* DTMC. Unlike `slem()`/`spectralGap()`, this genuinely requires aperiodicity: a periodic chain's distribution never converges, so its mixing time is not defined and calling it on one raises a clear error instead of looping or returning a misleading value.
+- Added `lazyChain()`, building the lazy chain `alpha*I + (1-alpha)*P`; a standard device (Levin & Peres, 2017) for removing periodicity, e.g. to make `mixingTime()` applicable.
+- Added `subchain()` (closes #254), restricting a chain to a subset of states either as the raw principal submatrix (`method = "submatrix"`, e.g. the `Q` block used by `fundamentalMatrix()`) or as a properly renormalized Markov chain conditioned on staying inside the subset (`method = "renormalize"`); the two are explicitly distinguished rather than conflated.
+
+
 # 1.1.2
 
 - Added `slem()` and `spectralGap()` for finite irreducible DTMCs. Only irreducibility is required (not aperiodicity): a periodic chain correctly returns `SLEM = 1` and spectral gap `0` instead of being rejected, since it genuinely does not contract towards its stationary distribution.
@@ -47,4 +58,4 @@ Handled _R_CHECK_PACKAGES_USED_IN_DEMO_
 
 # markovchain 0.10.2
 
-# markovchain 0.10.1
+# markovchain 0.10.1

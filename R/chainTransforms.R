@@ -235,3 +235,128 @@ setMethod("subchain", "markovchain", function(object, states, method = c("submat
       transitionMatrix = renormalized,
       name = paste0(object@name, " (subchain)"))
 })
+
+#' Merge two Markov chains by convex combination of their transition matrices
+#'
+#' Builds a new \code{markovchain} object whose transition matrix is a convex
+#' combination of the transition matrices of two existing chains defined on
+#' the same state space.
+#'
+#' For transition matrices \eqn{P_1} (from \code{object}) and \eqn{P_2}
+#' (from \code{other}), and a blending factor \eqn{\gamma\in[0,1]}, the
+#' merged transition matrix is
+#' \deqn{P = (1-\gamma) P_1 + \gamma P_2.}
+#'
+#' @param object A \code{markovchain} object.
+#' @param other A second \code{markovchain} object, defined on the same set
+#'   of state names as \code{object} (see Details for what "same" means
+#'   here).
+#' @param gamma A single number in \eqn{[0,1]}: the weight given to
+#'   \code{other}. \code{gamma = 0} returns \code{object} unchanged (up to
+#'   storage convention); \code{gamma = 1} returns \code{other} unchanged.
+#'
+#' @return A new \code{markovchain} object, row-stochastic, on the common
+#'   state names, with transition matrix \eqn{P = (1-\gamma)P_1+\gamma P_2}.
+#'
+#' @details
+#' \strong{States are matched by name, not by position.} \code{object} and
+#' \code{other} must have exactly the same set of state names (as sets --
+#' \code{other}'s states may be in a different order, or \code{other} may use
+#' a different storage convention (\code{byrow}), and both are handled
+#' correctly). Rows and columns of \code{other}'s transition matrix are
+#' realigned to \code{object}'s state order before combining, and both
+#' matrices are converted to row-stochastic form first if needed, so that
+#' \eqn{P_1} and \eqn{P_2} are always combined entry-for-entry between
+#' matching states rather than between matching matrix positions.
+#'
+#' This is a deliberate difference from the na\"ive version of this
+#' operation, which combines two same-\emph{size} transition matrices
+#' positionally and would silently produce a meaningless result if the two
+#' chains happened to list their states in a different order (or under a
+#' different \code{byrow} convention) despite describing the same states.
+#' Requiring identical state name sets, rather than merely identical size,
+#' catches that mismatch as an error instead of propagating it.
+#'
+#' Because \eqn{P_1} and \eqn{P_2} are both row-stochastic with non-negative
+#' entries and \eqn{\gamma\in[0,1]}, \eqn{P} is automatically row-stochastic
+#' with non-negative entries: no renormalization is needed (this is the same
+#' convexity argument used for \code{\link{lazyChain}}, of which
+#' \code{mergeWith(object, identity_chain, gamma)} is a special case when
+#' \code{other} is an identity chain on the same states).
+#'
+#' This function does not require \code{object} or \code{other} to be
+#' irreducible: merging is meaningful for any two chains on the same state
+#' space, including reducible ones. Note, however, that the merged chain's
+#' stationary distribution (if any) is generally \emph{not} a combination of
+#' \eqn{\pi_1} and \eqn{\pi_2} in any simple way; it must be recomputed from
+#' \eqn{P} directly.
+#'
+#' The implementation performs no eigendecomposition and is \eqn{O(n^2)}
+#' time and memory for two \eqn{n}-state chains, dominated by realigning
+#' \code{other}'s matrix to \code{object}'s state order.
+#'
+#' @seealso \code{\link{lazyChain}}, \code{\link{subchain}}
+#'
+#' @examples
+#' statesNames <- c("a", "b")
+#' mc1 <- new("markovchain", states = statesNames,
+#'   transitionMatrix = matrix(c(0.9, 0.1, 0.1, 0.9), byrow = TRUE, nrow = 2,
+#'                             dimnames = list(statesNames, statesNames)))
+#' # mc2 lists the same two states in the opposite order.
+#' mc2 <- new("markovchain", states = rev(statesNames),
+#'   transitionMatrix = matrix(c(0.5, 0.5, 0.5, 0.5), byrow = TRUE, nrow = 2,
+#'                             dimnames = list(rev(statesNames), rev(statesNames))))
+#' merged <- mergeWith(mc1, mc2, gamma = 0.5)
+#' merged
+#' # States are matched by name: merged["a", "b"] combines mc1["a","b"] with
+#' # mc2["a","b"], not with whatever happened to sit in the same matrix cell.
+#'
+#' @exportMethod mergeWith
+setGeneric("mergeWith", function(object, other, gamma = 0.5) standardGeneric("mergeWith"))
+
+#' @rdname mergeWith
+setMethod("mergeWith", signature(object = "markovchain", other = "markovchain"),
+          function(object, other, gamma = 0.5) {
+  if (length(gamma) != 1L || !is.numeric(gamma) || !is.finite(gamma) ||
+      gamma < 0 || gamma > 1) {
+    stop("gamma must be a single finite number in [0, 1].")
+  }
+
+  stateNames <- states(object)
+  otherStateNames <- states(other)
+  if (length(stateNames) != length(otherStateNames) ||
+      !setequal(stateNames, otherStateNames)) {
+    stop(paste0(
+      "object and other must be defined on exactly the same set of state ",
+      "names; found object states {", paste(sort(stateNames), collapse = ", "),
+      "} and other states {", paste(sort(otherStateNames), collapse = ", "),
+      "}."
+    ))
+  }
+
+  P1 <- as.matrix(object@transitionMatrix)
+  if (!object@byrow) {
+    P1 <- t(P1)
+  }
+  P2 <- as.matrix(other@transitionMatrix)
+  if (!other@byrow) {
+    P2 <- t(P2)
+  }
+  # Realign other's matrix to object's state order by name, not position.
+  P2 <- P2[stateNames, stateNames, drop = FALSE]
+
+  n <- length(stateNames)
+  if (any(!is.finite(P1)) || any(!is.finite(P2)) ||
+      nrow(P1) != n || ncol(P1) != n) {
+    stop("Both transition matrices must be square, finite, and match the number of states.")
+  }
+
+  P <- (1 - gamma) * P1 + gamma * P2
+  dimnames(P) <- list(stateNames, stateNames)
+
+  new("markovchain",
+      states = stateNames,
+      byrow = TRUE,
+      transitionMatrix = P,
+      name = paste0(object@name, " + ", other@name, " (merged, gamma = ", gamma, ")"))
+})

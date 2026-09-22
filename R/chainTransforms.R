@@ -360,3 +360,123 @@ setMethod("mergeWith", signature(object = "markovchain", other = "markovchain"),
       transitionMatrix = P,
       name = paste0(object@name, " + ", other@name, " (merged, gamma = ", gamma, ")"))
 })
+
+#' Apply a boundary condition to a Markov chain's first and last state
+#'
+#' Replaces the transition rows of a \code{markovchain} object's first and
+#' last state (in \code{states(object)} order) with an absorbing,
+#' reflecting, or semi-reflecting rule, leaving every other row unchanged.
+#'
+#' @param object A \code{markovchain} object with at least 2 states.
+#' @param boundaryCondition Either:
+#'   \itemize{
+#'     \item the string \code{"absorbing"}: the first and last state each
+#'       become absorbing (\eqn{P_{11}=1}, \eqn{P_{nn}=1});
+#'     \item the string \code{"reflecting"}: the first state moves to the
+#'       second with certainty and the last state moves to the
+#'       second-to-last with certainty (\eqn{P_{12}=1},
+#'       \eqn{P_{n,n-1}=1});
+#'     \item a single number \eqn{\beta\in[0,1]}, the
+#'       \emph{semi-reflecting} case: the first state stays with
+#'       probability \eqn{1-\beta} and moves to the second state with
+#'       probability \eqn{\beta} (\eqn{P_{11}=1-\beta}, \eqn{P_{12}=\beta}),
+#'       and symmetrically the last state stays with probability
+#'       \eqn{1-\beta} and moves to the second-to-last with probability
+#'       \eqn{\beta}. \eqn{\beta=0} is the absorbing case and \eqn{\beta=1}
+#'       is the reflecting case.
+#'   }
+#'
+#' @return A new \code{markovchain} object, row-stochastic, on the same
+#'   states as \code{object}, identical to \code{object} except in its
+#'   first and last transition rows.
+#'
+#' @details
+#' This function assumes -- as is standard for a boundary condition -- that
+#' \code{states(object)} is meaningfully ordered along a line, first state
+#' to last state, as it would be e.g. for \code{\link{birthDeath}} or any
+#' other chain built to represent a bounded random walk. It does not check
+#' this (there is no general way to check it from the transition matrix
+#' alone) and applies the same first/last-row replacement regardless of
+#' \code{object}'s actual structure; only the two boundary rows are ever
+#' touched, so applying it to a chain whose states are not linearly ordered
+#' simply reinterprets whichever states happen to be listed first and last.
+#'
+#' Unlike \code{\link{gamblersRuin}}, which is absorbing at both ends by
+#' construction and cannot be un-done, \code{toBoundedChain()} can be
+#' applied to any existing chain and with any of the three conditions,
+#' including reflecting or semi-reflecting ones that \code{gamblersRuin()}
+#' does not offer directly.
+#'
+#' The implementation touches only 2 of the \eqn{n} rows and is
+#' \eqn{O(n)} time and memory beyond copying the transition matrix.
+#'
+#' @seealso \code{\link{birthDeath}}, \code{\link{gamblersRuin}}
+#'
+#' @examples
+#' bd <- birthDeath(p = c(0.3, 0.4, 0.5), q = c(0.2, 0.3, 0.1))
+#'
+#' absorbed <- toBoundedChain(bd, "absorbing")
+#' absorbed@transitionMatrix[1, ]
+#' absorbed@transitionMatrix[4, ]
+#'
+#' reflected <- toBoundedChain(bd, "reflecting")
+#' reflected@transitionMatrix[1, ]
+#'
+#' semiReflected <- toBoundedChain(bd, 0.25)
+#' semiReflected@transitionMatrix[1, ]
+#'
+#' @exportMethod toBoundedChain
+setGeneric("toBoundedChain", function(object, boundaryCondition) {
+  standardGeneric("toBoundedChain")
+})
+
+#' @rdname toBoundedChain
+setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
+  stateNames <- states(object)
+  n <- length(stateNames)
+  if (n < 2L) {
+    stop("toBoundedChain requires a chain with at least 2 states.")
+  }
+
+  P <- as.matrix(object@transitionMatrix)
+  if (!object@byrow) {
+    P <- t(P)
+  }
+
+  firstRow <- numeric(n)
+  lastRow <- numeric(n)
+
+  if (is.character(boundaryCondition) && length(boundaryCondition) == 1L &&
+      boundaryCondition %in% c("absorbing", "reflecting")) {
+    if (boundaryCondition == "absorbing") {
+      firstRow[1] <- 1
+      lastRow[n] <- 1
+    } else {
+      firstRow[min(2L, n)] <- 1
+      lastRow[max(n - 1L, 1L)] <- 1
+    }
+  } else if (is.numeric(boundaryCondition) && length(boundaryCondition) == 1L &&
+             is.finite(boundaryCondition) &&
+             boundaryCondition >= 0 && boundaryCondition <= 1) {
+    beta <- boundaryCondition
+    firstRow[1] <- 1 - beta
+    firstRow[min(2L, n)] <- firstRow[min(2L, n)] + beta
+    lastRow[n] <- 1 - beta
+    lastRow[max(n - 1L, 1L)] <- lastRow[max(n - 1L, 1L)] + beta
+  } else {
+    stop(paste0(
+      "boundaryCondition must be \"absorbing\", \"reflecting\", or a ",
+      "single number in [0, 1]."
+    ))
+  }
+
+  P[1, ] <- firstRow
+  P[n, ] <- lastRow
+  dimnames(P) <- list(stateNames, stateNames)
+
+  new("markovchain",
+      states = stateNames,
+      byrow = TRUE,
+      transitionMatrix = P,
+      name = paste0(object@name, " (bounded)"))
+})

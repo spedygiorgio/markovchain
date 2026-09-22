@@ -542,3 +542,157 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
     states = stats::setNames(y, states)
   )
 }
+
+#' Build a population-genetics Markov chain (Moran or Wright-Fisher)
+#'
+#' Constructs the Markov chain tracking the number of copies of a mutant
+#' allele in a population of \code{n} individuals under mutation and
+#' viability selection, for either the Moran or the Wright-Fisher model of
+#' population genetics.
+#'
+#' @param model Either \code{"moran"} or \code{"wright-fisher"}, selecting
+#'   which reproduction scheme generates the transition matrix.
+#' @param n A single integer of at least \code{2}: the (constant)
+#'   population size. The chain has \code{n + 1} states,
+#'   \eqn{0,1,\ldots,n}, the possible mutant-allele counts.
+#' @param s A single finite number greater than \code{-1}: the selection
+#'   coefficient. The mutant allele's fitness relative to the wild-type is
+#'   \eqn{1+s} (\code{s = 0} is neutral drift, \code{s > 0} favours the
+#'   mutant, \code{-1 < s < 0} disfavours it).
+#' @param u A single number in \eqn{[0,1]}: the backward mutation rate,
+#'   mutant to wild-type. Defaults to \code{1e-9}, matching the effectively
+#'   mutation-free chain conventionally used for the neutral/absorbing case.
+#' @param v A single number in \eqn{[0,1]}: the forward mutation rate,
+#'   wild-type to mutant. Defaults to \code{1e-9}.
+#' @param states An optional character vector of \code{n + 1} state names.
+#'   Defaults to \code{as.character(0:n)}.
+#'
+#' @return A new, row-stochastic \code{markovchain} object on \code{n + 1}
+#'   states. States \code{"0"} and \code{as.character(n)} (loss and
+#'   fixation of the mutant allele) are absorbing, following the standard
+#'   textbook treatment of both models; every interior state has a
+#'   transition row determined by \code{model}, \code{s}, \code{u} and
+#'   \code{v} as detailed below.
+#'
+#' @details
+#' \strong{Moran model.} At each step one individual is chosen to reproduce
+#' (with probability proportional to its type's relative fitness, mutant
+#' fitness \eqn{r=1+s} against wild-type fitness \eqn{1}) and one
+#' individual, chosen uniformly at random, dies and is replaced by the
+#' offspring, which mutates with probability \code{u} or \code{v}
+#' depending on the parent's type. From interior state \eqn{i}
+#' (\eqn{0<i<n}), writing \eqn{r_i=(1+s)i} and \eqn{m_i=n-i},
+#' \deqn{P_{i,i-1}=\frac{i}{n}\cdot\frac{r_i v + m_i(1-u)}{r_i+m_i},\qquad
+#'   P_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) + m_i v}{r_i+m_i},}
+#' with \eqn{P_{ii}} the remainder.
+#'
+#' \strong{Wright-Fisher model.} Generations are discrete and
+#' non-overlapping: from interior state \eqn{i}, the mutant-allele
+#' frequency \eqn{k=i/n} is first updated for mutation,
+#' \eqn{p=k(1-u)+(1-k)v}, then for viability selection,
+#' \eqn{p'=\min\bigl(p(1+s)/(1+ps),\,1\bigr)}, and the next generation's
+#' mutant count is \eqn{\mathrm{Binomial}(n,p')}-distributed:
+#' \eqn{P_{ij}=\binom{n}{j}p'^{\,j}(1-p')^{n-j}}.
+#'
+#' Both constructions follow \pkg{PyDTMC}'s
+#' \code{population_genetics_model}, with one deliberate difference: this
+#' function uses mutant relative fitness \eqn{1+s} in \emph{both} models
+#' (PyDTMC's Moran implementation instead uses \eqn{1-s}, so that a
+#' positive \code{s} there favours the wild-type rather than the mutant,
+#' the opposite of its own Wright-Fisher convention and of the usual
+#' textbook one). \code{s = 0} (neutral drift) and the mutation-rate terms
+#' are unaffected by this choice and match PyDTMC exactly; away from
+#' \code{s = 0} the two packages' Moran chains differ by construction, by
+#' design, to keep \code{s}'s meaning consistent between \code{"moran"} and
+#' \code{"wright-fisher"} within this package. As \code{u, v} shrink to
+#' \code{0}, both reduce to the classical drift-only chains with absorbing
+#' loss/fixation states, going back to Wright (1931) and Moran (1958); see
+#' Ewens (2004) for a modern textbook treatment of both.
+#'
+#' @references
+#' Wright, S. (1931). Evolution in Mendelian populations. \emph{Genetics},
+#' 16(2), 97-159.
+#'
+#' Moran, P. A. P. (1958). Random processes in genetics.
+#' \emph{Mathematical Proceedings of the Cambridge Philosophical Society},
+#' 54(1), 60-71.
+#'
+#' Ewens, W. J. (2004). \emph{Mathematical Population Genetics I:
+#' Theoretical Introduction} (2nd ed.). Springer.
+#'
+#' @seealso \code{\link{birthDeath}}, \code{\link{gamblersRuin}}
+#'
+#' @examples
+#' # Neutral drift (s = 0): absorption ("fixation") probability of the
+#' # mutant allele from state i equals i/n, the classical result.
+#' neutral <- populationGeneticsModel(model = "moran", n = 8, s = 0)
+#' ap <- absorptionProbabilities(neutral)
+#' ap["4", "8"] # close to 4/8 = 0.5
+#'
+#' # Positive selection increases the fixation probability from any
+#' # interior starting count.
+#' favoured <- populationGeneticsModel(model = "wright-fisher", n = 8, s = 0.5)
+#' absorptionProbabilities(favoured)["4", "8"]
+#'
+#' @export
+populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
+                                     n, s = 0, u = 1e-9, v = 1e-9,
+                                     states = NULL) {
+  model <- match.arg(model)
+  if (length(n) != 1L || !is.numeric(n) || is.na(n) ||
+      n != as.integer(n) || n < 2L) {
+    stop("n must be a single integer of at least 2.")
+  }
+  n <- as.integer(n)
+  if (length(s) != 1L || !is.numeric(s) || !is.finite(s) || s <= -1) {
+    stop("s must be a single finite number greater than -1.")
+  }
+  if (length(u) != 1L || !is.numeric(u) || is.na(u) || u < 0 || u > 1) {
+    stop("u must be a single number in [0, 1].")
+  }
+  if (length(v) != 1L || !is.numeric(v) || is.na(v) || v < 0 || v > 1) {
+    stop("v must be a single number in [0, 1].")
+  }
+
+  size <- n + 1L
+  if (!is.null(states)) {
+    if (!is.character(states) || length(states) != size || anyNA(states) ||
+        anyDuplicated(states)) {
+      stop("states, if supplied, must be a character vector of ", size,
+           " unique, non-missing names.")
+    }
+  } else {
+    states <- as.character(0:n)
+  }
+
+  P <- matrix(0, size, size, dimnames = list(states, states))
+  P[1L, 1L] <- 1
+  P[size, size] <- 1
+
+  ui <- 1 - u
+  vi <- 1 - v
+
+  if (model == "moran") {
+    r <- 1 + s
+    for (i in seq_len(n - 1L)) {
+      nmi <- n - i
+      ri <- r * i
+      pm1 <- (i / n) * ((ri * v + nmi * vi) / (ri + nmi))
+      pp1 <- (nmi / n) * ((ri * ui + nmi * v) / (ri + nmi))
+      P[i + 1L, i] <- pm1
+      P[i + 1L, i + 1L] <- 1 - pm1 - pp1
+      P[i + 1L, i + 2L] <- pp1
+    }
+  } else {
+    for (i in seq_len(n - 1L)) {
+      k <- i / n
+      pm <- k * ui + (1 - k) * v
+      ps <- min((pm * (1 + s)) / (1 + pm * s), 1)
+      P[i + 1L, ] <- stats::dbinom(0:n, n, ps)
+    }
+  }
+
+  modelLabel <- if (model == "moran") "Moran" else "Wright-Fisher"
+  new("markovchain", states = states, byrow = TRUE, transitionMatrix = P,
+      name = paste0(modelLabel, " Population Genetics Model (n = ", n, ")"))
+}

@@ -1604,6 +1604,65 @@ wetSeason <- new("markovchain", states = c("sunny", "rain"),
 mergeWith(drySeason, wetSeason, gamma = 0.3)
 ```
 
+### The $n$-step chain
+
+`toNthOrder(object, order)` returns the chain whose one-step transition
+probabilities are `object`'s `order`-step transition probabilities, i.e.
+$P^{\code{order}}$. It is a thin, discoverability-only wrapper around the
+`^` operator already shown in Section \@ref(sec:structure): the two give
+identical results, and `^` already uses repeated squaring
+($O(n^3\log(\code{order}))$) rather than a naive repeated product.
+
+```{r to-nth-order}
+identical(unclass(toNthOrder(mcWeather, 5)@transitionMatrix),
+          unclass((mcWeather ^ 5)@transitionMatrix))
+```
+
+### Population genetics: the Moran and Wright-Fisher models
+
+`populationGeneticsModel(model, n, s, u, v)` builds the Markov chain
+tracking the number of copies of a mutant allele, $0,1,\ldots,n$, in a
+population of $n$ individuals, under mutation (backward rate $u$, mutant
+to wild-type; forward rate $v$, wild-type to mutant) and viability
+selection (mutant fitness $1+s$ relative to the wild-type's $1$), for
+either the Moran or the Wright-Fisher reproduction scheme. States `"0"`
+and `as.character(n)` -- loss and fixation of the mutant allele -- are
+absorbing, as is standard for both models.
+
+With no selection ($s=0$) and negligible mutation, a classical result
+(going back to \citealp{wright1931} and \citealp{moran1958}; see
+\citealp{ewens2004} for a modern treatment) gives the probability that the
+mutant allele is eventually *fixed* (reaches state $n$) starting from $i$
+copies as simply $i/n$ -- the same value for both models, despite their
+very different reproduction mechanics:
+
+```{r popgen-neutral}
+n <- 8
+neutralMoran <- populationGeneticsModel(model = "moran", n = n, s = 0)
+neutralWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0)
+
+i <- 1:(n - 1)
+cbind(
+  i = i,
+  moran = as.numeric(absorptionProbabilities(neutralMoran)[as.character(i), as.character(n)]),
+  wrightFisher = as.numeric(absorptionProbabilities(neutralWF)[as.character(i), as.character(n)]),
+  theoretical = i / n
+)
+```
+
+Introducing positive selection ($s>0$) raises the fixation probability of
+the mutant allele above this neutral baseline, from every interior
+starting count, in both models:
+
+```{r popgen-selection}
+favouredMoran <- populationGeneticsModel(model = "moran", n = n, s = 0.5)
+favouredWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0.5)
+
+# fixation probability starting from 4 copies out of 8, neutral vs favoured
+c(neutral = as.numeric(absorptionProbabilities(neutralMoran)["4", "8"]),
+  favoured = as.numeric(absorptionProbabilities(favouredMoran)["4", "8"]))
+```
+
 # Statistical analysis {#sec:statistics}
 
 Table \@ref(tab:funs4Stats) lists the functions and methods implemented within the package which help to fit, simulate and predict DTMC.

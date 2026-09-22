@@ -137,3 +137,27 @@ test_that("subchain and lazyChain compose: lazifying a subchain still preserves 
   expect_equal(as.numeric(steadyStates(watched)), as.numeric(steadyStates(lazyWatched)),
                tolerance = 1e-10)
 })
+
+## ---- toNthOrder -------------------------------------------------------------
+
+test_that("toNthOrder matches the ^ operator exactly", {
+  for (ord in c(2, 3, 5, 10)) {
+    expect_equal(unclass(toNthOrder(mc3, ord)@transitionMatrix),
+                 unclass((mc3 ^ ord)@transitionMatrix), ignore_attr = TRUE)
+  }
+})
+
+test_that("toNthOrder returns a valid row-stochastic markovchain", {
+  nth <- toNthOrder(mc3, 4)
+  expect_s4_class(nth, "markovchain")
+  expect_equal(states(nth), states(mc3))
+  expect_equal(as.numeric(rowSums(nth@transitionMatrix)), rep(1, length(states(mc3))),
+               tolerance = 1e-10)
+})
+
+test_that("toNthOrder validates its arguments", {
+  expect_error(toNthOrder(mc3, 1), "order")
+  expect_error(toNthOrder(mc3, 1.5), "order")
+  expect_error(toNthOrder(mc3, -2), "order")
+  expect_error(toNthOrder("not a markovchain", 3), "object")
+})

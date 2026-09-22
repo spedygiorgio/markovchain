@@ -176,3 +176,55 @@ test_that("tauchen and rouwenhorst validate their arguments", {
   expect_error(rouwenhorst(alpha = 0, sigma = 1, rho = -1, size = 5), "rho")
   expect_error(rouwenhorst(alpha = 0, sigma = 1, rho = 0.5, size = 1), "size")
 })
+
+## ---- populationGeneticsModel -------------------------------------------------------------
+
+test_that("populationGeneticsModel builds a valid row-stochastic chain for both models", {
+  for (model in c("moran", "wright-fisher")) {
+    mc <- populationGeneticsModel(model = model, n = 6, s = 0.2, u = 0.01, v = 0.02)
+    expect_equal(states(mc), as.character(0:6))
+    expect_equal(as.numeric(rowSums(mc@transitionMatrix)), rep(1, 7), tolerance = 1e-10)
+    expect_true(all(mc@transitionMatrix >= 0))
+    expect_true(all(mc@transitionMatrix <= 1))
+  }
+})
+
+test_that("populationGeneticsModel is absorbing at 0 and n", {
+  mc <- populationGeneticsModel(model = "wright-fisher", n = 5)
+  expect_equal(sort(absorbingStates(mc)), c("0", "5"))
+})
+
+test_that("populationGeneticsModel matches the classical neutral-drift fixation probability i/n", {
+  n <- 8
+  for (model in c("moran", "wright-fisher")) {
+    neutral <- populationGeneticsModel(model = model, n = n, s = 0)
+    ap <- absorptionProbabilities(neutral)
+    i <- 1:(n - 1)
+    expect_equal(as.numeric(ap[as.character(i), as.character(n)]), i / n, tolerance = 1e-6)
+  }
+})
+
+test_that("positive selection increases the fixation probability above neutral drift", {
+  n <- 8
+  for (model in c("moran", "wright-fisher")) {
+    neutral <- populationGeneticsModel(model = model, n = n, s = 0)
+    favoured <- populationGeneticsModel(model = model, n = n, s = 0.5)
+    apNeutral <- absorptionProbabilities(neutral)["4", as.character(n)]
+    apFavoured <- absorptionProbabilities(favoured)["4", as.character(n)]
+    expect_gt(apFavoured, apNeutral)
+  }
+})
+
+test_that("populationGeneticsModel accepts custom state names", {
+  mc <- populationGeneticsModel(model = "moran", n = 3, states = c("w", "x", "y", "z"))
+  expect_equal(states(mc), c("w", "x", "y", "z"))
+})
+
+test_that("populationGeneticsModel validates its arguments", {
+  expect_error(populationGeneticsModel(model = "moran", n = 1), "n")
+  expect_error(populationGeneticsModel(model = "moran", n = 5, s = -1), "s")
+  expect_error(populationGeneticsModel(model = "moran", n = 5, u = 1.5), "u")
+  expect_error(populationGeneticsModel(model = "moran", n = 5, v = -0.1), "v")
+  expect_error(populationGeneticsModel(model = "bogus", n = 5))
+  expect_error(populationGeneticsModel(model = "moran", n = 5, states = c("a", "b")), "states")
+})

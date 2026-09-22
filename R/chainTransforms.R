@@ -480,3 +480,45 @@ setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
       transitionMatrix = P,
       name = paste0(object@name, " (bounded)"))
 })
+
+#' Return the n-step transition chain
+#'
+#' Returns the \code{markovchain} object whose transition matrix is
+#' \eqn{P^{\code{order}}}: from any state, its one-step transition
+#' probabilities are the original chain's \code{order}-step transition
+#' probabilities.
+#'
+#' @param object A \code{markovchain} object.
+#' @param order A single integer of at least \code{2}.
+#'
+#' @return A new \code{markovchain} object on the same states as
+#'   \code{object}, with transition matrix \eqn{P^{\code{order}}}.
+#'
+#' @details
+#' This is a thin, discoverability-only wrapper around
+#' \code{object ^ order} (see \code{\link[=markovchain-class]{^,markovchain,numeric-method}}),
+#' provided under this name because \pkg{PyDTMC}'s equivalent method is
+#' called \code{to_nth_order()}. It exists so that the operation is easy to
+#' find by that name; it introduces no new computation; the underlying
+#' \code{^} method is already \eqn{O(n^3\log(\code{order}))} via repeated
+#' squaring (\code{expm::\link[expm]{\%^\%}}), not a naive \code{order}-fold
+#' product, so there is nothing to improve on algorithmically here.
+#'
+#' @seealso \code{\link{toBoundedChain}}, \code{\link{lazyChain}}
+#'
+#' @examples
+#' mc <- new("markovchain", states = c("a", "b"),
+#'           transitionMatrix = matrix(c(0.9, 0.1, 0.3, 0.7), byrow = TRUE, nrow = 2))
+#' identical(unclass(toNthOrder(mc, 5)@transitionMatrix), unclass((mc ^ 5)@transitionMatrix))
+#'
+#' @export
+toNthOrder <- function(object, order) {
+  if (!is(object, "markovchain")) {
+    stop("object must be a markovchain object.")
+  }
+  if (length(order) != 1L || !is.numeric(order) || is.na(order) ||
+      order != as.integer(order) || order < 2L) {
+    stop("order must be a single integer of at least 2.")
+  }
+  object ^ as.integer(order)
+}

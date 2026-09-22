@@ -161,3 +161,49 @@ test_that("toNthOrder validates its arguments", {
   expect_error(toNthOrder(mc3, -2), "order")
   expect_error(toNthOrder("not a markovchain", 3), "object")
 })
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("lazyChain rejects a corrupted (non-square/non-finite) transition matrix", {
+  corrupted <- mc3
+  corrupted@transitionMatrix <- matrix(c(1, 2, NA, 4), 2, 2)
+  expect_error(lazyChain(corrupted, alpha = 0.5), "square and finite")
+})
+
+test_that("mergeWith supports column-stochastic storage on both inputs", {
+  states2 <- c("sunny", "rain")
+  P1 <- matrix(c(0.9, 0.1, 0.2, 0.8), byrow = TRUE, nrow = 2,
+               dimnames = list(states2, states2))
+  P2 <- matrix(c(0.5, 0.5, 0.6, 0.4), byrow = TRUE, nrow = 2,
+               dimnames = list(states2, states2))
+  mcRow1 <- new("markovchain", states = states2, byrow = TRUE, transitionMatrix = P1)
+  mcRow2 <- new("markovchain", states = states2, byrow = TRUE, transitionMatrix = P2)
+  mcCol1 <- new("markovchain", states = states2, byrow = FALSE, transitionMatrix = t(P1))
+  mcCol2 <- new("markovchain", states = states2, byrow = FALSE, transitionMatrix = t(P2))
+
+  rowResult <- mergeWith(mcRow1, mcRow2, gamma = 0.3)
+  colResult <- mergeWith(mcCol1, mcCol2, gamma = 0.3)
+  expect_equal(unclass(rowResult@transitionMatrix), unclass(colResult@transitionMatrix),
+               ignore_attr = TRUE)
+})
+
+test_that("mergeWith rejects a corrupted (non-square/non-finite) transition matrix", {
+  states2 <- c("a", "b")
+  ok <- new("markovchain", states = states2,
+            transitionMatrix = matrix(c(0.5, 0.5, 0.5, 0.5), 2, 2, byrow = TRUE,
+                                       dimnames = list(states2, states2)))
+  corrupted <- ok
+  corrupted@transitionMatrix <- matrix(c(1, 2, NA, 4), 2, 2)
+  expect_error(mergeWith(corrupted, ok, gamma = 0.5), "square, finite")
+})
+
+test_that("toBoundedChain supports column-stochastic storage", {
+  bdRow <- birthDeath(p = c(0.3, 0.4, 0.5), q = c(0.2, 0.3, 0.1))
+  bdCol <- new("markovchain", states = states(bdRow), byrow = FALSE,
+               transitionMatrix = t(as.matrix(bdRow@transitionMatrix)))
+
+  boundedRow <- toBoundedChain(bdRow, "reflecting")
+  boundedCol <- toBoundedChain(bdCol, "reflecting")
+  expect_equal(unclass(boundedRow@transitionMatrix), unclass(boundedCol@transitionMatrix),
+               ignore_attr = TRUE)
+})

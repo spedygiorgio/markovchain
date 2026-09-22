@@ -138,3 +138,23 @@ test_that("laziness restores a finite mixingTime to a periodic chain", {
   expect_equal(period(lazyPeriodic), 1L)
   expect_equal(mixingTime(lazyPeriodic), 1L) # already exactly stationary after 1 step
 })
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("is.reversible and mixingTime reject a corrupted (non-finite) transition matrix", {
+  states3 <- c("a", "b", "c")
+  P3 <- matrix(c(0.5, 0.3, 0.2, 0.2, 0.6, 0.2, 0.1, 0.1, 0.8), byrow = TRUE, nrow = 3,
+               dimnames = list(states3, states3))
+  mc3 <- new("markovchain", states = states3, transitionMatrix = P3)
+
+  # Keep the graph pattern (and hence irreducibility/aperiodicity) intact
+  # but inject a non-finite entry, to reach the matrix's own finiteness
+  # check directly, past the is.irreducible()/period() guards above it.
+  corrupted <- mc3
+  Pbad <- P3
+  Pbad["a", "b"] <- Inf
+  corrupted@transitionMatrix <- Pbad
+
+  expect_error(is.reversible(corrupted), "square and finite")
+  expect_error(mixingTime(corrupted), "square and finite")
+})

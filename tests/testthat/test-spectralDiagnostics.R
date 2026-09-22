@@ -120,3 +120,39 @@ test_that("slem, spectral gap and implied timescales reject reducible chains", {
   expect_error(spectralGap(reducible), "irreducible")
   expect_error(impliedTimescales(reducible), "irreducible")
 })
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("slem/spectralGap/impliedTimescales reject a corrupted (non-finite) transition matrix", {
+  states3 <- c("a", "b", "c")
+  P3 <- matrix(c(0.5, 0.3, 0.2, 0.2, 0.6, 0.2, 0.1, 0.1, 0.8), byrow = TRUE, nrow = 3,
+               dimnames = list(states3, states3))
+  mc3 <- new("markovchain", states = states3, transitionMatrix = P3)
+
+  corrupted <- mc3
+  Pbad <- P3
+  Pbad["a", "b"] <- Inf
+  corrupted@transitionMatrix <- Pbad
+
+  expect_error(slem(corrupted), "square and finite")
+  expect_error(spectralGap(corrupted), "square and finite")
+  expect_error(impliedTimescales(corrupted), "square and finite")
+})
+
+test_that("slem/spectralGap/impliedTimescales reject a matrix with no eigenvalue near 1", {
+  # A sub-stochastic matrix keeps the same irreducible graph pattern but has
+  # no eigenvalue equal to 1, so the shared helper cannot identify the
+  # trivial eigenvalue and must raise a clear error rather than silently
+  # treating some other eigenvalue as if it were the trivial one.
+  states3 <- c("a", "b", "c")
+  P3 <- matrix(c(0.5, 0.3, 0.2, 0.2, 0.6, 0.2, 0.1, 0.1, 0.8), byrow = TRUE, nrow = 3,
+               dimnames = list(states3, states3))
+  mc3 <- new("markovchain", states = states3, transitionMatrix = P3)
+
+  halved <- mc3
+  halved@transitionMatrix <- P3 * 0.5
+
+  expect_error(slem(halved), "trivial \\(unit\\) eigenvalue")
+  expect_error(spectralGap(halved), "trivial \\(unit\\) eigenvalue")
+  expect_error(impliedTimescales(halved), "trivial \\(unit\\) eigenvalue")
+})

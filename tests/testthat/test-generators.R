@@ -56,6 +56,8 @@ test_that("gamblersRuin matches the classical ruin probability formula", {
 test_that("gamblersRuin validates its arguments", {
   expect_error(gamblersRuin(upperBound = 1, prob = 0.5), "upperBound")
   expect_error(gamblersRuin(upperBound = 5, prob = 1.5), "prob")
+  expect_error(gamblersRuin(upperBound = 5, prob = 0.5, states = c("a", "b")), "states")
+  expect_error(gamblersRuin(upperBound = 5, prob = 0.5, states = rep("a", 6)), "states")
 })
 
 ## ---- urnModel -------------------------------------------------------------
@@ -77,6 +79,8 @@ test_that("urnModel is reflecting (not absorbing) at the boundaries", {
 test_that("urnModel validates its arguments", {
   expect_error(urnModel(balls = 0), "balls")
   expect_error(urnModel(balls = -1), "balls")
+  expect_error(urnModel(balls = 4, states = c("a", "b")), "states")
+  expect_error(urnModel(balls = 4, states = rep("a", 5)), "states")
 })
 
 ## ---- toBoundedChain -------------------------------------------------------------
@@ -227,4 +231,35 @@ test_that("populationGeneticsModel validates its arguments", {
   expect_error(populationGeneticsModel(model = "moran", n = 5, v = -0.1), "v")
   expect_error(populationGeneticsModel(model = "bogus", n = 5))
   expect_error(populationGeneticsModel(model = "moran", n = 5, states = c("a", "b")), "states")
+})
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("gamblersRuin accepts valid custom state names", {
+  ruin <- gamblersRuin(upperBound = 3, prob = 0.5, states = c("w", "x", "y", "z"))
+  expect_equal(states(ruin), c("w", "x", "y", "z"))
+})
+
+test_that("urnModel accepts valid custom state names", {
+  ehr <- urnModel(balls = 3, states = c("w", "x", "y", "z"))
+  expect_equal(states(ehr), c("w", "x", "y", "z"))
+})
+
+test_that(".checkAR1Args (via tauchen/rouwenhorst) validates alpha", {
+  expect_error(tauchen(alpha = NA_real_, sigma = 1, rho = 0.5, size = 5), "alpha")
+  expect_error(tauchen(alpha = c(0, 1), sigma = 1, rho = 0.5, size = 5), "alpha")
+  expect_error(rouwenhorst(alpha = Inf, sigma = 1, rho = 0.5, size = 5), "alpha")
+})
+
+test_that("tauchen and rouwenhorst fall back to generic labels when the rounded grid collides", {
+  # A large mean with a small spread rounds every grid point's 4-significant-
+  # figure label to the same string; both functions must fall back to plain
+  # sequential labels ("1", "2", ...) instead of producing duplicate states.
+  outT <- tauchen(alpha = 1e6, sigma = 0.01, rho = 0.5, size = 5, k = 1)
+  expect_equal(names(outT$states), as.character(1:5))
+  expect_false(anyDuplicated(names(outT$states)) > 0)
+
+  outR <- rouwenhorst(alpha = 1e6, sigma = 0.01, rho = 0.5, size = 5)
+  expect_equal(names(outR$states), as.character(1:5))
+  expect_false(anyDuplicated(names(outR$states)) > 0)
 })

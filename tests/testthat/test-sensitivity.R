@@ -89,3 +89,15 @@ test_that("sensitivity rejects reducible chains and invalid state arguments", {
   expect_error(sensitivity(mc3, 4L), "between 1 and")
   expect_error(sensitivity(mc3, c("a", "b")), "single state")
 })
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("sensitivity rejects a corrupted (non-finite) transition matrix", {
+  # Keep the graph pattern (and hence irreducibility) intact but inject a
+  # non-finite entry, to reach the matrix's own finiteness check directly.
+  corrupted <- mc3
+  Pbad <- P3
+  Pbad["a", "b"] <- Inf
+  corrupted@transitionMatrix <- Pbad
+  expect_error(sensitivity(corrupted, 1), "square and finite")
+})

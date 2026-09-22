@@ -206,3 +206,13 @@ test_that("the one-state chain is its own closest reversible chain", {
   expect_equal(unname(result$chain@transitionMatrix), matrix(1, 1, 1))
   expect_equal(result$distance, 0, tolerance = 1e-12)
 })
+
+## ---- defensive / low-level coverage -------------------------------------
+
+test_that("closestReversible rejects a corrupted (non-finite) transition matrix", {
+  corrupted <- triangleWalk
+  Pbad <- as.matrix(triangleWalk@transitionMatrix)
+  Pbad["a", "b"] <- Inf
+  corrupted@transitionMatrix <- Pbad
+  expect_error(closestReversible(corrupted), "square and finite")
+})

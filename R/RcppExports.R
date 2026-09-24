@@ -171,8 +171,17 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 #'  
 #' @param data It can be a character vector or a \deqn{n x n} matrix or a \deqn{n x n} data frame or a list
-#' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
-#' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
+#' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace".
+#'               All four are available for a single sequence. For a list of
+#'               sequences, "mle", "map" and "laplace" pool the transition counts
+#'               over the sequences, while "bootstrap" is not available and raises
+#'               an error explaining why.
+#' @param byrow For a character vector or a list of sequences, it tells whether the fitted
+#'              transition matrix is stored by row (the default) or by column; the
+#'              \code{byrow} slot of the returned chain records the choice. For matrix or
+#'              data frame input it instead describes the input data -- whether each
+#'              observed trajectory is a row or a column of \code{data} -- and the fitted
+#'              chain is stored by row either way.
 #' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
 #' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
 #'                  is chosen.  

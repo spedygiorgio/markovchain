@@ -53,3 +53,5 @@ TAGS
 .Rproj.user
 .gitmessage
 .vscode/
+
+*.patch

@@ -619,6 +619,14 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{entropyRate} & entropy rate of an irreducible Markov chain. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
   \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
+  \code{slem} & second largest eigenvalue modulus of an irreducible chain. \\
+  \code{spectralGap} & one minus the SLEM, a lightweight mixing diagnostic. \\
+  \code{impliedTimescales} & per-eigenvalue relaxation timescales of an irreducible chain. \\
+  \code{is.reversible} & checks detailed balance with respect to the stationary distribution. \\
+  \code{closestReversible} & closest reversible chain for a fixed stationary distribution. \\
+  \code{mixingTime} & total-variation mixing time of an irreducible, aperiodic chain. \\
+  \code{lazyChain} & the chain $\alpha I + (1-\alpha)P$, used to remove periodicity. \\
+  \code{subchain} & restricts a chain to a subset of states (raw submatrix or renormalized). \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -940,6 +948,331 @@ meanFirstPassageTime(mcWeather) %*% piWeather
 The second result has one entry for each possible starting state; apart from
 numerical rounding, all entries equal Kemeny's constant.
 
+## Sensitivity of the stationary distribution
+
+Kemeny's constant uses the fundamental matrix
+$Z=(I-P+\mathbf{1}\pi^T)^{-1}$; the same matrix also gives the first-order
+sensitivity of the stationary distribution $\pi$ to a small change in the
+chain's transition probabilities. If row $k$ of $P$ is perturbed by a
+zero-sum vector $d$ (so that $P+e_k d^T$ is still row-stochastic to first
+order), the resulting change in $\pi$ is, to first order,
+\[
+\Delta\pi \approx d^T S, \qquad S_{lj} = \pi_k\bigl(Z_{lj}-\pi_j\bigr)
+\]
+\citep{schweitzer1968perturbation,meyer1980perturbation,choMeyer2001}. The
+function `sensitivity(object, state)` returns the matrix $S$ for a single
+perturbed state `k = state`; it does not itself pick a direction $d$, since
+that depends on which two transition probabilities are being traded off.
+
+```{r sensitivity-weather}
+S <- sensitivity(mcWeather, "sunny")
+S
+```
+
+For example, moving probability mass out of $P(\text{sunny}\to\text{sunny})$
+and into $P(\text{sunny}\to\text{rain})$ (so $d=(-\varepsilon,0,\varepsilon)$)
+changes $\pi$, to first order, by $\varepsilon$ times the difference of the
+`"rain"` and `"sunny"` rows of $S$:
+
+```{r sensitivity-direction}
+eps <- 1e-4
+predictedChange <- eps * (S["rain", ] - S["sunny", ])
+predictedChange
+
+perturbedMatrix <- mcWeather@transitionMatrix
+perturbedMatrix["sunny", "sunny"] <- perturbedMatrix["sunny", "sunny"] - eps
+perturbedMatrix["sunny", "rain"] <- perturbedMatrix["sunny", "rain"] + eps
+mcWeatherPerturbed <- new("markovchain", states = states(mcWeather),
+                          transitionMatrix = perturbedMatrix)
+
+as.numeric(steadyStates(mcWeatherPerturbed)) - as.numeric(steadyStates(mcWeather))
+```
+
+The two agree to $O(\varepsilon^2)$, as the first-order theory predicts.
+Unlike a positional, entry-by-entry sensitivity, `S` is built so that this
+holds for *any* zero-sum perturbation direction of row `k`, not only the
+one shown here.
+
+## Spectral diagnostics: SLEM, spectral gap and implied timescales
+
+For a finite, irreducible chain, the Perron-Frobenius theorem guarantees a
+unique eigenvalue $\lambda_1=1$; every other eigenvalue satisfies
+$|\lambda_k|\le 1$. The *second largest eigenvalue modulus* (SLEM) is
+
+\[
+\mathrm{SLEM} = \max_{k>1} |\lambda_k|,
+\]
+
+and the *spectral gap* is $1-\mathrm{SLEM}$. Both are lightweight,
+eigenvalue-based diagnostics of how quickly a chain approaches its
+stationary distribution: a spectral gap close to $1$ indicates fast mixing,
+while a spectral gap close to $0$ indicates slow mixing \citep{levinPeres2017}.
+Only irreducibility is required; unlike some implementations, `slem` and
+`spectralGap` do not require aperiodicity, and correctly report
+$\mathrm{SLEM}=1$ (spectral gap $0$) for a periodic chain, reflecting that
+such a chain never contracts towards its stationary distribution.
+
+```{r spectral-weather}
+slem(mcWeather)
+spectralGap(mcWeather)
+```
+
+Each non-trivial eigenvalue $\lambda_k$, $k>1$, also has its own *implied
+timescale* $\tau_k=-1/\log|\lambda_k|$, measured in number of steps: it is
+the time the corresponding mode of the chain takes to decay by a factor of
+$1/e$. The largest such value, $\tau_2$, corresponds to the SLEM and is the
+slowest, dominant relaxation mode. The term comes from the Markov state
+model literature in molecular kinetics \citep{swope2004describing,
+prinz2011markov}, where implied timescales are additionally compared across
+chains fitted at increasing lag times as a check of the Markov
+approximation; `impliedTimescales` evaluates a single already-fitted chain,
+leaving that comparison to the user.
+
+```{r implied-weather}
+impliedTimescales(mcWeather)
+```
+
+As a textbook illustration with a known closed form, consider simple random
+walk on the cycle with $n$ states, which moves to either neighbour with
+probability $1/2$ \citep[Example 12.9]{levinPeres2017}. Its eigenvalues are
+$\lambda_k = \cos(2\pi k/n)$, $k=0,\ldots,n-1$, so the SLEM and spectral gap
+can be checked in closed form. For an *odd* $n$ the walk is aperiodic. Since
+$\cos$ is largest in modulus near $0$ and near $\pi$, the SLEM is the larger
+of the moduli attained near $k=1$ (angle near $0$) and near $k=n/2$ (angle
+near $\pi$); for $n=7$ the latter dominates, at $k=3$ (and, symmetrically,
+$k=4$):
+
+```{r cycle-walk-odd}
+randomWalkOnCycle <- function(n) {
+  cycleP <- matrix(0, n, n)
+  for (i in seq_len(n)) {
+    cycleP[i, ((i - 2) %% n) + 1] <- 1 / 2
+    cycleP[i, (i %% n) + 1] <- 1 / 2
+  }
+  new("markovchain", transitionMatrix = cycleP,
+      states = as.character(seq_len(n)),
+      name = paste("Random walk on the", n, "-cycle"))
+}
+
+mcCycle7 <- randomWalkOnCycle(7)
+slem(mcCycle7)
+abs(cos(2 * pi * 3 / 7)) # closed-form SLEM, attained at k = 3 and k = 4
+
+spectralGap(mcCycle7)
+impliedTimescales(mcCycle7)
+```
+
+For an *even* $n$ the cycle graph is bipartite and the walk is periodic
+(period $2$): it can only return to its starting state after an even number
+of steps. Correspondingly $\lambda_k$ reaches $-1$ at $k=n/2$, so the SLEM
+is $1$ regardless of $n$:
+
+```{r cycle-walk-even}
+mcCycle8 <- randomWalkOnCycle(8)
+slem(mcCycle8) # 1, attained at k = 4, where cos(2*pi*4/8) = cos(pi) = -1
+round(spectralGap(mcCycle8), 12) # numerically 0, up to floating-point error
+impliedTimescales(mcCycle8)["tau2"] # the k = 4 mode, sorted first, never decays
+```
+
+`slem`, `spectralGap` and `impliedTimescales` handle this periodic case
+directly, rather than treating it as an error: a spectral gap of (numerically)
+$0$ and an infinite implied timescale are the mathematically correct
+description of a chain that does not converge pointwise to its stationary
+distribution. The tiny residual before rounding is ordinary floating-point
+error from `eigen()`, of the same order as `.Machine$double.eps`, not a sign
+that the chain is "almost" aperiodic.
+
+## Reversibility
+
+A chain is *reversible* with respect to its stationary distribution $\pi$
+if the detailed balance equations hold:
+
+\[
+\pi_i P_{ij} = \pi_j P_{ji} \quad \text{for every } i,j.
+\]
+
+Intuitively, a long stationary run of a reversible chain looks statistically
+the same whether played forwards or backwards in time: the flow of
+probability from $i$ to $j$ exactly balances the flow back
+\citep{NorrisBook,levinPeres2017}. `is.reversible` checks this directly, and
+only requires irreducibility, not aperiodicity -- reversibility and
+periodicity are independent properties.
+
+A canonical family of reversible chains is simple random walk on an
+undirected graph (move to a uniformly random neighbour at each step): the
+symmetry of "being neighbours" is exactly what makes detailed balance hold.
+The random walk on a cycle from the previous section, whether the aperiodic
+`mcCycle7` or the periodic `mcCycle8`, is reversible either way:
+
+```{r reversible-cycle}
+is.reversible(mcCycle7)
+is.reversible(mcCycle8)
+```
+
+By contrast, a directed cycle -- where probability only ever flows "one way
+around" -- is not reversible, since there is a net clockwise flow at
+stationarity with nothing flowing back:
+
+```{r reversible-directed-cycle}
+states3 <- c("a", "b", "c")
+directedCycle <- new("markovchain", states = states3,
+  transitionMatrix = matrix(c(0, 1, 0,
+                              0, 0, 1,
+                              1, 0, 0), byrow = TRUE, nrow = 3,
+                            dimnames = list(states3, states3)))
+is.reversible(directedCycle)
+```
+
+The weather chain `mcWeather` is a more realistic example of a non-reversible
+chain: nothing forces the flow from "sunny" to "rain" to balance the flow
+back, and indeed it does not:
+
+```{r reversible-weather}
+is.reversible(mcWeather)
+```
+
+### Closest reversible approximation
+
+Many results about Markov chains -- spectral bounds, much of MCMC theory --
+assume reversibility, so when a fitted chain turns out not to be reversible
+it is natural to ask which reversible chain is closest to it. Write the
+*time reversal* of $P$ with respect to $\pi$ as
+
+\[
+P^*_{ij} = \frac{\pi_j P_{ji}}{\pi_i},
+\]
+
+the chain run backwards in time; $P$ is reversible exactly when $P=P^*$.
+`closestReversible` returns the *additive reversibilization*
+$R=\tfrac12(P+P^*)$ \citep{fill1991eigenvalue}, which is automatically a
+valid transition matrix -- the rows of $P^*$ sum to
+$\sum_j \pi_j P_{ji}/\pi_i = (\pi P)_i/\pi_i = 1$ because $\pi$ is
+stationary -- and is reversible with respect to the same $\pi$.
+
+The clearest example is a chain that is as far from reversible as possible:
+a directed cycle, which only ever moves one way round. Its closest
+reversible approximation is the undirected random walk on the same triangle:
+
+```{r closest-reversible-cycle}
+approximation <- closestReversible(directedCycle)
+approximation$chain
+is.reversible(approximation$chain)
+```
+
+Applied to the weather chain, the approximation keeps the same stationary
+distribution and reports how far it had to move to become reversible:
+
+```{r closest-reversible-weather}
+weatherReversible <- closestReversible(mcWeather)
+weatherReversible$chain
+weatherReversible$distance
+
+steadyStates(mcWeather)
+steadyStates(weatherReversible$chain) # unchanged
+```
+
+In what sense is this the *closest* chain? Reversible chains are exactly the
+self-adjoint operators on $\ell^2(\pi)$, so the natural distance is the
+Hilbert--Schmidt norm of that space,
+
+\[
+\|A\|_\pi^2=\sum_{i,j}\frac{\pi_i}{\pi_j}A_{ij}^2,
+\]
+
+for which $A\mapsto A^*$ is an isometric involution: $R$ is then the
+orthogonal projection of $P$ onto the reversible subspace, and the
+stochasticity and non-negativity constraints are satisfied automatically, so
+no constrained optimization is needed. Two warnings follow from this, both
+documented in `?closestReversible`. First, $R$ does *not* minimize the plain
+Frobenius distance, which the return value reports separately as a
+descriptive figure only. Second, the minimization holds $\pi$ fixed; letting
+the stationary distribution vary as well is a harder optimization problem
+\citep{nielsen2015computing} that is not solved here.
+
+## Mixing time
+
+Where `spectralGap` summarises convergence to stationarity through the
+transition matrix's spectrum, `mixingTime` answers a more operational
+question directly: after how many steps is the chain's distribution close
+to $\pi$, no matter where it started? Formally, with total variation
+distance $d(t) = \max_i \tfrac12\sum_j |P^t_{ij}-\pi_j|$, the mixing time is
+the smallest $t$ with $d(t)\le\varepsilon$, for a threshold $\varepsilon$
+(conventionally $0.25$) \citep{levinPeres2017}.
+
+```{r mixing-weather}
+mixingTime(mcWeather)
+mixingTime(mcWeather, epsilon = 0.01) # a tighter threshold needs more steps
+```
+
+Spectral gap and mixing time are connected by a standard bound
+\citep[Theorem 12.3]{levinPeres2017}:
+
+\[
+t_{\mathrm{mix}}(\varepsilon) \le \frac{1}{\mathrm{gap}}
+  \log\!\left(\frac{1}{\varepsilon\,\pi_{\min}}\right),
+\]
+
+which we can check directly against the values already computed for
+`mcWeather` in the previous section:
+
+```{r mixing-bound-check}
+piWeather <- as.numeric(steadyStates(mcWeather))
+upperBound <- log(1 / (0.25 * min(piWeather))) / spectralGap(mcWeather)
+upperBound
+mixingTime(mcWeather) <= upperBound
+```
+
+`mixingTime` requires aperiodicity in addition to irreducibility, unlike
+`slem`, `spectralGap` and `impliedTimescales`: a periodic chain's
+distribution never settles down at all (it keeps cycling), so "the number of
+steps until it is close to $\pi$" is not a meaningful question to ask of it.
+Calling it on the periodic `mcCycle8` therefore raises an informative error
+rather than returning a misleading number:
+
+```{r mixing-periodic-error, error=TRUE}
+mixingTime(mcCycle8)
+```
+
+## Lazy chains
+
+The standard fix for periodicity is to make the chain *lazy*: stay in place
+with probability $\alpha$ at every step, and otherwise take a step of the
+original chain \citep{levinPeres2017}. For transition matrix $P$, the lazy
+chain's transition matrix is
+
+\[
+L = \alpha I + (1-\alpha) P.
+\]
+
+Adding positive probability of staying in every state rules out any period
+greater than $1$, while leaving the stationary distribution and reachability
+structure unchanged. Applying it to the periodic `mcCycle8` from before:
+
+```{r lazy-cycle}
+lazyCycle8 <- lazyChain(mcCycle8, alpha = 0.5)
+period(mcCycle8)
+period(lazyCycle8)
+steadyStates(mcCycle8)
+steadyStates(lazyCycle8) # unchanged by laziness
+```
+
+Now that the chain is aperiodic, `mixingTime` is well-defined for it:
+
+```{r lazy-mixing}
+mixingTime(lazyCycle8)
+```
+
+Laziness is not free, however: every non-trivial eigenvalue of $L$ equals
+$\alpha+(1-\alpha)\lambda$ for the corresponding eigenvalue $\lambda$ of
+$P$, so the whole non-trivial spectrum is pulled towards $\alpha$ and mixing
+generally gets *slower* as $\alpha$ grows:
+
+```{r lazy-slower}
+spectralGap(mcCycle7) # aperiodic already, no laziness needed
+spectralGap(lazyChain(mcCycle7, alpha = 0.5))
+spectralGap(lazyChain(mcCycle7, alpha = 0.9))
+```
+
 ## Mean recurrence time
 
 The `meanRecurrenceTime` method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
@@ -998,6 +1331,41 @@ meanAbsorptionTime(drunkMc)
 
 Thus, the expected time to absorption is three steps from states 2 or 4 and four steps from state 3.
 
+The drunkard's walk is a special case of the classical gambler's ruin chain
+\citep{GrinsteadSnell}: a walk on $\{0,1,\ldots,n\}$ that is absorbed at
+both ends and, at every interior state, moves up with probability $p$ and
+down with probability $1-p$. `gamblersRuin(upperBound, prob, states)`
+builds exactly this chain, so it reproduces `drunkMc` above without having
+to write out the transition matrix by hand ($n=4$, $p=1/2$, relabelled to
+states `"1"`, ..., `"5"`):
+
+```{r gamblers-ruin-drunkard}
+ruinMc <- gamblersRuin(upperBound = 4, prob = 0.5, states = as.character(1:5))
+identical(unclass(ruinMc@transitionMatrix), unclass(drunkMc@transitionMatrix))
+```
+
+For a general (asymmetric) gambler's ruin with $p\ne 1/2$, the probability
+of ruin (absorption at $0$) starting from state $i$ has the closed form
+\[
+\Pr(\text{ruin} \mid i) = \frac{r^i-r^n}{1-r^n}, \qquad r=\frac{1-p}{p},
+\]
+\citep{GrinsteadSnell}, which `absorptionProbabilities` reproduces
+numerically:
+
+```{r gamblers-ruin-formula}
+upperBound <- 6
+prob <- 0.35
+ruinAsymmetric <- gamblersRuin(upperBound = upperBound, prob = prob)
+ap <- absorptionProbabilities(ruinAsymmetric)
+
+r <- (1 - prob) / prob
+i <- seq_len(upperBound - 1)
+theoreticalRuin <- (r^i - r^upperBound) / (1 - r^upperBound)
+
+cbind(state = i, package = as.numeric(ap[as.character(i), "0"]),
+      formula = theoreticalRuin)
+```
+
 ### Fundamental matrix
 
 For an absorbing chain, let $Q$ be the transition submatrix among transient
@@ -1016,6 +1384,46 @@ transient to absorbing states [@GrinsteadSnell].
 ```{r fundamental-matrix-drunkard}
 fundamentalMatrix(drunkMc)
 ```
+
+### Restricting a chain to a subset of states
+
+The matrix $Q$ above -- transitions among transient states only -- is
+exactly what `subchain(..., method = "submatrix")` returns when restricted
+to the transient states: the raw principal submatrix, with no adjustment.
+Its rows generally sum to *less than* one, because probability that leaves
+the subset (here, to the absorbing corners) is simply dropped, not
+redistributed:
+
+```{r subchain-submatrix}
+Q <- subchain(drunkMc, transientStates(drunkMc), method = "submatrix")
+Q
+rowSums(Q)
+```
+
+Feeding this $Q$ into $(I-Q)^{-1}$ by hand reproduces `fundamentalMatrix`
+exactly, confirming the two are the same object:
+
+```{r subchain-fundamental-check}
+solve(diag(nrow(Q)) - Q)
+```
+
+The second option, `method = "renormalize"`, instead divides each row by
+its own sum, giving a genuine `markovchain` object: the walk's position
+*conditioned on never having reached home or the bar* \citep{NorrisBook}.
+This requires every retained state to have some positive probability of
+staying inside the subset -- true here, since every transient corner can
+move to another transient corner:
+
+```{r subchain-renormalize}
+watchedDrunk <- subchain(drunkMc, transientStates(drunkMc), method = "renormalize")
+watchedDrunk
+rowSums(watchedDrunk@transitionMatrix)
+```
+
+The two methods answer different questions and are not interchangeable: use
+`"submatrix"` as a building block for further linear algebra (as
+`fundamentalMatrix` does internally), and `"renormalize"` when you want an
+actual Markov chain describing conditional behaviour on the subset.
 
 ## Committor probability
 
@@ -1112,6 +1520,147 @@ mcIncomeNotMonotone <- new("markovchain", states = incomeStates,
                            name = "Non-Monotone Income MC")
 
 is.stochasticallyMonotone(mcIncomeNotMonotone)
+```
+
+## Classical Markov chain constructors
+
+The package also offers ready-made constructors for a few textbook Markov
+chains that are frequently the starting point of an applied model, rather
+than requiring every state and transition of, e.g., a birth-death or
+diffusion chain to be typed in by hand as in
+Section \@ref(sec:structure).
+
+### Birth-death chains
+
+A birth-death chain moves, from every interior state, either one step up
+(with probability $p_i$) or one step down (with probability $q_i$), and
+otherwise stays put; the two absorbing-chain examples above
+(`drunkMc`/`gamblersRuin()`) are the special case with no "stay" probability
+at all. `birthDeath(p, q)` builds a general birth-death chain from the $n-1$
+up- and down-probabilities of its $n$ states, deliberately taking `p` and
+`q` to be vectors of length $n-1$ (one per adjacent pair of states) rather
+than length $n$: this leaves no leftover boundary probability that would
+otherwise have to be silently redistributed, and the diagonal ("stay")
+probability of every interior state is simply what remains,
+$1-p_i-q_{i-1}$:
+
+```{r birth-death}
+bd <- birthDeath(p = c(0.3, 0.4, 0.5), q = c(0.2, 0.3, 0.1))
+bd
+```
+
+By construction `birthDeath()` has no special behaviour at its two boundary
+states beyond "no further up/down move exists there", so state `"1"` and
+state `"4"` above are themselves absorbing. `toBoundedChain(object,
+boundaryCondition)` replaces the first and last transition rows of *any*
+existing chain with an absorbing, reflecting, or "semi-reflecting" rule,
+so a reflecting boundary can be added to the same chain instead:
+
+```{r to-bounded-chain}
+reflected <- toBoundedChain(bd, "reflecting")
+reflected@transitionMatrix[c(1, 4), ]
+```
+
+### The Ehrenfest urn model
+
+`urnModel(balls)` builds the Ehrenfest urn diffusion chain
+\citep{ehrenfest1907}, a classical model of the approach to statistical
+equilibrium: $m=$ `balls` balls are distributed between two urns, the state
+is the number of balls in the first urn, and at each step one ball, chosen
+uniformly at random among all $m$, is moved to the other urn. From state
+$k$ this means moving down to $k-1$ with probability $k/m$ and up to $k+1$
+with probability $(m-k)/m$ -- reflecting, not absorbing, at both $k=0$ and
+$k=m$. Its stationary distribution is exactly $\mathrm{Binomial}(m,1/2)$
+\citep{GrinsteadSnell}:
+
+```{r urn-model}
+ehrenfest <- urnModel(balls = 6)
+ehrenfest@transitionMatrix
+
+piEhrenfest <- as.numeric(steadyStates(ehrenfest))
+cbind(package = piEhrenfest, binomial = dbinom(0:6, 6, 0.5))
+```
+
+### Combining two chains
+
+`mergeWith(object, other, gamma)` returns the convex combination
+$(1-\gamma)P_1+\gamma P_2$ of the transition matrices of two chains defined
+on the same state space, e.g. to interpolate between two seasonal or
+regime-specific regimes. States are matched *by name*, not by matrix
+position, so `other` need not list its states in the same order as
+`object`; chains on different state-name sets are rejected with an error
+rather than being combined positionally.
+
+```{r merge-with}
+drySeason <- new("markovchain", states = c("sunny", "rain"),
+                 transitionMatrix = matrix(c(0.9, 0.1, 0.2, 0.8), byrow = TRUE,
+                   nrow = 2, dimnames = list(c("sunny", "rain"), c("sunny", "rain"))),
+                 name = "Dry season")
+wetSeason <- new("markovchain", states = c("sunny", "rain"),
+                 transitionMatrix = matrix(c(0.5, 0.5, 0.6, 0.4), byrow = TRUE,
+                   nrow = 2, dimnames = list(c("sunny", "rain"), c("sunny", "rain"))),
+                 name = "Wet season")
+
+mergeWith(drySeason, wetSeason, gamma = 0.3)
+```
+
+### The $n$-step chain
+
+`toNthOrder(object, order)` returns the chain whose one-step transition
+probabilities are `object`'s `order`-step transition probabilities, i.e.
+$P^{\code{order}}$. It is a thin, discoverability-only wrapper around the
+`^` operator already shown in Section \@ref(sec:structure): the two give
+identical results, and `^` already uses repeated squaring
+($O(n^3\log(\code{order}))$) rather than a naive repeated product.
+
+```{r to-nth-order}
+identical(unclass(toNthOrder(mcWeather, 5)@transitionMatrix),
+          unclass((mcWeather ^ 5)@transitionMatrix))
+```
+
+### Population genetics: the Moran and Wright-Fisher models
+
+`populationGeneticsModel(model, n, s, u, v)` builds the Markov chain
+tracking the number of copies of a mutant allele, $0,1,\ldots,n$, in a
+population of $n$ individuals, under mutation (backward rate $u$, mutant
+to wild-type; forward rate $v$, wild-type to mutant) and viability
+selection (mutant fitness $1+s$ relative to the wild-type's $1$), for
+either the Moran or the Wright-Fisher reproduction scheme. States `"0"`
+and `as.character(n)` -- loss and fixation of the mutant allele -- are
+absorbing, as is standard for both models.
+
+With no selection ($s=0$) and negligible mutation, a classical result
+(going back to \citealp{wright1931} and \citealp{moran1958}; see
+\citealp{ewens2004} for a modern treatment) gives the probability that the
+mutant allele is eventually *fixed* (reaches state $n$) starting from $i$
+copies as simply $i/n$ -- the same value for both models, despite their
+very different reproduction mechanics:
+
+```{r popgen-neutral}
+n <- 8
+neutralMoran <- populationGeneticsModel(model = "moran", n = n, s = 0)
+neutralWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0)
+
+i <- 1:(n - 1)
+cbind(
+  i = i,
+  moran = as.numeric(absorptionProbabilities(neutralMoran)[as.character(i), as.character(n)]),
+  wrightFisher = as.numeric(absorptionProbabilities(neutralWF)[as.character(i), as.character(n)]),
+  theoretical = i / n
+)
+```
+
+Introducing positive selection ($s>0$) raises the fixation probability of
+the mutant allele above this neutral baseline, from every interior
+starting count, in both models:
+
+```{r popgen-selection}
+favouredMoran <- populationGeneticsModel(model = "moran", n = n, s = 0.5)
+favouredWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0.5)
+
+# fixation probability starting from 4 copies out of 8, neutral vs favoured
+c(neutral = as.numeric(absorptionProbabilities(neutralMoran)["4", "8"]),
+  favoured = as.numeric(absorptionProbabilities(favouredMoran)["4", "8"]))
 ```
 
 # Statistical analysis {#sec:statistics}
@@ -2255,6 +2804,61 @@ For an existing customer, the expected gain (loss) at the fifth year is given by
 ```{r economicAnalysis3}
 as.numeric((c(1, 0)* mcP ^ 5) %*% (as.vector(c(c1, c2))))
 ```
+
+### Discretizing autoregressive processes
+
+Interest rate, inflation, or income processes used in finance, economics
+and actuarial reserving/ALM work are frequently modelled as a stationary
+AR(1),
+\[
+y_t = (1-\rho)\alpha + \rho\, y_{t-1} + \varepsilon_t, \qquad
+\varepsilon_t \overset{\mathrm{iid}}{\sim} \mathcal N(0,\sigma^2),
+\]
+which is not itself a (finite-state) Markov chain. `tauchen()` and
+`rouwenhorst()` discretize such a process onto a finite grid, returning both
+the discretized `markovchain` object and the numeric grid `states` itself
+(needed for any further numeric work, e.g.\ plugging the levels into a
+pricing formula). `tauchen()` \citep{tauchen1986} uses an evenly spaced grid
+of fixed half-width $k\sigma_y$ ($\sigma_y=\sigma/\sqrt{1-\rho^2}$) and bins
+a Normal conditional distribution into it; `rouwenhorst()`
+\citep{rouwenhorst1995} instead builds the transition matrix recursively
+from $\theta=(1+\rho)/2$, with no grid-width parameter to choose.
+
+Kopecky and Suen \citep{kopeckySuen2010} show that for highly persistent
+processes -- their example is a quarterly TFP growth process calibrated at
+$\rho=0.979$, $\sigma_\varepsilon=0.0072$ -- Rouwenhorst's method matches
+the process's theoretical unconditional variance
+$\sigma_y^2=\sigma^2/(1-\rho^2)$ almost exactly at every chain size they
+try, while Tauchen's method is markedly less accurate at the same sizes and
+only improves slowly as the chain grows. Both `tauchen()` and
+`rouwenhorst()` reproduce that comparison directly:
+
+```{r tauchen-rouwenhorst}
+rho <- 0.979
+sigmaEps <- 0.0072
+theoreticalVar <- sigmaEps^2 / (1 - rho^2)
+theoreticalVar
+
+relativeError <- function(size) {
+  outT <- tauchen(alpha = 0, sigma = sigmaEps, rho = rho, size = size)
+  outR <- rouwenhorst(alpha = 0, sigma = sigmaEps, rho = rho, size = size)
+  piT <- as.numeric(steadyStates(outT$chain))
+  piR <- as.numeric(steadyStates(outR$chain))
+  varT <- sum(piT * (outT$states - sum(piT * outT$states)) ^ 2)
+  varR <- sum(piR * (outR$states - sum(piR * outR$states)) ^ 2)
+  c(tauchen = 100 * abs(varT - theoreticalVar) / theoreticalVar,
+    rouwenhorst = 100 * abs(varR - theoreticalVar) / theoreticalVar)
+}
+
+sapply(c(5, 10, 25), relativeError)
+```
+
+For every chain size shown, `rouwenhorst()`'s discretized variance matches
+the theoretical AR(1) variance to numerical precision (percentage error
+effectively 0), while `tauchen()`'s fixed-width grid is off by tens of
+percent at small sizes and still off by nearly 10\% at 25 states -- worse,
+at 25 states, than `rouwenhorst()` already is at only 5 -- matching Kopecky
+and Suen's own qualitative conclusion.
 
 ## Actuarial science {#app:act}
 

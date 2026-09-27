@@ -1838,6 +1838,154 @@ To keep the vignette fast, the example uses a small transition matrix. In larger
 applications, the automatically discovered partition should be inspected and
 validated substantively before being used for modelling or forecasting.
 
+### Spectral Kullback-Leibler aggregation
+
+`aggregateStates(object, k, method)` targets the same problem as `autoLump`
+from a different angle: instead of clustering eigenvectors with k-means, it
+greedily builds the partition into `k` macro-states that minimizes the
+Kullback-Leibler (KL) divergence rate between the original chain and the
+"lifted" macro-chain \citep{deng2011optimal}. Two heuristics are available:
+`spectral-bottom-up`, which grows the partition one split at a time and suits
+a large reduction, and `spectral-top-down`, which starts from every state on
+its own and repeatedly merges the least costly pair, suiting a small
+reduction; `method = "adaptive"` (the default) picks between them using the
+same rule of thumb as PyDTMC. Unlike PyDTMC, `k` itself is optional: left
+unset, it is chosen automatically from the eigengap of the transition
+matrix's eigenvalues.
+
+Applied to the Land of Oz chain, `aggregateStates` correctly finds the same
+`Bad_Weather`/`Nice_Weather` partition used above and reproduces `lump`'s
+aggregated transition matrix exactly (up to the macro-state labels, which
+`aggregateStates` always names generically):
+
+```{r aggregate-oz}
+agg_oz <- aggregateStates(mcOz, k = 2)
+agg_oz$partition
+
+isTRUE(all.equal(unname(agg_oz$aggregatedChain@transitionMatrix),
+                  unname(lumped_oz@transitionMatrix)))
+```
+
+The KL divergence it reports, however, is *not* zero:
+
+```{r aggregate-oz-kld}
+agg_oz$klDivergence
+```
+
+This is not a discrepancy: strong lumpability (what `is.lumpable` checks)
+only requires that `rainy` and `snowy` send the *same total* probability
+into `Bad_Weather`, not that they split it the same way *within* the block.
+Here `rainy` moves to `rainy` with probability 0.5 and to `snowy` with 0.25,
+while `snowy` moves to `rainy` with 0.25 and to `snowy` with 0.5 -- the
+totals into `Bad_Weather` agree (0.75 each), but the internal split does
+not. `aggregateStates`'s divergence is sensitive to exactly that
+within-block heterogeneity, so it is only zero for the stronger property
+illustrated in `?aggregateStates`'s own example, where the split is also
+identical. In other words: a zero divergence always implies strong
+lumpability, but strong lumpability does not always give a zero divergence.
+
+For a chain with no exact lumpability at all, the KL divergence measures how
+much dynamical information the aggregation discards more generally. The
+following is the illustrative 4-state example used by Deng, Mehta and Meyn
+themselves to introduce the method \citep{deng2009simulation}: a doubly
+stochastic chain built from two tightly coupled pairs of states, `\{1,2\}`
+and `\{3,4\}`, joined by two weak links (`1`-`4` and `2`-`3`):
+
+```{r aggregate-dmm}
+states_dmm <- as.character(1:4)
+P_dmm <- matrix(
+  c(0.5, 0.4, 0.0, 0.1,
+    0.4, 0.5, 0.1, 0.0,
+    0.0, 0.1, 0.5, 0.4,
+    0.1, 0.0, 0.4, 0.5),
+  byrow = TRUE, nrow = 4,
+  dimnames = list(states_dmm, states_dmm)
+)
+mcDMM <- new("markovchain", states = states_dmm, transitionMatrix = P_dmm,
+             name = "Deng-Mehta-Meyn (2009) example")
+
+agg_dmm <- aggregateStates(mcDMM, k = 2)
+agg_dmm$partition
+agg_dmm$aggregatedChain@transitionMatrix
+```
+
+`aggregateStates` recovers exactly the bi-partition
+`\{1,2\}`/`\{3,4\}` and the aggregated matrix
+$\begin{pmatrix}0.9 & 0.1\\ 0.1 & 0.9\end{pmatrix}$ reported in the original
+paper -- the two tightly coupled pairs become the two macro-states, and the
+weak cross-links are what is left over as a 0.1 leakage probability between
+them. The reported divergence,
+
+```{r aggregate-dmm-kld}
+agg_dmm$klDivergence
+```
+
+also matches the original $\lambda^\star \approx 0.0749$ once the difference
+in logarithm base is accounted for ($0.0749/\ln 2 \approx$
+`r round(0.0749 / log(2), 4)`): the divergence rate here is reported in bits
+(base-2 logarithm, matching PyDTMC's own convention), while
+\citet{deng2009simulation} report it in nats (natural logarithm).
+
+As with `lump`'s output, `aggregateStates`'s `partition` traces every
+macro-state back to the original state names, so it can be fed directly into
+`is.lumpable()` or `lump(..., force = TRUE)` for comparison.
+
+### Serialization
+
+A `markovchain` object is often built once and then reused elsewhere: shared
+with a colleague, stored alongside a dataset, or handed to a program written
+in another language. `toDictionary`/`fromDictionary` and `toFile`/`fromFile`
+give the object a plain, language-neutral representation for exactly this
+purpose, mirroring PyDTMC's own `to_dictionary`/`from_dictionary` and
+`to_file`/`from_file` -- with one deliberate difference: PyDTMC represents a
+chain as a *flat* mapping from every `(from_state, to_state)` pair to its
+probability ($n^2$ entries with no state grouping), whereas here the
+representation is nested by source state, which is both more compact to
+read and round-trips through R's own list-of-lists idiom without any
+special tuple-key handling.
+
+We reuse `mcOz`, the Land of Oz chain introduced earlier in this section,
+since a well-known textbook example \citep{landOfOz} is exactly what
+someone would actually want to save and reload -- unlike a synthetic chain
+built only to demonstrate file I/O, this one is worth keeping around:
+
+```{r serialize-oz-dictionary}
+oz_dict <- toDictionary(mcOz)
+str(oz_dict)
+```
+
+`toDictionary` always normalizes to a row-stochastic representation, so it
+faithfully captures `mcOz` regardless of the chain's own `byrow` storage
+convention. Reversing it exactly recovers the original transition matrix:
+
+```{r serialize-oz-roundtrip}
+identical(fromDictionary(oz_dict)@transitionMatrix, mcOz@transitionMatrix)
+```
+
+`toFile`/`fromFile` write this same representation to disk, inferring the
+format (JSON, YAML or CSV) from the file extension:
+
+```{r serialize-oz-json}
+oz_json <- tempfile(fileext = ".json")
+toFile(mcOz, oz_json)
+cat(readLines(oz_json), sep = "\n")
+
+identical(fromFile(oz_json)@transitionMatrix, mcOz@transitionMatrix)
+```
+
+JSON and YAML preserve every field, including the chain's `name`, at full
+numeric precision. CSV, which has no natural place for a `name`, only
+stores the transition matrix itself -- the same limitation PyDTMC's own CSV
+format has:
+
+```{r serialize-oz-csv}
+oz_csv <- tempfile(fileext = ".csv")
+toFile(mcOz, oz_csv)
+cat(readLines(oz_csv), sep = "\n")
+
+fromFile(oz_csv)@name # the package's own default, not "Land of Oz"
+```
+
 ## Estimation
 
 A time-homogeneous Markov chain can be fitted from observed state sequences. The current version of \pkg{markovchain} implements four fitting methods: maximum likelihood (MLE), MLE with Laplace smoothing, bootstrap estimation and maximum a posteriori (MAP) estimation.

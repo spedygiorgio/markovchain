@@ -1604,7 +1604,7 @@ wetSeason <- new("markovchain", states = c("sunny", "rain"),
 mergeWith(drySeason, wetSeason, gamma = 0.3)
 ```
 
-### The $n$-step chain
+### The *n*-step chain
 
 `toNthOrder(object, order)` returns the chain whose one-step transition
 probabilities are `object`'s `order`-step transition probabilities, i.e.

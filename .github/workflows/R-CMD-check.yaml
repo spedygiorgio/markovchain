@@ -92,26 +92,33 @@ jobs:
       - name: Install additional LaTeX packages
         run: tlmgr install grfext thumbpdf
 
-      # The vignette PDF (built via bookdown::pdf_book(base_format =
-      # rticles::jss_article, ...), a LaTeX/tinytex-heavy pipeline) has been
-      # unreliable in CI independently of package content -- it also failed
-      # on Windows, where a separate upstream rcmdcheck/pkgbuild
-      # library-path problem with Quarto already required building
-      # vignettes out-of-band. The gating check therefore never builds
-      # vignettes on any OS; rebuilding them is a separate, non-blocking
-      # best-effort step below, so a broken LaTeX toolchain cannot fail a PR
-      # over unrelated changes. See the project roadmap doc for the open
-      # investigation into the underlying LaTeX/rticles failure.
+      # Windows currently has an upstream rcmdcheck/pkgbuild library-path
+      # problem when R CMD build launches Quarto: the child R process cannot
+      # see the temporary library containing the package being built. The
+      # regular check is therefore run without vignette rebuilding on Windows,
+      # followed by an explicit vignette build after installing the package.
       - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--no-build-vignettes")'
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
 
-      - name: Best-effort vignette rebuild (non-blocking)
-        continue-on-error: true
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          r <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "R.exe" else "R")
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--no-vignettes"),
+            build_args = c("--no-manual", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
           status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
           if (status != 0) stop("R CMD INSTALL failed")
           tools::buildVignettes(
@@ -200,15 +207,27 @@ jobs:
         run: tlmgr install grfext thumbpdf
 
       - uses: r-lib/actions/check-r-package@v2
+        if: runner.os != 'Windows'
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--no-build-vignettes")'
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
 
-      - name: Best-effort vignette rebuild (non-blocking)
-        continue-on-error: true
+      - name: R CMD check without vignettes on Windows
+        if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
-          r <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "R.exe" else "R")
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--no-vignettes"),
+            build_args = c("--no-manual", "--no-build-vignettes"),
+            error_on = "error",
+            check_dir = "check"
+          )
+
+      - name: Install package and build vignettes on Windows
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          r <- file.path(R.home("bin"), "R.exe")
           status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
           if (status != 0) stop("R CMD INSTALL failed")
           tools::buildVignettes(

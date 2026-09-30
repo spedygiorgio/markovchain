@@ -6,7 +6,7 @@ NULL
 
 utils::globalVariables(c(
   "group", "label_x", "label_y", "state",
-  "x", "xend", "y", "yend"
+  "x", "xend", "y", "yend", "re", "im", "step", "probability"
 ))
 
 .onLoad <- function(libname, pkgname) {

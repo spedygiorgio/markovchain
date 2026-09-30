@@ -769,6 +769,23 @@ entropyRate(mcWeather, base = exp(1))
 A deterministic chain has entropy rate zero, whereas a chain whose rows are all
 uniform on $n$ states has the maximum value $\log_b(n)$.
 
+### Topological entropy and normalized entropy rate
+
+The entropy rate is bounded above by the *topological entropy*
+$\log_b\rho(A)$, where $A$ is the 0/1 adjacency matrix of the transitions with
+positive probability and $\rho(A)$ its Perron root (its spectral radius): the
+topological entropy is the growth rate of the number of admissible paths,
+regardless of their probabilities. The ratio of the two, the normalized
+entropy rate, lies in $[0,1]$, and measures how close the chain is to the
+"maximally random" chain on the same set of allowed transitions. It is
+set to zero when either quantity is zero (for example for a deterministic
+cycle).
+
+```{r topological-entropy}
+topologicalEntropy(mcWeather)
+normalizedEntropyRate(mcWeather)
+```
+
 ## Classification of states
 
 Absorbing states are determined by means of `absorbingStates` method.
@@ -1271,6 +1288,28 @@ generally gets *slower* as $\alpha$ grows:
 spectralGap(mcCycle7) # aperiodic already, no laziness needed
 spectralGap(lazyChain(mcCycle7, alpha = 0.5))
 spectralGap(lazyChain(mcCycle7, alpha = 0.9))
+```
+
+## Evolution of a distribution
+
+`redistribute` propagates an initial distribution through a given number of
+steps and returns the whole trajectory, one row per time point (including the
+initial time $0$). The initial distribution can be omitted (uniform), be a
+single state name (a point mass) or a numeric vector. `relaxationTime` is the
+reciprocal of the spectral gap: the characteristic number of steps needed for
+the distribution to approach stationarity.
+
+```{r redistribute-weather}
+redistribute(mcWeather, steps = 5, initial = "rain")
+relaxationTime(mcWeather)
+```
+
+The trajectory and the eigenvalues of the transition matrix can also be
+plotted with the `type` argument of `autoplot`
+(Figure \ref{fig:autoplot-flow}).
+
+```{r autoplot-flow, eval = requireNamespace("ggplot2", quietly = TRUE), fig.cap = "Evolution of the distribution of the weather chain, starting from rain.", fig.height = 3.2}
+ggplot2::autoplot(mcWeather, type = "flow", steps = 10, initial = "rain")
 ```
 
 ## Mean recurrence time

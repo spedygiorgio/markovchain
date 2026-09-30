@@ -11,6 +11,16 @@
 #' @param digits Number of digits used to format transition probabilities.
 #' @param node_size Size of state nodes in the ggplot2 plot.
 #' @param edge_width Minimum width multiplier for transition edges.
+#' @param type Type of plot: \code{"graph"} (default) draws the transition
+#'   graph; \code{"eigenvalues"} draws the eigenvalues of the transition matrix
+#'   in the complex plane together with the unit circle; \code{"flow"} draws
+#'   the evolution of the distribution over the states, as computed by
+#'   \code{\link{redistribute}}.
+#' @param steps Number of steps of the \code{"flow"} plot. Defaults to 20.
+#'   Ignored for the other types.
+#' @param initial Initial distribution of the \code{"flow"} plot, see
+#'   \code{\link{redistribute}}. Defaults to the uniform distribution.
+#'   Ignored for the other types.
 #' @param ... Currently unused, reserved for future extensions.
 #'
 #' @return A ggplot object.
@@ -25,6 +35,8 @@
 #'   mc <- new("markovchain", states = rownames(weather),
 #'             transitionMatrix = weather, name = "Weather")
 #'   ggplot2::autoplot(mc)
+#'   ggplot2::autoplot(mc, type = "eigenvalues")
+#'   ggplot2::autoplot(mc, type = "flow", steps = 10, initial = "rain")
 #' }
 autoplot.markovchain <- function(object,
                                   threshold = 0,
@@ -32,6 +44,9 @@ autoplot.markovchain <- function(object,
                                   digits = 2,
                                   node_size = 6,
                                   edge_width = 1,
+                                  type = c("graph", "eigenvalues", "flow"),
+                                  steps = 20,
+                                  initial = NULL,
                                   ...) {
   if (!inherits(object, "markovchain")) {
     stop("object must be a 'markovchain' object", call. = FALSE)
@@ -39,6 +54,14 @@ autoplot.markovchain <- function(object,
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for autoplot.markovchain()", call. = FALSE)
+  }
+
+  type <- match.arg(type)
+  if (type == "eigenvalues") {
+    return(.autoplotEigenvalues(object))
+  }
+  if (type == "flow") {
+    return(.autoplotFlow(object, steps = steps, initial = initial))
   }
 
   if (length(threshold) != 1L || !is.numeric(threshold) ||
@@ -208,4 +231,51 @@ autoplot.markovchain <- function(object,
       legend.position = "bottom",
       plot.title = ggplot2::element_text(hjust = 0.5)
     )
+}
+
+# Eigenvalues of the transition matrix in the complex plane.
+.autoplotEigenvalues <- function(object) {
+  P <- .rowStochasticMatrix(object)
+  values <- eigen(P, only.values = TRUE)$values
+  ev <- data.frame(re = Re(values), im = Im(values))
+  theta <- seq(0, 2 * pi, length.out = 361L)
+  circle <- data.frame(x = cos(theta), y = sin(theta))
+
+  ggplot2::ggplot() +
+    ggplot2::geom_path(data = circle, ggplot2::aes(x = x, y = y),
+                       linetype = "dashed", colour = "grey50") +
+    ggplot2::geom_hline(yintercept = 0, colour = "grey85") +
+    ggplot2::geom_vline(xintercept = 0, colour = "grey85") +
+    ggplot2::geom_point(data = ev, ggplot2::aes(x = re, y = im),
+                        size = 3, shape = 21, fill = "steelblue") +
+    ggplot2::coord_equal(xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1)) +
+    ggplot2::labs(title = object@name,
+                  subtitle = "Eigenvalues of the transition matrix",
+                  x = "Real part", y = "Imaginary part") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   plot.subtitle = ggplot2::element_text(hjust = 0.5))
+}
+
+# Evolution of the distribution over the states.
+.autoplotFlow <- function(object, steps, initial) {
+  traj <- redistribute(object, steps = steps, initial = initial)
+  long <- data.frame(
+    step = rep(as.numeric(rownames(traj)), times = ncol(traj)),
+    state = factor(rep(colnames(traj), each = nrow(traj)),
+                   levels = colnames(traj)),
+    probability = as.vector(traj)
+  )
+
+  ggplot2::ggplot(long, ggplot2::aes(x = step, y = probability,
+                                     colour = state, group = state)) +
+    ggplot2::geom_line(linewidth = 0.9) +
+    ggplot2::geom_point(size = 1.5) +
+    ggplot2::scale_y_continuous(limits = c(0, 1)) +
+    ggplot2::labs(title = object@name,
+                  subtitle = "Evolution of the distribution",
+                  x = "Step", y = "Probability", colour = "State") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   plot.subtitle = ggplot2::element_text(hjust = 0.5))
 }

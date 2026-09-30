@@ -11,6 +11,9 @@ autoplot.markovchain(
   digits = 2,
   node_size = 6,
   edge_width = 1,
+  type = c("graph", "eigenvalues", "flow"),
+  steps = 20,
+  initial = NULL,
   ...
 )
 }
@@ -27,6 +30,19 @@ probabilities. Defaults to `TRUE`.}
 \item{node_size}{Size of state nodes in the ggplot2 plot.}
 
 \item{edge_width}{Minimum width multiplier for transition edges.}
+
+\item{type}{Type of plot: \code{"graph"} (default) draws the transition
+graph; \code{"eigenvalues"} draws the eigenvalues of the transition matrix
+in the complex plane together with the unit circle; \code{"flow"} draws
+the evolution of the distribution over the states, as computed by
+\code{\link{redistribute}}.}
+
+\item{steps}{Number of steps of the \code{"flow"} plot. Defaults to 20.
+Ignored for the other types.}
+
+\item{initial}{Initial distribution of the \code{"flow"} plot, see
+\code{\link{redistribute}}. Defaults to the uniform distribution.
+Ignored for the other types.}
 
 \item{...}{Currently unused, reserved for future extensions.}
 }
@@ -49,5 +65,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   mc <- new("markovchain", states = rownames(weather),
             transitionMatrix = weather, name = "Weather")
   ggplot2::autoplot(mc)
+  ggplot2::autoplot(mc, type = "eigenvalues")
+  ggplot2::autoplot(mc, type = "flow", steps = 10, initial = "rain")
 }
 }

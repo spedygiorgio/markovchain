@@ -621,7 +621,7 @@ Applications*. Cambridge University Press.
 
 Mathematics Stack Exchange. 2015. *Probability That a Chain Will Enter
 State 5 Before It Enters State 3*.
-<https://math.stackexchange.com/questions/1450399/probability-that-a-chain-will-enter-state-5-before-it-enters-state-3?newreg=82f90b66b949495a91661caad24db915>.
+<https://math.stackexchange.com/questions/1450399>.
 
 Norris, J. R. 1998. *Markovchains*. Cambridge University Press.
 

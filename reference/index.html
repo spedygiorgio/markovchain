@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">markovchain</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,6 +70,13 @@
 
         <dt>
 
+          <code><a href="aggregateStates.html">aggregateStates()</a></code>
+
+        </dt>
+        <dd>Aggregate a Markov chain's state space by Kullback-Leibler minimization</dd>
+
+        <dt>
+
           <code><a href="autoLump.html">autoLump()</a></code>
 
         </dt>
@@ -84,10 +91,24 @@
 
         <dt>
 
+          <code><a href="birthDeath.html">birthDeath()</a></code>
+
+        </dt>
+        <dd>Build a birth-death Markov chain</dd>
+
+        <dt>
+
           <code><a href="blanden.html">blanden</a></code>
 
         </dt>
         <dd>Mobility between income quartiles</dd>
+
+        <dt>
+
+          <code><a href="closestReversible.html">closestReversible()</a></code>
+
+        </dt>
+        <dd>Closest reversible approximation of a Markov chain</dd>
 
         <dt>
 
@@ -189,6 +210,13 @@
 
         <dt>
 
+          <code><a href="gamblersRuin.html">gamblersRuin()</a></code>
+
+        </dt>
+        <dd>Build a gambler's ruin Markov chain</dd>
+
+        <dt>
+
           <code><a href="generatorToTransitionMatrix.html">generatorToTransitionMatrix()</a></code>
 
         </dt>
@@ -235,6 +263,13 @@
 
         </dt>
         <dd>An S4 class for representing Imprecise Continuous Time Markovchains</dd>
+
+        <dt>
+
+          <code><a href="impliedTimescales.html">impliedTimescales()</a></code>
+
+        </dt>
+        <dd>Implied timescales of a Markov chain</dd>
 
         <dt>
 
@@ -294,6 +329,13 @@
 
         <dt>
 
+          <code><a href="is.reversible.html">is.reversible()</a></code>
+
+        </dt>
+        <dd>Check whether a Markov chain is reversible</dd>
+
+        <dt>
+
           <code><a href="is.stochasticallyMonotone.html">is.stochasticallyMonotone()</a></code>
 
         </dt>
@@ -312,6 +354,13 @@
 
         </dt>
         <dd>Example from Kullback and Kupperman Tests for Contingency Tables</dd>
+
+        <dt>
+
+          <code><a href="lazyChain.html">lazyChain()</a></code>
+
+        </dt>
+        <dd>Build a lazy version of a Markov chain</dd>
 
         <dt>
 
@@ -392,6 +441,20 @@
 
         <dt>
 
+          <code><a href="mergeWith.html">mergeWith()</a></code>
+
+        </dt>
+        <dd>Merge two Markov chains by convex combination of their transition matrices</dd>
+
+        <dt>
+
+          <code><a href="mixingTime.html">mixingTime()</a></code>
+
+        </dt>
+        <dd>Mixing time of a Markov chain</dd>
+
+        <dt>
+
           <code><a href="multinomialConfidenceIntervals.html">multinomialConfidenceIntervals()</a></code>
 
         </dt>
@@ -417,6 +480,13 @@
 
         </dt>
         <dd>Returns an Identity matrix</dd>
+
+        <dt>
+
+          <code><a href="populationGeneticsModel.html">populationGeneticsModel()</a></code>
+
+        </dt>
+        <dd>Build a population-genetics Markov chain (Moran or Wright-Fisher)</dd>
 
         <dt>
 
@@ -476,6 +546,13 @@
 
         <dt>
 
+          <code><a href="rouwenhorst.html">rouwenhorst()</a></code>
+
+        </dt>
+        <dd>Discretize an AR(1) process into a Markov chain (Rouwenhorst's method)</dd>
+
+        <dt>
+
           <code><a href="sales.html">sales</a></code>
 
         </dt>
@@ -483,10 +560,31 @@
 
         <dt>
 
+          <code><a href="sensitivity.html">sensitivity()</a></code>
+
+        </dt>
+        <dd>Sensitivity of the stationary distribution to a state's transition row</dd>
+
+        <dt>
+
           <code><a href="setName.html">`name&lt;-`()</a></code>
 
         </dt>
         <dd>Method to set name of markovchain object</dd>
+
+        <dt>
+
+          <code><a href="slem.html">slem()</a></code>
+
+        </dt>
+        <dd>Second largest eigenvalue modulus (SLEM) of a Markov chain</dd>
+
+        <dt>
+
+          <code><a href="spectralGap.html">spectralGap()</a></code>
+
+        </dt>
+        <dd>Spectral gap of a Markov chain</dd>
 
         <dt>
 
@@ -518,10 +616,52 @@
 
         <dt>
 
+          <code><a href="subchain.html">subchain()</a></code>
+
+        </dt>
+        <dd>Restrict a Markov chain to a subset of states</dd>
+
+        <dt>
+
+          <code><a href="tauchen.html">tauchen()</a></code>
+
+        </dt>
+        <dd>Discretize an AR(1) process into a Markov chain (Tauchen's method)</dd>
+
+        <dt>
+
           <code><a href="tm_abs.html">tm_abs</a></code>
 
         </dt>
         <dd>Single Year Corporate Credit Rating Transititions</dd>
+
+        <dt>
+
+          <code><a href="toBoundedChain.html">toBoundedChain()</a></code>
+
+        </dt>
+        <dd>Apply a boundary condition to a Markov chain's first and last state</dd>
+
+        <dt>
+
+          <code><a href="toDictionary.html">toDictionary()</a></code> <code><a href="toDictionary.html">fromDictionary()</a></code>
+
+        </dt>
+        <dd>Represent a Markov chain as a plain R list</dd>
+
+        <dt>
+
+          <code><a href="toFile.html">toFile()</a></code> <code><a href="toFile.html">fromFile()</a></code>
+
+        </dt>
+        <dd>Write or read a Markov chain to or from a file</dd>
+
+        <dt>
+
+          <code><a href="toNthOrder.html">toNthOrder()</a></code>
+
+        </dt>
+        <dd>Return the n-step transition chain</dd>
 
         <dt>
 
@@ -536,6 +676,13 @@
 
         </dt>
         <dd>Function to get the transition probabilities from initial to subsequent states.</dd>
+
+        <dt>
+
+          <code><a href="urnModel.html">urnModel()</a></code>
+
+        </dt>
+        <dd>Build an Ehrenfest urn model Markov chain</dd>
 
         <dt>
 

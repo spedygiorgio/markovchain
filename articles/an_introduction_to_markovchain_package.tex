@@ -930,6 +930,14 @@ Table \ref{tab:methodsToStats} shows methods that can be applied on \texttt{mark
   \code{entropyRate} & entropy rate of an irreducible Markov chain. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
   \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
+  \code{slem} & second largest eigenvalue modulus (irreducible). \\
+  \code{spectralGap} & one minus the SLEM, a lightweight mixing diagnostic. \\
+  \code{impliedTimescales} & per-eigenvalue relaxation timescales (irreducible). \\
+  \code{is.reversible} & checks detailed balance w.r.t.\ the stationary distribution. \\
+  \code{closestReversible} & closest reversible chain for a fixed stationary law. \\
+  \code{mixingTime} & total-variation mixing time (irreducible, aperiodic). \\
+  \code{lazyChain} & the chain $\alpha I + (1-\alpha)P$, used to remove periodicity. \\
+  \code{subchain} & restriction to a subset of states (submatrix or renormalized). \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
@@ -1438,6 +1446,534 @@ rain   2.818182
 The second result has one entry for each possible starting state; apart from
 numerical rounding, all entries equal Kemeny's constant.
 
+\subsection{Sensitivity of the stationary distribution}\label{sensitivity-of-the-stationary-distribution}
+
+Kemeny's constant uses the fundamental matrix
+\(Z=(I-P+\mathbf{1}\pi^T)^{-1}\); the same matrix also gives the first-order
+sensitivity of the stationary distribution \(\pi\) to a small change in the
+chain's transition probabilities. If row \(k\) of \(P\) is perturbed by a
+zero-sum vector \(d\) (so that \(P+e_k d^T\) is still row-stochastic to first
+order), the resulting change in \(\pi\) is, to first order,
+\[
+\Delta\pi \approx d^T S, \qquad S_{lj} = \pi_k\bigl(Z_{lj}-\pi_j\bigr)
+\]
+\citep{schweitzer1968perturbation,meyer1980perturbation,choMeyer2001}. The
+function \texttt{sensitivity(object,\ state)} returns the matrix \(S\) for a single
+perturbed state \texttt{k\ =\ state}; it does not itself pick a direction \(d\), since
+that depends on which two transition probabilities are being traded off.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> S <- sensitivity(mcWeather, "sunny")
+R> S
+\end{CodeInput}
+\begin{CodeOutput}
+            sunny     cloudy        rain
+sunny   0.4479264 -0.2471450 -0.20078137
+cloudy -0.3529001  0.3850864 -0.03218633
+rain   -0.4371976 -0.0364012  0.47359880
+\end{CodeOutput}
+\end{CodeChunk}
+
+For example, moving probability mass out of \(P(\text{sunny}\to\text{sunny})\)
+and into \(P(\text{sunny}\to\text{rain})\) (so \(d=(-\varepsilon,0,\varepsilon)\))
+changes \(\pi\), to first order, by \(\varepsilon\) times the difference of the
+\texttt{"rain"} and \texttt{"sunny"} rows of \(S\):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> eps <- 1e-4
+R> predictedChange <- eps * (S["rain", ] - S["sunny", ])
+R> predictedChange
+\end{CodeInput}
+\begin{CodeOutput}
+        sunny        cloudy          rain 
+-8.851240e-05  2.107438e-05  6.743802e-05 
+\end{CodeOutput}
+\begin{CodeInput}
+R> perturbedMatrix <- mcWeather@transitionMatrix
+R> perturbedMatrix["sunny", "sunny"] <- perturbedMatrix["sunny", "sunny"] - eps
+R> perturbedMatrix["sunny", "rain"] <- perturbedMatrix["sunny", "rain"] + eps
+R> mcWeatherPerturbed <- new("markovchain", states = states(mcWeather),
++                           transitionMatrix = perturbedMatrix)
+R> 
+R> as.numeric(steadyStates(mcWeatherPerturbed)) - as.numeric(steadyStates(mcWeather))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] -8.849550e-05  2.107036e-05  6.742514e-05
+\end{CodeOutput}
+\end{CodeChunk}
+
+The two agree to \(O(\varepsilon^2)\), as the first-order theory predicts.
+Unlike a positional, entry-by-entry sensitivity, \texttt{S} is built so that this
+holds for \emph{any} zero-sum perturbation direction of row \texttt{k}, not only the
+one shown here.
+
+\subsection{Spectral diagnostics: SLEM, spectral gap and implied timescales}\label{spectral-diagnostics-slem-spectral-gap-and-implied-timescales}
+
+For a finite, irreducible chain, the Perron-Frobenius theorem guarantees a
+unique eigenvalue \(\lambda_1=1\); every other eigenvalue satisfies
+\(|\lambda_k|\le 1\). The \emph{second largest eigenvalue modulus} (SLEM) is
+
+\[
+\mathrm{SLEM} = \max_{k>1} |\lambda_k|,
+\]
+
+and the \emph{spectral gap} is \(1-\mathrm{SLEM}\). Both are lightweight,
+eigenvalue-based diagnostics of how quickly a chain approaches its
+stationary distribution: a spectral gap close to \(1\) indicates fast mixing,
+while a spectral gap close to \(0\) indicates slow mixing \citep{levinPeres2017}.
+Only irreducibility is required; unlike some implementations, \texttt{slem} and
+\texttt{spectralGap} do not require aperiodicity, and correctly report
+\(\mathrm{SLEM}=1\) (spectral gap \(0\)) for a periodic chain, reflecting that
+such a chain never contracts towards its stationary distribution.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> slem(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.45
+\end{CodeOutput}
+\begin{CodeInput}
+R> spectralGap(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.55
+\end{CodeOutput}
+\end{CodeChunk}
+
+Each non-trivial eigenvalue \(\lambda_k\), \(k>1\), also has its own \emph{implied
+timescale} \(\tau_k=-1/\log|\lambda_k|\), measured in number of steps: it is
+the time the corresponding mode of the chain takes to decay by a factor of
+\(1/e\). The largest such value, \(\tau_2\), corresponds to the SLEM and is the
+slowest, dominant relaxation mode. The term comes from the Markov state
+model literature in molecular kinetics \citep{swope2004describing,
+prinz2011markov}, where implied timescales are additionally compared across
+chains fitted at increasing lag times as a check of the Markov
+approximation; \texttt{impliedTimescales} evaluates a single already-fitted chain,
+leaving that comparison to the user.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> impliedTimescales(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+    tau2     tau3 
+1.252336 0.000000 
+\end{CodeOutput}
+\end{CodeChunk}
+
+As a textbook illustration with a known closed form, consider simple random
+walk on the cycle with \(n\) states, which moves to either neighbour with
+probability \(1/2\) \citep[Example 12.9]{levinPeres2017}. Its eigenvalues are
+\(\lambda_k = \cos(2\pi k/n)\), \(k=0,\ldots,n-1\), so the SLEM and spectral gap
+can be checked in closed form. For an \emph{odd} \(n\) the walk is aperiodic. Since
+\(\cos\) is largest in modulus near \(0\) and near \(\pi\), the SLEM is the larger
+of the moduli attained near \(k=1\) (angle near \(0\)) and near \(k=n/2\) (angle
+near \(\pi\)); for \(n=7\) the latter dominates, at \(k=3\) (and, symmetrically,
+\(k=4\)):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> randomWalkOnCycle <- function(n) {
++   cycleP <- matrix(0, n, n)
++   for (i in seq_len(n)) {
++     cycleP[i, ((i - 2) %% n) + 1] <- 1 / 2
++     cycleP[i, (i %% n) + 1] <- 1 / 2
++   }
++   new("markovchain", transitionMatrix = cycleP,
++       states = as.character(seq_len(n)),
++       name = paste("Random walk on the", n, "-cycle"))
++ }
+R> 
+R> mcCycle7 <- randomWalkOnCycle(7)
+R> slem(mcCycle7)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.9009689
+\end{CodeOutput}
+\begin{CodeInput}
+R> abs(cos(2 * pi * 3 / 7)) # closed-form SLEM, attained at k = 3 and k = 4
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.9009689
+\end{CodeOutput}
+\begin{CodeInput}
+R> spectralGap(mcCycle7)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.09903113
+\end{CodeOutput}
+\begin{CodeInput}
+R> impliedTimescales(mcCycle7)
+\end{CodeInput}
+\begin{CodeOutput}
+     tau2      tau3      tau4      tau5      tau6      tau7 
+9.5891459 9.5891459 2.1167476 2.1167476 0.6654537 0.6654537 
+\end{CodeOutput}
+\end{CodeChunk}
+
+For an \emph{even} \(n\) the cycle graph is bipartite and the walk is periodic
+(period \(2\)): it can only return to its starting state after an even number
+of steps. Correspondingly \(\lambda_k\) reaches \(-1\) at \(k=n/2\), so the SLEM
+is \(1\) regardless of \(n\):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mcCycle8 <- randomWalkOnCycle(8)
+R> slem(mcCycle8) # 1, attained at k = 4, where cos(2*pi*4/8) = cos(pi) = -1
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 1
+\end{CodeOutput}
+\begin{CodeInput}
+R> round(spectralGap(mcCycle8), 12) # numerically 0, up to floating-point error
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0
+\end{CodeOutput}
+\begin{CodeInput}
+R> impliedTimescales(mcCycle8)["tau2"] # the k = 4 mode, sorted first, never decays
+\end{CodeInput}
+\begin{CodeOutput}
+tau2 
+ Inf 
+\end{CodeOutput}
+\end{CodeChunk}
+
+\texttt{slem}, \texttt{spectralGap} and \texttt{impliedTimescales} handle this periodic case
+directly, rather than treating it as an error: a spectral gap of (numerically)
+\(0\) and an infinite implied timescale are the mathematically correct
+description of a chain that does not converge pointwise to its stationary
+distribution. The tiny residual before rounding is ordinary floating-point
+error from \texttt{eigen()}, of the same order as \texttt{.Machine\$double.eps}, not a sign
+that the chain is ``almost'' aperiodic.
+
+\subsection{Reversibility}\label{reversibility}
+
+A chain is \emph{reversible} with respect to its stationary distribution \(\pi\)
+if the detailed balance equations hold:
+
+\[
+\pi_i P_{ij} = \pi_j P_{ji} \quad \text{for every } i,j.
+\]
+
+Intuitively, a long stationary run of a reversible chain looks statistically
+the same whether played forwards or backwards in time: the flow of
+probability from \(i\) to \(j\) exactly balances the flow back
+\citep{NorrisBook,levinPeres2017}. \texttt{is.reversible} checks this directly, and
+only requires irreducibility, not aperiodicity -- reversibility and
+periodicity are independent properties.
+
+A canonical family of reversible chains is simple random walk on an
+undirected graph (move to a uniformly random neighbour at each step): the
+symmetry of ``being neighbours'' is exactly what makes detailed balance hold.
+The random walk on a cycle from the previous section, whether the aperiodic
+\texttt{mcCycle7} or the periodic \texttt{mcCycle8}, is reversible either way:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> is.reversible(mcCycle7)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\begin{CodeInput}
+R> is.reversible(mcCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+By contrast, a directed cycle -- where probability only ever flows ``one way
+around'' -- is not reversible, since there is a net clockwise flow at
+stationarity with nothing flowing back:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> states3 <- c("a", "b", "c")
+R> directedCycle <- new("markovchain", states = states3,
++   transitionMatrix = matrix(c(0, 1, 0,
++                               0, 0, 1,
++                               1, 0, 0), byrow = TRUE, nrow = 3,
++                             dimnames = list(states3, states3)))
+R> is.reversible(directedCycle)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] FALSE
+\end{CodeOutput}
+\end{CodeChunk}
+
+The weather chain \texttt{mcWeather} is a more realistic example of a non-reversible
+chain: nothing forces the flow from ``sunny'' to ``rain'' to balance the flow
+back, and indeed it does not:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> is.reversible(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] FALSE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{Closest reversible approximation}\label{closest-reversible-approximation}
+
+Many results about Markov chains -- spectral bounds, much of MCMC theory --
+assume reversibility, so when a fitted chain turns out not to be reversible
+it is natural to ask which reversible chain is closest to it. Write the
+\emph{time reversal} of \(P\) with respect to \(\pi\) as
+
+\[
+P^*_{ij} = \frac{\pi_j P_{ji}}{\pi_i},
+\]
+
+the chain run backwards in time; \(P\) is reversible exactly when \(P=P^*\).
+\texttt{closestReversible} returns the \emph{additive reversibilization}
+\(R=\tfrac12(P+P^*)\) \citep{fill1991eigenvalue}, which is automatically a
+valid transition matrix -- the rows of \(P^*\) sum to
+\(\sum_j \pi_j P_{ji}/\pi_i = (\pi P)_i/\pi_i = 1\) because \(\pi\) is
+stationary -- and is reversible with respect to the same \(\pi\).
+
+The clearest example is a chain that is as far from reversible as possible:
+a directed cycle, which only ever moves one way round. Its closest
+reversible approximation is the undirected random walk on the same triangle:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> approximation <- closestReversible(directedCycle)
+R> approximation$chain
+\end{CodeInput}
+\begin{CodeOutput}
+Unnamed Markov chain (closest reversible) 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ a, b, c 
+ The transition matrix  (by rows)  is defined as follows: 
+    a   b   c
+a 0.0 0.5 0.5
+b 0.5 0.0 0.5
+c 0.5 0.5 0.0
+\end{CodeOutput}
+\begin{CodeInput}
+R> is.reversible(approximation$chain)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+Applied to the weather chain, the approximation keeps the same stationary
+distribution and reports how far it had to move to become reversible:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> weatherReversible <- closestReversible(mcWeather)
+R> weatherReversible$chain
+\end{CodeInput}
+\begin{CodeOutput}
+New Name (closest reversible) 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ sunny, cloudy, rain 
+ The transition matrix  (by rows)  is defined as follows: 
+           sunny    cloudy       rain
+sunny  0.7000000 0.2029412 0.09705882
+cloudy 0.2957143 0.4000000 0.30428571
+rain   0.2062500 0.4437500 0.35000000
+\end{CodeOutput}
+\begin{CodeInput}
+R> weatherReversible$distance
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.01074924
+\end{CodeOutput}
+\begin{CodeInput}
+R> steadyStates(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+         sunny    cloudy      rain
+[1,] 0.4636364 0.3181818 0.2181818
+\end{CodeOutput}
+\begin{CodeInput}
+R> steadyStates(weatherReversible$chain) # unchanged
+\end{CodeInput}
+\begin{CodeOutput}
+         sunny    cloudy      rain
+[1,] 0.4636364 0.3181818 0.2181818
+\end{CodeOutput}
+\end{CodeChunk}
+
+In what sense is this the \emph{closest} chain? Reversible chains are exactly the
+self-adjoint operators on \(\ell^2(\pi)\), so the natural distance is the
+Hilbert--Schmidt norm of that space,
+
+\[
+\|A\|_\pi^2=\sum_{i,j}\frac{\pi_i}{\pi_j}A_{ij}^2,
+\]
+
+for which \(A\mapsto A^*\) is an isometric involution: \(R\) is then the
+orthogonal projection of \(P\) onto the reversible subspace, and the
+stochasticity and non-negativity constraints are satisfied automatically, so
+no constrained optimization is needed. Two warnings follow from this, both
+documented in \texttt{?closestReversible}. First, \(R\) does \emph{not} minimize the plain
+Frobenius distance, which the return value reports separately as a
+descriptive figure only. Second, the minimization holds \(\pi\) fixed; letting
+the stationary distribution vary as well is a harder optimization problem
+\citep{nielsen2015computing} that is not solved here.
+
+\subsection{Mixing time}\label{mixing-time}
+
+Where \texttt{spectralGap} summarises convergence to stationarity through the
+transition matrix's spectrum, \texttt{mixingTime} answers a more operational
+question directly: after how many steps is the chain's distribution close
+to \(\pi\), no matter where it started? Formally, with total variation
+distance \(d(t) = \max_i \tfrac12\sum_j |P^t_{ij}-\pi_j|\), the mixing time is
+the smallest \(t\) with \(d(t)\le\varepsilon\), for a threshold \(\varepsilon\)
+(conventionally \(0.25\)) \citep{levinPeres2017}.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mixingTime(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 2
+\end{CodeOutput}
+\begin{CodeInput}
+R> mixingTime(mcWeather, epsilon = 0.01) # a tighter threshold needs more steps
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 6
+\end{CodeOutput}
+\end{CodeChunk}
+
+Spectral gap and mixing time are connected by a standard bound
+\citep[Theorem 12.3]{levinPeres2017}:
+
+\[
+t_{\mathrm{mix}}(\varepsilon) \le \frac{1}{\mathrm{gap}}
+  \log\!\left(\frac{1}{\varepsilon\,\pi_{\min}}\right),
+\]
+
+which we can check directly against the values already computed for
+\texttt{mcWeather} in the previous section:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> piWeather <- as.numeric(steadyStates(mcWeather))
+R> upperBound <- log(1 / (0.25 * min(piWeather))) / spectralGap(mcWeather)
+R> upperBound
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 5.288583
+\end{CodeOutput}
+\begin{CodeInput}
+R> mixingTime(mcWeather) <= upperBound
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\texttt{mixingTime} requires aperiodicity in addition to irreducibility, unlike
+\texttt{slem}, \texttt{spectralGap} and \texttt{impliedTimescales}: a periodic chain's
+distribution never settles down at all (it keeps cycling), so ``the number of
+steps until it is close to \(\pi\)'' is not a meaningful question to ask of it.
+Calling it on the periodic \texttt{mcCycle8} therefore raises an informative error
+rather than returning a misleading number:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mixingTime(mcCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+Error in `mixingTime()`:
+! mixingTime is defined here only for aperiodic (ergodic) Markov chains, because a periodic chain never converges to its stationary distribution. See slem() or spectralGap() for a spectral diagnostic that remains meaningful for periodic chains.
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Lazy chains}\label{lazy-chains}
+
+The standard fix for periodicity is to make the chain \emph{lazy}: stay in place
+with probability \(\alpha\) at every step, and otherwise take a step of the
+original chain \citep{levinPeres2017}. For transition matrix \(P\), the lazy
+chain's transition matrix is
+
+\[
+L = \alpha I + (1-\alpha) P.
+\]
+
+Adding positive probability of staying in every state rules out any period
+greater than \(1\), while leaving the stationary distribution and reachability
+structure unchanged. Applying it to the periodic \texttt{mcCycle8} from before:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> lazyCycle8 <- lazyChain(mcCycle8, alpha = 0.5)
+R> period(mcCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 2
+\end{CodeOutput}
+\begin{CodeInput}
+R> period(lazyCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 1
+\end{CodeOutput}
+\begin{CodeInput}
+R> steadyStates(mcCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+         1     2     3     4     5     6     7     8
+[1,] 0.125 0.125 0.125 0.125 0.125 0.125 0.125 0.125
+\end{CodeOutput}
+\begin{CodeInput}
+R> steadyStates(lazyCycle8) # unchanged by laziness
+\end{CodeInput}
+\begin{CodeOutput}
+         1     2     3     4     5     6     7     8
+[1,] 0.125 0.125 0.125 0.125 0.125 0.125 0.125 0.125
+\end{CodeOutput}
+\end{CodeChunk}
+
+Now that the chain is aperiodic, \texttt{mixingTime} is well-defined for it:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mixingTime(lazyCycle8)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 6
+\end{CodeOutput}
+\end{CodeChunk}
+
+Laziness is not free, however: every non-trivial eigenvalue of \(L\) equals
+\(\alpha+(1-\alpha)\lambda\) for the corresponding eigenvalue \(\lambda\) of
+\(P\), so the whole non-trivial spectrum is pulled towards \(\alpha\) and mixing
+generally gets \emph{slower} as \(\alpha\) grows:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> spectralGap(mcCycle7) # aperiodic already, no laziness needed
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.09903113
+\end{CodeOutput}
+\begin{CodeInput}
+R> spectralGap(lazyChain(mcCycle7, alpha = 0.5))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.1882551
+\end{CodeOutput}
+\begin{CodeInput}
+R> spectralGap(lazyChain(mcCycle7, alpha = 0.9))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.03765102
+\end{CodeOutput}
+\end{CodeChunk}
+
 \subsection{Mean recurrence time}\label{mean-recurrence-time}
 
 The \texttt{meanRecurrenceTime} method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:
@@ -1551,6 +2087,56 @@ R> meanAbsorptionTime(drunkMc)
 
 Thus, the expected time to absorption is three steps from states 2 or 4 and four steps from state 3.
 
+The drunkard's walk is a special case of the classical gambler's ruin chain
+\citep{GrinsteadSnell}: a walk on \(\{0,1,\ldots,n\}\) that is absorbed at
+both ends and, at every interior state, moves up with probability \(p\) and
+down with probability \(1-p\). \texttt{gamblersRuin(upperBound,\ prob,\ states)}
+builds exactly this chain, so it reproduces \texttt{drunkMc} above without having
+to write out the transition matrix by hand (\(n=4\), \(p=1/2\), relabelled to
+states \texttt{"1"}, \ldots, \texttt{"5"}):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> ruinMc <- gamblersRuin(upperBound = 4, prob = 0.5, states = as.character(1:5))
+R> identical(unclass(ruinMc@transitionMatrix), unclass(drunkMc@transitionMatrix))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+For a general (asymmetric) gambler's ruin with \(p\ne 1/2\), the probability
+of ruin (absorption at \(0\)) starting from state \(i\) has the closed form
+\[
+\Pr(\text{ruin} \mid i) = \frac{r^i-r^n}{1-r^n}, \qquad r=\frac{1-p}{p},
+\]
+\citep{GrinsteadSnell}, which \texttt{absorptionProbabilities} reproduces
+numerically:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> upperBound <- 6
+R> prob <- 0.35
+R> ruinAsymmetric <- gamblersRuin(upperBound = upperBound, prob = prob)
+R> ap <- absorptionProbabilities(ruinAsymmetric)
+R> 
+R> r <- (1 - prob) / prob
+R> i <- seq_len(upperBound - 1)
+R> theoreticalRuin <- (r^i - r^upperBound) / (1 - r^upperBound)
+R> 
+R> cbind(state = i, package = as.numeric(ap[as.character(i), "0"]),
++       formula = theoreticalRuin)
+\end{CodeInput}
+\begin{CodeOutput}
+     state   package   formula
+[1,]     1 0.9785860 0.9785860
+[2,]     2 0.9388171 0.9388171
+[3,]     3 0.8649606 0.8649606
+[4,]     4 0.7277986 0.7277986
+[5,]     5 0.4730691 0.4730691
+\end{CodeOutput}
+\end{CodeChunk}
+
 \subsubsection{Fundamental matrix}\label{fundamental-matrix}
 
 For an absorbing chain, let \(Q\) be the transition submatrix among transient
@@ -1577,6 +2163,86 @@ R> fundamentalMatrix(drunkMc)
 4 0.5 1 1.5
 \end{CodeOutput}
 \end{CodeChunk}
+
+\subsubsection{Restricting a chain to a subset of states}\label{restricting-a-chain-to-a-subset-of-states}
+
+The matrix \(Q\) above -- transitions among transient states only -- is
+exactly what \texttt{subchain(...,\ method\ =\ "submatrix")} returns when restricted
+to the transient states: the raw principal submatrix, with no adjustment.
+Its rows generally sum to \emph{less than} one, because probability that leaves
+the subset (here, to the absorbing corners) is simply dropped, not
+redistributed:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> Q <- subchain(drunkMc, transientStates(drunkMc), method = "submatrix")
+R> Q
+\end{CodeInput}
+\begin{CodeOutput}
+    2   3   4
+2 0.0 0.5 0.0
+3 0.5 0.0 0.5
+4 0.0 0.5 0.0
+\end{CodeOutput}
+\begin{CodeInput}
+R> rowSums(Q)
+\end{CodeInput}
+\begin{CodeOutput}
+  2   3   4 
+0.5 1.0 0.5 
+\end{CodeOutput}
+\end{CodeChunk}
+
+Feeding this \(Q\) into \((I-Q)^{-1}\) by hand reproduces \texttt{fundamentalMatrix}
+exactly, confirming the two are the same object:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> solve(diag(nrow(Q)) - Q)
+\end{CodeInput}
+\begin{CodeOutput}
+    2 3   4
+2 1.5 1 0.5
+3 1.0 2 1.0
+4 0.5 1 1.5
+\end{CodeOutput}
+\end{CodeChunk}
+
+The second option, \texttt{method\ =\ "renormalize"}, instead divides each row by
+its own sum, giving a genuine \texttt{markovchain} object: the walk's position
+\emph{conditioned on never having reached home or the bar} \citep{NorrisBook}.
+This requires every retained state to have some positive probability of
+staying inside the subset -- true here, since every transient corner can
+move to another transient corner:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> watchedDrunk <- subchain(drunkMc, transientStates(drunkMc), method = "renormalize")
+R> watchedDrunk
+\end{CodeInput}
+\begin{CodeOutput}
+Unnamed Markov chain (subchain) 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ 2, 3, 4 
+ The transition matrix  (by rows)  is defined as follows: 
+    2 3   4
+2 0.0 1 0.0
+3 0.5 0 0.5
+4 0.0 1 0.0
+\end{CodeOutput}
+\begin{CodeInput}
+R> rowSums(watchedDrunk@transitionMatrix)
+\end{CodeInput}
+\begin{CodeOutput}
+2 3 4 
+1 1 1 
+\end{CodeOutput}
+\end{CodeChunk}
+
+The two methods answer different questions and are not interchangeable: use
+\texttt{"submatrix"} as a building block for further linear algebra (as
+\texttt{fundamentalMatrix} does internally), and \texttt{"renormalize"} when you want an
+actual Markov chain describing conditional behaviour on the subset.
 
 \subsection{Committor probability}\label{committor-probability}
 
@@ -1706,6 +2372,223 @@ R> is.stochasticallyMonotone(mcIncomeNotMonotone)
 \end{CodeInput}
 \begin{CodeOutput}
 [1] FALSE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Classical Markov chain constructors}\label{classical-markov-chain-constructors}
+
+The package also offers ready-made constructors for a few textbook Markov
+chains that are frequently the starting point of an applied model, rather
+than requiring every state and transition of, e.g., a birth-death or
+diffusion chain to be typed in by hand as in
+Section \ref{sec:structure}.
+
+\subsubsection{Birth-death chains}\label{birth-death-chains}
+
+A birth-death chain moves, from every interior state, either one step up
+(with probability \(p_i\)) or one step down (with probability \(q_i\)), and
+otherwise stays put; the two absorbing-chain examples above
+(\texttt{drunkMc}/\texttt{gamblersRuin()}) are the special case with no ``stay'' probability
+at all. \texttt{birthDeath(p,\ q)} builds a general birth-death chain from the \(n-1\)
+up- and down-probabilities of its \(n\) states, deliberately taking \texttt{p} and
+\texttt{q} to be vectors of length \(n-1\) (one per adjacent pair of states) rather
+than length \(n\): this leaves no leftover boundary probability that would
+otherwise have to be silently redistributed, and the diagonal (``stay'')
+probability of every interior state is simply what remains,
+\(1-p_i-q_{i-1}\):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> bd <- birthDeath(p = c(0.3, 0.4, 0.5), q = c(0.2, 0.3, 0.1))
+R> bd
+\end{CodeInput}
+\begin{CodeOutput}
+Birth-Death Chain 
+ A  4 - dimensional discrete Markov Chain defined by the following states: 
+ 1, 2, 3, 4 
+ The transition matrix  (by rows)  is defined as follows: 
+    1   2   3   4
+1 0.7 0.3 0.0 0.0
+2 0.2 0.4 0.4 0.0
+3 0.0 0.3 0.2 0.5
+4 0.0 0.0 0.1 0.9
+\end{CodeOutput}
+\end{CodeChunk}
+
+By construction \texttt{birthDeath()} has no special behaviour at its two boundary
+states beyond ``no further up/down move exists there'', so state \texttt{"1"} and
+state \texttt{"4"} above are themselves absorbing. \texttt{toBoundedChain(object,\ boundaryCondition)} replaces the first and last transition rows of \emph{any}
+existing chain with an absorbing, reflecting, or ``semi-reflecting'' rule,
+so a reflecting boundary can be added to the same chain instead:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> reflected <- toBoundedChain(bd, "reflecting")
+R> reflected@transitionMatrix[c(1, 4), ]
+\end{CodeInput}
+\begin{CodeOutput}
+  1 2 3 4
+1 0 1 0 0
+4 0 0 1 0
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{The Ehrenfest urn model}\label{the-ehrenfest-urn-model}
+
+\texttt{urnModel(balls)} builds the Ehrenfest urn diffusion chain
+\citep{ehrenfest1907}, a classical model of the approach to statistical
+equilibrium: \(m=\) \texttt{balls} balls are distributed between two urns, the state
+is the number of balls in the first urn, and at each step one ball, chosen
+uniformly at random among all \(m\), is moved to the other urn. From state
+\(k\) this means moving down to \(k-1\) with probability \(k/m\) and up to \(k+1\)
+with probability \((m-k)/m\) -- reflecting, not absorbing, at both \(k=0\) and
+\(k=m\). Its stationary distribution is exactly \(\mathrm{Binomial}(m,1/2)\)
+\citep{GrinsteadSnell}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> ehrenfest <- urnModel(balls = 6)
+R> ehrenfest@transitionMatrix
+\end{CodeInput}
+\begin{CodeOutput}
+          0         1         2         3         4         5         6
+0 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
+1 0.1666667 0.0000000 0.8333333 0.0000000 0.0000000 0.0000000 0.0000000
+2 0.0000000 0.3333333 0.0000000 0.6666667 0.0000000 0.0000000 0.0000000
+3 0.0000000 0.0000000 0.5000000 0.0000000 0.5000000 0.0000000 0.0000000
+4 0.0000000 0.0000000 0.0000000 0.6666667 0.0000000 0.3333333 0.0000000
+5 0.0000000 0.0000000 0.0000000 0.0000000 0.8333333 0.0000000 0.1666667
+6 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 1.0000000 0.0000000
+\end{CodeOutput}
+\begin{CodeInput}
+R> piEhrenfest <- as.numeric(steadyStates(ehrenfest))
+R> cbind(package = piEhrenfest, binomial = dbinom(0:6, 6, 0.5))
+\end{CodeInput}
+\begin{CodeOutput}
+      package binomial
+[1,] 0.015625 0.015625
+[2,] 0.093750 0.093750
+[3,] 0.234375 0.234375
+[4,] 0.312500 0.312500
+[5,] 0.234375 0.234375
+[6,] 0.093750 0.093750
+[7,] 0.015625 0.015625
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{Combining two chains}\label{combining-two-chains}
+
+\texttt{mergeWith(object,\ other,\ gamma)} returns the convex combination
+\((1-\gamma)P_1+\gamma P_2\) of the transition matrices of two chains defined
+on the same state space, e.g.~to interpolate between two seasonal or
+regime-specific regimes. States are matched \emph{by name}, not by matrix
+position, so \texttt{other} need not list its states in the same order as
+\texttt{object}; chains on different state-name sets are rejected with an error
+rather than being combined positionally.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> drySeason <- new("markovchain", states = c("sunny", "rain"),
++                  transitionMatrix = matrix(c(0.9, 0.1, 0.2, 0.8), byrow = TRUE,
++                    nrow = 2, dimnames = list(c("sunny", "rain"), c("sunny", "rain"))),
++                  name = "Dry season")
+R> wetSeason <- new("markovchain", states = c("sunny", "rain"),
++                  transitionMatrix = matrix(c(0.5, 0.5, 0.6, 0.4), byrow = TRUE,
++                    nrow = 2, dimnames = list(c("sunny", "rain"), c("sunny", "rain"))),
++                  name = "Wet season")
+R> 
+R> mergeWith(drySeason, wetSeason, gamma = 0.3)
+\end{CodeInput}
+\begin{CodeOutput}
+Dry season + Wet season (merged, gamma = 0.3) 
+ A  2 - dimensional discrete Markov Chain defined by the following states: 
+ sunny, rain 
+ The transition matrix  (by rows)  is defined as follows: 
+      sunny rain
+sunny  0.78 0.22
+rain   0.32 0.68
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{The n-step chain}\label{the-n-step-chain}
+
+\texttt{toNthOrder(object,\ order)} returns the chain whose one-step transition
+probabilities are \texttt{object}'s \texttt{order}-step transition probabilities, i.e.
+\(P^{\mathtt{order}}\). It is a thin, discoverability-only wrapper around the
+\texttt{\^{}} operator already shown in Section \ref{sec:structure}: the two give
+identical results, and \texttt{\^{}} already uses repeated squaring
+(\(O(n^3\log(\mathtt{order}))\)) rather than a naive repeated product.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> identical(unclass(toNthOrder(mcWeather, 5)@transitionMatrix),
++           unclass((mcWeather ^ 5)@transitionMatrix))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsubsection{Population genetics: the Moran and Wright-Fisher models}\label{population-genetics-the-moran-and-wright-fisher-models}
+
+\texttt{populationGeneticsModel(model,\ n,\ s,\ u,\ v)} builds the Markov chain
+tracking the number of copies of a mutant allele, \(0,1,\ldots,n\), in a
+population of \(n\) individuals, under mutation (backward rate \(u\), mutant
+to wild-type; forward rate \(v\), wild-type to mutant) and viability
+selection (mutant fitness \(1+s\) relative to the wild-type's \(1\)), for
+either the Moran or the Wright-Fisher reproduction scheme. States \texttt{"0"}
+and \texttt{as.character(n)} -- loss and fixation of the mutant allele -- are
+absorbing, as is standard for both models.
+
+With no selection (\(s=0\)) and negligible mutation, a classical result
+(going back to \citealp{wright1931} and \citealp{moran1958}; see
+\citealp{ewens2004} for a modern treatment) gives the probability that the
+mutant allele is eventually \emph{fixed} (reaches state \(n\)) starting from \(i\)
+copies as simply \(i/n\) -- the same value for both models, despite their
+very different reproduction mechanics:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> n <- 8
+R> neutralMoran <- populationGeneticsModel(model = "moran", n = n, s = 0)
+R> neutralWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0)
+R> 
+R> i <- 1:(n - 1)
+R> fixation <- function(mc) {
++   B <- absorptionProbabilities(mc)
++   as.numeric(B[as.character(i), as.character(n)])
++ }
+R> cbind(i = i, moran = fixation(neutralMoran),
++       wrightFisher = fixation(neutralWF), theoretical = i / n)
+\end{CodeInput}
+\begin{CodeOutput}
+     i moran wrightFisher theoretical
+[1,] 1 0.125        0.125       0.125
+[2,] 2 0.250        0.250       0.250
+[3,] 3 0.375        0.375       0.375
+[4,] 4 0.500        0.500       0.500
+[5,] 5 0.625        0.625       0.625
+[6,] 6 0.750        0.750       0.750
+[7,] 7 0.875        0.875       0.875
+\end{CodeOutput}
+\end{CodeChunk}
+
+Introducing positive selection (\(s>0\)) raises the fixation probability of
+the mutant allele above this neutral baseline, from every interior
+starting count, in both models:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> favouredMoran <- populationGeneticsModel(model = "moran", n = n, s = 0.5)
+R> favouredWF <- populationGeneticsModel(model = "wright-fisher", n = n, s = 0.5)
+R> 
+R> # fixation probability starting from 4 copies out of 8, neutral vs favoured
+R> c(neutral = as.numeric(absorptionProbabilities(neutralMoran)["4", "8"]),
++   favoured = as.numeric(absorptionProbabilities(favouredMoran)["4", "8"]))
+\end{CodeInput}
+\begin{CodeOutput}
+  neutral  favoured 
+0.5000000 0.8350515 
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1944,6 +2827,261 @@ R> auto_lumped$lumped_chain
 To keep the vignette fast, the example uses a small transition matrix. In larger
 applications, the automatically discovered partition should be inspected and
 validated substantively before being used for modelling or forecasting.
+
+\subsubsection{Spectral Kullback-Leibler aggregation}\label{spectral-kullback-leibler-aggregation}
+
+\texttt{aggregateStates(object,\ k,\ method)} targets the same problem as \texttt{autoLump}
+from a different angle: instead of clustering eigenvectors with k-means, it
+greedily builds the partition into \texttt{k} macro-states that minimizes the
+Kullback-Leibler (KL) divergence rate between the original chain and the
+``lifted'' macro-chain \citep{deng2011optimal}. Two heuristics are available:
+\texttt{spectral-bottom-up}, which grows the partition one split at a time and suits
+a large reduction, and \texttt{spectral-top-down}, which starts from every state on
+its own and repeatedly merges the least costly pair, suiting a small
+reduction; \texttt{method\ =\ "adaptive"} (the default) picks between them using the
+same rule of thumb as PyDTMC. Unlike PyDTMC, \texttt{k} itself is optional: left
+unset, it is chosen automatically from the eigengap of the transition
+matrix's eigenvalues.
+
+Applied to the Land of Oz chain, \texttt{aggregateStates} correctly finds the same
+\texttt{Bad\_Weather} and \texttt{Nice\_Weather} partition used above and reproduces \texttt{lump}'s
+aggregated transition matrix exactly (up to the macro-state labels, which
+\texttt{aggregateStates} always names generically):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> agg_oz <- aggregateStates(mcOz, k = 2)
+R> agg_oz$partition
+\end{CodeInput}
+\begin{CodeOutput}
+$Macro_1
+[1] "rainy" "snowy"
+
+$Macro_2
+[1] "nice"
+\end{CodeOutput}
+\begin{CodeInput}
+R> isTRUE(all.equal(unname(agg_oz$aggregatedChain@transitionMatrix),
++                   unname(lumped_oz@transitionMatrix)))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+The KL divergence it reports, however, is \emph{not} zero:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> agg_oz$klDivergence
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.0490225
+\end{CodeOutput}
+\end{CodeChunk}
+
+This is not a discrepancy: strong lumpability (what \texttt{is.lumpable} checks)
+only requires that \texttt{rainy} and \texttt{snowy} send the \emph{same total} probability
+into \texttt{Bad\_Weather}, not that they split it the same way \emph{within} the block.
+Here \texttt{rainy} moves to \texttt{rainy} with probability 0.5 and to \texttt{snowy} with 0.25,
+while \texttt{snowy} moves to \texttt{rainy} with 0.25 and to \texttt{snowy} with 0.5 -- the
+totals into \texttt{Bad\_Weather} agree (0.75 each), but the internal split does
+not. \texttt{aggregateStates}'s divergence is sensitive to exactly that
+within-block heterogeneity, so it is only zero for the stronger property
+illustrated in \texttt{?aggregateStates}'s own example, where the split is also
+identical. In other words: a zero divergence always implies strong
+lumpability, but strong lumpability does not always give a zero divergence.
+
+For a chain with no exact lumpability at all, the KL divergence measures how
+much dynamical information the aggregation discards more generally. The
+following is the illustrative 4-state example used by Deng, Mehta and Meyn
+themselves to introduce the method \citep{deng2009simulation}: a doubly
+stochastic chain built from two tightly coupled pairs of states, \texttt{\textbackslash{}\{1,2\textbackslash{}\}}
+and \texttt{\textbackslash{}\{3,4\textbackslash{}\}}, joined by two weak links (\texttt{1}-\texttt{4} and \texttt{2}-\texttt{3}):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> states_dmm <- as.character(1:4)
+R> P_dmm <- matrix(
++   c(0.5, 0.4, 0.0, 0.1,
++     0.4, 0.5, 0.1, 0.0,
++     0.0, 0.1, 0.5, 0.4,
++     0.1, 0.0, 0.4, 0.5),
++   byrow = TRUE, nrow = 4,
++   dimnames = list(states_dmm, states_dmm)
++ )
+R> mcDMM <- new("markovchain", states = states_dmm, transitionMatrix = P_dmm,
++              name = "Deng-Mehta-Meyn (2009) example")
+R> 
+R> agg_dmm <- aggregateStates(mcDMM, k = 2)
+R> agg_dmm$partition
+\end{CodeInput}
+\begin{CodeOutput}
+$Macro_1
+[1] "1" "2"
+
+$Macro_2
+[1] "3" "4"
+\end{CodeOutput}
+\begin{CodeInput}
+R> agg_dmm$aggregatedChain@transitionMatrix
+\end{CodeInput}
+\begin{CodeOutput}
+        Macro_1 Macro_2
+Macro_1     0.9     0.1
+Macro_2     0.1     0.9
+\end{CodeOutput}
+\end{CodeChunk}
+
+\texttt{aggregateStates} recovers exactly the bi-partition
+\texttt{\textbackslash{}\{1,2\textbackslash{}\}}/\texttt{\textbackslash{}\{3,4\textbackslash{}\}} and the aggregated matrix
+\(\begin{pmatrix}0.9 & 0.1\\ 0.1 & 0.9\end{pmatrix}\) reported in the original
+paper -- the two tightly coupled pairs become the two macro-states, and the
+weak cross-links are what is left over as a 0.1 leakage probability between
+them. The reported divergence,
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> agg_dmm$klDivergence
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.1080315
+\end{CodeOutput}
+\end{CodeChunk}
+
+also matches the original \(\lambda^\star \approx 0.0749\) once the difference
+in logarithm base is accounted for (\(0.0749/\ln 2 \approx\)
+0.1081): the divergence rate here is reported in bits
+(base-2 logarithm, matching PyDTMC's own convention), while
+\citet{deng2009simulation} report it in nats (natural logarithm).
+
+As with \texttt{lump}'s output, \texttt{aggregateStates}'s \texttt{partition} traces every
+macro-state back to the original state names, so it can be fed directly into
+\texttt{is.lumpable()} or \texttt{lump(...,\ force\ =\ TRUE)} for comparison.
+
+\subsubsection{Serialization}\label{serialization}
+
+A \texttt{markovchain} object is often built once and then reused elsewhere: shared
+with a colleague, stored alongside a dataset, or handed to a program written
+in another language. \texttt{toDictionary} and \texttt{fromDictionary}, together with
+\texttt{toFile} and \texttt{fromFile}, give the object a plain, language-neutral representation for exactly this
+purpose, mirroring PyDTMC's own \texttt{to\_dictionary}, \texttt{from\_dictionary},
+\texttt{to\_file} and \texttt{from\_file} -- with one deliberate difference: PyDTMC represents a
+chain as a \emph{flat} mapping from every \texttt{(from\_state,\ to\_state)} pair to its
+probability (\(n^2\) entries with no state grouping), whereas here the
+representation is nested by source state, which is both more compact to
+read and round-trips through R's own list-of-lists idiom without any
+special tuple-key handling.
+
+We reuse \texttt{mcOz}, the Land of Oz chain introduced earlier in this section,
+since a well-known textbook example \citep{landOfOz} is exactly what
+someone would actually want to save and reload -- unlike a synthetic chain
+built only to demonstrate file I/O, this one is worth keeping around:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> oz_dict <- toDictionary(mcOz)
+R> str(oz_dict)
+\end{CodeInput}
+\begin{CodeOutput}
+List of 4
+ $ name            : chr "Land of Oz"
+ $ states          : chr [1:3] "rainy" "nice" "snowy"
+ $ byrow           : logi TRUE
+ $ transitionMatrix:List of 3
+  ..$ rainy:List of 3
+  .. ..$ rainy: num 0.5
+  .. ..$ nice : num 0.25
+  .. ..$ snowy: num 0.25
+  ..$ nice :List of 3
+  .. ..$ rainy: num 0.5
+  .. ..$ nice : num 0
+  .. ..$ snowy: num 0.5
+  ..$ snowy:List of 3
+  .. ..$ rainy: num 0.25
+  .. ..$ nice : num 0.25
+  .. ..$ snowy: num 0.5
+\end{CodeOutput}
+\end{CodeChunk}
+
+\texttt{toDictionary} always normalizes to a row-stochastic representation, so it
+faithfully captures \texttt{mcOz} regardless of the chain's own \texttt{byrow} storage
+convention. Reversing it exactly recovers the original transition matrix:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> identical(fromDictionary(oz_dict)@transitionMatrix, mcOz@transitionMatrix)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+\texttt{toFile}/\texttt{fromFile} write this same representation to disk, inferring the
+format (JSON, YAML or CSV) from the file extension:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> oz_json <- tempfile(fileext = ".json")
+R> toFile(mcOz, oz_json)
+R> cat(readLines(oz_json), sep = "\n")
+\end{CodeInput}
+\begin{CodeOutput}
+{
+  "name": "Land of Oz",
+  "states": ["rainy", "nice", "snowy"],
+  "byrow": true,
+  "transitionMatrix": {
+    "rainy": {
+      "rainy": 0.5,
+      "nice": 0.25,
+      "snowy": 0.25
+    },
+    "nice": {
+      "rainy": 0.5,
+      "nice": 0,
+      "snowy": 0.5
+    },
+    "snowy": {
+      "rainy": 0.25,
+      "nice": 0.25,
+      "snowy": 0.5
+    }
+  }
+}
+\end{CodeOutput}
+\begin{CodeInput}
+R> identical(fromFile(oz_json)@transitionMatrix, mcOz@transitionMatrix)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] TRUE
+\end{CodeOutput}
+\end{CodeChunk}
+
+JSON and YAML preserve every field, including the chain's \texttt{name}, at full
+numeric precision. CSV, which has no natural place for a \texttt{name}, only
+stores the transition matrix itself -- the same limitation PyDTMC's own CSV
+format has:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> oz_csv <- tempfile(fileext = ".csv")
+R> toFile(mcOz, oz_csv)
+R> cat(readLines(oz_csv), sep = "\n")
+\end{CodeInput}
+\begin{CodeOutput}
+"","rainy","nice","snowy"
+"rainy",0.5,0.25,0.25
+"nice",0.5,0,0.5
+"snowy",0.25,0.25,0.5
+\end{CodeOutput}
+\begin{CodeInput}
+R> fromFile(oz_csv)@name # the package's own default, not "Land of Oz"
+\end{CodeInput}
+\begin{CodeOutput}
+[1] "Unnamed Markov chain"
+\end{CodeOutput}
+\end{CodeChunk}
 
 \subsection{Estimation}\label{estimation}
 
@@ -2834,9 +3972,9 @@ R> mcWeatherQ
 \end{CodeInput}
 \begin{CodeOutput}
            sunny     cloudy       rain
-sunny  -0.863221   2.428723  -1.565502
-cloudy  4.284592 -20.116312  15.831720
-rain   -4.414019  24.175251 -19.761232
+sunny  -0.841941   2.322323  -1.480382
+cloudy  4.093072 -19.158709  15.065637
+rain   -4.179938  23.004848 -18.824909
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3589,6 +4727,72 @@ R> as.numeric((c(1, 0)* mcP ^ 5) %*% (as.vector(c(c1, c2))))
 [1] 48.96009
 \end{CodeOutput}
 \end{CodeChunk}
+
+\subsubsection{Discretizing autoregressive processes}\label{discretizing-autoregressive-processes}
+
+Interest rate, inflation, or income processes used in finance, economics
+and actuarial reserving/ALM work are frequently modelled as a stationary
+AR(1),
+\[
+y_t = (1-\rho)\alpha + \rho\, y_{t-1} + \varepsilon_t, \qquad
+\varepsilon_t \overset{\mathrm{iid}}{\sim} \mathcal N(0,\sigma^2),
+\]
+which is not itself a (finite-state) Markov chain. \texttt{tauchen()} and
+\texttt{rouwenhorst()} discretize such a process onto a finite grid, returning both
+the discretized \texttt{markovchain} object and the numeric grid \texttt{states} itself
+(needed for any further numeric work, e.g.~plugging the levels into a
+pricing formula). \texttt{tauchen()} \citep{tauchen1986} uses an evenly spaced grid
+of fixed half-width \(k\sigma_y\) (\(\sigma_y=\sigma/\sqrt{1-\rho^2}\)) and bins
+a Normal conditional distribution into it; \texttt{rouwenhorst()}
+\citep{rouwenhorst1995} instead builds the transition matrix recursively
+from \(\theta=(1+\rho)/2\), with no grid-width parameter to choose.
+
+Kopecky and Suen \citep{kopeckySuen2010} show that for highly persistent
+processes -- their example is a quarterly TFP growth process calibrated at
+\(\rho=0.979\), \(\sigma_\varepsilon=0.0072\) -- Rouwenhorst's method matches
+the process's theoretical unconditional variance
+\(\sigma_y^2=\sigma^2/(1-\rho^2)\) almost exactly at every chain size they
+try, while Tauchen's method is markedly less accurate at the same sizes and
+only improves slowly as the chain grows. Both \texttt{tauchen()} and
+\texttt{rouwenhorst()} reproduce that comparison directly:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> rho <- 0.979
+R> sigmaEps <- 0.0072
+R> theoreticalVar <- sigmaEps^2 / (1 - rho^2)
+R> theoreticalVar
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.001247383
+\end{CodeOutput}
+\begin{CodeInput}
+R> relativeError <- function(size) {
++   outT <- tauchen(alpha = 0, sigma = sigmaEps, rho = rho, size = size)
++   outR <- rouwenhorst(alpha = 0, sigma = sigmaEps, rho = rho, size = size)
++   piT <- as.numeric(steadyStates(outT$chain))
++   piR <- as.numeric(steadyStates(outR$chain))
++   varT <- sum(piT * (outT$states - sum(piT * outT$states)) ^ 2)
++   varR <- sum(piR * (outR$states - sum(piR * outR$states)) ^ 2)
++   c(tauchen = 100 * abs(varT - theoreticalVar) / theoreticalVar,
++     rouwenhorst = 100 * abs(varR - theoreticalVar) / theoreticalVar)
++ }
+R> 
+R> sapply(c(5, 10, 25), relativeError)
+\end{CodeInput}
+\begin{CodeOutput}
+                    [,1]         [,2]         [,3]
+tauchen     8.139476e+01 4.979587e+01 9.328706e+00
+rouwenhorst 2.259871e-13 3.998234e-13 9.039485e-13
+\end{CodeOutput}
+\end{CodeChunk}
+
+For every chain size shown, \texttt{rouwenhorst()}'s discretized variance matches
+the theoretical AR(1) variance to numerical precision (percentage error
+effectively 0), while \texttt{tauchen()}'s fixed-width grid is off by tens of
+percent at small sizes and still off by nearly 10\% at 25 states -- worse,
+at 25 states, than \texttt{rouwenhorst()} already is at only 5 -- matching Kopecky
+and Suen's own qualitative conclusion.
 
 \subsection{Actuarial science}\label{app:act}
 

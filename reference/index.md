@@ -11,13 +11,21 @@
 - [`absorptionProbabilities()`](absorptionProbabilities.md) : Absorption
   probabilities
 
+- [`aggregateStates()`](aggregateStates.md) : Aggregate a Markov chain's
+  state space by Kullback-Leibler minimization
+
 - [`autoLump()`](autoLump.md) : Automatically aggregate a Markov chain
   by spectral clustering
 
 - [`autoplot.markovchain()`](autoplot.markovchain.md) : Plot a Markov
   chain with ggplot2
 
+- [`birthDeath()`](birthDeath.md) : Build a birth-death Markov chain
+
 - [`blanden`](blanden.md) : Mobility between income quartiles
+
+- [`closestReversible()`](closestReversible.md) : Closest reversible
+  approximation of a Markov chain
 
 - [`committorAB()`](committorAB.md) : Calculates committor of a
   markovchain object with respect to set A, B
@@ -65,6 +73,9 @@
 - [`fundamentalMatrix()`](fundamentalMatrix.md) : Fundamental matrix of
   an absorbing Markov chain
 
+- [`gamblersRuin()`](gamblersRuin.md) : Build a gambler's ruin Markov
+  chain
+
 - [`generatorToTransitionMatrix()`](generatorToTransitionMatrix.md) :
   Function to obtain the transition matrix from the generator
 
@@ -83,6 +94,9 @@
 
 - [`ictmc-class`](ictmc-class.md) [`ictmc`](ictmc-class.md) : An S4
   class for representing Imprecise Continuous Time Markovchains
+
+- [`impliedTimescales()`](impliedTimescales.md) : Implied timescales of
+  a Markov chain
 
 - [`impreciseProbabilityatT()`](impreciseProbabilityatT.md) :
   Calculating full conditional probability using lower rate transition
@@ -109,6 +123,9 @@
 
 - [`is.regular()`](is.regular.md) : Check if a DTMC is regular
 
+- [`is.reversible()`](is.reversible.md) : Check whether a Markov chain
+  is reversible
+
 - [`is.stochasticallyMonotone()`](is.stochasticallyMonotone.md) : Check
   if a Markov chain is stochastically monotone
 
@@ -117,6 +134,8 @@
 
 - [`kullback`](kullback.md) : Example from Kullback and Kupperman Tests
   for Contingency Tables
+
+- [`lazyChain()`](lazyChain.md) : Build a lazy version of a Markov chain
 
 - [`lump()`](lump.md) : Aggregate a Markov chain over a partition
 
@@ -206,6 +225,11 @@
 
 - [`meanRecurrenceTime()`](meanRecurrenceTime.md) : Mean recurrence time
 
+- [`mergeWith()`](mergeWith.md) : Merge two Markov chains by convex
+  combination of their transition matrices
+
+- [`mixingTime()`](mixingTime.md) : Mixing time of a Markov chain
+
 - [`multinomialConfidenceIntervals()`](multinomialConfidenceIntervals.md)
   : A function to compute multinomial confidence intervals of DTMC
 
@@ -216,6 +240,9 @@
   number of visits to the various states of the DTMC
 
 - [`ones()`](ones.md) : Returns an Identity matrix
+
+- [`populationGeneticsModel()`](populationGeneticsModel.md) : Build a
+  population-genetics Markov chain (Moran or Wright-Fisher)
 
 - [`predictHommc()`](predictHommc.md) : Simulate a higher order
   multivariate markovchain
@@ -238,10 +265,21 @@
 - [`rmarkovchain()`](rmarkovchain.md) : Function to generate a sequence
   of states from homogeneous or non-homogeneous Markov chains.
 
+- [`rouwenhorst()`](rouwenhorst.md) : Discretize an AR(1) process into a
+  Markov chain (Rouwenhorst's method)
+
 - [`sales`](sales.md) : Sales Demand Sequences
+
+- [`sensitivity()`](sensitivity.md) : Sensitivity of the stationary
+  distribution to a state's transition row
 
 - [`` `name<-`() ``](setName.md) : Method to set name of markovchain
   object
+
+- [`slem()`](slem.md) : Second largest eigenvalue modulus (SLEM) of a
+  Markov chain
+
+- [`spectralGap()`](spectralGap.md) : Spectral gap of a Markov chain
 
 - [`states()`](states.md) : Defined states of a transition matrix
 
@@ -266,13 +304,34 @@
   [`canonicForm()`](structuralAnalysis.md) : Various function to perform
   structural analysis of DTMC
 
+- [`subchain()`](subchain.md) : Restrict a Markov chain to a subset of
+  states
+
+- [`tauchen()`](tauchen.md) : Discretize an AR(1) process into a Markov
+  chain (Tauchen's method)
+
 - [`tm_abs`](tm_abs.md) : Single Year Corporate Credit Rating
   Transititions
+
+- [`toBoundedChain()`](toBoundedChain.md) : Apply a boundary condition
+  to a Markov chain's first and last state
+
+- [`toDictionary()`](toDictionary.md)
+  [`fromDictionary()`](toDictionary.md) : Represent a Markov chain as a
+  plain R list
+
+- [`toFile()`](toFile.md) [`fromFile()`](toFile.md) : Write or read a
+  Markov chain to or from a file
+
+- [`toNthOrder()`](toNthOrder.md) : Return the n-step transition chain
 
 - [`transition2Generator()`](transition2Generator.md) : Return the
   generator matrix for a corresponding transition matrix
 
 - [`transitionProbability()`](transitionProbability.md) : Function to
   get the transition probabilities from initial to subsequent states.
+
+- [`urnModel()`](urnModel.md) : Build an Ehrenfest urn model Markov
+  chain
 
 - [`zeros()`](zeros.md) : Matrix to create zeros

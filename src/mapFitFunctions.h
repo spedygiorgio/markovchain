@@ -222,13 +222,23 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
 
   // transpose the matrix if columwise result is required
   if(byrow == false) {
-    mapEstMatr = transposeMatrix(mapEstMatr); 
+    mapEstMatr = transposeMatrix(mapEstMatr);
+    // The posterior summaries describe the same entries as the estimate,
+    // so they follow it into column-stochastic orientation.
+    expMatr = transposeMatrix(expMatr);
+    stdError = transposeMatrix(stdError);
+    lowerEndpointMatr = transposeMatrix(lowerEndpointMatr);
+    upperEndpointMatr = transposeMatrix(upperEndpointMatr);
   }
 
   // markovchain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = mapEstMatr;
-  outMc.slot("name") = "Bayesian Fit";  
+  // Without this the slot keeps its TRUE default while the matrix above is
+  // column-stochastic: the object then fails validObject() and every method
+  // reading the slot misinterprets it.
+  outMc.slot("byrow") = byrow;
+  outMc.slot("name") = "Bayesian Fit";
   
  // message("\n\'estimate\' is the MAP set of parameters where as \'expectedValue\' \nis the expectation 
  // of the parameters with respect to the posterior.\nThe confidence intervals are given for \'estimate\'.");

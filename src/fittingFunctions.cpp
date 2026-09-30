@@ -807,22 +807,47 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
   // create markov chain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = initialMatr;
-  
-  outMc.slot("name") = "MLE Fit";  
-  
+
+  // The byrow slot must record the orientation the matrix was actually
+  // stored in just above. Leaving it at its TRUE default while storing a
+  // transposed (column-stochastic) matrix produces an object that fails
+  // validObject() and that every method reading the slot -- steadyStates(),
+  // is.irreducible(), and so on -- silently misinterprets.
+  outMc.slot("byrow") = byrow;
+
+  outMc.slot("name") = "MLE Fit";
+
   List CI = generateCI(confidencelevel, freqMatr);
-  
+  NumericMatrix standardError = CI["standardError"];
+  NumericMatrix lowerEndpointMatr = CI["lowerEndpointMatrix"];
+  NumericMatrix upperEndpointMatr = CI["upperEndpointMatrix"];
+
+  // generateCI() works on the row-oriented frequency matrix, so its output
+  // has to follow the estimate into column-stochastic orientation as well;
+  // otherwise entry (i,j) of the estimate and entry (i,j) of its standard
+  // error would refer to two different transitions.
+  if (byrow == false) {
+    standardError = transposeMatrix(standardError);
+    lowerEndpointMatr = transposeMatrix(lowerEndpointMatr);
+    upperEndpointMatr = transposeMatrix(upperEndpointMatr);
+  }
+
   // return a list of important results
   return List::create(_["estimate"] = outMc,
-                      _["standardError"] = CI[0],
-                      _["confidenceLevel"] = CI[1],
-                      _["lowerEndpointMatrix"] = CI[2],
-                      _["upperEndpointMatrix"] = CI[3]
+                      _["standardError"] = standardError,
+                      _["confidenceLevel"] = CI["confidenceLevel"],
+                      _["lowerEndpointMatrix"] = lowerEndpointMatr,
+                      _["upperEndpointMatrix"] = upperEndpointMatr
                       );
 }
 
 // Fit DTMC using Laplacian smooth
-List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplacian = 0.01, bool sanitize = false,
+// stringchar is taken as SEXP rather than CharacterVector so that a list of
+// sequences is accepted as well as a single one: createSequenceMatrix() below
+// already pools transition counts over a list, and Laplacian smoothing of
+// those pooled counts is the same operation regardless of how many sequences
+// they came from.
+List _mcFitLaplacianSmooth(SEXP stringchar, bool byrow, double laplacian = 0.01, bool sanitize = false,
                            CharacterVector possibleStates = CharacterVector()) {
   
   if (laplacian < 0)
@@ -862,7 +887,10 @@ List _mcFitLaplacianSmooth(CharacterVector stringchar, bool byrow, double laplac
   // create markovchain object
   S4 outMc("markovchain");
   outMc.slot("transitionMatrix") = origNum;
-  outMc.slot("name") = "Laplacian Smooth Fit";  
+  // See the note in _mcFitMle: the slot has to match the orientation the
+  // matrix was just stored in, or the returned object is invalid.
+  outMc.slot("byrow") = byrow;
+  outMc.slot("name") = "Laplacian Smooth Fit";
 
   return List::create(_["estimate"] = outMc);
 }
@@ -1109,14 +1137,8 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
   
-  // transition matrix
+  // transition matrix, built row-stochastic by _toRowProbs
   NumericMatrix transMatr = _toRowProbs(estimateList["estMu"], sanitize);
-
-  // markovchain object
-  S4 estimate("markovchain");
-  estimate.slot("transitionMatrix") = transMatr;
-  estimate.slot("byrow") = byrow;
-  estimate.slot("name") = "BootStrap Estimate";  
 
   // z score for given confidence interval
   double alpha = 1.0 - confidencelevel;
@@ -1164,9 +1186,27 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   }
   
   // set the rows and columns name as states names
-  standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames") 
-    = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames"); 
-  
+  standardError.attr("dimnames") = upperEndpointMatr.attr("dimnames")
+    = lowerEndpointMatr.attr("dimnames") = transMatr.attr("dimnames");
+
+  // transMatr is row-stochastic above, so a caller asking for
+  // byrow = false needs it transposed here. Setting the byrow slot without
+  // transposing (which is what this function used to do) yields an object
+  // that fails validObject() and that downstream methods read the wrong way
+  // round. The uncertainty matrices follow the estimate's orientation.
+  if (byrow == false) {
+    transMatr = transposeMatrix(transMatr);
+    standardError = transposeMatrix(standardError);
+    lowerEndpointMatr = transposeMatrix(lowerEndpointMatr);
+    upperEndpointMatr = transposeMatrix(upperEndpointMatr);
+  }
+
+  // markovchain object
+  S4 estimate("markovchain");
+  estimate.slot("transitionMatrix") = transMatr;
+  estimate.slot("byrow") = byrow;
+  estimate.slot("name") = "BootStrap Estimate";
+
   // return a list of important results
   List out = List::create(_["estimate"] = estimate,
                           _["standardError"] = standardError,
@@ -1536,8 +1576,17 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 //'  
 //' @param data It can be a character vector or a \deqn{n x n} matrix or a \deqn{n x n} data frame or a list
-//' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace"
-//' @param byrow it tells whether the output Markov chain should show the transition probabilities by row.
+//' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace".
+//'               All four are available for a single sequence. For a list of
+//'               sequences, "mle", "map" and "laplace" pool the transition counts
+//'               over the sequences, while "bootstrap" is not available and raises
+//'               an error explaining why.
+//' @param byrow For a character vector or a list of sequences, it tells whether the fitted
+//'              transition matrix is stored by row (the default) or by column; the
+//'              \code{byrow} slot of the returned chain records the choice. For matrix or
+//'              data frame input it instead describes the input data -- whether each
+//'              observed trajectory is a row or a column of \code{data} -- and the fitted
+//'              chain is stored by row either way.
 //' @param nboot Number of bootstrap replicates in case "bootstrap" is used.
 //' @param laplacian Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
 //'                  is chosen.  
@@ -1660,8 +1709,14 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       
       for (int i = 0; i < nrows; i++)
         manyseq[i] = mat(i, _);
-  	  
-      out = _mcFitMle(manyseq, byrow, confidencelevel, sanitize, possibleStates);
+
+      // For matrix/data.frame input, byrow describes how the *observations*
+      // are laid out (one trajectory per row, or per column) and `mat` has
+      // already been transposed accordingly above. The estimate returned to
+      // the caller is _matr2Mc's, which is row-stochastic either way, so the
+      // MLE call here is only used for its uncertainty matrices and must be
+      // made in row orientation to keep them aligned with that estimate.
+      out = _mcFitMle(manyseq, true, confidencelevel, sanitize, possibleStates);
       out[0] = outMc;
     } else {
       out = List::create(_["estimate"] = outMc);
@@ -1672,8 +1727,21 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
     } else if (method == "map") {
       out = _mcFitMap(data, byrow, confidencelevel, hyperparam, sanitize, possibleStates);
+    } else if (method == "laplace") {
+      // Transition counts are pooled across the sequences of the list and
+      // then smoothed, exactly as for a single sequence.
+      out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize, possibleStates);
     } else
-      stop("method not available for a list");
+      // Only bootstrap can reach this point. It is refused rather than
+      // silently reinterpreted: resampling a list of sequences could mean
+      // resampling whole sequences, or resampling transitions within each
+      // of them, and those give different standard errors. Choosing one
+      // silently would hide that decision from the user.
+      stop("method = \"bootstrap\" is not supported for a list of sequences, "
+           "because resampling whole sequences and resampling transitions "
+           "within them are different procedures and this function will not "
+           "pick one for you. Use method = \"mle\", \"laplace\" or \"map\" on "
+           "the list, or pass a single sequence to bootstrap it.");
   }
   else {
     if (method == "mle") {

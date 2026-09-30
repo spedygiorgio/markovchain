@@ -16,3 +16,4 @@ support/*.*
 ^\.vscode$
 ^_pkgdown\.yml$
 leftovers/*.*
+^\*.patch

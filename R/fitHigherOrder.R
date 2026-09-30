@@ -16,16 +16,22 @@ setClass("HigherOrderMarkovChain", #class name
 #                    name="Unnamed Markov chain")
 )
 
-# objective function to pass to solnp
+# objective function to pass to solnp: the squared distance between the
+# stationary distribution X and its image sum_i lambda_i * Q_i X under the
+# lambda-weighted mixture of the lag matrices (Ching et al., 2008). The value
+# is divided by `scale` (its value at the starting point) because the distance
+# is typically of the order of 1e-7 on real sequences, below solnp's default
+# tolerance, which would otherwise stop the optimizer at the starting point.
 .fn1=function(params)
 {
   QX <- get("QX")
-  X <- get("X")    
-  error <- 0
+  X <- get("X")
+  scale <- get("scale")
+  fitted <- 0
   for (i in 1:length(QX)) {
-    error <- error+(params[i] * QX[[i]]-X)
+    fitted <- fitted + params[i] * QX[[i]]
   }
-  return(sum(error^2))
+  return(sum((fitted - X)^2) / scale)
 }
 
 # equality constraint function to pass to solnp
@@ -87,6 +93,9 @@ fitHigherOrder<-function(sequence, order = 2) {
   }
   environment(.fn1) <- environment()
   params <- rep(1/order, order)
+  scale <- 1
+  scale0 <- .fn1(params)
+  if (is.finite(scale0) && scale0 > 0) scale <- scale0
   model <- Rsolnp::solnp(params, fun=.fn1, eqfun=.eqn1, eqB=1, 
                          LB=rep(0, order), control=list(trace=0))
   lambda <- model$pars

@@ -66,6 +66,36 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
 }
 ```
 
+# Comparing models of different orders
+
+`higherOrderLogLik` evaluates the log-likelihood of a sequence under the model returned by `fitHigherOrder`, and derives the deviance ($-2$ times the log-likelihood), the AIC and the BIC, so that models of different orders can be compared. The probability of moving to state $x_t$ is the mixture $\sum_{i=1}^{k}\lambda_i Q_i[x_t, x_{t-i}]$, the form of the mixture transition distribution model of [@raftery1985model], and the log-likelihood is the sum of the logarithms of these probabilities over the observations that a model of order $k$ can predict, that is from observation $k+1$ onwards. To compare orders on exactly the same observations the argument `start` must be set to one plus the largest order compared.
+
+Two caveats apply. First, `fitHigherOrder` chooses the weights $\lambda$ by least squares on the stationary distribution, not by maximum likelihood, so the value returned is the log-likelihood *of the fitted model* and not the maximum attainable one. It can therefore be lower for a higher order than for a lower one, which cannot happen for maximum-likelihood fits of nested models. Second, the number of parameters used for the criteria is $k\,r(r-1)+(k-1)$, with $r$ the number of states.
+
+The example compares orders one to three on the Alofi Island daily rainfall and on the preproglucacon DNA sequence, both analysed by [@averyHenderson]. Both criteria select the first-order model for both sequences. The values are computed by the package; they are not claimed to reproduce those of the original paper.
+
+```{r}
+#| label: compareOrders
+#| message: false
+#| warning: false
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
+  compareOrders <- function(sequence, orders = 1:3) {
+    fits <- lapply(orders, function(k) fitHigherOrder(sequence, k))
+    out <- sapply(fits, function(f)
+      unlist(higherOrderLogLik(sequence, f, start = max(orders) + 1)[
+        c("logLik", "deviance", "AIC", "BIC", "npar")]))
+    colnames(out) <- paste("order", orders)
+    round(out, 1)
+  }
+  data(rain)
+  print(compareOrders(rain$rain))
+  data(preproglucacon)
+  print(compareOrders(preproglucacon$preproglucacon))
+}
+```
+
+[@berchtold2002mixture] report the same kind of comparison, by log-likelihood and BIC, between independence, Markov chains of order one to three and mixture transition distribution models for the hourly wind direction at Koeberg (South Africa). Their models are estimated by maximum likelihood and the raw data are not distributed with the package, so those figures cannot be reproduced with `fitHigherOrder`.
+
 # Higher Order Multivariate Markov Chains
 
 ## Introduction

@@ -45,10 +45,12 @@ The fitted model is the mixture-transition-distribution model of
   \eqn{-2} times the log-likelihood.
 
   Two points matter when interpreting the output. First,
-  \code{fitHigherOrder} chooses \eqn{\lambda} by least squares on the
-  stationary distribution, not by maximum likelihood, so the value returned
-  is the log-likelihood \emph{of the fitted model}, not the maximum
-  attainable one. Second, a model of order \eqn{k} can only be evaluated from
+  \code{fitHigherOrder} chooses \eqn{\lambda} by default
+  (\code{method = "lsq"}) by least squares on the stationary distribution,
+  not by maximum likelihood, so the value returned is the log-likelihood
+  \emph{of the fitted model}, not the maximum attainable one; with
+  \code{method = "mle"} the weights maximize this log-likelihood for the
+  observations a model of that order can predict. Second, a model of order \eqn{k} can only be evaluated from
   observation \eqn{k + 1} onwards; to compare orders on exactly the same data
   set \code{start} to \eqn{1 +} the largest order compared, otherwise the
   models are evaluated on different numbers of observations and neither the

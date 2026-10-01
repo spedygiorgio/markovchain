@@ -6,7 +6,7 @@
 \alias{seq2matHigh}
 \title{Functions to fit a higher order Markov chain}
 \usage{
-fitHigherOrder(sequence, order = 2)
+fitHigherOrder(sequence, order = 2, method = c("lsq", "mle"))
 seq2freqProb(sequence)
 seq2matHigh(sequence, order)
 }
@@ -14,6 +14,9 @@ seq2matHigh(sequence, order)
 \item{sequence}{A character list.}
 
 \item{order}{Markov chain order}
+
+\item{method}{How the weights \eqn{\lambda} are estimated: \code{"lsq"}
+(default) or \code{"mle"}, see Details.}
 }
 \value{
 A list containing lambda, Q, and X.
@@ -22,10 +25,38 @@ A list containing lambda, Q, and X.
 Given a sequence of states arising from a stationary state, it
   fits the underlying Markov chain distribution with higher order.
 }
+\details{
+The fitted model expresses the distribution of the next state as
+  the mixture \eqn{\sum_{i=1}^{k} \lambda_i Q_i x_{t-i}} of the empirical
+  lag-\eqn{i} transition matrices \eqn{Q_i} (see \code{seq2matHigh}), with
+  weights \eqn{\lambda_i \ge 0} summing to one. The matrices \eqn{Q_i}
+  are the same for both methods; only the weights differ.
+
+  \code{method = "lsq"} (the default, and the only behaviour before the
+  argument existed) chooses \eqn{\lambda} to minimize the squared distance
+  between the stationary distribution and its image under the mixture, as in
+  Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
+  with a message if it is unavailable.
+
+  \code{method = "mle"} chooses \eqn{\lambda} to maximize the
+  log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
+  x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
+  fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
+  is solved by the EM algorithm for mixture weights, without
+  \pkg{Rsolnp}. The weights are therefore those that give the highest
+  value of \code{\link{higherOrderLogLik}} for the same observations. Note
+  that this is not the mixture transition distribution model of Raftery
+  (1985), in which a single matrix is shared by all lags and is estimated
+  together with the weights.
+}
 \examples{
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
             "c", "a", "b", "c", "a", "b", "a", "b")
 fitHigherOrder(sequence)
+# weights by maximum likelihood (no Rsolnp needed)
+fit <- fitHigherOrder(sequence, order = 2, method = "mle")
+fit$lambda
+higherOrderLogLik(sequence, fit)$logLik
 
 }
 \references{
@@ -35,6 +66,9 @@ chains. In Markov Chains (pp. 141-176). Springer US.
 Ching, W. K., Ng, M. K., & Fung, E. S. (2008). Higher-order multivariate
 Markov chains and their applications. Linear Algebra and its Applications,
 428(2), 492-507.
+
+Raftery, A. E. (1985). A model for high-order Markov chains. Journal of the
+Royal Statistical Society, Series B, 47(3), 528-539.
 }
 \author{
 Giorgio Spedicato, Tae Seung Kang

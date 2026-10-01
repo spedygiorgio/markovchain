@@ -97,3 +97,69 @@ test_that("order 1 gives weight 1", {
   expect_equal(fitHigherOrder(c("a","b","a","c","b","a","b","c","a"), order = 1)$lambda, 1,
                tolerance = 1e-6)
 })
+
+### method = "mle": weights by maximum likelihood (EM), same lag matrices.
+
+.hoLogLik <- function(s, lambda, Q) higherOrderLogLik(s, list(lambda = lambda, Q = Q))$logLik
+
+test_that("method = 'mle' returns weights on the simplex and the usual structure", {
+  data(rain)
+  for (k in 1:3) {
+    fit <- fitHigherOrder(rain$rain, order = k, method = "mle")
+    expect_named(fit, c("lambda", "Q", "X"))
+    expect_length(fit$lambda, k)
+    expect_true(all(fit$lambda >= 0))
+    expect_equal(sum(fit$lambda), 1, tolerance = 1e-10)
+    expect_length(fit$Q, k)
+  }
+  # order 1 has a single weight
+  expect_equal(fitHigherOrder(rain$rain, order = 1, method = "mle")$lambda, 1)
+})
+
+test_that("method = 'mle' uses the same lag matrices as the default method", {
+  skip_if_not_installed("Rsolnp")
+  data(preproglucacon)
+  s <- preproglucacon$preproglucacon
+  lsq <- fitHigherOrder(s, 2)
+  mle <- fitHigherOrder(s, 2, method = "mle")
+  expect_equal(mle$Q, lsq$Q)
+  expect_equal(mle$X, lsq$X)
+})
+
+test_that("the default method is unchanged by the new argument", {
+  skip_if_not_installed("Rsolnp")
+  data(rain)
+  expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "lsq"))
+  expect_error(fitHigherOrder(rain$rain, 2, method = "foo"), "should be one of")
+})
+
+test_that("method = 'mle' attains the global maximum of the log-likelihood", {
+  data(rain)
+  data(preproglucacon)
+  for (s in list(rain$rain, preproglucacon$preproglucacon)) {
+    # order 2: fine grid on the segment
+    fit2 <- fitHigherOrder(s, 2, method = "mle")
+    grid <- seq(0, 1, by = 0.001)
+    gridLL <- vapply(grid, function(a) .hoLogLik(s, c(a, 1 - a), fit2$Q), 0)
+    expect_gte(.hoLogLik(s, fit2$lambda, fit2$Q), max(gridLL) - 1e-6)
+    expect_lt(abs(fit2$lambda[1] - grid[which.max(gridLL)]), 0.005)
+
+    # order 3: grid on the simplex
+    fit3 <- fitHigherOrder(s, 3, method = "mle")
+    best <- -Inf
+    for (a in seq(0, 1, by = 0.05)) for (b in seq(0, 1 - a, by = 0.05))
+      best <- max(best, .hoLogLik(s, c(a, b, max(0, 1 - a - b)), fit3$Q))
+    expect_gte(.hoLogLik(s, fit3$lambda, fit3$Q), best - 1e-6)
+  }
+})
+
+test_that("maximum likelihood weights never give a lower log-likelihood than least squares", {
+  skip_if_not_installed("Rsolnp")
+  data(rain)
+  data(preproglucacon)
+  for (s in list(rain$rain, preproglucacon$preproglucacon)) for (k in 2:3) {
+    lsq <- fitHigherOrder(s, k)
+    mle <- fitHigherOrder(s, k, method = "mle")
+    expect_gte(higherOrderLogLik(s, mle)$logLik, higherOrderLogLik(s, lsq)$logLik - 1e-8)
+  }
+})

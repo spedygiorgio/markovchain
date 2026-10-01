@@ -367,6 +367,10 @@ for(p in 1:10) {
 }
 ```
 
+## Acknowledgments
+
+We are grateful to Professors Adrian E. Raftery and André Berchtold for kindly sharing the Koeberg wind-direction and epileptic-seizure series of [@berchtold2002mixture], which made it possible to check `higherOrderLogLik` against the published results.
+
 ## References
 
 ::: {#refs}

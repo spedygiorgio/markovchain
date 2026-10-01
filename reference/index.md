@@ -14,6 +14,9 @@
 - [`aggregateStates()`](aggregateStates.md) : Aggregate a Markov chain's
   state space by Kullback-Leibler minimization
 
+- [`assessIndependence()`](assessIndependence.md) : Test independence of
+  consecutive states of an empirical sequence
+
 - [`autoLump()`](autoLump.md) : Automatically aggregate a Markov chain
   by spectral clustering
 
@@ -80,6 +83,9 @@
   Function to obtain the transition matrix from the generator
 
 - [`name()`](getName.md) : Method to retrieve name of markovchain object
+
+- [`higherOrderLogLik()`](higherOrderLogLik.md) : Log-likelihood,
+  deviance and information criteria of a higher order Markov chain
 
 - [`hittingProbabilities()`](hittingProbabilities.md) : Hitting
   probabilities for markovchain

@@ -3503,9 +3503,73 @@ R> predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 \subsection{Statistical Tests}\label{statistical-tests}
 
-In this section, we describe the statistical tests: assessing the Markov property (\texttt{verifyMarkovProperty}), the order (\texttt{assessOrder}), the time-homogeneity (\texttt{assessStationarity}) of a Markov chain sequence, and the divergence tests for empirically estimated transition matrices (\texttt{verifyEmpiricalToTheoretical}, \texttt{verifyHomogeneity}). Most of such tests are based on the \(\chi ^2\) statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (\texttt{method\ =\ "simulation"}) that avoids the asymptotic \(\chi^2\) approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class \texttt{htest}, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of \texttt{stats::chisq.test}. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the independence of consecutive states (\texttt{assessIndependence}), the Markov property (\texttt{verifyMarkovProperty}), the order (\texttt{assessOrder}), the time-homogeneity (\texttt{assessStationarity}) of a Markov chain sequence, and the divergence tests for empirically estimated transition matrices (\texttt{verifyEmpiricalToTheoretical}, \texttt{verifyHomogeneity}). Most of such tests are based on the \(\chi ^2\) statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (\texttt{method\ =\ "simulation"}) that avoids the asymptotic \(\chi^2\) approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class \texttt{htest}, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of \texttt{stats::chisq.test}. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
 All such tests have been designed for small samples, since it is easy to detect departures from the Markov property as long as the sample size increases. The Monte Carlo option is particularly useful in this regime, since the asymptotic \(\chi^2\) approximation can be unreliable when expected counts are small; the simulated \(p\)-value is computed as \((1+\#\{G^*\ge G\})/(B+1)\) over \(B\) parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
+
+\subsubsection{Assessing the independence of consecutive states}\label{assessing-the-independence-of-consecutive-states}
+
+The \texttt{assessIndependence} function tests whether consecutive observations are independent, \(P(X_{t+1}=j \mid X_t=i)=P(X_{t+1}=j)\) for all \(i,j\), against the alternative of a first-order Markov chain. It applies the classical test of \cite{anderson1957statistical} to the table of one-step transition counts \(n_{ij}\). Denoting by \(n_{i\cdot}\) and \(n_{\cdot j}\) the row and column totals and by \(N=\sum_{i,j}n_{ij}\) their sum, the counts expected under independence are \(n_{i\cdot}n_{\cdot j}/N\), and the Pearson and likelihood-ratio statistics are
+
+\[
+X^2=\sum_{i}\sum_{j}\frac{(n_{ij}-n_{i\cdot}n_{\cdot j}/N)^2}{n_{i\cdot}n_{\cdot j}/N}, \qquad
+G^2=2\sum_{i}\sum_{j} n_{ij}\log\frac{n_{ij}\,N}{n_{i\cdot}n_{\cdot j}},
+\]
+
+both asymptotically \(\chi^2\) with \((r-1)(c-1)\) degrees of freedom under the null hypothesis, where \(r\) and \(c\) are the numbers of states observed as a departure and as an arrival state. When \(r\) or \(c\) equals one, for instance for a constant sequence, the test is not defined: the degrees of freedom are zero and the \(p\)-value is \texttt{NA}. As for any \(\chi^2\) test on a table of counts, the approximation is unreliable when many expected counts are small. The test is complementary to \texttt{verifyMarkovProperty} and \texttt{assessOrder}, which compare the first-order model with higher orders rather than with independence.
+
+The following examples use two sequences distributed with the package that were analysed by \cite{averyHenderson}: the daily rainfall recorded at Alofi Island, in three classes, and the preproglucacon DNA sequence. Independence is strongly rejected for both. Since the Pearson statistic is that of the table of transition counts, it coincides with the output of \texttt{chisq.test} applied to \texttt{createSequenceMatrix}. The values shown are computed by the package; they are not claimed to reproduce the figures of the original paper.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(rain)
+R> assessIndependence(rain$rain)
+\end{CodeInput}
+\begin{CodeOutput}
+
+    Pearson's Chi-squared test for independence of consecutive states
+
+data:  rain$rain
+X-squared = 190.61, df = 4, p-value < 2.2e-16
+\end{CodeOutput}
+\begin{CodeInput}
+R> data(preproglucacon)
+R> assessIndependence(preproglucacon$preproglucacon, method = "G")
+\end{CodeInput}
+\begin{CodeOutput}
+
+    Likelihood-ratio test for independence of consecutive states
+
+data:  preproglucacon$preproglucacon
+G-squared = 64.455, df = 9, p-value = 1.841e-10
+\end{CodeOutput}
+\begin{CodeInput}
+R> chisq.test(createSequenceMatrix(rain$rain), correct = FALSE)$statistic
+\end{CodeInput}
+\begin{CodeOutput}
+X-squared 
+ 190.6124 
+\end{CodeOutput}
+\end{CodeChunk}
+
+A published benchmark is available for the likelihood-ratio version. \cite{berchtold2002mixture} condition their log-likelihoods on the first 14 observations of the Koeberg wind-direction series (744 hourly observations in four directions, provided by the authors and distributed in \texttt{inst/extdata}) and report \(-954.8\) for independence and \(-413.3\) for a first-order chain. Twice their difference, \(1083.0\), is exactly the likelihood-ratio statistic of the independence test applied to the transitions entering those likelihoods, that is from the 15th observation onwards, and is reproduced by \texttt{assessIndependence}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> koeberg <- as.character(read.csv(system.file("extdata", "koeberg_wind.csv",
++                                              package = "markovchain"))$state)
+R> assessIndependence(koeberg[14:length(koeberg)], method = "G")
+\end{CodeInput}
+\begin{CodeOutput}
+
+    Likelihood-ratio test for independence of consecutive states
+
+data:  koeberg[14:length(koeberg)]
+G-squared = 1083.1, df = 9, p-value < 2.2e-16
+\end{CodeOutput}
+\end{CodeChunk}
+
+The same check on the epileptic seizure series of the paper gives \(G^2\approx13.5\) with one degree of freedom, against \(13.4\) implied by the published log-likelihoods (\(-129.3\) and \(-122.6\)); the difference is due to the rounding of the published values.
 
 \subsubsection{Assessing the Markov property of a Markov chain sequence}\label{assessing-the-markov-property-of-a-markov-chain-sequence}
 

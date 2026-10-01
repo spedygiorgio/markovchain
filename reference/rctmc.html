@@ -118,17 +118,17 @@ T are not returned).</p></dd>
 <span class="r-in"><span><span class="va">statesDist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">0.2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">rctmc</span><span class="op">(</span>n <span class="op">=</span> <span class="cn">Inf</span>, ctmc <span class="op">=</span> <span class="va">molecularCTMC</span>, T <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sigma_star"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sigma"      "sigma_star"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0000000 0.5108136</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">rctmc</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">5</span>, ctmc <span class="op">=</span> <span class="va">molecularCTMC</span>, initDist <span class="op">=</span> <span class="va">statesDist</span>, include.T0 <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sigma_star" "sigma"      "sigma_star" "sigma"      "sigma_star"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.413688 1.942383 2.351227 2.805303 5.178264</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2388548 0.9014947 0.9359175 1.5838427 1.8205711</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.9.30)  30 SEP 2026 09:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.1)  1 OCT 2026 16:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -864,12 +864,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10]
-</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf, id=479, 614.295pt x 433.62pt>
+</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf, id=483, 614.295pt x 433.62pt>
 File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf Graphic file (type pdf)
 <use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf>
 Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlot-1.pdf  used on input line 633.
 (pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
-</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf, id=480, 614.295pt x 433.62pt>
+</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf, id=484, 614.295pt x 433.62pt>
 File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf Graphic file (type pdf)
 <use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf>
 Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcPlotdiagram-1.pdf  used on input line 647.
@@ -900,7 +900,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [13]
-</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf, id=506, 614.295pt x 433.62pt>
+</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf, id=510, 614.295pt x 433.62pt>
 File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf Graphic file (type pdf)
 <use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf>
 Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/fromAndTo-1.pdf  used on input line 759.
@@ -1062,7 +1062,7 @@ Package xcolor Warning: Incompatible color definition on input line 1294.
 
 Package xcolor Warning: Incompatible color definition on input line 1294.
 
-</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf, id=615, 614.295pt x 433.62pt>
+</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf, id=619, 614.295pt x 433.62pt>
 File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf Graphic file (type pdf)
 <use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf>
 Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mcMathematics-1.pdf  used on input line 1314.
@@ -1671,13 +1671,8 @@ Package xcolor Warning: Incompatible color definition on input line 3506.
 Package xcolor Warning: Incompatible color definition on input line 3506.
 
 
-Overfull \hbox (51.43642pt too wide) in paragraph at lines 3506--3507
-[]\T1/lmr/m/n/10.95 In this sec-tion, we de-scribe the sta-tis-ti-cal tests: as-sess-ing the Markov prop-erty (\T1/lmtt/m/n/10.95 verifyMarkovProperty\T1/lmr/m/n/10.95 ),
- []
-
-
-Overfull \hbox (89.18167pt too wide) in paragraph at lines 3506--3507
-\T1/lmr/m/n/10.95 quence, and the di-ver-gence tests for em-pir-i-cally es-ti-mated tran-si-tion ma-tri-ces (\T1/lmtt/m/n/10.95 verifyEmpiricalToTheoretical\T1/lmr/m/n/10.95 ,
+Overfull \hbox (50.91727pt too wide) in paragraph at lines 3506--3507
+\T1/lmr/m/n/10.95 and the di-ver-gence tests for em-pir-i-cally es-ti-mated tran-si-tion ma-tri-ces (\T1/lmtt/m/n/10.95 verifyEmpiricalToTheoretical\T1/lmr/m/n/10.95 ,
  []
 
 
@@ -1693,16 +1688,16 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [59]
 
-Package xcolor Warning: Incompatible color definition on input line 3519.
+Package xcolor Warning: Incompatible color definition on input line 3512.
 
 
-Package xcolor Warning: Incompatible color definition on input line 3519.
+Package xcolor Warning: Incompatible color definition on input line 3512.
 
 
-Package xcolor Warning: Incompatible color definition on input line 3536.
+Package xcolor Warning: Incompatible color definition on input line 3521.
 
 
-Package xcolor Warning: Incompatible color definition on input line 3536.
+Package xcolor Warning: Incompatible color definition on input line 3521.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1711,10 +1706,26 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [60]
 
-Package xcolor Warning: Incompatible color definition on input line 3572.
+Package xcolor Warning: Incompatible color definition on input line 3555.
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+Package xcolor Warning: Incompatible color definition on input line 3555.
+
+
+Overfull \hbox (5.74747pt too wide) detected at line 3559
+\T1/lmtt/m/sl/10.95 R> koeberg <- as.character(read.csv(system.file("extdata", "koeberg_wind.csv", 
+ []
+
+
+Overfull \hbox (11.4962pt too wide) detected at line 3560
+\T1/lmtt/m/sl/10.95 +                                              package = "markovchain"))$state) 
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 3583.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3583.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1723,16 +1734,10 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [61]
 
-Package xcolor Warning: Incompatible color definition on input line 3620.
+Package xcolor Warning: Incompatible color definition on input line 3600.
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Package xcolor Warning: Incompatible color definition on input line 3653.
-
-
-Package xcolor Warning: Incompatible color definition on input line 3653.
+Package xcolor Warning: Incompatible color definition on input line 3600.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1740,15 +1745,23 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [62]
-Underfull \hbox (badness 10000) in paragraph at lines 3688--3690
 
- []
-
-
-Package xcolor Warning: Incompatible color definition on input line 3699.
+Package xcolor Warning: Incompatible color definition on input line 3636.
 
 
-Package xcolor Warning: Incompatible color definition on input line 3699.
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3684.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3717.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3717.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1756,11 +1769,15 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [63]
+Underfull \hbox (badness 10000) in paragraph at lines 3752--3754
 
-Package xcolor Warning: Incompatible color definition on input line 3737.
+ []
 
 
-Package xcolor Warning: Incompatible color definition on input line 3737.
+Package xcolor Warning: Incompatible color definition on input line 3763.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3763.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1768,9 +1785,11 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [64]
-Overfull \hbox (0.97278pt too wide) in paragraph at lines 3805--3806
-[]\T1/lmr/m/n/10.95 The fol-low-ing the-o-rem guar-an-tees the ex-is-tence of a unique sta-tion-ary dis-tri-bu-tion for CTMCs.
- []
+
+Package xcolor Warning: Incompatible color definition on input line 3801.
+
+
+Package xcolor Warning: Incompatible color definition on input line 3801.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1783,8 +1802,8 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [66]
-Overfull \hbox (114.9734pt too wide) detected at line 3874
-\T1/lmtt/m/sl/10.95 R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE) 
+Overfull \hbox (0.97278pt too wide) in paragraph at lines 3869--3870
+[]\T1/lmr/m/n/10.95 The fol-low-ing the-o-rem guar-an-tees the ex-is-tence of a unique sta-tion-ary dis-tri-bu-tion for CTMCs.
  []
 
 
@@ -1798,22 +1817,9 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [68]
-
-Package xcolor Warning: Incompatible color definition on input line 3966.
-
-
-Package xcolor Warning: Incompatible color definition on input line 3966.
-
-
-Overfull \hbox (241.44554pt too wide) detected at line 3986
-\T1/lmtt/m/sl/10.95 R> mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix") 
+Overfull \hbox (114.9734pt too wide) detected at line 3938
+\T1/lmtt/m/sl/10.95 R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE) 
  []
-
-
-Package xcolor Warning: Incompatible color definition on input line 4001.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4001.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1821,18 +1827,11 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [69]
-Overfull \hbox (270.18921pt too wide) detected at line 4012
-\T1/lmtt/m/sl/10.95 +   if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]]) 
- []
+
+Package xcolor Warning: Incompatible color definition on input line 4030.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4050.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4050.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4050.
+Package xcolor Warning: Incompatible color definition on input line 4030.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1840,14 +1839,35 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [70]
+Overfull \hbox (241.44554pt too wide) detected at line 4050
+\T1/lmtt/m/sl/10.95 R> mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix") 
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 4065.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4065.
+
+
+Overfull \hbox (270.18921pt too wide) detected at line 4076
+\T1/lmtt/m/sl/10.95 +   if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]]) 
+ []
+
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 71
  []
 
 [71]
-Overfull \hbox (5.74747pt too wide) detected at line 4117
-\T1/lmtt/m/sl/10.95 R> biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample) 
- []
+
+Package xcolor Warning: Incompatible color definition on input line 4114.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4114.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4114.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1855,6 +1875,11 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [72]
+Overfull \hbox (5.74747pt too wide) detected at line 4181
+\T1/lmtt/m/sl/10.95 R> biggerSampleRawTransitions<-createSequenceMatrix(stringchar = biggerSample) 
+ []
+
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 73
  []
@@ -1885,19 +1910,6 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [78]
-
-Package xcolor Warning: Incompatible color definition on input line 4489.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4489.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4489.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4489.
-
-
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 79
  []
@@ -1909,10 +1921,16 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [80]
 
-Package xcolor Warning: Incompatible color definition on input line 4638.
+Package xcolor Warning: Incompatible color definition on input line 4553.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4638.
+Package xcolor Warning: Incompatible color definition on input line 4553.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4553.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4553.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1920,56 +1938,22 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [81]
-
-Package xcolor Warning: Incompatible color definition on input line 4672.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4672.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4674.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4674.
-
-
-Overfull \hbox (91.97847pt too wide) detected at line 4704
-\T1/lmtt/m/sl/10.95 R> P <- markovchain:::zeros(2); P[1, 1] <- .9; P[1, 2] <- .1; P[2, 2] <- .95; P[2, 1] <- .05; 
- []
-
-
-Overfull \hbox (5.74747pt too wide) detected at line 4706
-\T1/lmtt/m/sl/10.95 R> mcP <- new("markovchain", transitionMatrix = P, name = "Telephone company") 
- []
-
-
-Overfull \hbox (86.22974pt too wide) detected at line 4707
-\T1/lmtt/m/sl/10.95 R> M <- markovchain:::zeros(2); M[1, 1] <- -20; M[1, 2] <- -30; M[2, 1] <- -40; M[2, 2] <- 0 
- []
-
-
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 82 []
  []
 
 [82]
 
-Package xcolor Warning: Incompatible color definition on input line 4744.
+Package xcolor Warning: Incompatible color definition on input line 4702.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4744.
+Package xcolor Warning: Incompatible color definition on input line 4702.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4747.
+Package xcolor Warning: Incompatible color definition on input line 4736.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4747.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4750.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4750.
+Package xcolor Warning: Incompatible color definition on input line 4736.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1978,13 +1962,37 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [83]
 
-Package xcolor Warning: Incompatible color definition on input line 4806.
+Package xcolor Warning: Incompatible color definition on input line 4738.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4806.
+Package xcolor Warning: Incompatible color definition on input line 4738.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4807.
+Overfull \hbox (91.97847pt too wide) detected at line 4768
+\T1/lmtt/m/sl/10.95 R> P <- markovchain:::zeros(2); P[1, 1] <- .9; P[1, 2] <- .1; P[2, 2] <- .95; P[2, 1] <- .05; 
+ []
+
+
+Overfull \hbox (5.74747pt too wide) detected at line 4770
+\T1/lmtt/m/sl/10.95 R> mcP <- new("markovchain", transitionMatrix = P, name = "Telephone company") 
+ []
+
+
+Overfull \hbox (86.22974pt too wide) detected at line 4771
+\T1/lmtt/m/sl/10.95 R> M <- markovchain:::zeros(2); M[1, 1] <- -20; M[1, 2] <- -30; M[2, 1] <- -40; M[2, 2] <- 0 
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 4808.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4808.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4811.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4811.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1993,16 +2001,10 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [84]
 
-Package xcolor Warning: Incompatible color definition on input line 4872.
+Package xcolor Warning: Incompatible color definition on input line 4814.
 
 
-Package xcolor Warning: Incompatible color definition on input line 4872.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4874.
-
-
-Package xcolor Warning: Incompatible color definition on input line 4874.
+Package xcolor Warning: Incompatible color definition on input line 4814.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -2010,14 +2012,32 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [85]
+
+Package xcolor Warning: Incompatible color definition on input line 4870.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4870.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4871.
+
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 86 []
  []
 
 [86]
-Overfull \hbox (5.74747pt too wide) detected at line 4950
-\T1/lmtt/m/sl/10.95 +                          name = paste("TransitionsSinceAge", age, sep = "")) 
- []
+
+Package xcolor Warning: Incompatible color definition on input line 4936.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4936.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4938.
+
+
+Package xcolor Warning: Incompatible color definition on input line 4938.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -2025,62 +2045,60 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [87]
-Overfull \hbox (22.99367pt too wide) detected at line 5011
-\T1/lmtt/m/sl/10.95 R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1))))) 
+Overfull \hbox (5.74747pt too wide) detected at line 5014
+\T1/lmtt/m/sl/10.95 +                          name = paste("TransitionsSinceAge", age, sep = "")) 
  []
 
-
-Package xcolor Warning: Incompatible color definition on input line 5020.
-
-
-Package xcolor Warning: Incompatible color definition on input line 5020.
-
-
-Package xcolor Warning: Incompatible color definition on input line 5020.
-
-
-Package xcolor Warning: Incompatible color definition on input line 5020.
-
-</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf, id=1173, 614.295pt x 433.62pt>
-File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf Graphic file (type pdf)
-<use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf>
-Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf  used on input line 5046.
-(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 88 []
  []
 
 [88]
-
-Package xcolor Warning: Incompatible color definition on input line 5072.
-
-
-Package xcolor Warning: Incompatible color definition on input line 5072.
+Overfull \hbox (22.99367pt too wide) detected at line 5075
+\T1/lmtt/m/sl/10.95 R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1))))) 
+ []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 89
  []
 
-[89 </home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf>]
+[89]
 
-Package xcolor Warning: Incompatible color definition on input line 5103.
+Package xcolor Warning: Incompatible color definition on input line 5084.
 
 
-Package xcolor Warning: Incompatible color definition on input line 5103.
+Package xcolor Warning: Incompatible color definition on input line 5084.
 
+
+Package xcolor Warning: Incompatible color definition on input line 5084.
+
+
+Package xcolor Warning: Incompatible color definition on input line 5084.
+
+</home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf, id=1193, 614.295pt x 433.62pt>
+File: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf Graphic file (type pdf)
+<use /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf>
+Package pdftex.def Info: /home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf  used on input line 5110.
+(pdftex.def)             Requested size: 309.85626pt x 218.72163pt.
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 90 []
  []
 
-[90]
+[90 </home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/mobility-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 5161.
+Package xcolor Warning: Incompatible color definition on input line 5136.
 
 
-Package xcolor Warning: Incompatible color definition on input line 5161.
+Package xcolor Warning: Incompatible color definition on input line 5136.
+
+
+Package xcolor Warning: Incompatible color definition on input line 5167.
+
+
+Package xcolor Warning: Incompatible color definition on input line 5167.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -2088,6 +2106,13 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [91]
+
+Package xcolor Warning: Incompatible color definition on input line 5225.
+
+
+Package xcolor Warning: Incompatible color definition on input line 5225.
+
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 92 []
  []
@@ -2097,150 +2122,77 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 93
  []
 
-[93] (./an_introduction_to_markovchain_package.bbl
-
-Package xcolor Warning: Incompatible color definition on input line 14.
-
-
-Package xcolor Warning: Incompatible color definition on input line 39.
-
-
-Package xcolor Warning: Incompatible color definition on input line 45.
-
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 49.
-
-Package xcolor Warning: Incompatible color definition on input line 62.
-
-
-Package xcolor Warning: Incompatible color definition on input line 68.
-
-
-Package xcolor Warning: Incompatible color definition on input line 79.
-
-
-Package xcolor Warning: Incompatible color definition on input line 86.
-
-
-Package xcolor Warning: Incompatible color definition on input line 92.
-
-
-Package xcolor Warning: Incompatible color definition on input line 103.
-
-
+[93]
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 94 []
  []
 
-[94
-
-]
-
-LaTeX Font Warning: Font shape `T1/lmr/b/it' in size <10.95> not available
-(Font)              Font shape `T1/lmr/b/sl' tried instead on input line 123.
-
-
-Package xcolor Warning: Incompatible color definition on input line 145.
-
-
-Package xcolor Warning: Incompatible color definition on input line 150.
-
-
-Package xcolor Warning: Incompatible color definition on input line 160.
-
-
-Underfull \hbox (badness 2894) in paragraph at lines 158--161
-[]\T1/lmr/m/n/10.95 Goulet V, Du-tang C, Maech-ler M, Firth D, Shapira M, Stadel-mann M, expm-
- []
-
-
-Package xcolor Warning: Incompatible color definition on input line 170.
-
-
-Package xcolor Warning: Incompatible color definition on input line 177.
-
-
+[94]
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 95
  []
 
-[95]
+[95] (./an_introduction_to_markovchain_package.bbl
 
-Package xcolor Warning: Incompatible color definition on input line 193.
-
-
-Package xcolor Warning: Incompatible color definition on input line 220.
+Package xcolor Warning: Incompatible color definition on input line 14.
 
 
-Package xcolor Warning: Incompatible color definition on input line 231.
+Package xcolor Warning: Incompatible color definition on input line 44.
 
 
-Package xcolor Warning: Incompatible color definition on input line 237.
+Package xcolor Warning: Incompatible color definition on input line 50.
+
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 54.
+
+Package xcolor Warning: Incompatible color definition on input line 67.
 
 
-Package xcolor Warning: Incompatible color definition on input line 247.
+Package xcolor Warning: Incompatible color definition on input line 73.
 
 
-Package xcolor Warning: Incompatible color definition on input line 252.
+Package xcolor Warning: Incompatible color definition on input line 84.
 
 
-Package xcolor Warning: Incompatible color definition on input line 258.
+Package xcolor Warning: Incompatible color definition on input line 91.
 
 
-Package xcolor Warning: Incompatible color definition on input line 270.
-
-
-Package xcolor Warning: Incompatible color definition on input line 280.
-
-
-Package xcolor Warning: Incompatible color definition on input line 286.
+Package xcolor Warning: Incompatible color definition on input line 97.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 96 []
  []
 
-[96]
+[96
 
-Package xcolor Warning: Incompatible color definition on input line 292.
+]
 
-
-Package xcolor Warning: Incompatible color definition on input line 297.
-
-
-Package xcolor Warning: Incompatible color definition on input line 308.
+Package xcolor Warning: Incompatible color definition on input line 108.
 
 
-Package xcolor Warning: Incompatible color definition on input line 323.
+LaTeX Font Warning: Font shape `T1/lmr/b/it' in size <10.95> not available
+(Font)              Font shape `T1/lmr/b/sl' tried instead on input line 128.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 321--324
-\T1/lmtt/m/n/10.95 web / 20150721052835 / http : / / www . dartmouth . edu / ~chance / teaching _ aids / books _
+Package xcolor Warning: Incompatible color definition on input line 150.
+
+
+Package xcolor Warning: Incompatible color definition on input line 155.
+
+
+Package xcolor Warning: Incompatible color definition on input line 165.
+
+
+Underfull \hbox (badness 2894) in paragraph at lines 163--166
+[]\T1/lmr/m/n/10.95 Goulet V, Du-tang C, Maech-ler M, Firth D, Shapira M, Stadel-mann M, expm-
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 329.
+Package xcolor Warning: Incompatible color definition on input line 175.
 
 
-Package xcolor Warning: Incompatible color definition on input line 335.
-
-
-Package xcolor Warning: Incompatible color definition on input line 341.
-
-
-Package xcolor Warning: Incompatible color definition on input line 347.
-
-
-Package xcolor Warning: Incompatible color definition on input line 348.
-
-
-Package xcolor Warning: Incompatible color definition on input line 354.
-
-
-Package xcolor Warning: Incompatible color definition on input line 360.
-
-
-Package xcolor Warning: Incompatible color definition on input line 365.
+Package xcolor Warning: Incompatible color definition on input line 182.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -2249,83 +2201,171 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [97]
 
-Package xcolor Warning: Incompatible color definition on input line 380.
+Package xcolor Warning: Incompatible color definition on input line 198.
 
 
-Underfull \hbox (badness 1852) in paragraph at lines 378--381
-[]\T1/lmr/m/n/10.95 Wolfram Re-search I (2013b).  ``Struc-tural Prop-er-ties of Fi-nite Markov Pro-cesses.''
- []
+Package xcolor Warning: Incompatible color definition on input line 225.
 
 
-Package xcolor Warning: Incompatible color definition on input line 386.
-
-)
-
-Package xcolor Warning: Incompatible color definition on input line 5174.
+Package xcolor Warning: Incompatible color definition on input line 236.
 
 
-Package xcolor Warning: Incompatible color definition on input line 5174.
+Package xcolor Warning: Incompatible color definition on input line 242.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 5174--5174
-
- []
+Package xcolor Warning: Incompatible color definition on input line 252.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 5174--5174
-
- []
+Package xcolor Warning: Incompatible color definition on input line 257.
 
 
-Package xcolor Warning: Incompatible color definition on input line 5174.
+Package xcolor Warning: Incompatible color definition on input line 263.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 5174--5174
-
- []
+Package xcolor Warning: Incompatible color definition on input line 275.
 
 
-Package xcolor Warning: Incompatible color definition on input line 5174.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5174--5174
-
- []
-
-
-Package xcolor Warning: Incompatible color definition on input line 5174.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5174--5174
-
- []
+Package xcolor Warning: Incompatible color definition on input line 285.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 98 []
  []
 
-[98] (./an_introduction_to_markovchain_package.aux)
+[98]
+
+Package xcolor Warning: Incompatible color definition on input line 291.
+
+
+Package xcolor Warning: Incompatible color definition on input line 297.
+
+
+Package xcolor Warning: Incompatible color definition on input line 302.
+
+
+Package xcolor Warning: Incompatible color definition on input line 313.
+
+
+Package xcolor Warning: Incompatible color definition on input line 328.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 326--329
+\T1/lmtt/m/n/10.95 web / 20150721052835 / http : / / www . dartmouth . edu / ~chance / teaching _ aids / books _
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 334.
+
+
+Package xcolor Warning: Incompatible color definition on input line 340.
+
+
+Package xcolor Warning: Incompatible color definition on input line 346.
+
+
+Package xcolor Warning: Incompatible color definition on input line 352.
+
+
+Package xcolor Warning: Incompatible color definition on input line 353.
+
+
+Package xcolor Warning: Incompatible color definition on input line 359.
+
+
+Package xcolor Warning: Incompatible color definition on input line 365.
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 99
+ []
+
+[99]
+
+Package xcolor Warning: Incompatible color definition on input line 370.
+
+
+Package xcolor Warning: Incompatible color definition on input line 385.
+
+
+Underfull \hbox (badness 1852) in paragraph at lines 383--386
+[]\T1/lmr/m/n/10.95 Wolfram Re-search I (2013b).  ``Struc-tural Prop-er-ties of Fi-nite Markov Pro-cesses.''
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 391.
+
+)
+
+Package xcolor Warning: Incompatible color definition on input line 5238.
+
+
+Package xcolor Warning: Incompatible color definition on input line 5238.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5238--5238
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5238--5238
+
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 5238.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5238--5238
+
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 5238.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5238--5238
+
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 5238.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5238--5238
+
+ []
+
+
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 100 []
+ []
+
+[100]
+Overfull \hbox (16.42497pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 101
+ []
+
+[101] (./an_introduction_to_markovchain_package.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-09-09>
  ***********
 Package rerunfilecheck Info: File `an_introduction_to_markovchain_package.out' has not changed.
-(rerunfilecheck)             Checksum: 264DD9CAE664263CF818EE185A449213;18918.
+(rerunfilecheck)             Checksum: D14A2DD304808041C318B486D1F1A00C;19313.
  ) 
 Here is how much of TeX's memory you used:
- 22883 strings out of 469040
- 439908 string characters out of 5457102
- 829178 words of memory out of 5000000
- 51179 multiletter control sequences out of 15000+600000
+ 22895 strings out of 469040
+ 440292 string characters out of 5457102
+ 828095 words of memory out of 5000000
+ 51185 multiletter control sequences out of 15000+600000
  730065 words of font info for 101 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 107i,11n,118p,1096b,684s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 107i,11n,118p,1166b,686s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on an_introduction_to_markovchain_package.pdf (98 pages, 840945 bytes).
+Output written on an_introduction_to_markovchain_package.pdf (101 pages, 846447 bytes).
 PDF statistics:
- 1515 PDF objects out of 1728 (max. 8388607)
- 1333 compressed objects within 14 object streams
- 391 named destinations out of 1000 (max. 500000)
- 662 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1541 PDF objects out of 1728 (max. 8388607)
+ 1356 compressed objects within 14 object streams
+ 397 named destinations out of 1000 (max. 500000)
+ 670 words of extra memory for PDF output out of 10000 (max. 10000000)
 

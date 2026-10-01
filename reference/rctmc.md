@@ -76,16 +76,16 @@ molecularCTMC <- new("ctmc", states = energyStates,
 statesDist <- c(0.8, 0.2)
 rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
 #> [[1]]
-#> [1] "sigma_star"
+#> [1] "sigma"      "sigma_star"
 #> 
 #> [[2]]
-#> [1] 0
+#> [1] 0.0000000 0.5108136
 #> 
 rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
 #> [[1]]
-#> [1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
+#> [1] "sigma_star" "sigma"      "sigma_star" "sigma"      "sigma_star"
 #> 
 #> [[2]]
-#> [1] 1.413688 1.942383 2.351227 2.805303 5.178264
+#> [1] 0.2388548 0.9014947 0.9359175 1.5838427 1.8205711
 #> 
 ```

@@ -12,6 +12,7 @@
 <url><loc>/reference/HigherOrderMarkovChain-class.html</loc></url>
 <url><loc>/reference/absorptionProbabilities.html</loc></url>
 <url><loc>/reference/aggregateStates.html</loc></url>
+<url><loc>/reference/assessIndependence.html</loc></url>
 <url><loc>/reference/autoLump.html</loc></url>
 <url><loc>/reference/autoplot.markovchain.html</loc></url>
 <url><loc>/reference/birthDeath.html</loc></url>
@@ -35,6 +36,7 @@
 <url><loc>/reference/gamblersRuin.html</loc></url>
 <url><loc>/reference/generatorToTransitionMatrix.html</loc></url>
 <url><loc>/reference/getName.html</loc></url>
+<url><loc>/reference/higherOrderLogLik.html</loc></url>
 <url><loc>/reference/hittingProbabilities.html</loc></url>
 <url><loc>/reference/holson.html</loc></url>
 <url><loc>/reference/hommc-class.html</loc></url>

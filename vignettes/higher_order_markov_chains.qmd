@@ -25,10 +25,11 @@ Sys.setenv(NO_COLOR = "1")
 Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.
 
 An experimental `fitHigherOrder` function has been written in order to fit a higher order Markov chain ([@ching2013higher, @ching2008higher]). 
-`fitHigherOrder` takes two inputs
+`fitHigherOrder` takes three inputs
 
   1. sequence: a categorical data sequence.
   2. order: order of Markov chain to fit with default value 2.
+  3. method: how the weights are estimated, `"lsq"` (default) or `"mle"`, see below.
 
 The output will be a `list` which consists of
 
@@ -36,7 +37,7 @@ The output will be a `list` which consists of
   2. Q: a list of transition matrices. $Q_i$ is the $ith$ step transition matrix stored column-wise.
   3. X: frequency probability vector of the given sequence.
 
-Its quadratic programming problem is solved using `solnp` function of the Rsolnp package [@pkg:Rsolnp]. 
+The model is a mixture of the empirical lag-$i$ transition matrices $Q_i$ with weights $\lambda_i\ge0$ summing to one, and the matrices $Q_i$ are the same for both methods. With the default `method = "lsq"` the weights solve a quadratic programming problem, the minimization of the squared distance between the stationary distribution and its image under the mixture, which is solved using `solnp` function of the Rsolnp package [@pkg:Rsolnp]. With `method = "mle"` the weights maximize the log-likelihood of the observations; for fixed $Q_i$ this is a concave problem, so its maximum is global, and it is solved by the EM algorithm for mixture weights, without the Rsolnp package.
 
 ```{r}
 #| label: setup
@@ -65,6 +66,77 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
   fitHigherOrder(rain_small, 2)
 }
 ```
+
+# Comparing models of different orders
+
+`higherOrderLogLik` evaluates the log-likelihood of a sequence under the model returned by `fitHigherOrder`, and derives the deviance ($-2$ times the log-likelihood), the AIC and the BIC, so that models of different orders can be compared. The probability of moving to state $x_t$ is the mixture $\sum_{i=1}^{k}\lambda_i Q_i[x_t, x_{t-i}]$, the form of the mixture transition distribution model of [@raftery1985model], and the log-likelihood is the sum of the logarithms of these probabilities over the observations that a model of order $k$ can predict, that is from observation $k+1$ onwards. To compare orders on exactly the same observations the argument `start` must be set to one plus the largest order compared.
+
+Two caveats apply. First, with the default `method = "lsq"` the weights $\lambda$ are chosen by least squares on the stationary distribution, not by maximum likelihood, so the value returned is the log-likelihood *of the fitted model* and not the maximum attainable one. It can therefore be lower for a higher order than for a lower one, which cannot happen for maximum-likelihood fits of nested models. With `method = "mle"` the weights maximize this log-likelihood for the observations that a model of that order can predict, and in the examples below the log-likelihood then never decreases with the order. Second, the number of parameters used for the criteria is $k\,r(r-1)+(k-1)$, with $r$ the number of states.
+
+The example compares orders one to three on the Alofi Island daily rainfall and on the preproglucacon DNA sequence, both analysed by [@averyHenderson], with both estimation methods. Maximum likelihood weights raise the log-likelihood of the higher orders, by up to about 11 units for the rainfall and 28 for the DNA sequence, whereas the least squares weights can leave it below that of the first-order model. Even so, the gain is too small to pay for the additional parameters, and both criteria select the first-order model for both sequences with both methods. The values are computed by the package; they are not claimed to reproduce those of the original paper.
+
+```{r}
+#| label: compareOrders
+#| message: false
+#| warning: false
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
+  compareOrders <- function(sequence, orders = 1:3) {
+    byMethod <- lapply(c("lsq", "mle"), function(method) {
+      fits <- lapply(orders, function(k) fitHigherOrder(sequence, k, method = method))
+      sapply(fits, function(f)
+        unlist(higherOrderLogLik(sequence, f, start = max(orders) + 1)[c("logLik", "BIC")]))
+    })
+    out <- rbind(byMethod[[1]], byMethod[[2]])
+    rownames(out) <- c("logLik (lsq)", "BIC (lsq)", "logLik (mle)", "BIC (mle)")
+    colnames(out) <- paste("order", orders)
+    round(out, 1)
+  }
+  data(rain)
+  print(compareOrders(rain$rain))
+  data(preproglucacon)
+  print(compareOrders(preproglucacon$preproglucacon))
+}
+```
+
+## Reproducing a published comparison
+
+[@berchtold2002mixture] compare, by log-likelihood and BIC, independence, Markov chains of order one to three and mixture transition distribution (MTD) models for the hourly wind direction at Koeberg (South Africa; 744 observations recoded into four directions, originally from [@macdonald1997hidden]) and for a daily series of epileptic seizures (204 observations). The authors kindly provided the two series, which are distributed with the package in `inst/extdata`. Their convention is to condition every model on the first 14 observations, so that all models are evaluated on the same $n-14$ observations, which in `higherOrderLogLik` corresponds to `start = 15`; the BIC uses $n-14$ as sample size and counts only the parameters that are not forced to zero.
+
+`fitHigherOrder` does not estimate the MTD model of that paper: it fits a different transition matrix for each lag, with weights chosen by least squares or, with `method = "mle"`, by maximum likelihood given those matrices, whereas the MTD model uses a single matrix $Q$ for all lags and estimates it together with the weights by maximum likelihood. The comparison below therefore evaluates, with `higherOrderLogLik`, the first-order chain estimated on the observations entering the likelihood and the MTD(2) model with the weights and the matrix $Q$ printed in the paper (whose rows are the departure states, hence the transposition).
+
+```{r}
+#| label: berchtoldRaftery
+koeberg <- as.character(read.csv(system.file("extdata", "koeberg_wind.csv",
+                                             package = "markovchain"))$state)
+start <- 15
+n_eff <- length(koeberg) - (start - 1)
+
+# first-order Markov chain, estimated on the transitions that enter the likelihood
+Q1 <- seq2matHigh(koeberg[(start - 1):length(koeberg)], 1)
+mc1 <- higherOrderLogLik(koeberg, list(lambda = 1, Q = list(Q1)), start = start)
+
+# MTD(2) with lambda and Q as printed in Section 1.3 of the paper
+Qpaper <- matrix(c(0.8301, 0.0689, 0.0077, 0.0933,
+                   0.0369, 0.9012, 0.0619, 0.0000,
+                   0.0155, 0.1553, 0.8070, 0.0222,
+                   0.0779, 0.0000, 0.0528, 0.8693), 4, 4, byrow = TRUE)
+Q <- t(Qpaper)
+dimnames(Q) <- list(as.character(1:4), as.character(1:4))
+mtd2 <- higherOrderLogLik(koeberg, list(lambda = c(0.7569, 0.2431), Q = list(Q, Q)),
+                          start = start)
+
+# parameters not forced to zero: 11 for the chain (one empty transition),
+# 4 * 3 - 2 + (2 - 1) = 11 for the MTD(2) (two structural zeros in Q)
+comparison <- data.frame(
+  model = c("Markov chain, order 1", "MTD, order 2"),
+  logLik = c(mc1$logLik, mtd2$logLik),
+  BIC = c(-2 * mc1$logLik + 11 * log(n_eff), -2 * mtd2$logLik + 11 * log(n_eff)),
+  logLik_published = c(-413.3, -393.4),
+  BIC_published = c(899.1, 859.3))
+print(comparison, digits = 4, row.names = FALSE)
+```
+
+The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package.
 
 # Higher Order Multivariate Markov Chains
 
@@ -294,6 +366,10 @@ for(p in 1:10) {
   print("package Rsolnp unavailable")
 }
 ```
+
+## Acknowledgments
+
+We are grateful to Professors Adrian E. Raftery and André Berchtold for kindly sharing the Koeberg wind-direction and epileptic-seizure series of [@berchtold2002mixture], which made it possible to check `higherOrderLogLik` against the published results.
 
 ## References
 

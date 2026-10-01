@@ -46,13 +46,38 @@ setClass("HigherOrderMarkovChain", #class name
 #' @description Given a sequence of states arising from a stationary state, it
 #'   fits the underlying Markov chain distribution with higher order.
 #' @usage  
-#' fitHigherOrder(sequence, order = 2)
+#' fitHigherOrder(sequence, order = 2, method = c("lsq", "mle"))
 #' seq2freqProb(sequence)
 #' seq2matHigh(sequence, order)
 #'
 #' @param sequence A character list.
 #' @param order Markov chain order
+#' @param method How the weights \eqn{\lambda} are estimated: \code{"lsq"}
+#'   (default) or \code{"mle"}, see Details.
 #' @return A list containing lambda, Q, and X.
+#'
+#' @details The fitted model expresses the distribution of the next state as
+#'   the mixture \eqn{\sum_{i=1}^{k} \lambda_i Q_i x_{t-i}} of the empirical
+#'   lag-\eqn{i} transition matrices \eqn{Q_i} (see \code{seq2matHigh}), with
+#'   weights \eqn{\lambda_i \ge 0} summing to one. The matrices \eqn{Q_i}
+#'   are the same for both methods; only the weights differ.
+#'
+#'   \code{method = "lsq"} (the default, and the only behaviour before the
+#'   argument existed) chooses \eqn{\lambda} to minimize the squared distance
+#'   between the stationary distribution and its image under the mixture, as in
+#'   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
+#'   with a message if it is unavailable.
+#'
+#'   \code{method = "mle"} chooses \eqn{\lambda} to maximize the
+#'   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
+#'   x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
+#'   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
+#'   is solved by the EM algorithm for mixture weights, without
+#'   \pkg{Rsolnp}. The weights are therefore those that give the highest
+#'   value of \code{\link{higherOrderLogLik}} for the same observations. Note
+#'   that this is not the mixture transition distribution model of Raftery
+#'   (1985), in which a single matrix is shared by all lags and is estimated
+#'   together with the weights.
 #'
 #' @references 
 #' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov 
@@ -62,6 +87,9 @@ setClass("HigherOrderMarkovChain", #class name
 #' Markov chains and their applications. Linear Algebra and its Applications,
 #' 428(2), 492-507.
 #'
+#' Raftery, A. E. (1985). A model for high-order Markov chains. Journal of the
+#' Royal Statistical Society, Series B, 47(3), 528-539.
+#'
 #' @author Giorgio Spedicato, Tae Seung Kang
 
 #'
@@ -69,9 +97,14 @@ setClass("HigherOrderMarkovChain", #class name
 #' sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
 #'             "c", "a", "b", "c", "a", "b", "a", "b")
 #' fitHigherOrder(sequence)
+#' # weights by maximum likelihood (no Rsolnp needed)
+#' fit <- fitHigherOrder(sequence, order = 2, method = "mle")
+#' fit$lambda
+#' higherOrderLogLik(sequence, fit)$logLik
 #'
 #' @export
-fitHigherOrder<-function(sequence, order = 2) {
+fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
+  method <- match.arg(method)
   if (!is.character(sequence) || length(sequence) < 2L || anyNA(sequence)) {
     stop("sequence must be a non-empty character vector without missing values")
   }
@@ -80,6 +113,7 @@ fitHigherOrder<-function(sequence, order = 2) {
     stop("order must be a positive integer smaller than the sequence length")
   }
   order <- as.integer(order)
+  if (method == "mle") return(.fitHigherOrderMle(sequence, order))
   # prbability of each states of sequence
   if (requireNamespace("Rsolnp", quietly = TRUE)) {
   X <- seq2freqProb(sequence)
@@ -107,6 +141,36 @@ fitHigherOrder<-function(sequence, order = 2) {
   return(out)
 }
 
+# Maximum likelihood weights of the higher order model. The lag-o transition
+# matrices Q_o are the empirical ones (seq2matHigh), exactly as for the least
+# squares fit, and the weights maximize
+#   sum_{t = order + 1}^{n} log( sum_o lambda_o * Q_o[x_t, x_{t-o}] )
+# over the simplex. For fixed Q_o the objective is concave in lambda, so there
+# are no local maxima, and the EM iteration for mixture weights increases it
+# monotonically. The probability of every observed pair is positive (it is a
+# count divided by a column total), hence the mixture probability of every
+# observation is positive and the iteration is well defined.
+.fitHigherOrderMle <- function(sequence, order, tol = 1e-10, maxit = 10000L) {
+  X <- seq2freqProb(sequence)
+  Q <- lapply(seq_len(order), function(o) seq2matHigh(sequence, o))
+  idx <- match(sequence, rownames(Q[[1L]]))
+  times <- (order + 1L):length(idx)
+  # q[t, o] = Q_o[x_t, x_{t-o}]
+  q <- matrix(0, nrow = length(times), ncol = order)
+  for (o in seq_len(order)) q[, o] <- Q[[o]][cbind(idx[times], idx[times - o])]
+  lambda <- rep(1 / order, order)
+  logLikOld <- -Inf
+  for (iter in seq_len(maxit)) {
+    weighted <- sweep(q, 2L, lambda, "*")
+    mixture <- rowSums(weighted)
+    logLik <- sum(log(mixture))
+    if (logLik - logLikOld < tol) break
+    logLikOld <- logLik
+    lambda <- colMeans(weighted / mixture)
+  }
+  list(lambda = lambda, Q = Q, X = X)
+}
+
 
 #' Log-likelihood, deviance and information criteria of a higher order Markov chain
 #'
@@ -126,10 +190,12 @@ fitHigherOrder<-function(sequence, order = 2) {
 #'   \eqn{-2} times the log-likelihood.
 #'
 #'   Two points matter when interpreting the output. First,
-#'   \code{fitHigherOrder} chooses \eqn{\lambda} by least squares on the
-#'   stationary distribution, not by maximum likelihood, so the value returned
-#'   is the log-likelihood \emph{of the fitted model}, not the maximum
-#'   attainable one. Second, a model of order \eqn{k} can only be evaluated from
+#'   \code{fitHigherOrder} chooses \eqn{\lambda} by default
+#'   (\code{method = "lsq"}) by least squares on the stationary distribution,
+#'   not by maximum likelihood, so the value returned is the log-likelihood
+#'   \emph{of the fitted model}, not the maximum attainable one; with
+#'   \code{method = "mle"} the weights maximize this log-likelihood for the
+#'   observations a model of that order can predict. Second, a model of order \eqn{k} can only be evaluated from
 #'   observation \eqn{k + 1} onwards; to compare orders on exactly the same data
 #'   set \code{start} to \eqn{1 +} the largest order compared, otherwise the
 #'   models are evaluated on different numbers of observations and neither the

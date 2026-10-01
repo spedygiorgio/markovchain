@@ -1312,6 +1312,21 @@ plotted with the `type` argument of `autoplot`
 ggplot2::autoplot(mcWeather, type = "flow", steps = 10, initial = "rain")
 ```
 
+With `type = "comparison"`, `autoplot` places two or more chains defined on the
+same states side by side, with the states matched by name. By default the
+transition matrices are drawn as heatmaps on a common probability scale; with
+`what = "stationary"` the stationary distributions are compared instead, which
+requires irreducible chains. As an example, a lazy version of the weather
+chain built with `lazyChain` has exactly the same stationary
+distribution but visibly different, "stickier" transitions
+(Figure \ref{fig:autoplot-comparison}).
+
+```{r autoplot-comparison, eval = requireNamespace("ggplot2", quietly = TRUE), fig.cap = "Transition matrices of the weather chain and of its lazy version with alpha = 0.5.", fig.height = 3.2}
+mcLazyWeather <- lazyChain(mcWeather, alpha = 0.5)
+mcLazyWeather@name <- "Lazy weather"
+ggplot2::autoplot(mcWeather, type = "comparison", other = mcLazyWeather)
+```
+
 ## Mean recurrence time
 
 The `meanRecurrenceTime` method gives the first mean recurrence time (expected number of steps to go back to a state if it was the initial one) for each recurrent state in the transition probabilities matrix for a DTMC. Let's see an example:

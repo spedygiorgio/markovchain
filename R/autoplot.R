@@ -15,11 +15,21 @@
 #'   graph; \code{"eigenvalues"} draws the eigenvalues of the transition matrix
 #'   in the complex plane together with the unit circle; \code{"flow"} draws
 #'   the evolution of the distribution over the states, as computed by
-#'   \code{\link{redistribute}}.
+#'   \code{\link{redistribute}}; \code{"comparison"} compares \code{object}
+#'   with the chains in \code{other}.
 #' @param steps Number of steps of the \code{"flow"} plot. Defaults to 20.
 #'   Ignored for the other types.
 #' @param initial Initial distribution of the \code{"flow"} plot, see
 #'   \code{\link{redistribute}}. Defaults to the uniform distribution.
+#'   Ignored for the other types.
+#' @param other For \code{type = "comparison"}: a \code{markovchain} object
+#'   or a (possibly named) list of them, to be compared with \code{object}.
+#'   All chains must be defined on the same set of states, which are matched
+#'   by name, so their order may differ. Ignored for the other types.
+#' @param what For \code{type = "comparison"}: \code{"transition"} (default)
+#'   draws the transition matrices side by side as heatmaps on a common
+#'   probability scale; \code{"stationary"} compares the stationary
+#'   distributions as grouped bars (every chain must then be irreducible).
 #'   Ignored for the other types.
 #' @param ... Currently unused, reserved for future extensions.
 #'
@@ -37,6 +47,13 @@
 #'   ggplot2::autoplot(mc)
 #'   ggplot2::autoplot(mc, type = "eigenvalues")
 #'   ggplot2::autoplot(mc, type = "flow", steps = 10, initial = "rain")
+#'
+#'   # compare with a "stickier" version of the same chain
+#'   sticky <- lazyChain(mc, alpha = 0.5)
+#'   sticky@name <- "Lazy weather"
+#'   ggplot2::autoplot(mc, type = "comparison", other = sticky)
+#'   ggplot2::autoplot(mc, type = "comparison", other = sticky,
+#'                     what = "stationary")
 #' }
 autoplot.markovchain <- function(object,
                                   threshold = 0,
@@ -44,9 +61,12 @@ autoplot.markovchain <- function(object,
                                   digits = 2,
                                   node_size = 6,
                                   edge_width = 1,
-                                  type = c("graph", "eigenvalues", "flow"),
+                                  type = c("graph", "eigenvalues", "flow",
+                                           "comparison"),
                                   steps = 20,
                                   initial = NULL,
+                                  other = NULL,
+                                  what = c("transition", "stationary"),
                                   ...) {
   if (!inherits(object, "markovchain")) {
     stop("object must be a 'markovchain' object", call. = FALSE)
@@ -62,6 +82,11 @@ autoplot.markovchain <- function(object,
   }
   if (type == "flow") {
     return(.autoplotFlow(object, steps = steps, initial = initial))
+  }
+  if (type == "comparison") {
+    return(.autoplotComparison(object, other = other, what = match.arg(what),
+                               digits = digits,
+                               show_probabilities = show_probabilities))
   }
 
   if (length(threshold) != 1L || !is.numeric(threshold) ||
@@ -278,4 +303,90 @@ autoplot.markovchain <- function(object,
     ggplot2::theme_minimal() +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                    plot.subtitle = ggplot2::element_text(hjust = 0.5))
+}
+
+# Comparison of two or more chains defined on the same states.
+.autoplotComparison <- function(object, other, what, digits,
+                                show_probabilities) {
+  if (is.null(other)) {
+    stop("'other' must be supplied when type = \"comparison\"", call. = FALSE)
+  }
+  if (inherits(other, "markovchain")) {
+    other <- list(other)
+  }
+  if (!is.list(other) || length(other) == 0L ||
+      !all(vapply(other, inherits, logical(1), what = "markovchain"))) {
+    stop("'other' must be a markovchain object or a list of markovchain objects",
+         call. = FALSE)
+  }
+
+  chains <- c(list(object), unname(other))
+  labels <- c(object@name,
+              if (is.null(names(other))) vapply(other, function(x) x@name, "")
+              else names(other))
+  labels[is.na(labels) | !nzchar(labels)] <- paste("Chain",
+    which(is.na(labels) | !nzchar(labels)))
+  labels <- make.unique(labels, sep = " ")
+
+  states <- object@states
+  mats <- lapply(chains, function(ch) {
+    if (!setequal(ch@states, states) || anyDuplicated(ch@states)) {
+      stop("all chains must be defined on the same set of states",
+           call. = FALSE)
+    }
+    .rowStochasticMatrix(ch)[states, states, drop = FALSE]
+  })
+
+  if (what == "stationary") {
+    pis <- lapply(seq_along(chains), function(i) {
+      if (!is.irreducible(chains[[i]])) {
+        stop("what = \"stationary\" requires irreducible chains; '",
+             labels[i], "' is not irreducible", call. = FALSE)
+      }
+      dist <- steadyStates(chains[[i]])[1L, ]
+      as.numeric(dist[states])
+    })
+    long <- data.frame(
+      chain = factor(rep(labels, each = length(states)), levels = labels),
+      state = factor(rep(states, times = length(chains)), levels = states),
+      probability = unlist(pis)
+    )
+    return(
+      ggplot2::ggplot(long, ggplot2::aes(x = state, y = probability,
+                                         fill = chain)) +
+        ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.8),
+                          width = 0.7) +
+        ggplot2::scale_y_continuous(limits = c(0, 1)) +
+        ggplot2::labs(title = "Stationary distributions",
+                      x = "State", y = "Probability", fill = "Chain") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    )
+  }
+
+  n <- length(states)
+  long <- do.call(rbind, lapply(seq_along(mats), function(i) {
+    data.frame(
+      chain = factor(labels[i], levels = labels),
+      from = factor(rep(states, times = n), levels = rev(states)),
+      to = factor(rep(states, each = n), levels = states),
+      probability = as.vector(mats[[i]])
+    )
+  }))
+  long$label <- formatC(long$probability, format = "f", digits = digits)
+
+  p <- ggplot2::ggplot(long, ggplot2::aes(x = to, y = from,
+                                          fill = probability)) +
+    ggplot2::geom_tile(colour = "white") +
+    ggplot2::scale_fill_gradient(low = "white", high = "steelblue",
+                                 limits = c(0, 1), name = "Probability") +
+    ggplot2::facet_wrap(~chain) +
+    ggplot2::labs(title = "Transition matrices", x = "To", y = "From") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                   panel.grid = ggplot2::element_blank())
+  if (isTRUE(show_probabilities)) {
+    p <- p + ggplot2::geom_text(ggplot2::aes(label = label), size = 3)
+  }
+  p
 }

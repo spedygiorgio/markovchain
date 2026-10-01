@@ -118,3 +118,61 @@ test_that("autoplot() supports the eigenvalues and flow types", {
   expect_error(ggplot2::autoplot(mc, type = "nope"))
   expect_error(ggplot2::autoplot(mc, type = "flow", steps = -1), "steps")
 })
+
+test_that("autoplot(type = 'comparison') compares chains by state name", {
+  skip_if_not_installed("ggplot2")
+  lazy <- lazyChain(mc, alpha = 0.5)
+  lazy@name <- "Lazy"
+  p <- ggplot2::autoplot(mc, type = "comparison", other = lazy)
+  expect_s3_class(p, "ggplot")
+  d <- p$data
+  expect_equal(nlevels(d$chain), 2L)
+  expect_equal(nrow(d), 2L * 9L)
+  # plotted values are the transition probabilities of each chain
+  at <- function(ch, f, t) d$probability[d$chain == ch & d$from == f & d$to == t]
+  expect_equal(at("W", "a", "b"), P["a", "b"])
+  expect_equal(at("Lazy", "a", "a"), 0.5 + 0.5 * P["a", "a"])
+
+  # a permuted copy of the same chain on the same states gives identical values
+  perm <- c("c", "a", "b")
+  mcPerm <- new("markovchain", states = perm,
+                transitionMatrix = P[perm, perm], name = "Perm")
+  d2 <- ggplot2::autoplot(mc, type = "comparison", other = mcPerm)$data
+  expect_equal(d2$probability[d2$chain == "W"], d2$probability[d2$chain == "Perm"])
+
+  # column-stochastic storage and a named list
+  p3 <- ggplot2::autoplot(mc, type = "comparison",
+                          other = list(Col = mcCol, Lazy = lazy))
+  expect_equal(levels(p3$data$chain), c("W", "Col", "Lazy"))
+})
+
+test_that("autoplot(type = 'comparison', what = 'stationary') shows steady states", {
+  skip_if_not_installed("ggplot2")
+  lazy <- lazyChain(mc, alpha = 0.5)
+  p <- ggplot2::autoplot(mc, type = "comparison", other = lazy,
+                         what = "stationary")
+  expect_s3_class(p, "ggplot")
+  d <- p$data
+  # laziness does not change the stationary distribution
+  expect_equal(d$probability[1:3], d$probability[4:6], tolerance = 1e-10)
+  expect_equal(d$probability[1:3], as.numeric(steadyStates(mc)[1, ]),
+               tolerance = 1e-10)
+})
+
+test_that("autoplot(type = 'comparison') validates its inputs", {
+  skip_if_not_installed("ggplot2")
+  expect_error(ggplot2::autoplot(mc, type = "comparison"), "other")
+  expect_error(ggplot2::autoplot(mc, type = "comparison", other = 1), "other")
+  s2 <- c("a", "b")
+  small <- new("markovchain", states = s2,
+               transitionMatrix = matrix(c(.5, .5, .5, .5), 2,
+                                         dimnames = list(s2, s2)))
+  expect_error(ggplot2::autoplot(mc, type = "comparison", other = small),
+               "same set of states")
+  absorb <- new("markovchain", states = st,
+                transitionMatrix = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), 3,
+                                          dimnames = list(st, st)),
+                name = "Absorb")
+  expect_error(ggplot2::autoplot(mc, type = "comparison", other = absorb,
+                                 what = "stationary"), "irreducible")
+})

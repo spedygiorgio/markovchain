@@ -3284,5 +3284,7 @@ The package has known several improvements in the recent years: many functions a
 
 The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.
 
+We are also grateful to Professors Adrian E. Raftery and André Berchtold for kindly sharing the Koeberg wind-direction and epileptic-seizure series of \cite{berchtold2002mixture}, which allowed us to check the `higherOrderLogLik` and `assessIndependence` functions against the published results.
+
 \clearpage
 # References #

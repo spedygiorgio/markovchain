@@ -9,8 +9,8 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 \arguments{
 \item{sequence}{A character vector, the empirical sequence of states.}
 
-\item{fit}{The list returned by \code{\link{fitHigherOrder}} for
-\code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
+\item{fit}{The list returned by \code{\link{fitHigherOrder}} (or by
+\code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
 computed.}
 
 \item{order}{Order of the model to fit when \code{fit} is \code{NULL}
@@ -59,7 +59,9 @@ The fitted model is the mixture-transition-distribution model of
   The number of parameters used for AIC and BIC is
   \eqn{k\, r (r - 1) + (k - 1)}, that is \eqn{r (r - 1)} free probabilities
   for each of the \eqn{k} lag matrices plus the \eqn{k - 1} free weights,
-  with \eqn{r} the number of states.
+  with \eqn{r} the number of states. For a fit returned by
+  \code{\link{fitMTD}}, whose lags share a single matrix, it is
+  \eqn{r (r - 1) + (k - 1)}.
 }
 \examples{
 sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
@@ -81,5 +83,5 @@ Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov
 chains. In Markov Chains (pp. 141-176). Springer US.
 }
 \seealso{
-\code{\link{fitHigherOrder}}
+\code{\link{fitHigherOrder}}, \code{\link{fitMTD}}
 }

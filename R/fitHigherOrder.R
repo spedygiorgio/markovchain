@@ -77,7 +77,7 @@ setClass("HigherOrderMarkovChain", #class name
 #'   value of \code{\link{higherOrderLogLik}} for the same observations. Note
 #'   that this is not the mixture transition distribution model of Raftery
 #'   (1985), in which a single matrix is shared by all lags and is estimated
-#'   together with the weights.
+#'   together with the weights; that model is fitted by \code{\link{fitMTD}}.
 #'
 #' @references 
 #' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov 
@@ -204,11 +204,13 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'   The number of parameters used for AIC and BIC is
 #'   \eqn{k\, r (r - 1) + (k - 1)}, that is \eqn{r (r - 1)} free probabilities
 #'   for each of the \eqn{k} lag matrices plus the \eqn{k - 1} free weights,
-#'   with \eqn{r} the number of states.
+#'   with \eqn{r} the number of states. For a fit returned by
+#'   \code{\link{fitMTD}}, whose lags share a single matrix, it is
+#'   \eqn{r (r - 1) + (k - 1)}.
 #'
 #' @param sequence A character vector, the empirical sequence of states.
-#' @param fit The list returned by \code{\link{fitHigherOrder}} for
-#'   \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
+#' @param fit The list returned by \code{\link{fitHigherOrder}} (or by
+#'   \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
 #'   computed.
 #' @param order Order of the model to fit when \code{fit} is \code{NULL}
 #'   (ignored otherwise; the order is then \code{length(fit$lambda)}).
@@ -229,7 +231,7 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov
 #' chains. In Markov Chains (pp. 141-176). Springer US.
 #'
-#' @seealso \code{\link{fitHigherOrder}}
+#' @seealso \code{\link{fitHigherOrder}}, \code{\link{fitMTD}}
 #'
 #' @examples
 #' sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
@@ -274,7 +276,8 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   }
   logLik <- if (any(p <= 0)) -Inf else sum(log(p))
   r <- length(states)
-  npar <- k * r * (r - 1) + (k - 1)
+  # a fit of fitMTD() shares one matrix among all lags
+  npar <- if (identical(fit$model, "MTD")) r * (r - 1) + (k - 1) else k * r * (r - 1) + (k - 1)
   list(logLik = logLik, deviance = -2 * logLik,
        AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(length(times)) * npar,
        nobs = length(times), npar = npar, order = k, start = as.integer(start))

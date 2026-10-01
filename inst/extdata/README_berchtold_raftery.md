@@ -8,8 +8,8 @@ Model for High-Order Markov Chains and Non-Gaussian Time Series.
 
 They are used by the package's unit tests and by the `higher_order_markov_chains`
 and `an_introduction_to_markovchain_package` vignettes to check
-`higherOrderLogLik()` and `assessIndependence()` against the published
-log-likelihoods and BIC values.
+`higherOrderLogLik()`, `assessIndependence()` and `fitMTD()` against the
+published log-likelihoods and BIC values.
 
 The files were kindly provided by the authors (Adrian E. Raftery and Andre
 Berchtold) for use in this package; they stated that the data are not copyright
@@ -30,7 +30,7 @@ observations, so that every model (independence, Markov chains of order up to
 3, MTD models) is evaluated on the same `n - 14` observations; the BIC uses
 `n - 14` as sample size, and the number of parameters counts only those that
 are not forced to zero. Reproducing the tables therefore requires
-`start = 15` in `higherOrderLogLik()`.
+`start = 15` in `higherOrderLogLik()` and `fitMTD()`.
 
 MacDonald, I. L. and Zucchini, W. (1997). *Hidden Markov and Other Models for
 Discrete-valued Time Series*. Chapman & Hall.

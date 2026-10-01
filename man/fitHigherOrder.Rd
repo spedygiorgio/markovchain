@@ -47,7 +47,7 @@ The fitted model expresses the distribution of the next state as
   value of \code{\link{higherOrderLogLik}} for the same observations. Note
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
-  together with the weights.
+  together with the weights; that model is fitted by \code{\link{fitMTD}}.
 }
 \examples{
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",

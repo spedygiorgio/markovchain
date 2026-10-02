@@ -24,7 +24,16 @@ multivariate markovchain object
 \details{
 The user is required to provide a matrix of giving n previous coressponding
 every categorical sequence. Dimensions of the init are s X n, where s is 
-number of categorical sequences and n is order of the homc.
+number of categorical sequences and n is order of the homc. The last
+column of \code{init} holds the most recent state of each sequence.
+
+At each step the next state of sequence \eqn{j} is drawn from
+\eqn{\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}}, where
+\eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1} steps
+before the current one (Ching et al., 2008). The matrices are read by column
+(\code{P[to, from]}), as returned by \code{\link{fitHighOrderMultivarMC}},
+or by row when \code{byrow = TRUE}, and all sequences are drawn from the same
+past before it is updated.
 }
 \author{
 Vandit Jain

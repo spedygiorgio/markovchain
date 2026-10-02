@@ -81,6 +81,19 @@ test_that("fitMTD reaches the maximum found by a general-purpose optimizer", {
   expect_gte(fit$logLikelihood, -best - 1e-4)
 })
 
+test_that("the log-likelihood never decreases with the order", {
+  # a sequence made of repeated phrases, like the wood pewee song: started
+  # only from equal weights, the EM algorithm used to stop at the first-order
+  # solution for orders above two, below the fit of order two
+  set.seed(1)
+  phrases <- c("1312", "112", "13")
+  x <- unlist(strsplit(paste(sample(phrases, 300, TRUE, prob = c(0.5, 0.3, 0.2)),
+                             collapse = ""), ""))
+  ll <- vapply(1:5, function(k) fitMTD(x, order = k, start = 6)$logLikelihood, 0)
+  expect_true(all(diff(ll) >= -1e-8))
+  expect_gt(ll[3] - ll[1], 10)
+})
+
 test_that("more starting points never give a lower likelihood", {
   set.seed(5)
   x <- sample(c("a", "b", "c"), 150, replace = TRUE)

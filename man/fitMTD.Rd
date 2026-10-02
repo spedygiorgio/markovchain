@@ -23,8 +23,8 @@ of the sequence.}
 \item{start}{Index of the first observation entering the likelihood, at
 least \code{order + 1} (the default).}
 
-\item{nstart}{Number of starting points of the EM algorithm (the first is
-deterministic, the others random).}
+\item{nstart}{\code{nstart - 1} is the number of random starting points of
+the EM algorithm added to the deterministic ones (see Details).}
 
 \item{tol}{Convergence tolerance on the relative change of the
 log-likelihood between two iterations.}
@@ -76,12 +76,17 @@ For an order \eqn{k} the model is
   the EM algorithm of Lebre and Bourguignon (2008), in which the latent
   variable is the lag that generated each observation; it is implemented in
   C++. Every iteration increases the likelihood, but the likelihood of the
-  MTD model can have several local maxima (Berchtold, 2001), so it is
-  advisable to use more than one starting point (\code{nstart}). The first
-  starting point is deterministic (equal weights and the transition matrix
-  estimated from all lags pooled); the others are drawn at random, so call
-  \code{\link{set.seed}} beforehand for reproducible results. The fit with
-  the highest likelihood is returned.
+  MTD model can have several local maxima (Berchtold, 2001). The models of
+  order \eqn{1, \dots,} \code{order} are therefore fitted in turn on the
+  same observations, and order \eqn{k} is started from equal weights with
+  the transition matrix of all lags pooled, and from the fit of order
+  \eqn{k - 1} extended with a zero and with a small positive weight for the
+  new lag. The first of these extensions has the likelihood of order
+  \eqn{k - 1}, so the likelihood returned never decreases with the order,
+  as it must for nested models. \code{nstart - 1} further random starting
+  points can be added for the requested order; they are drawn at random, so
+  call \code{\link{set.seed}} beforehand for reproducible results. The fit
+  with the highest likelihood is returned.
 
   The likelihood is conditional on the observations before \code{start}:
   it is the product of the transition probabilities of \eqn{x_t} for

@@ -25,12 +25,17 @@
 #'   the EM algorithm of Lebre and Bourguignon (2008), in which the latent
 #'   variable is the lag that generated each observation; it is implemented in
 #'   C++. Every iteration increases the likelihood, but the likelihood of the
-#'   MTD model can have several local maxima (Berchtold, 2001), so it is
-#'   advisable to use more than one starting point (\code{nstart}). The first
-#'   starting point is deterministic (equal weights and the transition matrix
-#'   estimated from all lags pooled); the others are drawn at random, so call
-#'   \code{\link{set.seed}} beforehand for reproducible results. The fit with
-#'   the highest likelihood is returned.
+#'   MTD model can have several local maxima (Berchtold, 2001). The models of
+#'   order \eqn{1, \dots,} \code{order} are therefore fitted in turn on the
+#'   same observations, and order \eqn{k} is started from equal weights with
+#'   the transition matrix of all lags pooled, and from the fit of order
+#'   \eqn{k - 1} extended with a zero and with a small positive weight for the
+#'   new lag. The first of these extensions has the likelihood of order
+#'   \eqn{k - 1}, so the likelihood returned never decreases with the order,
+#'   as it must for nested models. \code{nstart - 1} further random starting
+#'   points can be added for the requested order; they are drawn at random, so
+#'   call \code{\link{set.seed}} beforehand for reproducible results. The fit
+#'   with the highest likelihood is returned.
 #'
 #'   The likelihood is conditional on the observations before \code{start}:
 #'   it is the product of the transition probabilities of \eqn{x_t} for
@@ -58,8 +63,8 @@
 #'   of the sequence.
 #' @param start Index of the first observation entering the likelihood, at
 #'   least \code{order + 1} (the default).
-#' @param nstart Number of starting points of the EM algorithm (the first is
-#'   deterministic, the others random).
+#' @param nstart \code{nstart - 1} is the number of random starting points of
+#'   the EM algorithm added to the deterministic ones (see Details).
 #' @param tol Convergence tolerance on the relative change of the
 #'   log-likelihood between two iterations.
 #' @param maxit Maximum number of EM iterations for each starting point.
@@ -141,37 +146,47 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   if (r < 2L) stop("sequence must contain at least two different states")
   idx <- match(sequence, states) - 1L
   times <- start:n
-  # distinct patterns (x_t, x_{t-1}, ..., x_{t-order}) and their counts
+  # lagged[, g + 1] is x_{t-g} for the observations t = start..n entering the likelihood
   lagged <- vapply(0:order, function(g) idx[times - g], integer(length(times)))
   if (!is.matrix(lagged)) lagged <- matrix(lagged, nrow = 1L)
-  key <- do.call(paste, c(as.data.frame(lagged), sep = "\r"))
-  first <- !duplicated(key)
-  patterns <- lagged[first, , drop = FALSE]
-  counts <- as.numeric(table(factor(key, levels = key[first])))
 
-  # deterministic start: equal weights and the transitions of all lags pooled
-  pooled <- matrix(0, r, r)
-  for (g in seq_len(order)) {
-    pairs <- tabulate(lagged[, g + 1L] * r + lagged[, 1L] + 1L, nbins = r * r)
-    pooled <- pooled + matrix(pairs, r, r, byrow = TRUE)
-  }
-  rowTotals <- rowSums(pooled)
-  pooled[rowTotals == 0, ] <- 1
-  Q0 <- pooled / rowSums(pooled)
-
+  # The models of order 1, ..., order are fitted in turn on the same
+  # observations. Besides the deterministic start, order k also starts from the
+  # fit of order k - 1 with a zero weight for the new lag, a fixed point of the
+  # EM algorithm with the same likelihood, so that the likelihood returned can
+  # never decrease with the order, and with a small positive weight for it.
   best <- NULL
-  for (s in seq_len(nstart)) {
-    if (s == 1L) {
-      lambda0 <- rep(1 / order, order)
-      Qs <- Q0
-    } else {
-      lambda0 <- stats::rexp(order)
-      lambda0 <- lambda0 / sum(lambda0)
-      Qs <- matrix(stats::rexp(r * r), r, r)
-      Qs <- Qs / rowSums(Qs)
+  for (k in seq_len(order)) {
+    cols <- lagged[, seq_len(k + 1L), drop = FALSE]
+    key <- do.call(paste, c(as.data.frame(cols), sep = "\r"))
+    first <- !duplicated(key)
+    patterns <- cols[first, , drop = FALSE]
+    counts <- as.numeric(table(factor(key, levels = key[first])))
+
+    # deterministic start: equal weights and the transitions of all lags pooled
+    pooled <- matrix(0, r, r)
+    for (g in seq_len(k)) {
+      pairs <- tabulate(cols[, g + 1L] * r + cols[, 1L] + 1L, nbins = r * r)
+      pooled <- pooled + matrix(pairs, r, r, byrow = TRUE)
     }
-    fit <- .mtdEM(patterns, counts, lambda0, Qs, tol, as.integer(maxit))
-    if (is.null(best) || fit$logLik > best$logLik) best <- fit
+    pooled[rowSums(pooled) == 0, ] <- 1
+    starts <- list(list(lambda = rep(1 / k, k), Q = pooled / rowSums(pooled)))
+    if (k > 1L) {
+      starts <- c(starts,
+                  list(list(lambda = c(best$lambda, 0), Q = best$Q),
+                       list(lambda = c(best$lambda * (1 - 1 / k), 1 / k), Q = best$Q)))
+    }
+    if (k == order && nstart > 1L) {
+      for (s in seq_len(nstart - 1L)) {
+        lambda0 <- stats::rexp(k)
+        Qs <- matrix(stats::rexp(r * r), r, r)
+        starts[[length(starts) + 1L]] <- list(lambda = lambda0 / sum(lambda0),
+                                              Q = Qs / rowSums(Qs))
+      }
+    }
+    fits <- lapply(starts, function(s0)
+      .mtdEM(patterns, counts, s0$lambda, s0$Q, tol, as.integer(maxit)))
+    best <- fits[[which.max(vapply(fits, function(f) f$logLik, numeric(1)))]]
   }
   if (!best$converged) {
     warning("the EM algorithm did not converge in ", maxit, " iterations")

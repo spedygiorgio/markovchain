@@ -109,6 +109,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mtdEM
+List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0, NumericMatrix Q0, double tol, int maxit);
+RcppExport SEXP _markovchain_mtdEM(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambda0SEXP, SEXP Q0SEXP, SEXP tolSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda0(lambda0SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Q0(Q0SEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdEM(patterns, counts, lambda0, Q0, tol, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // markovchainSequenceRcpp
 CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0, bool include_t0);
 RcppExport SEXP _markovchain_markovchainSequenceRcpp(SEXP nSEXP, SEXP markovchainSEXP, SEXP t0SEXP, SEXP include_t0SEXP) {
@@ -781,6 +797,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_impreciseProbabilityatTRCpp", (DL_FUNC) &_markovchain_impreciseProbabilityatTRCpp, 5},
     {"_markovchain_seq2freqProb", (DL_FUNC) &_markovchain_seq2freqProb, 1},
     {"_markovchain_seq2matHigh", (DL_FUNC) &_markovchain_seq2matHigh, 2},
+    {"_markovchain_mtdEM", (DL_FUNC) &_markovchain_mtdEM, 6},
     {"_markovchain_markovchainSequenceRcpp", (DL_FUNC) &_markovchain_markovchainSequenceRcpp, 4},
     {"_markovchain_markovchainListRcpp", (DL_FUNC) &_markovchain_markovchainListRcpp, 4},
     {"_markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &_markovchain_markovchainSequenceParallelRcpp, 4},

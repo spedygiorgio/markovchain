@@ -37,8 +37,13 @@ test_that("AIC and BIC follow from the log-likelihood and the parameter count", 
   fit <- handFit(seqA, c(0.5, 0.5))
   res <- higherOrderLogLik(seqA, fit)
   r <- 3
-  npar <- 2 * r * (r - 1) + 1
+  # identifiable dimension of a mixture of k = 2 lag matrices: (r - 1)(1 + k (r - 1)),
+  # r (k - 1) less than the naive count k r (r - 1) + (k - 1)
+  npar <- (r - 1) * (1 + 2 * (r - 1))
+  expect_equal(npar, 2 * r * (r - 1) + 1 - r)
   expect_equal(res$npar, npar)
+  # order 1: r (r - 1)
+  expect_equal(higherOrderLogLik(seqA, handFit(seqA, 1))$npar, r * (r - 1))
   expect_equal(res$AIC, -2 * res$logLik + 2 * npar)
   expect_equal(res$BIC, -2 * res$logLik + log(res$nobs) * npar)
 })
@@ -72,7 +77,8 @@ test_that("a probability of zero gives -Inf instead of NaN", {
 
 test_that("invalid input is rejected", {
   fit <- handFit(seqA, c(0.5, 0.5))
-  expect_error(higherOrderLogLik(1:5, fit), "character")
+  expect_error(higherOrderLogLik(1:5, fit), "unknown")
+  expect_error(higherOrderLogLik(list("a", "b"), fit), "vector of states")
   expect_error(higherOrderLogLik(seqA, list(a = 1)), "fitHigherOrder")
   expect_error(higherOrderLogLik(c(seqA, "z"), fit), "unknown")
   expect_error(higherOrderLogLik(seqA, fit, start = 2), "start")

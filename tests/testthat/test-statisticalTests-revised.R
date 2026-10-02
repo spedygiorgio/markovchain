@@ -120,3 +120,18 @@ test_that("assessOrder returns a standard htest object", {
   expect_true(any(grepl("df", printed, fixed = TRUE)))
   expect_true(any(grepl("p-value", printed, fixed = TRUE)))
 })
+
+test_that("assessOrder treats factors and numbers like character sequences", {
+  set.seed(11)
+  s <- sample(c("a", "b", "c"), 300, replace = TRUE)
+  ref <- assessOrder(s, verbose = FALSE)
+  expect_gt(unname(ref$parameter), 0)
+  for (x in list(factor(s), match(s, c("a", "b", "c")))) {
+    res <- assessOrder(x, verbose = FALSE)
+    expect_equal(unname(res$statistic), unname(ref$statistic))
+    expect_equal(unname(res$parameter), unname(ref$parameter))
+  }
+  expect_equal(unname(ref$statistic),
+               unname(verifyMarkovProperty(s, method = "Pearson", verbose = FALSE)$statistic))
+})
+

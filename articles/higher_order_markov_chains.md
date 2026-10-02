@@ -7,10 +7,12 @@ is a part of the package.
 
 An experimental `fitHigherOrder` function has been written in order to
 fit a higher order Markov chain (Ching et al.
-([2008](#ref-ching2008higher))). `fitHigherOrder` takes two inputs
+([2008](#ref-ching2008higher))). `fitHigherOrder` takes three inputs
 
 1.  sequence: a categorical data sequence.
 2.  order: order of Markov chain to fit with default value 2.
+3.  method: how the weights are estimated, `"lsq"` (default) or `"mle"`,
+    see below.
 
 The output will be a `list` which consists of
 
@@ -19,8 +21,17 @@ The output will be a `list` which consists of
     transition matrix stored column-wise.
 3.  X: frequency probability vector of the given sequence.
 
-Its quadratic programming problem is solved using `solnp` function of
-the Rsolnp package ([Ghalanos and Theussl 2014](#ref-pkg:Rsolnp)).
+The model is a mixture of the empirical lag-$i$ transition matrices
+$Q_{i}$ with weights $\lambda_{i} \geq 0$ summing to one, and the
+matrices $Q_{i}$ are the same for both methods. With the default
+`method = "lsq"` the weights solve a quadratic programming problem, the
+minimization of the squared distance between the stationary distribution
+and its image under the mixture, which is solved using `solnp` function
+of the Rsolnp package ([Ghalanos and Theussl 2014](#ref-pkg:Rsolnp)).
+With `method = "mle"` the weights maximize the log-likelihood of the
+observations; for fixed $Q_{i}$ this is a concave problem, so its
+maximum is global, and it is solved by the EM algorithm for mixture
+weights, without the Rsolnp package.
 
 ``` r
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
@@ -65,29 +76,40 @@ order $k$ can predict, that is from observation $k + 1$ onwards. To
 compare orders on exactly the same observations the argument `start`
 must be set to one plus the largest order compared.
 
-Two caveats apply. First, `fitHigherOrder` chooses the weights $\lambda$
-by least squares on the stationary distribution, not by maximum
-likelihood, so the value returned is the log-likelihood *of the fitted
-model* and not the maximum attainable one. It can therefore be lower for
-a higher order than for a lower one, which cannot happen for
-maximum-likelihood fits of nested models. Second, the number of
-parameters used for the criteria is $k\, r(r - 1) + (k - 1)$, with $r$
-the number of states.
+Two caveats apply. First, with the default `method = "lsq"` the weights
+$\lambda$ are chosen by least squares on the stationary distribution,
+not by maximum likelihood, so the value returned is the log-likelihood
+*of the fitted model* and not the maximum attainable one. It can
+therefore be lower for a higher order than for a lower one, which cannot
+happen for maximum-likelihood fits of nested models. With
+`method = "mle"` the weights maximize this log-likelihood for the
+observations that a model of that order can predict, and in the examples
+below the log-likelihood then never decreases with the order. Second,
+the number of parameters used for the criteria is
+$k\, r(r - 1) + (k - 1)$, with $r$ the number of states.
 
 The example compares orders one to three on the Alofi Island daily
 rainfall and on the preproglucacon DNA sequence, both analysed by ([P.
-J. Avery and D. A. Henderson 1999](#ref-averyHenderson)). Both criteria
-select the first-order model for both sequences. The values are computed
-by the package; they are not claimed to reproduce those of the original
-paper.
+J. Avery and D. A. Henderson 1999](#ref-averyHenderson)), with both
+estimation methods. Maximum likelihood weights raise the log-likelihood
+of the higher orders, by up to about 11 units for the rainfall and 28
+for the DNA sequence, whereas the least squares weights can leave it
+below that of the first-order model. Even so, the gain is too small to
+pay for the additional parameters, and both criteria select the
+first-order model for both sequences with both methods. The values are
+computed by the package; they are not claimed to reproduce those of the
+original paper.
 
 ``` r
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
   compareOrders <- function(sequence, orders = 1:3) {
-    fits <- lapply(orders, function(k) fitHigherOrder(sequence, k))
-    out <- sapply(fits, function(f)
-      unlist(higherOrderLogLik(sequence, f, start = max(orders) + 1)[
-        c("logLik", "deviance", "AIC", "BIC", "npar")]))
+    byMethod <- lapply(c("lsq", "mle"), function(method) {
+      fits <- lapply(orders, function(k) fitHigherOrder(sequence, k, method = method))
+      sapply(fits, function(f)
+        unlist(higherOrderLogLik(sequence, f, start = max(orders) + 1)[c("logLik", "BIC")]))
+    })
+    out <- rbind(byMethod[[1]], byMethod[[2]])
+    rownames(out) <- c("logLik (lsq)", "BIC (lsq)", "logLik (mle)", "BIC (mle)")
     colnames(out) <- paste("order", orders)
     round(out, 1)
   }
@@ -96,18 +118,16 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
   data(preproglucacon)
   print(compareOrders(preproglucacon$preproglucacon))
 }
-#>          order 1 order 2 order 3
-#> logLik   -1038.1 -1047.8 -1047.8
-#> deviance  2076.1  2095.5  2095.5
-#> AIC       2088.1  2121.5  2135.5
-#> BIC       2118.1  2186.5  2235.5
-#> npar         6.0    13.0    20.0
-#>          order 1 order 2 order 3
-#> logLik   -2026.0 -2024.6 -2051.6
-#> deviance  4052.0  4049.1  4103.1
-#> AIC       4076.0  4099.1  4179.1
-#> BIC       4140.3  4233.1  4382.7
-#> npar        12.0    25.0    38.0
+#>              order 1 order 2 order 3
+#> logLik (lsq) -1038.1 -1047.8 -1047.8
+#> BIC (lsq)     2118.1  2186.5  2235.5
+#> logLik (mle) -1038.1 -1036.5 -1036.5
+#> BIC (mle)     2118.1  2163.9  2212.9
+#>              order 1 order 2 order 3
+#> logLik (lsq) -2026.0 -2024.6 -2051.6
+#> BIC (lsq)     4140.3  4233.1  4382.7
+#> logLik (mle) -2026.0 -2024.0 -2024.0
+#> BIC (mle)     4140.3  4232.0  4327.6
 ```
 
 ### Reproducing a published comparison
@@ -128,12 +148,13 @@ forced to zero.
 
 `fitHigherOrder` does not estimate the MTD model of that paper: it fits
 a different transition matrix for each lag, with weights chosen by least
-squares, whereas the MTD model uses a single matrix $Q$ for all lags and
-is estimated by maximum likelihood. The comparison below therefore
-evaluates, with `higherOrderLogLik`, the first-order chain estimated on
-the observations entering the likelihood and the MTD(2) model with the
-weights and the matrix $Q$ printed in the paper (whose rows are the
-departure states, hence the transposition).
+squares or, with `method = "mle"`, by maximum likelihood given those
+matrices, whereas the MTD model uses a single matrix $Q$ for all lags
+and estimates it together with the weights by maximum likelihood. The
+comparison below therefore evaluates, with `higherOrderLogLik`, the
+first-order chain estimated on the observations entering the likelihood
+and the MTD(2) model with the weights and the matrix $Q$ printed in the
+paper (whose rows are the departure states, hence the transposition).
 
 ``` r
 koeberg <- as.character(read.csv(system.file("extdata", "koeberg_wind.csv",
@@ -440,6 +461,13 @@ object <- fitHighOrderMultivarMC(sales, order = 8, Norm = 2)
 We choose to show only results shown in the paper. We see that $\lambda$
 values are quite close, but not equal, to those shown in the original
 paper.
+
+### Acknowledgments
+
+We are grateful to Professors Adrian E. Raftery and André Berchtold for
+kindly sharing the Koeberg wind-direction and epileptic-seizure series
+of ([Berchtold and Raftery 2002](#ref-berchtold2002mixture)), which made
+it possible to check `higherOrderLogLik` against the published results.
 
 ### References
 

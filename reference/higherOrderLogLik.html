@@ -102,10 +102,12 @@ order can predict.</p></dd>
   \(t = \) <code>start</code>, \(\dots\), \(T\), and the deviance is
   \(-2\) times the log-likelihood.</p>
 <p>Two points matter when interpreting the output. First,
-  <code>fitHigherOrder</code> chooses \(\lambda\) by least squares on the
-  stationary distribution, not by maximum likelihood, so the value returned
-  is the log-likelihood <em>of the fitted model</em>, not the maximum
-  attainable one. Second, a model of order \(k\) can only be evaluated from
+  <code>fitHigherOrder</code> chooses \(\lambda\) by default
+  (<code>method = "lsq"</code>) by least squares on the stationary distribution,
+  not by maximum likelihood, so the value returned is the log-likelihood
+  <em>of the fitted model</em>, not the maximum attainable one; with
+  <code>method = "mle"</code> the weights maximize this log-likelihood for the
+  observations a model of that order can predict. Second, a model of order \(k\) can only be evaluated from
   observation \(k + 1\) onwards; to compare orders on exactly the same data
   set <code>start</code> to \(1 +\) the largest order compared, otherwise the
   models are evaluated on different numbers of observations and neither the

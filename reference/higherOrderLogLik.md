@@ -54,14 +54,16 @@ the observations \\t = \\ `start`, \\\dots\\, \\T\\, and the deviance is
 \\-2\\ times the log-likelihood.
 
 Two points matter when interpreting the output. First, `fitHigherOrder`
-chooses \\\lambda\\ by least squares on the stationary distribution, not
-by maximum likelihood, so the value returned is the log-likelihood *of
-the fitted model*, not the maximum attainable one. Second, a model of
-order \\k\\ can only be evaluated from observation \\k + 1\\ onwards; to
-compare orders on exactly the same data set `start` to \\1 +\\ the
-largest order compared, otherwise the models are evaluated on different
-numbers of observations and neither the log-likelihood nor the
-information criteria are comparable.
+chooses \\\lambda\\ by default (`method = "lsq"`) by least squares on
+the stationary distribution, not by maximum likelihood, so the value
+returned is the log-likelihood *of the fitted model*, not the maximum
+attainable one; with `method = "mle"` the weights maximize this
+log-likelihood for the observations a model of that order can predict.
+Second, a model of order \\k\\ can only be evaluated from observation
+\\k + 1\\ onwards; to compare orders on exactly the same data set
+`start` to \\1 +\\ the largest order compared, otherwise the models are
+evaluated on different numbers of observations and neither the
+log-likelihood nor the information criteria are comparable.
 
 The number of parameters used for AIC and BIC is \\k\\ r (r - 1) + (k -
 1)\\, that is \\r (r - 1)\\ free probabilities for each of the \\k\\ lag

@@ -36,7 +36,13 @@ The fitted model expresses the distribution of the next state as
   argument existed) chooses \eqn{\lambda} to minimize the squared distance
   between the stationary distribution and its image under the mixture, as in
   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
-  with a message if it is unavailable.
+  with a message if it is unavailable. This criterion is weak: each lag
+  matrix maps the empirical distribution onto itself up to end effects,
+  \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
+  objective is nearly flat in \eqn{\lambda} and the weights it returns can
+  be unstable from one sample to another. It is kept as the default for
+  backward compatibility; \code{method = "mle"} is preferable when the
+  weights are interpreted or models are compared by likelihood.
 
   \code{method = "mle"} chooses \eqn{\lambda} to maximize the
   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
@@ -44,7 +50,14 @@ The fitted model expresses the distribution of the next state as
   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
   is solved by the EM algorithm for mixture weights, without
   \pkg{Rsolnp}. The weights are therefore those that give the highest
-  value of \code{\link{higherOrderLogLik}} for the same observations. Note
+  value of \code{\link{higherOrderLogLik}} for the same observations.
+  They are maximum likelihood estimates \emph{conditional on} the empirical
+  matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
+  likelihood estimator of the mixture with free matrices, in which the
+  weights are in general not identifiable (a common distribution can be
+  moved from \eqn{\lambda_j Q_j} to \eqn{\lambda_i Q_i} without changing
+  any transition probability), so the weights should not be read as the
+  relative importance of the lags beyond this conditional sense. Note
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
   together with the weights; that model is fitted by \code{\link{fitMTD}}.

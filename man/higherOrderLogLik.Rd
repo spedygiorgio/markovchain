@@ -7,7 +7,9 @@
 higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 }
 \arguments{
-\item{sequence}{A character vector, the empirical sequence of states.}
+\item{sequence}{The empirical sequence of states, a character vector or a
+vector coercible to character (numbers and factors are matched to the
+states of the fit as character strings).}
 
 \item{fit}{The list returned by \code{\link{fitHigherOrder}} (or by
 \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
@@ -59,7 +61,11 @@ The fitted model is the mixture-transition-distribution model of
   The number of parameters used for AIC and BIC is
   \eqn{k\, r (r - 1) + (k - 1)}, that is \eqn{r (r - 1)} free probabilities
   for each of the \eqn{k} lag matrices plus the \eqn{k - 1} free weights,
-  with \eqn{r} the number of states. For a fit returned by
+  with \eqn{r} the number of states. Because the weights of a mixture of
+  free lag matrices are not identifiable, this count exceeds by
+  \eqn{r (k - 1)} the dimension \eqn{(r - 1)(1 + k (r - 1))} of the set of
+  transition laws the model can represent, so AIC and BIC penalize orders
+  above one somewhat more than necessary. For a fit returned by
   \code{\link{fitMTD}}, whose lags share a single matrix, it is
   \eqn{r (r - 1) + (k - 1)}.
 }
@@ -83,5 +89,6 @@ Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov
 chains. In Markov Chains (pp. 141-176). Springer US.
 }
 \seealso{
-\code{\link{fitHigherOrder}}, \code{\link{fitMTD}}
+\code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
+  \code{\link{higherOrderPredict}}
 }

@@ -183,6 +183,19 @@ round(fits[["Koeberg 2"]]$estimate@transitionMatrix, 4)
 
 The weight of the first lag is about three times that of the second: the wind direction depends mostly on the previous hour, but the hour before still adds information, at the cost of a single extra parameter. More general MTD variants (different matrices for each lag, covariates, hidden states) are described in [@berchtold2002mixture] and are outside the scope of `fitMTD`.
 
+## Prediction and simulation
+
+`higherOrderPredict(fit, history)` returns the distribution of the next state given the most recent states (oldest first), and `higherOrderSimulate(n, fit, t0)` draws a sequence from the fitted model, starting from the states in `t0`. Both accept the output of `fitMTD` and of `fitHigherOrder`, and use the same transition probabilities as `higherOrderLogLik`, so that summing the logarithms of the predicted probabilities of the observed states gives back the log-likelihood.
+
+```{r}
+#| label: higherOrderPredict
+fit <- fits[["Koeberg 2"]]
+# next direction after two hours from directions 1 and then 2, and after 2 and then 2
+round(higherOrderPredict(fit, rbind("1 then 2" = c(1, 2), "2 then 2" = c(2, 2))), 3)
+set.seed(123)
+higherOrderSimulate(24, fit, t0 = c(2, 2))
+```
+
 # Higher Order Multivariate Markov Chains
 
 ## Introduction

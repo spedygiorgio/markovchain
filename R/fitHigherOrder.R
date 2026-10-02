@@ -66,7 +66,13 @@ setClass("HigherOrderMarkovChain", #class name
 #'   argument existed) chooses \eqn{\lambda} to minimize the squared distance
 #'   between the stationary distribution and its image under the mixture, as in
 #'   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
-#'   with a message if it is unavailable.
+#'   with a message if it is unavailable. This criterion is weak: each lag
+#'   matrix maps the empirical distribution onto itself up to end effects,
+#'   \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
+#'   objective is nearly flat in \eqn{\lambda} and the weights it returns can
+#'   be unstable from one sample to another. It is kept as the default for
+#'   backward compatibility; \code{method = "mle"} is preferable when the
+#'   weights are interpreted or models are compared by likelihood.
 #'
 #'   \code{method = "mle"} chooses \eqn{\lambda} to maximize the
 #'   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
@@ -74,7 +80,14 @@ setClass("HigherOrderMarkovChain", #class name
 #'   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
 #'   is solved by the EM algorithm for mixture weights, without
 #'   \pkg{Rsolnp}. The weights are therefore those that give the highest
-#'   value of \code{\link{higherOrderLogLik}} for the same observations. Note
+#'   value of \code{\link{higherOrderLogLik}} for the same observations.
+#'   They are maximum likelihood estimates \emph{conditional on} the empirical
+#'   matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
+#'   likelihood estimator of the mixture with free matrices, in which the
+#'   weights are in general not identifiable (a common distribution can be
+#'   moved from \eqn{\lambda_j Q_j} to \eqn{\lambda_i Q_i} without changing
+#'   any transition probability), so the weights should not be read as the
+#'   relative importance of the lags beyond this conditional sense. Note
 #'   that this is not the mixture transition distribution model of Raftery
 #'   (1985), in which a single matrix is shared by all lags and is estimated
 #'   together with the weights; that model is fitted by \code{\link{fitMTD}}.
@@ -204,11 +217,17 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'   The number of parameters used for AIC and BIC is
 #'   \eqn{k\, r (r - 1) + (k - 1)}, that is \eqn{r (r - 1)} free probabilities
 #'   for each of the \eqn{k} lag matrices plus the \eqn{k - 1} free weights,
-#'   with \eqn{r} the number of states. For a fit returned by
+#'   with \eqn{r} the number of states. Because the weights of a mixture of
+#'   free lag matrices are not identifiable, this count exceeds by
+#'   \eqn{r (k - 1)} the dimension \eqn{(r - 1)(1 + k (r - 1))} of the set of
+#'   transition laws the model can represent, so AIC and BIC penalize orders
+#'   above one somewhat more than necessary. For a fit returned by
 #'   \code{\link{fitMTD}}, whose lags share a single matrix, it is
 #'   \eqn{r (r - 1) + (k - 1)}.
 #'
-#' @param sequence A character vector, the empirical sequence of states.
+#' @param sequence The empirical sequence of states, a character vector or a
+#'   vector coercible to character (numbers and factors are matched to the
+#'   states of the fit as character strings).
 #' @param fit The list returned by \code{\link{fitHigherOrder}} (or by
 #'   \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
 #'   computed.
@@ -231,7 +250,8 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov
 #' chains. In Markov Chains (pp. 141-176). Springer US.
 #'
-#' @seealso \code{\link{fitHigherOrder}}, \code{\link{fitMTD}}
+#' @seealso \code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
+#'   \code{\link{higherOrderPredict}}
 #'
 #' @examples
 #' sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
@@ -246,9 +266,11 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'
 #' @export
 higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
-  if (!is.character(sequence) || length(sequence) < 2L || anyNA(sequence)) {
-    stop("sequence must be a non-empty character vector without missing values")
+  if (!is.atomic(sequence) || length(sequence) < 2L || anyNA(sequence)) {
+    stop("sequence must be a vector of states without missing values")
   }
+  # numeric or factor sequences are matched to the states as character, as in fitMTD()
+  sequence <- as.character(sequence)
   if (is.null(fit)) {
     fit <- fitHigherOrder(sequence, order)
     if (is.null(fit)) stop("package Rsolnp is required to fit the model")

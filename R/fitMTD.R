@@ -102,7 +102,7 @@
 #' Computation and Simulation, 78(1), 1-15.
 #'
 #' @seealso \code{\link{fitHigherOrder}}, \code{\link{higherOrderLogLik}},
-#'   \code{\link{markovchainFit}}
+#'   \code{\link{higherOrderPredict}}, \code{\link{markovchainFit}}
 #'
 #' @examples
 #' # hourly wind directions at Koeberg (Berchtold and Raftery, 2002)

@@ -72,7 +72,8 @@ test_that("a probability of zero gives -Inf instead of NaN", {
 
 test_that("invalid input is rejected", {
   fit <- handFit(seqA, c(0.5, 0.5))
-  expect_error(higherOrderLogLik(1:5, fit), "character")
+  expect_error(higherOrderLogLik(1:5, fit), "unknown")
+  expect_error(higherOrderLogLik(list("a", "b"), fit), "vector of states")
   expect_error(higherOrderLogLik(seqA, list(a = 1)), "fitHigherOrder")
   expect_error(higherOrderLogLik(c(seqA, "z"), fit), "unknown")
   expect_error(higherOrderLogLik(seqA, fit, start = 2), "start")

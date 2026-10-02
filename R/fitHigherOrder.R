@@ -214,14 +214,19 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'   models are evaluated on different numbers of observations and neither the
 #'   log-likelihood nor the information criteria are comparable.
 #'
-#'   The number of parameters used for AIC and BIC is
-#'   \eqn{k\, r (r - 1) + (k - 1)}, that is \eqn{r (r - 1)} free probabilities
-#'   for each of the \eqn{k} lag matrices plus the \eqn{k - 1} free weights,
-#'   with \eqn{r} the number of states. Because the weights of a mixture of
-#'   free lag matrices are not identifiable, this count exceeds by
-#'   \eqn{r (k - 1)} the dimension \eqn{(r - 1)(1 + k (r - 1))} of the set of
-#'   transition laws the model can represent, so AIC and BIC penalize orders
-#'   above one somewhat more than necessary. For a fit returned by
+#'   The number of parameters used for AIC and BIC is the dimension of the
+#'   set of transition laws the model can represent,
+#'   \eqn{(r - 1)(1 + k (r - 1))}, with \eqn{r} the number of states: each of
+#'   the \eqn{k} lag matrices has \eqn{r (r - 1)} free probabilities and there
+#'   are \eqn{k - 1} free weights, but the weights of a mixture of lag
+#'   matrices are not identifiable (a distribution common to all departure
+#'   states can be moved from \eqn{\lambda_j Q_j} to \eqn{\lambda_i Q_i}
+#'   without changing any transition probability), which removes
+#'   \eqn{r (k - 1)} parameters from the naive count
+#'   \eqn{k\, r (r - 1) + (k - 1)}: for each next state the transition
+#'   probability is a sum of one term for each lag, a main-effects function of
+#'   the \eqn{k} past states, with \eqn{1 + k (r - 1)} free coefficients.
+#'   For \eqn{k = 1} both counts are \eqn{r (r - 1)}. For a fit returned by
 #'   \code{\link{fitMTD}}, whose lags share a single matrix, it is
 #'   \eqn{r (r - 1) + (k - 1)}.
 #'
@@ -299,7 +304,12 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   logLik <- if (any(p <= 0)) -Inf else sum(log(p))
   r <- length(states)
   # a fit of fitMTD() shares one matrix among all lags
-  npar <- if (identical(fit$model, "MTD")) r * (r - 1) + (k - 1) else k * r * (r - 1) + (k - 1)
+  # fitMTD(): one matrix shared by all lags. fitHigherOrder(): one matrix per
+  # lag; the weights of such a mixture are not identifiable (a distribution
+  # common to all "from" states can be moved between lambda_i Q_i and
+  # lambda_j Q_j), and the set of transition laws it represents has dimension
+  # (r - 1)(1 + k (r - 1)) = k r (r - 1) + (k - 1) - r (k - 1)
+  npar <- if (identical(fit$model, "MTD")) r * (r - 1) + (k - 1) else (r - 1) * (1 + k * (r - 1))
   list(logLik = logLik, deviance = -2 * logLik,
        AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(length(times)) * npar,
        nobs = length(times), npar = npar, order = k, start = as.integer(start))

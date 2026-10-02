@@ -76,7 +76,15 @@ in each row coressponding to every categorical sequence.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The user is required to provide a matrix of giving n previous coressponding
 every categorical sequence. Dimensions of the init are s X n, where s is
-number of categorical sequences and n is order of the homc.</p>
+number of categorical sequences and n is order of the homc. The last
+column of <code>init</code> holds the most recent state of each sequence.</p>
+<p>At each step the next state of sequence \(j\) is drawn from
+\(\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}\), where
+\(x^{(k)}_{t-h+1}\) is the state of sequence \(k\) \(h - 1\) steps
+before the current one (Ching et al., 2008). The matrices are read by column
+(<code>P[to, from]</code>), as returned by <code><a href="fitHighOrderMultivarMC.html">fitHighOrderMultivarMC</a></code>,
+or by row when <code>byrow = TRUE</code>, and all sequences are drawn from the same
+past before it is updated.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>

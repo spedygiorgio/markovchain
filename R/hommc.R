@@ -284,7 +284,16 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
 #' @details 
 #' The user is required to provide a matrix of giving n previous coressponding
 #' every categorical sequence. Dimensions of the init are s X n, where s is 
-#' number of categorical sequences and n is order of the homc.
+#' number of categorical sequences and n is order of the homc. The last
+#' column of \code{init} holds the most recent state of each sequence.
+#'
+#' At each step the next state of sequence \eqn{j} is drawn from
+#' \eqn{\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}}, where
+#' \eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1} steps
+#' before the current one (Ching et al., 2008). The matrices are read by column
+#' (\code{P[to, from]}), as returned by \code{\link{fitHighOrderMultivarMC}},
+#' or by row when \code{byrow = TRUE}, and all sequences are drawn from the same
+#' past before it is updated.
 #' 
 #' @return 
 #' The function returns a matrix of size s X t displaying t predicted states 
@@ -295,6 +304,10 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
 #' 
 #' @export
 predictHommc <- function(hommc, t, init) {
+  if(!is(hommc, "hommc")) {
+    stop("Please provide a valid hommc-class object")
+  }
+
   ## order of markovchain 
   n <- hommc@order
   
@@ -311,73 +324,64 @@ predictHommc <- function(hommc, t, init) {
   if(missing(init)) {
     init <- matrix(rep(states[1],s*n),nrow = s,byrow = TRUE)
   }
+  init <- as.matrix(init)
   
   if(!all(dim(init) == c(s,n))){
     stop("Please provide sufficient number of previous states")
   }
   
-  if(!is(hommc, "hommc")) {
-    stop("Please provide a valid hommc-class object")
-  }
-  
-  if(t <=0)
+  if(length(t) != 1L || is.na(t) || t <= 0 || t != floor(t))
     stop("T should be a positive integer")
   
-  for(i in 1:s)
-  {
-    for(j in 1:n)
-    {
-      if(!(init[i,j] %in% states))
-        stop("invalid states in provided state matrix init")
-    }
-  }
+  if(!all(init %in% states))
+    stop("invalid states in provided state matrix init")
   
   ## initialize result matrix
   result <- matrix(NA,nrow = s,ncol = t)
   
-  ## runs loop according to hommc class structure
+  ## The model (Ching et al.) is
+  ##   x_{t+1}^{(j)} = sum_k sum_h Lambda_{jkh} P_h^{(jk)} x_{t-h+1}^{(k)},
+  ## where P_h^{(jk)} maps the state of sequence k (the "from" state) h steps
+  ## before to the next state of sequence j. The matrices are stored by column
+  ## (P[to, from]) unless byrow = TRUE, and init[k, n] is the most recent state
+  ## of sequence k. All s sequences are drawn from the same past before the
+  ## past is updated.
   for(i in 1:t)
   {
+    current <- character(s)
     for(j in 1:s)
     {
       ## initialises probability according
-      rowProbs <- rep(0,m)
+      probs <- rep(0,m)
       
       ## probability for current sequence depends all sequence
       for(k in 1:s)
       {
         ## gets index of coressponding in the 3-D array P 
-        # index is the index of transition matrix for transition from i sequence to j sequence
+        # index is the index of transition matrix for transition from sequence k to sequence j
         # order of transition matrices in P is P1{1,1},P2{1,1}..Pn{1,1},P1{1,2}....Pn{s,s}
         index <- n * s * (j-1) + n * (k-1)
         
         ## iterates for all order 1 to n
         for(h in 1:n)
         {
-          prev <- init[j,n-h+1]
+          prev <- init[k,n-h+1]
           label <- which(prev == states)
-          rowProbs <- rowProbs + hommc@Lambda[h + index] * hommc@P[label, ,h + index]
+          column <- if (isTRUE(hommc@byrow)) hommc@P[label, , h + index] else hommc@P[, label, h + index]
+          probs <- probs + hommc@Lambda[h + index] * column
         }
       }
       
       ## uses sample function from base package
-      curr <- sample(size = 1, x = states, prob = rowProbs)
-      
-      ## changes init for next t iteration
-      for(temp in 2:n)
-      {
-        if(temp <= n)
-        init[j,temp-1] = init[j,temp]
-      }
-      init[j,n] = curr;
-      result[j,i] = curr;
+      current[j] <- sample(size = 1, x = states, prob = probs)
     }
+    
+    ## changes init for next t iteration
+    if (n > 1L) init[, 1:(n - 1L)] <- init[, 2:n, drop = FALSE]
+    init[, n] <- current
+    result[, i] <- current
   }
   
   ## returns result
   return(result)
 }
-
-
-
-

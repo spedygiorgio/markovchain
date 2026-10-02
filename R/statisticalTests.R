@@ -101,7 +101,8 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
 #' future states conditional on the present state. Degrees of freedom are
 #' summed, present-state by present-state, over only the past and future
 #' states actually observed with that present state, mirroring the other
-#' functions documented on this page.
+#' functions documented on this page. Factors and numeric sequences are
+#' compared as character strings.
 #' @rdname statisticalTests
 #' @family statisticalTests
 #' @param sequence An empirical sequence of states.
@@ -109,16 +110,19 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
 #' @return An `htest` object.
 #' @export
 assessOrder <- function(sequence, verbose = TRUE) {
+  data.name <- deparse(substitute(sequence))
   if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
   if (anyNA(sequence)) stop("sequence must not contain missing values.")
-  states <- unique(sequence); k <- length(states); n <- length(sequence)
+  # factors (and numbers) are compared as character, like in verifyMarkovProperty
+  sequence <- as.character(sequence)
+  states <- unique(sequence); n <- length(sequence)
+  past <- factor(sequence[seq_len(n - 2L)], levels = states)
+  present_state <- sequence[2:(n - 1L)]
+  future <- factor(sequence[3:n], levels = states)
   statistic <- 0; dof <- 0L
   for (present in states) {
-    mat <- matrix(0, nrow = k, ncol = k, dimnames = list(states, states))
-    for (i in seq_len(n - 2L)) if (identical(sequence[i + 1L], present)) {
-      mat[as.character(sequence[i]), as.character(sequence[i + 2L])] <-
-        mat[as.character(sequence[i]), as.character(sequence[i + 2L])] + 1
-    }
+    selected <- present_state == present
+    mat <- unclass(table(past[selected], future[selected]))
     row_totals <- rowSums(mat); active <- row_totals > 0
     active_cols <- sum(colSums(mat) > 0)
     if (sum(active) > 1L && active_cols > 1L) {
@@ -130,7 +134,7 @@ assessOrder <- function(sequence, verbose = TRUE) {
   }
   result <- list(statistic = statistic, dof = dof,
                  p.value = if (dof > 0L) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_)
-  result <- .asHtest(result, "Pearson", deparse(substitute(sequence)))
+  result <- .asHtest(result, "Pearson", data.name)
   result$method <- "Pearson's Chi-squared test for Markov order"
   if (verbose) print(result)
   invisible(result)

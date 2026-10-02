@@ -85,17 +85,30 @@
   argument existed) chooses \(\lambda\) to minimize the squared distance
   between the stationary distribution and its image under the mixture, as in
   Ching et al.; it needs the <span class="pkg">Rsolnp</span> package and returns <code>NULL</code>
-  with a message if it is unavailable.</p>
+  with a message if it is unavailable. This criterion is weak: each lag
+  matrix maps the empirical distribution onto itself up to end effects,
+  \(Q_i X \approx X\) with an error of order \(i/n\), so the
+  objective is nearly flat in \(\lambda\) and the weights it returns can
+  be unstable from one sample to another. It is kept as the default for
+  backward compatibility; <code>method = "mle"</code> is preferable when the
+  weights are interpreted or models are compared by likelihood.</p>
 <p><code>method = "mle"</code> chooses \(\lambda\) to maximize the
   log-likelihood \(\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
   x_{t-i}]\) of the observations a model of order \(k\) can predict. For
   fixed \(Q_i\) the problem is concave, so the maximum is global, and it
   is solved by the EM algorithm for mixture weights, without
   <span class="pkg">Rsolnp</span>. The weights are therefore those that give the highest
-  value of <code><a href="higherOrderLogLik.html">higherOrderLogLik</a></code> for the same observations. Note
+  value of <code><a href="higherOrderLogLik.html">higherOrderLogLik</a></code> for the same observations.
+  They are maximum likelihood estimates <em>conditional on</em> the empirical
+  matrices \(Q_i\), which are not re-estimated: this is not the maximum
+  likelihood estimator of the mixture with free matrices, in which the
+  weights are in general not identifiable (a common distribution can be
+  moved from \(\lambda_j Q_j\) to \(\lambda_i Q_i\) without changing
+  any transition probability), so the weights should not be read as the
+  relative importance of the lags beyond this conditional sense. Note
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
-  together with the weights.</p>
+  together with the weights; that model is fitted by <code><a href="fitMTD.html">fitMTD</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

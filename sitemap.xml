@@ -31,12 +31,14 @@
 <url><loc>/reference/firstPassageMultiple.html</loc></url>
 <url><loc>/reference/fitHighOrderMultivarMC.html</loc></url>
 <url><loc>/reference/fitHigherOrder.html</loc></url>
+<url><loc>/reference/fitMTD.html</loc></url>
 <url><loc>/reference/freq2Generator.html</loc></url>
 <url><loc>/reference/fundamentalMatrix.html</loc></url>
 <url><loc>/reference/gamblersRuin.html</loc></url>
 <url><loc>/reference/generatorToTransitionMatrix.html</loc></url>
 <url><loc>/reference/getName.html</loc></url>
 <url><loc>/reference/higherOrderLogLik.html</loc></url>
+<url><loc>/reference/higherOrderPredict.html</loc></url>
 <url><loc>/reference/hittingProbabilities.html</loc></url>
 <url><loc>/reference/holson.html</loc></url>
 <url><loc>/reference/hommc-class.html</loc></url>

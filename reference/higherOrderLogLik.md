@@ -15,12 +15,15 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 
 - sequence:
 
-  A character vector, the empirical sequence of states.
+  The empirical sequence of states, a character vector or a vector
+  coercible to character (numbers and factors are matched to the states
+  of the fit as character strings).
 
 - fit:
 
-  The list returned by [`fitHigherOrder`](fitHigherOrder.md) for
-  `sequence`. If `NULL`, `fitHigherOrder(sequence, order)` is computed.
+  The list returned by [`fitHigherOrder`](fitHigherOrder.md) (or by
+  [`fitMTD`](fitMTD.md)) for `sequence`. If `NULL`,
+  `fitHigherOrder(sequence, order)` is computed.
 
 - order:
 
@@ -65,10 +68,20 @@ Second, a model of order \\k\\ can only be evaluated from observation
 evaluated on different numbers of observations and neither the
 log-likelihood nor the information criteria are comparable.
 
-The number of parameters used for AIC and BIC is \\k\\ r (r - 1) + (k -
-1)\\, that is \\r (r - 1)\\ free probabilities for each of the \\k\\ lag
-matrices plus the \\k - 1\\ free weights, with \\r\\ the number of
-states.
+The number of parameters used for AIC and BIC is the dimension of the
+set of transition laws the model can represent, \\(r - 1)(1 + k (r -
+1))\\, with \\r\\ the number of states: each of the \\k\\ lag matrices
+has \\r (r - 1)\\ free probabilities and there are \\k - 1\\ free
+weights, but the weights of a mixture of lag matrices are not
+identifiable (a distribution common to all departure states can be moved
+from \\\lambda_j Q_j\\ to \\\lambda_i Q_i\\ without changing any
+transition probability), which removes \\r (k - 1)\\ parameters from the
+naive count \\k\\ r (r - 1) + (k - 1)\\: for each next state the
+transition probability is a sum of one term for each lag, a main-effects
+function of the \\k\\ past states, with \\1 + k (r - 1)\\ free
+coefficients. For \\k = 1\\ both counts are \\r (r - 1)\\. For a fit
+returned by [`fitMTD`](fitMTD.md), whose lags share a single matrix, it
+is \\r (r - 1) + (k - 1)\\.
 
 ## References
 
@@ -80,7 +93,8 @@ markov chains. In Markov Chains (pp. 141-176). Springer US.
 
 ## See also
 
-[`fitHigherOrder`](fitHigherOrder.md)
+[`fitHigherOrder`](fitHigherOrder.md), [`fitMTD`](fitMTD.md),
+[`higherOrderPredict`](higherOrderPredict.md)
 
 ## Examples
 
@@ -97,6 +111,6 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
 #>             order1    order2
 #> logLik   -13.08457 -13.08457
 #> deviance  26.16914  26.16914
-#> AIC       38.16914  52.16914
-#> BIC       43.51137  63.74398
+#> AIC       38.16914  46.16914
+#> BIC       43.51137  55.07286
 ```

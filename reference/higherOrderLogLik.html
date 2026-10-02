@@ -62,12 +62,14 @@
 
 
 <dl><dt id="arg-sequence">sequence<a class="anchor" aria-label="anchor" href="#arg-sequence"></a></dt>
-<dd><p>A character vector, the empirical sequence of states.</p></dd>
+<dd><p>The empirical sequence of states, a character vector or a
+vector coercible to character (numbers and factors are matched to the
+states of the fit as character strings).</p></dd>
 
 
 <dt id="arg-fit">fit<a class="anchor" aria-label="anchor" href="#arg-fit"></a></dt>
-<dd><p>The list returned by <code><a href="fitHigherOrder.html">fitHigherOrder</a></code> for
-<code>sequence</code>. If <code>NULL</code>, <code>fitHigherOrder(sequence, order)</code> is
+<dd><p>The list returned by <code><a href="fitHigherOrder.html">fitHigherOrder</a></code> (or by
+<code><a href="fitMTD.html">fitMTD</a></code>) for <code>sequence</code>. If <code>NULL</code>, <code>fitHigherOrder(sequence, order)</code> is
 computed.</p></dd>
 
 
@@ -112,10 +114,21 @@ order can predict.</p></dd>
   set <code>start</code> to \(1 +\) the largest order compared, otherwise the
   models are evaluated on different numbers of observations and neither the
   log-likelihood nor the information criteria are comparable.</p>
-<p>The number of parameters used for AIC and BIC is
-  \(k\, r (r - 1) + (k - 1)\), that is \(r (r - 1)\) free probabilities
-  for each of the \(k\) lag matrices plus the \(k - 1\) free weights,
-  with \(r\) the number of states.</p>
+<p>The number of parameters used for AIC and BIC is the dimension of the
+  set of transition laws the model can represent,
+  \((r - 1)(1 + k (r - 1))\), with \(r\) the number of states: each of
+  the \(k\) lag matrices has \(r (r - 1)\) free probabilities and there
+  are \(k - 1\) free weights, but the weights of a mixture of lag
+  matrices are not identifiable (a distribution common to all departure
+  states can be moved from \(\lambda_j Q_j\) to \(\lambda_i Q_i\)
+  without changing any transition probability), which removes
+  \(r (k - 1)\) parameters from the naive count
+  \(k\, r (r - 1) + (k - 1)\): for each next state the transition
+  probability is a sum of one term for each lag, a main-effects function of
+  the \(k\) past states, with \(1 + k (r - 1)\) free coefficients.
+  For \(k = 1\) both counts are \(r (r - 1)\). For a fit returned by
+  <code><a href="fitMTD.html">fitMTD</a></code>, whose lags share a single matrix, it is
+  \(r (r - 1) + (k - 1)\).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -126,7 +139,8 @@ chains. In Markov Chains (pp. 141-176). Springer US.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fitHigherOrder.html">fitHigherOrder</a></code></p></div>
+    <div class="dont-index"><p><code><a href="fitHigherOrder.html">fitHigherOrder</a></code>, <code><a href="fitMTD.html">fitMTD</a></code>,
+  <code><a href="higherOrderPredict.html">higherOrderPredict</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -143,8 +157,8 @@ chains. In Markov Chains (pp. 141-176). Springer US.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             order1    order2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> logLik   -13.08457 -13.08457</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> deviance  26.16914  26.16914</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AIC       38.16914  52.16914</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BIC       43.51137  63.74398</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC       38.16914  46.16914</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BIC       43.51137  55.07286</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

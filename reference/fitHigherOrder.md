@@ -42,7 +42,13 @@ for both methods; only the weights differ.
 argument existed) chooses \\\lambda\\ to minimize the squared distance
 between the stationary distribution and its image under the mixture, as
 in Ching et al.; it needs the Rsolnp package and returns `NULL` with a
-message if it is unavailable.
+message if it is unavailable. This criterion is weak: each lag matrix
+maps the empirical distribution onto itself up to end effects, \\Q_i X
+\approx X\\ with an error of order \\i/n\\, so the objective is nearly
+flat in \\\lambda\\ and the weights it returns can be unstable from one
+sample to another. It is kept as the default for backward compatibility;
+`method = "mle"` is preferable when the weights are interpreted or
+models are compared by likelihood.
 
 `method = "mle"` chooses \\\lambda\\ to maximize the log-likelihood
 \\\sum\_{t=k+1}^{n} \log \sum_i \lambda_i Q_i\[x_t, x\_{t-i}\]\\ of the
@@ -51,9 +57,16 @@ problem is concave, so the maximum is global, and it is solved by the EM
 algorithm for mixture weights, without Rsolnp. The weights are therefore
 those that give the highest value of
 [`higherOrderLogLik`](higherOrderLogLik.md) for the same observations.
-Note that this is not the mixture transition distribution model of
-Raftery (1985), in which a single matrix is shared by all lags and is
-estimated together with the weights.
+They are maximum likelihood estimates *conditional on* the empirical
+matrices \\Q_i\\, which are not re-estimated: this is not the maximum
+likelihood estimator of the mixture with free matrices, in which the
+weights are in general not identifiable (a common distribution can be
+moved from \\\lambda_j Q_j\\ to \\\lambda_i Q_i\\ without changing any
+transition probability), so the weights should not be read as the
+relative importance of the lags beyond this conditional sense. Note that
+this is not the mixture transition distribution model of Raftery (1985),
+in which a single matrix is shared by all lags and is estimated together
+with the weights; that model is fitted by [`fitMTD`](fitMTD.md).
 
 ## References
 

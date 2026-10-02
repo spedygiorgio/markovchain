@@ -86,7 +86,14 @@ happen for maximum-likelihood fits of nested models. With
 observations that a model of that order can predict, and in the examples
 below the log-likelihood then never decreases with the order. Second,
 the number of parameters used for the criteria is
-$k\, r(r - 1) + (k - 1)$, with $r$ the number of states.
+$(r - 1)\,(1 + k(r - 1))$, with $r$ the number of states. Each lag
+matrix has $r(r - 1)$ free probabilities and there are $k - 1$ free
+weights, but in a mixture of lag matrices the weights are not
+identifiable (a distribution common to all departure states can be moved
+from one lag to another without changing any transition probability), so
+the model can represent a set of transition laws of dimension
+$(r - 1)(1 + k(r - 1))$, that is $r(k - 1)$ less than the naive count
+$k\, r(r - 1) + (k - 1)$; the two coincide for $k = 1$.
 
 The example compares orders one to three on the Alofi Island daily
 rainfall and on the preproglucacon DNA sequence, both analysed by ([P.
@@ -120,14 +127,14 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
 }
 #>              order 1 order 2 order 3
 #> logLik (lsq) -1038.1 -1047.8 -1047.8
-#> BIC (lsq)     2118.1  2186.5  2235.5
+#> BIC (lsq)     2118.1  2165.5  2193.5
 #> logLik (mle) -1038.1 -1036.5 -1036.5
-#> BIC (mle)     2118.1  2163.9  2212.9
+#> BIC (mle)     2118.1  2142.9  2170.9
 #>              order 1 order 2 order 3
 #> logLik (lsq) -2026.0 -2024.6 -2051.6
-#> BIC (lsq)     4140.3  4233.1  4382.7
+#> BIC (lsq)     4140.3  4203.7  4323.9
 #> logLik (mle) -2026.0 -2024.0 -2024.0
-#> BIC (mle)     4140.3  4232.0  4327.6
+#> BIC (mle)     4140.3  4202.5  4268.7
 ```
 
 ### Reproducing a published comparison
@@ -150,11 +157,12 @@ forced to zero.
 a different transition matrix for each lag, with weights chosen by least
 squares or, with `method = "mle"`, by maximum likelihood given those
 matrices, whereas the MTD model uses a single matrix $Q$ for all lags
-and estimates it together with the weights by maximum likelihood. The
-comparison below therefore evaluates, with `higherOrderLogLik`, the
-first-order chain estimated on the observations entering the likelihood
-and the MTD(2) model with the weights and the matrix $Q$ printed in the
-paper (whose rows are the departure states, hence the transposition).
+and estimates it together with the weights by maximum likelihood (that
+model is fitted by `fitMTD`, described in the next section). The
+comparison below evaluates, with `higherOrderLogLik`, the first-order
+chain estimated on the observations entering the likelihood and the
+MTD(2) model with the weights and the matrix $Q$ printed in the paper
+(whose rows are the departure states, hence the transposition).
 
 ``` r
 koeberg <- as.character(read.csv(system.file("extdata", "koeberg_wind.csv",
@@ -195,6 +203,133 @@ decimal, and the BIC prefers the MTD(2) model to the first-order chain,
 as in the paper. The same agreement is obtained for the Markov chains of
 order two and three and for the seizure series (Table 3); these checks
 are part of the unit tests of the package.
+
+## The mixture transition distribution model
+
+A Markov chain of order $k$ on $r$ states has $r^{k}(r - 1)$ free
+transition probabilities, a number that grows so quickly with $k$ that
+high orders can rarely be estimated. The mixture transition distribution
+(MTD) model of ([Raftery 1985](#ref-raftery1985model)) replaces the full
+transition array with a mixture of contributions of the individual lags,
+all governed by the same transition matrix:
+$$P(X_{t} = j \mid X_{t - 1} = i_{1},\ldots,X_{t - k} = i_{k}) = \sum\limits_{g = 1}^{k}\lambda_{g}\, q_{i_{g}j},$$
+where $Q = (q_{ij})$ is an $r \times r$ transition matrix (rows are
+departure states) and the lag weights $\lambda_{g}$ sum to one. The
+model has only $r(r - 1) + k - 1$ parameters, one more for each
+additional lag, and for $k = 1$ it is the first-order Markov chain.
+([Berchtold and Raftery 2002](#ref-berchtold2002mixture)) review the
+model, its extensions and its applications.
+
+`fitMTD(sequence, order, start, nstart, tol, maxit)` estimates $Q$ and
+$\lambda$ by maximum likelihood. As in most applications, the weights
+are constrained to be non-negative (Raftery’s original formulation also
+admits negative weights, provided that every transition probability
+stays in $\lbrack 0,1\rbrack$; this case is not supported). Under this
+constraint the model is a mixture in which an unobserved lag generates
+each observation, and the likelihood is maximized by the EM algorithm of
+([Lèbre and Bourguignon 2008](#ref-lebre2008em)), implemented in C++:
+the E-step computes the posterior probability of each lag for each
+observation, the M-step updates the weights as the average of these
+probabilities and $Q$ as the transition counts weighted by them. Each
+iteration increases the likelihood, but the MTD likelihood can have
+several local maxima ([Berchtold 2001](#ref-berchtold2001estimation)),
+so the models of order $1,\ldots,k$ are fitted in turn on the same
+observations and each order is started both from equal weights and from
+the fit of the previous order, extended with a zero and with a small
+positive weight for the new lag. The first extension has the likelihood
+of the previous order, so the likelihood returned never decreases with
+the order, as it must for nested models; `nstart - 1` further random
+starting points can be added, and the best fit is returned.
+
+The likelihood is conditional on the observations before `start`, by
+default `order + 1`; as for `higherOrderLogLik`, models of different
+orders are comparable only when they share `start`. The function returns
+the weights, the matrix $Q$ as a `markovchain` object (`estimate`), the
+maximized log-likelihood with AIC and BIC (based on $r(r - 1) + k - 1$
+parameters), and, in the element `Q`, the matrix in the column layout
+used by `fitHigherOrder`, so that the fit can also be passed to
+`higherOrderLogLik`.
+
+The chunk below estimates the MTD models of order two and three on both
+series of ([Berchtold and Raftery 2002](#ref-berchtold2002mixture)),
+with their conventions (`start = 15`, and the elements of $Q$ estimated
+as zero excluded from the number of parameters of the BIC), and compares
+the results with those published in Tables 2 and 3 of the paper.
+
+``` r
+readSeries <- function(file, column)
+  read.csv(system.file("extdata", file, package = "markovchain"))[[column]]
+series <- list(Koeberg = readSeries("koeberg_wind.csv", "state"),
+               seizures = readSeries("epileptic_seizures.csv", "seizure"))
+published <- data.frame(series = rep(c("Koeberg", "seizures"), each = 2),
+                        order = c(2, 3, 2, 3),
+                        logLik_published = c(-393.4, -393.2, -119.5, -117.7),
+                        BIC_published = c(859.3, 865.6, 254.7, 256.4))
+fits <- Map(function(s, k) fitMTD(series[[s]], order = k, start = 15),
+            published$series, published$order)
+names(fits) <- paste(published$series, published$order)
+estimated <- t(sapply(fits, function(fit) {
+  zeros <- sum(fit$estimate@transitionMatrix < 1e-8)
+  c(logLik = fit$logLikelihood,
+    BIC = -2 * fit$logLikelihood + (fit$npar - zeros) * log(fit$nobs))
+}))
+print(cbind(published, round(estimated, 1)), row.names = FALSE)
+#>    series order logLik_published BIC_published logLik   BIC
+#>   Koeberg     2           -393.4         859.3 -393.4 859.3
+#>   Koeberg     3           -393.2         865.6 -393.2 865.6
+#>  seizures     2           -119.5         254.7 -119.5 254.7
+#>  seizures     3           -117.7         256.4 -117.7 256.4
+```
+
+All the published values are reproduced. For the wind series the BIC
+selects the MTD(2) model, with 11 parameters, over the first-order chain
+and over the Markov chains of order two and three, which need up to 39
+parameters (see the previous section and Table 2 of the paper). The
+estimated weights and transition matrix of the MTD(2) model agree with
+those printed in Section 1.3 of the paper to the third decimal:
+
+``` r
+fits[["Koeberg 2"]]$lambda
+#>      lag1      lag2 
+#> 0.7568342 0.2431658
+round(fits[["Koeberg 2"]]$estimate@transitionMatrix, 4)
+#>        1      2      3      4
+#> 1 0.8307 0.0687 0.0077 0.0930
+#> 2 0.0370 0.9011 0.0619 0.0000
+#> 3 0.0154 0.1552 0.8071 0.0223
+#> 4 0.0779 0.0000 0.0527 0.8694
+```
+
+The weight of the first lag is about three times that of the second: the
+wind direction depends mostly on the previous hour, but the hour before
+still adds information, at the cost of a single extra parameter. More
+general MTD variants (different matrices for each lag, covariates,
+hidden states) are described in ([Berchtold and Raftery
+2002](#ref-berchtold2002mixture)) and are outside the scope of `fitMTD`.
+
+### Prediction and simulation
+
+`higherOrderPredict(fit, history)` returns the distribution of the next
+state given the most recent states (oldest first), and
+`higherOrderSimulate(n, fit, t0)` draws a sequence from the fitted
+model, starting from the states in `t0`. Both accept the output of
+`fitMTD` and of `fitHigherOrder`, and use the same transition
+probabilities as `higherOrderLogLik`, so that summing the logarithms of
+the predicted probabilities of the observed states gives back the
+log-likelihood.
+
+``` r
+fit <- fits[["Koeberg 2"]]
+# next direction after two hours from directions 1 and then 2, and after 2 and then 2
+round(higherOrderPredict(fit, rbind("1 then 2" = c(1, 2), "2 then 2" = c(2, 2))), 3)
+#>              1     2     3     4
+#> 1 then 2 0.230 0.699 0.049 0.023
+#> 2 then 2 0.037 0.901 0.062 0.000
+set.seed(123)
+higherOrderSimulate(24, fit, t0 = c(2, 2))
+#>  [1] "2" "2" "2" "2" "3" "3" "3" "2" "2" "2" "3" "3" "3" "3" "3" "2" "2" "2" "2"
+#> [20] "3" "2" "2" "2" "1"
+```
 
 ## Higher Order Multivariate Markov Chains
 
@@ -467,9 +602,13 @@ paper.
 We are grateful to Professors Adrian E. Raftery and André Berchtold for
 kindly sharing the Koeberg wind-direction and epileptic-seizure series
 of ([Berchtold and Raftery 2002](#ref-berchtold2002mixture)), which made
-it possible to check `higherOrderLogLik` against the published results.
+it possible to check `higherOrderLogLik` and `fitMTD` against the
+published results.
 
 ### References
+
+Berchtold, André. 2001. “Estimation in the Mixture Transition
+Distribution Model.” *Journal of Time Series Analysis* 22 (4): 379–97.
 
 Berchtold, André, and Adrian E. Raftery. 2002. “The Mixture Transition
 Distribution Model for High-Order Markov Chains and Non-Gaussian Time
@@ -484,6 +623,11 @@ Its Applications* 428 (2): 492–507.
 
 Ghalanos, Alexios, and Stefan Theussl. 2014. *Rsolnp: General Non-Linear
 Optimization Using Augmented Lagrange Multiplier Method*.
+
+Lèbre, Sophie, and Pierre-Yves Bourguignon. 2008. “An EM Algorithm for
+Estimation in the Mixture Transition Distribution Model.” *Journal of
+Statistical Computation and Simulation* 78 (1): 1–15.
+<https://doi.org/10.1080/00949650701266666>.
 
 MacDonald, Iain L., and Walter Zucchini. 1997. *Hidden Markov and Other
 Models for Discrete-Valued Time Series*. Chapman & Hall.

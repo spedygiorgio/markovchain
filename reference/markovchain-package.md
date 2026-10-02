@@ -58,6 +58,6 @@ steadyStates(mcB)
 absorbingStates(mcB)
 #> [1] "b"
 markovchainSequence(n=20, markovchain=mcC, include=TRUE)
-#>  [1] "a" "b" "a" "b" "a" "a" "b" "b" "a" "b" "a" "a" "b" "b" "b" "b" "b" "b" "a"
+#>  [1] "a" "b" "b" "b" "a" "b" "b" "b" "b" "b" "a" "b" "a" "b" "a" "b" "a" "b" "a"
 #> [20] "b" "b"
 ```

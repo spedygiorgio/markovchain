@@ -79,13 +79,13 @@ rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
 #> [1] "sigma"      "sigma_star"
 #> 
 #> [[2]]
-#> [1] 0.0000000 0.5108136
+#> [1] 0.0000000 0.2412107
 #> 
 rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
 #> [[1]]
-#> [1] "sigma_star" "sigma"      "sigma_star" "sigma"      "sigma_star"
+#> [1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
 #> 
 #> [[2]]
-#> [1] 0.2388548 0.9014947 0.9359175 1.5838427 1.8205711
+#> [1] 1.082070 1.479101 2.732564 2.858840 3.764397
 #> 
 ```

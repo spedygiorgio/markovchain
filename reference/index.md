@@ -70,6 +70,9 @@
   [`seq2matHigh()`](fitHigherOrder.md) : Functions to fit a higher order
   Markov chain
 
+- [`fitMTD()`](fitMTD.md) : Fit a mixture transition distribution (MTD)
+  model
+
 - [`freq2Generator()`](freq2Generator.md) : Returns a generator matrix
   corresponding to frequency matrix
 
@@ -86,6 +89,10 @@
 
 - [`higherOrderLogLik()`](higherOrderLogLik.md) : Log-likelihood,
   deviance and information criteria of a higher order Markov chain
+
+- [`higherOrderPredict()`](higherOrderPredict.md)
+  [`higherOrderSimulate()`](higherOrderPredict.md) : Next-state
+  probabilities and simulation for higher order Markov chains
 
 - [`hittingProbabilities()`](hittingProbabilities.md) : Hitting
   probabilities for markovchain

@@ -233,8 +233,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // markovchainFit
-List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, bool confint, NumericMatrix hyperparam, bool sanitize, CharacterVector possibleStates);
-RcppExport SEXP _markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP) {
+List markovchainFit(SEXP data, String method, bool byrow, int nboot, double laplacian, String name, bool parallel, double confidencelevel, bool confint, NumericMatrix hyperparam, bool sanitize, CharacterVector possibleStates, bool progress);
+RcppExport SEXP _markovchain_markovchainFit(SEXP dataSEXP, SEXP methodSEXP, SEXP byrowSEXP, SEXP nbootSEXP, SEXP laplacianSEXP, SEXP nameSEXP, SEXP parallelSEXP, SEXP confidencelevelSEXP, SEXP confintSEXP, SEXP hyperparamSEXP, SEXP sanitizeSEXP, SEXP possibleStatesSEXP, SEXP progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -250,7 +250,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type hyperparam(hyperparamSEXP);
     Rcpp::traits::input_parameter< bool >::type sanitize(sanitizeSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type possibleStates(possibleStatesSEXP);
-    rcpp_result_gen = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates));
+    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovchainFit(data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates, progress));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -806,7 +807,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain__matr2Mc", (DL_FUNC) &_markovchain__matr2Mc, 4},
     {"_markovchain__list2Mc", (DL_FUNC) &_markovchain__list2Mc, 3},
     {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
-    {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 12},
+    {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 13},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
     {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},

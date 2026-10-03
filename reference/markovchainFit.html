@@ -70,13 +70,15 @@
 <span>  confint <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  hyperparam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  sanitize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">markovchainFit</span><span class="op">(</span><span class="va">data</span>, method <span class="op">=</span> <span class="st">"mle"</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>, nboot <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  laplacian <span class="op">=</span> <span class="fl">0</span>, name <span class="op">=</span> <span class="st">""</span>, parallel <span class="op">=</span> <span class="cn">FALSE</span>, confidencelevel <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  confint <span class="op">=</span> <span class="cn">TRUE</span>, hyperparam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="op">)</span>, sanitize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>, absorbingStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  possibleStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>, absorbingStates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -153,6 +155,11 @@ $$k x k$$ where k is the number of states in the chain and the values
 should typically be non-negative integers.</p></dd>
 
 
+<dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
+<dd><p>Should a text progress bar be shown? It is only used by
+the "bootstrap" method, the other methods being fast; see Details.</p></dd>
+
+
 <dt id="arg-absorbingstates">absorbingStates<a class="anchor" aria-label="anchor" href="#arg-absorbingstates"></a></dt>
 <dd><p>Character vector of states that are known a priori to be
 absorbing. The corresponding rows are set to the identity row after MLE
@@ -173,6 +180,12 @@ supported only for <code>method = "mle"</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Disabling confint would lower the computation time on large datasets. If <code>data</code> or <code>stringchar</code>
 contain <code>NAs</code>, the related <code>NA</code> containing transitions will be ignored.</p>
+<p>With <code>progress = TRUE</code> the "bootstrap" method shows a text progress bar
+(<code><a href="https://rdrr.io/r/utils/txtProgressBar.html" class="external-link">txtProgressBar</a></code>, style 3) covering the simulation of the
+<code>nboot</code> bootstrap sequences and the estimation of a transition matrix
+from each of them. With <code>parallel = TRUE</code> the sequences are simulated in
+parallel threads, which cannot report progress, so the bar only covers the
+estimation step. The computation can be interrupted while the bar is shown.</p>
 <p>When <code>absorbingStates</code> is supplied, the declared states must have
   no observed outgoing transitions. This allows terminal states in censored
   customer journeys to be represented as absorbing states without adding

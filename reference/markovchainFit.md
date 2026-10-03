@@ -26,13 +26,15 @@ createSequenceMatrix(
   confint = TRUE,
   hyperparam = matrix(),
   sanitize = FALSE,
-  possibleStates = character()
+  possibleStates = character(),
+  progress = FALSE
 )
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
-  possibleStates = character(), absorbingStates = character())
+  possibleStates = character(), absorbingStates = character(),
+  progress = FALSE)
 ```
 
 ## Arguments
@@ -108,6 +110,11 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   be of size \$\$k x k\$\$ where k is the number of states in the chain
   and the values should typically be non-negative integers.
 
+- progress:
+
+  Should a text progress bar be shown? It is only used by the
+  "bootstrap" method, the other methods being fast; see Details.
+
 - absorbingStates:
 
   Character vector of states that are known a priori to be absorbing.
@@ -130,6 +137,14 @@ respect to the posterior distribution.
 Disabling confint would lower the computation time on large datasets. If
 `data` or `stringchar` contain `NAs`, the related `NA` containing
 transitions will be ignored.
+
+With `progress = TRUE` the "bootstrap" method shows a text progress bar
+([`txtProgressBar`](https://rdrr.io/r/utils/txtProgressBar.html), style
+3) covering the simulation of the `nboot` bootstrap sequences and the
+estimation of a transition matrix from each of them. With
+`parallel = TRUE` the sequences are simulated in parallel threads, which
+cannot report progress, so the bar only covers the estimation step. The
+computation can be interrupted while the bar is shown.
 
 When `absorbingStates` is supplied, the declared states must have no
 observed outgoing transitions. This allows terminal states in censored

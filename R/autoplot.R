@@ -196,13 +196,11 @@ autoplot.markovchain <- function(object,
       )
 
     if (isTRUE(show_probabilities)) {
-      p <- p + ggplot2::geom_label(
+      p <- p + .borderlessLabel(
         data = edges,
-        ggplot2::aes(x = label_x, y = label_y,
-                     label = formatC(probability, format = "f", digits = digits)),
-        size = 3,
-        linewidth = 0,
-        fill = "white"
+        mapping = ggplot2::aes(x = label_x, y = label_y,
+                               label = formatC(probability, format = "f",
+                                               digits = digits))
       )
     }
   }
@@ -225,13 +223,11 @@ autoplot.markovchain <- function(object,
                                      seq_len(n))]
       loop_labels$y <- nodes$y[match(sub("loop_", "", loop_labels$group),
                                      seq_len(n))] + 0.25
-      p <- p + ggplot2::geom_label(
+      p <- p + .borderlessLabel(
         data = loop_labels,
-        ggplot2::aes(x = x, y = y,
-                     label = formatC(probability, format = "f", digits = digits)),
-        size = 3,
-        linewidth = 0,
-        fill = "white"
+        mapping = ggplot2::aes(x = x, y = y,
+                               label = formatC(probability, format = "f",
+                                               digits = digits))
       )
     }
   }
@@ -259,6 +255,21 @@ autoplot.markovchain <- function(object,
 }
 
 # Eigenvalues of the transition matrix in the complex plane.
+# Internal helper: white text label without a border. The argument that
+# removes the border of geom_label() was renamed from `label.size` to
+# `linewidth` in ggplot2 3.5.0, and the old name warns from that version on;
+# Suggests requires ggplot2 >= 3.4.0, so both are needed.
+.borderlessLabel <- function(data, mapping) {
+  border <- if (utils::packageVersion("ggplot2") >= "3.5.0") {
+    list(linewidth = 0)
+  } else {
+    list(label.size = 0)
+  }
+  do.call(ggplot2::geom_label,
+          c(list(data = data, mapping = mapping, size = 3, fill = "white"),
+            border))
+}
+
 .autoplotEigenvalues <- function(object) {
   P <- .rowStochasticMatrix(object)
   values <- eigen(P, only.values = TRUE)$values

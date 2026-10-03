@@ -2,7 +2,8 @@
 #' @usage markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 #'   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
 #'   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
-#'   possibleStates = character(), absorbingStates = character())
+#'   possibleStates = character(), absorbingStates = character(),
+#'   progress = FALSE)
 #' @param absorbingStates Character vector of states that are known a priori to be
 #'   absorbing. The corresponding rows are set to the identity row after MLE
 #'   fitting when \code{byrow = TRUE}; the corresponding columns are set to the
@@ -18,11 +19,14 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
                            confidencelevel = 0.95, confint = TRUE,
                            hyperparam = matrix(), sanitize = FALSE,
                            possibleStates = character(),
-                           absorbingStates = character()) {
+                           absorbingStates = character(), progress = FALSE) {
+  if (!is.logical(progress) || length(progress) != 1L || is.na(progress)) {
+    stop("`progress` must be TRUE or FALSE")
+  }
   .markovchainFitWithAbsorbingStates(
     data, method, byrow, nboot, laplacian, name, parallel,
     confidencelevel, confint, hyperparam, sanitize, possibleStates,
-    absorbingStates
+    absorbingStates, progress
   )
 }
 
@@ -31,7 +35,8 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
                                                laplacian, name, parallel,
                                                confidencelevel, confint,
                                                hyperparam, sanitize,
-                                               possibleStates, absorbingStates) {
+                                               possibleStates, absorbingStates,
+                                               progress = FALSE) {
   if (!is.character(absorbingStates) || anyNA(absorbingStates)) {
     stop("`absorbingStates` must be a character vector without NA values")
   }
@@ -40,7 +45,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
   if (length(absorbingStates) == 0L) {
     return(.Call(`_markovchain_markovchainFit`, data, method, byrow, nboot,
                  laplacian, name, parallel, confidencelevel, confint,
-                 hyperparam, sanitize, possibleStates))
+                 hyperparam, sanitize, possibleStates, progress))
   }
 
   if (!identical(method, "mle")) {
@@ -76,7 +81,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
 
   fit <- .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot,
                laplacian, name, parallel, confidencelevel, confint,
-               hyperparam, sanitize, fitPossibleStates)
+               hyperparam, sanitize, fitPossibleStates, progress)
 
   transitionMatrix <- fit$estimate@transitionMatrix
   if (byrow) {

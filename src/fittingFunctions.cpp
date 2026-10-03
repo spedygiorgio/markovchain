@@ -896,8 +896,42 @@ List _mcFitLaplacianSmooth(SEXP stringchar, bool byrow, double laplacian = 0.01,
 }
 
 // bootstrap a sequence to produce a list of sample sequences
+// Optional text progress bar for the bootstrap, drawn with utils::txtProgressBar
+// (style 3) so that it looks like any other progress bar in R. It calls R, so
+// it must only be updated from the main thread, never from RcppParallel workers.
+// Each update also lets the user interrupt the computation.
+class BootstrapProgress {
+  bool active;
+  RObject bar;
+public:
+  BootstrapProgress(bool show, int total) : active(show && total > 0) {
+    if (active) {
+      Environment utils = Environment::namespace_env("utils");
+      Function txtProgressBar = utils["txtProgressBar"];
+      bar = txtProgressBar(_["min"] = 0, _["max"] = total, _["style"] = 3);
+    }
+  }
+  void update(int value) {
+    Rcpp::checkUserInterrupt();
+    if (active) {
+      Environment utils = Environment::namespace_env("utils");
+      Function setTxtProgressBar = utils["setTxtProgressBar"];
+      setTxtProgressBar(bar, value);
+    }
+  }
+  void close() {
+    if (active) {
+      Environment base = Environment::base_namespace();
+      Function closeFun = base["close"];
+      closeFun(bar);
+      active = false;
+    }
+  }
+};
+
 List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t size = -1, 
-                                  CharacterVector possibleStates = CharacterVector()) {
+                                  CharacterVector possibleStates = CharacterVector(),
+                                  BootstrapProgress* progress = NULL) {
   
   // store length of sequence
   if (size == -1) {
@@ -958,6 +992,7 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t si
     
     // every add one sequence
     samples.push_back(charseq);
+    if (progress != NULL) progress->update(i + 1);
   }
 
   // return a list of n sequence of same length as of given sequence
@@ -1113,26 +1148,30 @@ List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, R_x
 
 // Fit DTMC using bootstrap method
 List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false,
-                     CharacterVector possibleStates = CharacterVector()) {
+                     CharacterVector possibleStates = CharacterVector(), bool progress = false) {
+  
+  // The progress bar counts the generation of the nboot sequences (only when
+  // it runs on the main thread, i.e. not in parallel) and the estimation of a
+  // transition matrix from each of them.
+  BootstrapProgress bar(progress, parallel ? nboot : 2 * nboot);
   
   // list of sequence generated using given sequence
   List theList = (parallel) ? _bootstrapCharacterSequencesParallel(data, nboot, data.size()) : 
-    _bootstrapCharacterSequences(data, nboot, data.size());
+    _bootstrapCharacterSequences(data, nboot, data.size(), CharacterVector(), &bar);
   
   // number of new sequence
   int n = theList.size();
+  int offset = parallel ? 0 : n;
   
   // to store frequency matrix for every sequence
   List pmsBootStrapped(n);
 
   // populate pmsBootStrapped 
-  if (parallel)
-    for (int i = 0; i < n; i++)
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);
-  
-  else 
-    for (int i = 0; i < n; i++) 
-      pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);
+  for (int i = 0; i < n; i++) {
+    pmsBootStrapped[i] = createSequenceMatrix(theList[i], true, sanitize, possibleStates);
+    bar.update(offset + i + 1);
+  }
+  bar.close();
   
   
   List estimateList = _fromBoot2Estimate(pmsBootStrapped);
@@ -1603,9 +1642,18 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' @param toRowProbs converts a sequence matrix into a probability matrix
 //' @param sanitize put 1 in all rows having rowSum equal to zero
 //' @param possibleStates Possible states which are not present in the given sequence
+//' @param progress Should a text progress bar be shown? It is only used by
+//'                 the "bootstrap" method, the other methods being fast; see Details.
 //' 
 //' @details Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
 //' contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
+//'
+//' With \code{progress = TRUE} the "bootstrap" method shows a text progress bar
+//' (\code{\link[utils]{txtProgressBar}}, style 3) covering the simulation of the
+//' \code{nboot} bootstrap sequences and the estimation of a transition matrix
+//' from each of them. With \code{parallel = TRUE} the sequences are simulated in
+//' parallel threads, which cannot report progress, so the bar only covers the
+//' estimation step. The computation can be interrupted while the bar is shown.
 //' 
 //' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 //'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -1653,7 +1701,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
                     double laplacian = 0, String name = "", bool parallel = false,
                     double confidencelevel = 0.95, bool confint = true, 
                     NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false, 
-                    CharacterVector possibleStates = CharacterVector()) {
+                    CharacterVector possibleStates = CharacterVector(), bool progress = false) {
 
   if (method != "mle" && method != "bootstrap" && method != "map" && method != "laplace") {
      stop ("method should be one of \"mle\", \"bootstrap\", \"map\" or \"laplace\"");
@@ -1748,7 +1796,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
     } else if (method == "bootstrap") {
       out = _mcFitBootStrap(data, nboot, byrow, parallel,
-                            confidencelevel, sanitize, possibleStates);
+                            confidencelevel, sanitize, possibleStates, progress);
     } else if (method == "laplace") {
       out = _mcFitLaplacianSmooth(data, byrow, laplacian, sanitize, possibleStates);
     } else if (method == "map") {

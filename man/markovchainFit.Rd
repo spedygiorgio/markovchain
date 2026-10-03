@@ -25,13 +25,15 @@ createSequenceMatrix(
   confint = TRUE,
   hyperparam = matrix(),
   sanitize = FALSE,
-  possibleStates = character()
+  possibleStates = character(),
+  progress = FALSE
 )
 
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
-  possibleStates = character(), absorbingStates = character())
+  possibleStates = character(), absorbingStates = character(),
+  progress = FALSE)
 }
 \arguments{
 \item{stringchar}{It can be a \deqn{n x n} matrix or a character vector or a list}
@@ -76,6 +78,9 @@ default value of 1 is assigned to each parameter. This must be of size
 \deqn{k x k} where k is the number of states in the chain and the values
 should typically be non-negative integers.}
 
+\item{progress}{Should a text progress bar be shown? It is only used by
+the "bootstrap" method, the other methods being fast; see Details.}
+
 \item{absorbingStates}{Character vector of states that are known a priori to be
 absorbing. The corresponding rows are set to the identity row after MLE
 fitting when \code{byrow = TRUE}; the corresponding columns are set to the
@@ -97,6 +102,13 @@ Given a sequence of states arising from a stationary state,
 \details{
 Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
 contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
+
+With \code{progress = TRUE} the "bootstrap" method shows a text progress bar
+(\code{\link[utils]{txtProgressBar}}, style 3) covering the simulation of the
+\code{nboot} bootstrap sequences and the estimation of a transition matrix
+from each of them. With \code{parallel = TRUE} the sequences are simulated in
+parallel threads, which cannot report progress, so the bar only covers the
+estimation step. The computation can be interrupted while the bar is shown.
 
 When \code{absorbingStates} is supplied, the declared states must have
   no observed outgoing transitions. This allows terminal states in censored

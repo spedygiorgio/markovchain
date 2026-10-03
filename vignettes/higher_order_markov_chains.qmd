@@ -98,6 +98,21 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
 }
 ```
 
+## Selecting the order of a full Markov chain
+
+The models above restrict the dependence on the past to a mixture of lags. `selectOrder` instead fits the fully parameterized Markov chains of order $0, 1, \dots, K$ (order 0 is independence) by maximum likelihood, all on the same observations (from `start`, by default $K+1$), and selects the order that minimizes the BIC or the AIC [@tong1975determination; @katz1981some]. An order-$k$ chain on $r$ states has $r^k(r-1)$ free parameters; with `parameters = "observed"` only the transition probabilities not estimated as zero are counted, as in @berchtold2002mixture. The table also gives the likelihood-ratio statistic of each order against the previous one, with its asymptotic chi-squared p-value [@anderson1957statistical]. BIC is a consistent estimator of the order [@csiszar2000consistency], whereas AIC tends to choose higher orders, and both become unreliable when $r^K$ is not small compared with the number of observations.
+
+```{r}
+#| label: selectOrder
+data(rain)
+rainOrder <- selectOrder(rain$rain, maxOrder = 3)
+rainOrder$order
+print(rainOrder$table, digits = 4, row.names = FALSE)
+selectOrder(rain$rain, maxOrder = 3, criterion = "AIC")$order
+```
+
+For the Alofi rainfall the BIC selects the first-order chain, whereas the AIC slightly prefers the second-order one (2086.2 against 2088.1), which needs 18 parameters instead of 6. For the preproglucacon sequence (`selectOrder(preproglucacon$preproglucacon, 3)`) the BIC of independence and of the first-order chain differ by about one unit, and the AIC selects order one. These values are computed by the package.
+
 ## Reproducing a published comparison
 
 [@berchtold2002mixture] compare, by log-likelihood and BIC, independence, Markov chains of order one to three and mixture transition distribution (MTD) models for the hourly wind direction at Koeberg (South Africa; 744 observations recoded into four directions, originally from [@macdonald1997hidden]) and for a daily series of epileptic seizures (204 observations). The authors kindly provided the two series, which are distributed with the package in `inst/extdata`. Their convention is to condition every model on the first 14 observations, so that all models are evaluated on the same $n-14$ observations, which in `higherOrderLogLik` corresponds to `start = 15`; the BIC uses $n-14$ as sample size and counts only the parameters that are not forced to zero.
@@ -136,7 +151,13 @@ comparison <- data.frame(
 print(comparison, digits = 4, row.names = FALSE)
 ```
 
-The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package.
+The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package. The rows for independence and for the Markov chains of order one to three are obtained in one call with `selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")`:
+
+```{r}
+#| label: selectOrderKoeberg
+print(selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")$table[, 1:5],
+      digits = 5, row.names = FALSE)
+```
 
 # The mixture transition distribution model
 

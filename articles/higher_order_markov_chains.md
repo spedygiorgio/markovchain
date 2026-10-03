@@ -40,7 +40,7 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
   fitHigherOrder(rain_small, 2)
 }
 #> $lambda
-#> [1] 0.77333 0.22667
+#> [1] 0.7733301 0.2266699
 #> 
 #> $Q
 #> $Q[[1]]
@@ -137,6 +137,47 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
 #> BIC (mle)     4140.3  4202.5  4268.7
 ```
 
+### Selecting the order of a full Markov chain
+
+The models above restrict the dependence on the past to a mixture of
+lags. `selectOrder` instead fits the fully parameterized Markov chains
+of order $0,1,\ldots,K$ (order 0 is independence) by maximum likelihood,
+all on the same observations (from `start`, by default $K + 1$), and
+selects the order that minimizes the BIC or the AIC ([Tong
+1975](#ref-tong1975determination); [Katz 1981](#ref-katz1981some)). An
+order-$k$ chain on $r$ states has $r^{k}(r - 1)$ free parameters; with
+`parameters = "observed"` only the transition probabilities not
+estimated as zero are counted, as in Berchtold and Raftery
+([2002](#ref-berchtold2002mixture)). The table also gives the
+likelihood-ratio statistic of each order against the previous one, with
+its asymptotic chi-squared p-value ([Anderson and Goodman
+1957](#ref-anderson1957statistical)). BIC is a consistent estimator of
+the order ([Csiszár and Shields 2000](#ref-csiszar2000consistency)),
+whereas AIC tends to choose higher orders, and both become unreliable
+when $r^{K}$ is not small compared with the number of observations.
+
+``` r
+data(rain)
+rainOrder <- selectOrder(rain$rain, maxOrder = 3)
+rainOrder$order
+#> [1] 1
+print(rainOrder$table, digits = 4, row.names = FALSE)
+#>  order logLik npar  AIC  BIC     LR df   p.value
+#>      0  -1134    2 2272 2282     NA NA        NA
+#>      1  -1038    6 2088 2118 191.53  4 2.487e-40
+#>      2  -1025   18 2086 2176  25.94 12 1.096e-02
+#>      3  -1006   54 2119 2389  39.06 36 3.338e-01
+selectOrder(rain$rain, maxOrder = 3, criterion = "AIC")$order
+#> [1] 2
+```
+
+For the Alofi rainfall the BIC selects the first-order chain, whereas
+the AIC slightly prefers the second-order one (2086.2 against 2088.1),
+which needs 18 parameters instead of 6. For the preproglucacon sequence
+(`selectOrder(preproglucacon$preproglucacon, 3)`) the BIC of
+independence and of the first-order chain differ by about one unit, and
+the AIC selects order one. These values are computed by the package.
+
 ### Reproducing a published comparison
 
 ([Berchtold and Raftery 2002](#ref-berchtold2002mixture)) compare, by
@@ -202,7 +243,20 @@ The values coincide with Table 2 of the paper up to its rounding to one
 decimal, and the BIC prefers the MTD(2) model to the first-order chain,
 as in the paper. The same agreement is obtained for the Markov chains of
 order two and three and for the seizure series (Table 3); these checks
-are part of the unit tests of the package.
+are part of the unit tests of the package. The rows for independence and
+for the Markov chains of order one to three are obtained in one call
+with
+`selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")`:
+
+``` r
+print(selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")$table[, 1:5],
+      digits = 5, row.names = FALSE)
+#>  order  logLik npar     AIC     BIC
+#>      0 -954.83    3 1915.66 1929.44
+#>      1 -413.30   11  848.61  899.13
+#>      2 -374.92   27  803.84  927.85
+#>      3 -346.19   39  770.39  949.52
+```
 
 ## The mixture transition distribution model
 
@@ -607,6 +661,9 @@ published results.
 
 ### References
 
+Anderson, Theodore W, and Leo A Goodman. 1957. “Statistical Inference
+about Markov Chains.” *The Annals of Mathematical Statistics*, 89–110.
+
 Berchtold, André. 2001. “Estimation in the Mixture Transition
 Distribution Model.” *Journal of Time Series Analysis* 22 (4): 379–97.
 
@@ -621,8 +678,14 @@ Ching, Wai-Ki, Michael K Ng, and Eric S Fung. 2008. “Higher-Order
 Multivariate Markov Chains and Their Applications.” *Linear Algebra and
 Its Applications* 428 (2): 492–507.
 
+Csiszár, Imre, and Paul C. Shields. 2000. “The Consistency of the BIC
+Markov Order Estimator.” *The Annals of Statistics* 28 (6): 1601–19.
+
 Ghalanos, Alexios, and Stefan Theussl. 2014. *Rsolnp: General Non-Linear
 Optimization Using Augmented Lagrange Multiplier Method*.
+
+Katz, Richard W. 1981. “On Some Criteria for Estimating the Order of a
+Markov Chain.” *Technometrics* 23 (3): 243–49.
 
 Lèbre, Sophie, and Pierre-Yves Bourguignon. 2008. “An EM Algorithm for
 Estimation in the Mixture Transition Distribution Model.” *Journal of
@@ -637,3 +700,7 @@ Discrete State Series.” *Applied Statistics* 48 (1): 53–61.
 
 Raftery, Adrian E. 1985. “A Model for High-Order Markov Chains.”
 *Journal of the Royal Statistical Society, Series B* 47 (3): 528–39.
+
+Tong, Howell. 1975. “Determination of the Order of a Markov Chain by
+Akaike’s Information Criterion.” *Journal of Applied Probability* 12
+(3): 488–97.

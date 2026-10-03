@@ -94,7 +94,7 @@
 <span>  <span class="fu"><a href="../reference/fitHigherOrder.html">fitHigherOrder</a></span><span class="op">(</span><span class="va">rain_small</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; $lambda</span></span>
-<span><span class="co">#&gt; [1] 0.77333 0.22667</span></span>
+<span><span class="co">#&gt; [1] 0.7733301 0.2266699</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Q</span></span>
 <span><span class="co">#&gt; $Q[[1]]</span></span>
@@ -149,12 +149,31 @@
 <span><span class="co">#&gt; logLik (mle) -2026.0 -2024.0 -2024.0</span></span>
 <span><span class="co">#&gt; BIC (mle)     4140.3  4202.5  4268.7</span></span></code></pre></div>
 </div>
-<section class="level2"><h3 id="reproducing-a-published-comparison">Reproducing a published comparison<a class="anchor" aria-label="anchor" href="#reproducing-a-published-comparison"></a>
+<section class="level2"><h3 id="selecting-the-order-of-a-full-markov-chain">Selecting the order of a full Markov chain<a class="anchor" aria-label="anchor" href="#selecting-the-order-of-a-full-markov-chain"></a>
+</h3>
+<p>The models above restrict the dependence on the past to a mixture of lags. <code>selectOrder</code> instead fits the fully parameterized Markov chains of order <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">0, 1, \dots, K</annotation></semantics></math> (order 0 is independence) by maximum likelihood, all on the same observations (from <code>start</code>, by default <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K+1</annotation></semantics></math>), and selects the order that minimizes the BIC or the AIC <span class="citation" data-cites="tong1975determination katz1981some">(<a href="#ref-tong1975determination" role="doc-biblioref">Tong 1975</a>; <a href="#ref-katz1981some" role="doc-biblioref">Katz 1981</a>)</span>. An order-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> chain on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> states has <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mi>k</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r^k(r-1)</annotation></semantics></math> free parameters; with <code>parameters = "observed"</code> only the transition probabilities not estimated as zero are counted, as in <span class="citation" data-cites="berchtold2002mixture">Berchtold and Raftery (<a href="#ref-berchtold2002mixture" role="doc-biblioref">2002</a>)</span>. The table also gives the likelihood-ratio statistic of each order against the previous one, with its asymptotic chi-squared p-value <span class="citation" data-cites="anderson1957statistical">(<a href="#ref-anderson1957statistical" role="doc-biblioref">Anderson and Goodman 1957</a>)</span>. BIC is a consistent estimator of the order <span class="citation" data-cites="csiszar2000consistency">(<a href="#ref-csiszar2000consistency" role="doc-biblioref">Csiszár and Shields 2000</a>)</span>, whereas AIC tends to choose higher orders, and both become unreliable when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>r</mi><mi>K</mi></msup><annotation encoding="application/x-tex">r^K</annotation></semantics></math> is not small compared with the number of observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">rain</span><span class="op">)</span></span>
+<span><span class="va">rainOrder</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/selectOrder.html">selectOrder</a></span><span class="op">(</span><span class="va">rain</span><span class="op">$</span><span class="va">rain</span>, maxOrder <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">rainOrder</span><span class="op">$</span><span class="va">order</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rainOrder</span><span class="op">$</span><span class="va">table</span>, digits <span class="op">=</span> <span class="fl">4</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  order logLik npar  AIC  BIC     LR df   p.value</span></span>
+<span><span class="co">#&gt;      0  -1134    2 2272 2282     NA NA        NA</span></span>
+<span><span class="co">#&gt;      1  -1038    6 2088 2118 191.53  4 2.487e-40</span></span>
+<span><span class="co">#&gt;      2  -1025   18 2086 2176  25.94 12 1.096e-02</span></span>
+<span><span class="co">#&gt;      3  -1006   54 2119 2389  39.06 36 3.338e-01</span></span>
+<span><span class="fu"><a href="../reference/selectOrder.html">selectOrder</a></span><span class="op">(</span><span class="va">rain</span><span class="op">$</span><span class="va">rain</span>, maxOrder <span class="op">=</span> <span class="fl">3</span>, criterion <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span><span class="op">$</span><span class="va">order</span></span>
+<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+</div>
+<p>For the Alofi rainfall the BIC selects the first-order chain, whereas the AIC slightly prefers the second-order one (2086.2 against 2088.1), which needs 18 parameters instead of 6. For the preproglucacon sequence (<code>selectOrder(preproglucacon$preproglucacon, 3)</code>) the BIC of independence and of the first-order chain differ by about one unit, and the AIC selects order one. These values are computed by the package.</p>
+</section><section class="level2"><h3 id="reproducing-a-published-comparison">Reproducing a published comparison<a class="anchor" aria-label="anchor" href="#reproducing-a-published-comparison"></a>
 </h3>
 <p><span class="citation" data-cites="berchtold2002mixture">(<a href="#ref-berchtold2002mixture" role="doc-biblioref">Berchtold and Raftery 2002</a>)</span> compare, by log-likelihood and BIC, independence, Markov chains of order one to three and mixture transition distribution (MTD) models for the hourly wind direction at Koeberg (South Africa; 744 observations recoded into four directions, originally from <span class="citation" data-cites="macdonald1997hidden">(<a href="#ref-macdonald1997hidden" role="doc-biblioref">MacDonald and Zucchini 1997</a>)</span>) and for a daily series of epileptic seizures (204 observations). The authors kindly provided the two series, which are distributed with the package in <code>inst/extdata</code>. Their convention is to condition every model on the first 14 observations, so that all models are evaluated on the same <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>14</mn></mrow><annotation encoding="application/x-tex">n-14</annotation></semantics></math> observations, which in <code>higherOrderLogLik</code> corresponds to <code>start = 15</code>; the BIC uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>14</mn></mrow><annotation encoding="application/x-tex">n-14</annotation></semantics></math> as sample size and counts only the parameters that are not forced to zero.</p>
 <p><code>fitHigherOrder</code> does not estimate the MTD model of that paper: it fits a different transition matrix for each lag, with weights chosen by least squares or, with <code>method = "mle"</code>, by maximum likelihood given those matrices, whereas the MTD model uses a single matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math> for all lags and estimates it together with the weights by maximum likelihood (that model is fitted by <code>fitMTD</code>, described in the next section). The comparison below evaluates, with <code>higherOrderLogLik</code>, the first-order chain estimated on the observations entering the likelihood and the MTD(2) model with the weights and the matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math> printed in the paper (whose rows are the departure states, hence the transposition).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">koeberg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"koeberg_wind.csv"</span>,</span>
 <span>                                             package <span class="op">=</span> <span class="st">"markovchain"</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">state</span><span class="op">)</span></span>
 <span><span class="va">start</span> <span class="op">&lt;-</span> <span class="fl">15</span></span>
@@ -187,7 +206,17 @@
 <span><span class="co">#&gt;  Markov chain, order 1 -413.3 899.1           -413.3         899.1</span></span>
 <span><span class="co">#&gt;           MTD, order 2 -393.4 859.3           -393.4         859.3</span></span></code></pre></div>
 </div>
-<p>The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package.</p>
+<p>The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package. The rows for independence and for the Markov chains of order one to three are obtained in one call with <code>selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/selectOrder.html">selectOrder</a></span><span class="op">(</span><span class="va">koeberg</span>, maxOrder <span class="op">=</span> <span class="fl">3</span>, start <span class="op">=</span> <span class="fl">15</span>, parameters <span class="op">=</span> <span class="st">"observed"</span><span class="op">)</span><span class="op">$</span><span class="va">table</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span>
+<span>      digits <span class="op">=</span> <span class="fl">5</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  order  logLik npar     AIC     BIC</span></span>
+<span><span class="co">#&gt;      0 -954.83    3 1915.66 1929.44</span></span>
+<span><span class="co">#&gt;      1 -413.30   11  848.61  899.13</span></span>
+<span><span class="co">#&gt;      2 -374.92   27  803.84  927.85</span></span>
+<span><span class="co">#&gt;      3 -346.19   39  770.39  949.52</span></span></code></pre></div>
+</div>
 </section></section><section class="section level2"><h2 id="the-mixture-transition-distribution-model">The mixture transition distribution model<a class="anchor" aria-label="anchor" href="#the-mixture-transition-distribution-model"></a>
 </h2>
 <p>A Markov chain of order <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> states has <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mi>k</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r^k(r-1)</annotation></semantics></math> free transition probabilities, a number that grows so quickly with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math> that high orders can rarely be estimated. The mixture transition distribution (MTD) model of <span class="citation" data-cites="raftery1985model">(<a href="#ref-raftery1985model" role="doc-biblioref">Raftery 1985</a>)</span> replaces the full transition array with a mixture of contributions of the individual lags, all governed by the same transition matrix: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>t</mi></msub><mo>=</mo><mi>j</mi><mo>∣</mo><msub><mi>X</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>i</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>X</mi><mrow><mi>t</mi><mo>−</mo><mi>k</mi></mrow></msub><mo>=</mo><msub><mi>i</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>g</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>λ</mi><mi>g</mi></msub><mspace width="0.167em"></mspace><msub><mi>q</mi><mrow><msub><mi>i</mi><mi>g</mi></msub><mi>j</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
@@ -197,7 +226,7 @@ P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\,
 <p>The likelihood is conditional on the observations before <code>start</code>, by default <code>order + 1</code>; as for <code>higherOrderLogLik</code>, models of different orders are comparable only when they share <code>start</code>. The function returns the weights, the matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math> as a <code>markovchain</code> object (<code>estimate</code>), the maximized log-likelihood with AIC and BIC (based on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>k</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">r(r-1) + k - 1</annotation></semantics></math> parameters), and, in the element <code>Q</code>, the matrix in the column layout used by <code>fitHigherOrder</code>, so that the fit can also be passed to <code>higherOrderLogLik</code>.</p>
 <p>The chunk below estimates the MTD models of order two and three on both series of <span class="citation" data-cites="berchtold2002mixture">(<a href="#ref-berchtold2002mixture" role="doc-biblioref">Berchtold and Raftery 2002</a>)</span>, with their conventions (<code>start = 15</code>, and the elements of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math> estimated as zero excluded from the number of parameters of the BIC), and compares the results with those published in Tables 2 and 3 of the paper.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readSeries</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span>, <span class="va">column</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="va">file</span>, package <span class="op">=</span> <span class="st">"markovchain"</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="va">column</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">series</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Koeberg <span class="op">=</span> <span class="fu">readSeries</span><span class="op">(</span><span class="st">"koeberg_wind.csv"</span>, <span class="st">"state"</span><span class="op">)</span>,</span>
@@ -223,7 +252,7 @@ P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\,
 </div>
 <p>All the published values are reproduced. For the wind series the BIC selects the MTD(2) model, with 11 parameters, over the first-order chain and over the Markov chains of order two and three, which need up to 39 parameters (see the previous section and Table 2 of the paper). The estimated weights and transition matrix of the MTD(2) model agree with those printed in Section 1.3 of the paper to the third decimal:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fits</span><span class="op">[[</span><span class="st">"Koeberg 2"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">lambda</span></span>
 <span><span class="co">#&gt;      lag1      lag2 </span></span>
 <span><span class="co">#&gt; 0.7568342 0.2431658</span></span>
@@ -239,7 +268,7 @@ P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\,
 </h3>
 <p><code>higherOrderPredict(fit, history)</code> returns the distribution of the next state given the most recent states (oldest first), and <code>higherOrderSimulate(n, fit, t0)</code> draws a sequence from the fitted model, starting from the states in <code>t0</code>. Both accept the output of <code>fitMTD</code> and of <code>fitHigherOrder</code>, and use the same transition probabilities as <code>higherOrderLogLik</code>, so that summing the logarithms of the predicted probabilities of the observed states gives back the log-likelihood.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="st">"Koeberg 2"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co"># next direction after two hours from directions 1 and then 2, and after 2 and then 2</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/higherOrderPredict.html">higherOrderPredict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="st">"1 then 2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"2 then 2"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
@@ -310,7 +339,7 @@ X_{r}^{(s)}
 </section><section class="level2"><h3 id="definition-of-hommc-class">Definition of HOMMC class<a class="anchor" aria-label="anchor" href="#definition-of-hommc-class"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">showClass</span><span class="op">(</span><span class="st">"hommc"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Class "hommc" [package "markovchain"]</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -330,7 +359,7 @@ X_{r}^{(s)}
 </ol></section><section class="level2"><h3 id="how-to-create-an-object-of-class-hommc">How to create an object of class HOMMC<a class="anchor" aria-label="anchor" href="#how-to-create-an-object-of-class-hommc"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">states</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>, <span class="st">'b'</span><span class="op">)</span></span>
 <span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">states</span>, <span class="va">states</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">P</span><span class="op">[</span> , , <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, byrow <span class="op">=</span> <span class="cn">FALSE</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -385,7 +414,7 @@ X_{r}^{(s)}
 </h2>
 <p>We tried to replicate the example found in <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> for an application of HOMMC. A soft-drink company in Hong Kong is facing an in-house problem of production planning and inventory control. A pressing issue is the storage space of its central warehouse, which often finds itself in the state of overflow or near capacity. The company is thus in urgent needs to study the interplay between the storage space requirement and the overall growing sales demand. The product can be classified into six possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All products are labeled as 1 = no sales volume, 2 = very slow-moving (very low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 = very fast-moving (very high sales volume). Such labels are useful from both marketing and production planning points of view. The data is cointaind in <code>sales</code> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sales</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sales</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      A   B   C   D   E  </span></span>
@@ -424,7 +453,7 @@ X_{r}^{(s)}
 0.6738\boldsymbol{P}_{1}^{(54)}\boldsymbol{x}_{r}^{(4)} + 0.0544\boldsymbol{P}_{2}^{(55)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
 <p>According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship is hardly to be obtained in conventional Markov model owing to huge amount of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># fit 8th order multivariate markov chain</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"Rsolnp"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -438,6 +467,9 @@ X_{r}^{(s)}
 </section><section class="level2"><h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h3>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-anderson1957statistical" class="csl-entry" role="listitem">
+Anderson, Theodore W, and Leo A Goodman. 1957. <span>“Statistical Inference about Markov Chains.”</span> <em>The Annals of Mathematical Statistics</em>, 89–110.
+</div>
 <div id="ref-berchtold2001estimation" class="csl-entry" role="listitem">
 Berchtold, André. 2001. <span>“Estimation in the Mixture Transition Distribution Model.”</span> <em>Journal of Time Series Analysis</em> 22 (4): 379–97.
 </div>
@@ -450,8 +482,14 @@ Ching, Wai-Ki, Ximin Huang, Michael K Ng, and Tak-Kuen Siu. 2013. <span>“Highe
 <div id="ref-ching2008higher" class="csl-entry" role="listitem">
 Ching, Wai-Ki, Michael K Ng, and Eric S Fung. 2008. <span>“Higher-Order Multivariate Markov Chains and Their Applications.”</span> <em>Linear Algebra and Its Applications</em> 428 (2): 492–507.
 </div>
+<div id="ref-csiszar2000consistency" class="csl-entry" role="listitem">
+Csiszár, Imre, and Paul C. Shields. 2000. <span>“The Consistency of the <span>BIC</span> <span>M</span>arkov Order Estimator.”</span> <em>The Annals of Statistics</em> 28 (6): 1601–19.
+</div>
 <div id="ref-pkg:Rsolnp" class="csl-entry" role="listitem">
 Ghalanos, Alexios, and Stefan Theussl. 2014. <em>Rsolnp: General Non-Linear Optimization Using Augmented Lagrange Multiplier Method</em>.
+</div>
+<div id="ref-katz1981some" class="csl-entry" role="listitem">
+Katz, Richard W. 1981. <span>“On Some Criteria for Estimating the Order of a <span>M</span>arkov Chain.”</span> <em>Technometrics</em> 23 (3): 243–49.
 </div>
 <div id="ref-lebre2008em" class="csl-entry" role="listitem">
 Lèbre, Sophie, and Pierre-Yves Bourguignon. 2008. <span>“An <span>EM</span> Algorithm for Estimation in the Mixture Transition Distribution Model.”</span> <em>Journal of Statistical Computation and Simulation</em> 78 (1): 1–15. <a href="https://doi.org/10.1080/00949650701266666" class="external-link">https://doi.org/10.1080/00949650701266666</a>.
@@ -464,6 +502,9 @@ P. J. Avery, and D. A. Henderson. 1999. <span>“Fitting Markov Chain Models to 
 </div>
 <div id="ref-raftery1985model" class="csl-entry" role="listitem">
 Raftery, Adrian E. 1985. <span>“A Model for High-Order <span>M</span>arkov Chains.”</span> <em>Journal of the Royal Statistical Society, Series B</em> 47 (3): 528–39.
+</div>
+<div id="ref-tong1975determination" class="csl-entry" role="listitem">
+Tong, Howell. 1975. <span>“Determination of the Order of a <span>M</span>arkov Chain by <span>A</span>kaike’s Information Criterion.”</span> <em>Journal of Applied Probability</em> 12 (3): 488–97.
 </div>
 </div>
 </section></section><script id="quarto-html-after-body" type="application/javascript">

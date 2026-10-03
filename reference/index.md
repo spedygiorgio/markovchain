@@ -283,6 +283,9 @@
 
 - [`sales`](sales.md) : Sales Demand Sequences
 
+- [`selectOrder()`](selectOrder.md) : Select the order of a Markov chain
+  by information criteria
+
 - [`sensitivity()`](sensitivity.md) : Sensitivity of the stationary
   distribution to a state's transition row
 

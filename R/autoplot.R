@@ -189,11 +189,7 @@ autoplot.markovchain <- function(object,
       curvature = 0.15,
       lineend = "round",
       arrow = grid::arrow(length = grid::unit(0.14, "cm"), type = "closed")
-    ) +
-      ggplot2::scale_linewidth(
-        range = c(edge_width * 0.6, edge_width * 1.6),
-        guide = "none"
-      )
+    )
 
     if (isTRUE(show_probabilities)) {
       p <- p + .borderlessLabel(
@@ -211,11 +207,7 @@ autoplot.markovchain <- function(object,
       ggplot2::aes(x = x, y = y, group = group, linewidth = probability),
       lineend = "round",
       arrow = grid::arrow(length = grid::unit(0.14, "cm"), type = "closed")
-    ) +
-      ggplot2::scale_linewidth(
-        range = c(edge_width * 0.6, edge_width * 1.6),
-        guide = "none"
-      )
+    )
 
     if (isTRUE(show_probabilities)) {
       loop_labels <- unique(loops[c("group", "probability")])
@@ -230,6 +222,15 @@ autoplot.markovchain <- function(object,
                                                digits = digits))
       )
     }
+  }
+
+  # one linewidth scale shared by the edge and loop layers (adding it once per
+  # layer made ggplot2 print "Scale for linewidth is already present")
+  if (nrow(edges) > 0L || nrow(loops) > 0L) {
+    p <- p + ggplot2::scale_linewidth(
+      range = c(edge_width * 0.6, edge_width * 1.6),
+      guide = "none"
+    )
   }
 
   p +

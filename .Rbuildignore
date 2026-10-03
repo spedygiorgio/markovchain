@@ -17,3 +17,4 @@ support/*.*
 ^_pkgdown\.yml$
 leftovers/*.*
 ^\*.patch
+^cran-comments\.md$

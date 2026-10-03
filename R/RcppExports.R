@@ -89,6 +89,10 @@ seq2matHigh <- function(sequence, order) {
     .Call(`_markovchain_seq2matHigh`, sequence, order)
 }
 
+.mtdEM <- function(patterns, counts, lambda0, Q0, tol, maxit) {
+    .Call(`_markovchain_mtdEM`, patterns, counts, lambda0, Q0, tol, maxit)
+}
+
 .markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
     .Call(`_markovchain_markovchainSequenceRcpp`, n, markovchain, t0, include_t0)
 }
@@ -198,9 +202,18 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' @param toRowProbs converts a sequence matrix into a probability matrix
 #' @param sanitize put 1 in all rows having rowSum equal to zero
 #' @param possibleStates Possible states which are not present in the given sequence
+#' @param progress Should a text progress bar be shown? It is only used by
+#'                 the "bootstrap" method, the other methods being fast; see Details.
 #' 
 #' @details Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
 #' contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
+#'
+#' With \code{progress = TRUE} the "bootstrap" method shows a text progress bar
+#' (\code{\link[utils]{txtProgressBar}}, style 3) covering the simulation of the
+#' \code{nboot} bootstrap sequences and the estimation of a transition matrix
+#' from each of them. With \code{parallel = TRUE} the sequences are simulated in
+#' parallel threads, which cannot report progress, so the bar only covers the
+#' estimation step. The computation can be interrupted while the bar is shown.
 #' 
 #' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
 #'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
@@ -243,8 +256,8 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #' 
 #' @export
 #' 
-.markovchainFitRcpp <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character()) {
-    .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates)
+.markovchainFitRcpp <- function(data, method = "mle", byrow = TRUE, nboot = 10L, laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95, confint = TRUE, hyperparam = matrix(), sanitize = FALSE, possibleStates = character(), progress = FALSE) {
+    .Call(`_markovchain_markovchainFit`, data, method, byrow, nboot, laplacian, name, parallel, confidencelevel, confint, hyperparam, sanitize, possibleStates, progress)
 }
 
 .noofVisitsDistRCpp <- function(matrix, i, N) {

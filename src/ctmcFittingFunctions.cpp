@@ -9,7 +9,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
                     int nboot = 10, double laplacian = 0, String name = "",
                     bool parallel = false, double confidencelevel = 0.95, bool confint = true,
                     NumericMatrix hyperparam = NumericMatrix(), bool sanitize = false,
-                    CharacterVector possibleStates = CharacterVector()); 
+                    CharacterVector possibleStates = CharacterVector(), bool progress = false); 
 
 //' @name ctmcFit
 //' @title Function to fit a CTMC

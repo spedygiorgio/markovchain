@@ -4,13 +4,27 @@
 \alias{hittingProbabilities}
 \title{Hitting probabilities for markovchain}
 \usage{
-hittingProbabilities(object)
+hittingProbabilities(object, targets = NULL)
 }
 \arguments{
 \item{object}{the markovchain-class object}
+
+\item{targets}{optional character vector of state names: only the hitting
+probabilities \emph{towards} these states are computed. The default,
+\code{NULL}, means all the states, which gives the full matrix as before.
+Every target is handled independently of the others, so the work is
+proportional to the number of targets: for a large chain, asking only for
+the states of interest is much faster than computing the whole matrix and
+subsetting it. Duplicated or unknown names are an error.}
 }
 \value{
-a matrix of hitting probabilities
+a matrix of hitting probabilities. Entry \code{[i, j]} is the
+probability of ever arriving from state \code{i} to state \code{j} (the
+probability of returning, after at least one transition, on the diagonal);
+for a chain with \code{byrow = FALSE} the matrix is transposed, as the
+transition matrix is. With \code{targets}, only the columns (rows if
+\code{byrow = FALSE}) of the targets are returned, in the order given, and
+they coincide with those of the full matrix.
 }
 \description{
 Given a markovchain object,
@@ -25,6 +39,9 @@ M[4,2] <- M[4,5] <- 1/2
 
 mc <- new("markovchain", transitionMatrix = M)
 hittingProbabilities(mc)
+
+# only the probabilities of ever reaching the first state
+hittingProbabilities(mc, targets = "1")
 
 }
 \references{

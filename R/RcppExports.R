@@ -423,8 +423,8 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
-.hittingProbabilitiesRcpp <- function(object) {
-    .Call(`_markovchain_hittingProbabilities`, object)
+.hittingProbabilitiesRcpp <- function(object, targets) {
+    .Call(`_markovchain_hittingProbabilities`, object, targets)
 }
 
 .canonicFormRcpp <- function(obj) {

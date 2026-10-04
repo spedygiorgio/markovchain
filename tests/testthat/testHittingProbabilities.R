@@ -202,3 +202,76 @@ test_that("a mandatory transient target is hit almost surely", {
   expect_identical(
     unname(hittingProbabilities(mc)["start", "target"]), 1)
 })
+
+### Selecting the target states (issue #203). The columns are computed
+### independently of each other, so the result for a subset of targets must be
+### exactly the corresponding columns of the full matrix.
+
+test_that("targets gives the documented values for the chosen columns, in the order given", {
+  hp <- hittingProbabilities(mcDoc, targets = c("e", "b"))
+  expect_equal(hp, expectedDoc[, c("e", "b")], tolerance = 1e-8)
+  expect_identical(colnames(hp), c("e", "b"))
+  expect_identical(rownames(hp), statesNames)
+})
+
+test_that("targets = NULL (the default) is the full matrix", {
+  expect_identical(hittingProbabilities(mcDoc, targets = NULL),
+                   hittingProbabilities(mcDoc))
+  expect_identical(hittingProbabilities(mcDoc, targets = statesNames),
+                   hittingProbabilities(mcDoc))
+})
+
+test_that("a single target gives a one-column matrix with its name", {
+  hp <- hittingProbabilities(mcDoc, targets = "c")
+  expect_identical(dim(hp), c(5L, 1L))
+  expect_identical(colnames(hp), "c")
+  expect_identical(hp, hittingProbabilities(mcDoc)[, "c", drop = FALSE])
+})
+
+test_that("targets reproduces the columns of the full matrix on every kind of chain", {
+  set.seed(203)
+  for (mc in list(mcDoc, mcClosed, mcIllConditioned)) {
+    full <- hittingProbabilities(mc)
+    st <- states(mc)
+    ## every single target (so the diagonal, i.e. return probabilities, too)
+    for (s in st)
+      expect_identical(hittingProbabilities(mc, targets = s),
+                       full[, s, drop = FALSE])
+    ## random subsets, in random order
+    for (rep in 1:5) {
+      tg <- sample(st, sample.int(length(st), 1L))
+      expect_identical(hittingProbabilities(mc, targets = tg),
+                       full[, tg, drop = FALSE])
+    }
+  }
+})
+
+test_that("targets follows the orientation of a column-stochastic chain", {
+  mcCol <- new("markovchain", transitionMatrix = t(M), states = statesNames,
+               byrow = FALSE)
+  full <- hittingProbabilities(mcCol)
+  ## the full matrix is transposed with respect to the row-stochastic one
+  expect_equal(unname(full), unname(t(expectedDoc)), tolerance = 1e-8)
+
+  hp <- hittingProbabilities(mcCol, targets = c("d", "a"))
+  expect_identical(hp, full[c("d", "a"), , drop = FALSE])
+  expect_equal(unname(hp), unname(t(expectedDoc[, c("d", "a")])),
+               tolerance = 1e-8)
+})
+
+test_that("targets validates its argument", {
+  expect_error(hittingProbabilities(mcDoc, targets = "z"), "Unknown state")
+  expect_error(hittingProbabilities(mcDoc, targets = c("a", "z")), "z")
+  expect_error(hittingProbabilities(mcDoc, targets = c("a", "a")), "duplicate")
+  expect_error(hittingProbabilities(mcDoc, targets = character(0)), "non-empty")
+  expect_error(hittingProbabilities(mcDoc, targets = NA_character_), "missing")
+  expect_error(hittingProbabilities(mcDoc, targets = 1), "character")
+})
+
+test_that("functions built on the hitting probabilities are unchanged", {
+  ## meanNumVisits() uses the C++ routine directly
+  expect_true(all(is.finite(meanNumVisits(mcDoc)[2:4, 2:4])))
+  expect_equal(meanNumVisits(mcDoc)["b", "b"],
+               expectedDoc["b", "b"] / (1 - expectedDoc["b", "b"]),
+               tolerance = 1e-8)
+})

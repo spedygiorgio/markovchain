@@ -121,7 +121,7 @@ firstPassage <- function(object, state, n) {
   }
 
   outMatr <- .firstpassageKernelRcpp(
-    P = object@transitionMatrix,
+    P = .rowStochasticMatrix(object),
     i = match(state, stateNames),
     n = as.integer(n)
   )
@@ -178,7 +178,7 @@ firstPassageMultiple <- function(object, state, set, n) {
   }
 
   out <- .firstPassageMultipleRCpp(
-    object@transitionMatrix,
+    .rowStochasticMatrix(object),
     match(state, stateNames),
     match(unique(set), stateNames),
     as.integer(n)
@@ -402,7 +402,7 @@ committorAB <- function(object, A, B, p = 1) {
     stop("please provide a valid initial state")
   }
 
-  coefficient <- object@transitionMatrix - diag(nstates)
+  coefficient <- .rowStochasticMatrix(object) - diag(nstates)
   coefficient[A, ] <- 0
   coefficient[cbind(A, A)] <- 1
   coefficient[B, ] <- 0
@@ -457,7 +457,7 @@ expectedRewards <- function(markovchain, n, rewards) {
     stop("rewards must contain one finite numeric value for every state")
   }
   out <- .expectedRewardsRCpp(
-    markovchain@transitionMatrix, as.integer(n), rewards)
+    .rowStochasticMatrix(markovchain), as.integer(n), rewards)
   as.numeric(out)
 }
 
@@ -513,7 +513,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
   keep <- which(!stateNames %in% A)
   initial <- match(state, stateNames[keep])
   .expectedRewardsBeforeHittingARCpp(
-    markovchain@transitionMatrix[keep, keep, drop = FALSE],
+    .rowStochasticMatrix(markovchain)[keep, keep, drop = FALSE],
     initial,
     rewards[keep],
     as.integer(n)
@@ -748,7 +748,7 @@ setGeneric("is.stochasticallyMonotone", function(object) standardGeneric("is.sto
 setMethod("is.stochasticallyMonotone", 
           signature(object = "markovchain"), 
           function(object) {
-            return(.is_stochastically_monotone_cpp(object@transitionMatrix))
+            return(.is_stochastically_monotone_cpp(.rowStochasticMatrix(object)))
           })
 
 #' @rdname is.stochasticallyMonotone
@@ -1029,6 +1029,9 @@ setMethod("lump", signature(object = "markovchain"),
             }
 
             st <- steadyStates(object)
+            # steadyStates() returns one distribution per row for row-stored
+            # chains and one per column otherwise; put them in rows.
+            if (!object@byrow) st <- t(st)
             if (nrow(st) > 0L) {
               # If several stationary distributions are returned, average them
               # to obtain deterministic non-negative aggregation weights.
@@ -1064,7 +1067,9 @@ setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
 #' @aliases autoLump,markovchain-method
 setMethod("autoLump", signature(object = "markovchain"),
           function(object, k) {
-            P <- object@transitionMatrix
+            # eigenvectors must be those of the row-stochastic matrix, whatever
+            # the storage orientation of the chain
+            P <- .rowStochasticMatrix(object)
             state_names <- states(object)
             n <- nrow(P)
 

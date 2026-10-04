@@ -29,6 +29,9 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
   // transition mastrix
   NumericMatrix transitionMatrix = markovchain.slot("transitionMatrix");
   
+  // storage orientation: rows (default) or columns hold the outgoing probabilities
+  bool byrow = markovchain.slot("byrow");
+  
   // possible states
   CharacterVector states = markovchain.slot("states");
   
@@ -57,7 +60,7 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
     }
     
     for (int j = 0; j < states.size(); j++) {
-      rowProbs[j] = transitionMatrix(row_no, j);
+      rowProbs[j] = byrow ? transitionMatrix(row_no, j) : transitionMatrix(j, row_no);
     }
     
     // calculate next state

@@ -95,7 +95,7 @@
 #'    \item{names<-}{\code{signature(x = "markovchain", value = "character")}: method to set the names of states}
 #'    \item{initialize}{\code{signature(.Object = "markovchain")}: initialize method }
 #'    \item{plot}{\code{signature(x = "markovchain", y = "missing")}: plot method for \code{markovchain} objects }
-#'    \item{predict}{\code{signature(object = "markovchain")}: predict method }
+#'    \item{predict}{\code{signature(object = "markovchain")}: predict method. Starting from the last element of \code{newdata}, which must be a state of the chain, it returns the \code{n.ahead} following states, each being the most probable transition from the previous one; ties are broken at random. }
 #'    \item{print}{\code{signature(x = "markovchain")}: print method. }
 #'    \item{show}{\code{signature(object = "markovchain")}: show method. }
 #'    \item{sort}{\code{signature(x = "markovchain", decreasing=FALSE)}: sorting the transition matrix. }
@@ -1218,6 +1218,8 @@ setMethod("conditionalDistribution", "markovchain",
     # get the states names
     stateNames <- states(object) 
     
+    .checkKnownState(state, stateNames, "state")
+    
     # number of unique states
     out <- numeric(length(stateNames))
     
@@ -1246,6 +1248,26 @@ setMethod("conditionalDistribution", "markovchain",
 # Returns:
 # the name of the model element
 
+# Stop with an informative message unless `state` is a single, non-missing
+# name of one of the chain's states.
+.checkKnownState <- function(state, stateNames, argName = "state") {
+  if (length(state) != 1L || is.na(state) || !(as.character(state) %in% stateNames)) {
+    shown <- if (length(stateNames) > 10L) {
+      paste0(paste(stateNames[1:10], collapse = ", "), ", ...")
+    } else {
+      paste(stateNames, collapse = ", ")
+    }
+    got <- if (length(state) == 1L && !is.na(state)) {
+      paste0("'", state, "'")
+    } else {
+      "an empty, missing or non-scalar value"
+    }
+    stop(sprintf("`%s` must be a single state of the chain: %s is not one of the states (%s).",
+                 argName, got, shown), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 .getMode <- function(probVector, ties = "random") {
 	maxIndex <- which(probVector == max(probVector))
 	temp <- probVector[maxIndex] # index of maximum probabilty
@@ -1268,8 +1290,18 @@ setGeneric("predict")
 
 setMethod("predict", "markovchain", 
   function(object, newdata, n.ahead = 1) {
+    if (length(newdata) < 1L) {
+      stop("`newdata` must contain at least one state", call. = FALSE)
+    }
+    if (length(n.ahead) != 1L || is.na(n.ahead) || !is.numeric(n.ahead) ||
+        n.ahead < 1 || n.ahead != floor(n.ahead)) {
+      stop("`n.ahead` must be a positive integer", call. = FALSE)
+    }
     # identify the last state
     lastState <- newdata[length(newdata)]
+    # the prediction starts from the last element of newdata, which must be a
+    # state of the chain
+    .checkKnownState(lastState, states(object), "newdata (last element)")
     out <- character()
     
     for(i in 1:n.ahead) {

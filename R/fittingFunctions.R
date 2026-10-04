@@ -69,7 +69,11 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   # populate the sequence
   for (i in seq_len(n)) {
     # row probabilty corresponding to the current state
-    rowProbs <- markovchain@transitionMatrix[state, ]
+    rowProbs <- if (markovchain@byrow) {
+      markovchain@transitionMatrix[state, ]
+    } else {
+      markovchain@transitionMatrix[, state]
+    }
     
     # select the next state
     outstate <- sample(size = 1, x = markovchain@states, prob = rowProbs)
@@ -737,7 +741,7 @@ noofVisitsDist <- function(markovchain, N = 5, state) {
     stop("please provide a valid initial state")
   }
   out <- .noofVisitsDistRCpp(
-    markovchain@transitionMatrix,
+    .rowStochasticMatrix(markovchain),
     match(state, stateNames),
     as.integer(N)
   )

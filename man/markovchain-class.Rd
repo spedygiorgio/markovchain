@@ -119,7 +119,7 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
    \item{names<-}{\code{signature(x = "markovchain", value = "character")}: method to set the names of states}
    \item{initialize}{\code{signature(.Object = "markovchain")}: initialize method }
    \item{plot}{\code{signature(x = "markovchain", y = "missing")}: plot method for \code{markovchain} objects }
-   \item{predict}{\code{signature(object = "markovchain")}: predict method }
+   \item{predict}{\code{signature(object = "markovchain")}: predict method. Starting from the last element of \code{newdata}, which must be a state of the chain, it returns the \code{n.ahead} following states, each being the most probable transition from the previous one; ties are broken at random. }
    \item{print}{\code{signature(x = "markovchain")}: print method. }
    \item{show}{\code{signature(object = "markovchain")}: show method. }
    \item{sort}{\code{signature(x = "markovchain", decreasing=FALSE)}: sorting the transition matrix. }

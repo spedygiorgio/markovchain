@@ -113,3 +113,7 @@ Tables and Markov Chains. \*Technometrics\*, 4(4), 573–608.
 
 Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about
 Markov chains. \*The Annals of Mathematical Statistics\*, 28(1), 89–110.
+
+## See also
+
+Other statisticalTests: [`assessIndependence()`](assessIndependence.md)

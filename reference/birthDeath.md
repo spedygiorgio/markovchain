@@ -55,7 +55,14 @@ probabilities the only inputs, so there is no leftover mass to
 
 Every row's diagonal entry is determined by the requirement that the row
 sums to \\1\\, so `p` and `q` alone fully determine \\P\\: no separate
-"staying" probability is accepted or needed.
+"staying" probability is accepted or needed. `p+q` is allowed to reach
+\\1\\ for an interior state (no staying probability there), but each
+element of `p` and `q` must itself lie in \\\[0,1\]\\ and `p[i]+q[i]`
+for the shared index \\i\\ need not be checked against 1 the way it
+would for a single state's own two probabilities, since `p[i]` leaves
+state \\i\\ while `q[i]` leaves state \\i+1\\: the actual per-state
+constraint, \\p_i+q\_{i-1}\le 1\\, is checked directly on the assembled
+diagonal.
 
 The two boundary states \\1\\ and \\n\\ are reflecting only in the weak
 sense that no birth/death carries them outside \\\\1,\ldots,n\\\\ – they

@@ -100,7 +100,14 @@ the \(n-1\) genuine transition probabilities the only inputs, so there
 is no leftover mass to (silently) dispose of in the first place.</p>
 <p>Every row's diagonal entry is determined by the requirement that the row
 sums to \(1\), so <code>p</code> and <code>q</code> alone fully determine \(P\):
-no separate "staying" probability is accepted or needed.</p>
+no separate "staying" probability is accepted or needed. <code>p+q</code> is
+allowed to reach \(1\) for an interior state (no staying probability
+there), but each element of <code>p</code> and <code>q</code> must itself lie in
+\([0,1]\) and <code>p[i]+q[i]</code> for the shared index \(i\) need not be
+checked against 1 the way it would for a single state's own two
+probabilities, since <code>p[i]</code> leaves state \(i\) while <code>q[i]</code>
+leaves state \(i+1\): the actual per-state constraint,
+\(p_i+q_{i-1}\le 1\), is checked directly on the assembled diagonal.</p>
 <p>The two boundary states \(1\) and \(n\) are reflecting only in the
 weak sense that no birth/death carries them outside \(\{1,\ldots,n\}\)
 – they still generally have a positive probability of staying put

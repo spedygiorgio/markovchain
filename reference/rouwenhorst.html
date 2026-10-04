@@ -105,13 +105,14 @@ exactly at every <code>size</code>, including for <code>rho</code> near \(\pm1\)
 The transition matrix is built recursively. Let
 \(\theta=(1+\rho)/2\) and, for two states,
 $$\Theta_2 = \begin{pmatrix}\theta &amp; 1-\theta\\ 1-\theta &amp; \theta\end{pmatrix}.$$
-For \(m\) states (\(2&lt;m\le n\)), form the \(m\times m\) matrix from
-four \((m-1)\times(m-1)\) corner blocks built out of
-\(\Theta_{m-1}\) (weighted by \(\theta\) and \(1-\theta\)
-following the standard Rouwenhorst recursion), then divide every
-interior row (all but the first and last) by \(2\) to restore
-row-stochasticity, since those rows receive contributions from two
-overlapping corner blocks.</p>
+For \(m\) states (\(2&lt;m\le n\)), form the \(m\times m\) matrix
+$$\Theta_m = \theta\begin{pmatrix}\Theta_{m-1} &amp; 0\\ 0 &amp; 0\end{pmatrix}
+  + (1-\theta)\begin{pmatrix}0 &amp; \Theta_{m-1}\\ 0 &amp; 0\end{pmatrix}
+  + (1-\theta)\begin{pmatrix}0 &amp; 0\\ \Theta_{m-1} &amp; 0\end{pmatrix}
+  + \theta\begin{pmatrix}0 &amp; 0\\ 0 &amp; \Theta_{m-1}\end{pmatrix},$$
+then divide every interior row (all but the first and last) by \(2\)
+to restore row-stochasticity, since those rows receive contributions
+from two of the four corner blocks above.</p>
 <p>Rouwenhorst's method reproduces the AR(1)'s unconditional variance and
 lag-1 autocorrelation \(\rho\) exactly, for every <code>size</code>
 (Kopecky and Suen (2010) find it outperforms <code><a href="tauchen.html">tauchen</a></code> and

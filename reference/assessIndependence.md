@@ -62,6 +62,8 @@ Markov chains. *The Annals of Mathematical Statistics*, 28(1), 89–110.
 [`assessOrder`](statisticalTests.md),
 [`assessStationarity`](statisticalTests.md)
 
+Other statisticalTests: [`verifyMarkovProperty()`](statisticalTests.md)
+
 ## Examples
 
 ``` r

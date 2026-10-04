@@ -1,3 +1,55 @@
+# Normalise the `sanitize` argument of createSequenceMatrix()/markovchainFit()
+# to one of "none", "uniform" or "absorbing".
+#
+# Historically `sanitize` was a logical: TRUE filled every entry of a row with
+# no observed outgoing transition with 1, so that the row became a *uniform*
+# distribution over all the states once normalised. That is a strong and
+# usually unwarranted assumption on the states that `possibleStates` adds
+# (#213), so the argument now also accepts a string, "uniform" being an
+# explicit synonym of TRUE and "absorbing" putting the whole mass on the
+# diagonal instead. TRUE/FALSE keep their old meaning exactly.
+.sanitizeMode <- function(sanitize) {
+  if (is.character(sanitize)) {
+    if (length(sanitize) != 1L || is.na(sanitize))
+      stop("`sanitize` must be TRUE, FALSE, \"uniform\" or \"absorbing\".")
+    return(match.arg(sanitize, c("uniform", "absorbing")))
+  }
+
+  if (!is.logical(sanitize) || length(sanitize) != 1L || is.na(sanitize))
+    stop("`sanitize` must be TRUE, FALSE, \"uniform\" or \"absorbing\".")
+
+  if (sanitize) "uniform" else "none"
+}
+
+# Make every all-zero row of a square matrix absorbing. Rows and columns of
+# the matrices built by createSequenceMatrix() carry the same states in the
+# same order, so row i and column i are the same state.
+.absorbEmptyRows <- function(m) {
+  empty <- which(rowSums(m) == 0)
+  if (length(empty) > 0L)
+    m[cbind(empty, empty)] <- 1
+  m
+}
+
+#' @rdname markovchainFit
+#' @export
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
+                                 sanitize = FALSE,
+                                 possibleStates = character()) {
+  mode <- .sanitizeMode(sanitize)
+
+  if (mode != "absorbing")
+    return(.createSequenceMatrixRcpp(stringchar, toRowProbs,
+                                     mode == "uniform", possibleStates))
+
+  # With sanitize = FALSE a row with no observed outgoing transition stays at
+  # zero, whether the result holds counts or row probabilities, so the same
+  # single call identifies those rows in both cases.
+  .absorbEmptyRows(
+    .createSequenceMatrixRcpp(stringchar, toRowProbs, FALSE, possibleStates)
+  )
+}
+
 # Resolve the number of threads the parallel code should run on, respecting
 # the CRAN policy against grabbing all available cores by default. Honours,
 # in this order: an explicit `num.cores` from the caller; the

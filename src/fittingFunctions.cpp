@@ -574,10 +574,11 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 }
 
 // Create a frequency matrix
-//' @rdname markovchainFit
-//' 
-//' @export
-// [[Rcpp::export]]
+//
+// The user-facing createSequenceMatrix() is the R wrapper in
+// R/fittingFunctions.R, which also implements sanitize = "absorbing"; this
+// routine only knows the historical logical behaviour.
+// [[Rcpp::export(.createSequenceMatrixRcpp)]]
 NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, bool sanitize = false,
                                    CharacterVector possibleStates = CharacterVector()) {
   
@@ -1730,7 +1731,20 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                   should typically be non-negative integers.                        
 //' @param stringchar It can be a \deqn{n x n} matrix or a character vector or a list
 //' @param toRowProbs converts a sequence matrix into a probability matrix
-//' @param sanitize put 1 in all rows having rowSum equal to zero
+//' @param sanitize how to deal with the states that have no observed outgoing
+//'                 transition, which is what \code{possibleStates} typically
+//'                 introduces. \code{FALSE} (the default) leaves their row at
+//'                 zero, which makes a transition matrix that is not
+//'                 stochastic. \code{TRUE}, or equivalently
+//'                 \code{"uniform"}, puts 1 in every entry of such a row, so
+//'                 that the row becomes a uniform distribution over all the
+//'                 states: the unobserved states are then assumed to move to
+//'                 any state with equal probability, which is an assumption
+//'                 about the data and not a consequence of it.
+//'                 \code{"absorbing"} instead puts 1 on the diagonal only,
+//'                 making every unobserved state absorbing; this also gives a
+//'                 stochastic matrix, but adds no transition that was never
+//'                 observed (see #213).
 //' @param possibleStates Possible states which are not present in the given sequence
 //' @param progress Should a text progress bar be shown? It is only used by
 //'                 the "bootstrap" method, the other methods being fast; see Details.

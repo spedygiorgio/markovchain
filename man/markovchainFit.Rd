@@ -40,7 +40,20 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 \item{toRowProbs}{converts a sequence matrix into a probability matrix}
 
-\item{sanitize}{put 1 in all rows having rowSum equal to zero}
+\item{sanitize}{how to deal with the states that have no observed outgoing
+transition, which is what \code{possibleStates} typically
+introduces. \code{FALSE} (the default) leaves their row at
+zero, which makes a transition matrix that is not
+stochastic. \code{TRUE}, or equivalently
+\code{"uniform"}, puts 1 in every entry of such a row, so
+that the row becomes a uniform distribution over all the
+states: the unobserved states are then assumed to move to
+any state with equal probability, which is an assumption
+about the data and not a consequence of it.
+\code{"absorbing"} instead puts 1 on the diagonal only,
+making every unobserved state absorbing; this also gives a
+stochastic matrix, but adds no transition that was never
+observed (see #213).}
 
 \item{possibleStates}{Possible states which are not present in the given sequence}
 
@@ -122,6 +135,16 @@ When \code{absorbingStates} is supplied, the declared states must have
   no observed outgoing transitions. This allows terminal states in censored
   customer journeys to be represented as absorbing states without adding
   artificial observations.
+
+\code{sanitize = "absorbing"} reaches the same result without
+  naming the states: every state that has no observed outgoing transition,
+  which is what \code{possibleStates} typically introduces, is made
+  absorbing. Unlike \code{absorbingStates}, it works with every
+  \code{method}, since it only replaces the uniform row that
+  \code{sanitize = TRUE} would have produced. As with
+  \code{absorbingStates}, only the estimate is constrained: any confidence
+  bounds and standard errors keep the values the unconstrained fit assigned
+  to those rows.
 }
 \note{
 This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 

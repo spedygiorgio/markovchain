@@ -1055,8 +1055,14 @@ void hittingProbabilitiesColumn(
   }
 }
 
-// [[Rcpp::export(.hittingProbabilitiesRcpp)]]
-NumericMatrix hittingProbabilities(S4 object) {
+// Hitting probabilities towards the states in `targets` (0-based, distinct).
+// Every column is computed independently of the others (column j only needs
+// the jump chain and the closed classes), so restricting the targets gives
+// exactly the corresponding columns of the full matrix at a fraction of the
+// cost. Columns follow the order of `targets`; with `byrow = FALSE` the
+// result is transposed, as for the full matrix.
+NumericMatrix hittingProbabilitiesImpl(S4 object,
+                                       const std::vector<int>& targets) {
   NumericMatrix transitionMatrix = object.slot("transitionMatrix");
   CharacterVector states = object.slot("states");
   bool byrow = object.slot("byrow");
@@ -1103,7 +1109,9 @@ NumericMatrix hittingProbabilities(S4 object) {
 
   const double tol = 1e-13;
   const int maxDoublings = 200;
-  for (int j = 0; j < numStates; ++j) {
+  for (int j : targets) {
+    if (j < 0 || j >= numStates)
+      stop("hittingProbabilities(): target index out of range");
     hittingProbabilitiesColumn(jumpProbs, predecessors, j, numStates,
                                closedClass, communicating, hittingProbs, tol,
                                maxDoublings, states);
@@ -1111,7 +1119,7 @@ NumericMatrix hittingProbabilities(S4 object) {
 
   // Preserve the package convention that diagonal entries are return
   // probabilities after at least one transition.
-  for (int j = 0; j < numStates; ++j) {
+  for (int j : targets) {
     if (!closedClass(j)) {
       long double returnProbability =
         static_cast<long double>(transitionProbs(j, j));
@@ -1127,14 +1135,30 @@ NumericMatrix hittingProbabilities(S4 object) {
     }
   }
 
-  NumericMatrix result = wrap(hittingProbs);
-  colnames(result) = states;
+  const int numTargets = static_cast<int>(targets.size());
+  NumericMatrix result(numStates, numTargets);
+  CharacterVector targetNames(numTargets);
+  for (int t = 0; t < numTargets; ++t) {
+    for (int i = 0; i < numStates; ++i)
+      result(i, t) = hittingProbs(i, targets[t]);
+    targetNames[t] = states[targets[t]];
+  }
+  colnames(result) = targetNames;
   rownames(result) = states;
 
   if (!byrow)
     result = transpose(result);
 
   return result;
+}
+
+// [[Rcpp::export(.hittingProbabilitiesRcpp)]]
+NumericMatrix hittingProbabilities(S4 object, IntegerVector targets) {
+  // `targets` holds 1-based state indices (validated in R)
+  std::vector<int> idx(targets.size());
+  for (R_xlen_t t = 0; t < targets.size(); ++t)
+    idx[t] = targets[t] - 1;
+  return hittingProbabilitiesImpl(object, idx);
 }
 
 
@@ -1627,8 +1651,11 @@ NumericVector meanRecurrenceTime(S4 obj) {
 
 // [[Rcpp::export(.minNumVisitsRcpp)]]
 NumericMatrix meanNumVisits(S4 obj) {
-  NumericMatrix hitting = hittingProbabilities(obj);
   CharacterVector states = obj.slot("states");
+  std::vector<int> allTargets(states.size());
+  for (int t = 0; t < static_cast<int>(allTargets.size()); ++t)
+    allTargets[t] = t;
+  NumericMatrix hitting = hittingProbabilitiesImpl(obj, allTargets);
   bool byrow = obj.slot("byrow");
   
   if (!byrow)

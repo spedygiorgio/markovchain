@@ -1,4 +1,4 @@
-# 1.1.3
+# 1.2
 
 - Added `redistribute()`, propagating an initial distribution through `steps` transitions and returning the whole trajectory (a `(steps + 1) x n` matrix including the initial time, or only the last row with `lastOnly = TRUE`), as PyDTMC's `mc_redistribute` does. The initial distribution may be omitted (uniform), a single state name (point mass) or a numeric vector, named or not; column-stochastic chains are handled.
 - Added `topologicalEntropy()`, the logarithm of the Perron root of the chain's support (adjacency) matrix, in any `base` (default 2, consistent with `entropyRate()`), `normalizedEntropyRate()`, the entropy rate divided by the topological entropy (always in [0, 1]; 0 when either vanishes) and `relaxationTime()`, the reciprocal of `spectralGap()` (`Inf` for periodic chains). PyDTMC's `mixing_rate` is the first element of `impliedTimescales()` and is not duplicated.

@@ -13,22 +13,22 @@ toBoundedChain(object, boundaryCondition)
 \item{object}{A \code{markovchain} object with at least 2 states.}
 
 \item{boundaryCondition}{Either:
-  \itemize{
-    \item the string \code{"absorbing"}: the first and last state each
-      become absorbing (\eqn{P_{11}=1}, \eqn{P_{nn}=1});
-    \item the string \code{"reflecting"}: the first state moves to the
-      second with certainty and the last state moves to the
-      second-to-last with certainty (\eqn{P_{12}=1},
-      \eqn{P_{n,n-1}=1});
-    \item a single number \eqn{\beta\in[0,1]}, the
-      \emph{semi-reflecting} case: the first state stays with
-      probability \eqn{1-\beta} and moves to the second state with
-      probability \eqn{\beta} (\eqn{P_{11}=1-\beta}, \eqn{P_{12}=\beta}),
-      and symmetrically the last state stays with probability
-      \eqn{1-\beta} and moves to the second-to-last with probability
-      \eqn{\beta}. \eqn{\beta=0} is the absorbing case and \eqn{\beta=1}
-      is the reflecting case.
-  }}
+\itemize{
+  \item the string \code{"absorbing"}: the first and last state each
+    become absorbing (\eqn{P_{11}=1}, \eqn{P_{nn}=1});
+  \item the string \code{"reflecting"}: the first state moves to the
+    second with certainty and the last state moves to the
+    second-to-last with certainty (\eqn{P_{12}=1},
+    \eqn{P_{n,n-1}=1});
+  \item a single number \eqn{\beta\in[0,1]}, the
+    \emph{semi-reflecting} case: the first state stays with
+    probability \eqn{1-\beta} and moves to the second state with
+    probability \eqn{\beta} (\eqn{P_{11}=1-\beta}, \eqn{P_{12}=\beta}),
+    and symmetrically the last state stays with probability
+    \eqn{1-\beta} and moves to the second-to-last with probability
+    \eqn{\beta}. \eqn{\beta=0} is the absorbing case and \eqn{\beta=1}
+    is the reflecting case.
+}}
 }
 \value{
 A new \code{markovchain} object, row-stochastic, on the same

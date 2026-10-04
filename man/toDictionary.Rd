@@ -20,7 +20,7 @@ may also be a plain \code{n x n} matrix (with or without dimnames
 matching \code{d$states}) for convenience when building a dictionary by
 hand rather than from an existing \code{markovchain} object. When it is
 a plain matrix, \code{d$byrow} is honored exactly as
-\code{new("markovchain", ...)} honors its own \code{byrow}
+\code{\link{new}("markovchain", ...)} honors its own \code{byrow}
 argument: the matrix is stored as given, with \code{d$byrow} only
 documenting whether it is row- or column-stochastic (so a
 column-stochastic matrix round-trips by setting \code{d$byrow = FALSE},

@@ -35,6 +35,7 @@ For transition matrices \eqn{P_1} (from \code{object}) and \eqn{P_2}
 merged transition matrix is
 \deqn{P = (1-\gamma) P_1 + \gamma P_2.}
 
+
 \strong{States are matched by name, not by position.} \code{object} and
 \code{other} must have exactly the same set of state names (as sets --
 \code{other}'s states may be in a different order, or \code{other} may use

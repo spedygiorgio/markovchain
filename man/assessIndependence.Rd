@@ -62,5 +62,8 @@ about Markov chains. \emph{The Annals of Mathematical Statistics}, 28(1), 89--11
 \seealso{
 \code{\link{verifyMarkovProperty}}, \code{\link{assessOrder}},
   \code{\link{assessStationarity}}
+
+Other statisticalTests:
+\code{\link[=verifyMarkovProperty]{verifyMarkovProperty()}}
 }
 \concept{statisticalTests}

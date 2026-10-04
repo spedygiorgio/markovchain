@@ -93,4 +93,8 @@ Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for Contingency Tables a
 Anderson, T. W. and Goodman, L. A. (1957). Statistical inference
 about Markov chains. *The Annals of Mathematical Statistics*, 28(1), 89--110.
 }
+\seealso{
+Other statisticalTests:
+\code{\link[=assessIndependence]{assessIndependence()}}
+}
 \concept{statisticalTests}

@@ -47,7 +47,14 @@ is no leftover mass to (silently) dispose of in the first place.
 
 Every row's diagonal entry is determined by the requirement that the row
 sums to \eqn{1}, so \code{p} and \code{q} alone fully determine \eqn{P}:
-no separate "staying" probability is accepted or needed.
+no separate "staying" probability is accepted or needed. \code{p+q} is
+allowed to reach \eqn{1} for an interior state (no staying probability
+there), but each element of \code{p} and \code{q} must itself lie in
+\eqn{[0,1]} and \code{p[i]+q[i]} for the shared index \eqn{i} need not be
+checked against 1 the way it would for a single state's own two
+probabilities, since \code{p[i]} leaves state \eqn{i} while \code{q[i]}
+leaves state \eqn{i+1}: the actual per-state constraint,
+\eqn{p_i+q_{i-1}\le 1}, is checked directly on the assembled diagonal.
 
 The two boundary states \eqn{1} and \eqn{n} are reflecting only in the
 weak sense that no birth/death carries them outside \eqn{\{1,\ldots,n\}}

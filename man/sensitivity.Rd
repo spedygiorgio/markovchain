@@ -43,6 +43,7 @@ matrix \eqn{P(\varepsilon) = P + \varepsilon\, e_k d^{\mathsf T}} for small
 \deqn{\left.\frac{d\pi_j}{d\varepsilon}\right|_{\varepsilon=0} =
   \sum_l d_l\, S_{lj} = \left(d^{\mathsf T} S\right)_j.}
 
+
 \strong{Closed form.} Let \eqn{Z=(I-P+\mathbf 1\pi^{\mathsf T})^{-1}} be
 the fundamental matrix already used by \code{\link{kemenyConstant}}. Then
 \deqn{S_{lj} = \pi_k\left(Z_{lj} - \pi_j\right).}

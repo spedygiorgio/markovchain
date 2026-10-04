@@ -252,6 +252,9 @@
 - [`noofVisitsDist()`](noofVisitsDist.md) : return a joint pdf of the
   number of visits to the various states of the DTMC
 
+- [`normalizedEntropyRate()`](normalizedEntropyRate.md) : Normalized
+  entropy rate of a Markov chain
+
 - [`ones()`](ones.md) : Returns an Identity matrix
 
 - [`populationGeneticsModel()`](populationGeneticsModel.md) : Build a
@@ -274,6 +277,12 @@
 - [`rain`](rain.md) : Alofi island daily rainfall
 
 - [`rctmc()`](rctmc.md) : rctmc
+
+- [`redistribute()`](redistribute.md) : Evolution of a distribution over
+  time
+
+- [`relaxationTime()`](relaxationTime.md) : Relaxation time of a Markov
+  chain
 
 - [`rmarkovchain()`](rmarkovchain.md) : Function to generate a sequence
   of states from homogeneous or non-homogeneous Markov chains.
@@ -340,6 +349,9 @@
   Markov chain to or from a file
 
 - [`toNthOrder()`](toNthOrder.md) : Return the n-step transition chain
+
+- [`topologicalEntropy()`](topologicalEntropy.md) : Topological entropy
+  of a Markov chain
 
 - [`transition2Generator()`](transition2Generator.md) : Return the
   generator matrix for a corresponding transition matrix

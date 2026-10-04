@@ -1119,6 +1119,33 @@ R> entropyRate(mcWeather, base = exp(1))
 A deterministic chain has entropy rate zero, whereas a chain whose rows are all
 uniform on \(n\) states has the maximum value \(\log_b(n)\).
 
+\subsubsection{Topological entropy and normalized entropy rate}\label{topological-entropy-and-normalized-entropy-rate}
+
+The entropy rate is bounded above by the \emph{topological entropy}
+\(\log_b\rho(A)\), where \(A\) is the 0/1 adjacency matrix of the transitions with
+positive probability and \(\rho(A)\) its Perron root (its spectral radius): the
+topological entropy is the growth rate of the number of admissible paths,
+regardless of their probabilities. The ratio of the two, the normalized
+entropy rate, lies in \([0,1]\), and measures how close the chain is to the
+``maximally random'' chain on the same set of allowed transitions. It is
+set to zero when either quantity is zero (for example for a deterministic
+cycle).
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> topologicalEntropy(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 1.584963
+\end{CodeOutput}
+\begin{CodeInput}
+R> normalizedEntropyRate(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.8620126
+\end{CodeOutput}
+\end{CodeChunk}
+
 \subsection{Classification of states}\label{classification-of-states}
 
 Absorbing states are determined by means of \texttt{absorbingStates} method.
@@ -1972,6 +1999,79 @@ R> spectralGap(lazyChain(mcCycle7, alpha = 0.9))
 \begin{CodeOutput}
 [1] 0.03765102
 \end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Evolution of a distribution}\label{evolution-of-a-distribution}
+
+\texttt{redistribute} propagates an initial distribution through a given number of
+steps and returns the whole trajectory, one row per time point (including the
+initial time \(0\)). The initial distribution can be omitted (uniform), be a
+single state name (a point mass) or a numeric vector. \texttt{relaxationTime} is the
+reciprocal of the spectral gap: the characteristic number of steps needed for
+the distribution to approach stationarity.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> redistribute(mcWeather, steps = 5, initial = "rain")
+\end{CodeInput}
+\begin{CodeOutput}
+      sunny    cloudy      rain
+0 0.0000000 0.0000000 1.0000000
+1 0.2000000 0.4500000 0.3500000
+2 0.3450000 0.3775000 0.2775000
+3 0.4102500 0.3448750 0.2448750
+4 0.4396125 0.3301938 0.2301938
+5 0.4528256 0.3235872 0.2235872
+\end{CodeOutput}
+\begin{CodeInput}
+R> relaxationTime(mcWeather)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 1.818182
+\end{CodeOutput}
+\end{CodeChunk}
+
+The trajectory and the eigenvalues of the transition matrix can also be
+plotted with the \texttt{type} argument of \texttt{autoplot}
+(Figure \ref{fig:autoplot-flow}).
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> ggplot2::autoplot(mcWeather, type = "flow", steps = 10, initial = "rain")
+\end{CodeInput}
+\begin{figure}
+
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/autoplot-flow-1} 
+
+}
+
+\caption[Evolution of the distribution of the weather chain, starting from rain]{Evolution of the distribution of the weather chain, starting from rain.}\label{fig:autoplot-flow}
+\end{figure}
+\end{CodeChunk}
+
+With \texttt{type\ =\ "comparison"}, \texttt{autoplot} places two or more chains defined on the
+same states side by side, with the states matched by name. By default the
+transition matrices are drawn as heatmaps on a common probability scale; with
+\texttt{what\ =\ "stationary"} the stationary distributions are compared instead, which
+requires irreducible chains. As an example, a lazy version of the weather
+chain built with \texttt{lazyChain} has exactly the same stationary
+distribution but visibly different, ``stickier'' transitions
+(Figure \ref{fig:autoplot-comparison}).
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mcLazyWeather <- lazyChain(mcWeather, alpha = 0.5)
+R> mcLazyWeather@name <- "Lazy weather"
+R> ggplot2::autoplot(mcWeather, type = "comparison", other = mcLazyWeather)
+\end{CodeInput}
+\begin{figure}
+
+{\centering \includegraphics[width=0.7\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/autoplot-comparison-1} 
+
+}
+
+\caption[Transition matrices of the weather chain and of its lazy version with alpha = 0.5]{Transition matrices of the weather chain and of its lazy version with alpha = 0.5.}\label{fig:autoplot-comparison}
+\end{figure}
 \end{CodeChunk}
 
 \subsection{Mean recurrence time}\label{mean-recurrence-time}
@@ -4036,9 +4136,9 @@ R> mcWeatherQ
 \end{CodeInput}
 \begin{CodeOutput}
            sunny     cloudy       rain
-sunny  -0.841941   2.322323  -1.480382
-cloudy  4.093072 -19.158709  15.065637
-rain   -4.179938  23.004848 -18.824909
+sunny  -0.863221   2.428723  -1.565502
+cloudy  4.284592 -20.116312  15.831720
+rain   -4.414019  24.175251 -19.761232
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4847,7 +4947,7 @@ R> sapply(c(5, 10, 25), relativeError)
 \begin{CodeOutput}
                     [,1]         [,2]         [,3]
 tauchen     8.139476e+01 4.979587e+01 9.328706e+00
-rouwenhorst 2.259871e-13 3.998234e-13 9.039485e-13
+rouwenhorst 1.738363e-14 1.043018e-13 5.562760e-13
 \end{CodeOutput}
 \end{CodeChunk}
 

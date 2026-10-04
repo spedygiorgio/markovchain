@@ -58,6 +58,11 @@ Communicating classes are shown with different node fills.</p>
 <span>  digits <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  node_size <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  edge_width <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"graph"</span>, <span class="st">"eigenvalues"</span>, <span class="st">"flow"</span>, <span class="st">"comparison"</span><span class="op">)</span>,</span>
+<span>  steps <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  initial <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  other <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"transition"</span>, <span class="st">"stationary"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -91,6 +96,41 @@ probabilities. Defaults to `TRUE`.</p></dd>
 <dd><p>Minimum width multiplier for transition edges.</p></dd>
 
 
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
+<dd><p>Type of plot: <code>"graph"</code> (default) draws the transition
+graph; <code>"eigenvalues"</code> draws the eigenvalues of the transition matrix
+in the complex plane together with the unit circle; <code>"flow"</code> draws
+the evolution of the distribution over the states, as computed by
+<code><a href="redistribute.html">redistribute</a></code>; <code>"comparison"</code> compares <code>object</code>
+with the chains in <code>other</code>.</p></dd>
+
+
+<dt id="arg-steps">steps<a class="anchor" aria-label="anchor" href="#arg-steps"></a></dt>
+<dd><p>Number of steps of the <code>"flow"</code> plot. Defaults to 20.
+Ignored for the other types.</p></dd>
+
+
+<dt id="arg-initial">initial<a class="anchor" aria-label="anchor" href="#arg-initial"></a></dt>
+<dd><p>Initial distribution of the <code>"flow"</code> plot, see
+<code><a href="redistribute.html">redistribute</a></code>. Defaults to the uniform distribution.
+Ignored for the other types.</p></dd>
+
+
+<dt id="arg-other">other<a class="anchor" aria-label="anchor" href="#arg-other"></a></dt>
+<dd><p>For <code>type = "comparison"</code>: a <code>markovchain</code> object
+or a (possibly named) list of them, to be compared with <code>object</code>.
+All chains must be defined on the same set of states, which are matched
+by name, so their order may differ. Ignored for the other types.</p></dd>
+
+
+<dt id="arg-what">what<a class="anchor" aria-label="anchor" href="#arg-what"></a></dt>
+<dd><p>For <code>type = "comparison"</code>: <code>"transition"</code> (default)
+draws the transition matrices side by side as heatmaps on a common
+probability scale; <code>"stationary"</code> compares the stationary
+distributions as grouped bars (every chain must then be irreducible).
+Ignored for the other types.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Currently unused, reserved for future extensions.</p></dd>
 
@@ -112,9 +152,16 @@ probabilities. Defaults to `TRUE`.</p></dd>
 <span class="r-in"><span>  <span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu">new</span><span class="op">(</span><span class="st">"markovchain"</span>, states <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">weather</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>            transitionMatrix <span class="op">=</span> <span class="va">weather</span>, name <span class="op">=</span> <span class="st">"Weather"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mc</span>, type <span class="op">=</span> <span class="st">"eigenvalues"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mc</span>, type <span class="op">=</span> <span class="st">"flow"</span>, steps <span class="op">=</span> <span class="fl">10</span>, initial <span class="op">=</span> <span class="st">"rain"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># compare with a "stickier" version of the same chain</span></span></span>
+<span class="r-in"><span>  <span class="va">sticky</span> <span class="op">&lt;-</span> <span class="fu"><a href="lazyChain.html">lazyChain</a></span><span class="op">(</span><span class="va">mc</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">sticky</span><span class="op">@</span><span class="va">name</span> <span class="op">&lt;-</span> <span class="st">"Lazy weather"</span></span></span>
+<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mc</span>, type <span class="op">=</span> <span class="st">"comparison"</span>, other <span class="op">=</span> <span class="va">sticky</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mc</span>, type <span class="op">=</span> <span class="st">"comparison"</span>, other <span class="op">=</span> <span class="va">sticky</span>,</span></span>
+<span class="r-in"><span>                    what <span class="op">=</span> <span class="st">"stationary"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Scale for <span style="color: #00BB00;">linewidth</span> is already present.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding another scale for <span style="color: #00BB00;">linewidth</span>, which will replace the existing scale.</span>
 <span class="r-plt img"><img src="autoplot.markovchain-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

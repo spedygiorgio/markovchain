@@ -75,6 +75,7 @@
 <url><loc>/reference/multinomialConfidenceIntervals.html</loc></url>
 <url><loc>/reference/names.html</loc></url>
 <url><loc>/reference/noofVisitsDist.html</loc></url>
+<url><loc>/reference/normalizedEntropyRate.html</loc></url>
 <url><loc>/reference/ones.html</loc></url>
 <url><loc>/reference/populationGeneticsModel.html</loc></url>
 <url><loc>/reference/predictHommc.html</loc></url>
@@ -84,6 +85,8 @@
 <url><loc>/reference/probabilityatT.html</loc></url>
 <url><loc>/reference/rain.html</loc></url>
 <url><loc>/reference/rctmc.html</loc></url>
+<url><loc>/reference/redistribute.html</loc></url>
+<url><loc>/reference/relaxationTime.html</loc></url>
 <url><loc>/reference/rmarkovchain.html</loc></url>
 <url><loc>/reference/rouwenhorst.html</loc></url>
 <url><loc>/reference/sales.html</loc></url>
@@ -103,6 +106,7 @@
 <url><loc>/reference/toDictionary.html</loc></url>
 <url><loc>/reference/toFile.html</loc></url>
 <url><loc>/reference/toNthOrder.html</loc></url>
+<url><loc>/reference/topologicalEntropy.html</loc></url>
 <url><loc>/reference/transition2Generator.html</loc></url>
 <url><loc>/reference/transitionProbability.html</loc></url>
 <url><loc>/reference/urnModel.html</loc></url>

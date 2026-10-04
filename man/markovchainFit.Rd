@@ -33,7 +33,7 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
   possibleStates = character(), absorbingStates = character(),
-  progress = FALSE)
+  progress = FALSE, num.cores = NULL)
 }
 \arguments{
 \item{stringchar}{It can be a \deqn{n x n} matrix or a character vector or a list}
@@ -86,6 +86,14 @@ absorbing. The corresponding rows are set to the identity row after MLE
 fitting when \code{byrow = TRUE}; the corresponding columns are set to the
 identity column when \code{byrow = FALSE}. The argument is currently
 supported only for \code{method = "mle"}.}
+
+\item{num.cores}{Number of threads the parallel bootstrap path uses when
+\code{method = "bootstrap"} and \code{parallel = TRUE}. If \code{NULL}
+(the default) the thread count is read from
+\code{getOption("RcppParallel.numThreads")} /
+\code{getOption("Ncpus")} / \code{OMP_NUM_THREADS} /
+\code{RCPP_PARALLEL_NUM_THREADS}, falling back to \code{min(2, cores)}
+as CRAN policy requires. Ignored when \code{parallel = FALSE}.}
 }
 \value{
 A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 

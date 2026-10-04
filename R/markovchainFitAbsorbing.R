@@ -3,12 +3,19 @@
 #'   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
 #'   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
 #'   possibleStates = character(), absorbingStates = character(),
-#'   progress = FALSE)
+#'   progress = FALSE, num.cores = NULL)
 #' @param absorbingStates Character vector of states that are known a priori to be
 #'   absorbing. The corresponding rows are set to the identity row after MLE
 #'   fitting when \code{byrow = TRUE}; the corresponding columns are set to the
 #'   identity column when \code{byrow = FALSE}. The argument is currently
 #'   supported only for \code{method = "mle"}.
+#' @param num.cores Number of threads the parallel bootstrap path uses when
+#'   \code{method = "bootstrap"} and \code{parallel = TRUE}. If \code{NULL}
+#'   (the default) the thread count is read from
+#'   \code{getOption("RcppParallel.numThreads")} /
+#'   \code{getOption("Ncpus")} / \code{OMP_NUM_THREADS} /
+#'   \code{RCPP_PARALLEL_NUM_THREADS}, falling back to \code{min(2, cores)}
+#'   as CRAN policy requires. Ignored when \code{parallel = FALSE}.
 #' @details When \code{absorbingStates} is supplied, the declared states must have
 #'   no observed outgoing transitions. This allows terminal states in censored
 #'   customer journeys to be represented as absorbing states without adding
@@ -19,9 +26,17 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
                            confidencelevel = 0.95, confint = TRUE,
                            hyperparam = matrix(), sanitize = FALSE,
                            possibleStates = character(),
-                           absorbingStates = character(), progress = FALSE) {
+                           absorbingStates = character(), progress = FALSE,
+                           num.cores = NULL) {
   if (!is.logical(progress) || length(progress) != 1L || is.na(progress)) {
     stop("`progress` must be TRUE or FALSE")
+  }
+  # When the bootstrap worker will actually run in parallel, configure
+  # RcppParallel on the main thread so .markovchainFitRcpp uses the agreed
+  # number of threads. Keeping this out of C++ means set.seed() and the
+  # thread choice are decided from R, consistently with rmarkovchain().
+  if (isTRUE(parallel) && identical(method, "bootstrap")) {
+    RcppParallel::setThreadOptions(.mcDesiredThreads(num.cores))
   }
   .markovchainFitWithAbsorbingStates(
     data, method, byrow, nboot, laplacian, name, parallel,

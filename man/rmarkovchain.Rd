@@ -26,7 +26,14 @@ rmarkovchain(
 
 \item{parallel}{Boolean. Should parallel implementation being used? Default is yes.}
 
-\item{num.cores}{Number of Cores to be used}
+\item{num.cores}{Number of threads used when \code{parallel = TRUE}. If
+\code{NULL} (the default) the thread count is read from
+\code{getOption("RcppParallel.numThreads")}, then
+\code{getOption("Ncpus")}, then \code{RCPP_PARALLEL_NUM_THREADS}, then
+\code{OMP_NUM_THREADS}, falling back to \code{min(2, cores)} as CRAN
+policy requires. Previous versions defaulted to
+\code{parallel::detectCores() - 1}, which could grab all available cores
+unexpectedly.}
 
 \item{...}{additional parameters passed to the internal sampler}
 }

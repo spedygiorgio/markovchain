@@ -156,3 +156,38 @@ test_that("solver choice does not disturb an irreducible chain", {
                  info = paste("solver", solver))
   }
 })
+
+test_that("bicgstab survives a Lanczos breakdown (five-state vignette chain)", {
+  # On this chain (rHat, r) vanishes exactly at the second iteration for
+  # target "5": the solver must restart, not return the interrupted iterate.
+  M <- markovchain:::zeros(5)
+  M[1, 1] <- M[5, 5] <- 1
+  M[2, 1] <- M[2, 3] <- 1/2
+  M[3, 2] <- M[3, 4] <- 1/2
+  M[4, 2] <- M[4, 5] <- 1/2
+  mc <- new("markovchain", transitionMatrix = M)
+  direct <- hittingProbabilities(mc)
+  expect_silent(bicg <- hittingProbabilities(mc, solver = "bicgstab"))
+  expect_equal(bicg, direct, tolerance = 1e-12)
+  expect_equal(unname(direct[2:4, 5]), c(.2, .4, .6), tolerance = 1e-12)
+})
+
+test_that("bicgstab agrees with the direct solver on random absorbing chains", {
+  set.seed(285)
+  for (rep in 1:60) {
+    n <- sample(3:25, 1)
+    P <- matrix(runif(n * n) * (runif(n * n) < runif(1, .1, .6)), n)
+    ab <- sample(n, sample(1:max(1, n %/% 4), 1))
+    P[ab, ] <- 0
+    P[cbind(ab, ab)] <- 1
+    z <- which(rowSums(P) == 0)
+    P[cbind(z, z)] <- 1
+    if (rep %% 3 == 0) P <- round(4 * P) + diag(n) * (rowSums(round(4 * P)) == 0)
+    P <- P / rowSums(P)
+    nm <- paste0("s", seq_len(n))
+    dimnames(P) <- list(nm, nm)
+    mc <- new("markovchain", transitionMatrix = P)
+    expect_silent(bicg <- hittingProbabilities(mc, solver = "bicgstab"))
+    expect_equal(bicg, hittingProbabilities(mc), tolerance = 1e-10, info = rep)
+  }
+})

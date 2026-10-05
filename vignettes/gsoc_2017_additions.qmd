@@ -333,9 +333,13 @@ firstPassageMultiple(testmarkov,"a",c("b","c"),4)
 
 This shows us the probability that the process will hit any of the state from the set after n number of steps for instance, as shown, the probability of the process to hit any of the states among $"b", "c"$ after $2$ steps is $0.6000$.
 
-# Joint PDF of number of visits to the various states of a markovchain
+# Mean occupation of the states during the first N steps
 
-The package provides a function `noofVisitsDist` that returns the PDF of the number of visits to the various states of the discrete time markovchain during the first N steps, given initial state of the process.
+The package provides a function `noofVisitsDist` that, given the initial state $i$ of the process, returns for every state $j$ the expected fraction of the first $N$ steps spent in $j$,
+$$
+\frac{1}{N}\sum_{k=1}^{N} \left(P^k\right)_{ij} = \frac{\mathbb{E}\left[V_j(N)\right]}{N},
+$$
+where $V_j(N)$ is the number of visits to $j$ at times $1, \dots, N$. The values sum to one; multiplied by $N$ they give the expected number of visits. Despite the name of the function, this is not the joint distribution of the numbers of visits, which the package does not compute.
 
 We will take an example to see how to use the function on a `markovchain-class` object:
 
@@ -347,7 +351,11 @@ simpleMc<-new("markovchain", states=c("a","b"),
 noofVisitsDist(simpleMc,5,"a")
 ```
 
-The output clearly shows the probabilities related to various states of the process.
+For example, starting from `a`, the process is expected to spend about 35% of the first five steps in `a`. Multiplying by $N$ gives the expected number of visits:
+
+```{r}
+5 * noofVisitsDist(simpleMc, 5, "a")
+```
 
 # Expected Rewards for a markovchain
 

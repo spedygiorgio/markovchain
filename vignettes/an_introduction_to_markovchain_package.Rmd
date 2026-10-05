@@ -1503,11 +1503,17 @@ h_{ij}=p_{ij}+\sum_{k\ne j}p_{ik}h_{kj}.
 
 `hittingProbabilities` first analyses the directed graph of positive transitions.
 This identifies probabilities that are structurally zero or one, without
-discarding very small positive transitions. Remaining probabilities are computed
-from a convergent Neumann series using a relative residual stopping rule. This is
-important for nearly absorbing chains: a small transition probability may imply
-a long waiting time, but the probability of eventually taking that transition
-can still be exactly one.
+discarding very small positive transitions. This is important for nearly
+absorbing chains: a small transition probability may imply a long waiting time,
+but the probability of eventually taking that transition can still be exactly
+one. The remaining probabilities solve the linear system $(I-Q)h=r$ restricted to
+the undecided states. The argument `solver` chooses how: `"direct"`, the default,
+is an LU factorisation, the most accurate choice; `"bicgstab"` is an iterative
+Krylov method \citep{vandervorst1992} working on the sparse matrix, the fastest
+choice on large sparse chains; `"doubling"` is the doubled Neumann series of
+earlier versions of the package, kept for reproducibility. The iterative solvers
+stop at the relative residual `tol` or after `maxIter` iterations, with a warning
+if `tol` is not reached.
 
 ```{r hitting-data}
 M <- markovchain:::zeros(5)
@@ -1518,6 +1524,16 @@ M[4,2] <- M[4,5] <- 1/2
 
 hittingTest <- new("markovchain", transitionMatrix = M)
 hittingProbabilities(hittingTest)
+```
+
+When only some target states matter, `targets` restricts the computation to
+the corresponding columns, which coincide with those of the full matrix. On this
+small chain the three solvers agree to rounding:
+
+```{r hitting-targets}
+hittingProbabilities(hittingTest, targets = c("1", "5"))
+all.equal(hittingProbabilities(hittingTest, solver = "direct"),
+          hittingProbabilities(hittingTest, solver = "bicgstab"))
 ```
 
 For the irreducible finite chain `mcWeather`, every state is eventually visited
@@ -1756,7 +1772,7 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 ```
 
-Two advanced parameters are available to the `rmarkovchain` method which help users decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `useRcpp = TRUE` and `parallel = TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}.
+Two advanced parameters are available to the `rmarkovchain` method which help users decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `useRcpp = TRUE` and `parallel = TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that `set.seed()` gives the same result whatever the number of threads. That number is set by the argument `num.cores`; when it is `NULL`, the default, the options `RcppParallel.numThreads` and `Ncpus` and the environment variables `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS` are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
 
 ## Lumpability and aggregation of states
 
@@ -2089,6 +2105,16 @@ createSequenceMatrix(stringchar = weathersOfDays)
 
 If a state is observed only as the last element of a sequence, or is supplied through `possibleStates` but has no observed outgoing transition, its row has zero total count. In this case the point estimate follows the package convention of assigning a uniform row, $p_{\beta j}=1/k$. For MLE confidence intervals, such a row carries no empirical information, so the corresponding cell-wise intervals are uninformative.
 
+The uniform row is an assumption about the data rather than a consequence of them. The argument `sanitize` controls it: `TRUE` (the default of `markovchainFit`), or equivalently `"uniform"`, gives the uniform row; `"absorbing"` makes every such state absorbing instead, adding no transition that was never observed; `FALSE` leaves the row at zero, which gives a matrix that is not stochastic.
+
+```{r fitSanitizeAbsorbing}
+partial <- c("a", "b", "a", "b", "a")
+markovchainFit(partial, possibleStates = c("a", "b", "c"),
+               sanitize = "uniform")$estimate@transitionMatrix
+markovchainFit(partial, possibleStates = c("a", "b", "c"),
+               sanitize = "absorbing")$estimate@transitionMatrix
+```
+
 Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
 
 ```{r fitSequenceMatrix2}
@@ -2119,13 +2145,15 @@ weatherFittedBOOTParallel$estimate
 weatherFittedBOOTParallel$standardError
 ```
 
-The parallel bootstrapping uses all the available cores on a machine by default.
-However, it is also possible to tune the number of threads used. 
-Note that this should be done in R before calling the `markovchainFit` function.
-For example, the following code will set the number of threads to 4.
+By default the parallel bootstrapping uses at most two threads, as required by
+the CRAN policy, unless the options or environment variables listed above for
+`rmarkovchain` ask for more. The argument `num.cores` sets the number of threads
+explicitly; for example, the following code uses four threads. With the same
+seed, the bootstrap samples are the same whatever the number of threads.
 
 ```{r fitMcbyBootStrap3, eval=FALSE}
-RcppParallel::setNumThreads(2)
+markovchainFit(data = weathersOfDays, method = "bootstrap", nboot = 200,
+               parallel = TRUE, num.cores = 4)
 ```
 
 For more details, please refer to \pkg{RcppParallel} web site.

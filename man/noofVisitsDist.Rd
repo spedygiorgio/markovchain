@@ -2,27 +2,38 @@
 % Please edit documentation in R/fittingFunctions.R
 \name{noofVisitsDist}
 \alias{noofVisitsDist}
-\title{return a joint pdf of the number of visits to the various states of the DTMC}
+\title{Expected fraction of the first N steps spent in each state}
 \usage{
 noofVisitsDist(markovchain,N,state)
 }
 \arguments{
 \item{markovchain}{a markovchain-class object}
 
-\item{N}{no of steps}
+\item{N}{number of steps, a positive integer}
 
 \item{state}{the initial state}
 }
 \value{
-a numeric vector depicting the above described probability density function.
+a named numeric vector with one element per state, summing to one.
 }
 \description{
-This function would return a joint pdf of the number of visits to
-the various states of the DTMC during the first N steps.
+Given the initial state \eqn{i}, returns for every state
+\eqn{j} the expected fraction of the first \code{N} steps that the DTMC
+spends in \eqn{j}.
 }
 \details{
-This function would return a joint pdf of the number of visits to
-the various states of the DTMC during the first N steps.
+The value for state \eqn{j} is
+\deqn{\frac{1}{N}\sum_{k=1}^{N} (P^k)_{ij} = \frac{E[V_j(N)]}{N},}{(1/N) sum_{k=1}^N (P^k)[i, j] = E[V_j(N)] / N,}
+where \eqn{V_j(N)} is the number of visits to \eqn{j} at times
+\eqn{1, \dots, N} (the initial state, at time 0, is not counted). The
+values sum to one, and multiplied by \code{N} they give the expected
+numbers of visits. As \code{N} grows they converge to the stationary
+distribution for an irreducible chain.
+
+Despite the name of the function, and the title of earlier versions of this
+page, the result is not the joint distribution of the numbers of visits
+\eqn{(V_1(N), \dots, V_n(N))}, which the package does not compute (see
+issue #139).
 }
 \examples{
 transMatr<-matrix(c(0.4,0.6,.3,.7),nrow=2,byrow=TRUE)
@@ -30,6 +41,9 @@ simpleMc<-new("markovchain", states=c("a","b"),
              transitionMatrix=transMatr, 
              name="simpleMc")   
 noofVisitsDist(simpleMc,5,"a")
+
+# expected numbers of visits during the first 5 steps
+5 * noofVisitsDist(simpleMc,5,"a")
 
 }
 \author{

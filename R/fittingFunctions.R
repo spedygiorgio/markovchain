@@ -790,22 +790,33 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 }
 
 
-#' return a joint pdf of the number of visits to the various states of the DTMC
+#' Expected fraction of the first N steps spent in each state
 #' 
-#' @description This function would return a joint pdf of the number of visits to
-#' the various states of the DTMC during the first N steps.
+#' @description Given the initial state \eqn{i}, returns for every state
+#' \eqn{j} the expected fraction of the first \code{N} steps that the DTMC
+#' spends in \eqn{j}.
 #' 
 #' @usage noofVisitsDist(markovchain,N,state)
 #' 
 #' @param markovchain a markovchain-class object
-#' @param N no of steps
+#' @param N number of steps, a positive integer
 #' @param state the initial state
 #' 
 #' @details 
-#' This function would return a joint pdf of the number of visits to
-#' the various states of the DTMC during the first N steps.
+#' The value for state \eqn{j} is
+#' \deqn{\frac{1}{N}\sum_{k=1}^{N} (P^k)_{ij} = \frac{E[V_j(N)]}{N},}{(1/N) sum_{k=1}^N (P^k)[i, j] = E[V_j(N)] / N,}
+#' where \eqn{V_j(N)} is the number of visits to \eqn{j} at times
+#' \eqn{1, \dots, N} (the initial state, at time 0, is not counted). The
+#' values sum to one, and multiplied by \code{N} they give the expected
+#' numbers of visits. As \code{N} grows they converge to the stationary
+#' distribution for an irreducible chain.
 #' 
-#' @return a numeric vector depicting the above described probability density function.
+#' Despite the name of the function, and the title of earlier versions of this
+#' page, the result is not the joint distribution of the numbers of visits
+#' \eqn{(V_1(N), \dots, V_n(N))}, which the package does not compute (see
+#' issue #139).
+#' 
+#' @return a named numeric vector with one element per state, summing to one.
 #' 
 #' @author Vandit Jain
 #' 
@@ -815,6 +826,9 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #'              transitionMatrix=transMatr, 
 #'              name="simpleMc")   
 #' noofVisitsDist(simpleMc,5,"a")
+#' 
+#' # expected numbers of visits during the first 5 steps
+#' 5 * noofVisitsDist(simpleMc,5,"a")
 #' 
 #' @export
 noofVisitsDist <- function(markovchain, N = 5, state) {

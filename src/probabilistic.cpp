@@ -1008,15 +1008,30 @@ static arma::vec solveHittingDoubling(const arma::mat& Q, const arma::vec& R,
 // i.e. O(nnz) rather than the O(m^3) of a dense doubling step, which is what
 // makes it worthwhile on the large sparse chains of #203. The identity is
 // used as preconditioner, as suggested in that report.
+//
+// BiCGSTAB can break down before converging: rho = (rHat, r) or (rHat, v)
+// may vanish (Lanczos breakdown; it happens exactly on small chains such as
+// the five-state example of the vignette), and omega may vanish when s is
+// orthogonal to A s (stagnation). Stopping there would return a vector that
+// is not the solution, so on a breakdown the iteration is restarted with the
+// current residual as shadow vector, which makes rho = ||r||^2 > 0 again.
+// When omega vanishes, the BiCG half step x + alpha p is kept before the
+// restart, since its residual s is already known. `brokeDown` reports a
+// breakdown that persists after `maxRestarts` restarts, so that the caller
+// can switch to the direct solver instead of returning a wrong vector.
 static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
                                       double tol, int maxIter,
                                       bool& converged, double& relativeResidual,
-                                      int& iterationsUsed) {
+                                      int& iterationsUsed, bool& brokeDown) {
   const arma::uword m = b.n_elem;
   arma::vec x(m, arma::fill::zeros);
   const double bNorm = arma::norm(b, 2);
+  const int maxRestarts = 50;
+  // relative threshold below which an inner product counts as a breakdown
+  const double breakdownTol = 1e-14;
 
   converged = false;
+  brokeDown = false;
   iterationsUsed = 0;
 
   if (bNorm == 0.0) {
@@ -1031,49 +1046,83 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
   arma::vec v(m, arma::fill::zeros);
   arma::vec p(m, arma::fill::zeros);
   double rhoOld = 1.0, alpha = 1.0, omega = 1.0;
+  int restarts = 0;
   relativeResidual = arma::norm(r, 2) / bNorm;
+
+  // Restart from the current iterate: true residual as residual and as new
+  // shadow vector. Returns false when the restart budget is exhausted.
+  auto restart = [&]() -> bool {
+    if (++restarts > maxRestarts) {
+      brokeDown = true;
+      return false;
+    }
+    r = b - A * x;
+    rHat = r;
+    p.zeros();
+    v.zeros();
+    rhoOld = alpha = omega = 1.0;
+    return true;
+  };
 
   for (int it = 1; it <= maxIter; ++it) {
     iterationsUsed = it;
 
+    const double rNorm = arma::norm(r, 2);
+    if (rNorm / bNorm <= tol) {
+      relativeResidual = rNorm / bNorm;
+      converged = true;
+      return x;
+    }
+
     const double rho = arma::dot(rHat, r);
-    if (rho == 0.0 || !std::isfinite(rho)) break;   // breakdown
+    if (!std::isfinite(rho) ||
+        std::abs(rho) <= breakdownTol * arma::norm(rHat, 2) * rNorm) {
+      if (!restart()) break;
+      continue;
+    }
 
     const double beta = (rho / rhoOld) * (alpha / omega);
     p = r + beta * (p - omega * v);
     v = A * p;
 
     const double rHatV = arma::dot(rHat, v);
-    if (rHatV == 0.0 || !std::isfinite(rHatV)) break;
+    if (!std::isfinite(rHatV) ||
+        std::abs(rHatV) <= breakdownTol * arma::norm(rHat, 2) * arma::norm(v, 2)) {
+      if (!restart()) break;
+      continue;
+    }
     alpha = rho / rHatV;
 
     const arma::vec s = r - alpha * v;
-    if (arma::norm(s, 2) / bNorm <= tol) {
+    const double sNorm = arma::norm(s, 2);
+    if (sNorm / bNorm <= tol) {
       x += alpha * p;
       relativeResidual = arma::norm(b - A * x, 2) / bNorm;
       converged = relativeResidual <= tol;
-      return x;
+      if (converged) return x;
+      if (!restart()) break;
+      continue;
     }
 
     const arma::vec t = A * s;
     const double tt = arma::dot(t, t);
-    if (tt == 0.0 || !std::isfinite(tt)) break;
-    omega = arma::dot(t, s) / tt;
-    if (omega == 0.0 || !std::isfinite(omega)) break;
+    omega = (tt > 0.0 && std::isfinite(tt)) ? arma::dot(t, s) / tt : 0.0;
+    if (!std::isfinite(omega) ||
+        std::abs(omega) <= breakdownTol) {
+      // stagnation: keep the BiCG half step, whose residual is s
+      x += alpha * p;
+      if (!restart()) break;
+      continue;
+    }
 
     x += alpha * p + omega * s;
     r = s - omega * t;
-
-    relativeResidual = arma::norm(r, 2) / bNorm;
-    if (relativeResidual <= tol) {
-      converged = true;
-      return x;
-    }
     rhoOld = rho;
   }
 
   relativeResidual = arma::norm(b - A * x, 2) / bNorm;
   converged = relativeResidual <= tol;
+  if (converged) brokeDown = false;
   return x;
 }
 
@@ -1165,8 +1214,27 @@ void hittingProbabilitiesColumn(
       A.diag() += 1.0;
 
       int iterationsUsed = 0;
+      bool brokeDown = false;
       acc = solveHittingBiCGSTAB(A, R, tol, maxIter, converged,
-                                 relativeResidual, iterationsUsed);
+                                 relativeResidual, iterationsUsed, brokeDown);
+      if (brokeDown) {
+        // The iteration kept breaking down even after restarts: its iterate
+        // is not a solution, so solve the system directly instead of
+        // returning it.
+        warning("hittingProbabilities(): BiCGSTAB broke down for target "
+                "state \"" + stateName +
+                "\"; falling back to solver = \"direct\".");
+        arma::mat D = -Q;
+        D.diag() += 1.0;
+        if (arma::solve(acc, D, R, arma::solve_opts::no_approx)) {
+          converged = true;
+          const double bScale = std::max(arma::norm(R, 2), 1.0);
+          relativeResidual = arma::norm(R - D * acc, 2) / bScale;
+        } else {
+          acc = solveHittingDoubling(Q, R, tol, maxIter, converged,
+                                     relativeResidual);
+        }
+      }
     } else {
       acc = solveHittingDoubling(Q, R, tol, maxIter, converged,
                                  relativeResidual);

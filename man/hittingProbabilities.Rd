@@ -25,7 +25,9 @@ an LU factorisation: it costs \eqn{O(m^3)} once per target and is the most
 accurate. \code{"bicgstab"} is an unpreconditioned BiCGSTAB iteration on
 the sparse system: every iteration costs two sparse matrix-vector products
 instead of a dense \eqn{O(m^3)} step, so it is the fastest choice on large
-sparse chains, at the price of a looser residual. \code{"doubling"} is the
+sparse chains, at the price of a looser residual. On a breakdown of the
+iteration it restarts from the current residual, and if the breakdown
+persists it switches to \code{"direct"} with a warning. \code{"doubling"} is the
 doubled Neumann series used by versions up to 1.2, kept for reproducibility
 of earlier results; it is also the automatic fallback of \code{"direct"} on
 a numerically singular system.}

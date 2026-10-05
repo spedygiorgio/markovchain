@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <cmath>
 #include <vector>
 #include <iostream>
 using namespace Rcpp;
@@ -78,6 +79,10 @@ bool allElements(const mat& matrix, bool (*condition)(const double&)) {
 }
 
 bool approxEqual(const double& a, const double& b) {
+  // with a NaN both a >= b and the swapped call are false: the recursion
+  // below would never end
+  if (std::isnan(a) || std::isnan(b))
+    return false;
   if (a >= b)
     return (a - b) <= 1E-7;
   else

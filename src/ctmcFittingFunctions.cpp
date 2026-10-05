@@ -69,6 +69,14 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   
+  // data must be list(states, times) of equal length; Rcpp's operator[] does
+  // not bounds check, so reading data[1] or transData[i + 1] unguarded can
+  // read past the end.
+  if (data.size() < 2)
+    stop("data must be a list with the visited states and the transition times");
+  if (as<CharacterVector>(data[0]).size() != as<NumericVector>(data[1]).size())
+    stop("the states and the transition times must have the same length");
+
   CharacterVector stateData(as<CharacterVector>(data[0]).size());
   
   for (int i = 0; i < as<CharacterVector>(data[0]).size(); i++)

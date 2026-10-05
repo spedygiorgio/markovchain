@@ -29,6 +29,9 @@ using namespace Rcpp;
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow = true){
   // Ho anche corretto la dimensione: usare gen.nrow(), gen.ncol() è più sicuro
   // rispetto a passare un solo argomento al costruttore di Rcpp
+  // the loops below read gen(i, i): the generator must be square
+  if (gen.nrow() != gen.ncol())
+    stop("gen must be a square matrix");
   NumericMatrix transMatr(gen.nrow(), gen.ncol());
   transMatr.attr("dimnames") = gen.attr("dimnames");
   

@@ -451,6 +451,10 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     // list of states in ith markovchain object
     states = ob.slot("states");
     
+    // a chain without states cannot be simulated, and would make the worker
+    // index into empty vectors
+    if (states.size() < 1) stop("every markovchain in the list must have at least one state");
+
     // keep track of maximun dimension
     if (states.size() > max_dim_mat) max_dim_mat = states.size();
     
@@ -479,6 +483,11 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     NumericMatrix tmat = ob.slot("transitionMatrix");
     CharacterVector stat_names = ob.slot("states");
     const bool byrow_i = as<bool>(ob.slot("byrow"));
+
+    // Rcpp's operator[] and operator() are not bounds checked: make sure the
+    // matrix is square and agrees with the state names before indexing it.
+    if (tmat.nrow() != tmat.ncol() || tmat.nrow() != stat_names.size())
+      stop("the transition matrix and the states of every markovchain in the list must have consistent dimensions");
 
     name_to_idx[i].reserve(static_cast<size_t>(tmat.nrow()) * 2u);
 
@@ -1211,6 +1220,11 @@ List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, R_x
 
   // state names
   vector<string> itemset = as<vector<string> >(rownames(contingencyMatrix));
+
+  // The worker draws the first state uniformly over the states and writes
+  // result[0]: it needs at least one state and a positive sequence length.
+  if (itemset.empty() || size < 1 || n < 0)
+    stop("the bootstrap needs at least one observed state and a positive sequence length");
 
   // Draw the base seed on the main thread (see MCList).
   uint64_t base_seed;

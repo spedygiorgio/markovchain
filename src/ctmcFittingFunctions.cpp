@@ -100,10 +100,17 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   S4 dtmcEst = dtmcData["estimate"];
   NumericMatrix gen = dtmcEst.slot("transitionMatrix");
   
+  // With byrow = FALSE the fitted DTMC matrix is column-stochastic, i.e. the
+  // outgoing probabilities of state i are in column i: the exit rate of state
+  // i must scale that column, not row i (the diagonal is the same either way).
   for (int i = 0; i < gen.nrow(); i++){
     for (int j = 0; j < gen.ncol(); j++){
-      if (stateCount[i] > 0)
-        gen(i, j) *= stateCount[i] / stateSojournTime[i];
+      if (stateCount[i] > 0) {
+        if (byrow)
+          gen(i, j) *= stateCount[i] / stateSojournTime[i];
+        else
+          gen(j, i) *= stateCount[i] / stateSojournTime[i];
+      }
     }
     if (stateCount[i] > 0)
       gen(i, i) = - stateCount[i] / stateSojournTime[i];
@@ -135,6 +142,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   S4 outCtmc("ctmc");
   outCtmc.slot("states") = sortedStates;
   outCtmc.slot("generator") = gen;
+  outCtmc.slot("byrow") = byrow;
   outCtmc.slot("name") = name;
   
   return List::create(_["estimate"] = outCtmc,

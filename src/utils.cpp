@@ -94,7 +94,9 @@ bool approxEqual(const cx_double& a, const cx_double& b){
   double x = a.real() - b.real();
   double y = a.imag() - b.imag();
   
-  return (x*x - y*y) <= 1E-14;
+  // squared modulus of the difference: x^2 + y^2 (it was x^2 - y^2, which
+  // is negative, hence "equal", whenever the imaginary parts differ a lot)
+  return (x*x + y*y) <= 1E-14;
 }
 
 
@@ -124,7 +126,9 @@ bool isStochasticMatrix(NumericMatrix m, bool byrow) {
       rowSum += m(i, j);
     }
     
-    isStochastic = approxEqual(rowSum, 1);
+    // keep the non-negativity result: it used to be overwritten here, so a
+    // matrix with negative entries summing to 1 was accepted as stochastic
+    isStochastic = isStochastic && approxEqual(rowSum, 1);
   }
   
   return isStochastic;

@@ -61,3 +61,23 @@ test_that("the imprecise-probability kernel checks its indices", {
   ok <- markovchain:::.impreciseProbabilityatTRCpp(ic, 1L, 0L, 1L, 0.1)
   expect_length(ok, 2L)
 })
+
+test_that("a matrix with negative entries is not accepted as stochastic", {
+  # the row sums to 1, but 1.5 and -0.5 are not probabilities
+  expect_false(markovchain:::.isStochasticMatrix(matrix(c(1.5, -.5, .5, .5), 2, byrow = TRUE), TRUE))
+  expect_false(markovchain:::.isStochasticMatrix(matrix(c(1.5, .5, -.5, .5), 2, byrow = FALSE), FALSE))
+  expect_true(markovchain:::.isStochasticMatrix(matrix(c(.5, .5, .4, .6), 2, byrow = TRUE), TRUE))
+})
+
+test_that("ctmcFit(byrow = FALSE) returns a column-oriented generator", {
+  d <- list(c("a", "b", "a", "c", "a", "b", "c", "a"), c(0, 1, 2.5, 3, 4.5, 5, 7, 8))
+  byRow <- ctmcFit(d, byrow = TRUE)$estimate
+  byCol <- ctmcFit(d, byrow = FALSE)$estimate
+  expect_true(byRow@byrow)
+  expect_false(byCol@byrow)
+  # rows of one, columns of the other sum to zero: a proper generator
+  expect_equal(unname(rowSums(byRow@generator)), rep(0, 3), tolerance = 1e-12)
+  expect_equal(unname(colSums(byCol@generator)), rep(0, 3), tolerance = 1e-12)
+  # and the two are transposes of each other
+  expect_equal(unname(byCol@generator), unname(t(byRow@generator)), tolerance = 1e-12)
+})

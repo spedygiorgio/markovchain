@@ -147,6 +147,8 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   Qgx = Qgx + Ii;
   
   for (int iter = 0; iter < n - 1; iter++) {
+    // n can be large for a small `error`: let the user interrupt
+    if ((iter & 0x3FFF) == 0) checkUserInterrupt();
     arma::vec temp = Qgx;
     values = Q * Qgx;
     

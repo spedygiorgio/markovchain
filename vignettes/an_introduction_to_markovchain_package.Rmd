@@ -128,7 +128,9 @@ p_{ij}=Pr\left(X_{1}=s_{j}\left|X_{0}=s_{i}\right.\right).
 \label{eq:trProp}
 \end{equation}
 
-The probability of moving from state $i$ to $j$ in $n$ steps is denoted by $p_{ij}^{(n)}=Pr\left(X_{n}=s_{j}\left|X_{0}=s_{i}\right.\right)$. 
+The probability of moving from state $i$ to $j$ in $n$ steps is denoted by
+$$p_{ij}^{(n)}=Pr\left(X_{n}=s_{j}\left|X_{0}=s_{i}\right.\right).$$
+
 
 A DTMC is called time-homogeneous if the property shown in Equation \ref{eq:mcHom} holds. Time homogeneity implies no change in the underlying transition probabilities as time goes on.
 \begin{equation}
@@ -435,7 +437,7 @@ Also it is possible to alphabetically sort the transition matrix:
 markovchain:::sort(mcWeather)
 ```
 
-A direct access to transition probabilities is provided both by `transitionProbability` method and `"["` method.
+Transition probabilities can be accessed directly through the `transitionProbability` method and the `"["` method.
 
 ```{r transProb}
 transitionProbability(mcWeather, "cloudy", "rain")
@@ -609,7 +611,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{lll}
+  \begin{tabular}{lp{0.5\textwidth}}
     \hline
   Method & Returns \\
     \hline  \hline
@@ -629,14 +631,11 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{subchain} & restriction to a subset of states (submatrix or renormalized). \\
   \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
-  \code{meanAbsorptionTime} & expected number of steps for a transient state to be \\
-                            & absorbed by any recurrent class \\
-  \code{absorptionProbabilities} & probabilities of transient states of being \\
-                                 & absorbed by each recurrent state \\
+  \code{meanAbsorptionTime} & expected number of steps for a transient state to be absorbed by any recurrent class. \\
+  \code{absorptionProbabilities} & probabilities of transient states of being absorbed by each recurrent state. \\
   \code{committorAB} & committor probabilities \\
   \code{communicatingClasses} & list of communicating classes. \\
-   & $s_{j}$, given actual state $s_{i}$. \\
-  \code{canonicForm} & the transition matrix into canonic form. \\
+   \code{canonicForm} & the transition matrix into canonic form. \\
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
   \code{is.irreducible} & checks whether a DTMC is irreducible. \\
   \code{is.regular} & checks whether a DTMC is regular. \\
@@ -1471,7 +1470,7 @@ fundamentalMatrix(drunkMc)
 ### Restricting a chain to a subset of states
 
 The matrix $Q$ above -- transitions among transient states only -- is
-exactly what `subchain(..., method = "submatrix")` returns when restricted
+exactly what `subchain` returns with `method = "submatrix"` when restricted
 to the transient states: the raw principal submatrix, with no adjustment.
 Its rows generally sum to *less than* one, because probability that leaves
 the subset (here, to the absorbing corners) is simply dropped, not
@@ -1582,7 +1581,7 @@ because it guarantees that the Markov chain preserves the initial ordering of st
 For instance, in an income mobility model, if you start in a higher income class, 
 your probability of moving to or staying in a high income class should ideally be greater than or equal to someone starting in a lower income class.
 
-The `is.stochasticallyMonotone` method allows verifying this property for any `markovchain` object:
+The `is.stochasticallyMonotone` method verifies this property for any `markovchain` object:
 
 ```{r stochasticMonotonicity}
 # Define the state space for income classes
@@ -2171,7 +2170,7 @@ createSequenceMatrix(stringchar = weathersOfDays)
 
 `stringchar` could contain `NA` values, and the transitions containing `NA` would be ignored.
 
-If a state is observed only as the last element of a sequence, or is supplied through `possibleStates` but has no observed outgoing transition, its row has zero total count. In this case the point estimate follows the package convention of assigning a uniform row, $p_{\beta j}=1/k$. For MLE confidence intervals, such a row carries no empirical information, so the corresponding cell-wise intervals are uninformative.
+If a state is observed only as the last element of a sequence, or is supplied through the argument `possibleStates` but has no observed outgoing transition, its row has zero total count. In this case the point estimate follows the package convention of assigning a uniform row, $p_{\beta j}=1/k$. For MLE confidence intervals, such a row carries no empirical information, so the corresponding cell-wise intervals are uninformative.
 
 The uniform row is an assumption about the data rather than a consequence of them. The argument `sanitize` controls it: `TRUE` (the default of `markovchainFit`), or equivalently `"uniform"`, gives the uniform row; `"absorbing"` makes every such state absorbing instead, adding no transition that was never observed; `FALSE` leaves the row at zero, which gives a matrix that is not stochastic.
 
@@ -2332,7 +2331,7 @@ predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 
 ## Statistical Tests
 
-In this section, we describe the statistical tests: assessing the independence of consecutive states (`assessIndependence`), the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the time-homogeneity (`assessStationarity`) of a Markov chain sequence, and the divergence tests for empirically estimated transition matrices (`verifyEmpiricalToTheoretical`, `verifyHomogeneity`). Most of such tests are based on the $\chi ^2$ statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (`method = "simulation"`) that avoids the asymptotic $\chi^2$ approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class `htest`, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of `stats::chisq.test`. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the independence of consecutive states (`assessIndependence`), the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the time-homogeneity (`assessStationarity`) of a Markov chain sequence, and the divergence tests (`verifyEmpiricalToTheoretical`, `verifyHomogeneity`) for empirically estimated transition matrices. Most of such tests are based on the $\chi ^2$ statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (`method = "simulation"`) that avoids the asymptotic $\chi^2$ approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class `htest`, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of `stats::chisq.test`. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
 All such tests have been designed for small samples, since it is easy to detect departures from the Markov property as long as the sample size increases. The Monte Carlo option is particularly useful in this regime, since the asymptotic $\chi^2$ approximation can be unreliable when expected counts are small; the simulated $p$-value is computed as $(1+\#\{G^*\ge G\})/(B+1)$ over $B$ parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
 

@@ -169,7 +169,7 @@ fromDictionary <- function(d) {
 # Internal helper: infer a supported serialization format from a file's
 # extension, or validate an explicitly given one.
 .resolveSerializationFormat <- function(file, format) {
-  supported <- c("json", "yaml", "csv")
+  supported <- c("json", "yaml", "csv", "xml")
   if (is.null(format)) {
     ext <- tolower(tools::file_ext(file))
     if (ext == "yml") {
@@ -178,7 +178,7 @@ fromDictionary <- function(d) {
     if (!(ext %in% supported)) {
       stop(paste0(
         "Unable to infer a format from the file extension of \"", file,
-        "\". Pass format explicitly: one of \"json\", \"yaml\" or \"csv\"."
+        "\". Pass format explicitly: one of \"json\", \"yaml\", \"csv\" or \"xml\"."
       ))
     }
     return(ext)
@@ -189,14 +189,15 @@ fromDictionary <- function(d) {
 
 #' Write or read a Markov chain to or from a file
 #'
-#' Writes a \code{markovchain} object to a JSON, YAML or CSV file, or reads
+#' Writes a \code{markovchain} object to a JSON, YAML, CSV or XML file, or reads
 #' one back, using the same representation as \code{\link{toDictionary}}.
 #'
 #' @param object A \code{markovchain} object (for \code{toFile}).
 #' @param file A single file path to write to or read from. If \code{format}
 #'   is not supplied, it is inferred from the file extension
-#'   (\code{.json}, \code{.yaml}/\code{.yml} or \code{.csv}).
-#' @param format One of \code{"json"}, \code{"yaml"} or \code{"csv"}. The
+#'   (\code{.json}, \code{.yaml}/\code{.yml}, \code{.csv} or \code{.xml}).
+#' @param format One of \code{"json"}, \code{"yaml"}, \code{"csv"} or
+#'   \code{"xml"}. The
 #'   default, \code{NULL}, infers the format from \code{file}'s extension.
 #'
 #' @return \code{toFile} returns \code{file}, invisibly. \code{fromFile}
@@ -215,6 +216,19 @@ fromDictionary <- function(d) {
 #' \code{name}, so it is not preserved by \code{toFile(..., format = "csv")}
 #' and \code{fromFile} always returns an unnamed chain for a \code{.csv}
 #' file. This is the same limitation PyDTMC's own CSV format has.
+#'
+#' The XML format is the one of PyDTMC, so files can be exchanged with it in
+#' both directions: a root element \code{MarkovChain} with one \code{Item}
+#' element per transition, whose attributes are \code{state_from},
+#' \code{state_to} and \code{probability}. All \eqn{n^2} transitions are
+#' written, zeros included, and probabilities use 17 significant digits, so
+#' the round trip is exact. The \code{name} of the chain is stored as an
+#' attribute of the root element, which PyDTMC ignores when reading. When
+#' reading, the states are taken in the order in which their self
+#' transitions (\code{state_from} equal to \code{state_to}) appear, as
+#' PyDTMC does, and the name is restored if the attribute is present.
+#' Writing XML uses only base R; reading it requires the \pkg{xml2}
+#' package.
 #'
 #' Writing JSON requires the \pkg{jsonlite} package, and writing YAML
 #' requires the \pkg{yaml} package; both are only in \code{Suggests}, and an
@@ -255,11 +269,13 @@ setMethod("toFile", "markovchain", function(object, file, format = NULL) {
       stop("Writing YAML requires the 'yaml' package. Install it with install.packages(\"yaml\").")
     }
     yaml::write_yaml(d, file, precision = 17)
-  } else {
+  } else if (format == "csv") {
     P <- matrix(unlist(lapply(d$states, function(from) unlist(d$transitionMatrix[[from]][d$states], use.names = FALSE))),
                 nrow = length(d$states), byrow = TRUE,
                 dimnames = list(d$states, d$states))
     utils::write.csv(P, file, row.names = TRUE)
+  } else {
+    .writeChainXml(d, file)
   }
 
   invisible(file)
@@ -291,6 +307,10 @@ fromFile <- function(file, format = NULL) {
     return(fromDictionary(d))
   }
 
+  if (format == "xml") {
+    return(.readChainXml(file))
+  }
+
   # CSV: the header row and the first column both give the state names; no
   # "name" field is stored (see Details in ?toFile), so the result is unnamed.
   raw <- utils::read.csv(file, row.names = 1, check.names = FALSE)
@@ -301,4 +321,76 @@ fromFile <- function(file, format = NULL) {
   P <- as.matrix(raw)
   dimnames(P) <- list(stateNames, stateNames)
   new("markovchain", states = stateNames, byrow = TRUE, transitionMatrix = P)
+}
+
+
+# Internal helper: escape a string for use inside a double-quoted XML
+# attribute.
+.xmlEscape <- function(x) {
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  x <- gsub("\"", "&quot;", x, fixed = TRUE)
+  gsub("'", "&apos;", x, fixed = TRUE)
+}
+
+# Internal helper: write the dictionary of a chain in PyDTMC's XML format,
+# plus the name as an attribute of the root element. Built as text, so that
+# writing needs no XML package.
+.writeChainXml <- function(d, file) {
+  states <- d$states
+  from <- rep(states, each = length(states))
+  to <- rep(states, times = length(states))
+  probs <- unlist(lapply(states, function(s)
+    unlist(d$transitionMatrix[[s]][states], use.names = FALSE)))
+  items <- paste0("\t<Item state_from=\"", .xmlEscape(from),
+                  "\" state_to=\"", .xmlEscape(to),
+                  "\" probability=\"", sprintf("%.17g", probs), "\"/>")
+  lines <- c("<?xml version='1.0' encoding='utf-8' standalone='yes' ?>",
+             paste0("<MarkovChain name=\"", .xmlEscape(d$name), "\">"),
+             items,
+             "</MarkovChain>")
+  con <- file(file, open = "w", encoding = "UTF-8")
+  on.exit(close(con))
+  writeLines(lines, con)
+}
+
+# Internal helper: read a chain from PyDTMC's XML format.
+.readChainXml <- function(file) {
+  if (!requireNamespace("xml2", quietly = TRUE)) {
+    stop("Reading XML requires the 'xml2' package. Install it with install.packages(\"xml2\").")
+  }
+  doc <- tryCatch(xml2::read_xml(file),
+                  error = function(e) stop("The XML file could not be parsed: ", conditionMessage(e)))
+  if (xml2::xml_name(doc) != "MarkovChain") {
+    stop("The root element of the XML file must be 'MarkovChain'.")
+  }
+  items <- xml2::xml_children(doc)
+  if (length(items) == 0L || any(xml2::xml_name(items) != "Item")) {
+    stop("The XML file must contain only 'Item' elements.")
+  }
+  required <- c("probability", "state_from", "state_to")
+  attrs <- xml2::xml_attrs(items)
+  if (any(vapply(attrs, function(a) !identical(sort(names(a)), required), logical(1)))) {
+    stop("Every 'Item' element must have exactly the attributes state_from, state_to and probability.")
+  }
+  from <- trimws(vapply(attrs, `[[`, character(1), "state_from"))
+  to <- trimws(vapply(attrs, `[[`, character(1), "state_to"))
+  probs <- suppressWarnings(as.numeric(vapply(attrs, `[[`, character(1), "probability")))
+  if (any(!nzchar(from)) || any(!nzchar(to)) || anyNA(probs)) {
+    stop("The XML file contains empty state names or probabilities that are not numbers.")
+  }
+  stateNames <- unique(from[from == to])
+  n <- length(stateNames)
+  if (n == 0L || !setequal(unique(c(from, to)), stateNames) ||
+      length(items) != n * n || anyDuplicated(paste(from, to, sep = "\r"))) {
+    stop("The XML file must contain exactly one 'Item' for every pair of states, self transitions included.")
+  }
+  P <- matrix(0, n, n, dimnames = list(stateNames, stateNames))
+  P[cbind(match(from, stateNames), match(to, stateNames))] <- probs
+  nm <- xml2::xml_attr(doc, "name")
+  if (is.na(nm)) {
+    nm <- "Unnamed Markov chain"
+  }
+  new("markovchain", states = stateNames, byrow = TRUE, transitionMatrix = P, name = nm)
 }

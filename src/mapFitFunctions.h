@@ -75,11 +75,17 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
     
   // extract rows and columns name out of hyperparam matrix   
   List dimNames = hyperparam.attr("dimnames");
+  // Rcpp's operator[] is not bounds checked: without both dimnames the next
+  // lines would index past the end of an empty list.
+  if (dimNames.size() != 2 || Rf_isNull(dimNames[0]) || Rf_isNull(dimNames[1]))
+    stop("The hyperparameter matrix must have row names and column names");
   CharacterVector colNames = dimNames[1];
   CharacterVector rowNames = dimNames[0];
   
   // size of hyperparam matrix
   int sizeHyperparam = hyperparam.ncol();
+  if (colNames.size() != sizeHyperparam || rowNames.size() != sizeHyperparam)
+    stop("Dimensions of the hyperparameter matrix are inconsistent");
   
   // sorted order of hyperparam rows and columns name
   CharacterVector sortedColNames(sizeHyperparam), sortedRowNames(sizeHyperparam);
@@ -138,7 +144,9 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   
   for(int i = 0; i < sizeMatr; i++)
     for(int j = 0; j < sizeMatr; j++)
-      if(hyperparam(i, j) < 1.)
+      // written as !(x >= 1) so that NA / NaN are rejected too: they would
+      // otherwise reach the beta-function helpers, whose loops never end
+      if(!(hyperparam(i, j) >= 1.))
         stop("The hyperparameter elements must all be greater than or equal to 1");
     
   //-----------end of validity checking of hyperparam matrix----------------------

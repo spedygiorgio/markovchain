@@ -69,6 +69,14 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   
+  // data must be list(states, times) of equal length; Rcpp's operator[] does
+  // not bounds check, so reading data[1] or transData[i + 1] unguarded can
+  // read past the end.
+  if (data.size() < 2)
+    stop("data must be a list with the visited states and the transition times");
+  if (as<CharacterVector>(data[0]).size() != as<NumericVector>(data[1]).size())
+    stop("the states and the transition times must have the same length");
+
   CharacterVector stateData(as<CharacterVector>(data[0]).size());
   
   for (int i = 0; i < as<CharacterVector>(data[0]).size(); i++)
@@ -92,10 +100,17 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   S4 dtmcEst = dtmcData["estimate"];
   NumericMatrix gen = dtmcEst.slot("transitionMatrix");
   
+  // With byrow = FALSE the fitted DTMC matrix is column-stochastic, i.e. the
+  // outgoing probabilities of state i are in column i: the exit rate of state
+  // i must scale that column, not row i (the diagonal is the same either way).
   for (int i = 0; i < gen.nrow(); i++){
     for (int j = 0; j < gen.ncol(); j++){
-      if (stateCount[i] > 0)
-        gen(i, j) *= stateCount[i] / stateSojournTime[i];
+      if (stateCount[i] > 0) {
+        if (byrow)
+          gen(i, j) *= stateCount[i] / stateSojournTime[i];
+        else
+          gen(j, i) *= stateCount[i] / stateSojournTime[i];
+      }
     }
     if (stateCount[i] > 0)
       gen(i, i) = - stateCount[i] / stateSojournTime[i];
@@ -127,6 +142,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   S4 outCtmc("ctmc");
   outCtmc.slot("states") = sortedStates;
   outCtmc.slot("generator") = gen;
+  outCtmc.slot("byrow") = byrow;
   outCtmc.slot("name") = name;
   
   return List::create(_["estimate"] = outCtmc,

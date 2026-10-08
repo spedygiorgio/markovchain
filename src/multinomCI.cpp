@@ -163,6 +163,10 @@ List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencel
   
   int nrows = transMat.nrow();
   int ncols = transMat.ncol();
+  // the results are written at (i, j) of a transMat-sized matrix while the
+  // counts are read by row: the two must have the same shape
+  if (seqMat.nrow() != nrows || seqMat.ncol() != ncols)
+    stop("transMat and seqMat must have the same dimensions");
   NumericMatrix lowerEndpointMatr(nrows, ncols);
   NumericMatrix upperEndpointMatr(nrows, ncols);
   double lowerEndpoint, upperEndpoint;

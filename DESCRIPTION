@@ -34,7 +34,7 @@ Imports: igraph (>= 1.0.0), expm, stats4, parallel, Rcpp (>= 1.0.2), RcppParalle
         utils, stats, grDevices
 Suggests: knitr, testthat, diagram, DiagrammeR, ggplot2 (>= 3.4.0),
         msm, Rsolnp, rmarkdown, ctmcd, bookdown, rticles, MCMCpack,
-        microbenchmark, quarto, jsonlite, yaml
+        microbenchmark, quarto, jsonlite, yaml, xml2
 Enhances: etm
 VignetteBuilder: rmarkdown, knitr, bookdown, rticles, quarto
 LinkingTo: Rcpp, RcppParallel, RcppArmadillo (>= 0.9.600.4.0)

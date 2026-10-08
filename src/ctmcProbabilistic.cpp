@@ -65,6 +65,13 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   NumericMatrix non_Q = C.slot("Q");
   NumericMatrix non_range = C.slot("range");
   
+  // Rcpp and arma vector operator[] are not bounds checked
+  if (non_Q.nrow() != noOfstates || non_Q.ncol() != noOfstates ||
+      non_range.nrow() != noOfstates || non_range.ncol() < 2)
+    stop("Q and range must be consistent with the number of states");
+  if (i < 1 || i > noOfstates)
+    stop("i must be between 1 and the number of states");
+  
   arma::mat Q = arma::zeros(noOfstates, noOfstates);
   arma::mat range = arma::zeros(noOfstates, 2);
   
@@ -140,6 +147,8 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   Qgx = Qgx + Ii;
   
   for (int iter = 0; iter < n - 1; iter++) {
+    // n can be large for a small `error`: let the user interrupt
+    if ((iter & 0x3FFF) == 0) checkUserInterrupt();
     arma::vec temp = Qgx;
     values = Q * Qgx;
     

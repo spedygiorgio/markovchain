@@ -198,7 +198,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   conditioning <- unique(as.vector(lagged[, -1L]))
   Q[setdiff(seq_len(r) - 1L, conditioning) + 1L, ] <- 1 / r
   dimnames(Q) <- list(states, states)
-  lambda <- setNames(as.numeric(best$lambda), paste0("lag", seq_len(order)))
+  lambda <- stats::setNames(as.numeric(best$lambda), paste0("lag", seq_len(order)))
   npar <- r * (r - 1L) + order - 1L
   nobs <- length(times)
   logLik <- best$logLik

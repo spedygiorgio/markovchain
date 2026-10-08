@@ -124,7 +124,7 @@ test_that("toFile()/fromFile() infer format from the file extension", {
 })
 
 test_that("toFile()/fromFile() reject a file with an unsupported/unknown extension", {
-  tmp <- tempfile(fileext = ".xml")
+  tmp <- tempfile(fileext = ".toml")  # .xml is supported since 1.2
   expect_error(toFile(mcRow, tmp), "Unable to infer a format")
   expect_error(fromFile(tmp), "not found|Unable to infer a format")
 })

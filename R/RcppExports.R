@@ -105,10 +105,7 @@ seq2matHigh <- function(sequence, order) {
     .Call(`_markovchain_markovchainSequenceParallelRcpp`, listObject, n, include_t0, init_state)
 }
 
-#' @rdname markovchainFit
-#' 
-#' @export
-createSequenceMatrix <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
+.createSequenceMatrixRcpp <- function(stringchar, toRowProbs = FALSE, sanitize = FALSE, possibleStates = character()) {
     .Call(`_markovchain_createSequenceMatrix`, stringchar, toRowProbs, sanitize, possibleStates)
 }
 
@@ -200,7 +197,20 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'                   should typically be non-negative integers.                        
 #' @param stringchar It can be a \deqn{n x n} matrix or a character vector or a list
 #' @param toRowProbs converts a sequence matrix into a probability matrix
-#' @param sanitize put 1 in all rows having rowSum equal to zero
+#' @param sanitize how to deal with the states that have no observed outgoing
+#'                 transition, which is what \code{possibleStates} typically
+#'                 introduces. \code{FALSE} (the default) leaves their row at
+#'                 zero, which makes a transition matrix that is not
+#'                 stochastic. \code{TRUE}, or equivalently
+#'                 \code{"uniform"}, puts 1 in every entry of such a row, so
+#'                 that the row becomes a uniform distribution over all the
+#'                 states: the unobserved states are then assumed to move to
+#'                 any state with equal probability, which is an assumption
+#'                 about the data and not a consequence of it.
+#'                 \code{"absorbing"} instead puts 1 on the diagonal only,
+#'                 making every unobserved state absorbing; this also gives a
+#'                 stochastic matrix, but adds no transition that was never
+#'                 observed (see #213).
 #' @param possibleStates Possible states which are not present in the given sequence
 #' @param progress Should a text progress bar be shown? It is only used by
 #'                 the "bootstrap" method, the other methods being fast; see Details.
@@ -423,8 +433,8 @@ priorDistribution <- function(transMatr, hyperparam = matrix()) {
     .Call(`_markovchain_priorDistribution`, transMatr, hyperparam)
 }
 
-.hittingProbabilitiesRcpp <- function(object, targets) {
-    .Call(`_markovchain_hittingProbabilities`, object, targets)
+.hittingProbabilitiesRcpp <- function(object, targets, solver = 0L, tol = 1e-13, maxIter = 200L) {
+    .Call(`_markovchain_hittingProbabilities`, object, targets, solver, tol, maxIter)
 }
 
 .canonicFormRcpp <- function(obj) {

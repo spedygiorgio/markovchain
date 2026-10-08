@@ -95,18 +95,18 @@ knit_hooks$set(output = function(x, options) {
 
 # Introduction
 
-Markov chains represent a class of stochastic processes of great interest for the wide spectrum of practical applications. In particular, discrete time Markov chains (DTMC) permit to model the transition probabilities between discrete states by the aid of matrices.Various \proglang{R} packages deal with models that are based on Markov chains:
+Markov chains represent a class of stochastic processes of great interest for the wide spectrum of practical applications. In particular, discrete time Markov chains (DTMC) make it possible to model the transition probabilities between discrete states by means of matrices. Various \proglang{R} packages deal with models that are based on Markov chains:
 
-* \pkg{msm} [@msmR] handles Multi-State Models for panel data.
-* \pkg{mcmcR} [@mcmcR] implements Monte Carlo Markov Chain approach.
+* \pkg{msm} [@msmR] handles multi-state models for panel data.
+* \pkg{mcmcR} [@mcmcR] implements Markov chain Monte Carlo methods.
 * \pkg{hmm} [@hmmR] fits hidden Markov models with covariates.
-* \pkg{mstate} fits `Multi-State Models based on Markov chains for survival analysis [@mstateR].
+* \pkg{mstate} [@mstateR] fits multi-state models based on Markov chains for survival analysis.
 
-Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows to perform probabilistic analysis, statistical inference and applications. For the sake of completeness, \pkg{markovchain} is the second package specifically dedicated to DTMC analysis, being \pkg{DTMCPack} [@DTMCPackR] the first one. Notwithstanding, \pkg{markovchain} package [@pkg:markovchain] aims to offer more flexibility in handling DTMC than other existing solutions, providing S4 classes for both homogeneous and semi-homogeneous Markov chains as well as methods suited to perform statistical and probabilistic analysis.
+Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows one to perform probabilistic analysis, statistical inference and applications. \pkg{DTMCPack} [@DTMCPackR] was the first package specifically dedicated to DTMC analysis and \pkg{markovchain} [@pkg:markovchain] the second. The latter aims to offer more flexibility in handling DTMC than other existing solutions: it provides S4 classes for both homogeneous and semi-homogeneous Markov chains, together with methods to perform probabilistic and statistical analysis, to simulate and to aggregate chains, and to import and export them in several formats.
 
-The \pkg{markovchain} package depends on the following \proglang{R} packages: \pkg{expm} [@expmR] to perform efficient matrices powers; \pkg{igraph} [@pkg:igraph] to perform pretty plotting of `markovchain` objects and \pkg{matlab} [@pkg:matlab], that contains functions for matrix management and calculations that emulate those within \proglang{MATLAB} environment. Moreover, other scientific softwares provide functions specifically designed to analyze DTMC, as \proglang{Mathematica} 9 [@mathematica9].
+The \pkg{markovchain} package relies on the following \proglang{R} packages: \pkg{Matrix} to store large transition matrices in sparse form; \pkg{expm} [@expmR] to compute matrix powers efficiently; \pkg{igraph} [@pkg:igraph] to plot `markovchain` objects; and \pkg{Rcpp} [@RcppR] together with \pkg{RcppArmadillo} and \pkg{RcppParallel} to run the most demanding computations in compiled \proglang{C++} code, optionally on several threads. Other scientific software also provides functions specifically designed to analyze DTMC, such as \proglang{Mathematica} 9 [@mathematica9].
 
-The paper is structured as follows: Section \@ref(sec:mathematics) briefly reviews mathematics and definitions regarding DTMC, Section \@ref(sec:structure) discusses how to handle and manage Markov chain objects within the package, Section \@ref(sec:probability) and Section \@ref(sec:statistics) show how to perform probabilistic and statistical modelling, while Section \@ref(sec:applications) presents some applied examples from various fields analyzed by means of the \pkg{markovchain} package.
+The paper is structured as follows. Section \@ref(sec:mathematics) briefly reviews the mathematics and the definitions regarding DTMC. Section \@ref(sec:structure) shows how to create and manage Markov chain objects within the package. Section \@ref(sec:probability) and Section \@ref(sec:statistics) show how to perform probabilistic and statistical analysis: simulation, aggregation of states, serialization, estimation, prediction, statistical tests and Bayesian estimation. Section \@ref(sec:ctmc) is devoted to continuous time Markov chains, and Section \@ref(sec:applications) presents applied examples from various fields, analyzed by means of the \pkg{markovchain} package. Section \@ref(sec:discussion) concludes. Higher order and multivariate Markov chains, and the functions added during the Google Summer of Code 2017, are described in two companion vignettes ("Higher order Markov chains" and "Google Summer of Code 2017 Additions").
 
 # Review of core mathematical concepts {#sec:mathematics}
 
@@ -115,13 +115,13 @@ The paper is structured as follows: Section \@ref(sec:mathematics) briefly revie
 A DTMC is a sequence of random variables $X_{1},\: X_{2}\: ,\ldots,\:X_{n},\ldots$ characterized by the Markov property (also known as memoryless property, see Equation \ref{eq:markovProp}). The Markov property states that the distribution of the forthcoming state $X_{n+1}$ depends only on the current state $X_{n}$ and doesn't depend on the previous ones $X_{n-1},\: X_{n-2},\ldots,\: X_{1}$.
 
 \begin{equation}
-Pr\left(X_{n+1}=x_{n+1}\left|X_{1}=x_{1},X_{2}=x_{2,}...,X_{n}=x_{n}\right.\right)=Pr\left(X_{n+1}=x_{n+1}\left|X_{n}=x_{n}\right.\right).
+Pr\left(X_{n+1}=x_{n+1}\left|X_{1}=x_{1},X_{2}=x_{2},\ldots,X_{n}=x_{n}\right.\right)=Pr\left(X_{n+1}=x_{n+1}\left|X_{n}=x_{n}\right.\right).
 \label{eq:markovProp}
 \end{equation}
 
 The set of possible states $S=\left\{ s_{1},s_{2},...,s_{r}\right\}$ of $X_{n}$ can be finite or countable and it is named the state space of the chain.
 
-The chain moves  from one state to another (this change is named either 'transition' or 'step') and the probability $p_{ij}$ to move from state $s_{i}$ to state $s_{j}$ in one step is named transition probability:
+The chain moves from one state to another (this change is named either 'transition' or 'step') and the probability $p_{ij}$ to move from state $s_{i}$ to state $s_{j}$ in one step is named transition probability:
 
 \begin{equation}
 p_{ij}=Pr\left(X_{1}=s_{j}\left|X_{0}=s_{i}\right.\right).
@@ -157,10 +157,10 @@ DTMC are explained in most theory books on stochastic processes, see \cite{brema
 
 ## Properties and classification of states {#sec:properties}
 
-A state $s_{j}$ is said accessible from state $s_{i}$ (written $s_{i}\rightarrow s_{j}$) if a system starting in state $s_{i}$ has a positive probability to reach the state $s_{j}$ at a certain point, i.e., $\exists n>0:\: p_{ij}^{n}>0$. If both $s_{i}\rightarrow s_{j}$ and $s_{j}\rightarrow s_{i}$, then
+A state $s_{j}$ is said accessible from state $s_{i}$ (written $s_{i}\rightarrow s_{j}$) if a system starting in state $s_{i}$ has a positive probability to reach the state $s_{j}$ at a certain point, i.e., $\exists n>0:\: p_{ij}^{(n)}>0$. If both $s_{i}\rightarrow s_{j}$ and $s_{j}\rightarrow s_{i}$, then
 $s_{i}$ and $s_{j}$ are said to communicate.
 
-A communicating class is defined to be a set of states that communicate. A DTMC can be composed by one or more communicating classes.  If the DTMC is composed by only one communicating class (i.e., if all states in the chain communicate), then it is said irreducible. A communicating class is said to be closed if no states outside of the class can be reached from any state inside it.
+A communicating class is defined to be a set of states that communicate. A DTMC can be composed of one or more communicating classes. If the DTMC is composed of only one communicating class (i.e., if all states in the chain communicate), then it is said to be irreducible. A communicating class is said to be closed if no states outside of the class can be reached from any state inside it.
 
 If $p_{ii}=1$, $s_{i}$ is defined as absorbing state: an absorbing state corresponds to a closed communicating class composed by one state only.
 
@@ -168,7 +168,7 @@ The canonical form of a DTMC transition matrix is a matrix having a block form, 
 
 A state $s_{i}$ has period $k_{i}$ if any return to state $s_{i}$ must occur in multiples of $k_{i}$ steps, that is $k_{i}=gcd\left\{ n:Pr\left(X_{n}=s_{i}\left|X_{0}=s_{i}\right.\right)>0\right\}$, where $gcd$ is the greatest common divisor. If $k_{i}=1$ the state $s_{i}$ is said to be aperiodic, else if $k_{i}>1$ the state $s_{i}$ is periodic with period $k_{i}$. Loosely speaking, $s_{i}$  is periodic if it can only return to itself after a fixed number of transitions $k_{i}>1$ (or multiple of $k_{i}$), else it is aperiodic. 
 
-If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  It is possible to classify states according to their periodicity. Let $T^{x\rightarrow x}$ is the number of periods to go back to state $x$ knowing that the chain starts in $x$.  
+If states $s_{i}$ and $s_{j}$ belong to the same communicating class, then they have the same period $k_{i}$. As a consequence, each of the states of an irreducible DTMC share the same periodicity. This periodicity is also considered the DTMC periodicity.  States can also be classified according to how often the chain returns to them. Let $T^{x\rightarrow x}$ be the number of steps needed to go back to state $x$, knowing that the chain starts in $x$. 
 
 * A state $x$ is recurrent if $P(T^{x\rightarrow x}<+\infty)=1$ (equivalently $P(T^{x\rightarrow x}=+\infty)=0$). In addition: 
   1. A state $x$ is null recurrent if in addition $E(T^{x\rightarrow x})=+\infty$.
@@ -191,12 +191,12 @@ and can be found recursively using Equation \ref{eq:ftp2}, given that ${h_{ij}}^
 \label{eq:ftp2}
 \end{equation}
 
-A commonly used quantity related to $h$  is its average value, i.e. the \emph{mean first passage time} (also expected hitting time), namely $\bar h_{ij}= \sum_{n=1\dots\infty} n \,h_{ij}^{(n)}$. <!-- TONI -->
+A commonly used quantity related to $h$  is its average value, i.e. the \emph{mean first passage time} (also expected hitting time), namely $\bar h_{ij}= \sum_{n=1}^{\infty} n \,h_{ij}^{(n)}$.
 
-If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first recurrence time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. We could also ask ourselves which is the *mean recurrence time*, an average of the mean first recurrence times:
+If in the definition of the first passage time we let $s_{i}=s_{j}$, we obtain the first recurrence time $T_{i}=\inf \{ n\geq1:X_{n}=s_{i}|X_{0}=s_{i} \}$. The *mean recurrence time* of state $s_{i}$ is the expected value of $T_{i}$:
 
 \[
- r_i = \sum_{k = 1}^{\infty} k \cdot P(T_i = k)
+ r_i = \sum_{k = 1}^{\infty} k \cdot P(T_i = k).
 \]
 
 Revisiting the definition of recurrence and transience: a state $s_{i}$ is said to be recurrent if it is visited infinitely often, i.e., $Pr(T_{i}<+\infty|X_{0}=s_{i})=1$. On the opposite, $s_{i}$ is called transient if there is a positive probability that the chain will never return to $s_{i}$, i.e., $Pr(T_{i}=+\infty|X_{0}=s_{i})>0$.
@@ -212,23 +212,23 @@ If a DTMC $\{X_{n}\}$ is irreducible and aperiodic, then it has a limit distribu
 
 where $Z$ is the matrix having all rows equal to $z$. The stationary distribution of $\{X_{n}\}$ is represented by $z$.
 
-A matrix $A$ is called primitive if all of its entries are strictly positive, and we write it $A > 0$. If the transition matrix $P$ for a DTMC has some primitive power, i.e. it exists $m > 0: P^m > 0$, then the DTMC is said to be regular. In fact being regular is equivalent to being irreducible and aperiodic. All regular DTMCs are irreducible. The counterpart is not true.
+A matrix $A$ is called positive if all of its entries are strictly positive, and we write $A > 0$. If some power of the transition matrix $P$ of a DTMC is positive, i.e. there exists $m > 0$ such that $P^m > 0$, then $P$ is called primitive and the DTMC is said to be regular. For a finite state space, being regular is equivalent to being irreducible and aperiodic. All regular DTMCs are irreducible, but the converse is not true.
 
-Given two absorbing states $s_A$ (source) and $s_B$ (sink), the \emph{committor probability} $q_j^{(AB)}$ is the probability that a process starting in state $s_i$ is absorbed in state $s_B$ (rather than $s_A$) [@noe_constructing_2009]. It can be computed via <!-- TONI -->
+Given two disjoint sets of states $A$ and $B$, the \emph{committor probability} $q_j^{(AB)}$ is the probability that a chain starting in state $s_j$ reaches $A$ before $B$ [@noe_constructing_2009]. For $j \notin A \cup B$ it solves
 
 \begin{equation}
- q_j^{(AB)} = \sum_{k \ni {A, B}} P_{jk}q_k^{(AB)} \quad \mbox{with} \quad
- q_A^{(AB)} = 0 \quad \mbox{and} \quad  q_B^{(AB)} = 1
+ q_j^{(AB)} = \sum_{k \in S} P_{jk}q_k^{(AB)} \quad \mbox{with} \quad
+ q_k^{(AB)} = 1 \mbox{ for } k \in A \quad \mbox{and} \quad  q_k^{(AB)} = 0 \mbox{ for } k \in B.
 \end{equation}
 
-Note we can also define the hitting probability from $i$ to $j$ as the probability of ever reaching the state $j$ if our initial state is $i$:
+The \emph{hitting probability} from $i$ to $j$ is the probability of ever reaching the state $j$ if the initial state is $i$:
 
 \begin{equation}
 h_{i,j} = Pr(T_{ij} < \infty) = \sum_{n = 0}^{\infty} h_{ij}^{(n)}
 \label{eq:hitting-probs}
 \end{equation}
 
-In a DTMC with finite set of states, we know that a transient state communicates at least with one recurrent state. If the chain starts in a transient element, once it hits a recurrent state, it is going to be caught in its recurrent state, and we cannot expect it would go back to the initial state. Given a transient state $i$ we can define the *absorption probability* to the recurrent state $j$ as the probability that the first recurrent state that the Markov chain visits (and therefore gets absorbed by its recurrent class) is $j$, $f^{*}_ij$. We can also define the *mean absorption time* as the mean number of steps the transient state $i$ would take until it hits any recurrent state, $b_i$.
+In a DTMC with a finite set of states, every transient state can reach at least one recurrent state. If the chain starts in a transient state, once it hits a recurrent state it is caught in the corresponding recurrent class and never goes back to the initial state. Given a transient state $i$, the \emph{absorption probability} $f^{*}_{ij}$ into the recurrent state $j$ is the probability that $j$ is the first recurrent state visited by the chain (which is then absorbed by the recurrent class of $j$). The \emph{mean absorption time} $b_i$ is the mean number of steps the chain takes, starting from the transient state $i$, until it hits any recurrent state..
 
 ## A short example
 
@@ -242,7 +242,7 @@ P=\left[\begin{array}{ccc}
 \label{eq:trPropExEx1}
 \end{equation}
 
-In $P$, $p_{11}=0.5$ is the probability that $X_{1}=s_{1}$ given that we observed $X_{0}=s_{1}$ is 0.5, and so on.It is easy to see that the chain is irreducible since all the states communicate (it is made by one communicating class only).
+In $P$, $p_{11}=0.5$ is the probability that $X_{1}=s_{1}$ given that $X_{0}=s_{1}$, and so on. It is easy to see that the chain is irreducible since all the states communicate (it is made by one communicating class only).
 
 Suppose that the current state of the chain is $X_{0}=s_{2}$, i.e., $x^{(0)}=(0\:1\:0)$, then the probability distribution of states after 1 and 2 steps can be computed as shown in Equations \@ref(eq:trPropExEx2) and \@ref(eq:trPropExEx3).
 
@@ -289,19 +289,19 @@ showClass("markovchainList")
 
 The first class has been designed to handle homogeneous Markov chain processes, while the latter (which is itself a list of `markovchain` objects) has been designed to handle semi-homogeneous Markov chains processes.
 
-Any element of `markovchain` class is comprised by following slots:
+Every `markovchain` object has the following slots:
 
   1. `states`: a character vector, listing the states for which transition probabilities are defined.
   2. `byrow`: a logical element, indicating whether transition probabilities are shown by row or by column.
   3. `transitionMatrix`: the probabilities of the transition matrix.
   4. `name`: optional character element to name the DTMC.
 
-The `markovchainList` objects are defined by following slots:
+`markovchainList` objects have the following slots:
 
   1. `markovchains`: a list of `markovchain` objects.
   2. `name`: optional character element to name the DTMC.
 
-The `markovchain` objects can be created either in a long way, as the following code shows
+A `markovchain` object can be created either in the long way, as the following code shows,
 
 ```{r mcInitLong}
 weatherStates <- c("sunny", "cloudy", "rain")
@@ -314,7 +314,7 @@ mcWeather <- new("markovchain", states = weatherStates, byrow = byRow,
                transitionMatrix = weatherMatrix, name = "Weather")
 ```
 
-or in a shorter way, displayed below
+or in a shorter way, as displayed below
 
 ```{r mcInitShort}
 mcWeather <- new("markovchain", states = c("sunny", "cloudy", "rain"),
@@ -330,12 +330,12 @@ When `new("markovchain")` is called alone, a default Markov chain is created.
 defaultMc <- new("markovchain")
 ```
 
-The quicker way to create `markovchain` objects is made possible thanks to the implemented `initialize` S4 method that checks that:
+The shorter way is made possible by the `initialize` S4 method, which checks that:
 
-  * the `transitionMatrix`, either of class matrix or Matrix, to be a transition matrix, i.e., all entries to be probabilities and either all rows or all columns to sum up to one.
-  * the columns and rows names of `transitionMatrix` to be defined and to coincide with `states` vector slot. 
+  * the `transitionMatrix`, of class `matrix` or `Matrix`, is a transition matrix, i.e., all its entries are probabilities and either all rows or all columns sum up to one;
+  * the row and column names of `transitionMatrix`, if present, coincide with the `states` slot; if they are missing, they are taken from `states`.
 
-The `markovchain` objects can be collected in a list within `markovchainList` S4 objects as following example shows.
+`markovchain` objects can be collected in a `markovchainList` S4 object, as the following example shows.
 
 ```{r intromcList}
 mcList <- new("markovchainList", markovchains = list(mcWeather, defaultMc), 
@@ -377,7 +377,7 @@ Table \@ref(tab:methodsToHandleMc) lists which methods handle and manipulate `ma
 \label{tab:methodsToHandleMc}
 \end{table}
 
-The examples that follow shows how operations on `markovchain` objects can be easily performed. For example, using the previously defined matrix we can find what is the probability distribution of expected weather states in two and  seven days, given the actual state to be cloudy. 
+The examples that follow show how operations on `markovchain` objects can be easily performed. For instance, using the previously defined chain we can find the probability distribution of the weather states in two and in seven days, given that today is cloudy.
 
 ```{r operations}
 initialState <- c(0, 1, 0)
@@ -387,7 +387,7 @@ after2Days
 round(after7Days, 3)
 ```
 
-A similar answer could have been obtained defining the vector of probabilities as a column vector. A column - defined probability matrix could be set up either creating a new matrix or transposing an existing `markovchain` object thanks to the `t` method.
+The same answer can be obtained by defining the vector of probabilities as a column vector. A column-defined transition matrix can be set up either by creating a new matrix or by transposing an existing `markovchain` object with the `t` method.
 
 ```{r operations2}
 initialState <- c(0, 1, 0)
@@ -397,7 +397,7 @@ after2Days
 round(after7Days, 3)
 ```
 
-The initial state vector previously shown can not necessarily be a probability vector, as the code that follows shows: 
+The initial state vector does not need to be a probability vector, as the code that follows shows, where it holds the number of individuals in each state: 
 
 ```{r fval}
 fvals<-function(mchain,initialstate,n) {
@@ -415,7 +415,7 @@ fvals<-function(mchain,initialstate,n) {
 fvals(mchain=mcWeather,initialstate=c(90,5,5),n=4)
 ```
 
-Basic methods have been defined for `markovchain` objects to quickly get states and transition matrix dimension.
+Basic methods return the states and the dimension of the transition matrix.
 
 ```{r otherMethods}
 states(mcWeather)
@@ -423,7 +423,7 @@ names(mcWeather)
 dim(mcWeather)
 ```
 
-Methods are available to set and get the name of `markovchain` object.
+The name of a `markovchain` object can be read and changed with `name` and `name<-`.
 
 ```{r otherMethods2}
 name(mcWeather)
@@ -431,7 +431,7 @@ name(mcWeather) <- "New Name"
 name(mcWeather)
 ```
 
-Also it is possible to alphabetically sort the transition matrix:
+The states, and the transition matrix accordingly, can be sorted alphabetically:
 
 ```{r sortMethod}
 markovchain:::sort(mcWeather)
@@ -444,7 +444,7 @@ transitionProbability(mcWeather, "cloudy", "rain")
 mcWeather[2,3]
 ```
 
-The transition matrix of a `markovchain` object can be displayed using `print` or `show` methods (the latter being less verbose). Similarly, the underlying transition probability diagram can be plotted by the use of `plot` method (as shown in Figure \@ref(fig:mcPlot)) which is based on \pkg{igraph} package [@pkg:igraph]. `plot` method for `markovchain` objects is a wrapper of `plot.igraph` for `igraph` S4 objects defined within the \pkg{igraph} package. Additional parameters can be passed to `plot` function to control the network graph layout. There are also \pkg{diagram} and \pkg{DiagrammeR} ways available for plotting as shown in Figure \@ref(fig:mcPlotdiagram). The `plot` function also uses `communicatingClasses` function to separate out states of different communicating classes. All states that belong to one class have same color.
+The transition matrix of a `markovchain` object can be displayed with the `print` or `show` methods (the latter being less verbose). The transition diagram can be plotted with the `plot` method (Figure \@ref(fig:mcPlot)), a wrapper of `plot.igraph` from the \pkg{igraph} package [@pkg:igraph]; additional parameters can be passed to `plot` to control the layout of the graph. The \pkg{diagram} and \pkg{DiagrammeR} packages can be used instead (Figure \@ref(fig:mcPlotdiagram)). The `plot` method uses `communicatingClasses` to separate the states of different communicating classes, and all the states of a class have the same color. The graph can also be exported as text for Graphviz or Mermaid, as shown in Section \@ref(sec:serialization).
 
 ```{r printAndShow}
 print(mcWeather)
@@ -454,7 +454,7 @@ show(mcWeather)
 ```{r mcPlot, echo=FALSE, fig.cap="Weather example. Markov chain plot"}
 if (requireNamespace("igraph", quietly = TRUE)) {
   library(igraph)
-  plot(mcWeather,layout = layout.fruchterman.reingold)
+  plot(mcWeather,layout = layout_with_fr)
   } else {
   message("igraph unavailable")
   }
@@ -470,7 +470,7 @@ if (requireNamespace("diagram", quietly = TRUE)) {
 ```
 
 
-Import and export from some specific classes is possible, as shown in Figure \@ref(fig:fromAndTo) and in the following code.
+Coercion from and to some other classes is possible, as shown in Figure \@ref(fig:fromAndTo) and in the following code.
 
 ```{r exportImport1}
 mcDf <- as(mcWeather, "data.frame")
@@ -494,7 +494,7 @@ msmMc
   }
 ```
 
-from etm (now archived as of September 2020):
+The following code coerces an object of the \pkg{etm} package into a `markovchain` (\pkg{etm} was archived from CRAN in September 2020, so the example runs only if the package is installed):
 
 ```{r exporImport3}
 if (requireNamespace("etm", quietly = TRUE)) {
@@ -528,7 +528,7 @@ importExportGraph<-graph_from_literal(dataframe++markovchain,markovchain-+igraph
 plot(importExportGraph,main="Import - Export from and to markovchain objects")
 ```
 
-Coerce from `matrix` method, as the code below shows, represents another approach to create a `markovchain` method starting from a given squared probability matrix.
+A square probability matrix can also be coerced into a `markovchain` object, which is another way to create one, as the code below shows.
 
 ```{r exportImport4}
 myMatr<-matrix(c(.1,.8,.1,.2,.6,.2,.3,.4,.3), byrow=TRUE, ncol=3)
@@ -536,7 +536,7 @@ myMc<-as(myMatr, "markovchain")
 myMc
 ```
 
-Semi-homogeneous Markov chains can be created with the aid of `markovchainList` object. The example that follows arises from health insurance, where the costs associated to patients in a Continuous Care Health Community (CCHC) are modeled by a semi-homogeneous Markov Chain, since the transition probabilities change by year. Methods explicitly written for `markovchainList` objects are: `print`, `show`,  `dim` and `[`.
+Semi-homogeneous Markov chains are handled by `markovchainList` objects. The example that follows arises from health insurance, where the costs associated with the patients of a Continuous Care Health Community (CCHC) are modeled by a semi-homogeneous Markov chain, since the transition probabilities change every year. The methods explicitly written for `markovchainList` objects are `print`, `show`, `dim` and `[`.
 
 ```{r cchcMcList}
 stateNames = c("H", "I", "D")
@@ -557,14 +557,14 @@ mcCCRC <- new("markovchainList",markovchains = list(Q0,Q1,Q2,Q3),
 print(mcCCRC)
 ```
 
-It is possible to perform direct access to `markovchainList` elements, as well as to determine the number of `markovchain` objects by which a `markovchainList` object is composed.
+The elements of a `markovchainList` can be accessed directly, and `dim` returns the number of `markovchain` objects it contains.
 
 ```{r cchcMcList2}
 mcCCRC[[1]]
 dim(mcCCRC)
 ```
 
-The `markovchain` package contains some data found in the literature related to DTMC models (see Section \@ref(sec:applications). Table \@ref(tab:datasets) lists datasets and tables included within the current release of the package.
+The package contains some data found in the literature on DTMC models (see Section \@ref(sec:applications)). Table \@ref(tab:datasets) lists the datasets included in the current release.
 
 \begin{table}[h]
   \centering
@@ -578,25 +578,30 @@ The `markovchain` package contains some data found in the literature related to 
   \code{preproglucacon} & Preproglucacon DNA basis, \cite{averyHenderson}.\\
   \code{rain} & Alofi Island rains, \cite{averyHenderson}.\\
   \code{holson} & Individual states trajectories.\\
-  \code{sales} & Sales of six beverages in Hong Kong \cite{ching2008higher}. \\
+  \code{sales} & Sales of six beverages in Hong Kong, \cite{ching2008higher}. \\
+  \code{tm\_abs} & Frequencies of the 2000 corporate credit rating transitions of Standard and Poor's, from ESMA. \\
 \hline
 \end{tabular}
-\caption{The \pkg{markovchain} \code{data.frame} and \code{table}.}
+\caption{Datasets included in the \pkg{markovchain} package.}
 \label{tab:datasets}
 \end{table}
 
-Finally, Table \@ref(tab:demos) lists the demos included in the demo directory of the package.
+Finally, Table \@ref(tab:demos) lists the demos included in the \code{demo} directory of the package.
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{lll}
+  \begin{tabular}{lp{0.65\textwidth}}
     \hline
   R Code File & Description \\
     \hline  \hline
+    \code{quickStart.R} & Quick start for the package.\\
+    \code{examples.R} & Notable Markov chains, e.g., the gambler's ruin chain.\\
     \code{bard.R} & Structural analysis of Markov chains from Bard PPT.\\
-    \code{examples.R} & Notable Markov chains, e.g., The Gambler Ruin chain.\\
-    \code{quickStart.R} & Generic examples.\\
-    \code{extractMatrices.R} & Generic examples.\\
+    \code{extractMatrices.R} & Canonical form and fundamental matrix of a given transition matrix.\\
+    \code{mathematica.R} & Markov chains examples from \proglang{Mathematica}.\\
+    \code{reliability.R} & Simulation of reliability in inverting a Markov chain.\\
+    \code{quasiBayesian.R} & Quasi-Bayesian estimator function.\\
+    \code{computationTime.R} & Computation time by size of the character sequence.\\
 \hline
 \end{tabular}
 \caption{The \pkg{markovchain} demos.}
@@ -605,9 +610,9 @@ Finally, Table \@ref(tab:demos) lists the demos included in the demo directory o
 
 # Probability with markovchain objects {#sec:probability}
 
-The \pkg{markovchain} package contains functions to analyse DTMC from a probabilistic perspective. For example, the package provides methods to find stationary distributions and identifying absorbing and transient states. Many of these methods come from \proglang{MATLAB} listings that have been ported into \proglang{R}. For a full description of the underlying theory and algorithm the interested reader can overview the original \proglang{MATLAB} listings, \cite{renaldoMatlab} and \cite{montgomery}.
+The \pkg{markovchain} package contains functions to analyse DTMC from a probabilistic perspective. For example, the package provides methods to find stationary distributions, to identify absorbing and transient states, to compute passage and absorption times, and to study how fast a chain approaches its stationary distribution. Many of these methods come from \proglang{MATLAB} listings that have been ported into \proglang{R}: the interested reader can consult the original listings, \cite{renaldoMatlab} and \cite{montgomery}, for a full description of the underlying theory and algorithms.
 
-Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchain` objects to perform probabilistic analysis. 
+Table \@ref(tab:methodsToStats) shows the methods that can be applied to `markovchain` objects to perform probabilistic analysis.
 
 \begin{table}[h]
   \centering
@@ -617,23 +622,31 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
     \hline  \hline
   \code{absorbingStates} & the absorbing states of the transition
   matrix, if any.\\
+  \code{conditionalDistribution} & distribution of the next state given the current one. \\
   \code{steadyStates} & the vector(s) of steady state(s) in matrix form. \\
+  \code{redistribute} & distribution of the chain after a number of steps. \\
   \code{entropyRate} & entropy rate of an irreducible Markov chain. \\
+  \code{topologicalEntropy} & growth rate of the number of admissible paths. \\
+  \code{normalizedEntropyRate} & ratio of the entropy rate to the topological entropy. \\
+  \code{firstPassage} & distribution of the first passage time within $n$ steps. \\
   \code{meanFirstPassageTime} & matrix or vector of mean first passage times. \\
   \code{kemenyConstant} & stationary-weighted mean hitting time for an irreducible chain. \\
   \code{slem} & second largest eigenvalue modulus (irreducible). \\
   \code{spectralGap} & one minus the SLEM, a lightweight mixing diagnostic. \\
   \code{impliedTimescales} & per-eigenvalue relaxation timescales (irreducible). \\
+  \code{timeCorrelations}, \code{timeRelaxations} & time correlations and relaxations of observables defined on the states. \\
+  \code{sensitivity} & sensitivity of the stationary distribution to a perturbation of a row. \\
   \code{is.reversible} & checks detailed balance w.r.t.\ the stationary distribution. \\
   \code{closestReversible} & closest reversible chain for a fixed stationary law. \\
   \code{mixingTime} & total-variation mixing time (irreducible, aperiodic). \\
   \code{lazyChain} & the chain $\alpha I + (1-\alpha)P$, used to remove periodicity. \\
   \code{subchain} & restriction to a subset of states (submatrix or renormalized). \\
-  \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state \\
+  \code{meanRecurrenceTime} & vector of mean number of steps to return to each recurrent state. \\
   \code{hittingProbabilities} & matrix of hitting probabilities for a Markov chain. \\ 
   \code{meanAbsorptionTime} & expected number of steps for a transient state to be absorbed by any recurrent class. \\
+  \code{fundamentalMatrix} & fundamental matrix of an absorbing chain. \\
   \code{absorptionProbabilities} & probabilities of transient states of being absorbed by each recurrent state. \\
-  \code{committorAB} & committor probabilities \\
+  \code{committorAB} & committor probabilities. \\
   \code{communicatingClasses} & list of communicating classes. \\
    \code{canonicForm} & the transition matrix into canonic form. \\
   \code{is.accessible} & checks whether a state j is reachable from state i. \\
@@ -645,7 +658,7 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
   \code{transientClasses} & list of transient communicating classes. \\
   \code{recurrentStates} & the recurrent states of the transition matrix. \\
   \code{transientStates} & the transient states of the transition matrix, if any. \\
-  \code{summary} & DTMC summary. \\
+  \code{summary} & DTMC summary; with \code{details = TRUE}, a longer list of properties. \\
   \hline
   \end{tabular}
 \caption{\pkg{markovchain} methods: probabilistic operations.}
@@ -655,8 +668,8 @@ Table \@ref(tab:methodsToStats) shows methods that can be applied on `markovchai
 
 ## Conditional distributions
 
-The conditional distribution of weather states, given that current day's weather
-is sunny, is given by following code.
+The conditional distribution of the weather states, given that today is sunny,
+is computed by the following code.
 
 ```{r conditionalDistr}
 conditionalDistribution(mcWeather, "sunny")
@@ -676,20 +689,19 @@ A stationary (steady state, or equilibrium) vector is a probability vector such 
 \label{eq:steadystat2}
 \end{equation}
 
-Steady states are associated to $P$ eigenvalues equal to one. We could be tempted to compute them 
-solving the eigenvalues and eigenvectors of the matrix and taking real parts (since if $u + iv$ is a eigenvector, for the matrix $P$, then $Re(u + iv) = u$ and $Im(u + iv) = v$ are eigenvectors) and normalizing by the vector sum, this carries some concerns:
+Steady states are associated with the eigenvalues of $P$ equal to one. One could be tempted to compute them by solving the eigenproblem of the matrix, taking the real parts of the eigenvectors (if $u + iv$ is an eigenvector of $P$ for the eigenvalue one, then so are $u = Re(u + iv)$ and $v = Im(u + iv)$) and normalizing them by their sum. This approach, however, raises some concerns:
 
-1. If $u, v \in \mathbb{R}^n$ are linearly independent eigenvectors associated with the eigenvalue $1$, $u + iv$, $u + iu$ are also linearly independent eigenvectors, and their real parts coincide. Clearly if we took real parts, we would be losing an eigenvector, because we cannot know in advance if the underlying algorithm to compute the eigenvectors is going to output something similar to what we described. We should be agnostic to the underlying eigenvector computation algorithm.
+1. If $u, v \in \mathbb{R}^n$ are linearly independent eigenvectors associated with the eigenvalue $1$, $u + iv$ and $u - iv$ are also linearly independent eigenvectors, and their real parts coincide. Taking real parts, we would lose an eigenvector, because we cannot know in advance whether the algorithm that computes the eigenvectors will return something similar to what we described. We should be agnostic to the underlying eigenvector computation algorithm.
 
 2. Imagine the identity $P$ of dimensions $2 \times 2$. Its eigenvectors associated to the $1$ eigen value are $u = (1, 0)$ and $v = (0, 1)$. However, the underlying algorithm to compute eigenvectors could return $(1, -2)$ and $(-2, 1)$ instead, that are linear combinations of the aforementioned ones, and therefore eigenvectors. Normalizing by their sum, we would get: $(-1, 2)$ and $(2, -1)$, which obviously are not probability measures. Again, we should be agnostic to the underlying eigen computation algorithm.
 
 3. Algorithms to compute eigenvalues and eigenvectors are computationally expensive: they are iterative, and we cannot predict a fixed number of iterations for them. Moreover, each iteration takes $\mathcal{O}(m^2)$ or $\mathcal{O}(m^3)$ algorithmic complexity, with $m$ the number of states.
 
-We are going to use that every irreducible DTMC has a unique steady state, that is, if $M$ is the matrix for an irreducible DTMC (all states communicate with each other), then it exists a unique $v \in \mathbb{R}^m$ such that:
+We use the fact that every irreducible DTMC has a unique steady state: if $M$ is the transition matrix of an irreducible DTMC (all states communicate with each other), then there exists a unique $v \in \mathbb{R}^m$ such that
 
 \[ v \cdot M = v, \qquad \sum_{i = 1}^m v_i = 1 \]
 
-Also, we'll use that a steady state for a DTMC assigns $0$ to the transient states. The canonical form of a (by row) stochastic matrix looks alike:
+We also use the fact that a steady state of a DTMC assigns $0$ to the transient states. The canonical form of a row-stochastic matrix looks as follows:
 
 \[
 \left(\begin{array}{c|c|c|c|c}
@@ -707,20 +719,20 @@ A_1 & A_2 & A_3 & \ldots & R
 
 where $M_i$ corresponds to irreducible sub-chains, the blocks $A_i$ correspond to the transitions from transient states to each of the recurrent classes and $R$ are the transitions from the transient states to themselves.
 
-Also, we should note that a Markov chain has exactly the same name of steady states as recurrent classes. Therefore, we have coded the following algorithm ^[We would like to thank Prof. Christophe Dutang for his contributions to the development of this method. He coded a first improvement of the original `steadyStates` method and we could not have reached the current correctness without his previous work]:
+Moreover, a Markov chain has exactly as many steady states as recurrent classes. Therefore, we have coded the following algorithm ^[We would like to thank Prof. Christophe Dutang for his contributions to the development of this method. He coded a first improvement of the original `steadyStates` method and we could not have reached the current correctness without his previous work]:
 
-  1. Identify the recurrent classes $[C_1, \ldots, C_l]$ with \texttt{recurrentClasses} function.
-  2. Take each class $C_i$, compute the sub-matrix corresponding to it $M_i$.
+  1. Identify the recurrent classes $[C_1, \ldots, C_l]$ with the \texttt{recurrentClasses} function.
+  2. For each class $C_i$, extract the corresponding sub-matrix $M_i$.
   3. Solve the system $v \cdot C_i = v, \, \sum_{j = 1}^{|C_i|} v_j = 1$ which has a unique solution, for each $i = 1, \ldots, l$.
-  3. Map each state $v_i$ to the original order in $P$ and assign a $0$ to the slots corresponding to transient states in the matrix.
+  4. Map each state $v_i$ back to the original order in $P$ and assign $0$ to the slots corresponding to transient states.
 
-The result is returned in matrix form.
+The result is returned in matrix form, one steady state per row.
 
 ```{r steadyStates}
 steadyStates(mcWeather)
 ```
 
-It is possible for a Markov chain to have more than one stationary distribution, as the gambler ruin example shows.
+A Markov chain can have more than one stationary distribution, as the gambler's ruin example shows.
 
 ```{r gamblerRuin}
 gamblerRuinMarkovChain <- function(moneyMax, prob = 0.5) {
@@ -787,23 +799,22 @@ normalizedEntropyRate(mcWeather)
 
 ## Classification of states
 
-Absorbing states are determined by means of `absorbingStates` method.
+The absorbing states are returned by the `absorbingStates` method.
 
 ```{r absorbingStates}
 absorbingStates(mcGR4)
 absorbingStates(mcWeather)
 ```
 
-The key function in methods which need knowledge about communicating classes, recurrent states, transient 
-states, is `.commclassKernel`, which is a modification of Tarjan's algorithm from \cite{Tarjan}. This
-`.commclassKernel` method gets a transition matrix of dimension $n$ and returns a list of two items:
+The methods that need to know the communicating classes, the recurrent states or the transient
+states rely on the internal function `.commclassKernel`, a modification of Tarjan's algorithm \cite{Tarjan}. It takes a transition matrix of dimension $n$ and returns a list of two items:
 
-  1. `classes`, an matrix whose $(i, j)$ entry is `true` if $s_i$ and $s_j$ are in the same communicating class.
-  2. `closed`, a vector whose $i$ -th entry indicates whether the communicating class to which $i$ belongs is closed.
+  1. `classes`, a matrix whose $(i, j)$ entry is `TRUE` if $s_i$ and $s_j$ are in the same communicating class;
+  2. `closed`, a vector whose $i$-th entry indicates whether the communicating class to which $s_i$ belongs is closed.
 
-These functions are used by two other internal functions on which the `summary` method for `markovchain` objects works.
+The `summary` method for `markovchain` objects is built on two internal functions that use it.
 
-The example matrix used in \cite{renaldoMatlab} well exemplifies the purpose of the function. 
+The example matrix of \cite{renaldoMatlab} illustrates the purpose of the function.
 
 ```{r renaldoMatrix1}
 P <- markovchain:::zeros(10)
@@ -836,15 +847,15 @@ returned, invisibly, in the `details` element of the result.
 summary(mcWeather, details = TRUE)
 ```
 
-All states that pertain to a transient class are named "transient" and a
-specific method has been written to elicit them.
+The states that belong to a transient class are called transient, and the
+`transientStates` method returns them.
 
 ```{r transientStates}
 transientStates(probMc)
 ```
 
-`canonicForm` method that turns a Markov chain into its canonic form, reordering the states to have first the
-recurrent classes and then the transient states.
+The `canonicForm` method turns a Markov chain into its canonical form, reordering the states so that the
+recurrent classes come first and the transient states last.
 
 ```{r probMc2Canonic}
 probMcCanonic <- canonicForm(probMc)
@@ -852,14 +863,14 @@ probMc
 probMcCanonic
 ```
 
-The function `is.accessible` permits to investigate whether a state $s_{j}$ is accessible from state $s_i$, that is whether the probability to eventually reach $s_j$ starting from $s_{i}$ is greater than zero.
+The function `is.accessible` checks whether a state $s_{j}$ is accessible from state $s_i$, that is whether the probability of eventually reaching $s_j$ starting from $s_{i}$ is greater than zero.
 
 ```{r isAccessible}
 is.accessible(object = probMc, from = "a", to = "c")
 is.accessible(object = probMc, from = "g", to = "c")
 ```
 
-In Section \@ref(sec:properties) we observed that, if a DTMC is irreducible, all its states share the same periodicity. Then, the `period` function returns the periodicity of the DTMC, provided that it is irreducible. The example that follows shows how to find if a DTMC is reducible or irreducible by means of the function `is.irreducible` and, in the latter case, the method `period` is used to compute the periodicity of the chain.
+In Section \@ref(sec:properties) we observed that, if a DTMC is irreducible, all its states share the same periodicity. The `period` function therefore returns the period of a DTMC, provided that it is irreducible. The example that follows checks with `is.irreducible` whether a DTMC is irreducible and, if so, computes its period with `period`.
 
 ```{r periodicity}
 E <- matrix(0, nrow = 4, ncol = 4)
@@ -875,8 +886,7 @@ is.irreducible(mcE)
 period(mcE)
 ```
 
-The example Markov chain found in \proglang{Mathematica} web site \citep{mathematica9MarkovChain} has 
-been used, and is plotted in Figure \@ref(fig:mcMathematics).
+The next example is the Markov chain from the \proglang{Mathematica} website \citep{mathematica9MarkovChain}, plotted in Figure \@ref(fig:mcMathematics).
 
 ```{r mathematica9Mc}
 mathematicaMatr <- markovchain:::zeros(5)
@@ -891,7 +901,7 @@ mathematicaMc <- new("markovchain", transitionMatrix = mathematicaMatr,
 ```
 
 ```{r mcMathematics, fig=TRUE, echo=FALSE, fig.align='center', fig.cap="Mathematica 9 example. Markov chain plot."}
-plot(mathematicaMc, layout = layout.fruchterman.reingold)
+plot(mathematicaMc, layout = layout_with_fr)
 ```
 
 ```{r mathematica9MC, echo=FALSE}
@@ -923,8 +933,6 @@ firstPassagePdF <- firstPassage(object = mcWeather, state = "sunny",
                                 n = 10)
 firstPassagePdF[3, 3]
 ```
-
-<!-- TONI (show before the PdF?) -->
 
 To compute the *mean* first passage times, i.e. the expected number of days before it rains
 given that today is sunny, we can use the `meanFirstPassageTime` function:
@@ -1509,9 +1517,9 @@ actual Markov chain describing conditional behaviour on the subset.
 
 ## Committor probability
 
-The committor probability tells us the probability to reach a given state before another given.
-Suppose that we start in a cloudy day, the probabilities of experiencing a rainy day before 
-a sunny one is 0.5:
+The committor probability is the probability of reaching a given set of states before another one.
+Suppose that we start on a cloudy day: the probability of experiencing a rainy day before
+a sunny one is 0.5, as the output below shows (the function takes the target set $A$ first):
 
 ```{r}
 committorAB(mcWeather,3,1)
@@ -2049,7 +2057,7 @@ As with `lump`'s output, `aggregateStates`'s `partition` traces every
 macro-state back to the original state names, so it can be fed directly into
 `is.lumpable()` or `lump(..., force = TRUE)` for comparison.
 
-### Serialization
+## Serialization and export {#sec:serialization}
 
 A `markovchain` object is often built once and then reused elsewhere: shared
 with a colleague, stored alongside a dataset, or handed to a program written
@@ -2063,10 +2071,9 @@ representation is nested by source state, which is both more compact to
 read and round-trips through R's own list-of-lists idiom without any
 special tuple-key handling.
 
-We reuse `mcOz`, the Land of Oz chain introduced earlier in this section,
-since a well-known textbook example \citep{landOfOz} is exactly what
-someone would actually want to save and reload -- unlike a synthetic chain
-built only to demonstrate file I/O, this one is worth keeping around:
+We reuse `mcOz`, the Land of Oz chain introduced in the previous section,
+a well-known textbook example \citep{landOfOz}: unlike a synthetic chain
+built only to demonstrate file input and output, it is worth saving and reloading.
 
 ```{r serialize-oz-dictionary}
 oz_dict <- toDictionary(mcOz)
@@ -2552,172 +2559,6 @@ verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
 For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
-## Continuous-Time Markov Chains
-
-### Intro
-
-The \pkg{markovchain} package provides functionality for continuous time Markov chains (CTMCs). CTMCs are a generalization of discrete time Markov chains (DTMCs) in that we allow time to be continuous. We assume a finite state space $S$ (for an infinite state space wouldn't fit in memory). We can think of CTMCs as Markov chains in which state transitions can happen at any time.
-
-More formally, we would like our CTMCs to satisfy the following two properties:
-
-  * The Markov property - let $F_{X(s)}$ denote the information about $X$ up to time $s$. Let $j \in S$ and $s \leq t$. Then, $P(X(t) = j|F_{X(s)}) = P(X(t) = j|X(s))$.
-  * Time homogeneity - $P(X(t) = j|X(s) = k) = P(X(t-s) = j|X(0) = k)$.
-
-If both the above properties are satisfied, it is referred to as a time-homogeneous CTMC. If a transition occurs at time $t$, then $X(t)$ denotes the new state and $X(t)\neq X(t-)$.
-
-Now, let $X(0)=x$ and let $T_x$ be the time a transition occurs from this state. We are interested in the distribution of $T_x$. For $s,t \geq 0$, it can be shown that $ P(T_x > s+t | T_x > s) = P(T_x > t)  $
-
-This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is therefore the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
-
-However, specifying this parameter alone for each state would only paint an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
-
-To this end, we also need transition probabilities associated with the process, defined as follows (for $y \neq x$) - $p_{xy} = P(X(T_s) = y | X(0) = x)$. Note that $\sum_{y \neq x} p_{xy} = 1$. Let $Q$ denote this transition matrix ($Q_{ij} = p_{ij}$). What is key here is that $T_x$ and the state $y$ are independent random variables. Let's define $\lambda(x, y) = \lambda(x) p_{xy}$
-
-We now look at Kolmogorov's backward equation. Let's define $P_{ij}(t) = P(X(t) = j | X(0) = i)$ for $i, j \in S$. The backward equation is given by (it can be proved) $P_{ij}(t) = \delta_{ij}e^{-\lambda(i)t} + \int_{0}^{t}\lambda(i)e^{-\lambda(i)t} \sum_{k \neq i} Q_{ik} P_{kj}(t-s) ds$. Basically, the first term is non-zero if and only if $i=j$ and represents the probability that the first transition from state $i$ occurs after time $t$. This would mean that at $t$, the state is still $i$. The second term accounts for any transitions that may occur before time $t$ and denotes the probability that at time $t$, when the smoke clears, we are in state $j$.
-
-This equation can be represented compactly as follows $P'(t) = AP(t)$ where $A$ is the *generator* matrix.
-\[
-A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mbox{else.} \end{cases}
-\]
-Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix. 
-
-### Stationary Distributions
-
-The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that $X(t)$ being irreducible and recurrent is the same as $X_n(t)$ being irreducible and recurrent. 
-
-Suppose that $X(t)$ is irreducible and recurrent. Then $X(t)$ has an invariant measure $\eta$, which is unique up to multiplicative factors. Moreover, for each $k \in S$, we have
-
-\[\eta_k = \frac{\pi_k}{\lambda(k)}\]
-
-where $\pi$ is the unique invariant measure of the embedded discrete time Markov chain $Xn$. Finally, $\eta$ satisfies
-
-\[0 < \eta_j < \infty, \forall j \in S\]
-
-and if $\sum_i \eta_i < \infty$ then $\eta$ can be normalized to get a stationary distribution.
-
-### Estimation
-
-Let the data set be $D = \{(s_0, t_0), (s_1, t_1), ..., (s_{N-1}, t_{N-1})\}$ where $N=|D|$. Each $s_i$ is a state from the state space $S$ and during the time $[t_i,t_{i+1}]$ the chain is in state $s_i$. Let the parameters be represented by $\theta = \{\lambda, P\}$ where $\lambda$ is the vector of holding parameters for each state and $P$ the transition matrix of the embedded discrete time Markov chain. 
-
-Then the probability is given by
-
-\[
-{Pr(D | \theta) \propto \lambda(s_0)e^{-\lambda(s_0)(t_1-t_0)}Pr(s_1|s_0) \cdot\ldots\cdot \lambda(s_{N-2})e^{-\lambda(s_{N-2})(t_{N-1}-t_{N-2})}Pr(s_{N-1}|s_{N-2})}
-\]
-
-Let $n(j|i)$ denote the number of $i$->$j$ transitions in $D$, and $n(i)$ the number of times $s_i$ occurs in $D$. Let $t(s_i)$ denote the total time the chain spends in state $s_i$. 
-
-Then the MLEs are given by
-
-\[
-\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}
-\]
-
-
-### Expected Hitting Time
-
-The package provides a function `ExpectedTime` to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in S$, where $S$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
-\begin{equation}
-\begin{cases}
-      p_{k} = 0 & k = j \\
-      -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
-\end{cases}
-\label{eq:EHT}
-\end{equation}
-
-### Probability at time t
-
-The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. Here we use Kolmogorov's backward equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. Here $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the probability of the state at time $t$ to be equal to j if it was equal to i at time $t=0$.
-It takes care of the case when `ctmc` object has a generator represented by columns.
-If initial state is not provided, the function returns the whole transition matrix $P(t)$.
-
-### Examples
-
-To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, by row, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
-
-```{r rCtmcInit}
-energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3,
-                       1, -1), nrow = 2,
-              byrow = byRow, dimnames = list(energyStates, energyStates))
-molecularCTMC <- new("ctmc", states = energyStates, 
-                 byrow = byRow, generator = gen, 
-                 name = "Molecular Transition Model")      
-```
-
-To generate random CTMC transitions, we provide an initial distribution of the states. This must be in the same order as the dimnames of the generator. The output can be returned either as a list or a data frame.
-
-```{r rctmcRandom0}
-statesDist <- c(0.8, 0.2)
-rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
-```
-
-$n$ represents the number of samples to generate. There is an optional argument $T$ for `rctmc`. It represents the time of termination of the simulation. To use this feature, set $n$ to a very high value, say `Inf` (since we do not know the number of transitions before hand) and set $T$ accordingly.
-
-```{r ctmcRandom1}
-statesDist <- c(0.8, 0.2)
-rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
-```
-
-To obtain the stationary distribution simply invoke the `steadyStates` function
-```{r rctmcSteadyStates}
-steadyStates(molecularCTMC)
-```
-
-For fitting, use the `ctmcFit` function. It returns the MLE values for the parameters along with the confidence intervals.
-
-```{r rctmcFitting}
-data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
-             c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
-ctmcFit(data)
-```
-
-One approach to obtain the generator matrix is to apply the `logm` function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see \cite{israel2001finding}. For example, applying the standard `method` ('Higham08') on `mcWeather` raises an error, whilst the alternative method (eigenvalue decomposition) is OK. The following code estimates the generator matrix of the `mcWeather` transition matrix.
-
-```{r mcWeatherQ}
-mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
-mcWeatherQ
-```
-
-Therefore, the "half - day" transition probability for mcWeather DTMC is 
-
-```{r mcWeatherHalfDay}
-mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
-mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
-mcWeatherHalfDay
-```
-
-The \pkg{ctmcd} package \citep{pkg:ctmcd} provides various functions to estimate the generator matrix (GM) of a CTMC process using different methods. The following code provides a way to join \pkg{markovchain} and \pkg{ctmcd} computations.
-
-```{r ctmcd1}
-if(requireNamespace(package='ctmcd', quietly = TRUE)) {
-require(ctmcd)
-require(expm)
-#defines a function to transform a GM into a TM
-gm_to_markovchain<-function(object, t=1) {
-  if(!(class(object) %in% c("gm","matrix","Matrix")))
-    stop("Error! Expecting either a matrix or a gm object")
-  if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
-  #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
-  #must add importFrom(expm, "expm")
-  transitionMatrix<-expm(generator_matrix*t)
-  out<-as(transitionMatrix,"markovchain")
-  return(out)
-}
-#loading ctmcd dataset
-data(tm_abs)
-gm0=matrix(1,8,8) #initializing
-diag(gm0)=0
-diag(gm0)=-rowSums(gm0)
-gm0[8,]=0
-gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
-mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
-} else {
-  warning('package ctmcd unavailable')
-}
-```
-
 ## Pseudo - Bayesian Estimation
 
 \cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-\alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
@@ -2970,6 +2811,172 @@ MLEest <- markovchainFit(preproglucacon, method = "mle")
 MAPest <- markovchainFit(preproglucacon, method = "map")
 MLEest$estimate
 MAPest$estimate
+```
+
+# Continuous time Markov chains {#sec:ctmc}
+
+## Definition and generator matrix
+
+The \pkg{markovchain} package provides functionality for continuous time Markov chains (CTMCs). CTMCs are a generalization of discrete time Markov chains (DTMCs) in that we allow time to be continuous. We assume a finite state space $S$ (for an infinite state space wouldn't fit in memory). We can think of CTMCs as Markov chains in which state transitions can happen at any time.
+
+More formally, we would like our CTMCs to satisfy the following two properties:
+
+  * The Markov property - let $F_{X(s)}$ denote the information about $X$ up to time $s$. Let $j \in S$ and $s \leq t$. Then, $P(X(t) = j|F_{X(s)}) = P(X(t) = j|X(s))$.
+  * Time homogeneity - $P(X(t) = j|X(s) = k) = P(X(t-s) = j|X(0) = k)$.
+
+If both the above properties are satisfied, it is referred to as a time-homogeneous CTMC. If a transition occurs at time $t$, then $X(t)$ denotes the new state and $X(t)\neq X(t-)$.
+
+Now, let $X(0)=x$ and let $T_x$ be the time a transition occurs from this state. We are interested in the distribution of $T_x$. For $s,t \geq 0$, it can be shown that $ P(T_x > s+t | T_x > s) = P(T_x > t)  $
+
+This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is therefore the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
+
+However, specifying this parameter alone for each state would only paint an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
+
+To this end, we also need transition probabilities associated with the process, defined as follows (for $y \neq x$) - $p_{xy} = P(X(T_s) = y | X(0) = x)$. Note that $\sum_{y \neq x} p_{xy} = 1$. Let $Q$ denote this transition matrix ($Q_{ij} = p_{ij}$). What is key here is that $T_x$ and the state $y$ are independent random variables. Let's define $\lambda(x, y) = \lambda(x) p_{xy}$
+
+We now look at Kolmogorov's backward equation. Let's define $P_{ij}(t) = P(X(t) = j | X(0) = i)$ for $i, j \in S$. The backward equation is given by (it can be proved) $P_{ij}(t) = \delta_{ij}e^{-\lambda(i)t} + \int_{0}^{t}\lambda(i)e^{-\lambda(i)t} \sum_{k \neq i} Q_{ik} P_{kj}(t-s) ds$. Basically, the first term is non-zero if and only if $i=j$ and represents the probability that the first transition from state $i$ occurs after time $t$. This would mean that at $t$, the state is still $i$. The second term accounts for any transitions that may occur before time $t$ and denotes the probability that at time $t$, when the smoke clears, we are in state $j$.
+
+This equation can be represented compactly as follows $P'(t) = AP(t)$ where $A$ is the *generator* matrix.
+\[
+A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mbox{else.} \end{cases}
+\]
+Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix. 
+
+## Stationary Distributions
+
+The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that $X(t)$ being irreducible and recurrent is the same as $X_n(t)$ being irreducible and recurrent. 
+
+Suppose that $X(t)$ is irreducible and recurrent. Then $X(t)$ has an invariant measure $\eta$, which is unique up to multiplicative factors. Moreover, for each $k \in S$, we have
+
+\[\eta_k = \frac{\pi_k}{\lambda(k)}\]
+
+where $\pi$ is the unique invariant measure of the embedded discrete time Markov chain $Xn$. Finally, $\eta$ satisfies
+
+\[0 < \eta_j < \infty, \forall j \in S\]
+
+and if $\sum_i \eta_i < \infty$ then $\eta$ can be normalized to get a stationary distribution.
+
+## Estimation of the generator matrix
+
+Let the data set be $D = \{(s_0, t_0), (s_1, t_1), ..., (s_{N-1}, t_{N-1})\}$ where $N=|D|$. Each $s_i$ is a state from the state space $S$ and during the time $[t_i,t_{i+1}]$ the chain is in state $s_i$. Let the parameters be represented by $\theta = \{\lambda, P\}$ where $\lambda$ is the vector of holding parameters for each state and $P$ the transition matrix of the embedded discrete time Markov chain. 
+
+Then the probability is given by
+
+\[
+{Pr(D | \theta) \propto \lambda(s_0)e^{-\lambda(s_0)(t_1-t_0)}Pr(s_1|s_0) \cdot\ldots\cdot \lambda(s_{N-2})e^{-\lambda(s_{N-2})(t_{N-1}-t_{N-2})}Pr(s_{N-1}|s_{N-2})}
+\]
+
+Let $n(j|i)$ denote the number of $i$->$j$ transitions in $D$, and $n(i)$ the number of times $s_i$ occurs in $D$. Let $t(s_i)$ denote the total time the chain spends in state $s_i$. 
+
+Then the MLEs are given by
+
+\[
+\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}
+\]
+
+
+## Expected Hitting Time
+
+The package provides a function `ExpectedTime` to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in S$, where $S$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+\begin{equation}
+\begin{cases}
+      p_{k} = 0 & k = j \\
+      -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
+\end{cases}
+\label{eq:EHT}
+\end{equation}
+
+## Probability at time t
+
+The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. Here we use Kolmogorov's backward equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. Here $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the probability of the state at time $t$ to be equal to j if it was equal to i at time $t=0$.
+It takes care of the case when `ctmc` object has a generator represented by columns.
+If initial state is not provided, the function returns the whole transition matrix $P(t)$.
+
+## Examples
+
+To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, by row, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
+
+```{r rCtmcInit}
+energyStates <- c("sigma", "sigma_star")
+byRow <- TRUE
+gen <- matrix(data = c(-3, 3,
+                       1, -1), nrow = 2,
+              byrow = byRow, dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, 
+                 byrow = byRow, generator = gen, 
+                 name = "Molecular Transition Model")      
+```
+
+To generate random CTMC transitions, we provide an initial distribution of the states. This must be in the same order as the dimnames of the generator. The output can be returned either as a list or a data frame.
+
+```{r rctmcRandom0}
+statesDist <- c(0.8, 0.2)
+rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
+```
+
+$n$ represents the number of samples to generate. There is an optional argument $T$ for `rctmc`. It represents the time of termination of the simulation. To use this feature, set $n$ to a very high value, say `Inf` (since we do not know the number of transitions before hand) and set $T$ accordingly.
+
+```{r ctmcRandom1}
+statesDist <- c(0.8, 0.2)
+rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
+```
+
+To obtain the stationary distribution simply invoke the `steadyStates` function
+```{r rctmcSteadyStates}
+steadyStates(molecularCTMC)
+```
+
+For fitting, use the `ctmcFit` function. It returns the MLE values for the parameters along with the confidence intervals.
+
+```{r rctmcFitting}
+data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
+             c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+ctmcFit(data)
+```
+
+One approach to obtain the generator matrix is to apply the `logm` function from the \pkg{expm} package on a transition matrix. Numeric issues arise, see \cite{israel2001finding}. For example, applying the standard `method` ('Higham08') on `mcWeather` raises an error, whilst the alternative method (eigenvalue decomposition) is OK. The following code estimates the generator matrix of the `mcWeather` transition matrix.
+
+```{r mcWeatherQ}
+mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
+mcWeatherQ
+```
+
+Therefore, the "half - day" transition probability for mcWeather DTMC is 
+
+```{r mcWeatherHalfDay}
+mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
+mcWeatherHalfDay <- new("markovchain",transitionMatrix=mcWeatherHalfDayTM,name="Half Day Weather Transition Matrix")
+mcWeatherHalfDay
+```
+
+The \pkg{ctmcd} package \citep{pkg:ctmcd} provides various functions to estimate the generator matrix (GM) of a CTMC process using different methods. The following code provides a way to join \pkg{markovchain} and \pkg{ctmcd} computations.
+
+```{r ctmcd1}
+if(requireNamespace(package='ctmcd', quietly = TRUE)) {
+require(ctmcd)
+require(expm)
+#defines a function to transform a GM into a TM
+gm_to_markovchain<-function(object, t=1) {
+  if(!(class(object) %in% c("gm","matrix","Matrix")))
+    stop("Error! Expecting either a matrix or a gm object")
+  if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
+  #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
+  #must add importFrom(expm, "expm")
+  transitionMatrix<-expm(generator_matrix*t)
+  out<-as(transitionMatrix,"markovchain")
+  return(out)
+}
+#loading ctmcd dataset
+data(tm_abs)
+gm0=matrix(1,8,8) #initializing
+diag(gm0)=0
+diag(gm0)=-rowSums(gm0)
+gm0[8,]=0
+gmem=gm(tm_abs,te=1,method="EM",gmguess=gm0) #estimating GM
+mc_at_2=gm_to_markovchain(object=gmem, t=2) #converting to TM at time 2
+} else {
+  warning('package ctmcd unavailable')
+}
 ```
 
 # Applications {#sec:applications}
@@ -3360,7 +3367,7 @@ The underlying transition graph is plotted in Figure \@ref(fig:mobility).
 
 ```{r mobility, fig=TRUE, echo=FALSE, fig.align='center', fig.cap="1970 UK cohort mobility data."}
 plot(mobilityMc, main = '1970 mobility',vertex.label.cex = 2,
-		layout = layout.fruchterman.reingold)
+		layout = layout_with_fr)
 ```
 
 The steady state distribution is computed as follows. Since transition across quartiles are shown, the probability function is evenly 0.25.
@@ -3422,7 +3429,7 @@ M <- V %*% d %*% solve(V)
 mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
 ```
 
-# Discussion, issues and future plans
+# Discussion, issues and future plans {#sec:discussion}
 
 The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
 

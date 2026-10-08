@@ -17,9 +17,10 @@ fromFile(file, format = NULL)
 
 \item{file}{A single file path to write to or read from. If \code{format}
 is not supplied, it is inferred from the file extension
-(\code{.json}, \code{.yaml}/\code{.yml} or \code{.csv}).}
+(\code{.json}, \code{.yaml}/\code{.yml}, \code{.csv} or \code{.xml}).}
 
-\item{format}{One of \code{"json"}, \code{"yaml"} or \code{"csv"}. The
+\item{format}{One of \code{"json"}, \code{"yaml"}, \code{"csv"} or
+\code{"xml"}. The
 default, \code{NULL}, infers the format from \code{file}'s extension.}
 }
 \value{
@@ -27,7 +28,7 @@ default, \code{NULL}, infers the format from \code{file}'s extension.}
   returns a \code{markovchain} object.
 }
 \description{
-Writes a \code{markovchain} object to a JSON, YAML or CSV file, or reads
+Writes a \code{markovchain} object to a JSON, YAML, CSV or XML file, or reads
 one back, using the same representation as \code{\link{toDictionary}}.
 }
 \details{
@@ -43,6 +44,19 @@ column -- there is no natural place in a CSV file for the chain's
 \code{name}, so it is not preserved by \code{toFile(..., format = "csv")}
 and \code{fromFile} always returns an unnamed chain for a \code{.csv}
 file. This is the same limitation PyDTMC's own CSV format has.
+
+The XML format is the one of PyDTMC, so files can be exchanged with it in
+both directions: a root element \code{MarkovChain} with one \code{Item}
+element per transition, whose attributes are \code{state_from},
+\code{state_to} and \code{probability}. All \eqn{n^2} transitions are
+written, zeros included, and probabilities use 17 significant digits, so
+the round trip is exact. The \code{name} of the chain is stored as an
+attribute of the root element, which PyDTMC ignores when reading. When
+reading, the states are taken in the order in which their self
+transitions (\code{state_from} equal to \code{state_to}) appear, as
+PyDTMC does, and the name is restored if the attribute is present.
+Writing XML uses only base R; reading it requires the \pkg{xml2}
+package.
 
 Writing JSON requires the \pkg{jsonlite} package, and writing YAML
 requires the \pkg{yaml} package; both are only in \code{Suggests}, and an

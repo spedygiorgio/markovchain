@@ -696,3 +696,37 @@ populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
   new("markovchain", states = states, byrow = TRUE, transitionMatrix = P,
       name = paste0(modelLabel, " Population Genetics Model (n = ", n, ")"))
 }
+
+#' Identity Markov chain
+#'
+#' Builds the Markov chain whose transition matrix is the identity: every
+#' state is absorbing, so the chain never moves.
+#'
+#' @param n The number of states. It can be omitted when \code{states} is
+#'   given.
+#' @param states An optional character vector of \code{n} state names.
+#'   Defaults to \code{as.character(1:n)}.
+#' @param name The \code{name} slot of the result.
+#'
+#' @details
+#' The chain is the neutral element of the product of transition matrices
+#' (\code{identityChain(n) * mc} equals \code{mc} for a chain \code{mc} on
+#' the same states) and the extreme case of \code{\link{lazyChain}}. Every
+#' state is its own closed class, so every distribution is stationary.
+#'
+#' @return A \code{markovchain} object with \code{n} states.
+#'
+#' @seealso \code{\link{randomMarkovChain}}, \code{\link{lazyChain}}
+#'
+#' @examples
+#' identityChain(3)
+#' identityChain(states = c("a", "b"))
+#' absorbingStates(identityChain(3))
+#'
+#' @export
+identityChain <- function(n, states = NULL, name = "Identity chain") {
+  st <- .generatorStates(if (missing(n)) NULL else n, states)
+  P <- diag(st$n)
+  dimnames(P) <- list(st$states, st$states)
+  new("markovchain", states = st$states, transitionMatrix = P, name = name)
+}

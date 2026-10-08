@@ -125,7 +125,12 @@ Objects can be created by calls of the form \code{new("markovchain", states, byr
    \item{sort}{\code{signature(x = "markovchain", decreasing=FALSE)}: sorting the transition matrix. }
    \item{states}{\code{signature(object = "markovchain")}: returns the names of states (as \code{names}. }
    \item{steadyStates}{\code{signature(object = "markovchain")}: method to get the steady vector. }
-   \item{summary}{\code{signature(object = "markovchain")}: method to summarize structure of the markov chain }
+   \item{summary}{\code{signature(object = "markovchain")}: method to summarize structure of the markov chain.
+   \code{summary(object, details = TRUE)} also prints, after the usual output, the size and rank of
+   the transition matrix, the number of communicating classes, irreducibility, period, regularity,
+   whether the chain is absorbing, reversible, stochastically monotone and symmetric, and, when they
+   are defined, the entropy rate, the SLEM, the spectral gap and Kemeny's constant; these values are
+   also returned, invisibly, in the \code{details} element of the result. }
    \item{transientStates}{\code{signature(object = "markovchain")}: method to get the transient states. }
    \item{t}{\code{signature(x = "markovchain")}: transpose matrix }
    \item{transitionProbability}{\code{signature(object = "markovchain")}: transition probability }
@@ -159,6 +164,7 @@ myMc<-as(transMatr, "markovchain")
 
 #example of summary
 summary(simpleMc)
+summary(simpleMc, details = TRUE)
 \dontrun{plot(simpleMc)}
 
 }

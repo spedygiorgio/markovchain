@@ -825,6 +825,18 @@ probMc <- new("markovchain", transitionMatrix = P,
 summary(probMc)
 ```
 
+With `details = TRUE`, `summary` also prints, after the output above, a
+block of further properties in the spirit of the printout of a PyDTMC
+chain: size and rank of the transition matrix, classes, irreducibility,
+period, regularity, whether the chain is absorbing, reversible,
+stochastically monotone or symmetric, and, when they are defined, entropy
+rate, SLEM, spectral gap and Kemeny's constant. The values are also
+returned, invisibly, in the `details` element of the result.
+
+```{r summaryDetails}
+summary(mcWeather, details = TRUE)
+```
+
 All states that pertain to a transient class are named "transient" and a
 specific method has been written to elicit them.
 
@@ -1304,6 +1316,23 @@ redistribute(mcWeather, steps = 5, initial = "rain")
 relaxationTime(mcWeather)
 ```
 
+An observed sequence of states defines an observable $f$ on the states,
+$f_j$ being the number of times state $j$ occurs in it. `timeRelaxations`
+returns $\mu P^t f$, the expected value of $f$ after $t$ steps from the
+initial distribution $\mu$, and `timeCorrelations` returns
+$\sum_i \pi_i f_i (P^t g)_i$, the stationary correlation between $f$ at
+time $0$ and the observable $g$ of a second sequence (by default the same)
+at time $t$ \citep{noe2011}. Both converge at the speed set by the second
+largest eigenvalue modulus, and they correspond to the functions of the
+same name in PyDTMC.
+
+```{r timeCorrelations-weather}
+days <- c("sunny", "sunny", "rain", "cloudy", "sunny")
+timeCorrelations(mcWeather, days, timePoints = c(0, 1, 2, 10))
+timeRelaxations(mcWeather, days, initial = "rain",
+                timePoints = c(0, 1, 2, 10))
+```
+
 The trajectory and the eigenvalues of the transition matrix can also be
 plotted with the `type` argument of `autoplot`
 (Figure \ref{fig:autoplot-flow}).
@@ -1733,6 +1762,27 @@ c(neutral = as.numeric(absorptionProbabilities(neutralMoran)["4", "8"]),
   favoured = as.numeric(absorptionProbabilities(favouredMoran)["4", "8"]))
 ```
 
+### Random and special chains
+
+The function `randomMarkovChain` draws a chain with random transition
+probabilities, as the function `random` of PyDTMC does. Its argument `zeros`
+sets the exact number of zero probabilities, while `mask` fixes some
+probabilities in advance: the entries to draw are marked by `NA`, and in
+each row the free entries share the remaining probability. `dirichletChain` draws every row from a truncated Dirichlet
+process with concentration `diffusion`, optionally with a bias towards the
+diagonal; `identityChain` returns the chain that never moves. The `seed`
+argument makes a draw reproducible without touching the random number
+stream of the session.
+
+```{r randomChains}
+fixed <- matrix(NA, 3, 3)
+fixed[1, 1] <- 0.5
+randomMarkovChain(3, zeros = 2, mask = fixed, seed = 1)@transitionMatrix
+dirichletChain(4, diffusion = 1, diagonalBias = 2,
+               seed = 1)@transitionMatrix
+identityChain(states = c("a", "b"))@transitionMatrix
+```
+
 # Statistical analysis {#sec:statistics}
 
 Table \@ref(tab:funs4Stats) lists the functions and methods implemented within the package which help to fit, simulate and predict DTMC.
@@ -2054,6 +2104,24 @@ toFile(mcOz, oz_csv)
 cat(readLines(oz_csv), sep = "\n")
 
 fromFile(oz_csv)@name # the package's own default, not "Land of Oz"
+```
+
+The XML format is PyDTMC's own, so a chain can travel between the two
+packages in both directions; the `name` is kept as an attribute that
+PyDTMC ignores. Reading XML requires the \pkg{xml2} package.
+
+```{r serialize-oz-xml}
+oz_xml <- tempfile(fileext = ".xml")
+toFile(mcOz, oz_xml)
+cat(readLines(oz_xml)[1:4], sep = "\n")
+```
+
+Finally, `toDot` and `toMermaid` export the transition graph as Graphviz
+DOT or Mermaid text, to be rendered outside \proglang{R} or pasted into a
+Markdown document; transitions below `minProbability` can be left out.
+
+```{r export-oz-graph}
+cat(toMermaid(mcOz, digits = 2), "\n")
 ```
 
 ## Estimation

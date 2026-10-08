@@ -926,13 +926,81 @@ setMethod(
 )
 
 
+# Internal helper: the properties shown by summary(object, details = TRUE),
+# in the spirit of the printout of a PyDTMC MarkovChain. Quantities that
+# need a unique stationary distribution (or an irreducible chain) are NA
+# when they are not defined.
+.summaryDetails <- function(object) {
+  P <- .rowStochasticMatrix(object)
+  n <- nrow(P)
+  tol <- sqrt(.Machine$double.eps)
+  safe <- function(expr) tryCatch(suppressWarnings(expr), error = function(e) NA)
+
+  classes <- communicatingClasses(object)
+  recurrent <- recurrentClasses(object)
+  irreducible <- is.irreducible(object)
+  absorbing <- absorbingStates(object)
+  per <- if (irreducible) safe(period(object)) else NA_integer_
+  uniqueStationary <- length(recurrent) == 1L
+
+  list(
+    size = n,
+    rank = qr(P)$rank,
+    classes = length(classes),
+    recurrentClasses = length(recurrent),
+    transientClasses = length(classes) - length(recurrent),
+    irreducible = irreducible,
+    period = per,
+    regular = isTRUE(safe(is.regular(object))),
+    absorbingChain = length(absorbing) > 0L && all(lengths(recurrent) == 1L),
+    reversible = if (irreducible) isTRUE(safe(is.reversible(object))) else NA,
+    stochasticallyMonotone = isTRUE(safe(is.stochasticallyMonotone(object))),
+    symmetric = isTRUE(all.equal(P, t(P), tolerance = tol, check.attributes = FALSE)),
+    entropyRate = if (uniqueStationary) safe(entropyRate(object)) else NA_real_,
+    slem = if (irreducible) safe(slem(object)) else NA_real_,
+    spectralGap = if (irreducible) safe(spectralGap(object)) else NA_real_,
+    kemenyConstant = if (irreducible) safe(kemenyConstant(object)) else NA_real_
+  )
+}
+
+.printSummaryDetails <- function(d) {
+  yn <- function(x) if (is.na(x)) "not defined" else if (x) "yes" else "no"
+  num <- function(x) if (is.na(x)) "not defined" else format(signif(x, 6))
+  rows <- c(
+    "Size" = as.character(d$size),
+    "Rank" = as.character(d$rank),
+    "Communicating classes" = paste0(d$classes, " (", d$recurrentClasses,
+                                     " recurrent, ", d$transientClasses,
+                                     " transient)"),
+    "Irreducible" = yn(d$irreducible),
+    "Period" = if (is.na(d$period)) "not defined" else as.character(d$period),
+    "Regular (ergodic)" = yn(d$regular),
+    "Absorbing chain" = yn(d$absorbingChain),
+    "Reversible" = yn(d$reversible),
+    "Stochastically monotone" = yn(d$stochasticallyMonotone),
+    "Symmetric" = yn(d$symmetric),
+    "Entropy rate (bits)" = num(d$entropyRate),
+    "SLEM" = num(d$slem),
+    "Spectral gap" = num(d$spectralGap),
+    "Kemeny constant" = num(d$kemenyConstant)
+  )
+  cat("Further properties:", "\n")
+  w <- max(nchar(names(rows)))
+  for (k in seq_along(rows)) {
+    cat(" ", formatC(names(rows)[k], width = -w), ":", rows[[k]], "\n")
+  }
+}
+
 #' @exportMethod summary
 setGeneric("summary")
 
 # summary method for markovchain class
 # lists: closed, transient classes, irreducibility, absorbint, transient states
 setMethod("summary", signature(object = "markovchain"),
-  function(object){
+  function(object, details = FALSE, ...){
+    if (length(details) != 1L || !is.logical(details) || is.na(details)) {
+      stop("details must be TRUE or FALSE.")
+    }
     
     # list of closed, recurrent and transient classes
     outs <- .summaryKernelRcpp(object)
@@ -1002,6 +1070,13 @@ setMethod("summary", signature(object = "markovchain"),
     if(length(check) == 0) check <- "NONE"
     cat("The absorbing states are:", check )
     cat("\n")
+    
+    # optional block of further properties, printed after the classic output
+    # so that summary(object) itself is unchanged
+    if (details) {
+      outs$details <- .summaryDetails(object)
+      .printSummaryDetails(outs$details)
+    }
     
     # return outs
     # useful when user will assign the value returned

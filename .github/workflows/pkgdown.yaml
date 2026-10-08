@@ -100,7 +100,15 @@ jobs:
           cache: true
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        run: |
+          tryCatch(
+            pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE),
+            error = function(e) {
+              msg <- gsub("[\r\n]+", " | ", paste(conditionMessage(e), collapse = " "))
+              cat("::error title=pkgdown failure::", substr(msg, 1, 1500), "\n", sep = "")
+              stop(e)
+            }
+          )
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀

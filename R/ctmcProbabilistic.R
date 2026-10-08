@@ -219,7 +219,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   Exceptj <- which(Exceptj!=j)
   
   # build matrix with vlaues from Q such that row!=j or column!=j
-  Q_Exceptj <- Q[Exceptj,Exceptj]
+  Q_Exceptj <- Q[Exceptj,Exceptj,drop = FALSE]
   
   # check for positivity of holding times except for state j
   if(!all(diag(Q_Exceptj)!=0)){

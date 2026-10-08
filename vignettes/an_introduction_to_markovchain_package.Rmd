@@ -99,7 +99,7 @@ Markov chains represent a class of stochastic processes of great interest for th
 
 * \pkg{msm} [@msmR] handles multi-state models for panel data.
 * \pkg{mcmcR} [@mcmcR] implements Markov chain Monte Carlo methods.
-* \pkg{hmm} [@hmmR] fits hidden Markov models with covariates.
+* \pkg{HMM} [@hmmR] fits hidden Markov models with covariates.
 * \pkg{mstate} [@mstateR] fits multi-state models based on Markov chains for survival analysis.
 
 Nevertheless, the \proglang{R} statistical environment [@rSoftware] seems to lack a simple package that coherently defines S4 classes for discrete Markov chains and allows one to perform probabilistic analysis, statistical inference and applications. \pkg{DTMCPack} [@DTMCPackR] was the first package specifically dedicated to DTMC analysis and \pkg{markovchain} [@pkg:markovchain] the second. The latter aims to offer more flexibility in handling DTMC than other existing solutions: it provides S4 classes for both homogeneous and semi-homogeneous Markov chains, together with methods to perform probabilistic and statistical analysis, to simulate and to aggregate chains, and to import and export them in several formats.
@@ -1579,7 +1579,7 @@ with probability one:
 hittingProbabilities(mcWeather)
 ```
 
-## Stochastic Monotonicity
+## Stochastic monotonicity
 
 A transition matrix $P$ is stochastically monotone if the probability of moving to higher states is non-decreasing with respect to the starting state. 
 In other words, row $i$ is stochastically dominated by row $j$ whenever $i < j$. 
@@ -1792,19 +1792,24 @@ identityChain(states = c("a", "b"))@transitionMatrix
 
 # Statistical analysis {#sec:statistics}
 
-Table \@ref(tab:funs4Stats) lists the functions and methods implemented within the package which help to fit, simulate and predict DTMC.
+Table \@ref(tab:funs4Stats) lists the functions and methods of the package that help to simulate, aggregate, fit and predict DTMC, and to test hypotheses about them.
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{lll}
+  \begin{tabular}{p{0.42\textwidth}p{0.48\textwidth}}
     \hline
   Function & Purpose \\
     \hline  \hline
-  \code{markovchainFit} & Function to return fitted Markov chain for a given sequence.\\
-  \code{predict} & Method to calculate predictions from \code{markovchain} or
-   \\
-    & \code{markovchainList} objects.\\
-   \code{rmarkovchain} & Function to sample from \code{markovchain} or \code{markovchainList} objects.\\
+  \code{rmarkovchain} & samples from \code{markovchain} or \code{markovchainList} objects. \\
+  \code{randomMarkovChain}, \code{dirichletChain}, \code{identityChain} & generate random and special chains. \\
+  \code{is.lumpable}, \code{lump}, \code{aggregateStates} & lumpability and aggregation of states. \\
+  \code{toFile}, \code{fromFile}, \code{toDictionary}, \code{fromDictionary} & export and import of chains. \\
+  \code{toDot}, \code{toMermaid} & export of the transition graph as text. \\
+  \code{markovchainFit} & fits a Markov chain to a given sequence (maximum likelihood, Laplace, bootstrap, MAP). \\
+  \code{predict} & predictions from \code{markovchain} or \code{markovchainList} objects. \\
+  \code{assessIndependence}, \code{verifyMarkovProperty}, \code{assessOrder}, \code{assessStationarity} & tests on a sequence of states. \\
+  \code{verifyEmpiricalToTheoretical}, \code{verifyHomogeneity} & divergence tests for transition matrices. \\
+  \code{inferHyperparam}, \code{predictiveDistribution} & Bayesian estimation. \\
     \hline
 \end{tabular}
 \caption{The \pkg{markovchain} statistical functions.}
@@ -1813,15 +1818,15 @@ Table \@ref(tab:funs4Stats) lists the functions and methods implemented within t
 
 ## Simulation
 
-Simulating a random sequence from an underlying DTMC is quite easy thanks to the function `rmarkovchain`. The following code generates a year of weather states according to `mcWeather` underlying stochastic process.
+A random sequence from a DTMC is simulated with the function `rmarkovchain`. The following code generates 220 days of weather states from the process underlying `mcWeather`.
 
 ```{r simulatingAMarkovChain}
 weathersOfDays <- rmarkovchain(n = 220, object = mcWeather, t0 = "sunny")
 weathersOfDays[1:30]
 ```
 
-Similarly, it is possible to simulate one or more sequences from a semi-homogeneous Markov chain, 
-as the following code (applied on CCHC example) exemplifies.
+Similarly, one or more sequences can be simulated from a semi-homogeneous Markov chain, 
+as the following code (applied to the CCHC example) shows.
 
 ```{r simulatingAListOfMarkovChain}
 patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H", 
@@ -1829,7 +1834,7 @@ patientStates <- rmarkovchain(n = 5, object = mcCCRC, t0 = "H",
 patientStates[1:10,]
 ```
 
-Two advanced parameters are available to the `rmarkovchain` method which help users decide which implementation to use. There are four options available : \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. Two boolean parameters `useRcpp` and `parallel` will decide which implementation will be used. Default is \code{useRcpp = TRUE} and \code{parallel = FALSE} i.e. \proglang{C++} implementation. The \proglang{C++} implementation is generally faster than the `R` implementation. If you have multicore processors then you can take advantage of `parallel` parameter by setting it to `TRUE`. When both `useRcpp = TRUE` and `parallel = TRUE` the parallelization has been carried out using \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that `set.seed()` gives the same result whatever the number of threads. That number is set by the argument `num.cores`; when it is `NULL`, the default, the options `RcppParallel.numThreads` and `Ncpus` and the environment variables `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS` are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
+Two advanced parameters of `rmarkovchain` select the implementation, among four options: \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. The boolean parameters `useRcpp` and `parallel` choose the implementation; the default is \code{useRcpp = TRUE} and \code{parallel = FALSE}, i.e. the sequential \proglang{C++} implementation, which is generally faster than the \proglang{R} one. On multicore processors, setting `parallel = TRUE` takes advantage of several cores; when both `useRcpp = TRUE` and `parallel = TRUE`, the parallelization relies on the \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that `set.seed()` gives the same result whatever the number of threads. That number is set by the argument `num.cores`; when it is `NULL`, the default, the options `RcppParallel.numThreads` and `Ncpus` and the environment variables `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS` are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
 
 ## Lumpability and aggregation of states
 
@@ -2189,7 +2194,7 @@ markovchainFit(partial, possibleStates = c("a", "b", "c"),
                sanitize = "absorbing")$estimate@transitionMatrix
 ```
 
-Create sequence matrix can also be used to obtain raw count transition matrices from a given $n*2$ matrix as the following example shows:
+`createSequenceMatrix` can also be used to obtain raw transition counts from a given $n \times 2$ matrix of (from, to) pairs, as the following example shows:
 
 ```{r fitSequenceMatrix2}
 myMatr<-matrix(c("a","b","b","a","a","b","b","b","b","a","a","a","b","a"),ncol=2)
@@ -2262,7 +2267,7 @@ weatherFittedMLE$confidenceInterval
 weatherFittedBOOT$confidenceInterval
 ```
 
-A special function, `multinomialConfidenceIntervals`, has been written in order to obtain multinomial wise confidence intervals. The code has been based on and Rcpp translation of package's \pkg{MultinomialCI} functions \cite{pkg:MultinomialCI} that were themselves based on the \cite{sison1995simultaneous} paper.
+The function `multinomialConfidenceIntervals` computes simultaneous multinomial confidence intervals. It is an \pkg{Rcpp} translation of the functions of the \pkg{MultinomialCI} package \citep{pkg:MultinomialCI}, which are in turn based on \cite{sison1995simultaneous}.
 
 ```{r multinomial}
 multinomialConfidenceIntervals(transitionMatrix = 
@@ -2270,9 +2275,9 @@ multinomialConfidenceIntervals(transitionMatrix =
         countsTransitionMatrix = createSequenceMatrix(weathersOfDays))
 ```
 
-The functions for fitting DTMC have mostly been rewritten in \proglang{C++} using \pkg{Rcpp} \cite{RcppR} since version 0.2.
+Most of the functions for fitting DTMC have been rewritten in \proglang{C++} using \pkg{Rcpp} \citep{RcppR} since version 0.2.
 
-It is also possible to fit a DTMC object from `matrix` or `data.frame` objects as shown in following code.
+A DTMC can also be fitted from `matrix` or `data.frame` objects, as shown in the following code.
 
 ```{r fitMclists}
 data(holson)
@@ -2330,17 +2335,17 @@ Given an initial two years health status, the 5-year ahead prediction of any CCR
 predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5)
 ```
 
-The prediction has stopped at time sequence since the underlying semi-homogeneous Markov chain has a length of four. In order to continue five years ahead, the `continue=TRUE` parameter setting makes the `predict` method keeping to use the last `markovchain` in the sequence list.
+The prediction has stopped at time sequence since the underlying semi-homogeneous Markov chain has a length of four. In order to continue five years ahead, the argument `continue = TRUE` makes the `predict` method keep using the last `markovchain` of the list.
 
 ```{r markovchainListPredict2}
 predict(mcCCRC, newdata = c("H", "H"), n.ahead = 5, continue = TRUE)
 ```
 
-## Statistical Tests
+## Statistical tests
 
-In this section, we describe the statistical tests: assessing the independence of consecutive states (`assessIndependence`), the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the time-homogeneity (`assessStationarity`) of a Markov chain sequence, and the divergence tests (`verifyEmpiricalToTheoretical`, `verifyHomogeneity`) for empirically estimated transition matrices. Most of such tests are based on the $\chi ^2$ statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (`method = "simulation"`) that avoids the asymptotic $\chi^2$ approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class `htest`, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of `stats::chisq.test`. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
+In this section, we describe the statistical tests: assessing the independence of consecutive states (`assessIndependence`), the Markov property (`verifyMarkovProperty`), the order (`assessOrder`), the time-homogeneity (`assessStationarity`) of a Markov chain sequence, and the divergence tests (`verifyEmpiricalToTheoretical`, `verifyHomogeneity`) for empirically estimated transition matrices. Most of these tests are based on the $\chi ^2$ statistics; the Pearson and likelihood-ratio (G) versions of each test are provided, together with a Monte Carlo option (`method = "simulation"`) that avoids the asymptotic $\chi^2$ approximation altogether by simulating the null distribution of the G statistic directly from the fitted model. Test results are returned as objects of class `htest`, following R's standard convention for hypothesis tests, so that they print, and can be manipulated, like the output of `stats::chisq.test`. Relevant references are \cite{kullback1962tests} and \cite{anderson1957statistical}.
 
-All such tests have been designed for small samples, since it is easy to detect departures from the Markov property as long as the sample size increases. The Monte Carlo option is particularly useful in this regime, since the asymptotic $\chi^2$ approximation can be unreliable when expected counts are small; the simulated $p$-value is computed as $(1+\#\{G^*\ge G\})/(B+1)$ over $B$ parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
+As the sample size increases, even slight departures from the Markov property are easily detected, so these tests are most informative on samples of small or moderate size. The Monte Carlo option is particularly useful in this regime, since the asymptotic $\chi^2$ approximation can be unreliable when expected counts are small; the simulated $p$-value is computed as $(1+\#\{G^*\ge G\})/(B+1)$ over $B$ parametric replicates drawn under the null hypothesis, which is a finite-sample-valid Monte Carlo test \citep{davisonHinkley1997}. The accuracy of the statistical inference functions for very small samples is nonetheless an area of ongoing work.
 
 ### Assessing the independence of consecutive states
 
@@ -2390,7 +2395,7 @@ sample_sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a",
 verifyMarkovProperty(sample_sequence, method = "G")
 ```
 
-Burkett, Scherer and Todd (2019) \citep{burkett2019recurrent} study recurrent and persistent financial-market states. One of their published tests considers the transition into state 1 and reports the following counts, for which a standard Pearson test of independence gives a non-significant result:
+\cite{burkett2019recurrent} study recurrent and persistent financial-market states. One of their published tests considers the transition into state 1 and reports the following counts, for which a standard Pearson test of independence gives a non-significant result:
 
 ```{r test1b}
 burkett_counts <- matrix(
@@ -2476,7 +2481,7 @@ For each state, the observed sequence is split into `nblocks` contiguous blocks 
 assessStationarity(rain$rain, 10)
 ```
 
-Tran and Carmichael (2012) \citep{tranCarmichael2012} apply likelihood-ratio tests to transition probabilities in a real contractor-payment application, and provide an example where the null hypothesis of time-homogeneous transition probabilities is rejected. Their application also motivates explicit handling of *structural zeros*, i.e. transitions that are impossible under the state-space model, as opposed to *sampling zeros*, i.e. transitions that are possible but were simply not observed. The package allows structural zeros to be specified through the `structural.zeros` argument, so that they are excluded from the contingency tables rather than treated as evidence of homogeneity:
+\cite{tranCarmichael2012} apply likelihood-ratio tests to transition probabilities in a real contractor-payment application, and provide an example where the null hypothesis of time-homogeneous transition probabilities is rejected. Their application also motivates explicit handling of *structural zeros*, i.e. transitions that are impossible under the state-space model, as opposed to *sampling zeros*, i.e. transitions that are possible but were simply not observed. The package allows structural zeros to be specified through the `structural.zeros` argument, so that they are excluded from the contingency tables rather than treated as evidence of homogeneity:
 
 ```{r test4}
 structural.zeros <- matrix(FALSE, 3, 3,
@@ -2559,7 +2564,8 @@ verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
 For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
-## Pseudo - Bayesian Estimation
+
+## Pseudo-Bayesian estimation
 
 \cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-\alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
 
@@ -2633,9 +2639,9 @@ pseudoBayesEstimator(
 ) - trueMc@transitionMatrix
 ```
 
-## Bayesian Estimation
+## Bayesian estimation
 
-The \pkg{markovchain} package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters (at the time of writing this document, only first order models are supported) by Bayesian inference. It also computes the probability of observing a new data set, given a (different) data set. This vignette provides the mathematical description for the methods employed by the package. 
+The \pkg{markovchain} package provides functionality for maximum a posteriori (MAP) estimation of the chain parameters (at the time of writing this document, only first order models are supported) by Bayesian inference. It also computes the probability of observing a new data set, given a (different) data set. This section describes the mathematics of the methods employed by the package.
 
 ### Notation and set-up
 
@@ -2652,7 +2658,7 @@ Our objective is to find $\theta$ which maximizes the posterior. That is, if our
 
 \[\hat{\theta} = \underset{\theta}{argmax}P(\theta | D)\]
 
-where the search space is the set of right stochastic matrices of dimension $|\mathcal{A}|x|\mathcal{A}|$.
+where the search space is the set of right stochastic matrices of dimension $|\mathcal{A}| \times |\mathcal{A}|$.
 
 $n(u, s)$ denotes the number of times the word $us$ occurs in $D$ and $n(u)=\sum_{s \in \mathcal{A}}n(u, s)$. The hyper-parameters are similarly denoted by $\alpha(u, s)$ and $\alpha(u)$ respectively.
 
@@ -2661,16 +2667,16 @@ $n(u, s)$ denotes the number of times the word $us$ occurs in $D$ and $n(u)=\sum
 Given $D$, its likelihood conditioned on the observed initial state in D is given by
 \[P(D|\theta) = \prod_{s \in \mathcal{A}} \prod_{u \in \mathcal{A}} p(s|u)^{n(u, s)}\]
 
-Conjugate priors are used to model the prior $P(\theta)$. The reasons are two fold:
+Conjugate priors are used to model the prior $P(\theta)$. The reasons are twofold:
 
-  1. Exact expressions can be derived for the MAP estimates, expectations and even variances
-  2. Model order selection/comparison can be implemented easily (available in a future release of the package)
+  1. exact expressions can be derived for the MAP estimates, expectations and even variances;
+  2. model order selection and comparison can be implemented easily (not yet available for the models of this section).
 
 The hyper-parameters determine the form of the prior distribution, which is a product of Dirichlet distributions
 
 \[P(\theta) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in \mathcal{A}} \Gamma(\alpha(u, s))} \prod_{s \in \mathcal{A}} p(s|u)^{\alpha(u, s) - 1} \Big\}\]
 
-where $\Gamma(.)$ is the Gamma function. The hyper-parameters are specified using the `hyperparam` argument in the `markovchainFit` function. If this argument is not specified, then a default value of 1 is assigned to each hyper-parameter resulting in the prior distribution of each chain parameter to be uniform over $[0,1]$.
+where $\Gamma(.)$ is the Gamma function. The hyper-parameters are specified using the `hyperparam` argument in the `markovchainFit` function. If this argument is not specified, then a default value of 1 is assigned to each hyper-parameter which gives a prior that is uniform over the set of transition probability vectors of each row.
 
 Given the likelihood and the prior as described above, the evidence $P(D)$ is simply given by
 
@@ -2723,7 +2729,7 @@ P(D'|D) = \prod_{u \in \mathcal{A}} \Big\{ \frac{\Gamma(\alpha(u))}{\prod_{s \in
 
 ### Choosing the hyper-parameters
 
-The hyper parameters model the shape of the parameters' prior distribution. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
+The hyper-parameters model the shape of the prior distribution of the parameters. These must be provided by the user. The package offers functionality to translate a given prior belief transition matrix into the hyper-parameter matrix. It is assumed that this belief matrix corresponds to the mean value of the parameters. Since the relation 
 \[
 \text{E}_{\text{prior}} p(s | u) = \frac{\alpha(u, s)}{\alpha(u)}
 \]
@@ -2754,9 +2760,9 @@ mcWeather <- new("markovchain", states = weatherStates,
 weathersOfDays <- rmarkovchain(n = 365, object = mcWeather, t0 = "sunny")
 ```
 
-For the purpose of this section, we shall continue to use the weather of days example introduced in the main vignette of the package (reproduced above for convenience).
+In this section we continue to use the weather example introduced earlier; the chain is defined again below for convenience.
 
-Let us invoke the fit function to estimate the MAP parameters with 92\% confidence bounds and hyper-parameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
+Let us invoke the fit function to estimate the MAP parameters with 92\% credible intervals and hyper-parameters as shown below, based on the first 200 days of the weather data. Additionally, let us find out what the probability is of observing the weather data for the next 165 days. The usage would be as follows
 
 ```{r MAPFit}
 hyperMatrix<-matrix(c(1, 1, 2, 
@@ -2817,9 +2823,9 @@ MAPest$estimate
 
 ## Definition and generator matrix
 
-The \pkg{markovchain} package provides functionality for continuous time Markov chains (CTMCs). CTMCs are a generalization of discrete time Markov chains (DTMCs) in that we allow time to be continuous. We assume a finite state space $S$ (for an infinite state space wouldn't fit in memory). We can think of CTMCs as Markov chains in which state transitions can happen at any time.
+The \pkg{markovchain} package provides functionality for continuous time Markov chains (CTMCs). CTMCs are a generalization of discrete time Markov chains (DTMCs) in that we allow time to be continuous. We assume a finite state space $S$, so that the generator matrix introduced below can be stored in memory. We can think of CTMCs as Markov chains in which state transitions can happen at any time.
 
-More formally, we would like our CTMCs to satisfy the following two properties:
+More formally, we require our CTMCs to satisfy the following two properties:
 
   * The Markov property - let $F_{X(s)}$ denote the information about $X$ up to time $s$. Let $j \in S$ and $s \leq t$. Then, $P(X(t) = j|F_{X(s)}) = P(X(t) = j|X(s))$.
   * Time homogeneity - $P(X(t) = j|X(s) = k) = P(X(t-s) = j|X(0) = k)$.
@@ -2828,29 +2834,29 @@ If both the above properties are satisfied, it is referred to as a time-homogene
 
 Now, let $X(0)=x$ and let $T_x$ be the time a transition occurs from this state. We are interested in the distribution of $T_x$. For $s,t \geq 0$, it can be shown that $ P(T_x > s+t | T_x > s) = P(T_x > t)  $
 
-This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is therefore the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
+This is the memoryless property that only the exponential random variable exhibits. Therefore, the exponential distribution is the relevant distribution, and each state $s \in S$ has an exponential holding parameter $\lambda(s)$. Since $\mathrm{E}T_x = \frac{1}{\lambda(x)}$, the higher the rate $\lambda(x)$, the smaller the expected time of transitioning out of the state $x$.
 
-However, specifying this parameter alone for each state would only paint an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
+However, specifying this parameter alone for each state gives an incomplete picture of our CTMC. To see why, consider a state $x$ that may transition to either state $y$ or $z$. The holding parameter enables us to predict when a transition may occur if we start off in state $x$, but tells us nothing about which state will be next. 
 
-To this end, we also need transition probabilities associated with the process, defined as follows (for $y \neq x$) - $p_{xy} = P(X(T_s) = y | X(0) = x)$. Note that $\sum_{y \neq x} p_{xy} = 1$. Let $Q$ denote this transition matrix ($Q_{ij} = p_{ij}$). What is key here is that $T_x$ and the state $y$ are independent random variables. Let's define $\lambda(x, y) = \lambda(x) p_{xy}$
+To this end, we also need transition probabilities associated with the process, defined as follows (for $y \neq x$) - $p_{xy} = P(X(T_x) = y | X(0) = x)$. Note that $\sum_{y \neq x} p_{xy} = 1$. Let $Q$ denote this transition matrix ($Q_{ij} = p_{ij}$). What is key here is that $T_x$ and the state $y$ are independent random variables. We define $\lambda(x, y) = \lambda(x) p_{xy}$.
 
-We now look at Kolmogorov's backward equation. Let's define $P_{ij}(t) = P(X(t) = j | X(0) = i)$ for $i, j \in S$. The backward equation is given by (it can be proved) $P_{ij}(t) = \delta_{ij}e^{-\lambda(i)t} + \int_{0}^{t}\lambda(i)e^{-\lambda(i)t} \sum_{k \neq i} Q_{ik} P_{kj}(t-s) ds$. Basically, the first term is non-zero if and only if $i=j$ and represents the probability that the first transition from state $i$ occurs after time $t$. This would mean that at $t$, the state is still $i$. The second term accounts for any transitions that may occur before time $t$ and denotes the probability that at time $t$, when the smoke clears, we are in state $j$.
+We now look at Kolmogorov's backward equation. Let's define $P_{ij}(t) = P(X(t) = j | X(0) = i)$ for $i, j \in S$. The backward equation is given by (it can be proved) $P_{ij}(t) = \delta_{ij}e^{-\lambda(i)t} + \int_{0}^{t}\lambda(i)e^{-\lambda(i)s} \sum_{k \neq i} Q_{ik} P_{kj}(t-s) ds$. The first term is non-zero if and only if $i=j$ and represents the probability that the first transition from state $i$ occurs after time $t$, so that at time $t$ the state is still $i$. The second term accounts for the transitions that occur before time $t$: it is the probability of being in state $j$ at time $t$ after a first transition at time $s \le t$.
 
-This equation can be represented compactly as follows $P'(t) = AP(t)$ where $A$ is the *generator* matrix.
+In compact form, the equation reads $P'(t) = AP(t)$, where $A$ is the *generator* matrix:
 \[
 A(i, j) = \begin{cases} \lambda(i, j) & \mbox{if } i \neq j \\ -\lambda(i) & \mbox{else.} \end{cases}
 \]
-Observe that the sum of each row is 0. A CTMC can be completely specified by the generator matrix. 
+The entries of each row sum to zero, and a CTMC is completely specified by its generator matrix.
 
-## Stationary Distributions
+## Stationary distributions
 
-The following theorem guarantees the existence of a unique stationary distribution for CTMCs. Note that $X(t)$ being irreducible and recurrent is the same as $X_n(t)$ being irreducible and recurrent. 
+The following theorem concerns the existence of a stationary distribution for CTMCs. Note that $X(t)$ is irreducible and recurrent if and only if the embedded chain $X_n$ is irreducible and recurrent.
 
 Suppose that $X(t)$ is irreducible and recurrent. Then $X(t)$ has an invariant measure $\eta$, which is unique up to multiplicative factors. Moreover, for each $k \in S$, we have
 
 \[\eta_k = \frac{\pi_k}{\lambda(k)}\]
 
-where $\pi$ is the unique invariant measure of the embedded discrete time Markov chain $Xn$. Finally, $\eta$ satisfies
+where $\pi$ is the invariant measure of the embedded discrete time Markov chain $X_n$, unique up to multiplicative factors. Finally, $\eta$ satisfies
 
 \[0 < \eta_j < \infty, \forall j \in S\]
 
@@ -2866,35 +2872,33 @@ Then the probability is given by
 {Pr(D | \theta) \propto \lambda(s_0)e^{-\lambda(s_0)(t_1-t_0)}Pr(s_1|s_0) \cdot\ldots\cdot \lambda(s_{N-2})e^{-\lambda(s_{N-2})(t_{N-1}-t_{N-2})}Pr(s_{N-1}|s_{N-2})}
 \]
 
-Let $n(j|i)$ denote the number of $i$->$j$ transitions in $D$, and $n(i)$ the number of times $s_i$ occurs in $D$. Let $t(s_i)$ denote the total time the chain spends in state $s_i$. 
+Let $n(j|i)$ denote the number of $i \to j$ transitions in $D$, and $n(i)$ the number of times $s_i$ occurs in $D$. Let $t(s_i)$ denote the total time the chain spends in state $s_i$. 
 
 Then the MLEs are given by
 
 \[
-\hat{\lambda(s)} = \frac{n(s)}{t(s)},\hat{Pr(j|i)}=\frac{n(j|i)}{n(i)}
+\hat{\lambda}(s) = \frac{n(s)}{t(s)}, \qquad \widehat{Pr}(j|i)=\frac{n(j|i)}{n(i)}.
 \]
 
 
-## Expected Hitting Time
+## Expected hitting time
 
-The package provides a function `ExpectedTime` to calculate average hitting time from one state to another. Let the final state be j, then for every state $i \in S$, where $S$ is the set of all states and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the conditions to be true, expected hitting time is equal to minimal non-negative solution vector $p$ to the system of linear equations:
+The function `ExpectedTime` calculates the expected hitting time from one state to another. Let $j$ be the target state and let $q_{kl}$ be the entries of the generator matrix, with holding rate $q_k=-q_{kk} > 0$ for every $k \neq j$. Under this condition, the vector $p$ of the expected hitting times of $j$ is the minimal non-negative solution of the system of linear equations
 \begin{equation}
 \begin{cases}
       p_{k} = 0 & k = j \\
-      -\sum_{l \in I} q_{kl}p_{k} = 1 & k \neq j
+      -\sum_{l \in S} q_{kl}p_{l} = 1 & k \neq j.
 \end{cases}
 \label{eq:EHT}
 \end{equation}
 
-## Probability at time t
+## Transition probabilities over time
 
-The package provides a function `probabilityatT` to calculate probability of every state according to given `ctmc` object. Here we use Kolmogorov's backward equation $P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. Here $P(t)$ is the transition function at time t. The value $P(t)[i][j]$ at time $P(t)$ describes the probability of the state at time $t$ to be equal to j if it was equal to i at time $t=0$.
-It takes care of the case when `ctmc` object has a generator represented by columns.
-If initial state is not provided, the function returns the whole transition matrix $P(t)$.
+The function `probabilityatT` computes the probability of every state at time $t$ for a `ctmc` object. It solves Kolmogorov's backward equation, whose solution is $P(t) = e^{tA}$ for $t \geq 0$ (with $P(0) = I$), where $A$ is the generator matrix. The entry $P_{ij}(t)$ is the probability that the chain is in state $j$ at time $t$ given that it was in state $i$ at time $0$. The function also handles generators stored by columns. If the initial state is not provided, it returns the whole transition matrix $P(t)$.
 
 ## Examples
 
-To create a CTMC object, you need to provide a valid generator matrix, say $Q$. The CTMC object has the following slots - states, generator, by row, name (look at the documentation object for further details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
+To create a CTMC object, one provides a valid generator matrix. A `ctmc` object has the slots `states`, `generator`, `byrow` and `name` (see the documentation of the class for details). Consider the following example in which we aim to model the transition of a molecule from the $\sigma$ state to the $\sigma^*$ state. When in the former state, if it absorbs sufficient energy, it can make the jump to the latter state and remains there for some time before transitioning back to the original state. Let us model this by a CTMC:
 
 ```{r rCtmcInit}
 energyStates <- c("sigma", "sigma_star")
@@ -2914,19 +2918,26 @@ statesDist <- c(0.8, 0.2)
 rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", include.T0 = FALSE)
 ```
 
-$n$ represents the number of samples to generate. There is an optional argument $T$ for `rctmc`. It represents the time of termination of the simulation. To use this feature, set $n$ to a very high value, say `Inf` (since we do not know the number of transitions before hand) and set $T$ accordingly.
+The argument `n` is the number of transitions to generate. The optional argument `T` is the time at which the simulation ends; to use it, set `n` to `Inf` (the number of transitions is not known beforehand) and set `T` accordingly.
 
 ```{r ctmcRandom1}
 statesDist <- c(0.8, 0.2)
 rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 ```
 
-To obtain the stationary distribution simply invoke the `steadyStates` function
+The stationary distribution is returned by the `steadyStates` function:
 ```{r rctmcSteadyStates}
 steadyStates(molecularCTMC)
 ```
 
-For fitting, use the `ctmcFit` function. It returns the MLE values for the parameters along with the confidence intervals.
+The expected time needed to move from the state `sigma` to the state `sigma_star` is $1/3$ of a time unit, the inverse of the holding rate of `sigma`, since the only possible transition leads to the target. The probabilities of the two states half a time unit after the chain was in `sigma` follow from $P(t) = e^{tA}$:
+
+```{r rctmcExpectedTime}
+ExpectedTime(molecularCTMC, 1, 2)
+probabilityatT(molecularCTMC, 0.5, 1)
+```
+
+The `ctmcFit` function fits a CTMC from a sequence of states and the times at which they are observed. It returns the maximum likelihood estimates of the parameters along with confidence intervals.
 
 ```{r rctmcFitting}
 data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), 
@@ -2941,7 +2952,7 @@ mcWeatherQ <- expm::logm(mcWeather@transitionMatrix,method='Eigen')
 mcWeatherQ
 ```
 
-Therefore, the "half - day" transition probability for mcWeather DTMC is 
+The "half-day" transition probability of the `mcWeather` chain is therefore
 
 ```{r mcWeatherHalfDay}
 mcWeatherHalfDayTM <- expm::expm(mcWeatherQ*.5)
@@ -2957,9 +2968,9 @@ require(ctmcd)
 require(expm)
 #defines a function to transform a GM into a TM
 gm_to_markovchain<-function(object, t=1) {
-  if(!(class(object) %in% c("gm","matrix","Matrix")))
+  if(!inherits(object, c("gm","matrix","Matrix")))
     stop("Error! Expecting either a matrix or a gm object")
-  if ( class(object) %in% c("matrix","Matrix")) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
+  if (inherits(object, c("matrix","Matrix"))) generator_matrix<-object else generator_matrix<-as.matrix(object[["par"]])
   #must add importClassesFrom("markovchain",markovchain) in the NAMESPACE
   #must add importFrom(expm, "expm")
   transitionMatrix<-expm(generator_matrix*t)
@@ -2989,9 +3000,9 @@ Markov chains provide a simple model to predict the next day's weather given the
 
 ### Land of Oz {#sec:wfLandOfOz}
 
-The Land of Oz is 
-acknowledged not to have ideal weather conditions at all: 
-the weather is snowy or rainy very often and, once more, there are never two
+The Land of Oz is
+acknowledged not to have ideal weather conditions: 
+the weather is snowy or rainy very often and there are never two
 nice days in a row. Consider three weather states: rainy, nice and snowy. Let the transition matrix be as in the following:
 
 ```{r weatPred1}
@@ -3028,7 +3039,7 @@ q <- steadyStates(mcWP)
 q
 ```
 
-Note that, from the seventh day on, the predicted probabilities are substantially equal to the steady state of the chain and they don't depend from the starting point, as the following code shows.
+Note that, from the seventh day on, the predicted probabilities are substantially equal to the steady state of the chain and do not depend on the starting point, as the following code shows.
 
 ```{r weatPred5}
 R0 <- t(as.matrix(c(1, 0, 0)))
@@ -3096,14 +3107,14 @@ absorbingStates(creditMc)
 
 ### Economics {#fin:ec}
 
-For a recent application of \pkg{markovchain} in Economic, see \cite{manchesterR}. 
+For a recent application of \pkg{markovchain} in economics, see \cite{manchesterR}.
 
 A dynamic system generates two kinds of economic effects \citep{bardPpt}:
 
 1. those incurred when the system is in a specified state, and
 2. those incurred when the system makes a transition from one state to another.
 
-Let the monetary amount of being in a particular state be represented as a m-dimensional column vector $c^{\rm{S}}$, while let the monetary amount of a transition be embodied in a $C^{R}$ matrix in which each component specifies the monetary amount of going from state i to state j in a single step. Henceforth, Equation \@ref(eq:cost) represents the monetary of being in state $i$.
+Let the monetary amount of being in a particular state be represented as an $m$-dimensional column vector $c^{\rm{S}}$, while let the monetary amount of a transition be embodied in a $C^{R}$ matrix in which each component specifies the monetary amount of going from state i to state j in a single step. Equation \@ref(eq:cost) then gives the expected monetary amount associated with being in state $i$.
 
 \begin{equation}
 {c_i} = c_i^{\rm{S}} + \sum\limits_{j = 1}^m {C_{ij}^{\rm{R}}} {p_{ij}}.
@@ -3159,7 +3170,7 @@ a Normal conditional distribution into it; `rouwenhorst()`
 \citep{rouwenhorst1995} instead builds the transition matrix recursively
 from $\theta=(1+\rho)/2$, with no grid-width parameter to choose.
 
-Kopecky and Suen \citep{kopeckySuen2010} show that for highly persistent
+\cite{kopeckySuen2010} show that for highly persistent
 processes -- their example is a quarterly TFP growth process calibrated at
 $\rho=0.979$, $\sigma_\varepsilon=0.0072$ -- Rouwenhorst's method matches
 the process's theoretical unconditional variance
@@ -3203,17 +3214,17 @@ classes in Motor Third Party Liability (MTPL) insurance (Section \@ref(sec:bm)) 
 (Section \@ref(sec:hi)).
 
 
-### MPTL Bonus Malus {#sec:bm}
+### MTPL Bonus Malus {#sec:bm}
 
-Bonus Malus (BM) contracts grant the policyholder a discount (enworsen) as a function of the number of claims in the experience period. The discount (enworsen) is applied on a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial} and it usually depends on vehicle, territory, the demographic profile of the policyholder, and policy coverage deep (deductible and policy limits).\\
-Since the proposed BM level depends on the claim on the previous period, it can be modeled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation \ref{eq:BM}:
+Bonus Malus (BM) contracts grant the policyholder a discount (bonus) or impose a surcharge (malus) as a function of the number of claims in the experience period. The discount or surcharge is applied to a premium that already allows for known (a priori) policyholder characteristics \citep{denuit2007actuarial}, which usually depend on the vehicle, the territory, the demographic profile of the policyholder, and the policy coverage (deductible and policy limits).\\
+Since the BM level depends only on the BM level and on the claims of the previous period, it can be modeled by a discrete Markov chain. A very simplified example follows. Assume a BM scale from 1 to 5, where 4 is the starting level. The evolution rules are shown in Equation \ref{eq:BM}:
 
 \begin{equation}
 bm_{t + 1} = \max \left( {1,bm_{t} - 1} \right)*\left( {\tilde N = 0} \right) + \min \left( {5,bm_{t} + 2*\tilde N} \right)*\left( {\tilde N \ge 1} \right).
 \label{eq:BM}
 \end{equation}
 
-The number of claim $\tilde N$  is a random variable that is assumed
+The number of claims $\tilde N$ is a random variable that is assumed
 to be Poisson distributed.
 
 ```{r bonusMalus1}
@@ -3309,7 +3320,7 @@ getMc4Age<-function(age) {
 }
 ```
 
-Cause transitions are not homogeneous across ages, we use a `markovchainList` object to describe the transition probabilities for a guy starting at age 100.
+Because transitions are not homogeneous across ages, we use a `markovchainList` object to describe the transition probabilities of an individual starting at age 100.
 
 ```{r healthIns8-prob}
 getFullTransitionTable<-function(age){
@@ -3328,7 +3339,7 @@ getFullTransitionTable<-function(age){
 transitionsSince100<-getFullTransitionTable(age=100)
 ```
 
-We can use such transition for simulating ten life trajectories for a guy that begins "active" (A) aged 100:
+We can use such transition for simulating ten life trajectories for an individual who begins "active" (A) at age 100:
 
 ```{r healthIns9}
 rmarkovchain(n = 10, object = transitionsSince100,
@@ -3370,7 +3381,7 @@ plot(mobilityMc, main = '1970 mobility',vertex.label.cex = 2,
 		layout = layout_with_fr)
 ```
 
-The steady state distribution is computed as follows. Since transition across quartiles are shown, the probability function is evenly 0.25.
+The steady state distribution is computed as follows. Since the states are income quartiles, the long-run distribution is (approximately) uniform: each quartile has probability about 0.25.
 
 ```{r blandenEtAlii3}
 round(steadyStates(mobilityMc), 2)
@@ -3383,7 +3394,7 @@ This section contains two examples: the first shows the use of Markov chain mode
 
 ### Genetics {#sec:genetics}
 
-\cite{averyHenderson} discusses the use of Markov chains in model Preprogucacon gene protein bases sequence. The `preproglucacon` dataset in \pkg{markovchain} contains the dataset shown in the package.
+\cite{averyHenderson} discuss the use of Markov chains to model the sequence of the bases of the preproglucacon gene. The `preproglucacon` dataset of the \pkg{markovchain} package contains this sequence.
 
 ```{r preproglucacon1}
 data("preproglucacon", package = "markovchain")
@@ -3431,14 +3442,14 @@ mcM1 <- new("markovchain", transitionMatrix = M, states = hivStates)
 
 # Discussion, issues and future plans {#sec:discussion}
 
-The \pkg{markovchain} package has been designed in order to provide easily handling of DTMC and communication with alternative packages.
+The \pkg{markovchain} package has been designed to make it easy to handle DTMC and to exchange them with other packages. Since its first release it has grown in several directions. The main computations are implemented in \proglang{C++} through \pkg{Rcpp} \citep{RcppR}, and the simulation and bootstrap routines can run on several threads with reproducible results. The probabilistic toolbox now includes hitting probabilities, with a choice of solvers for large chains, spectral diagnostics, mixing times, reversibility and time correlations. The statistical toolbox includes several estimation methods, the tests of independence, of the Markov property, of the order and of stationarity, the Bayesian estimators and the aggregation of states. Chains can be generated at random, saved to and read from JSON, YAML, CSV and XML files, and exported as Graphviz or Mermaid graphs. Higher order and multivariate Markov chains, and the other additions of the Google Summer of Code 2017, are described in the companion vignettes.
 
-The package has known several improvements in the recent years: many functions added, porting the software in Rcpp \pkg{Rcpp} package \citep{RcppR} and many methodological improvements that have improved the software reliability.
+The package has several known limits. The transition matrices are stored in memory, so very large state spaces require sparse matrices and, for some functions, a specialised algorithm; the continuous time functions assume a finite state space; and the Bayesian estimation covers first order chains only. Hidden Markov chains are outside the scope of the package, for which the packages mentioned in the introduction are available. Bug reports and suggestions are welcome on the project page, \url{https://github.com/spedygiorgio/markovchain}.
 
 
 # Acknowledgments {#sec:aknowledgements}
 
-The package was selected for Google Summer of Code 2015 support. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.
+The package was selected for Google Summer of Code support in 2015 and 2017. The authors wish to thank Michael Cole, Tobi Gutman and Mildenberger Thoralf for their suggestions and bug checks. A final thanks also to Dr. Simona C. Minotti and Dr. Mirko Signorelli for their support in drafting this version of the vignettes.
 
 \clearpage
 # References #

@@ -1,0 +1,4 @@
+# LaTeX packages installed on top of TinyTeX by .github/workflows/R-CMD-check.yaml.
+# The cached TinyTeX installation is keyed on the hash of this file: edit it to rebuild the cache.
+grfext
+thumbpdf

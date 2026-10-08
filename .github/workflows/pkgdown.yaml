@@ -3,8 +3,24 @@
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'cran-comments.md'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'cran-comments.md'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
   release:
     types: [published]
   workflow_dispatch:
@@ -14,9 +30,12 @@ name: pkgdown
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
+    timeout-minutes: 30
+    # PR builds are cancelled when superseded; deploys are never cancelled
+    # but still queue one at a time.
     concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+      group: pkgdown-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       NO_COLOR: "1"
@@ -52,21 +71,33 @@ jobs:
         with:
           use-public-rspm: true
 
+      # Compile the C++ code through ccache (shared with R-CMD-check's cache).
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ubuntu-latest-pkgdown
+          restore-keys: ubuntu-latest-release
+          max-size: 500M
+
+      - name: Compile through ccache
+        shell: bash
+        run: |
+          mkdir -p ~/.R
+          {
+            for v in CC CXX CXX11 CXX14 CXX17 CXX20; do
+              val=$(R CMD config $v 2>/dev/null) || continue
+              [ -n "$val" ] && echo "$v = ccache $val"
+            done
+            echo "MAKEFLAGS = -j4"
+          } > ~/.R/Makevars
+          cat ~/.R/Makevars
+          echo "CCACHE_NOHASHDIR=true" >> "$GITHUB_ENV"
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
           cache: true
-
-      - id: tinytex
-        uses: r-lib/actions/setup-tinytex@v2
-        continue-on-error: true
-
-      - if: steps.tinytex.outcome == 'failure'
-        uses: r-lib/actions/setup-tinytex@v2
-
-      - name: Install additional LaTeX packages
-        run: tlmgr install grfext thumbpdf
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

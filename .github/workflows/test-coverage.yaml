@@ -3,17 +3,41 @@
 on:
   push:
     branches: [main, master]
+    paths:
+      - 'R/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'data/**'
+      - 'inst/extdata/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - '.github/workflows/test-coverage.yaml'
   pull_request:
     branches: [main, master]
+    paths:
+      - 'R/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'data/**'
+      - 'inst/extdata/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - '.github/workflows/test-coverage.yaml'
   workflow_dispatch:
 
 name: test-coverage
 
 permissions: read-all
 
+# Cancel superseded PR runs (runs on master are never cancelled: they feed Codecov).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 

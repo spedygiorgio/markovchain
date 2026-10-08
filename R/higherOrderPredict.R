@@ -121,5 +121,5 @@ higherOrderSimulate <- function(n, fit, t0, include.t0 = FALSE) {
 .higherOrderNext <- function(model, history) {
   history <- .higherOrderHistory(model, history)
   p <- .higherOrderProbabilities(model, utils::tail(history, length(model$lambda)))
-  setNames(as.numeric(p), model$states)
+  stats::setNames(as.numeric(p), model$states)
 }

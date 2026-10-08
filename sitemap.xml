@@ -23,6 +23,7 @@
 <url><loc>/reference/craigsendi.html</loc></url>
 <url><loc>/reference/ctmc-class.html</loc></url>
 <url><loc>/reference/ctmcFit.html</loc></url>
+<url><loc>/reference/dirichletChain.html</loc></url>
 <url><loc>/reference/dot-asHtest.html</loc></url>
 <url><loc>/reference/entropyRate.html</loc></url>
 <url><loc>/reference/expectedRewards.html</loc></url>
@@ -44,6 +45,7 @@
 <url><loc>/reference/hommc-class.html</loc></url>
 <url><loc>/reference/hommc-show.html</loc></url>
 <url><loc>/reference/ictmc-class.html</loc></url>
+<url><loc>/reference/identityChain.html</loc></url>
 <url><loc>/reference/impliedTimescales.html</loc></url>
 <url><loc>/reference/impreciseProbabilityatT.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
@@ -84,6 +86,7 @@
 <url><loc>/reference/priorDistribution.html</loc></url>
 <url><loc>/reference/probabilityatT.html</loc></url>
 <url><loc>/reference/rain.html</loc></url>
+<url><loc>/reference/randomMarkovChain.html</loc></url>
 <url><loc>/reference/rctmc.html</loc></url>
 <url><loc>/reference/redistribute.html</loc></url>
 <url><loc>/reference/relaxationTime.html</loc></url>
@@ -101,9 +104,11 @@
 <url><loc>/reference/structuralAnalysis.html</loc></url>
 <url><loc>/reference/subchain.html</loc></url>
 <url><loc>/reference/tauchen.html</loc></url>
+<url><loc>/reference/timeCorrelations.html</loc></url>
 <url><loc>/reference/tm_abs.html</loc></url>
 <url><loc>/reference/toBoundedChain.html</loc></url>
 <url><loc>/reference/toDictionary.html</loc></url>
+<url><loc>/reference/toDot.html</loc></url>
 <url><loc>/reference/toFile.html</loc></url>
 <url><loc>/reference/toNthOrder.html</loc></url>
 <url><loc>/reference/topologicalEntropy.html</loc></url>

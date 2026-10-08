@@ -85,7 +85,14 @@ states coming from the underlying stationary distribution.</p>
 
 
 <dt id="arg-num-cores">num.cores<a class="anchor" aria-label="anchor" href="#arg-num-cores"></a></dt>
-<dd><p>Number of Cores to be used</p></dd>
+<dd><p>Number of threads used when <code>parallel = TRUE</code>. If
+<code>NULL</code> (the default) the thread count is read from
+<code>getOption("RcppParallel.numThreads")</code>, then
+<code>getOption("Ncpus")</code>, then <code>RCPP_PARALLEL_NUM_THREADS</code>, then
+<code>OMP_NUM_THREADS</code>, falling back to <code>min(2, cores)</code> as CRAN
+policy requires. Previous versions defaulted to
+<code>parallel::detectCores() - 1</code>, which could grab all available cores
+unexpectedly.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

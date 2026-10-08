@@ -42,7 +42,13 @@ rmarkovchain(
 
 - num.cores:
 
-  Number of Cores to be used
+  Number of threads used when `parallel = TRUE`. If `NULL` (the default)
+  the thread count is read from `getOption("RcppParallel.numThreads")`,
+  then `getOption("Ncpus")`, then `RCPP_PARALLEL_NUM_THREADS`, then
+  `OMP_NUM_THREADS`, falling back to `min(2, cores)` as CRAN policy
+  requires. Previous versions defaulted to
+  `parallel::detectCores() - 1`, which could grab all available cores
+  unexpectedly.
 
 - ...:
 

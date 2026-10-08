@@ -48,7 +48,8 @@ this function calculates the probability of ever arriving from state i to j</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hittingProbabilities</span><span class="op">(</span><span class="va">object</span>, targets <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">hittingProbabilities</span><span class="op">(</span><span class="va">object</span>, targets <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  solver <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"direct"</span>, <span class="st">"bicgstab"</span>, <span class="st">"doubling"</span><span class="op">)</span>, tol <span class="op">=</span> <span class="fl">1e-13</span>, maxIter <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -68,6 +69,35 @@ proportional to the number of targets: for a large chain, asking only for
 the states of interest is much faster than computing the whole matrix and
 subsetting it. Duplicated or unknown names are an error.</p></dd>
 
+
+<dt id="arg-solver">solver<a class="anchor" aria-label="anchor" href="#arg-solver"></a></dt>
+<dd><p>the method used to solve the linear system
+\((I - Q) h = R\) on the states whose probability is neither
+structurally zero nor one (see Details). <code>"direct"</code>, the default, is
+an LU factorisation: it costs \(O(m^3)\) once per target and is the most
+accurate. <code>"bicgstab"</code> is an unpreconditioned BiCGSTAB iteration on
+the sparse system: every iteration costs two sparse matrix-vector products
+instead of a dense \(O(m^3)\) step, so it is the fastest choice on large
+sparse chains, at the price of a looser residual. On a breakdown of the
+iteration it restarts from the current residual, and if the breakdown
+persists it switches to <code>"direct"</code> with a warning. <code>"doubling"</code> is the
+doubled Neumann series used by versions up to 1.2, kept for reproducibility
+of earlier results; it is also the automatic fallback of <code>"direct"</code> on
+a numerically singular system.</p></dd>
+
+
+<dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
+<dd><p>relative residual at which the iterative solvers
+(<code>"bicgstab"</code>, <code>"doubling"</code>) stop. Ignored by <code>"direct"</code>,
+except when it falls back to <code>"doubling"</code>.</p></dd>
+
+
+<dt id="arg-maxiter">maxIter<a class="anchor" aria-label="anchor" href="#arg-maxiter"></a></dt>
+<dd><p>maximum number of iterations of the iterative solvers: the
+number of BiCGSTAB steps, or the number of squarings of the doubled Neumann
+series. A warning is raised, and the current values returned, if the
+requested <code>tol</code> is not reached within this many iterations.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -80,8 +110,22 @@ transition matrix is. With <code>targets</code>, only the columns (rows if
 they coincide with those of the full matrix.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>On each target the states are first split by graph reachability:
+a state that cannot reach the target has probability zero, and one that can
+reach the target but no closed class outside it has probability one. Only
+the remaining states need the linear system that <code>solver</code> controls, so
+on chains where that split already decides every state (an irreducible
+chain, for instance) all three solvers do the same negligible amount of
+work. The choice matters on chains with several closed classes, i.e. on
+genuine absorption probabilities.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013</p>
+<p>H. A. van der Vorst (1992). Bi-CGSTAB: A Fast and Smoothly Converging
+Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems.
+<em>SIAM Journal on Scientific and Statistical Computing</em>, 13(2), 631-644.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -107,6 +151,15 @@ they coincide with those of the full matrix.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># only the probabilities of ever reaching the first state</span></span></span>
 <span class="r-in"><span><span class="fu">hittingProbabilities</span><span class="op">(</span><span class="va">mc</span>, targets <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># on a large sparse chain, the iterative solver avoids the dense products</span></span></span>
+<span class="r-in"><span><span class="fu">hittingProbabilities</span><span class="op">(</span><span class="va">mc</span>, targets <span class="op">=</span> <span class="st">"1"</span>, solver <span class="op">=</span> <span class="st">"bicgstab"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 1.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.8</span>

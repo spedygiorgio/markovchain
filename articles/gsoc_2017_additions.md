@@ -1,20 +1,18 @@
 # Google Summer of Code 2017 Additions
 
-## Expected Hitting Time using CTMC
+## Expected hitting time of a CTMC
 
-The package provides `ExpectedTime` function to calculate average
-hitting time from one state to another. Let the final state be j, then
-for every state $i \in I$, where $I$ is the set of all possible states
-and holding time $q_{i} > 0$ for every $i \neq j$. Assuming the
-conditions to be true, expected hitting time is equal to minimal
-non-negative solution vector $p$ to the system of linear equations
-([Norris 1998](#ref-NorrisBook)): $$\begin{array}{lc}
+The function `ExpectedTime` calculates the expected hitting time from
+one state to another. Let $j$ be the target state and $I$ the set of all
+states, and let the holding rate $q_{k} = -q_{kk}$ be positive for every
+$k \neq j$. Under this condition, the expected hitting times are the
+minimal non-negative solution $p$ of the system of linear equations
+([Norris 1998](#ref-NorrisBook)) $$\begin{array}{lc}
 {p_{k} = 0} & {k = j} \\
-{-\sum\limits_{l \in I}q_{kl}p_{k} = 1} & {k \neq j}
+{-\sum\limits_{l \in I}q_{kl}p_{l} = 1} & {k \neq j.}
 \end{array}$$
 
-For example, consider the continuous time markovchain which is as
-follows:
+For example, consider the following continuous time Markov chain:
 
 ``` r
 states <- c("a","b","c","d")
@@ -33,53 +31,41 @@ The generator matrix of the ctmc is: \[ M = ( $$\begin{matrix}
 
 ) \]
 
-Now if we have to calculate expected hitting time the process will take
-to hit state $d$ if we start from $a$, we apply the `ExpectedTime`
-function. `ExpectedTime` takes four inputs namely a `ctmc` class object,
-initial state $i$, the final state $j$ that we have to calculate
-expected hitting time and a logical parameter whether to use RCpp
-implementation. By default, the function uses RCpp as it is faster and
-takes lesser time.
+To calculate the expected time the process takes to hit state $d$
+starting from $a$, we apply the `ExpectedTime` function. It takes four
+inputs: a `ctmc` object, the initial state $i$, the target state $j$ and
+a logical argument that selects the implementation, used by default
+because it is faster.
 
 ``` r
 ExpectedTime(ctmc,1,4)
 #> [1] 7
 ```
 
-We find that the expected hitting time for process to be hit state $d$
-is 7 units in this case.
+In this case the expected time to hit state $d$ is 7 time units.
 
-## Calculating Probability at time T using ctmc
+## Probability at time t of a CTMC
 
-The package provides a function `probabilityatT` to calculate
-probability of every state according to given `ctmc` object. The
-Kolmogorov’s backward equation gives us a relation between transition
-matrix at any time t with the generator matrix ([Dobrow
+The function `probabilityatT` calculates the probability of every state
+at time $t$ for a `ctmc` object. Kolmogorov’s backward equation relates
+the transition matrix at time $t$ to the generator matrix ([Dobrow
 2016](#ref-dobrow2016introduction)):
 
 $$P^{\prime}(t) = QP(t)$$
 
-Here we use the solution of this differential equation
-$P(t) = P(0)e^{tQ}$ for $t \geq 0$ and $P(0) = I$. In this equation,
-$P(t)$ is the transition function at time t. The value
-$P(t)\lbrack i\rbrack\lbrack j\rbrack$ at time $P(t)$ describes the
-conditional probability of the state at time $t$ to be equal to j if it
-was equal to i at time $t = 0$.
+We use its solution $P(t) = P(0)e^{tQ}$ for $t \geq 0$, with $P(0) = I$.
+Here $P(t)$ is the transition function at time $t$, and its entry
+$P_{ij}(t)$ is the conditional probability that the chain is in state
+$j$ at time $t$ given that it was in state $i$ at time $0$.
 
-It takes care of the case when `ctmc` object has a generator represented
-by columns.
+The function also handles a generator stored by columns. If the initial
+state is not provided, it returns the whole transition matrix $P(t)$. It
+is implemented in too, which is used by default to reduce the
+computation time.
 
-If initial state is not provided, the function returns the whole
-transition matrix $P(t)$.
-
-Also to mention is that the function is also implemented using RCpp and
-can be used to lessen the time of computation. It is used by default.
-
-Next, We consider both examples where initial state is given and case
-where initial state is not given.
-
-In the first case, the function takes two inputs, first of them is an
-object of the S4 class ‘ctmc’ and second is the final time $t$.
+We consider both cases, with and without the initial state. Without it,
+the function takes two inputs: an object of the S4 class `ctmc` and the
+final time $t$.
 
 ``` r
 probabilityatT(ctmc,1)
@@ -90,28 +76,26 @@ probabilityatT(ctmc,1)
 #> d 0.00000000 0.00000000 0.0000000 1.00000000
 ```
 
-Here we get an output in the form of a transition matrix.
+The output is a transition matrix.
 
-If we take the second case i.e. considering some initial input:
+With an initial state, passed as third argument:
 
 ``` r
 probabilityatT(ctmc,1,1)
 #> [1] 0.41546882 0.24714119 0.27036052 0.06702946
 ```
 
-In this case we get the probabilities corresponding to every state. this
-also includes probability that the process hits the same state $a$ after
-time $t = 1$.
+The output is the vector of the probabilities of every state at time
+$t = 1$, including the probability of being in the initial state $a$
+again.
 
-## Plotting generator matrix of continuous-time markovchains
+## Plotting the generator matrix of a CTMC
 
-The package provides a `plot` function for plotting a generator matrix
-$Q$ in the form of a directed graph where every possible state is
-assigned a node. Edges connecting these nodes are weighted. Weight of
-the edge going from a state $i$ to state $j$ is equal to the value
-$Q_{ij}$. This gives a picture of the generator matrix.
+The `plot` method for `ctmc` objects draws the generator matrix $Q$ as a
+directed graph in which every state is a node and the weight of the edge
+from state $i$ to state $j$ is $Q_{ij}$.
 
-For example, we build a ctmc-class object to plot it.
+For example, we build a `ctmc` object and plot it.
 
 ``` r
 energyStates <- c("sigma", "sigma_star")
@@ -124,7 +108,7 @@ molecularCTMC <- new("ctmc", states = energyStates,
                  name = "Molecular Transition Model")
 ```
 
-Now if we plot this function we get the following graph:
+The plot is the following graph:
 
 ``` r
 plot(molecularCTMC)
@@ -134,12 +118,11 @@ plot(molecularCTMC)
 
 ![](gsoc_2017_additions_files/figure-html/unnamed-chunk-6-1.png)
 
-The figure shown is built using the `igraph` package. The package also
-provides options of plotting graph using `diagram` and `DiagrammeR`
-packages. Plot using these packages can be built using these commands:
+The figure is built with the package. The graph can also be drawn with
+the and packages, as follows:
 
 ``` r
-if(requireNamespace(package='ctmcd', quietly = TRUE)) {
+if(requireNamespace(package='diagram', quietly = TRUE)) {
   plot(molecularCTMC,package = "diagram")
 } else {
   print("diagram package unavailable")
@@ -148,18 +131,17 @@ if(requireNamespace(package='ctmcd', quietly = TRUE)) {
 
 ![](gsoc_2017_additions_files/figure-html/unnamed-chunk-7-1.png)
 
-Similarly, one can easily replace `diagram` package with `DiagrammeR`.
+The package can be replaced by in the same way.
 
-## Imprecise Continuous-Time Markov chains
+## Imprecise continuous time Markov chains
 
-Continuous-time Markov chains are mathematical models that are used to
-describe the state-evolution of dynamical systems under stochastic
-uncertainty. However, building models using continuous time markovchains
-take in consideration a number of assumptions which may not be realistic
-for the domain of application; in particular; the ability to provide
-exact numerical parameter assessments, and the applicability of
-time-homogeneity and the eponymous Markov property. Hence we take ICTMC
-into consideration.
+Continuous time Markov chains are mathematical models that describe the
+evolution of dynamical systems under stochastic uncertainty. However,
+they rely on assumptions that may not be realistic in the domain of
+application, in particular the ability to provide exact numerical
+parameter assessments, and the applicability of time-homogeneity and of
+the eponymous Markov property. Imprecise continuous time Markov chains
+(ICTMCs) relax these assumptions.
 
 More technically, an ICTMC is a set of “precise” continuous-time
 finite-state stochastic processes, and rather than computing expected
@@ -191,36 +173,34 @@ probabilities that correspond to the ICTMCs.
 
 A map $Q_{l}$ from $L(X)$ to $L(X)$ is called a lower transition rate
 operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all
-$\mu \in L(X)$, and all $x \in X$([Thomas Krak 2017](#ref-ictmcpaper)):
+constant $\mu \in \mathbb{R}$, and all $x \in X$([Thomas Krak
+2017](#ref-ictmcpaper)):
 
-1.  $\lbrack Q_{l}m\rbrack(x) = 0$
-2.  $\lbrack Q_{l}I\rbrack(x) \geq 0\forall y \in X$ such that
-    $x \neq y$
-3.  $\lbrack Q_{l}(f + g)\rbrack(x) \geq \lbrack Q_{l}f\rbrack(x) + \lbrack Q_{l}g\rbrack(x)$
-4.  $\lbrack Q_{l}(lf)\rbrack(x) = \lambda Q_{l}f\lbrack(x)\rbrack$
+1.  $\lbrack Q_{l}\mu\rbrack(x) = 0$;
+2.  $\lbrack Q_{l}I_{y}\rbrack(x) \geq 0$ for all $y \in X$ such that
+    $x \neq y$, where $I_{y}$ is the indicator of $y$;
+3.  $\lbrack Q_{l}(f + g)\rbrack(x) \geq \lbrack Q_{l}f\rbrack(x) + \lbrack Q_{l}g\rbrack(x)$;
+4.  $\lbrack Q_{l}(\lambda f)\rbrack(x) = \lambda\lbrack Q_{l}f\rbrack(x)$.
 
 ### Lower Transition Operators
 
 A map $T_{l}$ from $L(X)$ to $L(X)$ is called a lower transition
-operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, all
-$\mu \in L(X)$, and all $x \in X$([Thomas Krak 2017](#ref-ictmcpaper)):
+operator if, for all $f,g \in L(X)$, all $\lambda \in R_{\geq 0}$, and
+all $x \in X$([Thomas Krak 2017](#ref-ictmcpaper)):
 
-1.  $\lbrack T_{l}f\rbrack(x) \geq min(f(y):y \in L)$
-2.  $\lbrack T_{l}(f + g)\rbrack(x) \geq \lbrack T_{l}f\rbrack(x) + \lbrack T_{l}g\rbrack(x)$
-3.  $\lbrack T_{l}(\lambda f)\rbrack(x) = l\lbrack T_{l}f\rbrack(x)$
+1.  $\lbrack T_{l}f\rbrack(x) \geq {\min}\{ f(y):y \in X\}$;
+2.  $\lbrack T_{l}(f + g)\rbrack(x) \geq \lbrack T_{l}f\rbrack(x) + \lbrack T_{l}g\rbrack(x)$;
+3.  $\lbrack T_{l}(\lambda f)\rbrack(x) = \lambda\lbrack T_{l}f\rbrack(x)$.
 
-### ImpreciseProbabilityatT function
+### The impreciseProbabilityatT function
 
-Now I would like to come onto the practical purpose of using ICTMC
-classes. ICTMC classes in these package are defined to represent a
-generator that is defined in such a way that every row of the generator
-corresponding to every state in the process is governed by a separate
-variable. As defined earlier, an imprecise continuous time markovchain
-is a set of many precise CTMCs. Hence this representation of set of
-precise CTMCs can be used to calulate transition probability at some
-time in future. This can be seen as an analogy with `probabilityatT`
-function. It is used to calculate the transition function at some later
-time t using generatoe matrix.
+The `ictmc` class of the package represents a generator in which the row
+of every state is governed by a separate parameter. As defined above, an
+imprecise continuous time Markov chain is a set of precise CTMCs, so
+this representation can be used to calculate transition probabilities at
+some time in the future, in analogy with the `probabilityatT` function,
+which calculates the transition function at a later time $t$ from the
+generator matrix.
 
 For every generator matrix, we have a corresponding transition function.
 Similarly, for every Lower Transition rate operator of an ICTMC, there
@@ -245,13 +225,13 @@ Krak 2017](#ref-ictmcpaper))
 
 with $\Delta:=\frac{s - t}{n}$
 
-Simple put this equation tells us that, using $Q_{l}g$ for all
+Put simply, this inequality tells us that, using $Q_{l}g$ for all
 $g \in L(X)$ then we can also approximate the quantity $L_{t}^{s}$ to
 arbitrary precision, for any given $f \in L(X)$.
 
-To explain this approximate calculation, I would take a detailed example
-of a process containing two states healthy and sick, hence
-$X = (healthy,sick)$. If we represent in form of an ICTMC, we get:
+To explain this approximate calculation, we take a detailed example of a
+process with two states, healthy and sick, hence
+$X = \{{healthy},{sick}\}$. If we represent in form of an ICTMC, we get:
 
 \[ Q = ( $$\begin{matrix}
 {-a} & a \\
@@ -293,10 +273,9 @@ this is represented in the form of a function by:
 
 We observe that the $||I_{s}|| = 1$.
 
-Now to use the proposition mentioned above, we use the definition to
-calculate the lower transition operator $Q_{l}$ Next we calculate the
-norm of the lower transition rate operator and use it in the
-proposition. Also we take value of $\epsilon$ to be 0.001.
+To use the proposition, we use the definition to calculate the lower
+transition rate operator $Q_{l}$, then its norm, and use it in the
+proposition. We also take $\epsilon = 0.001$.
 
 Using the proposition we can come up to an algorithm for calculating the
 probability at any time $s$ given state at initial time $t$ and a ICTMC
@@ -342,27 +321,25 @@ impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 
 The probabilities we get are with an error of $10^{-3}$
 
-## Continuous time markovchain generator using frequency Matrix
+## Generator of a CTMC from a frequency matrix
 
-The package provides `freq2Generator` function. It takes in a matrix
-representing relative frequency values along with time taken to provide
-a continuous time markovchain generator matrix. Here, frequency matrix
-is a 2-D matrix of dimensions equal to relative number of possible
-states describing the number of transitions from a state $i$ to state
-$j$ in time $t$, which is another parameter to be provided to the
-function. The function also allows to chose among three methods for
-calculation of the generator matrix ([Alexander Kreinin
-2001](#ref-freqArticle)). It requires the `ctmcd` package.
+The function `freq2Generator` estimates the generator matrix of a CTMC
+from a matrix of relative frequencies and the time $t$ over which they
+were observed. The frequency matrix is a square matrix, with one row and
+one column for each state, describing the transitions from a state $i$
+to a state $j$ in time $t$. The function offers three methods to
+calculate the generator matrix ([Alexander Kreinin
+2001](#ref-freqArticle)) and requires the package.
 
-Three methods are as follows:
+The methods are:
 
-1.  Quasi Optimization - “QO”
-2.  Diagonal Adjustment - “DA”
-3.  Weighted Adjustment - “WA”
+1.  quasi-optimization, `"QO"`;
+2.  diagonal adjustment, `"DA"`;
+3.  weighted adjustment, `"WA"`.
 
-See reference for details about the methods.
+See the reference for details about the methods.
 
-Here is an example matrix on which `freq2Generator` function is run:
+The following code applies `freq2Generator` to an example matrix:
 
 ``` r
 if(requireNamespace(package='ctmcd', quietly = TRUE)) {
@@ -381,15 +358,15 @@ if(requireNamespace(package='ctmcd', quietly = TRUE)) {
 #> [4,]  0.000000000  0.00000000  0.000000000    0
 ```
 
-## Committor of a markovchain
+## Committor of a Markov chain
 
-Consider set of states A,B comprising of states from a markovchain with
-transition matrix P. The committor vector of a markovchain with respect
-to sets A and B gives the probability that the process will hit a state
-from set A before any state from set B.
+Consider two disjoint sets of states $A$ and $B$ of a Markov chain with
+transition matrix $P$. The committor vector of the chain with respect to
+$A$ and $B$ gives the probability that the process hits a state of $A$
+before any state of $B$.
 
-Committor vector u can be calculated by solving the following system of
-linear equations ([Mathematics Stack Exchange
+The committor vector $u$ is the solution of the following system of
+linear equations, where $L = P - I$([Mathematics Stack Exchange
 2015](#ref-committorlink)):
 
 $$\begin{array}{l}
@@ -398,7 +375,7 @@ $$\begin{array}{l}
 {u(x) = 0,x \in B}
 \end{array}$$
 
-Now we apply the method to an example:
+We apply the function to an example:
 
 ``` r
 transMatr <- matrix(c(0,0,0,1,0.5,0.5,0,0,0,0,0.5,0,0,0,0,0,0.2,0.4,0,0,0,0.8,0.6,0,0.5),nrow = 5)
@@ -406,17 +383,16 @@ object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=tran
 committorAB(object,c(5),c(3))
 ```
 
-Here we get probability that the process will hit state “e” before state
-“c” given different initial states.
+The output is the probability that the process hits state “e” before
+state “c”, for each initial state.
 
-## First Passage probability for set of states
+## First passage probability for a set of states
 
-Currently computation of the first passage time for individual states
-has been implemented in the package. `firstPassageMultiple` function
-provides a method to get first passage probability for given provided
-set of states.
+The function `firstPassage` computes the first passage probabilities to
+an individual state; `firstPassageMultiple` computes them for a set of
+states.
 
-Consider this example markovchain object:
+Consider this example `markovchain` object:
 
 ``` r
 statesNames <- c("a", "b", "c")
@@ -428,9 +404,9 @@ dimnames = list(statesNames, statesNames)
 ))
 ```
 
-Now we apply `firstPassageMultiple` function to calculate first passage
-probabilities for set of states \$"b", "c"\$ when initial state is
-\$"a"\$.
+We apply `firstPassageMultiple` to calculate the first passage
+probabilities to the set of states \$\\"b", "c"\\\$ when the initial
+state is \$"a"\$.
 
 ``` r
 firstPassageMultiple(testmarkov,"a",c("b","c"),4)
@@ -441,20 +417,23 @@ firstPassageMultiple(testmarkov,"a",c("b","c"),4)
 #> 4 0.1394
 ```
 
-This shows us the probability that the process will hit any of the state
-from the set after n number of steps for instance, as shown, the
-probability of the process to hit any of the states among \$"b", "c"\$
-after $2$ steps is $0.6000$.
+The output shows the probability that the process hits any state of the
+set for the first time at step $n$. For instance, the probability of
+hitting \$"b"\$ or \$"c"\$ for the first time at step $2$ is $0.6000$.
 
-## Joint PDF of number of visits to the various states of a markovchain
+## Mean occupation of the states during the first N steps
 
-The package provides a function `noofVisitsDist` that returns the PDF of
-the number of visits to the various states of the discrete time
-markovchain during the first N steps, given initial state of the
-process.
+The function `noofVisitsDist`, given the initial state $i$ of the
+process, returns, for every state $j$, the expected fraction of the
+first $N$ steps spent in $j$:
+$$\frac{1}{N}\sum\limits_{k = 1}^{N}\left( P^{k} \right)_{ij} = \frac{\mathbb{E}\left\lbrack V_{j}(N) \right\rbrack}{N},$$
+where $V_{j}(N)$ is the number of visits to $j$ at times $1,\ldots,N$.
+The values sum to one; multiplied by $N$ they give the expected number
+of visits. Despite the name of the function, this is not the joint
+distribution of the numbers of visits, which the package does not
+compute.
 
-We will take an example to see how to use the function on a
-`markovchain-class` object:
+We use the function on a `markovchain` object:
 
 ``` r
 transMatr<-matrix(c(0.4,0.6,.3,.7),nrow=2,byrow=TRUE)
@@ -466,22 +445,27 @@ noofVisitsDist(simpleMc,5,"a")
 #> 0.348148 0.651852
 ```
 
-The output clearly shows the probabilities related to various states of
-the process.
+For example, starting from `a`, the process is expected to spend about
+35% of the first five steps in `a`. Multiplying by $N$ gives the
+expected number of visits:
 
-## Expected Rewards for a markovchain
+``` r
+5 * noofVisitsDist(simpleMc, 5, "a")
+#>       a       b 
+#> 1.74074 3.25926
+```
 
-The package provides a function `expectedRewards` that returns a vector
-of expected rewards for different initial states. The user provides
-reward values, a vector $r$ of size equal to number of states having a
-value corresponding to every state. Given a transition matrix
-$\lbrack P\rbrack$, we get the vector of expected rewards $v$ after $n$
-transitions according to the equation as follows ([Gallager
-2013](#ref-GallagerBook)):
+## Expected rewards of a Markov chain
+
+The function `expectedRewards` returns the vector of the expected
+rewards for the different initial states. The user provides a reward
+vector $r$ with one value for every state. Given a transition matrix
+$\lbrack P\rbrack$, the vector $v$ of the expected rewards after $n$
+transitions is ([Gallager 2013](#ref-GallagerBook)):
 
 $$v\lbrack n\rbrack = r + \lbrack P\rbrack*v\lbrack n - 1\rbrack$$
 
-Applying this equation on a markovchain-class object
+The following code applies this equation to a `markovchain` object:
 
 ``` r
 transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)
@@ -491,33 +475,30 @@ expectedRewards(simpleMc,1,c(0,1))
 #> [1] 0.01 1.99
 ```
 
-### Expected Rewards for a set of states in a markovchain process
+### Expected rewards before hitting a set of states
 
-The package provides a function `expectedRewardsBeforeHittingA` that
-returns the value of expected first passage rewards $E$ given rewards
-corresponding to every state, an initial state. This means the function
-returns expected reward for given initial state $s_{0}$, number of
-transitions $n$ and for a set of states $A$ with a constraint such that
-the process does not hit any of the states that belong to state $A$. $S$
-is the set of all possible states.
+The function `expectedRewardsBeforeHittingA` returns the expected first
+passage rewards $E$, given the rewards of every state and an initial
+state $s_{0}$: the expected reward accumulated over $n$ transitions,
+subject to the constraint that the process does not hit any state of the
+set $A$. $S$ is the set of all states.
 
-The function uses an equation which is as follows:
+The function uses the equation
 
 $$E = \sum\limits_{i = 1}^{n}{1_{s_{0}}P_{S - A}^{i}R_{S - A}}$$
 
-here $1_{s_{0}} = \lbrack 0,0,...0,1,0,...,0,0,0\rbrack$, 1 being on
-$s_{0}$ position and $R_{S - A}$ being the rewards vector for $S - A$
-state.
+where $1_{s_{0}} = \lbrack 0,0,\ldots,0,1,0,\ldots,0,0,0\rbrack$ has a 1
+in the position of $s_{0}$, and $R_{S - A}$ is the vector of the rewards
+of the states in $S - A$.
 
-## Checking Irreducibly of a CTMC
+## Irreducibility of a CTMC
 
-The package provides `is.CTMCirreducible` that returns a Boolean value
-stating whether the ctmc object is irreducible.
+The function `is.CTMCirreducible` returns a Boolean value stating
+whether a `ctmc` object is irreducible. A continuous time Markov chain
+is irreducible if and only if its embedded chain is irreducible ([Sigman
+2009](#ref-Sigman)).
 
-We know that a continuous time markovchain is irreducible if and only if
-its embedded chain is irreducible ([Sigman 2009](#ref-Sigman)).
-
-We demonstrate an example running the function:
+The following code runs the function on an example:
 
 ``` r
 energyStates <- c("sigma", "sigma_star")
@@ -532,28 +513,26 @@ is.CTMCirreducible(molecularCTMC)
 #> [1] TRUE
 ```
 
-## Simulation of Higher Order Multivariate Markovchains
+## Simulation of higher order multivariate Markov chains
 
-The package provides `predictHommc` function. This function provides a
-simulation system for higher order multivariate markovchains. The
-function assumes that the state probability distribution of the jth
-sequence at time r+1 depends on the state probability distribution of
-all the sequences at n previous moments of time i.e. $t = r$ to
-$t = r - n + 1$. Hence the proposed model takes the form mathematically
-as ([Ching et al. 2008](#ref-ching2008higher)):
+The function `predictHommc` simulates higher order multivariate Markov
+chains. It assumes that the state probability distribution of the $j$-th
+sequence at time $r + 1$ depends on the state probability distributions
+of all the sequences at the $n$ previous times, from $t = r$ to
+$t = r - n + 1$. The model is ([Ching et al.
+2008](#ref-ching2008higher)):
 
 $$X_{r + 1}^{j} = \sum\limits_{k = 1}^{s}\sum\limits_{h = 1}^{n}{\lambda_{jk}^{(h)}P_{h}^{(jk)}X_{r - h + 1}^{(k)}},\ \ j = 1,2,....s,\ r = n - 1,n,...$$
 
 with initials
 $X_{0}^{(k)},X_{1}^{(k)},......,X_{n - 1}^{(k)}\ (k = 1,2,...s)$. Here,
 
-$$\lambda_{jk}^{(k)},\ 1 \leq j,k \leq s,\ 1 \leq h \leq n\ \text{and}\ \sum\limits_{k = 1}^{s}\sum\limits_{h = 1}^{n}{\lambda_{jk}^{(h)} = 1},\ j = 1,2,....s.$$
+$$\lambda_{jk}^{(h)} \geq 0,\ 1 \leq j,k \leq s,\ 1 \leq h \leq n\ \text{and}\ \sum\limits_{k = 1}^{s}\sum\limits_{h = 1}^{n}{\lambda_{jk}^{(h)} = 1},\ j = 1,2,....s.$$
 
-Now we run an example on sample hommc object for simulating next 3 steps
-using `predictHommc` function. The function provides a choice of
-entering initial states according to the hommc object. In case the user
-does not enter initial states, the function takes all initial states to
-be the first state from the set of states.
+The following example simulates the next 3 steps of a sample `hommc`
+object. The initial states can be passed to the function; if they are
+not, all the initial states are taken to be the first state of the
+object.
 
 ``` r
 if (requireNamespace("Rsolnp", quietly = TRUE)) {
@@ -572,24 +551,22 @@ predictHommc(ob,3)
 }
 ```
 
-## Check Time Reversibility of Continuous-time markovchains
+## Time reversibility of a CTMC
 
-A Continuous-time markovchain with generator $Q$ and stationary
-distribution $\pi$ is said to be time reversible if ([Dobrow
-2016](#ref-dobrow2016introduction)):
+A continuous time Markov chain with generator $Q$ and stationary
+distribution $\pi$ is time reversible if ([Dobrow
+2016](#ref-dobrow2016introduction))
 
 $$\pi_{i}q_{ij} = \pi_{j}q_{ji}$$
 
-Intuitively, a continuous-time Markov chain is time reversible if the
+Intuitively, a continuous time Markov chain is time reversible if the
 process in forward time is indistinguishable from the process in
-reversed time. A consequence is that for all states i and j, the
-long-term forward transition rate from i to j is equal to the long-term
-backward rate from j to i.
+reversed time. A consequence is that, for all states $i$ and $j$, the
+long-term forward transition rate from $i$ to $j$ equals the long-term
+backward rate from $j$ to $i$.
 
-The package provides `is.TimeReversible` function to check if a `ctmc`
-object is time-reversible.
-
-We follow with an example run on a `ctmc` object.
+The function `is.TimeReversible` checks whether a `ctmc` object is time
+reversible, as in the following example.
 
 ``` r
 energyStates <- c("sigma", "sigma_star")
@@ -604,7 +581,7 @@ is.TimeReversible(molecularCTMC)
 #> [1] TRUE
 ```
 
-### References
+## References
 
 Alexander Kreinin, Marina Sidelnikova. 2001. “Regularization Algorithms
 for Transition Matrices.” *Algo Research Quarterly* 4 (1/2): 23–40.

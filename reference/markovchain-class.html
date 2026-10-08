@@ -173,7 +173,7 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 <dd><p><code>signature(x = "markovchain", y = "missing")</code>: plot method for <code>markovchain</code> objects</p></dd>
 
    <dt>predict</dt>
-<dd><p><code>signature(object = "markovchain")</code>: predict method</p></dd>
+<dd><p><code>signature(object = "markovchain")</code>: predict method. Starting from the last element of <code>newdata</code>, which must be a state of the chain, it returns the <code>n.ahead</code> following states, each being the most probable transition from the previous one; ties are broken at random.</p></dd>
 
    <dt>print</dt>
 <dd><p><code>signature(x = "markovchain")</code>: print method.</p></dd>
@@ -191,7 +191,12 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 <dd><p><code>signature(object = "markovchain")</code>: method to get the steady vector.</p></dd>
 
    <dt>summary</dt>
-<dd><p><code>signature(object = "markovchain")</code>: method to summarize structure of the markov chain</p></dd>
+<dd><p><code>signature(object = "markovchain")</code>: method to summarize structure of the markov chain.
+   <code>summary(object, details = TRUE)</code> also prints, after the usual output, the size and rank of
+   the transition matrix, the number of communicating classes, irreducibility, period, regularity,
+   whether the chain is absorbing, reversible, stochastically monotone and symmetric, and, when they
+   are defined, the entropy rate, the SLEM, the spectral gap and Kemeny's constant; these values are
+   also returned, invisibly, in the <code>details</code> element of the result.</p></dd>
 
    <dt>transientStates</dt>
 <dd><p><code>signature(object = "markovchain")</code>: method to get the transient states.</p></dd>
@@ -284,6 +289,31 @@ overloading has been applied for \(+,*,^,==,!=\) operators.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NONE </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> The Markov chain is irreducible </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> The absorbing states are: NONE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">simpleMc</span>, details <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> simpleMc  Markov chain that is composed by: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Closed classes: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> a b </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Recurrent classes: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> {a,b}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Transient classes: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NONE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The Markov chain is irreducible </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The absorbing states are: NONE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Further properties: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Size                    : 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Rank                    : 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Communicating classes   : 1 (1 recurrent, 0 transient) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Irreducible             : yes </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Period                  : 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Regular (ergodic)       : yes </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Absorbing chain         : no </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Reversible              : yes </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stochastically monotone : yes </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Symmetric               : no </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Entropy rate (bits)     : 0.911177 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SLEM                    : 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Spectral gap            : 0.9 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Kemeny constant         : 1.11111 </span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">simpleMc</span><span class="op">)</span> <span class="co"># \dontrun{}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

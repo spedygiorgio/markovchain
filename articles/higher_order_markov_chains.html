@@ -70,19 +70,19 @@
 
 
 
-    <section class="section level2"><h2 id="higher-order-markov-chains">Higher Order Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-markov-chains"></a>
+    <section class="section level2"><h2 id="higher-order-markov-chains-as-mixtures-of-lags">Higher order Markov chains as mixtures of lags<a class="anchor" aria-label="anchor" href="#higher-order-markov-chains-as-mixtures-of-lags"></a>
 </h2>
-<p>Continuous time Markov chains are discussed in the CTMC vignette which is a part of the package.</p>
-<p>An experimental <code>fitHigherOrder</code> function has been written in order to fit a higher order Markov chain (<span class="citation" data-cites="ching2013higher">Ching et al. (<a href="#ref-ching2008higher" role="doc-biblioref">2008</a>)</span>). <code>fitHigherOrder</code> takes three inputs</p>
+<p>Discrete time Markov chains of order one and continuous time Markov chains are described in the main vignette of the package, “An introduction to markovchain package”.</p>
+<p>The function <code>fitHigherOrder</code> fits a higher order Markov chain, written as a mixture of transition matrices of different lags <span class="citation" data-cites="ching2013higher ching2008higher">(<a href="#ref-ching2013higher" role="doc-biblioref">Ching et al. 2013</a>, <a href="#ref-ching2008higher" role="doc-biblioref">2008</a>)</span>. It takes three inputs:</p>
 <ol type="1">
 <li>sequence: a categorical data sequence.</li>
 <li>order: order of Markov chain to fit with default value 2.</li>
 <li>method: how the weights are estimated, <code>"lsq"</code> (default) or <code>"mle"</code>, see below.</li>
 </ol>
-<p>The output will be a <code>list</code> which consists of</p>
+<p>The output is a <code>list</code> with the following elements:</p>
 <ol type="1">
 <li>lambda: model parameter(s).</li>
-<li>Q: a list of transition matrices. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> is the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mi>t</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">ith</annotation></semantics></math> step transition matrix stored column-wise.</li>
+<li>Q: a list of transition matrices. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> is the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th step transition matrix, stored column-wise.</li>
 <li>X: frequency probability vector of the given sequence.</li>
 </ol>
 <p>The model is a mixture of the empirical lag-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> transition matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> with weights <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mi>i</mi></msub><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda_i\ge0</annotation></semantics></math> summing to one, and the matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> are the same for both methods. With the default <code>method = "lsq"</code> the weights solve a quadratic programming problem, the minimization of the squared distance between the stationary distribution and its image under the mixture, which is solved using <code>solnp</code> function of the Rsolnp package <span class="citation" data-cites="pkg:Rsolnp">(<a href="#ref-pkg:Rsolnp" role="doc-biblioref">Ghalanos and Theussl 2014</a>)</span>. With <code>method = "mle"</code> the weights maximize the log-likelihood of the observations; for fixed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Q</mi><mi>i</mi></msub><annotation encoding="application/x-tex">Q_i</annotation></semantics></math> this is a concave problem, so its maximum is global, and it is solved by the EM algorithm for mixture weights, without the Rsolnp package.</p>
@@ -280,7 +280,7 @@ P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\,
 <span><span class="co">#&gt;  [1] "2" "2" "2" "2" "3" "3" "3" "2" "2" "2" "3" "3" "3" "3" "3" "2" "2" "2" "2"</span></span>
 <span><span class="co">#&gt; [20] "3" "2" "2" "2" "1"</span></span></code></pre></div>
 </div>
-</section></section><section class="section level2"><h2 id="higher-order-multivariate-markov-chains">Higher Order Multivariate Markov Chains<a class="anchor" aria-label="anchor" href="#higher-order-multivariate-markov-chains"></a>
+</section></section><section class="section level2"><h2 id="higher-order-multivariate-markov-chains">Higher order multivariate Markov chains<a class="anchor" aria-label="anchor" href="#higher-order-multivariate-markov-chains"></a>
 </h2>
 <section class="level2"><h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h3>
@@ -348,14 +348,14 @@ X_{r}^{(s)}
 <span><span class="co">#&gt; Name:      order    states         P    Lambda     byrow      name</span></span>
 <span><span class="co">#&gt; Class:   numeric character     array   numeric   logical character</span></span></code></pre></div>
 </div>
-<p>Any element of <code>hommc</code> class is comprised by following slots:</p>
+<p>Every <code>hommc</code> object has the following slots:</p>
 <ol type="1">
 <li>states: a character vector, listing the states for which transition probabilities are defined.</li>
 <li>byrow: a logical element, indicating whether transition probabilities are shown by row or by column.</li>
 <li>order: order of Multivariate Markov chain.</li>
 <li>P: an array of all transition matrices.</li>
-<li>Lambda: a vector to store the weightage of each transition matrix.</li>
-<li>name: optional character element to name the HOMMC</li>
+<li>Lambda: a vector storing the weight of each transition matrix.</li>
+<li>name: optional character element to name the HOMMC.</li>
 </ol></section><section class="level2"><h3 id="how-to-create-an-object-of-class-hommc">How to create an object of class HOMMC<a class="anchor" aria-label="anchor" href="#how-to-create-an-object-of-class-hommc"></a>
 </h3>
 <div class="cell">
@@ -405,14 +405,14 @@ X_{r}^{(s)}
 </div>
 </section><section class="level2"><h3 id="fit-hommc">Fit HOMMC<a class="anchor" aria-label="anchor" href="#fit-hommc"></a>
 </h3>
-<p><code>fitHighOrderMultivarMC</code> method is available to fit HOMMC. Below are the 3 parameters of this method.</p>
+<p>The <code>fitHighOrderMultivarMC</code> function fits a HOMMC. It takes three arguments:</p>
 <ol type="1">
 <li>seqMat: a character matrix or a data frame, each column represents a categorical sequence.</li>
 <li>order: order of Multivariate Markov chain. Default is 2.</li>
 <li>Norm: Norm to be used. Default is 2.</li>
-</ol></section></section><section class="section level2"><h2 id="a-marketing-example">A Marketing Example<a class="anchor" aria-label="anchor" href="#a-marketing-example"></a>
-</h2>
-<p>We tried to replicate the example found in <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> for an application of HOMMC. A soft-drink company in Hong Kong is facing an in-house problem of production planning and inventory control. A pressing issue is the storage space of its central warehouse, which often finds itself in the state of overflow or near capacity. The company is thus in urgent needs to study the interplay between the storage space requirement and the overall growing sales demand. The product can be classified into six possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All products are labeled as 1 = no sales volume, 2 = very slow-moving (very low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 = very fast-moving (very high sales volume). Such labels are useful from both marketing and production planning points of view. The data is cointaind in <code>sales</code> object.</p>
+</ol></section><section class="level2"><h3 id="a-marketing-example">A marketing example<a class="anchor" aria-label="anchor" href="#a-marketing-example"></a>
+</h3>
+<p>We replicate the example found in <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> for an application of HOMMC. A soft-drink company in Hong Kong is facing an in-house problem of production planning and inventory control. A pressing issue is the storage space of its central warehouse, which often finds itself in the state of overflow or near capacity. The company is thus in urgent needs to study the interplay between the storage space requirement and the overall growing sales demand. The product can be classified into six possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All products are labeled as 1 = no sales volume, 2 = very slow-moving (very low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 = very fast-moving (very high sales volume). Such labels are useful from both marketing and production planning points of view. The data are contained in the <code>sales</code> object.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sales</span><span class="op">)</span></span>
@@ -425,8 +425,8 @@ X_{r}^{(s)}
 <span><span class="co">#&gt; [5,] "2" "6" "6" "2" "2"</span></span>
 <span><span class="co">#&gt; [6,] "6" "1" "6" "3" "3"</span></span></code></pre></div>
 </div>
-<p>The company would also like to predict sales demand for an important customer in order to minimize its inventory build-up. More importantly, the company can understand the sales pattern of this customer and then develop a marketing strategy to deal with this customer. Customer’s sales demand sequences of five important products of the company for a year. We expect sales demand sequences generated by the same customer to be correlated to each other. Therefore by exploring these relationships, one can obtain a better higher-order multivariate Markov model for such demand sequences, hence obtain better prediction rules.</p>
-<p>In <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> application, they choose the order arbitrarily to be eight, i.e., n = 8. We first estimate all the transition probability matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mi>i</mi><mi>j</mi></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{ij}</annotation></semantics></math> and we also have the estimates of the stationary probability distributions of the five products:.</p>
+<p>The company would also like to predict sales demand for an important customer in order to minimize its inventory build-up. More importantly, the company can understand the sales pattern of this customer and then develop a marketing strategy to deal with this customer. The data are the sales demand sequences, for a year, of five important products of the company for this customer. We expect the sales demand sequences generated by the same customer to be correlated with each other. By exploring these relationships, one can obtain a better higher-order multivariate Markov model for such demand sequences, and hence better prediction rules.</p>
+<p>In the application of <span class="citation" data-cites="ching2008higher">(<a href="#ref-ching2008higher" role="doc-biblioref">Ching et al. 2008</a>)</span> the order is arbitrarily set to eight, i.e., <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">n = 8</annotation></semantics></math>. We first estimate all the transition probability matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>P</mi><mi>h</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">P_{h}^{(ij)}</annotation></semantics></math>; the estimates of the stationary probability distributions of the five products are:</p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.0818</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4052</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0483</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0335</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.0037</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.4275</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝑻</mi></msup></mrow><annotation encoding="application/x-tex">\widehat{\boldsymbol{x}}^{(1)} = \begin{pmatrix}
 0.0818&amp;  0.4052&amp;  0.0483&amp;  0.0335&amp; 0.0037&amp; 0.4275
 \end{pmatrix}^{\boldsymbol{T}}</annotation></semantics></math></p>
@@ -451,7 +451,7 @@ X_{r}^{(s)}
 0.4324\boldsymbol{P}_{1}^{(45)}\boldsymbol{x}_{r}^{(5)} + 0.2681\boldsymbol{P}_{2}^{(45)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold-italic">𝒙</mi><mrow><mi>r</mi><mo>+</mo><mn>1</mn></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mn>0.2718</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>8</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>52</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.6738</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>1</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>54</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>+</mo><mn>0.0544</mn><msubsup><mi mathvariant="bold-italic">𝑷</mi><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mn>55</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><msubsup><mi mathvariant="bold-italic">𝒙</mi><mi>r</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\boldsymbol{x}_{r+1}^{(5)} = 0.2718\boldsymbol{P}_{8}^{(52)}\boldsymbol{x}_{r}^{(2)} +
 0.6738\boldsymbol{P}_{1}^{(54)}\boldsymbol{x}_{r}^{(4)} + 0.0544\boldsymbol{P}_{2}^{(55)}\boldsymbol{x}_{r}^{(5)}</annotation></semantics></math></p>
-<p>According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship is hardly to be obtained in conventional Markov model owing to huge amount of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.</p>
+<p>According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship can hardly be obtained with a conventional Markov model, owing to the huge number of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -461,11 +461,11 @@ X_{r}^{(s)}
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>We choose to show only results shown in the paper. We see that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> values are quite close, but not equal, to those shown in the original paper.</p>
-<section class="level2"><h3 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
-</h3>
+</section></section><section class="section level2"><h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
+</h2>
 <p>We are grateful to Professors Adrian E. Raftery and André Berchtold for kindly sharing the Koeberg wind-direction and epileptic-seizure series of <span class="citation" data-cites="berchtold2002mixture">(<a href="#ref-berchtold2002mixture" role="doc-biblioref">Berchtold and Raftery 2002</a>)</span>, which made it possible to check <code>higherOrderLogLik</code> and <code>fitMTD</code> against the published results.</p>
-</section><section class="level2"><h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h3>
+</section><section class="section level2"><h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-anderson1957statistical" class="csl-entry" role="listitem">
 Anderson, Theodore W, and Leo A Goodman. 1957. <span>“Statistical Inference about Markov Chains.”</span> <em>The Annals of Mathematical Statistics</em>, 89–110.
@@ -507,7 +507,7 @@ Raftery, Adrian E. 1985. <span>“A Model for High-Order <span>M</span>arkov Cha
 Tong, Howell. 1975. <span>“Determination of the Order of a <span>M</span>arkov Chain by <span>A</span>kaike’s Information Criterion.”</span> <em>Journal of Applied Probability</em> 12 (3): 488–97.
 </div>
 </div>
-</section></section><script id="quarto-html-after-body" type="application/javascript">
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

@@ -49,6 +49,9 @@
 
 - [`ctmcFit()`](ctmcFit.md) : Function to fit a CTMC
 
+- [`dirichletChain()`](dirichletChain.md) : Markov chain from a
+  Dirichlet process
+
 - [`entropyRate()`](entropyRate.md) : Entropy rate of a Markov chain
 
 - [`expectedRewards()`](expectedRewards.md) : Expected Rewards for a
@@ -107,6 +110,8 @@
 
 - [`ictmc-class`](ictmc-class.md) [`ictmc`](ictmc-class.md) : An S4
   class for representing Imprecise Continuous Time Markovchains
+
+- [`identityChain()`](identityChain.md) : Identity Markov chain
 
 - [`impliedTimescales()`](impliedTimescales.md) : Implied timescales of
   a Markov chain
@@ -210,8 +215,8 @@
   [`markovchain-package`](markovchain-package.md) : Easy Handling
   Discrete Time Markov Chains
 
-- [`createSequenceMatrix()`](markovchainFit.md)
-  [`.markovchainFitRcpp()`](markovchainFit.md)
+- [`.markovchainFitRcpp()`](markovchainFit.md)
+  [`createSequenceMatrix()`](markovchainFit.md)
   [`markovchainFit()`](markovchainFit.md) : Function to fit a discrete
   Markov chain
 
@@ -249,8 +254,8 @@
 - [`names(`*`<markovchain>`*`)`](names.md) : Returns the states for a
   Markov chain object
 
-- [`noofVisitsDist()`](noofVisitsDist.md) : return a joint pdf of the
-  number of visits to the various states of the DTMC
+- [`noofVisitsDist()`](noofVisitsDist.md) : Expected fraction of the
+  first N steps spent in each state
 
 - [`normalizedEntropyRate()`](normalizedEntropyRate.md) : Normalized
   entropy rate of a Markov chain
@@ -275,6 +280,8 @@
   a ctmc object
 
 - [`rain`](rain.md) : Alofi island daily rainfall
+
+- [`randomMarkovChain()`](randomMarkovChain.md) : Random Markov chain
 
 - [`rctmc()`](rctmc.md) : rctmc
 
@@ -335,6 +342,10 @@
 - [`tauchen()`](tauchen.md) : Discretize an AR(1) process into a Markov
   chain (Tauchen's method)
 
+- [`timeCorrelations()`](timeCorrelations.md)
+  [`timeRelaxations()`](timeCorrelations.md) : Time correlations and
+  time relaxations of observed sequences
+
 - [`tm_abs`](tm_abs.md) : Single Year Corporate Credit Rating
   Transititions
 
@@ -344,6 +355,9 @@
 - [`toDictionary()`](toDictionary.md)
   [`fromDictionary()`](toDictionary.md) : Represent a Markov chain as a
   plain R list
+
+- [`toDot()`](toDot.md) [`toMermaid()`](toDot.md) : Export the
+  transition graph as Graphviz DOT or Mermaid text
 
 - [`toFile()`](toFile.md) [`fromFile()`](toFile.md) : Write or read a
   Markov chain to or from a file

@@ -7,13 +7,6 @@ Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 ## Usage
 
 ``` r
-createSequenceMatrix(
-  stringchar,
-  toRowProbs = FALSE,
-  sanitize = FALSE,
-  possibleStates = character()
-)
-
 .markovchainFitRcpp(
   data,
   method = "mle",
@@ -30,30 +23,21 @@ createSequenceMatrix(
   progress = FALSE
 )
 
+createSequenceMatrix(
+  stringchar,
+  toRowProbs = FALSE,
+  sanitize = FALSE,
+  possibleStates = character()
+)
+
 markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   laplacian = 0, name = "", parallel = FALSE, confidencelevel = 0.95,
   confint = TRUE, hyperparam = matrix(), sanitize = FALSE,
   possibleStates = character(), absorbingStates = character(),
-  progress = FALSE)
+  progress = FALSE, num.cores = NULL)
 ```
 
 ## Arguments
-
-- stringchar:
-
-  It can be a \$\$n x n\$\$ matrix or a character vector or a list
-
-- toRowProbs:
-
-  converts a sequence matrix into a probability matrix
-
-- sanitize:
-
-  put 1 in all rows having rowSum equal to zero
-
-- possibleStates:
-
-  Possible states which are not present in the given sequence
 
 - data:
 
@@ -110,10 +94,36 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   be of size \$\$k x k\$\$ where k is the number of states in the chain
   and the values should typically be non-negative integers.
 
+- sanitize:
+
+  how to deal with the states that have no observed outgoing transition,
+  which is what `possibleStates` typically introduces. `FALSE` (the
+  default) leaves their row at zero, which makes a transition matrix
+  that is not stochastic. `TRUE`, or equivalently `"uniform"`, puts 1 in
+  every entry of such a row, so that the row becomes a uniform
+  distribution over all the states: the unobserved states are then
+  assumed to move to any state with equal probability, which is an
+  assumption about the data and not a consequence of it. `"absorbing"`
+  instead puts 1 on the diagonal only, making every unobserved state
+  absorbing; this also gives a stochastic matrix, but adds no transition
+  that was never observed (see \#213).
+
+- possibleStates:
+
+  Possible states which are not present in the given sequence
+
 - progress:
 
   Should a text progress bar be shown? It is only used by the
   "bootstrap" method, the other methods being fast; see Details.
+
+- stringchar:
+
+  It can be a \$\$n x n\$\$ matrix or a character vector or a list
+
+- toRowProbs:
+
+  converts a sequence matrix into a probability matrix
 
 - absorbingStates:
 
@@ -122,6 +132,15 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   when `byrow = TRUE`; the corresponding columns are set to the identity
   column when `byrow = FALSE`. The argument is currently supported only
   for `method = "mle"`.
+
+- num.cores:
+
+  Number of threads the parallel bootstrap path uses when
+  `method = "bootstrap"` and `parallel = TRUE`. If `NULL` (the default)
+  the thread count is read from `getOption("RcppParallel.numThreads")` /
+  `getOption("Ncpus")` / `OMP_NUM_THREADS` /
+  `RCPP_PARALLEL_NUM_THREADS`, falling back to `min(2, cores)` as CRAN
+  policy requires. Ignored when `parallel = FALSE`.
 
 ## Value
 
@@ -150,6 +169,15 @@ When `absorbingStates` is supplied, the declared states must have no
 observed outgoing transitions. This allows terminal states in censored
 customer journeys to be represented as absorbing states without adding
 artificial observations.
+
+`sanitize = "absorbing"` reaches the same result without naming the
+states: every state that has no observed outgoing transition, which is
+what `possibleStates` typically introduces, is made absorbing. Unlike
+`absorbingStates`, it works with every `method`, since it only replaces
+the uniform row that `sanitize = TRUE` would have produced. As with
+`absorbingStates`, only the estimate is constrained: any confidence
+bounds and standard errors keep the values the unconstrained fit
+assigned to those rows.
 
 ## Note
 

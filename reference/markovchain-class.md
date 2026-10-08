@@ -177,7 +177,10 @@ Objects can be created by calls of the form
 
 - predict:
 
-  `signature(object = "markovchain")`: predict method
+  `signature(object = "markovchain")`: predict method. Starting from the
+  last element of `newdata`, which must be a state of the chain, it
+  returns the `n.ahead` following states, each being the most probable
+  transition from the previous one; ties are broken at random.
 
 - print:
 
@@ -204,7 +207,13 @@ Objects can be created by calls of the form
 - summary:
 
   `signature(object = "markovchain")`: method to summarize structure of
-  the markov chain
+  the markov chain. `summary(object, details = TRUE)` also prints, after
+  the usual output, the size and rank of the transition matrix, the
+  number of communicating classes, irreducibility, period, regularity,
+  whether the chain is absorbing, reversible, stochastically monotone
+  and symmetric, and, when they are defined, the entropy rate, the SLEM,
+  the spectral gap and Kemeny's constant; these values are also
+  returned, invisibly, in the `details` element of the result.
 
 - transientStates:
 
@@ -300,5 +309,30 @@ summary(simpleMc)
 #> NONE 
 #> The Markov chain is irreducible 
 #> The absorbing states are: NONE
+summary(simpleMc, details = TRUE)
+#> simpleMc  Markov chain that is composed by: 
+#> Closed classes: 
+#> a b 
+#> Recurrent classes: 
+#> {a,b}
+#> Transient classes: 
+#> NONE 
+#> The Markov chain is irreducible 
+#> The absorbing states are: NONE
+#> Further properties: 
+#>   Size                    : 2 
+#>   Rank                    : 2 
+#>   Communicating classes   : 1 (1 recurrent, 0 transient) 
+#>   Irreducible             : yes 
+#>   Period                  : 1 
+#>   Regular (ergodic)       : yes 
+#>   Absorbing chain         : no 
+#>   Reversible              : yes 
+#>   Stochastically monotone : yes 
+#>   Symmetric               : no 
+#>   Entropy rate (bits)     : 0.911177 
+#>   SLEM                    : 0.1 
+#>   Spectral gap            : 0.9 
+#>   Kemeny constant         : 1.11111 
 if (FALSE) plot(simpleMc) # \dontrun{}
 ```

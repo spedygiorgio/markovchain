@@ -1,7 +1,7 @@
-# return a joint pdf of the number of visits to the various states of the DTMC
+# Expected fraction of the first N steps spent in each state
 
-This function would return a joint pdf of the number of visits to the
-various states of the DTMC during the first N steps.
+Given the initial state \\i\\, returns for every state \\j\\ the
+expected fraction of the first `N` steps that the DTMC spends in \\j\\.
 
 ## Usage
 
@@ -17,7 +17,7 @@ noofVisitsDist(markovchain,N,state)
 
 - N:
 
-  no of steps
+  number of steps, a positive integer
 
 - state:
 
@@ -25,13 +25,21 @@ noofVisitsDist(markovchain,N,state)
 
 ## Value
 
-a numeric vector depicting the above described probability density
-function.
+a named numeric vector with one element per state, summing to one.
 
 ## Details
 
-This function would return a joint pdf of the number of visits to the
-various states of the DTMC during the first N steps.
+The value for state \\j\\ is \$\$\frac{1}{N}\sum\_{k=1}^{N} (P^k)\_{ij}
+= \frac{E\[V_j(N)\]}{N},\$\$ where \\V_j(N)\\ is the number of visits to
+\\j\\ at times \\1, \dots, N\\ (the initial state, at time 0, is not
+counted). The values sum to one, and multiplied by `N` they give the
+expected numbers of visits. As `N` grows they converge to the stationary
+distribution for an irreducible chain.
+
+Despite the name of the function, and the title of earlier versions of
+this page, the result is not the joint distribution of the numbers of
+visits \\(V_1(N), \dots, V_n(N))\\, which the package does not compute
+(see issue \#139).
 
 ## Author
 
@@ -47,4 +55,9 @@ simpleMc<-new("markovchain", states=c("a","b"),
 noofVisitsDist(simpleMc,5,"a")
 #>        a        b 
 #> 0.348148 0.651852 
+
+# expected numbers of visits during the first 5 steps
+5 * noofVisitsDist(simpleMc,5,"a")
+#>       a       b 
+#> 1.74074 3.25926 
 ```

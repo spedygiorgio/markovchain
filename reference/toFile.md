@@ -1,7 +1,7 @@
 # Write or read a Markov chain to or from a file
 
-Writes a `markovchain` object to a JSON, YAML or CSV file, or reads one
-back, using the same representation as
+Writes a `markovchain` object to a JSON, YAML, CSV or XML file, or reads
+one back, using the same representation as
 [`toDictionary`](toDictionary.md).
 
 ## Usage
@@ -25,12 +25,12 @@ fromFile(file, format = NULL)
 
   A single file path to write to or read from. If `format` is not
   supplied, it is inferred from the file extension (`.json`,
-  `.yaml`/`.yml` or `.csv`).
+  `.yaml`/`.yml`, `.csv` or `.xml`).
 
 - format:
 
-  One of `"json"`, `"yaml"` or `"csv"`. The default, `NULL`, infers the
-  format from `file`'s extension.
+  One of `"json"`, `"yaml"`, `"csv"` or `"xml"`. The default, `NULL`,
+  infers the format from `file`'s extension.
 
 ## Value
 
@@ -52,6 +52,18 @@ column – there is no natural place in a CSV file for the chain's `name`,
 so it is not preserved by `toFile(..., format = "csv")` and `fromFile`
 always returns an unnamed chain for a `.csv` file. This is the same
 limitation PyDTMC's own CSV format has.
+
+The XML format is the one of PyDTMC, so files can be exchanged with it
+in both directions: a root element `MarkovChain` with one `Item` element
+per transition, whose attributes are `state_from`, `state_to` and
+`probability`. All \\n^2\\ transitions are written, zeros included, and
+probabilities use 17 significant digits, so the round trip is exact. The
+`name` of the chain is stored as an attribute of the root element, which
+PyDTMC ignores when reading. When reading, the states are taken in the
+order in which their self transitions (`state_from` equal to `state_to`)
+appear, as PyDTMC does, and the name is restored if the attribute is
+present. Writing XML uses only base R; reading it requires the xml2
+package.
 
 Writing JSON requires the jsonlite package, and writing YAML requires
 the yaml package; both are only in `Suggests`, and an informative error

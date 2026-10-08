@@ -497,14 +497,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // hittingProbabilities
-NumericMatrix hittingProbabilities(S4 object, IntegerVector targets);
-RcppExport SEXP _markovchain_hittingProbabilities(SEXP objectSEXP, SEXP targetsSEXP) {
+NumericMatrix hittingProbabilities(S4 object, IntegerVector targets, int solver, double tol, int maxIter);
+RcppExport SEXP _markovchain_hittingProbabilities(SEXP objectSEXP, SEXP targetsSEXP, SEXP solverSEXP, SEXP tolSEXP, SEXP maxIterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4 >::type object(objectSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type targets(targetsSEXP);
-    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(object, targets));
+    Rcpp::traits::input_parameter< int >::type solver(solverSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(hittingProbabilities(object, targets, solver, tol, maxIter));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -829,7 +832,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_period", (DL_FUNC) &_markovchain_period, 1},
     {"_markovchain_predictiveDistribution", (DL_FUNC) &_markovchain_predictiveDistribution, 3},
     {"_markovchain_priorDistribution", (DL_FUNC) &_markovchain_priorDistribution, 2},
-    {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 2},
+    {"_markovchain_hittingProbabilities", (DL_FUNC) &_markovchain_hittingProbabilities, 5},
     {"_markovchain_canonicForm", (DL_FUNC) &_markovchain_canonicForm, 1},
     {"_markovchain_steadyStates", (DL_FUNC) &_markovchain_steadyStates, 1},
     {"_markovchain_absorbingStates", (DL_FUNC) &_markovchain_absorbingStates, 1},

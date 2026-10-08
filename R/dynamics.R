@@ -88,35 +88,7 @@ setMethod("redistribute", "markovchain",
     states <- object@states
     n <- length(states)
 
-    if (is.null(initial)) {
-      mu <- rep(1 / n, n)
-    } else if (is.character(initial)) {
-      if (length(initial) != 1L || !(initial %in% states)) {
-        stop("A character initial must be a single state of the chain.")
-      }
-      mu <- as.numeric(states == initial)
-    } else if (is.numeric(initial)) {
-      if (length(initial) != n || any(!is.finite(initial)) ||
-          any(initial < 0)) {
-        stop(paste0(
-          "A numeric initial must contain ", n,
-          " finite, non-negative probabilities."
-        ))
-      }
-      if (!is.null(names(initial))) {
-        if (anyDuplicated(names(initial)) ||
-            !setequal(names(initial), states)) {
-          stop("Names of initial must match the states of the chain.")
-        }
-        initial <- initial[states]
-      }
-      if (abs(sum(initial) - 1) > sqrt(.Machine$double.eps) * n) {
-        stop("initial must sum to one.")
-      }
-      mu <- as.numeric(initial) / sum(initial)
-    } else {
-      stop("initial must be NULL, a state name, or a numeric vector.")
-    }
+    mu <- .initialDistribution(initial, states)
 
     trajectory <- matrix(0, nrow = steps + 1L, ncol = n,
                          dimnames = list(as.character(0:steps), states))
@@ -131,6 +103,43 @@ setMethod("redistribute", "markovchain",
     }
     trajectory
   })
+
+# Internal helper: an initial distribution given as NULL (uniform), a single
+# state name, or a numeric probability vector (named or in state order),
+# returned as a plain numeric vector in the order of `states`.
+.initialDistribution <- function(initial, states) {
+  n <- length(states)
+  if (is.null(initial)) {
+    return(rep(1 / n, n))
+  }
+  if (is.character(initial)) {
+    if (length(initial) != 1L || !(initial %in% states)) {
+      stop("A character initial must be a single state of the chain.")
+    }
+    return(as.numeric(states == initial))
+  }
+  if (is.numeric(initial)) {
+    if (length(initial) != n || any(!is.finite(initial)) ||
+        any(initial < 0)) {
+      stop(paste0(
+        "A numeric initial must contain ", n,
+        " finite, non-negative probabilities."
+      ))
+    }
+    if (!is.null(names(initial))) {
+      if (anyDuplicated(names(initial)) ||
+          !setequal(names(initial), states)) {
+        stop("Names of initial must match the states of the chain.")
+      }
+      initial <- initial[states]
+    }
+    if (abs(sum(initial) - 1) > sqrt(.Machine$double.eps) * n) {
+      stop("initial must sum to one.")
+    }
+    return(as.numeric(initial) / sum(initial))
+  }
+  stop("initial must be NULL, a state name, or a numeric vector.")
+}
 
 # Internal helper: spectral radius (Perron root) of the 0/1 adjacency matrix
 # of the transition graph. Always >= 1, since every row of a stochastic
@@ -318,3 +327,186 @@ setMethod("relaxationTime", "markovchain", function(object) {
   }
   as.numeric(1 / gap)
 })
+
+# Internal helper: number of occurrences of every state in an observed
+# sequence, in the order of `states`.
+.sequenceCounts <- function(sequence, states, argName) {
+  if (is.factor(sequence)) {
+    sequence <- as.character(sequence)
+  }
+  if (!is.character(sequence) || length(sequence) < 1L || anyNA(sequence)) {
+    stop(paste0(argName, " must be a non-empty sequence of states without missing values."))
+  }
+  unknown <- setdiff(unique(sequence), states)
+  if (length(unknown) > 0L) {
+    stop(paste0(argName, " contains states not in the chain: ",
+                paste(unknown, collapse = ", "), "."))
+  }
+  as.numeric(tabulate(match(sequence, states), nbins = length(states)))
+}
+
+# Internal helper: validated, whole, non-negative time points.
+.timePoints <- function(timePoints) {
+  if (!is.numeric(timePoints) || length(timePoints) < 1L ||
+      any(!is.finite(timePoints)) || any(timePoints < 0) ||
+      any(timePoints != round(timePoints))) {
+    stop("timePoints must be a non-empty vector of non-negative whole numbers.")
+  }
+  timePoints
+}
+
+# Internal helper: v applied to the powers P^t for every t in `times`, from
+# the right (P^t v) or from the left (v P^t). The distinct times are visited
+# in increasing order, so each power is reached from the previous one; a
+# long jump uses repeated squaring, O(n^3 log t), instead of t products.
+.powerSequence <- function(P, v, times, left = FALSE) {
+  mult <- if (left) function(M, x) as.numeric(x %*% M) else
+    function(M, x) as.numeric(M %*% x)
+  ut <- sort(unique(times))
+  out <- matrix(0, nrow = length(ut), ncol = length(v))
+  cur <- v
+  curT <- 0
+  for (k in seq_along(ut)) {
+    d <- ut[k] - curT
+    if (d <= 64) {
+      for (i in seq_len(d)) cur <- mult(P, cur)
+    } else {
+      M <- P
+      e <- d
+      while (e > 0) {
+        if (e %% 2 == 1) cur <- mult(M, cur)
+        e <- e %/% 2
+        if (e > 0) {
+          M <- M %*% M
+          # every power of a stochastic matrix is stochastic: renormalising
+          # the rows stops the rounding drift of the repeated squarings
+          M <- M / rowSums(M)
+        }
+      }
+    }
+    curT <- ut[k]
+    out[k, ] <- cur
+  }
+  out[match(times, ut), , drop = FALSE]
+}
+
+#' Time correlations and time relaxations of observed sequences
+#'
+#' \code{timeCorrelations} computes the time autocorrelation of an observed
+#' sequence of states, or the time cross-correlation of two sequences, at
+#' stationarity. \code{timeRelaxations} computes how the expected value of
+#' the observable defined by a sequence evolves from a given initial
+#' distribution. They correspond to \code{time_correlations()} and
+#' \code{time_relaxations()} of PyDTMC.
+#'
+#' @param object A \code{markovchain} object.
+#' @param sequence1,sequence A sequence of states of the chain (character
+#'   vector or factor).
+#' @param sequence2 An optional second sequence of states. If \code{NULL}
+#'   (the default), \code{sequence1} is used, which gives the
+#'   autocorrelation.
+#' @param initial The initial distribution: \code{NULL} (uniform, the
+#'   default), a single state, or a numeric probability vector, as in
+#'   \code{\link{redistribute}}.
+#' @param timePoints A vector of non-negative whole numbers, the lags at
+#'   which the quantities are computed.
+#'
+#' @details
+#' A sequence defines an observable \eqn{f} on the states: \eqn{f_j} is the
+#' number of times state \eqn{j} occurs in it. With \eqn{f} from
+#' \code{sequence1}, \eqn{g} from \code{sequence2}, transition matrix
+#' \eqn{P} and stationary distribution \eqn{\pi},
+#' \deqn{\mathrm{timeCorrelations}(t) = \sum_i \pi_i f_i (P^t g)_i =
+#'   E_\pi[f(X_0) g(X_t)],}
+#' and, with initial distribution \eqn{\mu},
+#' \deqn{\mathrm{timeRelaxations}(t) = \mu P^t f = E_\mu[f(X_t)].}
+#' For an ergodic chain, both converge as \eqn{t} grows, to
+#' \eqn{E_\pi[f] E_\pi[g]} and to \eqn{E_\pi[f]} respectively, at a speed
+#' governed by the second largest eigenvalue modulus
+#' (\code{\link{slem}}).
+#'
+#' The powers of \eqn{P} are applied by repeated multiplication, and by
+#' repeated squaring for long lags, never through an eigendecomposition.
+#' PyDTMC 9.0.0 switches to an eigendecomposition as soon as a lag exceeds
+#' the number of states; since its left and right eigenvectors are not
+#' biorthonormal when \eqn{P} has complex eigenvalues, it then returns wrong
+#' values at every lag for such chains (the tests of this function include
+#' one, whose correct values were checked with \code{numpy}).
+#'
+#' \code{timeCorrelations} needs a unique stationary distribution, i.e.
+#' exactly one recurrent class, and stops otherwise (PyDTMC returns
+#' \code{None}). \code{timeRelaxations} is defined for every chain; unlike
+#' PyDTMC, it does not require a unique stationary distribution.
+#'
+#' @return A numeric vector with one value per element of
+#'   \code{timePoints}, named after them.
+#'
+#' @references
+#' Noe, F., Doose, S., Daidone, I., Loellmann, M., Sauer, M., Chodera, J. D.
+#' and Smith, J. C. (2011). Dynamical fingerprints for probing individual
+#' relaxation processes in biomolecular dynamics with simulations and
+#' kinetic experiments. \emph{Proceedings of the National Academy of
+#' Sciences}, 108(12), 4822-4827.
+#'
+#' @seealso \code{\link{redistribute}}, \code{\link{slem}},
+#'   \code{\link{relaxationTime}}
+#'
+#' @examples
+#' statesNames <- c("a", "b", "c")
+#' mc <- new("markovchain", states = statesNames,
+#'   transitionMatrix = matrix(c(0.5, 0.5, 0, 0.2, 0.3, 0.5, 0.1, 0.1, 0.8),
+#'     byrow = TRUE, nrow = 3, dimnames = list(statesNames, statesNames)))
+#' x <- c("a", "b", "c", "c", "c", "a")
+#' timeCorrelations(mc, x, timePoints = 0:5)
+#' timeRelaxations(mc, x, initial = "a", timePoints = c(0, 1, 10, 100))
+#'
+#' @exportMethod timeCorrelations
+setGeneric("timeCorrelations", function(object, sequence1, sequence2 = NULL,
+                                        timePoints = 1)
+  standardGeneric("timeCorrelations"))
+
+#' @rdname timeCorrelations
+setMethod("timeCorrelations", "markovchain",
+  function(object, sequence1, sequence2 = NULL, timePoints = 1) {
+    states <- object@states
+    f <- .sequenceCounts(sequence1, states, "sequence1")
+    g <- if (is.null(sequence2)) f else
+      .sequenceCounts(sequence2, states, "sequence2")
+    timePoints <- .timePoints(timePoints)
+
+    stationary <- steadyStates(object)
+    if (!object@byrow) {
+      stationary <- t(stationary)
+    }
+    if (nrow(stationary) != 1L) {
+      stop("timeCorrelations requires a unique stationary distribution (exactly one recurrent class).")
+    }
+    pi <- as.numeric(stationary[1L, states])
+
+    P <- .rowStochasticMatrix(object)
+    powers <- .powerSequence(P, g, timePoints, left = FALSE)
+    out <- as.numeric(powers %*% (f * pi))
+    names(out) <- as.character(timePoints)
+    out
+  })
+
+#' @rdname timeCorrelations
+#' @exportMethod timeRelaxations
+setGeneric("timeRelaxations", function(object, sequence, initial = NULL,
+                                       timePoints = 1)
+  standardGeneric("timeRelaxations"))
+
+#' @rdname timeCorrelations
+setMethod("timeRelaxations", "markovchain",
+  function(object, sequence, initial = NULL, timePoints = 1) {
+    states <- object@states
+    f <- .sequenceCounts(sequence, states, "sequence")
+    mu <- .initialDistribution(initial, states)
+    timePoints <- .timePoints(timePoints)
+
+    P <- .rowStochasticMatrix(object)
+    powers <- .powerSequence(P, mu, timePoints, left = TRUE)
+    out <- as.numeric(powers %*% f)
+    names(out) <- as.character(timePoints)
+    out
+  })

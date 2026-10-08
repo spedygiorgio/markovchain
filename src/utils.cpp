@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <cmath>
 #include <vector>
 #include <iostream>
 using namespace Rcpp;
@@ -78,6 +79,10 @@ bool allElements(const mat& matrix, bool (*condition)(const double&)) {
 }
 
 bool approxEqual(const double& a, const double& b) {
+  // with a NaN both a >= b and the swapped call are false: the recursion
+  // below would never end
+  if (std::isnan(a) || std::isnan(b))
+    return false;
   if (a >= b)
     return (a - b) <= 1E-7;
   else
@@ -89,7 +94,9 @@ bool approxEqual(const cx_double& a, const cx_double& b){
   double x = a.real() - b.real();
   double y = a.imag() - b.imag();
   
-  return (x*x - y*y) <= 1E-14;
+  // squared modulus of the difference: x^2 + y^2 (it was x^2 - y^2, which
+  // is negative, hence "equal", whenever the imaginary parts differ a lot)
+  return (x*x + y*y) <= 1E-14;
 }
 
 
@@ -119,7 +126,9 @@ bool isStochasticMatrix(NumericMatrix m, bool byrow) {
       rowSum += m(i, j);
     }
     
-    isStochastic = approxEqual(rowSum, 1);
+    // keep the non-negativity result: it used to be overwritten here, so a
+    // matrix with negative entries summing to 1 was accepted as stochastic
+    isStochastic = isStochastic && approxEqual(rowSum, 1);
   }
   
   return isStochastic;

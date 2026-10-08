@@ -1,3 +1,91 @@
+# Normalise the `sanitize` argument of createSequenceMatrix()/markovchainFit()
+# to one of "none", "uniform" or "absorbing".
+#
+# Historically `sanitize` was a logical: TRUE filled every entry of a row with
+# no observed outgoing transition with 1, so that the row became a *uniform*
+# distribution over all the states once normalised. That is a strong and
+# usually unwarranted assumption on the states that `possibleStates` adds
+# (#213), so the argument now also accepts a string, "uniform" being an
+# explicit synonym of TRUE and "absorbing" putting the whole mass on the
+# diagonal instead. TRUE/FALSE keep their old meaning exactly.
+.sanitizeMode <- function(sanitize) {
+  if (is.character(sanitize)) {
+    if (length(sanitize) != 1L || is.na(sanitize))
+      stop("`sanitize` must be TRUE, FALSE, \"uniform\" or \"absorbing\".")
+    return(match.arg(sanitize, c("uniform", "absorbing")))
+  }
+
+  if (!is.logical(sanitize) || length(sanitize) != 1L || is.na(sanitize))
+    stop("`sanitize` must be TRUE, FALSE, \"uniform\" or \"absorbing\".")
+
+  if (sanitize) "uniform" else "none"
+}
+
+# Make every all-zero row of a square matrix absorbing. Rows and columns of
+# the matrices built by createSequenceMatrix() carry the same states in the
+# same order, so row i and column i are the same state.
+.absorbEmptyRows <- function(m) {
+  empty <- which(rowSums(m) == 0)
+  if (length(empty) > 0L)
+    m[cbind(empty, empty)] <- 1
+  m
+}
+
+#' @rdname markovchainFit
+#' @export
+createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
+                                 sanitize = FALSE,
+                                 possibleStates = character()) {
+  mode <- .sanitizeMode(sanitize)
+
+  if (mode != "absorbing")
+    return(.createSequenceMatrixRcpp(stringchar, toRowProbs,
+                                     mode == "uniform", possibleStates))
+
+  # With sanitize = FALSE a row with no observed outgoing transition stays at
+  # zero, whether the result holds counts or row probabilities, so the same
+  # single call identifies those rows in both cases.
+  .absorbEmptyRows(
+    .createSequenceMatrixRcpp(stringchar, toRowProbs, FALSE, possibleStates)
+  )
+}
+
+# Resolve the number of threads the parallel code should run on, respecting
+# the CRAN policy against grabbing all available cores by default. Honours,
+# in this order: an explicit `num.cores` from the caller; the
+# `RcppParallel.numThreads` option (if set and >= 1); the `Ncpus` option
+# (used by install.packages() and many packages for the same purpose); the
+# `OMP_NUM_THREADS` / `RCPP_PARALLEL_NUM_THREADS` environment variables.
+# Otherwise falls back to min(2, available cores), matching the two-core
+# ceiling that CRAN enforces during checks. Never returns < 1.
+.mcDesiredThreads <- function(num.cores = NULL) {
+  if (!is.null(num.cores)) {
+    nc <- suppressWarnings(as.integer(num.cores)[1L])
+    if (!is.na(nc) && nc >= 1L) return(nc)
+  }
+
+  opt_rp <- getOption("RcppParallel.numThreads", NA_integer_)
+  if (is.numeric(opt_rp) && length(opt_rp) == 1L && !is.na(opt_rp) && opt_rp >= 1)
+    return(as.integer(opt_rp))
+
+  opt_nc <- getOption("Ncpus", NA_integer_)
+  if (is.numeric(opt_nc) && length(opt_nc) == 1L && !is.na(opt_nc) && opt_nc >= 1)
+    return(as.integer(opt_nc))
+
+  env_names <- c("RCPP_PARALLEL_NUM_THREADS", "OMP_NUM_THREADS")
+  for (nm in env_names) {
+    env_val <- Sys.getenv(nm, unset = NA)
+    if (!is.na(env_val) && nzchar(env_val)) {
+      ev <- suppressWarnings(as.integer(env_val))
+      if (!is.na(ev) && ev >= 1L) return(ev)
+    }
+  }
+
+  avail <- tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_)
+  if (is.na(avail) || !is.finite(avail) || avail < 1L) avail <- 1L
+  as.integer(min(2L, avail))
+}
+
 #' Function to generate a sequence of states from homogeneous Markov chains.
 #' 
 #' Provided any \code{markovchain} object, it returns a sequence of 
@@ -69,7 +157,11 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   # populate the sequence
   for (i in seq_len(n)) {
     # row probabilty corresponding to the current state
-    rowProbs <- markovchain@transitionMatrix[state, ]
+    rowProbs <- if (markovchain@byrow) {
+      markovchain@transitionMatrix[state, ]
+    } else {
+      markovchain@transitionMatrix[, state]
+    }
     
     # select the next state
     outstate <- sample(size = 1, x = markovchain@states, prob = rowProbs)
@@ -150,7 +242,14 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'        (each rows represent a simulation) or a \code{list} is returned.
 #' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
 #' @param parallel Boolean. Should parallel implementation being used? Default is yes.
-#' @param num.cores Number of Cores to be used
+#' @param num.cores Number of threads used when \code{parallel = TRUE}. If
+#'   \code{NULL} (the default) the thread count is read from
+#'   \code{getOption("RcppParallel.numThreads")}, then
+#'   \code{getOption("Ncpus")}, then \code{RCPP_PARALLEL_NUM_THREADS}, then
+#'   \code{OMP_NUM_THREADS}, falling back to \code{min(2, cores)} as CRAN
+#'   policy requires. Previous versions defaulted to
+#'   \code{parallel::detectCores() - 1}, which could grab all available cores
+#'   unexpectedly.
 #' @param ... additional parameters passed to the internal sampler
 #' 
 #' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
@@ -256,16 +355,12 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     }
     ##########################################################
     if(useRCpp && parallel) {
-      
-      # Calculate the number of cores
-      # It's not good to use all cores
-      no_cores <- max(1,parallel::detectCores() - 1)
-      
-      # number of cores specified should be less than or equal to maximum cores available
-      if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {
-        no_cores <- num.cores
-      }
-      
+
+      # Resolve the thread count: honour options()/env variables and cap at
+      # 2 cores by default, as CRAN policy requires. The caller can still
+      # override through num.cores.
+      no_cores <- .mcDesiredThreads(num.cores)
+
       RcppParallel::setThreadOptions(no_cores)
       
       # if include.t0 is not passed as extra argument then set include.t0 as false
@@ -463,15 +558,13 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     warning("Warning: some states in the markovchain sequences are not contained in the following states!")
   }
     
-  # Calculate the number of cores
-  # It's not good to use all cores
-  no_cores <- max(1,parallel::detectCores() - 1)
-  
-  # number of cores specified should be less than or equal to maximum cores available
-  if((! is.null(num.cores))  && num.cores <= no_cores + 1 && num.cores >= 1) {
-    no_cores <- num.cores
-  }
-  
+  # Resolve the thread count the same way the C++ parallel path does (see
+  # .mcDesiredThreads): respect options()/env, cap at 2 by default, honour
+  # an explicit num.cores. Avoids the previous detectCores() - 1 which both
+  # violated CRAN policy and gave rmarkovchain()/markovchainFit() mutually
+  # inconsistent defaults.
+  no_cores <- .mcDesiredThreads(num.cores)
+
   # Initiate cluster
   cl <- parallel::makeCluster(no_cores)
   
@@ -697,22 +790,33 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 }
 
 
-#' return a joint pdf of the number of visits to the various states of the DTMC
+#' Expected fraction of the first N steps spent in each state
 #' 
-#' @description This function would return a joint pdf of the number of visits to
-#' the various states of the DTMC during the first N steps.
+#' @description Given the initial state \eqn{i}, returns for every state
+#' \eqn{j} the expected fraction of the first \code{N} steps that the DTMC
+#' spends in \eqn{j}.
 #' 
 #' @usage noofVisitsDist(markovchain,N,state)
 #' 
 #' @param markovchain a markovchain-class object
-#' @param N no of steps
+#' @param N number of steps, a positive integer
 #' @param state the initial state
 #' 
 #' @details 
-#' This function would return a joint pdf of the number of visits to
-#' the various states of the DTMC during the first N steps.
+#' The value for state \eqn{j} is
+#' \deqn{\frac{1}{N}\sum_{k=1}^{N} (P^k)_{ij} = \frac{E[V_j(N)]}{N},}{(1/N) sum_{k=1}^N (P^k)[i, j] = E[V_j(N)] / N,}
+#' where \eqn{V_j(N)} is the number of visits to \eqn{j} at times
+#' \eqn{1, \dots, N} (the initial state, at time 0, is not counted). The
+#' values sum to one, and multiplied by \code{N} they give the expected
+#' numbers of visits. As \code{N} grows they converge to the stationary
+#' distribution for an irreducible chain.
 #' 
-#' @return a numeric vector depicting the above described probability density function.
+#' Despite the name of the function, and the title of earlier versions of this
+#' page, the result is not the joint distribution of the numbers of visits
+#' \eqn{(V_1(N), \dots, V_n(N))}, which the package does not compute (see
+#' issue #139).
+#' 
+#' @return a named numeric vector with one element per state, summing to one.
 #' 
 #' @author Vandit Jain
 #' 
@@ -722,6 +826,9 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #'              transitionMatrix=transMatr, 
 #'              name="simpleMc")   
 #' noofVisitsDist(simpleMc,5,"a")
+#' 
+#' # expected numbers of visits during the first 5 steps
+#' 5 * noofVisitsDist(simpleMc,5,"a")
 #' 
 #' @export
 noofVisitsDist <- function(markovchain, N = 5, state) {
@@ -737,7 +844,7 @@ noofVisitsDist <- function(markovchain, N = 5, state) {
     stop("please provide a valid initial state")
   }
   out <- .noofVisitsDistRCpp(
-    markovchain@transitionMatrix,
+    .rowStochasticMatrix(markovchain),
     match(state, stateNames),
     as.integer(N)
   )

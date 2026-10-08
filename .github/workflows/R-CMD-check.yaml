@@ -1,5 +1,19 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Publishability gate
+# -------------------
+# Every run executes `R CMD check --as-cran` and fails on ERRORs and WARNINGs.
+# NOTEs are judged by .github/scripts/check-cran-notes.R: only the NOTEs that
+# are justified in cran-comments.md are accepted. When the pull request title
+# or one of the commits is a conventional `feat`/`fix` (or a breaking change),
+# or the run is started by hand, any other NOTE also fails the run ("strict"
+# mode), so that such changes cannot be merged if the package would not be
+# accepted by CRAN. For other commit types (docs, ci, chore, ...) unexpected
+# NOTEs are reported as annotations only.
+#
+# The job `CI gate` aggregates everything: make it the only required status
+# check in the branch protection rules.
 on:
   push:
     branches: [main, master]
@@ -9,23 +23,72 @@ on:
 
 name: R-CMD-check
 
-permissions: read-all
+permissions:
+  contents: read
+
+# A new push to a pull request cancels the obsolete run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Fast cross-platform matrix for every pull request.
+  # Decide whether this run is "strict" (see above).
+  commit-type:
+    name: Commit type
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      strict: ${{ steps.type.outputs.strict }}
+      reason: ${{ steps.type.outputs.reason }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - id: type
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          # untrusted text: passed through the environment, never interpolated
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          RANGE=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            RANGE="${PR_BASE}..${PR_HEAD}"
+          elif [ "$EVENT_NAME" = "push" ] && [ "$PUSH_BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            RANGE="${PUSH_BEFORE}..${PUSH_AFTER}"
+          fi
+          export RANGE
+          .github/scripts/commit-type.sh
+
+      - name: Summary
+        shell: bash
+        env:
+          STRICT: ${{ steps.type.outputs.strict }}
+          REASON: ${{ steps.type.outputs.reason }}
+        run: |
+          {
+            echo "### Publishability check"
+            echo "Strict (NOTEs are blocking): **${STRICT}** (${REASON})"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   R-CMD-check:
-    if: github.event_name == 'pull_request'
+    needs: commit-type
     runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 90
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: windows-latest, r: 'release'}
+        # Fast cross-platform matrix for pull requests; the full matrix runs
+        # on pushes to main/master and on manual runs.
+        config: ${{ fromJSON(github.event_name == 'pull_request' && '[{"os":"ubuntu-latest","r":"release"},{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"},{"os":"windows-latest","r":"release"}]' || '[{"os":"ubuntu-latest","r":"release"},{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"},{"os":"windows-latest","r":"release"},{"os":"windows-latest","r":"devel","http-user-agent":"release"},{"os":"macos-latest","r":"release"}]') }}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -97,12 +160,31 @@ jobs:
       # see the temporary library containing the package being built. The
       # regular check is therefore run without vignette rebuilding on Windows,
       # followed by an explicit vignette build after installing the package.
+      #
+      # `--as-cran` and `error-on: "warning"` are the defaults of
+      # check-r-package; they are written down because the publishability
+      # gate relies on them.
       - uses: r-lib/actions/check-r-package@v2
         if: runner.os != 'Windows'
         with:
           upload-snapshots: true
+          args: 'c("--no-manual", "--as-cran")'
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          error-on: '"warning"'
 
+      # NOTEs are not fatal for check-r-package; judge them here.
+      - name: CRAN readiness (NOTEs)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          STRICT: ${{ needs.commit-type.outputs.strict }}
+        run: |
+          log=$(ls check/*.Rcheck/00check.log | head -n 1)
+          Rscript .github/scripts/check-cran-notes.R "$log" "$STRICT"
+
+      # Windows checks portability only: without vignettes (and so without
+      # --as-cran) the check reports vignette warnings that are not
+      # meaningful. The publishability gate is the Linux check above.
       - name: R CMD check without vignettes on Windows
         if: runner.os == 'Windows'
         shell: Rscript {0}
@@ -128,111 +210,24 @@ jobs:
             quiet = FALSE
           )
 
-  # Full matrix for every push to main/master and manual run.
-  R-CMD-check-full:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    runs-on: ${{ matrix.config.os }}
-
-    name: full ${{ matrix.config.os }} (${{ matrix.config.r }})
-
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: windows-latest, r: 'devel', http-user-agent: 'release'}
-          - {os: macos-latest,   r: 'release'}
-
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_KEEP_PKG_SOURCE: yes
-      NO_COLOR: "1"
-      R_CLI_NUM_COLORS: "1"
-
+  # Single status to require in the branch protection rules: it is red if the
+  # commit-type step or any check job failed or was cancelled.
+  ci-gate:
+    name: CI gate
+    if: always()
+    needs: [commit-type, R-CMD-check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
-
-      - id: pandoc
-        uses: r-lib/actions/setup-pandoc@v2
-        continue-on-error: true
-        with:
-          pandoc-version: '3.1.11'
-
-      - if: steps.pandoc.outcome == 'failure'
-        uses: r-lib/actions/setup-pandoc@v2
-        with:
-          pandoc-version: '3.1.11'
-
-      # Keep the same pinned, retryable Quarto setup in the full matrix.
-      - id: quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-        continue-on-error: true
-        with:
-          version: '1.10.18'
-
-      - if: steps.quarto.outcome == 'failure'
-        uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: '1.10.18'
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
-
-      - name: Configure Quarto R on Windows
-        if: runner.os == 'Windows'
-        shell: Rscript {0}
+      - name: All required jobs succeeded
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
         run: |
-          r_bin <- normalizePath(R.home("bin"), winslash = "/")
-          cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::rcmdcheck
-          needs: check
-          cache: true
-
-      - id: tinytex
-        uses: r-lib/actions/setup-tinytex@v2
-        continue-on-error: true
-
-      - if: steps.tinytex.outcome == 'failure'
-        uses: r-lib/actions/setup-tinytex@v2
-
-      - name: Install additional LaTeX packages
-        run: tlmgr install grfext thumbpdf
-
-      - uses: r-lib/actions/check-r-package@v2
-        if: runner.os != 'Windows'
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-
-      - name: R CMD check without vignettes on Windows
-        if: runner.os == 'Windows'
-        shell: Rscript {0}
-        run: |
-          rcmdcheck::rcmdcheck(
-            args = c("--no-manual", "--no-vignettes"),
-            build_args = c("--no-manual", "--no-build-vignettes"),
-            error_on = "error",
-            check_dir = "check"
-          )
-
-      - name: Install package and build vignettes on Windows
-        if: runner.os == 'Windows'
-        shell: Rscript {0}
-        run: |
-          r <- file.path(R.home("bin"), "R.exe")
-          status <- system2(r, c("CMD", "INSTALL", "--no-multiarch", "--with-keep.source", "."))
-          if (status != 0) stop("R CMD INSTALL failed")
-          tools::buildVignettes(
-            "markovchain",
-            dir = ".",
-            lib.loc = .libPaths(),
-            quiet = FALSE
-          )
+          echo "job results: ${RESULTS}"
+          for r in ${RESULTS}; do
+            if [ "$r" != "success" ]; then
+              echo "::error::At least one job did not succeed (${r}): the package is not publishable as it stands."
+              exit 1
+            fi
+          done

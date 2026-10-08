@@ -121,7 +121,7 @@ firstPassage <- function(object, state, n) {
   }
 
   outMatr <- .firstpassageKernelRcpp(
-    P = object@transitionMatrix,
+    P = .rowStochasticMatrix(object),
     i = match(state, stateNames),
     n = as.integer(n)
   )
@@ -178,7 +178,7 @@ firstPassageMultiple <- function(object, state, set, n) {
   }
 
   out <- .firstPassageMultipleRCpp(
-    object@transitionMatrix,
+    .rowStochasticMatrix(object),
     match(state, stateNames),
     match(unique(set), stateNames),
     as.integer(n)
@@ -402,7 +402,7 @@ committorAB <- function(object, A, B, p = 1) {
     stop("please provide a valid initial state")
   }
 
-  coefficient <- object@transitionMatrix - diag(nstates)
+  coefficient <- .rowStochasticMatrix(object) - diag(nstates)
   coefficient[A, ] <- 0
   coefficient[cbind(A, A)] <- 1
   coefficient[B, ] <- 0
@@ -457,7 +457,7 @@ expectedRewards <- function(markovchain, n, rewards) {
     stop("rewards must contain one finite numeric value for every state")
   }
   out <- .expectedRewardsRCpp(
-    markovchain@transitionMatrix, as.integer(n), rewards)
+    .rowStochasticMatrix(markovchain), as.integer(n), rewards)
   as.numeric(out)
 }
 
@@ -513,7 +513,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
   keep <- which(!stateNames %in% A)
   initial <- match(state, stateNames[keep])
   .expectedRewardsBeforeHittingARCpp(
-    markovchain@transitionMatrix[keep, keep, drop = FALSE],
+    .rowStochasticMatrix(markovchain)[keep, keep, drop = FALSE],
     initial,
     rewards[keep],
     as.integer(n)
@@ -748,7 +748,7 @@ setGeneric("is.stochasticallyMonotone", function(object) standardGeneric("is.sto
 setMethod("is.stochasticallyMonotone", 
           signature(object = "markovchain"), 
           function(object) {
-            return(.is_stochastically_monotone_cpp(object@transitionMatrix))
+            return(.is_stochastically_monotone_cpp(.rowStochasticMatrix(object)))
           })
 
 #' @rdname is.stochasticallyMonotone
@@ -771,8 +771,9 @@ setMethod("is.stochasticallyMonotone",
 #' @description Given a markovchain object,
 #' this function calculates the probability of ever arriving from state i to j
 #' 
-#' @usage hittingProbabilities(object, targets = NULL)
-#' 
+#' @usage hittingProbabilities(object, targets = NULL,
+#'   solver = c("direct", "bicgstab", "doubling"), tol = 1e-13, maxIter = 200)
+#'
 #' @param object the markovchain-class object
 #' @param targets optional character vector of state names: only the hitting
 #' probabilities \emph{towards} these states are computed. The default,
@@ -781,7 +782,36 @@ setMethod("is.stochasticallyMonotone",
 #' proportional to the number of targets: for a large chain, asking only for
 #' the states of interest is much faster than computing the whole matrix and
 #' subsetting it. Duplicated or unknown names are an error.
-#' 
+#' @param solver the method used to solve the linear system
+#' \eqn{(I - Q) h = R} on the states whose probability is neither
+#' structurally zero nor one (see Details). \code{"direct"}, the default, is
+#' an LU factorisation: it costs \eqn{O(m^3)} once per target and is the most
+#' accurate. \code{"bicgstab"} is an unpreconditioned BiCGSTAB iteration on
+#' the sparse system: every iteration costs two sparse matrix-vector products
+#' instead of a dense \eqn{O(m^3)} step, so it is the fastest choice on large
+#' sparse chains, at the price of a looser residual. On a breakdown of the
+#' iteration it restarts from the current residual, and if the breakdown
+#' persists it switches to \code{"direct"} with a warning. \code{"doubling"} is the
+#' doubled Neumann series used by versions up to 1.2, kept for reproducibility
+#' of earlier results; it is also the automatic fallback of \code{"direct"} on
+#' a numerically singular system.
+#' @param tol relative residual at which the iterative solvers
+#' (\code{"bicgstab"}, \code{"doubling"}) stop. Ignored by \code{"direct"},
+#' except when it falls back to \code{"doubling"}.
+#' @param maxIter maximum number of iterations of the iterative solvers: the
+#' number of BiCGSTAB steps, or the number of squarings of the doubled Neumann
+#' series. A warning is raised, and the current values returned, if the
+#' requested \code{tol} is not reached within this many iterations.
+#'
+#' @details On each target the states are first split by graph reachability:
+#' a state that cannot reach the target has probability zero, and one that can
+#' reach the target but no closed class outside it has probability one. Only
+#' the remaining states need the linear system that \code{solver} controls, so
+#' on chains where that split already decides every state (an irreducible
+#' chain, for instance) all three solvers do the same negligible amount of
+#' work. The choice matters on chains with several closed classes, i.e. on
+#' genuine absorption probabilities.
+#'
 #' @return a matrix of hitting probabilities. Entry \code{[i, j]} is the
 #' probability of ever arriving from state \code{i} to state \code{j} (the
 #' probability of returning, after at least one transition, on the diagonal);
@@ -789,28 +819,40 @@ setMethod("is.stochasticallyMonotone",
 #' transition matrix is. With \code{targets}, only the columns (rows if
 #' \code{byrow = FALSE}) of the targets are returned, in the order given, and
 #' they coincide with those of the full matrix.
-#' 
+#'
 #' @author Ignacio Cordón
-#' 
+#'
 #' @references R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
-#' 
+#'
+#' H. A. van der Vorst (1992). Bi-CGSTAB: A Fast and Smoothly Converging
+#' Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems.
+#' \emph{SIAM Journal on Scientific and Statistical Computing}, 13(2), 631-644.
+#'
 #' @examples
 #' M <- markovchain:::zeros(5)
 #' M[1,1] <- M[5,5] <- 1
 #' M[2,1] <- M[2,3] <- 1/2
 #' M[3,2] <- M[3,4] <- 1/2
 #' M[4,2] <- M[4,5] <- 1/2
-#' 
+#'
 #' mc <- new("markovchain", transitionMatrix = M)
 #' hittingProbabilities(mc)
-#' 
+#'
 #' # only the probabilities of ever reaching the first state
 #' hittingProbabilities(mc, targets = "1")
-#' 
+#'
+#' # on a large sparse chain, the iterative solver avoids the dense products
+#' hittingProbabilities(mc, targets = "1", solver = "bicgstab")
+#'
 #' @exportMethod hittingProbabilities
-setGeneric("hittingProbabilities", function(object, targets = NULL) standardGeneric("hittingProbabilities"))
+setGeneric("hittingProbabilities", function(object, targets = NULL,
+                                            solver = c("direct", "bicgstab", "doubling"),
+                                            tol = 1e-13, maxIter = 200)
+  standardGeneric("hittingProbabilities"))
 
-setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL) {
+setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL,
+                                                          solver = c("direct", "bicgstab", "doubling"),
+                                                          tol = 1e-13, maxIter = 200) {
   allStates <- object@states
   if (is.null(targets)) {
     idx <- seq_along(allStates)
@@ -823,7 +865,19 @@ setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL
     if (anyNA(idx))
       stop("Unknown state(s) in targets: ", paste(targets[is.na(idx)], collapse = ", "))
   }
-  .hittingProbabilitiesRcpp(object, as.integer(idx))
+
+  solver <- match.arg(solver)
+  # Keep in sync with the HittingSolver enum in src/probabilistic.cpp.
+  solverCode <- switch(solver, direct = 0L, bicgstab = 1L, doubling = 2L)
+
+  if (!is.numeric(tol) || length(tol) != 1L || is.na(tol) || tol <= 0)
+    stop("tol must be a single positive number.")
+  if (!is.numeric(maxIter) || length(maxIter) != 1L || is.na(maxIter) ||
+      maxIter < 1 || maxIter != floor(maxIter))
+    stop("maxIter must be a single positive integer.")
+
+  .hittingProbabilitiesRcpp(object, as.integer(idx), solverCode,
+                            as.numeric(tol), as.integer(maxIter))
 })
 
 
@@ -872,13 +926,81 @@ setMethod(
 )
 
 
+# Internal helper: the properties shown by summary(object, details = TRUE),
+# in the spirit of the printout of a PyDTMC MarkovChain. Quantities that
+# need a unique stationary distribution (or an irreducible chain) are NA
+# when they are not defined.
+.summaryDetails <- function(object) {
+  P <- .rowStochasticMatrix(object)
+  n <- nrow(P)
+  tol <- sqrt(.Machine$double.eps)
+  safe <- function(expr) tryCatch(suppressWarnings(expr), error = function(e) NA)
+
+  classes <- communicatingClasses(object)
+  recurrent <- recurrentClasses(object)
+  irreducible <- is.irreducible(object)
+  absorbing <- absorbingStates(object)
+  per <- if (irreducible) safe(period(object)) else NA_integer_
+  uniqueStationary <- length(recurrent) == 1L
+
+  list(
+    size = n,
+    rank = qr(P)$rank,
+    classes = length(classes),
+    recurrentClasses = length(recurrent),
+    transientClasses = length(classes) - length(recurrent),
+    irreducible = irreducible,
+    period = per,
+    regular = isTRUE(safe(is.regular(object))),
+    absorbingChain = length(absorbing) > 0L && all(lengths(recurrent) == 1L),
+    reversible = if (irreducible) isTRUE(safe(is.reversible(object))) else NA,
+    stochasticallyMonotone = isTRUE(safe(is.stochasticallyMonotone(object))),
+    symmetric = isTRUE(all.equal(P, t(P), tolerance = tol, check.attributes = FALSE)),
+    entropyRate = if (uniqueStationary) safe(entropyRate(object)) else NA_real_,
+    slem = if (irreducible) safe(slem(object)) else NA_real_,
+    spectralGap = if (irreducible) safe(spectralGap(object)) else NA_real_,
+    kemenyConstant = if (irreducible) safe(kemenyConstant(object)) else NA_real_
+  )
+}
+
+.printSummaryDetails <- function(d) {
+  yn <- function(x) if (is.na(x)) "not defined" else if (x) "yes" else "no"
+  num <- function(x) if (is.na(x)) "not defined" else format(signif(x, 6))
+  rows <- c(
+    "Size" = as.character(d$size),
+    "Rank" = as.character(d$rank),
+    "Communicating classes" = paste0(d$classes, " (", d$recurrentClasses,
+                                     " recurrent, ", d$transientClasses,
+                                     " transient)"),
+    "Irreducible" = yn(d$irreducible),
+    "Period" = if (is.na(d$period)) "not defined" else as.character(d$period),
+    "Regular (ergodic)" = yn(d$regular),
+    "Absorbing chain" = yn(d$absorbingChain),
+    "Reversible" = yn(d$reversible),
+    "Stochastically monotone" = yn(d$stochasticallyMonotone),
+    "Symmetric" = yn(d$symmetric),
+    "Entropy rate (bits)" = num(d$entropyRate),
+    "SLEM" = num(d$slem),
+    "Spectral gap" = num(d$spectralGap),
+    "Kemeny constant" = num(d$kemenyConstant)
+  )
+  cat("Further properties:", "\n")
+  w <- max(nchar(names(rows)))
+  for (k in seq_along(rows)) {
+    cat(" ", formatC(names(rows)[k], width = -w), ":", rows[[k]], "\n")
+  }
+}
+
 #' @exportMethod summary
 setGeneric("summary")
 
 # summary method for markovchain class
 # lists: closed, transient classes, irreducibility, absorbint, transient states
 setMethod("summary", signature(object = "markovchain"),
-  function(object){
+  function(object, details = FALSE, ...){
+    if (length(details) != 1L || !is.logical(details) || is.na(details)) {
+      stop("details must be TRUE or FALSE.")
+    }
     
     # list of closed, recurrent and transient classes
     outs <- .summaryKernelRcpp(object)
@@ -948,6 +1070,13 @@ setMethod("summary", signature(object = "markovchain"),
     if(length(check) == 0) check <- "NONE"
     cat("The absorbing states are:", check )
     cat("\n")
+    
+    # optional block of further properties, printed after the classic output
+    # so that summary(object) itself is unchanged
+    if (details) {
+      outs$details <- .summaryDetails(object)
+      .printSummaryDetails(outs$details)
+    }
     
     # return outs
     # useful when user will assign the value returned
@@ -1057,6 +1186,9 @@ setMethod("lump", signature(object = "markovchain"),
             }
 
             st <- steadyStates(object)
+            # steadyStates() returns one distribution per row for row-stored
+            # chains and one per column otherwise; put them in rows.
+            if (!object@byrow) st <- t(st)
             if (nrow(st) > 0L) {
               # If several stationary distributions are returned, average them
               # to obtain deterministic non-negative aggregation weights.
@@ -1092,7 +1224,9 @@ setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
 #' @aliases autoLump,markovchain-method
 setMethod("autoLump", signature(object = "markovchain"),
           function(object, k) {
-            P <- object@transitionMatrix
+            # eigenvectors must be those of the row-stochastic matrix, whatever
+            # the storage orientation of the chain
+            P <- .rowStochasticMatrix(object)
             state_names <- states(object)
             n <- nrow(P)
 

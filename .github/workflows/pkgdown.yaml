@@ -95,20 +95,46 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, any::tinytex, local::.
           needs: website
           cache: true
 
-      - name: Build site
+      # pkgdown also renders the PDF-format introductory vignette through
+      # LaTeX (checked: without TinyTeX the build fails with "pdflatex: not
+      # found"). Same cached TinyTeX installation as R-CMD-check (same key).
+      - name: TinyTeX cache key
+        id: texkey
+        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore TinyTeX
+        id: texcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.TinyTeX
+          key: tinytex-${{ runner.os }}-${{ hashFiles('.github/tinytex-packages.txt') }}-${{ steps.texkey.outputs.month }}
+
+      - id: tinytex
+        if: steps.texcache.outputs.cache-hit != 'true'
+        uses: r-lib/actions/setup-tinytex@v2
+        continue-on-error: true
+
+      - if: steps.texcache.outputs.cache-hit != 'true' && steps.tinytex.outcome == 'failure'
+        uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install additional LaTeX packages
+        if: steps.texcache.outputs.cache-hit != 'true'
+        shell: Rscript {0}
         run: |
-          tryCatch(
-            pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE),
-            error = function(e) {
-              msg <- gsub("[\r\n]+", " | ", paste(conditionMessage(e), collapse = " "))
-              cat("::error title=pkgdown failure::", substr(msg, 1, 1500), "\n", sep = "")
-              stop(e)
-            }
-          )
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Put cached TinyTeX on PATH
+        if: steps.texcache.outputs.cache-hit == 'true'
+        run: ls -d "$HOME"/.TinyTeX/bin/* | head -n 1 >> "$GITHUB_PATH"
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀

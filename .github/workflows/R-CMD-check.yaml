@@ -74,7 +74,7 @@ jobs:
       strict: ${{ steps.type.outputs.strict }}
       reason: ${{ steps.type.outputs.reason }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -154,7 +154,7 @@ jobs:
       R_CLI_NUM_COLORS: "1"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # pandoc and Quarto are only needed to build the Rmd/qmd vignettes.
       # Setup is retried once: downloads occasionally fail transiently

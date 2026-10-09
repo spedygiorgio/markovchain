@@ -1,6 +1,20 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 #
+# Design:
+# * Every PR gets a fast 3-config matrix; every push to main/master and manual
+#   run gets the full matrix. Changes that cannot affect R CMD check (README,
+#   site config, other workflows, ...) are filtered with paths-ignore.
+# * LaTeX (TinyTeX) is only needed to build the PDF introductory vignette, so
+#   it is installed only on the configs flagged `vignettes: true` and cached
+#   between runs. The other configs run R CMD check with --ignore-vignettes
+#   --no-manual (the code, tests and examples are still checked in full).
+# * The full matrix also checks the minimum supported R (4.4, as in
+#   DESCRIPTION: Depends R (>= 4.4.0)).
+# * C++ (RcppArmadillo, RcppParallel) is compiled through ccache on Linux, so
+#   unchanged sources are not recompiled on every run.
+# * Superseded PR runs are cancelled.
+#
 # Publishability gate
 # -------------------
 # Every run executes `R CMD check --as-cran` and fails on ERRORs and WARNINGs.
@@ -17,8 +31,28 @@
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - 'README.md'
+      - 'cran-comments.md'
+      - '_pkgdown.yml'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - 'demo/**'
+      - '.github/workflows/pkgdown.yaml'
+      - '.github/workflows/test-coverage.yaml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'README.md'
+      - 'cran-comments.md'
+      - '_pkgdown.yml'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - 'demo/**'
+      - '.github/workflows/pkgdown.yaml'
+      - '.github/workflows/test-coverage.yaml'
   workflow_dispatch:
 
 name: R-CMD-check
@@ -26,7 +60,6 @@ name: R-CMD-check
 permissions:
   contents: read
 
-# A new push to a pull request cancels the obsolete run.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -76,19 +109,43 @@ jobs:
             echo "Strict (NOTEs are blocking): **${STRICT}** (${REASON})"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  R-CMD-check:
-    needs: commit-type
-    runs-on: ${{ matrix.config.os }}
-    timeout-minutes: 90
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      config: ${{ steps.set.outputs.config }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            config='[
+              {"os":"ubuntu-latest","r":"release","vignettes":true},
+              {"os":"ubuntu-latest","r":"devel","http-user-agent":"release","vignettes":false},
+              {"os":"windows-latest","r":"release","vignettes":false}
+            ]'
+          else
+            config='[
+              {"os":"ubuntu-latest","r":"release","vignettes":true},
+              {"os":"ubuntu-latest","r":"devel","http-user-agent":"release","vignettes":false},
+              {"os":"ubuntu-latest","r":"4.4","vignettes":false},
+              {"os":"windows-latest","r":"release","vignettes":true},
+              {"os":"windows-latest","r":"devel","http-user-agent":"release","vignettes":false},
+              {"os":"macos-latest","r":"release","vignettes":false}
+            ]'
+          fi
+          echo "config=$(echo "$config" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+  R-CMD-check:
+    needs: [matrix, commit-type]
+    runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 60
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})${{ matrix.config.vignettes && ' + vignettes' || '' }}
 
     strategy:
       fail-fast: false
       matrix:
-        # Fast cross-platform matrix for pull requests; the full matrix runs
-        # on pushes to main/master and on manual runs.
-        config: ${{ fromJSON(github.event_name == 'pull_request' && '[{"os":"ubuntu-latest","r":"release"},{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"},{"os":"windows-latest","r":"release"}]' || '[{"os":"ubuntu-latest","r":"release"},{"os":"ubuntu-latest","r":"devel","http-user-agent":"release"},{"os":"windows-latest","r":"release"},{"os":"windows-latest","r":"devel","http-user-agent":"release"},{"os":"macos-latest","r":"release"}]') }}
+        config: ${{ fromJSON(needs.matrix.outputs.config) }}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -99,28 +156,29 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # pandoc and Quarto are only needed to build the Rmd/qmd vignettes.
+      # Setup is retried once: downloads occasionally fail transiently
+      # (Quarto at the release-assets.githubusercontent.com endpoint).
       - id: pandoc
+        if: matrix.config.vignettes
         uses: r-lib/actions/setup-pandoc@v2
         continue-on-error: true
         with:
           pandoc-version: '3.1.11'
 
-      - if: steps.pandoc.outcome == 'failure'
+      - if: matrix.config.vignettes && steps.pandoc.outcome == 'failure'
         uses: r-lib/actions/setup-pandoc@v2
         with:
           pandoc-version: '3.1.11'
 
-      # Quarto downloads can occasionally fail transiently at the
-      # release-assets.githubusercontent.com endpoint. Pinning the version
-      # makes the CI reproducible; retrying the setup avoids failing a run
-      # because of a transient network/TLS error.
       - id: quarto
+        if: matrix.config.vignettes
         uses: quarto-dev/quarto-actions/setup@v2
         continue-on-error: true
         with:
           version: '1.10.18'
 
-      - if: steps.quarto.outcome == 'failure'
+      - if: matrix.config.vignettes && steps.quarto.outcome == 'failure'
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: '1.10.18'
@@ -131,46 +189,124 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # ---- ccache for the C++ code (Linux only)
+      - name: Set up ccache
+        if: runner.os == 'Linux'
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.config.os }}-${{ matrix.config.r }}
+          max-size: 500M
+
+      - name: Compile through ccache
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p ~/.R
+          {
+            for v in CC CXX CXX11 CXX14 CXX17 CXX20; do
+              val=$(R CMD config $v 2>/dev/null) || continue
+              [ -n "$val" ] && echo "$v = ccache $val"
+            done
+            echo "MAKEFLAGS = -j4"
+          } > ~/.R/Makevars
+          cat ~/.R/Makevars
+          echo "CCACHE_NOHASHDIR=true" >> "$GITHUB_ENV"
+
       # Explicitly bind Quarto to the R installed by setup-r on Windows.
       - name: Configure Quarto R on Windows
-        if: runner.os == 'Windows'
+        if: matrix.config.vignettes && runner.os == 'Windows'
         shell: Rscript {0}
         run: |
           r_bin <- normalizePath(R.home("bin"), winslash = "/")
           cat(sprintf("QUARTO_R=%s\n", r_bin), file = Sys.getenv("GITHUB_ENV"), append = TRUE)
 
+      # qpdf/ghostscript: --compact-vignettes=gs+qpdf and the PDF checks.
+      - name: Install PDF tools (Linux)
+        if: matrix.config.vignettes && runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf ghostscript
+
+      - name: Install PDF tools (Windows)
+        if: matrix.config.vignettes && runner.os == 'Windows'
+        shell: pwsh
+        run: choco install -y ghostscript qpdf
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::tinytex
           needs: check
           cache: true
 
+      # ---- TinyTeX, cached (key: OS + package list + month, so that the
+      # ---- yearly TeX Live rollover never meets a stale installation)
+      - name: TinyTeX cache key
+        if: matrix.config.vignettes
+        id: texkey
+        shell: bash
+        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore TinyTeX
+        if: matrix.config.vignettes
+        id: texcache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.TinyTeX
+            ~/AppData/Roaming/TinyTeX
+          key: tinytex-${{ runner.os }}-${{ hashFiles('.github/tinytex-packages.txt') }}-${{ steps.texkey.outputs.month }}
+
       - id: tinytex
+        if: matrix.config.vignettes && steps.texcache.outputs.cache-hit != 'true'
         uses: r-lib/actions/setup-tinytex@v2
         continue-on-error: true
 
-      - if: steps.tinytex.outcome == 'failure'
+      - if: matrix.config.vignettes && steps.texcache.outputs.cache-hit != 'true' && steps.tinytex.outcome == 'failure'
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install additional LaTeX packages
-        run: tlmgr install grfext thumbpdf
+        if: matrix.config.vignettes && steps.texcache.outputs.cache-hit != 'true'
+        shell: Rscript {0}
+        run: |
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
 
+      - name: Put cached TinyTeX on PATH (Linux/macOS)
+        if: matrix.config.vignettes && steps.texcache.outputs.cache-hit == 'true' && runner.os != 'Windows'
+        shell: bash
+        run: ls -d "$HOME"/.TinyTeX/bin/* | head -n 1 >> "$GITHUB_PATH"
+
+      - name: Put cached TinyTeX on PATH (Windows)
+        if: matrix.config.vignettes && steps.texcache.outputs.cache-hit == 'true' && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $bin = Get-ChildItem "$env:APPDATA\TinyTeX\bin" -Directory | Select-Object -First 1
+          $bin.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify TeX installation
+        if: matrix.config.vignettes
+        shell: Rscript {0}
+        run: |
+          pdflatex <- Sys.which("pdflatex")
+          if (!nzchar(pdflatex) || !file.exists(pdflatex)) stop("pdflatex is not available")
+          cat("pdflatex: ", pdflatex, "\n", sep = "")
+
+      # ---- R CMD check
       # Windows currently has an upstream rcmdcheck/pkgbuild library-path
       # problem when R CMD build launches Quarto: the child R process cannot
       # see the temporary library containing the package being built. The
       # regular check is therefore run without vignette rebuilding on Windows,
-      # followed by an explicit vignette build after installing the package.
-      #
-      # `--as-cran` and `error-on: "warning"` are the defaults of
-      # check-r-package; they are written down because the publishability
-      # gate relies on them.
+      # followed (where requested) by an explicit vignette build after
+      # installing the package.
       - uses: r-lib/actions/check-r-package@v2
         if: runner.os != 'Windows'
         with:
           upload-snapshots: true
-          args: 'c("--no-manual", "--as-cran")'
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          error-on: '"warning"'
+          build_args: ${{ matrix.config.vignettes && 'c("--no-manual", "--compact-vignettes=gs+qpdf")' || 'c("--no-manual", "--no-build-vignettes")' }}
+          args: ${{ matrix.config.vignettes && 'c("--no-manual", "--as-cran")' || 'c("--no-manual", "--as-cran", "--ignore-vignettes")' }}
 
       # NOTEs are not fatal for check-r-package; judge them here.
       - name: CRAN readiness (NOTEs)
@@ -182,22 +318,19 @@ jobs:
           log=$(ls check/*.Rcheck/00check.log | head -n 1)
           Rscript .github/scripts/check-cran-notes.R "$log" "$STRICT"
 
-      # Windows checks portability only: without vignettes (and so without
-      # --as-cran) the check reports vignette warnings that are not
-      # meaningful. The publishability gate is the Linux check above.
       - name: R CMD check without vignettes on Windows
         if: runner.os == 'Windows'
         shell: Rscript {0}
         run: |
           rcmdcheck::rcmdcheck(
-            args = c("--no-manual", "--no-vignettes"),
+            args = c("--no-manual", "--ignore-vignettes"),
             build_args = c("--no-manual", "--no-build-vignettes"),
             error_on = "error",
             check_dir = "check"
           )
 
       - name: Install package and build vignettes on Windows
-        if: runner.os == 'Windows'
+        if: matrix.config.vignettes && runner.os == 'Windows'
         shell: Rscript {0}
         run: |
           r <- file.path(R.home("bin"), "R.exe")
@@ -215,7 +348,7 @@ jobs:
   ci-gate:
     name: CI gate
     if: always()
-    needs: [commit-type, R-CMD-check]
+    needs: [commit-type, matrix, R-CMD-check]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

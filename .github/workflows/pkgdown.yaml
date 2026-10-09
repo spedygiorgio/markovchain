@@ -3,8 +3,24 @@
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'cran-comments.md'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'tests/**'
+      - 'cran-comments.md'
+      - 'data-raw/**'
+      - 'leftovers/**'
+      - 'support/**'
+      - '.github/workflows/R-CMD-check.yaml'
+      - '.github/workflows/test-coverage.yaml'
   release:
     types: [published]
   workflow_dispatch:
@@ -14,10 +30,12 @@ name: pkgdown
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    # Only restrict concurrency for non-PR jobs
+    timeout-minutes: 30
+    # PR builds are cancelled when superseded; deploys are never cancelled
+    # but still queue one at a time.
     concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+      group: pkgdown-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       NO_COLOR: "1"
@@ -53,21 +71,67 @@ jobs:
         with:
           use-public-rspm: true
 
+      # Compile the C++ code through ccache (shared with R-CMD-check's cache).
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ubuntu-latest-pkgdown
+          restore-keys: ubuntu-latest-release
+          max-size: 500M
+
+      - name: Compile through ccache
+        shell: bash
+        run: |
+          mkdir -p ~/.R
+          {
+            for v in CC CXX CXX11 CXX14 CXX17 CXX20; do
+              val=$(R CMD config $v 2>/dev/null) || continue
+              [ -n "$val" ] && echo "$v = ccache $val"
+            done
+            echo "MAKEFLAGS = -j4"
+          } > ~/.R/Makevars
+          cat ~/.R/Makevars
+          echo "CCACHE_NOHASHDIR=true" >> "$GITHUB_ENV"
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, any::tinytex, local::.
           needs: website
           cache: true
 
+      # pkgdown also renders the PDF-format introductory vignette through
+      # LaTeX (checked: without TinyTeX the build fails with "pdflatex: not
+      # found"). Same cached TinyTeX installation as R-CMD-check (same key).
+      - name: TinyTeX cache key
+        id: texkey
+        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore TinyTeX
+        id: texcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.TinyTeX
+          key: tinytex-${{ runner.os }}-${{ hashFiles('.github/tinytex-packages.txt') }}-${{ steps.texkey.outputs.month }}
+
       - id: tinytex
+        if: steps.texcache.outputs.cache-hit != 'true'
         uses: r-lib/actions/setup-tinytex@v2
         continue-on-error: true
 
-      - if: steps.tinytex.outcome == 'failure'
+      - if: steps.texcache.outputs.cache-hit != 'true' && steps.tinytex.outcome == 'failure'
         uses: r-lib/actions/setup-tinytex@v2
 
       - name: Install additional LaTeX packages
-        run: tlmgr install grfext thumbpdf
+        if: steps.texcache.outputs.cache-hit != 'true'
+        shell: Rscript {0}
+        run: |
+          pkgs <- trimws(readLines('.github/tinytex-packages.txt'))
+          pkgs <- pkgs[nzchar(pkgs) & !startsWith(pkgs, '#')]
+          tinytex::tlmgr_install(pkgs, .quiet = TRUE)
+
+      - name: Put cached TinyTeX on PATH
+        if: steps.texcache.outputs.cache-hit == 'true'
+        run: ls -d "$HOME"/.TinyTeX/bin/* | head -n 1 >> "$GITHUB_PATH"
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

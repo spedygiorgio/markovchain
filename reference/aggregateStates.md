@@ -176,5 +176,5 @@ result$partition
 #> [1] "c" "d"
 #> 
 result$klDivergence # zero up to rounding
-#> [1] -1.110223e-16
+#> [1] 2.220446e-16
 ```

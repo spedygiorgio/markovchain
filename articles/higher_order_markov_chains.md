@@ -42,7 +42,7 @@ if (requireNamespace("Rsolnp", quietly = TRUE)) {
   fitHigherOrder(rain_small, 2)
 }
 #> $lambda
-#> [1] 0.7733301 0.2266699
+#> [1] 0.77333 0.22667
 #> 
 #> $Q
 #> $Q[[1]]

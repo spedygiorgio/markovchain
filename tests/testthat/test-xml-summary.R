@@ -26,20 +26,59 @@ test_that("XML round trip is exact and keeps the name", {
   unlink(f)
 })
 
+# as.numeric() as it behaves where `long double` is a plain `double` (arm64
+# macOS): the digits are accumulated in a double and then scaled, so a string
+# with 16-17 significant digits can be one unit in the last place off. Used to
+# check, on any platform, that .asDoubleExact() does not rely on the precision
+# of as.numeric(). Only for well-formed unsigned decimal strings.
+lossyNumeric <- function(s) {
+  vapply(as.character(s), function(z) {
+    m <- regmatches(z, regexec("^([0-9]*)\\.?([0-9]*)(?:[eE]([+-]?[0-9]+))?$", z, perl = TRUE))[[1]]
+    if (length(m) == 0L || !nzchar(paste0(m[2], m[3]))) {
+      return(NA_real_)
+    }
+    ans <- 0
+    for (d in strsplit(paste0(m[2], m[3]), "")[[1]]) ans <- 10 * ans + (utf8ToInt(d) - 48L)
+    expn <- (if (nzchar(m[4])) as.integer(m[4]) else 0L) - nchar(m[3])
+    if (expn < 0L) {
+      n <- -expn; p10 <- 10; fac <- 1
+      while (n > 0L) {
+        if (n %% 2L == 1L) fac <- fac * p10
+        n <- n %/% 2L; p10 <- p10 * p10
+      }
+      ans / fac
+    } else {
+      ans * 10^expn
+    }
+  }, numeric(1), USE.NAMES = FALSE)
+}
+
 test_that(".asDoubleExact() parses decimals exactly, whatever the precision of long double", {
   # What toFile() writes: 17 significant digits recover every double. R's own
   # parser (as.numeric) is not exact for them where long double is a double.
   set.seed(42)
-  for (x in list(runif(2e4), rexp(2e4, 5), 10^runif(2e4, -15, 0))) {
+  draws <- list(runif(2e4), rexp(2e4, 5), 10^runif(2e4, -15, 0),
+                10^runif(2e4, -260, -100), 10^runif(2e4, 0, 15), 10^runif(2e4, 15, 260))
+  for (x in draws) {
     expect_identical(.asDoubleExact(sprintf("%.17g", x)), x)
   }
-  # shapes found in files written by other programs
+  # the same with a parser that is not exact, as on arm64 macOS: the strings
+  # are not read back by as.numeric() (only 8-digit pieces go through it)
+  strs <- sprintf("%.17g", unlist(lapply(draws, head, 1500)))
+  vals <- unlist(lapply(draws, head, 1500))
+  expect_false(identical(lossyNumeric(strs), vals))
+  inexact <- .asDoubleExact
+  environment(inexact) <- list2env(list(as.numeric = lossyNumeric),
+                                   parent = environment(.asDoubleExact))
+  expect_identical(inexact(strs), vals)
+  # shapes found in files written by other programs (2^-54 is
+  # 5.551115123125783e-17 in Python's repr)
   expect_identical(.asDoubleExact(c("0", "1", "0.7", "1e-05", "5.551115123125783e-17",
                                     " 0.25 ", "-0.125", "+.5", "1E-3", "12e2", "1.")),
-                   c(0, 1, 0.7, 1e-05, 5.551115123125783e-17, 0.25, -0.125, 0.5, 1e-3, 1200, 1))
-  # outside the exact range the value is still the one as.numeric() gives
-  expect_identical(.asDoubleExact(c("0.1234567890123456789", "1e-30", "1e400", "Inf")),
-                   as.numeric(c("0.1234567890123456789", "1e-30", "1e400", "Inf")))
+                   c(0, 1, 0.7, 1e-05, 2^-54, 0.25, -0.125, 0.5, 1e-3, 1200, 1))
+  # outside the exact range the value is the one as.numeric() gives
+  beyond <- c("0.1234567890123456789", "1e-300", "1e400", "Inf")
+  expect_identical(.asDoubleExact(beyond), as.numeric(beyond))
   # not numbers: NA, without warnings
   expect_warning(out <- .asDoubleExact(c("abc", "", NA, "1e99999999999", "0x10")), NA)
   expect_true(all(is.na(out[1:3])))

@@ -362,11 +362,12 @@ fromFile <- function(file, format = NULL) {
 # arm64 macOS) a string with 16-17 significant digits can then come out one
 # unit in the last place away from the nearest double, so the 17 digits that
 # toFile() writes would not bring a probability back exactly. Here the integer
-# made of the digits is held as an unevaluated sum of two doubles, divided (or
-# multiplied) by an exact power of ten, and rounded once: the result does not
-# depend on the precision of `long double`. Strings outside this range (more
-# than 17 significant digits, a decimal exponent beyond 22 in absolute value,
-# or not a plain decimal number) fall back to as.numeric().
+# made of the digits is held as an unevaluated sum of two doubles (exact up to
+# 17 digits), divided or multiplied by powers of ten that are exact doubles
+# (10^22 and 10^r, r < 22) one after the other, and rounded once: the result
+# does not depend on the precision of `long double`. Strings outside this range
+# (more than 17 significant digits, a decimal exponent beyond 280 in absolute
+# value, or not a plain decimal number) fall back to as.numeric().
 .asDoubleExact <- function(s) {
   v <- suppressWarnings(as.numeric(s))
   s <- trimws(as.character(s))
@@ -387,7 +388,7 @@ fromFile <- function(file, format = NULL) {
   digits <- sub("^0+", "", paste0(int, frac))
   nd <- nchar(digits)
   e10 <- ex - nchar(frac)
-  ok <- !is.na(e10) & nd >= 1L & nd <= 17L & abs(e10) <= 22L
+  ok <- !is.na(e10) & nd >= 1L & nd <= 17L & abs(e10) <= 280L
   if (!any(ok)) {
     return(v)
   }
@@ -416,30 +417,52 @@ fromFile <- function(file, format = NULL) {
   }
   pr <- twoProd(hi, 1e8)
   sm <- twoSum(pr$p, lo)
-  nlo <- sm$e + pr$e
-  nhi <- sm$s + nlo
-  nlo <- nlo - (nhi - sm$s)
-  pw <- cumprod(c(1, rep(10, 22L)))[abs(e10) + 1L]
+  lo2 <- sm$e + pr$e
+  nhi <- sm$s + lo2
+  nlo <- lo2 - (nhi - sm$s)
+  # (hi, lo) divided or multiplied by an exact double d, keeping both parts
+  divide <- function(hi, lo, d) {
+    q1 <- hi / d
+    pp <- twoProd(q1, d)
+    q2 <- (((hi - pp$p) - pp$e) + lo) / d
+    s <- q1 + q2
+    list(hi = s, lo = q2 - (s - q1))
+  }
+  multiply <- function(hi, lo, d) {
+    pp <- twoProd(hi, d)
+    l <- pp$e + lo * d
+    s <- pp$p + l
+    list(hi = s, lo = l - (s - pp$p))
+  }
+  # |e10| = 22 * nBig + r: nBig steps by 1e22, then one by 10^r (all exact)
+  nBig <- abs(e10) %/% 22L
+  pw <- cumprod(c(1, rep(10, 21L)))[abs(e10) %% 22L + 1L]
   down <- e10 < 0L
-  out <- numeric(length(k))
-  if (any(down)) {
-    q <- nhi[down] / pw[down]
-    # the quotient of two exact doubles is already correctly rounded; only an
-    # integer that does not fit one double needs the correction
-    inexact <- nlo[down] != 0
-    if (any(inexact)) {
-      pp <- twoProd(q[inexact], pw[down][inexact])
-      rem <- ((nhi[down][inexact] - pp$p) - pp$e) + nlo[down][inexact]
-      q[inexact] <- q[inexact] + rem / pw[down][inexact]
+  cur <- list(hi = nhi, lo = nlo)
+  step <- function(cur, sel, d) {
+    if (!any(sel)) {
+      return(cur)
     }
-    out[down] <- q
+    out <- list(hi = cur$hi, lo = cur$lo)
+    for (dir in c(TRUE, FALSE)) {
+      m <- sel & (down == dir)
+      if (any(m)) {
+        res <- (if (dir) divide else multiply)(cur$hi[m], cur$lo[m], if (length(d) == 1L) d else d[m])
+        out$hi[m] <- res$hi
+        out$lo[m] <- res$lo
+      }
+    }
+    out
   }
-  if (any(!down)) {
-    pp <- twoProd(nhi[!down], pw[!down])
-    out[!down] <- pp$p + (pp$e + nlo[!down] * pw[!down])
+  for (i in seq_len(max(nBig))) {
+    cur <- step(cur, nBig >= i, 1e22)
   }
+  cur <- step(cur, pw != 1, pw)
   pos <- idx[k]
-  v[pos] <- ifelse(neg[k], -out, out)
+  res <- cur$hi + cur$lo
+  res <- ifelse(neg[k], -res, res)
+  good <- is.finite(res)
+  v[pos[good]] <- res[good]
   v
 }
 

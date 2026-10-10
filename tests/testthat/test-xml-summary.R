@@ -26,6 +26,26 @@ test_that("XML round trip is exact and keeps the name", {
   unlink(f)
 })
 
+test_that(".asDoubleExact() parses decimals exactly, whatever the precision of long double", {
+  # What toFile() writes: 17 significant digits recover every double. R's own
+  # parser (as.numeric) is not exact for them where long double is a double.
+  set.seed(42)
+  for (x in list(runif(2e4), rexp(2e4, 5), 10^runif(2e4, -15, 0))) {
+    expect_identical(.asDoubleExact(sprintf("%.17g", x)), x)
+  }
+  # shapes found in files written by other programs
+  expect_identical(.asDoubleExact(c("0", "1", "0.7", "1e-05", "5.551115123125783e-17",
+                                    " 0.25 ", "-0.125", "+.5", "1E-3", "12e2", "1.")),
+                   c(0, 1, 0.7, 1e-05, 5.551115123125783e-17, 0.25, -0.125, 0.5, 1e-3, 1200, 1))
+  # outside the exact range the value is still the one as.numeric() gives
+  expect_identical(.asDoubleExact(c("0.1234567890123456789", "1e-30", "1e400", "Inf")),
+                   as.numeric(c("0.1234567890123456789", "1e-30", "1e400", "Inf")))
+  # not numbers: NA, without warnings
+  expect_warning(out <- .asDoubleExact(c("abc", "", NA, "1e99999999999", "0x10")), NA)
+  expect_true(all(is.na(out[1:3])))
+  expect_identical(.asDoubleExact(character(0)), numeric(0))
+})
+
 test_that("a file written by PyDTMC is read", {
   skip_if_not_installed("xml2")
   f <- tempfile(fileext = ".xml")

@@ -355,6 +355,94 @@ fromFile <- function(file, format = NULL) {
   writeLines(lines, con)
 }
 
+# Internal helper: convert decimal strings to doubles, correctly rounded.
+#
+# as.numeric() uses R's own parser, which accumulates the digits in a
+# `long double`. On platforms where `long double` is just a `double` (notably
+# arm64 macOS) a string with 16-17 significant digits can then come out one
+# unit in the last place away from the nearest double, so the 17 digits that
+# toFile() writes would not bring a probability back exactly. Here the integer
+# made of the digits is held as an unevaluated sum of two doubles, divided (or
+# multiplied) by an exact power of ten, and rounded once: the result does not
+# depend on the precision of `long double`. Strings outside this range (more
+# than 17 significant digits, a decimal exponent beyond 22 in absolute value,
+# or not a plain decimal number) fall back to as.numeric().
+.asDoubleExact <- function(s) {
+  v <- suppressWarnings(as.numeric(s))
+  s <- trimws(as.character(s))
+  plain <- !is.na(s) & grepl("^[+-]?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE][+-]?[0-9]+)?$", s)
+  if (!any(plain)) {
+    return(v)
+  }
+  idx <- which(plain)
+  x <- s[idx]
+  neg <- startsWith(x, "-")
+  x <- sub("^[+-]", "", x)
+  ex <- integer(length(x))
+  hasExp <- grepl("[eE]", x)
+  ex[hasExp] <- suppressWarnings(as.integer(sub("^.*[eE]", "", x[hasExp])))
+  x <- sub("[eE].*$", "", x)
+  int <- sub("\\..*$", "", x)
+  frac <- ifelse(grepl("\\.", x), sub("^[^.]*\\.", "", x), "")
+  digits <- sub("^0+", "", paste0(int, frac))
+  nd <- nchar(digits)
+  e10 <- ex - nchar(frac)
+  ok <- !is.na(e10) & nd >= 1L & nd <= 17L & abs(e10) <= 22L
+  if (!any(ok)) {
+    return(v)
+  }
+  k <- which(ok)
+  digits <- digits[k]
+  nd <- nd[k]
+  e10 <- e10[k]
+  # the integer as hi * 1e8 + lo, both parts exact doubles (hi < 1e9, lo < 1e8)
+  hi <- ifelse(nd > 8L, as.numeric(substr(digits, 1L, nd - 8L)), 0)
+  lo <- as.numeric(substr(digits, pmax(nd - 7L, 1L), nd))
+  # error-free transformations (Veltkamp-Dekker), vectorised
+  twoProd <- function(a, b) {
+    p <- a * b
+    ca <- 134217729 * a
+    ah <- ca - (ca - a)
+    al <- a - ah
+    cb <- 134217729 * b
+    bh <- cb - (cb - b)
+    bl <- b - bh
+    list(p = p, e = ((ah * bh - p) + ah * bl + al * bh) + al * bl)
+  }
+  twoSum <- function(a, b) {
+    s <- a + b
+    bb <- s - a
+    list(s = s, e = (a - (s - bb)) + (b - bb))
+  }
+  pr <- twoProd(hi, 1e8)
+  sm <- twoSum(pr$p, lo)
+  nlo <- sm$e + pr$e
+  nhi <- sm$s + nlo
+  nlo <- nlo - (nhi - sm$s)
+  pw <- cumprod(c(1, rep(10, 22L)))[abs(e10) + 1L]
+  down <- e10 < 0L
+  out <- numeric(length(k))
+  if (any(down)) {
+    q <- nhi[down] / pw[down]
+    # the quotient of two exact doubles is already correctly rounded; only an
+    # integer that does not fit one double needs the correction
+    inexact <- nlo[down] != 0
+    if (any(inexact)) {
+      pp <- twoProd(q[inexact], pw[down][inexact])
+      rem <- ((nhi[down][inexact] - pp$p) - pp$e) + nlo[down][inexact]
+      q[inexact] <- q[inexact] + rem / pw[down][inexact]
+    }
+    out[down] <- q
+  }
+  if (any(!down)) {
+    pp <- twoProd(nhi[!down], pw[!down])
+    out[!down] <- pp$p + (pp$e + nlo[!down] * pw[!down])
+  }
+  pos <- idx[k]
+  v[pos] <- ifelse(neg[k], -out, out)
+  v
+}
+
 # Internal helper: read a chain from PyDTMC's XML format.
 .readChainXml <- function(file) {
   if (!requireNamespace("xml2", quietly = TRUE)) {
@@ -376,7 +464,7 @@ fromFile <- function(file, format = NULL) {
   }
   from <- trimws(vapply(attrs, `[[`, character(1), "state_from"))
   to <- trimws(vapply(attrs, `[[`, character(1), "state_to"))
-  probs <- suppressWarnings(as.numeric(vapply(attrs, `[[`, character(1), "probability")))
+  probs <- .asDoubleExact(vapply(attrs, `[[`, character(1), "probability"))
   if (any(!nzchar(from)) || any(!nzchar(to)) || anyNA(probs)) {
     stop("The XML file contains empty state names or probabilities that are not numbers.")
   }

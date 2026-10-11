@@ -263,7 +263,8 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
                        allTmat = allTmat, freqMat = freqMat, n = n, m = m, s = s, Norm = Norm)
   return(new("hommc", order = order, Lambda = fit$pars, P = allTmat, states = uelement, byrow = FALSE))
   } else {
-    print("Rsolnp unavailable")
+    warning("package Rsolnp is required by fitHighOrderMultivarMC() and is not available: NULL is returned",
+            call. = FALSE)
     return(NULL)
   }
 }

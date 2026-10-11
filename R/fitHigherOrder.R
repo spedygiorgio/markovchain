@@ -50,7 +50,9 @@ setClass("HigherOrderMarkovChain", #class name
 #' seq2freqProb(sequence)
 #' seq2matHigh(sequence, order)
 #'
-#' @param sequence A character list.
+#' @param sequence The sequence of states: a character vector, or a vector
+#'   coercible to character (numbers and factors are matched to the states as
+#'   character strings), without missing values.
 #' @param order Markov chain order
 #' @param method How the weights \eqn{\lambda} are estimated: \code{"lsq"}
 #'   (default) or \code{"mle"}, see Details.
@@ -66,7 +68,7 @@ setClass("HigherOrderMarkovChain", #class name
 #'   argument existed) chooses \eqn{\lambda} to minimize the squared distance
 #'   between the stationary distribution and its image under the mixture, as in
 #'   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
-#'   with a message if it is unavailable. This criterion is weak: each lag
+#'   with a warning if it is unavailable. This criterion is weak: each lag
 #'   matrix maps the empirical distribution onto itself up to end effects,
 #'   \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
 #'   objective is nearly flat in \eqn{\lambda} and the weights it returns can
@@ -91,6 +93,10 @@ setClass("HigherOrderMarkovChain", #class name
 #'   that this is not the mixture transition distribution model of Raftery
 #'   (1985), in which a single matrix is shared by all lags and is estimated
 #'   together with the weights; that model is fitted by \code{\link{fitMTD}}.
+#'
+#'   A warning is given when the sequence supplies no more observations than the
+#'   model has free parameters (the number used by \code{\link{higherOrderLogLik}}),
+#'   since the weights are then essentially undetermined.
 #'
 #' @references 
 #' Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov 
@@ -118,14 +124,20 @@ setClass("HigherOrderMarkovChain", #class name
 #' @export
 fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
   method <- match.arg(method)
-  if (!is.character(sequence) || length(sequence) < 2L || anyNA(sequence)) {
-    stop("sequence must be a non-empty character vector without missing values")
+  if (!is.atomic(sequence) || length(sequence) < 2L || anyNA(sequence)) {
+    stop("sequence must be a vector of at least two states without missing values")
   }
+  # as in fitMTD(), numbers and factors are matched to the states as character
+  sequence <- as.character(sequence)
   if (length(order) != 1L || is.na(order) || !is.finite(order) ||
       order < 1 || order != floor(order) || order >= length(sequence)) {
     stop("order must be a positive integer smaller than the sequence length")
   }
   order <- as.integer(order)
+  .warnFewObservations(
+    nobs = length(sequence) - order,
+    npar = (length(unique(sequence)) - 1L) * (1L + order * (length(unique(sequence)) - 1L)),
+    what = paste0("a higher order Markov chain of order ", order))
   if (method == "mle") return(.fitHigherOrderMle(sequence, order))
   # prbability of each states of sequence
   if (requireNamespace("Rsolnp", quietly = TRUE)) {
@@ -148,10 +160,24 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
   lambda <- model$pars
   out <- list(lambda=lambda, Q=Q, X=X)
   } else {
-    print("package Rsolnp unavailable")
+    warning("package Rsolnp is required for method = \"lsq\" and is not available: ",
+            "NULL is returned. Use method = \"mle\", which does not need it.",
+            call. = FALSE)
     out <- NULL
   }
   return(out)
+}
+
+# Warns when a model is fitted on no more observations than it has free
+# parameters: the estimates (the weights, in particular, which then stay at
+# their starting values) cannot be trusted. Nothing else changes.
+.warnFewObservations <- function(nobs, npar, what) {
+  if (nobs <= npar) {
+    warning("only ", nobs, " observation", if (nobs != 1) "s" else "",
+            " can be used to estimate the ", npar, " free parameters of ", what,
+            ": the estimates are not reliable", call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 # Maximum likelihood weights of the higher order model. The lag-o transition
@@ -303,7 +329,6 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   }
   logLik <- if (any(p <= 0)) -Inf else sum(log(p))
   r <- length(states)
-  # a fit of fitMTD() shares one matrix among all lags
   # fitMTD(): one matrix shared by all lags. fitHigherOrder(): one matrix per
   # lag; the weights of such a mixture are not identifiable (a distribution
   # common to all "from" states can be moved between lambda_i Q_i and

@@ -102,6 +102,9 @@ For an order \eqn{k} the model is
   observed only at the end of the sequence) does not enter the likelihood;
   its row of \eqn{Q} is not identified and is returned as uniform.
 
+  A warning is given when the number of observations entering the
+  likelihood does not exceed the number of free parameters.
+
   AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
   BIC the number of observations entering the likelihood. Berchtold and
   Raftery (2002) do not count the elements of \eqn{Q} estimated as exactly

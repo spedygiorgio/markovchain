@@ -11,7 +11,9 @@ seq2freqProb(sequence)
 seq2matHigh(sequence, order)
 }
 \arguments{
-\item{sequence}{A character list.}
+\item{sequence}{The sequence of states: a character vector, or a vector
+coercible to character (numbers and factors are matched to the states as
+character strings), without missing values.}
 
 \item{order}{Markov chain order}
 
@@ -36,7 +38,7 @@ The fitted model expresses the distribution of the next state as
   argument existed) chooses \eqn{\lambda} to minimize the squared distance
   between the stationary distribution and its image under the mixture, as in
   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
-  with a message if it is unavailable. This criterion is weak: each lag
+  with a warning if it is unavailable. This criterion is weak: each lag
   matrix maps the empirical distribution onto itself up to end effects,
   \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
   objective is nearly flat in \eqn{\lambda} and the weights it returns can
@@ -61,6 +63,10 @@ The fitted model expresses the distribution of the next state as
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
   together with the weights; that model is fitted by \code{\link{fitMTD}}.
+
+  A warning is given when the sequence supplies no more observations than the
+  model has free parameters (the number used by \code{\link{higherOrderLogLik}}),
+  since the weights are then essentially undetermined.
 }
 \examples{
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",

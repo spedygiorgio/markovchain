@@ -51,6 +51,9 @@
 #'   observed only at the end of the sequence) does not enter the likelihood;
 #'   its row of \eqn{Q} is not identified and is returned as uniform.
 #'
+#'   A warning is given when the number of observations entering the
+#'   likelihood does not exceed the number of free parameters.
+#'
 #'   AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
 #'   BIC the number of observations entering the likelihood. Berchtold and
 #'   Raftery (2002) do not count the elements of \eqn{Q} estimated as exactly
@@ -201,6 +204,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   lambda <- stats::setNames(as.numeric(best$lambda), paste0("lag", seq_len(order)))
   npar <- r * (r - 1L) + order - 1L
   nobs <- length(times)
+  .warnFewObservations(nobs, npar, paste0("an MTD model of order ", order))
   logLik <- best$logLik
   list(lambda = lambda,
        estimate = new("markovchain", states = states, byrow = TRUE,

@@ -68,8 +68,80 @@ test_that("standard errors flag the boundary and arguments are validated", {
   x <- .mtdSim(1500, 5)
   f <- suppressWarnings(fitMTD(x, 3, se = TRUE))
   expect_equal(dim(f$se$Q), c(3, 3))
-  expect_error(fitMTD(x, 2, model = "MTDg", se = TRUE), "only available")
+  expect_error(fitMTD(x, 2, model = "MTDg", negativeWeights = TRUE), "only available")
+  expect_error(fitMTD(x, 2, negativeWeights = 1), "negativeWeights")
   expect_error(fitMTD(x, 2, accelerate = NA), "accelerate")
   expect_error(fitMTD(x, 2, se = "yes"), "se must")
   expect_null(fitMTD(x, 2)$se)
+})
+
+test_that("MTDg weights are not identified, its transition probabilities are", {
+  x <- .mtdSim(1500, 6)
+  f <- fitMTD(x, 2, model = "MTDg", se = TRUE)
+  # moving mass between the lags leaves every probability unchanged
+  A1 <- f$lambda[1] * t(f$Q[[1]])
+  A2 <- f$lambda[2] * t(f$Q[[2]])
+  shift <- 0.02 * matrix(1 / 3, 3, 3)
+  l <- c(sum(A1[1, ]) + 0.02, sum(A2[1, ]) - 0.02)
+  g <- list(lambda = l, Q = list(t((A1 + shift) / l[1]), t((A2 - shift) / l[2])))
+  expect_equal(higherOrderLogLik(x, g, start = 3)$logLik, f$logLikelihood, tolerance = 1e-10)
+  expect_true(all(is.na(f$se$lambda)))
+  expect_true(all(f$se$probabilities > 0))
+  expect_equal(colnames(f$se$probabilities), c("a", "b", "c"))
+  expect_true("a-b" %in% rownames(f$se$probabilities))
+})
+
+test_that("standard errors of the transition probabilities agree with the Monte Carlo spread", {
+  skip_on_cran()
+  st <- letters[1:3]
+  Q1 <- matrix(c(.7, .2, .1, .1, .8, .1, .2, .2, .6), 3, byrow = TRUE, dimnames = list(st, st))
+  Q2 <- matrix(c(.3, .4, .3, .5, .2, .3, .1, .3, .6), 3, byrow = TRUE, dimnames = list(st, st))
+  trg <- list(lambda = c(.6, .4), Q = list(t(Q1), t(Q2)))
+  set.seed(10)
+  est <- t(vapply(seq_len(100), function(i) {
+    x <- higherOrderSimulate(1500, trg, t0 = c("a", "b"))
+    f <- fitMTD(x, 2, model = "MTDg", se = TRUE)
+    p <- higherOrderPredict(f, rbind(c("a", "b"), c("c", "c")))
+    c(p[1, 1], f$se$probabilities["a-b", "a"], p[2, 3], f$se$probabilities["c-c", "c"])
+  }, numeric(4)))
+  expect_equal(mean(est[, 2]) / stats::sd(est[, 1]), 1, tolerance = 0.25)
+  expect_equal(mean(est[, 4]) / stats::sd(est[, 3]), 1, tolerance = 0.25)
+})
+
+test_that("negative weights: Raftery's condition, nesting and the likelihood", {
+  x <- read.csv(system.file("extdata", "epileptic_seizures.csv",
+                            package = "markovchain"))$seizure
+  f <- fitMTD(x, 5, start = 15, negativeWeights = TRUE)
+  g <- fitMTD(x, 5, start = 15)
+  expect_true(f$negativeWeights)
+  expect_false(g$negativeWeights)
+  expect_gte(f$logLikelihood, g$logLikelihood - 1e-8)
+  expect_lt(min(f$lambda), 0)
+  expect_equal(sum(f$lambda), 1)
+  expect_equal(f$npar, g$npar)
+  # every transition probability, for all 2^5 histories, lies in [0, 1]
+  hist <- as.matrix(expand.grid(rep(list(c("0", "1")), 5), stringsAsFactors = FALSE))
+  p <- higherOrderPredict(f, hist)
+  expect_true(all(p >= -1e-12 & p <= 1 + 1e-12))
+  # higherOrderPredict() normalizes, so check that the raw mixture sums to one
+  raw <- apply(hist, 1L, function(h) sum(vapply(1:5, function(i)
+    f$lambda[i] * f$Q[[i]][, h[5 - i + 1]], numeric(2))))
+  expect_equal(unname(raw), rep(1, nrow(hist)), tolerance = 1e-10)
+  expect_equal(higherOrderLogLik(x, f, start = 15)$logLik, f$logLikelihood, tolerance = 1e-10)
+})
+
+test_that("standard errors with negative weights agree with the Monte Carlo spread", {
+  skip_on_cran()
+  st <- letters[1:3]
+  Qn <- matrix(1 / 6, 3, 3, dimnames = list(st, st))
+  diag(Qn) <- 2 / 3
+  trn <- list(lambda = c(1.2, -0.2), Q = list(t(Qn), t(Qn)))
+  set.seed(11)
+  est <- t(vapply(seq_len(60), function(i) {
+    x <- higherOrderSimulate(1500, trn, t0 = c("a", "b"))
+    f <- suppressWarnings(fitMTD(x, 2, negativeWeights = TRUE, se = TRUE))
+    c(f$lambda[2], f$se$lambda[2])
+  }, numeric(2)))
+  expect_equal(mean(est[, 1]), -0.2, tolerance = 0.05, scale = 1)
+  expect_equal(mean(est[, 2]) / stats::sd(est[, 1]), 1, tolerance = 0.3)
 })

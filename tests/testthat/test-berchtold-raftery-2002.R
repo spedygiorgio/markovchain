@@ -125,3 +125,20 @@ test_that("fitMTD reproduces the MTD(2)-MTD(4) rows of Table 3 (epileptic seizur
     expect_lt(abs(fit$BIC - published$bic[k - 1L]), 0.06)
   }
 })
+
+test_that("with negative weights fitMTD reaches the MTD(5)-MTD(10) rows of Table 3", {
+  skip_on_cran()
+  x <- .readSeries("epileptic_seizures.csv", "seizure")
+  published <- c(-112.4, -110.4, -107.9, -102.3, -100.5, -100.0)
+  for (k in 5:10) {
+    fit <- fitMTD(x, k, start = L + 1L, negativeWeights = TRUE)
+    if (k <= 6) {
+      # the published maxima are reproduced
+      expect_lt(abs(fit$logLikelihood - published[k - 4L]), 0.06)
+    } else {
+      # higher maxima than the published ones are found (for MTD(8) the
+      # published weights allow at most -102.40, below the printed -102.3)
+      expect_gt(fit$logLikelihood, published[k - 4L] - 0.05)
+    }
+  }
+})

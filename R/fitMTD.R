@@ -18,10 +18,9 @@
 #'   \code{\link{fitHigherOrder}}, which mixes a different empirical matrix
 #'   for each lag and does not estimate them jointly with the weights.
 #'
-#'   The weights are constrained to be non-negative, as in most applications
-#'   of the model; Raftery's original formulation also allows negative weights
-#'   provided all the transition probabilities stay in \eqn{[0, 1]}, which is
-#'   not supported here. Under this constraint the likelihood is maximized by
+#'   By default the weights are constrained to be non-negative, as in most
+#'   applications of the model (see below for negative weights). Under this
+#'   constraint the likelihood is maximized by
 #'   the EM algorithm of Lebre and Bourguignon (2008), in which the latent
 #'   variable is the lag that generated each observation; it is implemented in
 #'   C++. Every iteration increases the likelihood, but the likelihood of the
@@ -75,6 +74,38 @@
 #'   lower orders. The row of \eqn{Q_g} of a state never seen at lag \eqn{g} is
 #'   returned as uniform.
 #'
+#'   The weights and matrices of the MTDg model are not identified: since the
+#'   probabilities only depend on the products \eqn{A_g = \lambda_g Q_g}, adding
+#'   \eqn{\epsilon} times the same probability vector to every row of \eqn{A_1}
+#'   and subtracting it from every row of \eqn{A_2} changes \eqn{\lambda_1},
+#'   \eqn{\lambda_2}, \eqn{Q_1} and \eqn{Q_2} but no transition probability.
+#'   The maximum is therefore attained on a set of dimension up to
+#'   \eqn{(k - 1) r}, of which the values returned are one point; only the
+#'   transition probabilities (and the likelihood) are determined, and
+#'   \code{npar} counts the identified parameters. The lag weights of an MTDg
+#'   fit should not be interpreted as the importance of the lags.
+#'
+#'   With \code{negativeWeights = TRUE} (model \code{"MTD"} only) the weights may
+#'   be negative, as in Raftery's (1985) original formulation, provided every
+#'   transition probability \eqn{\sum_g \lambda_g q_{i_g j}} lies in
+#'   \eqn{[0, 1]} for all the combinations of departure states \eqn{i_g}: for
+#'   each arrival state \eqn{j}, \eqn{\min_i q_{ij}} times the sum of the positive
+#'   weights must not be below \eqn{\max_i q_{ij}} times the sum of the absolute
+#'   negative weights (Raftery, 1985). The EM algorithm does not apply, and the
+#'   likelihood is maximized by block coordinate ascent in the spirit of
+#'   Berchtold (2001): in the weights and in each row of \eqn{Q} in turn, mass is
+#'   moved from the entry with the smallest to the one with the largest partial
+#'   derivative, by the step that maximizes the likelihood along that direction
+#'   within the feasible region. Order \eqn{k} starts from the fit with
+#'   non-negative weights of the same order and from the fit of order
+#'   \eqn{k - 1} with a zero weight for the new lag, so its likelihood is never
+#'   below either of them; for the requested order it also starts with each lag
+#'   in turn given a negative weight. The likelihood has several local maxima,
+#'   and this is slower than the EM algorithm. \code{iterations} then counts the
+#'   sweeps of the ascent at the requested order. Unidentified rows of \eqn{Q} are
+#'   returned as uniform, or as the mean of the other rows if a uniform row
+#'   would violate the condition.
+#'
 #'   With \code{se = TRUE} the standard errors are those of the observed
 #'   information at the maximum, by the delta method, obtained in closed form
 #'   with the entries of each probability vector (the weights and each row of
@@ -82,8 +113,13 @@
 #'   space (below \eqn{10^{-4}}) are held fixed, as in the usual treatment of
 #'   constrained maxima, and have \code{NA}; a warning is given if a weight is
 #'   among them, since then the standard errors of the others are conditional on
-#'   that weight being zero. They are asymptotic, and approximate in small
-#'   samples or with sparse \eqn{Q}.
+#'   that weight being zero (with negative weights allowed, if Raftery's
+#'   condition is binding). Standard errors are also given for the transition
+#'   probabilities of every history observed in the data. For the MTDg model
+#'   only these are available, the weights and matrices not being identified;
+#'   they are computed with a generalized inverse of the information, which
+#'   gives the same variance for any identified quantity. All are asymptotic,
+#'   and approximate in small samples or with sparse \eqn{Q}.
 #'
 #'   AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
 #'   BIC the number of observations entering the likelihood. Berchtold and
@@ -110,7 +146,10 @@
 #'   scheme of Varadhan and Roland (2008)? The default \code{FALSE} keeps the
 #'   plain algorithm. Convergence is much faster when the likelihood is flat,
 #'   and the same maximum is reached.
-#' @param se Logical: compute standard errors (only for \code{model = "MTD"})?
+#' @param se Logical: compute standard errors (see Details)?
+#' @param negativeWeights Logical: allow negative lag weights, as in Raftery
+#'   (1985)? Only for \code{model = "MTD"}; the default \code{FALSE} keeps them
+#'   non-negative.
 #'
 #' @return A list with components
 #'   \item{lambda}{the estimated lag weights, named \code{lag1}, \code{lag2}, \dots}
@@ -127,13 +166,19 @@
 #'     of free parameters, information criteria and number of observations
 #'     entering the likelihood}
 #'   \item{order, start}{as used in the fit}
-#'   \item{iterations, converged}{EM iterations and convergence flag of the
+#'   \item{iterations, converged}{EM iterations (sweeps of the coordinate
+#'     ascent with \code{negativeWeights = TRUE}) and convergence flag of the
 #'     returned fit}
 #'   \item{model}{\code{"MTD"} or \code{"MTDg"}}
+#'   \item{negativeWeights}{as used in the fit}
 #'   \item{se}{only if \code{se = TRUE}: a list with the standard errors
-#'     \code{lambda} of the weights and \code{Q} of the matrix (same layout as
-#'     \code{estimate}); \code{NA} for the entries that cannot be estimated, see
-#'     Details}
+#'     \code{lambda} of the weights, \code{Q} of the matrix (same layout as
+#'     \code{estimate}; \code{NA} for the entries that cannot be estimated and,
+#'     for MTDg, for all the weights and matrices) and \code{probabilities} of
+#'     the transition probabilities, a matrix with one row per history observed
+#'     in the data (named by its states, oldest first, separated by \code{"-"},
+#'     as passed to \code{\link{higherOrderPredict}}) and one column per next
+#'     state; see Details}
 #'
 #' @references
 #' Raftery, A. E. (1985). A model for high-order Markov chains. Journal of the
@@ -177,7 +222,7 @@
 #' @export
 fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                    tol = 1e-10, maxit = 10000L, model = c("MTD", "MTDg"),
-                   accelerate = FALSE, se = FALSE) {
+                   accelerate = FALSE, se = FALSE, negativeWeights = FALSE) {
   model <- match.arg(model)
   seqs <- .asSequenceList(
     sequence, 3L, "sequence must be a vector of at least three states without missing values")
@@ -205,8 +250,11 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     stop("accelerate must be TRUE or FALSE")
   }
   if (length(se) != 1L || is.na(se) || !is.logical(se)) stop("se must be TRUE or FALSE")
-  if (se && model != "MTD") {
-    stop("standard errors are only available for model = \"MTD\"")
+  if (length(negativeWeights) != 1L || is.na(negativeWeights) || !is.logical(negativeWeights)) {
+    stop("negativeWeights must be TRUE or FALSE")
+  }
+  if (negativeWeights && model != "MTD") {
+    stop("negative weights are only available for model = \"MTD\"")
   }
   maxit <- as.integer(maxit)
 
@@ -281,6 +329,40 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   }
   fit <- best
 
+  if (negativeWeights) {
+    # Raftery's model with weights of any sign. Order k starts from the fit with
+    # non-negative weights of the same order and from the fit of order k - 1
+    # with a zero weight for the new lag (so that the likelihood never decreases
+    # with the order, nor falls below the non-negative fit), and the likelihood
+    # is maximized by block coordinate ascent under Raftery's condition.
+    prev <- fitsMTD[[1L]]
+    for (k in seq_len(order)[-1L]) {
+      pc <- .mtdPatterns(lagged, k)
+      seenRows <- sort(unique(as.vector(lagged[, 1L + seq_len(k)]))) + 1L
+      starts <- list(fitsMTD[[k]], list(lambda = c(prev$lambda, 0), Q = prev$Q))
+      if (k == order) {
+        # the likelihood has several local maxima: for the requested order also
+        # start with each lag in turn given a negative weight, the matrix being
+        # shrunk towards its column means so that the negative weight is allowed
+        l0 <- as.numeric(fitsMTD[[k]]$lambda)
+        Q0 <- fitsMTD[[k]]$Q
+        Qmean <- matrix(colMeans(Q0[seenRows, , drop = FALSE]), r, r, byrow = TRUE)
+        for (g in seq_len(k)) for (v in c(-0.05, -0.15, -0.3)) for (sh in c(0, 0.3, 0.6)) {
+          l <- l0
+          l[g] <- v
+          l[-g] <- if (sum(l[-g]) > 0) l[-g] * (1 - v) / sum(l[-g]) else (1 - v) / (k - 1)
+          Qs <- (1 - sh) * Q0 + sh * Qmean
+          if (.mtdFeasible(l, Qs, seenRows)) starts[[length(starts) + 1L]] <- list(lambda = l, Q = Qs)
+        }
+      }
+      prev <- bestOf(lapply(starts, function(s0)
+        tryCatch(.mtdFreeWeights(pc$patterns, pc$counts, as.numeric(s0$lambda), s0$Q,
+                                 seenRows, tol, maxit),
+                 error = function(e) NULL)))
+    }
+    if (order > 1L) fit <- prev
+  }
+
   if (model == "MTDg") {
     # Same scheme for the model with a matrix for each lag. Order k starts from
     # the MTD fit of order k (so that the likelihood is never below it), from the
@@ -341,6 +423,15 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   logLik <- fit$logLik
   if (model == "MTD") {
     Q <- uniformRows(fit$Q, 0L)
+    if (negativeWeights && !.mtdFeasible(lambda, Q, seq_len(r))) {
+      # with negative weights a uniform row may give negative probabilities:
+      # the unidentified rows are set to the mean of the others instead, which
+      # keeps every probability within the range of the identified ones
+      seenRows <- sort(unique(as.vector(lagged[, -1L]))) + 1L
+      unseen <- setdiff(seq_len(r), seenRows)
+      Q[unseen, ] <- matrix(colMeans(Q[seenRows, , drop = FALSE]), length(unseen), r,
+                            byrow = TRUE)
+    }
     npar <- r * (r - 1L) + order - 1L
     estimate <- new("markovchain", states = states, byrow = TRUE,
                     transitionMatrix = Q, name = paste0("MTD(", order, ")"))
@@ -359,12 +450,19 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
               AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(nobs) * npar,
               nobs = nobs, order = order, start = start,
               iterations = fit$iterations, converged = fit$converged,
-              model = model)
+              model = model, negativeWeights = negativeWeights)
   if (se) {
     pc <- .mtdPatterns(lagged, order)
-    seen <- seq_len(r) %in% (unique(as.vector(lagged[, -1L])) + 1L)
-    out$se <- .mtdStdErrors(pc$patterns, pc$counts, as.numeric(lambda), Q, seen,
-                            states, names(lambda))
+    if (model == "MTD") {
+      seen <- list(seq_len(r) %in% (unique(as.vector(lagged[, -1L])) + 1L))
+      Qs <- list(Q)
+    } else {
+      seen <- lapply(seq_len(order), function(g) seq_len(r) %in% (unique(lagged[, g + 1L]) + 1L))
+      Qs <- Qg
+    }
+    out$se <- .mtdStdErrors(pc$patterns, pc$counts, as.numeric(lambda), Qs, seen,
+                            states, names(lambda), freeWeights = negativeWeights)
+    if (model == "MTD") out$se$Q <- out$se$Q[[1L]]
   }
   out
 }
@@ -478,24 +576,31 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   list(lambda = u$lambda, Q = u$Qs, logLik = L0, iterations = evals, converged = converged)
 }
 
-# Standard errors of the MTD estimates from the observed information, by the
-# delta method. In every block that must sum to one (the weights and each row
-# of Q) the entries that are not on the boundary (above eps) are free, except
-# the largest one, which is one minus the others; the entries at the boundary
-# are held fixed and get NA. The log-likelihood is a sum of log f, with f
-# bilinear in (lambda, Q), so its Hessian is available in closed form.
-.mtdStdErrors <- function(patterns, counts, lambda, Q, seen, states, lagNames,
-                          eps = 1e-4) {
+# Standard errors of the MTD (one matrix in Qs) or MTDg (one matrix per lag)
+# estimates from the observed information, by the delta method. In every block
+# that must sum to one (the weights and each row of each matrix) the entries
+# that are not on the boundary (above eps) are free, except the largest one,
+# which is one minus the others; the entries at the boundary are held fixed and
+# get NA. With freeWeights (negative weights allowed) no weight is on the
+# boundary. The log-likelihood is a sum of log f, with f bilinear in the weights
+# and the matrices, so its Hessian is available in closed form.
+.mtdStdErrors <- function(patterns, counts, lambda, Qs, seen, states, lagNames,
+                          freeWeights = FALSE, eps = 1e-4) {
   k <- length(lambda)
-  r <- nrow(Q)
+  B <- length(Qs)
+  r <- nrow(Qs[[1L]])
+  rr <- r * r
   m <- nrow(patterns)
-  P <- k + r * r
-  phi <- c(lambda, as.vector(Q))
-  blocks <- c(list(seq_len(k)),
-              lapply(which(seen), function(i) k + i + r * (seq_len(r) - 1L)))
+  P <- k + B * rr
+  phi <- c(lambda, unlist(lapply(Qs, as.vector), use.names = FALSE))
+  block <- function(g) if (B == 1L) 1L else g
+  rowBlocks <- unlist(lapply(seq_len(B), function(b)
+    lapply(which(seen[[b]]), function(i) k + (b - 1L) * rr + i + r * (seq_len(r) - 1L))),
+    recursive = FALSE)
   cols <- list()
-  for (b in blocks) {
-    act <- b[phi[b] > eps]
+  for (bl in c(list(seq_len(k)), rowBlocks)) {
+    isWeights <- identical(bl, seq_len(k))
+    act <- if (isWeights && freeWeights) bl else bl[phi[bl] > eps]
     if (length(act) < 2L) next
     ref <- act[which.max(phi[act])]
     for (o in setdiff(act, ref)) {
@@ -506,43 +611,226 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     }
   }
   empty <- list(lambda = stats::setNames(rep(NA_real_, k), lagNames),
-                Q = matrix(NA_real_, r, r, dimnames = list(states, states)))
+                Q = lapply(seq_len(B), function(b)
+                  matrix(NA_real_, r, r, dimnames = list(states, states))))
   if (length(cols) == 0L) return(empty)
   A <- do.call(cbind, cols)
   # gradient of f_p and the cross terms of its Hessian
   G <- matrix(0, m, P)
   f <- numeric(m)
-  S <- matrix(0, P, P)
-  w <- counts
+  cells <- lapply(seq_len(k), function(g)
+    k + (block(g) - 1L) * rr + patterns[, g + 1L] + 1L + r * patterns[, 1L])
   for (g in seq_len(k)) {
-    cell <- patterns[, g + 1L] + 1L + r * patterns[, 1L]
-    q <- Q[cbind(patterns[, g + 1L] + 1L, patterns[, 1L] + 1L)]
+    q <- phi[cells[[g]]]
     f <- f + lambda[g] * q
     G[, g] <- q
-    G[cbind(seq_len(m), k + cell)] <- G[cbind(seq_len(m), k + cell)] + lambda[g]
+    G[cbind(seq_len(m), cells[[g]])] <- G[cbind(seq_len(m), cells[[g]])] + lambda[g]
   }
   if (any(f <= 0)) return(empty)
+  S <- matrix(0, P, P)
   for (g in seq_len(k)) {
-    cell <- patterns[, g + 1L] + 1L + r * patterns[, 1L]
-    tot <- rowsum(counts / f, cell)
-    idx <- k + as.integer(rownames(tot))
+    tot <- rowsum(counts / f, cells[[g]])
+    idx <- as.integer(rownames(tot))
     S[g, idx] <- S[g, idx] + tot
     S[idx, g] <- S[idx, g] + tot
   }
   info <- crossprod(G * (sqrt(counts) / f)) - S      # minus the Hessian
   J <- crossprod(A, info %*% A)
-  covPsi <- tryCatch(solve(J), error = function(e) NULL)
-  if (is.null(covPsi) || any(diag(covPsi) < 0)) {
+  J <- (J + t(J)) / 2
+  # In the MTDg model the weights and the matrices are not identified (mass can
+  # be moved between the lags without changing any transition probability), so
+  # J is singular; the transition probabilities are identified, and their
+  # variance is the same with any generalized inverse of J. For the MTD model J
+  # is invertible unless the estimate is degenerate.
+  eig <- eigen(J, symmetric = TRUE)
+  top <- max(abs(eig$values))
+  # in the MTDg model the flat directions are curved in these coordinates, so
+  # away from the exact maximum their curvature is small but not zero
+  flat <- if (B == 1L) 1e-6 else 1e-4
+  if (any(eig$values < -flat * top)) {
+    warning("the observed information is not positive semi-definite: ",
+            "standard errors are not available")
+    return(empty)
+  }
+  # directions along which the likelihood is flat (up to the convergence of the
+  # fit) are dropped
+  keep <- eig$values > (if (B == 1L) 1e-10 else flat) * top
+  singular <- !all(keep)
+  covPsi <- eig$vectors[, keep, drop = FALSE] %*%
+    (t(eig$vectors[, keep, drop = FALSE]) / eig$values[keep])
+  if (singular && B == 1L) {
     warning("the information matrix is singular: standard errors are not available")
     return(empty)
+  }
+
+  # transition probabilities of every context observed in the data
+  contexts <- unique(patterns[, -1L, drop = FALSE])
+  nc <- nrow(contexts)
+  probSE <- matrix(NA_real_, nc, r)
+  for (j in seq_len(r)) {
+    D <- matrix(0, nc, P)
+    for (g in seq_len(k)) {
+      cell <- k + (block(g) - 1L) * rr + contexts[, g] + 1L + r * (j - 1L)
+      D[, g] <- phi[cell]
+      D[cbind(seq_len(nc), cell)] <- D[cbind(seq_len(nc), cell)] + lambda[g]
+    }
+    DA <- D %*% A
+    probSE[, j] <- sqrt(pmax(rowSums((DA %*% covPsi) * DA), 0))
+  }
+  # the history of a context, oldest first, as in higherOrderPredict()
+  dimnames(probSE) <- list(
+    apply(contexts[, k:1, drop = FALSE] + 1L, 1L, function(h) paste(states[h], collapse = "-")),
+    states)
+  probSE <- probSE[order(rownames(probSE)), , drop = FALSE]
+
+  if (B > 1L) {
+    return(list(lambda = empty$lambda, Q = empty$Q, probabilities = probSE))
   }
   variance <- rowSums((A %*% covPsi) * A)
   se <- sqrt(pmax(variance, 0))
   se[rowSums(abs(A)) == 0] <- NA_real_
-  if (any(lambda < eps)) {
+  if (!freeWeights && any(lambda < eps)) {
     warning("some lag weights are on the boundary (below ", eps,
             "): their standard errors are not available (NA)")
   }
+  if (freeWeights && .mtdFeasibilitySlack(lambda, Qs[[1L]], which(seen[[1L]])) < 1e-6) {
+    warning("the estimate lies on the boundary of Raftery's condition (a transition ",
+            "probability is zero for some lags): the standard errors are unreliable")
+  }
   list(lambda = stats::setNames(se[seq_len(k)], lagNames),
-       Q = matrix(se[-seq_len(k)], r, r, dimnames = list(states, states)))
+       Q = list(matrix(se[k + seq_len(rr)], r, r, dimnames = list(states, states))),
+       probabilities = probSE)
+}
+
+# Raftery's condition for the MTD model with weights of any sign: every
+# probability sum_g lambda_g q[i_g, j], over all the combinations of the
+# departure states i_g in `rows`, must be non-negative (they then sum to one, so
+# none exceeds one). The smallest of them for arrival state j is
+# min_i q[i, j] * (sum of the positive weights) - max_i q[i, j] * (sum of the
+# absolute negative weights); the slack is the smallest over j.
+.mtdFeasibilitySlack <- function(lambda, Q, rows) {
+  Qr <- Q[rows, , drop = FALSE]
+  pos <- sum(pmax(lambda, 0))
+  neg <- sum(pmax(-lambda, 0))
+  min(apply(Qr, 2L, min) * pos - apply(Qr, 2L, max) * neg)
+}
+
+.mtdFeasible <- function(lambda, Q, rows, tol = 1e-12) {
+  all(Q >= 0) && .mtdFeasibilitySlack(lambda, Q, rows) >= -tol
+}
+
+# Maximum likelihood for the MTD model with weights of any sign, by block
+# coordinate ascent in the spirit of Berchtold (2001): in each block that sums
+# to one (the weights, then each identified row of Q) mass moves from the entry
+# with the smallest to the one with the largest partial derivative, by the
+# step that maximizes the likelihood along that direction (a concave function
+# of the step) within the feasible interval (entries of Q non-negative,
+# Raftery's condition, positive probabilities of the observed patterns).
+# Every move increases the likelihood; the sweeps stop when one increases it
+# by less than tol relatively, or after maxit sweeps.
+.mtdFreeWeights <- function(patterns, counts, lambda, Q, rows, tol, maxit) {
+  k <- length(lambda)
+  r <- nrow(Q)
+  to <- patterns[, 1L] + 1L
+  from <- patterns[, -1L, drop = FALSE] + 1L
+  comp <- function(Q) matrix(Q[cbind(as.vector(from), rep(to, k))], ncol = k)
+  C <- comp(Q)
+  f <- drop(C %*% lambda)
+  logLik <- function(f) if (any(f <= 0)) -Inf else sum(counts * log(f))
+  L <- logLik(f)
+  if (!is.finite(L) || !.mtdFeasible(lambda, Q, rows)) {
+    stop("the starting point of the MTD fit with negative weights is not feasible")
+  }
+
+  # largest feasible step in [0, upper] along a direction, the feasible set
+  # being convex
+  maxStep <- function(upper, feasible) {
+    if (feasible(upper)) return(upper)
+    lo <- 0
+    hi <- upper
+    for (it in 1:60) {
+      mid <- (lo + hi) / 2
+      if (feasible(mid)) lo <- mid else hi <- mid
+    }
+    lo
+  }
+  # maximizer of sum c log(f + delta h) on [0, upper], concave in delta, with a
+  # positive derivative at 0
+  lineMax <- function(h, upper) {
+    d1 <- function(delta) sum(counts * h / (f + delta * h))
+    if (d1(upper) >= 0) return(upper)
+    lo <- 0
+    hi <- upper
+    for (it in 1:60) {
+      mid <- (lo + hi) / 2
+      if (d1(mid) > 0) lo <- mid else hi <- mid
+    }
+    lo
+  }
+  # f stays positive along f + delta h for delta below this bound
+  positiveBound <- function(h) {
+    neg <- h < 0
+    if (!any(neg)) Inf else min(f[neg] / -h[neg]) * (1 - 1e-12)
+  }
+
+  sweeps <- 0L
+  converged <- FALSE
+  while (sweeps < maxit) {
+    sweeps <- sweeps + 1L
+    Lstart <- L
+    # weights
+    w <- counts / f
+    grad <- colSums(C * w)
+    a <- which.max(grad)
+    b <- which.min(grad)
+    if (grad[a] - grad[b] > 1e-12 * abs(L)) {
+      h <- C[, a] - C[, b]
+      upper <- min(positiveBound(h), 10)
+      upper <- maxStep(upper, function(d) {
+        l <- lambda
+        l[a] <- l[a] + d
+        l[b] <- l[b] - d
+        .mtdFeasible(l, Q, rows)
+      })
+      if (upper > 0) {
+        delta <- lineMax(h, upper)
+        lambda[a] <- lambda[a] + delta
+        lambda[b] <- lambda[b] - delta
+        f <- f + delta * h
+      }
+    }
+    # rows of Q
+    for (i in rows) {
+      w <- counts / f
+      # derivative of f_p with respect to Q[i, j]: sum of the weights of the
+      # lags at which the departure state is i, if the arrival state is j
+      lamI <- drop((from == i) %*% lambda)
+      grad <- vapply(seq_len(r), function(j) sum((w * lamI)[to == j]), numeric(1))
+      a <- which.max(grad)
+      canDecrease <- which(Q[i, ] > 0)
+      b <- canDecrease[which.min(grad[canDecrease])]
+      if (length(b) == 0L || grad[a] - grad[b] <= 1e-12 * abs(L)) next
+      h <- lamI * ((to == a) - (to == b))
+      upper <- min(Q[i, b], positiveBound(h))
+      upper <- maxStep(upper, function(d) {
+        Qn <- Q
+        Qn[i, a] <- Qn[i, a] + d
+        Qn[i, b] <- max(Qn[i, b] - d, 0)
+        .mtdFeasible(lambda, Qn, rows)
+      })
+      if (upper <= 0) next
+      delta <- lineMax(h, upper)
+      Q[i, a] <- Q[i, a] + delta
+      Q[i, b] <- max(Q[i, b] - delta, 0)
+      f <- f + delta * h
+    }
+    C <- comp(Q)
+    f <- drop(C %*% lambda)
+    L <- logLik(f)
+    if (L - Lstart <= tol * (abs(L) + tol)) {
+      converged <- TRUE
+      break
+    }
+  }
+  list(lambda = lambda, Q = Q, logLik = L, iterations = sweeps, converged = converged)
 }

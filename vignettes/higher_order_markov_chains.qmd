@@ -166,7 +166,7 @@ P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\,
 $$
 where $Q = (q_{ij})$ is an $r \times r$ transition matrix (rows are departure states) and the lag weights $\lambda_g$ sum to one. The model has only $r(r-1) + k - 1$ parameters, one more for each additional lag, and for $k = 1$ it is the first-order Markov chain. [@berchtold2002mixture] review the model, its extensions and its applications.
 
-`fitMTD(sequence, order, start, nstart, tol, maxit)` estimates $Q$ and $\lambda$ by maximum likelihood. As in most applications, the weights are constrained to be non-negative (Raftery's original formulation also admits negative weights, provided that every transition probability stays in $[0, 1]$; this case is not supported). Under this constraint the model is a mixture in which an unobserved lag generates each observation, and the likelihood is maximized by the EM algorithm of [@lebre2008em], implemented in C++: the E-step computes the posterior probability of each lag for each observation, the M-step updates the weights as the average of these probabilities and $Q$ as the transition counts weighted by them. Each iteration increases the likelihood, but the MTD likelihood can have several local maxima [@berchtold2001estimation], so the models of order $1, \dots, k$ are fitted in turn on the same observations and each order is started both from equal weights and from the fit of the previous order, extended with a zero and with a small positive weight for the new lag. The first extension has the likelihood of the previous order, so the likelihood returned never decreases with the order, as it must for nested models; `nstart - 1` further random starting points can be added, and the best fit is returned.
+`fitMTD(sequence, order, start, nstart, tol, maxit)` estimates $Q$ and $\lambda$ by maximum likelihood. By default, as in most applications, the weights are constrained to be non-negative (negative weights are discussed below). Under this constraint the model is a mixture in which an unobserved lag generates each observation, and the likelihood is maximized by the EM algorithm of [@lebre2008em], implemented in C++: the E-step computes the posterior probability of each lag for each observation, the M-step updates the weights as the average of these probabilities and $Q$ as the transition counts weighted by them. Each iteration increases the likelihood, but the MTD likelihood can have several local maxima [@berchtold2001estimation], so the models of order $1, \dots, k$ are fitted in turn on the same observations and each order is started both from equal weights and from the fit of the previous order, extended with a zero and with a small positive weight for the new lag. The first extension has the likelihood of the previous order, so the likelihood returned never decreases with the order, as it must for nested models; `nstart - 1` further random starting points can be added, and the best fit is returned.
 
 The likelihood is conditional on the observations before `start`, by default `order + 1`; as for `higherOrderLogLik`, models of different orders are comparable only when they share `start`. The function returns the weights, the matrix $Q$ as a `markovchain` object (`estimate`), the maximized log-likelihood with AIC and BIC (based on $r(r-1) + k - 1$ parameters), and, in the element `Q`, the matrix in the column layout used by `fitHigherOrder`, so that the fit can also be passed to `higherOrderLogLik`.
 
@@ -201,7 +201,90 @@ fits[["Koeberg 2"]]$lambda
 round(fits[["Koeberg 2"]]$estimate@transitionMatrix, 4)
 ```
 
-The weight of the first lag is about three times that of the second: the wind direction depends mostly on the previous hour, but the hour before still adds information, at the cost of a single extra parameter. More general MTD variants (different matrices for each lag, covariates, hidden states) are described in [@berchtold2002mixture] and are outside the scope of `fitMTD`.
+The weight of the first lag is about three times that of the second: the wind direction depends mostly on the previous hour, but the hour before still adds information, at the cost of a single extra parameter. Other MTD variants (covariates, hidden states) are described in [@berchtold2002mixture] and are outside the scope of `fitMTD`; the variant with a matrix for each lag is described below.
+
+## Standard errors
+
+With `se = TRUE`, `fitMTD` also returns asymptotic standard errors from the observed information at the maximum, computed in closed form (the log-likelihood is a sum of logarithms of functions that are bilinear in $\lambda$ and $Q$) with the delta method, the weights and each row of $Q$ summing to one. Parameters on the boundary of the parameter space (below $10^{-4}$, such as the structural zeros of $Q$) are held fixed and get `NA`, with a warning when a weight is among them. The element `se$probabilities` gives the standard errors of the transition probabilities of every history observed in the data, named as the histories passed to `higherOrderPredict` (oldest state first).
+
+```{r}
+#| label: fitMTDse
+fitSE <- fitMTD(series$Koeberg, order = 2, start = 15, se = TRUE)
+cbind(estimate = fitSE$lambda, se = fitSE$se$lambda)
+round(fitSE$se$Q, 3)
+```
+
+The two weights have the same standard error because they sum to one. In repeated simulations from a known MTD model, these standard errors agree with the spread of the estimates.
+
+## Negative weights
+
+[@raftery1985model] allowed negative weights, provided that every transition probability $\sum_g \lambda_g q_{i_g j}$ stays in $[0, 1]$ for all the combinations of past states. This happens if and only if, for each arrival state $j$, $\min_i q_{ij}$ times the sum of the positive weights is at least $\max_i q_{ij}$ times the sum of the absolute values of the negative weights. With `negativeWeights = TRUE` this condition replaces non-negativity. The EM algorithm no longer applies, and the likelihood is maximized by block coordinate ascent, in the spirit of [@berchtold2001estimation]: in the weights and in each row of $Q$ in turn, mass moves from the entry with the smallest to the one with the largest partial derivative, by the step that maximizes the likelihood within the admissible region. Order $k$ starts from the fit with non-negative weights and from the fit of order $k - 1$, so its likelihood is never below either. The likelihood has several local maxima, so for the requested order the search also starts with each lag in turn given a negative weight.
+
+In Table 3 of [@berchtold2002mixture] the MTD models of order 5 to 8 for the seizure series have negative weights. The chunk below compares the published log-likelihoods with those of `fitMTD` with and without negative weights:
+
+```{r}
+#| label: negativeWeights
+orders <- 5:8
+negative <- lapply(orders, function(k)
+  fitMTD(series$seizures, order = k, start = 15, negativeWeights = TRUE))
+data.frame(order = orders,
+           published = c(-112.4, -110.4, -107.9, -102.3),
+           negative_weights = round(sapply(negative, `[[`, "logLikelihood"), 2),
+           non_negative = round(sapply(orders, function(k)
+             fitMTD(series$seizures, order = k, start = 15)$logLikelihood), 2))
+round(negative[[4]]$lambda, 4)
+```
+
+The published values of orders 5 and 6 are reproduced; for orders 7 and 8 the search finds higher maxima than those printed. The weights published for MTD(8) are $(0.1278, 0.0963, 0.0953, 0.2605, -0.1778, 0.0932, 0.1389, 0.3658)$; with these weights the highest attainable log-likelihood is $-102.40$, slightly below the printed $-102.3$. As in the paper, the fifth lag has a negative weight. A higher likelihood does not mean a better model, though. With the convention of the paper, which counts only the parameters that are not zero, the MTD(8) fit with non-negative weights has a zero weight for the fifth lag, and so one parameter fewer. Its BIC, $249.1$, is lower than the $251.6$ of the fit with negative weights, and also lower than the smallest BIC in Table 3, $251.9$.
+
+## The MTDg model
+
+In the MTDg model [@berchtold2001estimation; @lebre2008em] each lag has its own transition matrix $Q_g$:
+$$
+P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\, q^{(g)}_{i_g j}.
+$$
+This is the model of `fitHigherOrder`, where the $Q_g$ are the empirical transition matrices of each lag and only the weights are estimated. `fitMTD(model = "MTDg")` estimates the weights and the matrices jointly by maximum likelihood, with the same EM algorithm. Each order is started from the MTD fit, from the empirical matrices with the best weights for them, and from the fit of the previous order, so its likelihood is never below that of the MTD model or of `fitHigherOrder(method = "mle")`. Its number of parameters is $(r - 1)(1 + k(r - 1))$.
+
+The weights and the matrices of an MTDg model are not identified, because the probabilities only depend on the products $A_g = \lambda_g Q_g$. Adding $\epsilon$ times the same probability vector to every row of $A_1$ and subtracting it from every row of $A_2$ changes $\lambda_1$, $\lambda_2$, $Q_1$ and $Q_2$ but leaves every transition probability unchanged. Only the transition probabilities are determined, so the weights of an MTDg fit should not be read as the importance of the lags. With `se = TRUE` only the standard errors of the transition probabilities are returned; they are computed with a generalized inverse of the information, which gives the same variance for any identified quantity.
+
+The song of the wood pewee [@craig1943song], analysed with MTD models by [@raftery1994estimation], is a sequence of 1327 phrases of three types. It is distributed with the R package `march` and included here with acknowledgement to its authors. First, `selectOrder` reproduces the BIC of the full Markov chains of orders 1 to 4 given in Table 2 of [@kharin2011statistical] (1424.2, 801.9, 808.6 and 768.3), all evaluated after the first four observations and with the zero probabilities not counted as parameters:
+
+```{r}
+#| label: pewee
+pewee <- as.character(readSeries("pewee_song.csv", "phrase"))
+selectOrder(pewee, maxOrder = 4, start = 5, parameters = "observed")$table[, c("order", "logLik", "npar", "BIC")]
+```
+
+The MTD models, with one matrix for all lags, fit this series poorly; one matrix per lag (MTDg) improves the log-likelihood by more than 80, but both remain well behind the full chains in BIC, as Kharin and Piatlitski also found:
+
+```{r}
+#| label: peweeMTDg
+peweeFits <- expand.grid(order = 2:3, model = c("MTD", "MTDg"), stringsAsFactors = FALSE)
+peweeFits$logLik <- mapply(function(k, m)
+  fitMTD(pewee, order = k, start = 5, model = m)$logLikelihood,
+  peweeFits$order, peweeFits$model)
+peweeFits$npar <- mapply(function(k, m)
+  fitMTD(pewee, order = k, start = 5, model = m)$npar,
+  peweeFits$order, peweeFits$model)
+peweeFits$BIC <- -2 * peweeFits$logLik + log(1323) * peweeFits$npar
+peweeFits
+```
+
+The `march` package (version 3.3.2, with its default settings) reaches the same MTD maxima, but lower ones for MTDg ($-497.72$ at order 2 and $-490.67$ at order 3, against $-486.16$ and $-483.99$). Its estimates give the same likelihood when evaluated with `higherOrderLogLik`, so the two programs maximize the same function.
+
+## Faster convergence
+
+When the likelihood is flat, for instance when the lags carry little information, the EM algorithm can need many iterations. With `accelerate = TRUE` the iteration is accelerated with the SQUAREM scheme of [@varadhan2008simple]. Each cycle extrapolates from two EM steps, projects the result onto the parameter space, and backtracks towards the plain double step until the likelihood does not decrease, so the algorithm stays monotone and reaches the same maximum.
+
+```{r}
+#| label: accelerate
+set.seed(1)
+flat <- sample(c("a", "b", "c"), 20000, replace = TRUE)
+plain <- suppressWarnings(fitMTD(flat, order = 3))
+fast <- fitMTD(flat, order = 3, accelerate = TRUE)
+rbind(plain = c(logLik = plain$logLikelihood, steps = plain$iterations, converged = plain$converged),
+      accelerated = c(fast$logLikelihood, fast$iterations, fast$converged))
+```
 
 ## Prediction and simulation
 

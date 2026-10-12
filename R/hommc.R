@@ -216,7 +216,8 @@ setMethod("show", "hommc",
 #'              Higher Order Multivariate Markov chain.
 #'
 #' @param seqMat a matrix or a data frame where each column 
-#'               is a categorical sequence
+#'               is a categorical sequence; numeric or factor values are
+#'               taken as state labels (compared as character strings)
 #' @param order Multivariate Markov chain order. Default is 2.
 #' @param Norm Norm to be used. Default is 2.
 #' 
@@ -242,6 +243,15 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
   if(is.data.frame(seqMat) == TRUE) {
     seqMat <- as.matrix(seqMat)
   }
+  if (!is.matrix(seqMat) || anyNA(seqMat) || ncol(seqMat) < 1L) {
+    stop("seqMat must be a matrix or data frame of states without missing values")
+  }
+  if (length(order) != 1L || is.na(order) || order < 1 || order != floor(order) ||
+      order >= nrow(seqMat)) {
+    stop("order must be a positive integer smaller than the length of the sequences")
+  }
+  # states are matched by name: numeric or factor codes are used as labels
+  seqMat <- matrix(as.character(seqMat), nrow = nrow(seqMat), ncol = ncol(seqMat))
   
   seqMat <- t(seqMat)
   

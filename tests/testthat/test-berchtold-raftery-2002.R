@@ -111,3 +111,17 @@ test_that("assessIndependence reproduces the likelihood-ratio statistic implied 
     expect_lt(res$p.value, 1e-3)
   }
 })
+
+test_that("fitMTD reproduces the MTD(2)-MTD(4) rows of Table 3 (epileptic seizures)", {
+  x <- .readSeries("epileptic_seizures.csv", "seizure")
+  # rows with non-negative weights; from order 5 the published fits use
+  # negative weights, which fitMTD() does not allow
+  published <- list(ll = c(-119.5, -117.7, -113.2), npar = 3:5,
+                    bic = c(254.7, 256.4, 252.7))
+  for (k in 2:4) {
+    fit <- fitMTD(x, k, start = L + 1L)
+    expect_equal(fit$npar, published$npar[k - 1L])
+    expect_lt(abs(fit$logLikelihood - published$ll[k - 1L]), 0.06)
+    expect_lt(abs(fit$BIC - published$bic[k - 1L]), 0.06)
+  }
+})

@@ -10,7 +10,10 @@ fitMTD(
   start = NULL,
   nstart = 1,
   tol = 1e-10,
-  maxit = 10000L
+  maxit = 10000L,
+  model = c("MTD", "MTDg"),
+  accelerate = FALSE,
+  se = FALSE
 )
 }
 \arguments{
@@ -30,14 +33,27 @@ the EM algorithm added to the deterministic ones (see Details).}
 \item{tol}{Convergence tolerance on the relative change of the
 log-likelihood between two iterations.}
 
-\item{maxit}{Maximum number of EM iterations for each starting point.}
+\item{maxit}{Maximum number of EM iterations for each starting point (EM
+steps, if \code{accelerate = TRUE}).}
+
+\item{model}{\code{"MTD"} (default), the model with a single matrix, or
+\code{"MTDg"}, the general model with a different matrix for each lag.}
+
+\item{accelerate}{Logical: speed up the EM algorithm with the SQUAREM
+scheme of Varadhan and Roland (2008)? The default \code{FALSE} keeps the
+plain algorithm. Convergence is much faster when the likelihood is flat,
+and the same maximum is reached.}
+
+\item{se}{Logical: compute standard errors (only for \code{model = "MTD"})?}
 }
 \value{
 A list with components
   \item{lambda}{the estimated lag weights, named \code{lag1}, \code{lag2}, \dots}
   \item{estimate}{a \code{markovchain} object (by row) with the estimated
-    transition matrix \eqn{Q}}
-  \item{Q}{a list of \code{order} copies of \eqn{Q} stored by column
+    transition matrix \eqn{Q} (for \code{model = "MTDg"}, a list with the
+    \code{order} objects of the matrices \eqn{Q_1, \dots, Q_k})}
+  \item{Q}{a list of \code{order} copies of \eqn{Q} (the \eqn{Q_g} for
+    \code{"MTDg"}) stored by column
     (\code{Q[[g]][to, from]}), the layout returned by
     \code{\link{fitHigherOrder}}, so that the fit can be passed to
     \code{\link{higherOrderLogLik}}}
@@ -48,7 +64,11 @@ A list with components
   \item{order, start}{as used in the fit}
   \item{iterations, converged}{EM iterations and convergence flag of the
     returned fit}
-  \item{model}{the string \code{"MTD"}}
+  \item{model}{\code{"MTD"} or \code{"MTDg"}}
+  \item{se}{only if \code{se = TRUE}: a list with the standard errors
+    \code{lambda} of the weights and \code{Q} of the matrix (same layout as
+    \code{estimate}); \code{NA} for the entries that cannot be estimated, see
+    Details}
 }
 \description{
 Estimates by maximum likelihood the mixture transition
@@ -113,7 +133,31 @@ For an order \eqn{k} the model is
   A warning is given when the number of observations entering the
   likelihood does not exceed the number of free parameters.
 
-  AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
+  With \code{model = "MTDg"} (Berchtold, 2001; Lebre and Bourguignon, 2008)
+the probability of the next state is \eqn{\sum_g \lambda_g\, q^{(g)}_{i_g j}}
+with a transition matrix \eqn{Q_g} for each lag. It has
+\eqn{(r-1)(1 + k(r-1))} free parameters, the number of the models of
+\code{\link{fitHigherOrder}}, of which it is the maximum likelihood
+version: there the matrices are the empirical ones and only the weights are
+fitted. The EM algorithm is the same; order \eqn{k} is started from the
+MTD fit of the same order, from the empirical matrices with the best
+weights for them, and from the fit of order \eqn{k - 1}, so its likelihood
+is never below those of \code{model = "MTD"} and of the
+\code{method = "mle"} fit of \code{\link{fitHigherOrder}}, nor of
+lower orders. The row of \eqn{Q_g} of a state never seen at lag \eqn{g} is
+returned as uniform.
+
+With \code{se = TRUE} the standard errors are those of the observed
+information at the maximum, by the delta method, obtained in closed form
+with the entries of each probability vector (the weights and each row of
+\eqn{Q}) summing to one. Entries that are on the boundary of the parameter
+space (below \eqn{10^{-4}}) are held fixed, as in the usual treatment of
+constrained maxima, and have \code{NA}; a warning is given if a weight is
+among them, since then the standard errors of the others are conditional on
+that weight being zero. They are asymptotic, and approximate in small
+samples or with sparse \eqn{Q}.
+
+AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
   BIC the number of observations entering the likelihood. Berchtold and
   Raftery (2002) do not count the elements of \eqn{Q} estimated as exactly
   zero; their BIC can be obtained by subtracting the number of those
@@ -131,6 +175,11 @@ c(logLik = fit$logLikelihood, BIC = fit$BIC)
 # several starting points guard against local maxima
 set.seed(1)
 fitMTD(wind, order = 3, start = 15, nstart = 5)$logLikelihood
+
+# standard errors, and the model with a matrix for each lag
+fit2 <- fitMTD(wind, order = 2, start = 15, se = TRUE)
+fit2$se$lambda
+fitMTD(wind, order = 2, start = 15, model = "MTDg")$logLikelihood
 }
 \references{
 Raftery, A. E. (1985). A model for high-order Markov chains. Journal of the
@@ -146,6 +195,10 @@ Statistical Science, 17(3), 328-356.
 Lebre, S. and Bourguignon, P.-Y. (2008). An EM algorithm for estimation in
 the mixture transition distribution model. Journal of Statistical
 Computation and Simulation, 78(1), 1-15.
+
+Varadhan, R. and Roland, C. (2008). Simple and globally convergent methods
+for accelerating the convergence of any EM algorithm. Scandinavian Journal of
+Statistics, 35(2), 335-353.
 }
 \seealso{
 \code{\link{fitHigherOrder}}, \code{\link{higherOrderLogLik}},

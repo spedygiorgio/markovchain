@@ -9,7 +9,9 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 \arguments{
 \item{sequence}{The empirical sequence of states, a character vector or a
 vector coercible to character (numbers and factors are matched to the
-states of the fit as character strings).}
+states of the fit as character strings), or a list of such vectors, taken
+as independent sequences: the log-likelihood is then the sum over the
+sequences.}
 
 \item{fit}{The list returned by \code{\link{fitHigherOrder}} (or by
 \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
@@ -20,7 +22,8 @@ computed.}
 
 \item{start}{Index of the first observation included in the likelihood.
 Defaults to \code{order + 1}, the earliest observation a model of that
-order can predict.}
+order can predict. For a list of sequences it applies to each sequence,
+and the sequences with fewer than \code{start} observations are skipped.}
 }
 \value{
 A list with components \code{logLik}, \code{deviance}, \code{AIC},

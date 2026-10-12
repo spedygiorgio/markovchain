@@ -15,7 +15,8 @@ fitMTD(
 }
 \arguments{
 \item{sequence}{An empirical sequence of states (a character vector, or a
-vector coercible to character), without missing values.}
+vector coercible to character), without missing values, or a list of such
+vectors, taken as independent sequences (see Details).}
 
 \item{order}{Order of the model, a positive integer smaller than the length
 of the sequence.}
@@ -97,6 +98,13 @@ For an order \eqn{k} the model is
   the same \code{start} for all, for instance \eqn{1 +} the largest order;
   Berchtold and Raftery (2002) condition on the first 14 observations,
   i.e. \code{start = 15}.
+
+  With a list of sequences the likelihood is the product over the
+  sequences: each contributes the observations from \code{start} to its end,
+  the earlier ones being only used as conditioning states, no lag spans two
+  sequences, and a sequence with fewer than \code{start} states is not used
+  (apart from the state frequencies \code{X}). \code{order} must be smaller
+  than the length of the longest sequence.
 
   A state that never occurs in a conditioning position (for instance one
   observed only at the end of the sequence) does not enter the likelihood;

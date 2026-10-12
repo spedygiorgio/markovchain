@@ -52,7 +52,8 @@ setClass("HigherOrderMarkovChain", #class name
 #'
 #' @param sequence The sequence of states: a character vector, or a vector
 #'   coercible to character (numbers and factors are matched to the states as
-#'   character strings), without missing values.
+#'   character strings), without missing values. A list of such vectors is
+#'   taken as independent sequences, see Details.
 #' @param order Markov chain order
 #' @param method How the weights \eqn{\lambda} are estimated: \code{"lsq"}
 #'   (default) or \code{"mle"}, see Details.
@@ -94,6 +95,14 @@ setClass("HigherOrderMarkovChain", #class name
 #'   (1985), in which a single matrix is shared by all lags and is estimated
 #'   together with the weights; that model is fitted by \code{\link{fitMTD}}.
 #'
+#'   With a list of sequences the lag matrices \eqn{Q_i} and the state
+#'   frequencies are computed from the counts pooled over the sequences, which
+#'   are treated as independent: no pair of observations spans two sequences,
+#'   and a sequence with no more than \code{order} states contributes to the
+#'   frequencies only. The weights are then estimated as for a single sequence,
+#'   from the observations that a model of that order can predict in every
+#'   sequence.
+#'
 #'   A warning is given when the sequence supplies no more observations than the
 #'   model has free parameters (the number used by \code{\link{higherOrderLogLik}}),
 #'   since the weights are then essentially undetermined.
@@ -124,32 +133,35 @@ setClass("HigherOrderMarkovChain", #class name
 #' @export
 fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
   method <- match.arg(method)
-  if (!is.atomic(sequence) || length(sequence) < 2L || anyNA(sequence)) {
+  # one sequence, or a list of independent sequences; as in fitMTD(), numbers
+  # and factors are matched to the states as character
+  seqs <- .asSequenceList(
+    sequence, 2L, "sequence must be a vector of at least two states without missing values")
+  lens <- lengths(seqs)
+  if (sum(lens) < 2L) {
     stop("sequence must be a vector of at least two states without missing values")
   }
-  # as in fitMTD(), numbers and factors are matched to the states as character
-  sequence <- as.character(sequence)
   if (length(order) != 1L || is.na(order) || !is.finite(order) ||
-      order < 1 || order != floor(order) || order >= length(sequence)) {
+      order < 1 || order != floor(order) || order >= max(lens)) {
     stop("order must be a positive integer smaller than the sequence length")
   }
   order <- as.integer(order)
+  nStates <- length(unique(unlist(seqs)))
   .warnFewObservations(
-    nobs = length(sequence) - order,
-    npar = (length(unique(sequence)) - 1L) * (1L + order * (length(unique(sequence)) - 1L)),
+    nobs = sum(pmax(lens - order, 0L)),
+    npar = (nStates - 1L) * (1L + order * (nStates - 1L)),
     what = paste0("a higher order Markov chain of order ", order))
-  if (method == "mle") return(.fitHigherOrderMle(sequence, order))
-  # prbability of each states of sequence
-  if (requireNamespace("Rsolnp", quietly = TRUE)) {
-  X <- seq2freqProb(sequence)
-  
-  # store h step transition matrix
-  Q <- list()
-  QX <- list()
-  for(o in 1:order) {
-    Q[[o]] <- seq2matHigh(sequence, o)
-    QX[[o]] <- Q[[o]]%*%X
+  if (method == "lsq" && !requireNamespace("Rsolnp", quietly = TRUE)) {
+    warning("package Rsolnp is required for method = \"lsq\" and is not available: ",
+            "NULL is returned. Use method = \"mle\", which does not need it.",
+            call. = FALSE)
+    return(NULL)
   }
+  # probability of each state of the sequence(s) and lag-o transition matrices
+  X <- seq2freqProb(unlist(seqs))
+  Q <- lapply(seq_len(order), function(o) .seq2matHighList(seqs, o))
+  if (method == "mle") return(.fitHigherOrderMle(seqs, Q, X, order))
+  QX <- lapply(Q, function(Qo) Qo %*% X)
   environment(.fn1) <- environment()
   params <- rep(1/order, order)
   scale <- 1
@@ -157,15 +169,48 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
   if (is.finite(scale0) && scale0 > 0) scale <- scale0
   model <- Rsolnp::solnp(params, fun=.fn1, eqfun=.eqn1, eqB=1, 
                          LB=rep(0, order), control=list(trace=0))
-  lambda <- model$pars
-  out <- list(lambda=lambda, Q=Q, X=X)
-  } else {
-    warning("package Rsolnp is required for method = \"lsq\" and is not available: ",
-            "NULL is returned. Use method = \"mle\", which does not need it.",
-            call. = FALSE)
-    out <- NULL
+  list(lambda = model$pars, Q = Q, X = X)
+}
+
+# Returns `sequence` as a list of character vectors. `sequence` is either an
+# atomic vector (a single sequence, which must have at least `minLength`
+# states, otherwise `msgSingle` is the error) or a list of atomic vectors
+# (independent sequences). No missing values are allowed.
+.asSequenceList <- function(sequence, minLength, msgSingle) {
+  if (is.list(sequence)) {
+    ok <- length(sequence) > 0L &&
+      all(vapply(sequence, function(s) is.atomic(s) && !is.null(s), logical(1)))
+    if (!ok || anyNA(unlist(sequence, use.names = FALSE))) {
+      stop("sequence must be a vector of states or a list of such vectors, without missing values")
+    }
+    return(lapply(sequence, as.character))
   }
-  return(out)
+  if (!is.atomic(sequence) || length(sequence) < minLength || anyNA(sequence)) stop(msgSingle)
+  list(as.character(sequence))
+}
+
+# Lag-`order` transition matrix Q[to, from] pooled over a list of independent
+# sequences: the pairs (x_{t-order}, x_t) are counted within each sequence, so
+# no pair crosses from one sequence to the next. For a single sequence it is
+# seq2matHigh(); a state never observed as `from` gets a uniform column, as
+# there.
+.seq2matHighList <- function(seqs, order) {
+  if (length(seqs) == 1L) return(seq2matHigh(seqs[[1L]], order))
+  states <- names(seq2freqProb(unlist(seqs, use.names = FALSE)))
+  r <- length(states)
+  counts <- matrix(0, r, r)
+  for (s in seqs) {
+    n <- length(s)
+    if (n <= order) next
+    idx <- match(s, states)
+    counts <- counts + matrix(tabulate(idx[(order + 1L):n] + r * (idx[seq_len(n - order)] - 1L),
+                                       nbins = r * r), r, r)
+  }
+  colTotals <- colSums(counts)
+  out <- sweep(counts, 2L, ifelse(colTotals == 0, 1, colTotals), "/")
+  out[, colTotals == 0] <- 1 / r
+  dimnames(out) <- list(states, states)
+  out
 }
 
 # Warns when a model is fitted on no more observations than it has free
@@ -184,19 +229,23 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 # matrices Q_o are the empirical ones (seq2matHigh), exactly as for the least
 # squares fit, and the weights maximize
 #   sum_{t = order + 1}^{n} log( sum_o lambda_o * Q_o[x_t, x_{t-o}] )
-# over the simplex. For fixed Q_o the objective is concave in lambda, so there
-# are no local maxima, and the EM iteration for mixture weights increases it
-# monotonically. The probability of every observed pair is positive (it is a
-# count divided by a column total), hence the mixture probability of every
-# observation is positive and the iteration is well defined.
-.fitHigherOrderMle <- function(sequence, order, tol = 1e-10, maxit = 10000L) {
-  X <- seq2freqProb(sequence)
-  Q <- lapply(seq_len(order), function(o) seq2matHigh(sequence, o))
-  idx <- match(sequence, rownames(Q[[1L]]))
-  times <- (order + 1L):length(idx)
+# over the simplex (the sum running over the observations of every sequence a
+# model of this order can predict). For fixed Q_o the objective is concave in
+# lambda, so there are no local maxima, and the EM iteration for mixture
+# weights increases it monotonically. The probability of every observed pair
+# is positive (it is a count divided by a column total), hence the mixture
+# probability of every observation is positive and the iteration is well
+# defined.
+.fitHigherOrderMle <- function(seqs, Q, X, order, tol = 1e-10, maxit = 10000L) {
+  states <- rownames(Q[[1L]])
   # q[t, o] = Q_o[x_t, x_{t-o}]
-  q <- matrix(0, nrow = length(times), ncol = order)
-  for (o in seq_len(order)) q[, o] <- Q[[o]][cbind(idx[times], idx[times - o])]
+  q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
+    idx <- match(s, states)
+    times <- (order + 1L):length(idx)
+    out <- matrix(0, nrow = length(times), ncol = order)
+    for (o in seq_len(order)) out[, o] <- Q[[o]][cbind(idx[times], idx[times - o])]
+    out
+  }))
   lambda <- rep(1 / order, order)
   logLikOld <- -Inf
   for (iter in seq_len(maxit)) {
@@ -258,7 +307,9 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'
 #' @param sequence The empirical sequence of states, a character vector or a
 #'   vector coercible to character (numbers and factors are matched to the
-#'   states of the fit as character strings).
+#'   states of the fit as character strings), or a list of such vectors, taken
+#'   as independent sequences: the log-likelihood is then the sum over the
+#'   sequences.
 #' @param fit The list returned by \code{\link{fitHigherOrder}} (or by
 #'   \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
 #'   computed.
@@ -266,7 +317,8 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'   (ignored otherwise; the order is then \code{length(fit$lambda)}).
 #' @param start Index of the first observation included in the likelihood.
 #'   Defaults to \code{order + 1}, the earliest observation a model of that
-#'   order can predict.
+#'   order can predict. For a list of sequences it applies to each sequence,
+#'   and the sequences with fewer than \code{start} observations are skipped.
 #'
 #' @return A list with components \code{logLik}, \code{deviance}, \code{AIC},
 #'   \code{BIC}, \code{nobs} (number of observations entering the likelihood),
@@ -297,11 +349,9 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'
 #' @export
 higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
-  if (!is.atomic(sequence) || length(sequence) < 2L || anyNA(sequence)) {
-    stop("sequence must be a vector of states without missing values")
-  }
+  isList <- is.list(sequence)
   # numeric or factor sequences are matched to the states as character, as in fitMTD()
-  sequence <- as.character(sequence)
+  seqs <- .asSequenceList(sequence, 2L, "sequence must be a vector of states without missing values")
   if (is.null(fit)) {
     fit <- fitHigherOrder(sequence, order)
     if (is.null(fit)) stop("package Rsolnp is required to fit the model")
@@ -314,19 +364,28 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   k <- length(lambda)
   states <- rownames(fit$Q[[1L]])
   if (is.null(states)) stop("fit$Q must have state names")
-  idx <- match(sequence, states)
-  if (anyNA(idx)) stop("sequence contains states unknown to the fitted model")
-  n <- length(sequence)
+  if (anyNA(match(unlist(seqs, use.names = FALSE), states))) {
+    stop("sequence contains states unknown to the fitted model")
+  }
   if (is.null(start)) start <- k + 1L
   if (length(start) != 1L || !is.finite(start) || start != floor(start) ||
-      start < k + 1L || start > n) {
+      start < k + 1L || (!isList && start > length(seqs[[1L]]))) {
     stop("start must be an integer between order + 1 and the sequence length")
   }
-  times <- start:n
-  p <- numeric(length(times))
-  for (i in seq_len(k)) {
-    p <- p + lambda[i] * fit$Q[[i]][cbind(idx[times], idx[times - i])]
+  # for a list, the sequences with no observation from `start` onwards are skipped
+  seqs <- seqs[lengths(seqs) >= start]
+  if (length(seqs) == 0L) {
+    stop("no sequence has observations from position start onwards")
   }
+  p <- unlist(lapply(seqs, function(s) {
+    idx <- match(s, states)
+    times <- start:length(s)
+    pr <- numeric(length(times))
+    for (i in seq_len(k)) {
+      pr <- pr + lambda[i] * fit$Q[[i]][cbind(idx[times], idx[times - i])]
+    }
+    pr
+  }), use.names = FALSE)
   logLik <- if (any(p <= 0)) -Inf else sum(log(p))
   r <- length(states)
   # fitMTD(): one matrix shared by all lags. fitHigherOrder(): one matrix per
@@ -336,6 +395,6 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   # (r - 1)(1 + k (r - 1)) = k r (r - 1) + (k - 1) - r (k - 1)
   npar <- if (identical(fit$model, "MTD")) r * (r - 1) + (k - 1) else (r - 1) * (1 + k * (r - 1))
   list(logLik = logLik, deviance = -2 * logLik,
-       AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(length(times)) * npar,
-       nobs = length(times), npar = npar, order = k, start = as.integer(start))
+       AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(length(p)) * npar,
+       nobs = length(p), npar = npar, order = k, start = as.integer(start))
 }

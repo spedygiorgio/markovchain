@@ -13,7 +13,8 @@ seq2matHigh(sequence, order)
 \arguments{
 \item{sequence}{The sequence of states: a character vector, or a vector
 coercible to character (numbers and factors are matched to the states as
-character strings), without missing values.}
+character strings), without missing values. A list of such vectors is
+taken as independent sequences, see Details.}
 
 \item{order}{Markov chain order}
 
@@ -63,6 +64,14 @@ The fitted model expresses the distribution of the next state as
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
   together with the weights; that model is fitted by \code{\link{fitMTD}}.
+
+  With a list of sequences the lag matrices \eqn{Q_i} and the state
+  frequencies are computed from the counts pooled over the sequences, which
+  are treated as independent: no pair of observations spans two sequences,
+  and a sequence with no more than \code{order} states contributes to the
+  frequencies only. The weights are then estimated as for a single sequence,
+  from the observations that a model of that order can predict in every
+  sequence.
 
   A warning is given when the sequence supplies no more observations than the
   model has free parameters (the number used by \code{\link{higherOrderLogLik}}),

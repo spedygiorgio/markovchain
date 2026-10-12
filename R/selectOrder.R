@@ -35,8 +35,13 @@
 #'   The table also reports the likelihood-ratio statistic of each order
 #'   against the previous one, \eqn{G = 2 (\ell_k - \ell_{k-1})}, with degrees
 #'   of freedom equal to the difference in the number of parameters and an
-#'   asymptotic chi-squared p-value (Anderson and Goodman, 1957). These tests
-#'   are not adjusted for multiplicity, and they and the criteria become
+#'   asymptotic chi-squared p-value (Anderson and Goodman, 1957). With
+#'   \code{parameters = "observed"} the degrees of freedom are the differences
+#'   of the observed counts, that is transitions never observed are treated as
+#'   structurally impossible, the usual adjustment for sparse tables (it is
+#'   the one of \code{\link{assessOrder}}) but an approximate one, since a zero
+#'   count may be a sampling zero: the p-values are then indicative only. These
+#'   tests are not adjusted for multiplicity, and they and the criteria become
 #'   unreliable when the number of contexts \eqn{r^k} is not small compared with
 #'   the number of observations: BIC is consistent for the order (Csiszar and
 #'   Shields, 2000), whereas AIC tends to select too high an order in long

@@ -18,7 +18,9 @@ test_that("fitHigherOrder accepts factors and numbers like fitMTD and higherOrde
 test_that("fitHigherOrder still rejects unusable sequences", {
   expect_error(fitHigherOrder(c("a", NA, "b", "a"), 1, method = "mle"), "missing values")
   expect_error(fitHigherOrder("a", 1, method = "mle"), "at least two")
-  expect_error(fitHigherOrder(list(.seqHO()), 1, method = "mle"), "vector of at least two states")
+  expect_error(fitHigherOrder(list(list("a", "b")), 1, method = "mle"), "vector of states or a list")
+  expect_error(fitHigherOrder(list(c("a", NA, "b")), 1, method = "mle"), "missing values")
+  expect_error(fitHigherOrder(list(), 1, method = "mle"), "vector of states or a list")
   expect_error(fitHigherOrder(NULL, 1, method = "mle"), "vector of at least two states")
 })
 

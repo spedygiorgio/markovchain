@@ -102,7 +102,9 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
 #' summed, present-state by present-state, over only the past and future
 #' states actually observed with that present state, mirroring the other
 #' functions documented on this page. Factors and numeric sequences are
-#' compared as character strings.
+#' compared as character strings. A list of vectors is taken as a set of
+#' independent sequences: the triples of consecutive states are formed within
+#' each sequence, never across two, and the counts are pooled.
 #' @rdname statisticalTests
 #' @family statisticalTests
 #' @param sequence An empirical sequence of states.
@@ -111,14 +113,28 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
 #' @export
 assessOrder <- function(sequence, verbose = TRUE) {
   data.name <- deparse(substitute(sequence))
-  if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
-  if (anyNA(sequence)) stop("sequence must not contain missing values.")
-  # factors (and numbers) are compared as character, like in verifyMarkovProperty
-  sequence <- as.character(sequence)
-  states <- unique(sequence); n <- length(sequence)
-  past <- factor(sequence[seq_len(n - 2L)], levels = states)
-  present_state <- sequence[2:(n - 1L)]
-  future <- factor(sequence[3:n], levels = states)
+  # a list is a set of independent sequences: the triples (past, present,
+  # future) are taken within each sequence and pooled
+  if (is.list(sequence)) {
+    if (length(sequence) == 0L || !all(vapply(sequence, is.atomic, logical(1)))) {
+      stop("sequence must be a vector of states or a list of such vectors.")
+    }
+    if (anyNA(unlist(sequence, use.names = FALSE))) stop("sequence must not contain missing values.")
+    seqs <- lapply(sequence, as.character)
+    if (sum(pmax(lengths(seqs) - 2L, 0L)) < 2L) {
+      stop("sequence must contain at least four observations.")
+    }
+  } else {
+    if (length(sequence) < 4L) stop("sequence must contain at least four observations.")
+    if (anyNA(sequence)) stop("sequence must not contain missing values.")
+    # factors (and numbers) are compared as character, like in verifyMarkovProperty
+    seqs <- list(as.character(sequence))
+  }
+  seqs <- seqs[lengths(seqs) >= 3L]
+  states <- unique(unlist(seqs, use.names = FALSE))
+  past <- factor(unlist(lapply(seqs, function(s) s[seq_len(length(s) - 2L)])), levels = states)
+  present_state <- unlist(lapply(seqs, function(s) s[2:(length(s) - 1L)]))
+  future <- factor(unlist(lapply(seqs, function(s) s[3:length(s)])), levels = states)
   statistic <- 0; dof <- 0L
   for (present in states) {
     selected <- present_state == present

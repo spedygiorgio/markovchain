@@ -47,6 +47,13 @@
 #'   Berchtold and Raftery (2002) condition on the first 14 observations,
 #'   i.e. \code{start = 15}.
 #'
+#'   With a list of sequences the likelihood is the product over the
+#'   sequences: each contributes the observations from \code{start} to its end,
+#'   the earlier ones being only used as conditioning states, no lag spans two
+#'   sequences, and a sequence with fewer than \code{start} states is not used
+#'   (apart from the state frequencies \code{X}). \code{order} must be smaller
+#'   than the length of the longest sequence.
+#'
 #'   A state that never occurs in a conditioning position (for instance one
 #'   observed only at the end of the sequence) does not enter the likelihood;
 #'   its row of \eqn{Q} is not identified and is returned as uniform.
@@ -61,7 +68,8 @@
 #'   elements from \code{npar}.
 #'
 #' @param sequence An empirical sequence of states (a character vector, or a
-#'   vector coercible to character), without missing values.
+#'   vector coercible to character), without missing values, or a list of such
+#'   vectors, taken as independent sequences (see Details).
 #' @param order Order of the model, a positive integer smaller than the length
 #'   of the sequence.
 #' @param start Index of the first observation entering the likelihood, at
@@ -122,11 +130,12 @@
 #' @export
 fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                    tol = 1e-10, maxit = 10000L) {
-  if (!is.atomic(sequence) || length(sequence) < 3L || anyNA(sequence)) {
+  seqs <- .asSequenceList(
+    sequence, 3L, "sequence must be a vector of at least three states without missing values")
+  n <- max(lengths(seqs))
+  if (n < 3L) {
     stop("sequence must be a vector of at least three states without missing values")
   }
-  sequence <- as.character(sequence)
-  n <- length(sequence)
   if (length(order) != 1L || is.na(order) || !is.finite(order) ||
       order < 1 || order != floor(order) || order >= n) {
     stop("order must be a positive integer smaller than the sequence length")
@@ -144,14 +153,21 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   if (length(tol) != 1L || is.na(tol) || tol <= 0) stop("tol must be positive")
   if (length(maxit) != 1L || is.na(maxit) || maxit < 1) stop("maxit must be a positive integer")
 
-  states <- sort(unique(sequence))
+  states <- sort(unique(unlist(seqs, use.names = FALSE)))
   r <- length(states)
   if (r < 2L) stop("sequence must contain at least two different states")
-  idx <- match(sequence, states) - 1L
-  times <- start:n
-  # lagged[, g + 1] is x_{t-g} for the observations t = start..n entering the likelihood
-  lagged <- vapply(0:order, function(g) idx[times - g], integer(length(times)))
-  if (!is.matrix(lagged)) lagged <- matrix(lagged, nrow = 1L)
+  # lagged[, g + 1] is x_{t-g} for the observations t = start..n entering the
+  # likelihood; the sequences of a list are independent, so the observations
+  # of every sequence with at least `start` states are stacked and no lag
+  # spans two sequences
+  lagged <- do.call(rbind, lapply(seqs[lengths(seqs) >= start], function(s) {
+    idx <- match(s, states) - 1L
+    times <- start:length(s)
+    out <- vapply(0:order, function(g) idx[times - g], integer(length(times)))
+    if (!is.matrix(out)) out <- matrix(out, nrow = 1L)
+    out
+  }))
+  times <- seq_len(nrow(lagged))
 
   # The models of order 1, ..., order are fitted in turn on the same
   # observations. Besides the deterministic start, order k also starts from the
@@ -210,7 +226,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
        estimate = new("markovchain", states = states, byrow = TRUE,
                       transitionMatrix = Q, name = paste0("MTD(", order, ")")),
        Q = rep(list(t(Q)), order),
-       X = seq2freqProb(sequence),
+       X = seq2freqProb(unlist(seqs, use.names = FALSE)),
        logLikelihood = logLik, npar = npar,
        AIC = -2 * logLik + 2 * npar, BIC = -2 * logLik + log(nobs) * npar,
        nobs = nobs, order = order, start = start,

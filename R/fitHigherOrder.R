@@ -3,6 +3,8 @@
 #' @description The S4 class that describes \code{HigherOrderMarkovChain} objects.
 #' 
 #' @export
+# S4 class describing a higher-order Markov chain: its states, its order and a list with
+# one transition matrix per lag.
 setClass("HigherOrderMarkovChain", #class name
          representation(
            states = "character", 
@@ -22,6 +24,10 @@ setClass("HigherOrderMarkovChain", #class name
 # is divided by `scale` (its value at the starting point) because the distance
 # is typically of the order of 1e-7 on real sequences, below solnp's default
 # tolerance, which would otherwise stop the optimizer at the starting point.
+# Objective of the least-squares ('lsq') method. For a candidate vector of weights `params`,
+# the fitted distribution is sum_i params[i] * Q_i X, where Q_i X is the distribution X pushed through
+# the lag-i matrix. The function returns the squared distance to the observed X.
+# QX, X and scale are not arguments: they are found in the environment set in fitHigherOrder().
 .fn1=function(params)
 {
   QX <- get("QX")
@@ -34,6 +40,7 @@ setClass("HigherOrderMarkovChain", #class name
   return(sum((fitted - X)^2) / scale)
 }
 
+# The constraint 'weights sum to 1' (solnp compares this sum with eqB = 1).
 # equality constraint function to pass to solnp
 .eqn1=function(params){
   return(sum(params))
@@ -132,10 +139,17 @@ setClass("HigherOrderMarkovChain", #class name
 #' higherOrderLogLik(sequence, fit)$logLik
 #'
 #' @export
+# Main function. The model is  P(x_t = j | past) = sum_i lambda_i * Q_i[j, x_{t-i}] : a weighted
+# average (mixture) of one ordinary transition matrix per lag i = 1..order. Fitting has two parts:
+# (1) the matrices Q_i are the EMPIRICAL lag-i transition matrices (counted from the data);
+# (2) the weights lambda are estimated by maximum likelihood ('mle') or least squares ('lsq').
 fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
+  # Step 0: choose the method (the first value, 'mle', is the default).
   method <- match.arg(method)
   # one sequence, or a list of independent sequences; as in fitMTD(), numbers
   # and factors are matched to the states as character
+  # Step 1: validation. A single sequence is turned into a list of one sequence, so the code below
+  # always works with lists.
   seqs <- .asSequenceList(
     sequence, 2L, "sequence must be a vector of at least two states without missing values")
   lens <- lengths(seqs)
@@ -147,23 +161,30 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
     stop("order must be a positive integer smaller than the sequence length")
   }
   order <- as.integer(order)
+  # Step 2: warn if there are too few observations for the number of parameters.
   nStates <- length(unique(unlist(seqs)))
   .warnFewObservations(
     nobs = sum(pmax(lens - order, 0L)),
     npar = (nStates - 1L) * (1L + order * (nStates - 1L)),
     what = paste0("a higher order Markov chain of order ", order))
+  # The 'lsq' method needs the optional package Rsolnp: if it is missing we warn and return NULL.
   if (method == "lsq" && !requireNamespace("Rsolnp", quietly = TRUE)) {
     warning("package Rsolnp is required for method = \"lsq\" and is not available: ",
             "NULL is returned. Use method = \"mle\", which does not need it.",
             call. = FALSE)
     return(NULL)
   }
+  # Step 3: X = frequency of each state, Q = list of the lag-1, lag-2, ... transition matrices.
   # probability of each state of the sequence(s) and lag-o transition matrices
   X <- seq2freqProb(unlist(seqs))
   Q <- lapply(seq_len(order), function(o) .seq2matHighList(seqs, o))
+  # Step 4a: 'mle' -> EM algorithm for the weights (function below).
   if (method == "mle") return(.fitHigherOrderMle(seqs, Q, X, order))
+  # Step 4b: 'lsq' -> constrained least squares with solnp: weights >= 0 (LB) and summing to 1.
   QX <- lapply(Q, function(Qo) Qo %*% X)
   environment(.fn1) <- environment()
+  # Start from equal weights; `scale` normalises the objective so solnp does not stop immediately
+  # (the distance is tiny on real data).
   params <- rep(1/order, order)
   scale <- 1
   scale0 <- .fn1(params)
@@ -173,6 +194,7 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   list(lambda = model$pars, Q = Q, X = X)
 }
 
+# Helper: always return the data as a list of character vectors (each one an independent sequence).
 # Returns `sequence` as a list of character vectors. `sequence` is either an
 # atomic vector (a single sequence, which must have at least `minLength`
 # states, otherwise `msgSingle` is the error) or a list of atomic vectors
@@ -190,6 +212,9 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   list(as.character(sequence))
 }
 
+# Pooled lag-`order` transition matrix over several sequences. Pairs (x[t-order], x[t]) are counted
+# INSIDE each sequence only, then the counts of all sequences are added up and each column is
+# normalised (Q[to, from] stores probabilities by column).
 # Lag-`order` transition matrix Q[to, from] pooled over a list of independent
 # sequences: the pairs (x_{t-order}, x_t) are counted within each sequence, so
 # no pair crosses from one sequence to the next. For a single sequence it is
@@ -203,10 +228,12 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   for (s in seqs) {
     n <- length(s)
     if (n <= order) next
+    # idx = state numbers; tabulate() counts how many times each (from, to) pair occurs, in one pass.
     idx <- match(s, states)
     counts <- counts + matrix(tabulate(idx[(order + 1L):n] + r * (idx[seq_len(n - order)] - 1L),
                                        nbins = r * r), r, r)
   }
+  # Columns of states never observed as 'from' have no information: give them a uniform distribution.
   colTotals <- colSums(counts)
   out <- sweep(counts, 2L, ifelse(colTotals == 0, 1, colTotals), "/")
   out[, colTotals == 0] <- 1 / r
@@ -214,6 +241,7 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   out
 }
 
+# Warning helper used by the fitting functions.
 # Warns when a model is fitted on no more observations than it has free
 # parameters: the estimates (the weights, in particular, which then stay at
 # their starting values) cannot be trusted. Nothing else changes.
@@ -226,6 +254,10 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   invisible(NULL)
 }
 
+# EM algorithm (Expectation-Maximisation) for the weights. Intuition: for each observation, how
+# much is each lag responsible for the probability of what happened? 'responsibility of lag o' =
+# lambda_o * q_o / (sum of all). The new weight of lag o is the average responsibility. Repeat until
+# the log-likelihood stops improving; it never decreases.
 # Maximum likelihood weights of the higher order model. The lag-o transition
 # matrices Q_o are the empirical ones (seq2matHigh), exactly as for the least
 # squares fit, and the weights maximize
@@ -239,6 +271,7 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
 # defined.
 .fitHigherOrderMle <- function(seqs, Q, X, order, tol = 1e-10, maxit = 10000L) {
   states <- rownames(Q[[1L]])
+  # q[t, o] = probability that lag o gives to the state actually observed at time t.
   # q[t, o] = Q_o[x_t, x_{t-o}]
   q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
     idx <- match(s, states)
@@ -247,14 +280,17 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
     for (o in seq_len(order)) out[, o] <- Q[[o]][cbind(idx[times], idx[times - o])]
     out
   }))
+  # Start from equal weights.
   lambda <- rep(1 / order, order)
   logLikOld <- -Inf
   for (iter in seq_len(maxit)) {
+    # E-step: weighted[t, o] = lambda_o * q[t, o];  mixture[t] = total probability of observation t.
     weighted <- sweep(q, 2L, lambda, "*")
     mixture <- rowSums(weighted)
     logLik <- sum(log(mixture))
     if (logLik - logLikOld < tol) break
     logLikOld <- logLik
+    # M-step: new lambda_o = average of the responsibilities weighted[t, o] / mixture[t].
     lambda <- colMeans(weighted / mixture)
   }
   list(lambda = lambda, Q = Q, X = X)
@@ -348,10 +384,14 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
 #'   unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
 #'
 #' @export
+# Log-likelihood and information criteria of a fitted higher-order model. The first `start - 1`
+# observations are skipped because they have no full past; use the same `start` to compare models of
+# different orders (they must be evaluated on the same observations).
 higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   isList <- is.list(sequence)
   # numeric or factor sequences are matched to the states as character, as in fitMTD()
   seqs <- .asSequenceList(sequence, 2L, "sequence must be a vector of states without missing values")
+  # If no fitted model is given, fit one now.
   if (is.null(fit)) {
     fit <- fitHigherOrder(sequence, order)
     if (is.null(fit)) stop("package Rsolnp is required to fit the model")
@@ -377,6 +417,8 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
   if (length(seqs) == 0L) {
     stop("no sequence has observations from position start onwards")
   }
+  # For every observation from `start` onwards: probability of what was observed under the model,
+  # the mixture sum_i lambda_i * Q_i[x_t, x_{t-i}] ; then add the logs.
   p <- unlist(lapply(seqs, function(s) {
     idx <- match(s, states)
     times <- start:length(s)
@@ -387,6 +429,8 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
     pr
   }), use.names = FALSE)
   logLik <- if (any(p <= 0)) -Inf else sum(log(p))
+  # Number of parameters (see the comment below), then AIC = -2 logLik + 2 npar,
+  # BIC = -2 logLik + log(n) npar.
   r <- length(states)
   # fitMTD(): one matrix shared by all lags. fitHigherOrder(): one matrix per
   # lag; the weights of such a mixture are not identifiable (a distribution

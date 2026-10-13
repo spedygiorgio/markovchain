@@ -89,11 +89,14 @@
 #' is.reversible(cycle3)
 #'
 #' @exportMethod is.reversible
+# A chain is reversible if it satisfies detailed balance: pi_i P_ij = pi_j P_ji, i.e. in
+# equilibrium the flow i -> j equals the flow j -> i.
 setGeneric("is.reversible", function(object, tolerance = sqrt(.Machine$double.eps)) {
   standardGeneric("is.reversible")
 })
 
 #' @rdname is.reversible
+# Method: validate the inputs, compute pi, then test the symmetry of the 'flow' matrix.
 setMethod("is.reversible", "markovchain", function(object, tolerance = sqrt(.Machine$double.eps)) {
   if (length(tolerance) != 1L || !is.numeric(tolerance) ||
       !is.finite(tolerance) || tolerance < 0) {
@@ -123,12 +126,15 @@ setMethod("is.reversible", "markovchain", function(object, tolerance = sqrt(.Mac
   pi[pi < 0] <- 0
   pi <- pi / sum(pi)
 
+  # flow[i, j] = pi_i * P_ij. Multiplying the matrix by the vector pi recycles pi down each column,
+  # i.e. row i is scaled by pi[i], with no explicit n-by-n outer product.
   # flow[i, j] = pi_i * P_ij. Multiplying the matrix by the vector `pi`
   # recycles pi down each column, i.e. row i is scaled by pi[i] -- exactly
   # the row-wise scaling detailed balance needs, with no explicit
   # n-by-n outer product ever constructed.
   flow <- pi * P
 
+  # Reversible when the flow matrix is symmetric up to the tolerance.
   max(abs(flow - t(flow))) <= tolerance
 })
 
@@ -205,11 +211,14 @@ setMethod("is.reversible", "markovchain", function(object, tolerance = sqrt(.Mac
 #' mixingTime(mc, epsilon = 0.01) # a tighter threshold needs more steps
 #'
 #' @exportMethod mixingTime
+# Mixing time: the smallest t such that, from the worst starting state, the distribution after t
+# steps is within `epsilon` of the stationary one in total variation distance.
 setGeneric("mixingTime", function(object, epsilon = 0.25, maxIter = 10000L) {
   standardGeneric("mixingTime")
 })
 
 #' @rdname mixingTime
+# Method: validate arguments (steps 1-2), then iterate the powers of P (step 3).
 setMethod("mixingTime", "markovchain", function(object, epsilon = 0.25, maxIter = 10000L) {
   if (length(epsilon) != 1L || !is.numeric(epsilon) || !is.finite(epsilon) ||
       epsilon <= 0 || epsilon >= 1) {
@@ -224,6 +233,7 @@ setMethod("mixingTime", "markovchain", function(object, epsilon = 0.25, maxIter 
   if (!is.irreducible(object)) {
     stop("mixingTime is defined here only for irreducible Markov chains.")
   }
+  # A periodic chain oscillates forever and never gets close to pi, so it is rejected.
   if (period(object) != 1L) {
     stop(paste0(
       "mixingTime is defined here only for aperiodic (ergodic) Markov ",
@@ -253,9 +263,12 @@ setMethod("mixingTime", "markovchain", function(object, epsilon = 0.25, maxIter 
   pi[pi < 0] <- 0
   pi <- pi / sum(pi)
 
+  # Pt holds P^t. Start with t = 1 and multiply by P one step at a time, until close enough to pi.
   Pt <- P
   t <- 1L
   repeat {
+    # Total variation distance between row i of P^t (the distribution after t steps from state i) and
+    # pi. Take the worst starting state.
     # Total variation distance from each row of P^t to pi, halved sum of
     # absolute differences; take the worst (largest) over starting states.
     distances <- 0.5 * rowSums(abs(sweep(Pt, 2L, pi, FUN = "-")))

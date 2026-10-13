@@ -68,6 +68,9 @@
 #' redistribute(mc, steps = 50, initial = c(a = 0.2, b = 0.8), lastOnly = TRUE)
 #'
 #' @exportMethod redistribute
+# redistribute(): how does a probability distribution evolve in time? If mu_t is the distribution
+# (a row vector) at time t, then mu_{t+1} = mu_t %*% P. We repeat the product `steps` times and keep
+# all the intermediate distributions as the rows of a matrix.
 setGeneric("redistribute", function(object, steps, initial = NULL,
                                     lastOnly = FALSE)
   standardGeneric("redistribute"))
@@ -88,12 +91,15 @@ setMethod("redistribute", "markovchain",
     states <- object@states
     n <- length(states)
 
+    # Starting distribution: uniform, a point mass on a state, or a numeric vector.
     mu <- .initialDistribution(initial, states)
 
+    # Row t+1 of `trajectory` is the distribution after t steps.
     trajectory <- matrix(0, nrow = steps + 1L, ncol = n,
                          dimnames = list(as.character(0:steps), states))
     trajectory[1L, ] <- mu
     for (t in seq_len(steps)) {
+      # One step: multiply the current row by P (renormalise to remove tiny rounding errors).
       nextMu <- as.numeric(trajectory[t, ] %*% P)
       trajectory[t + 1L, ] <- nextMu / sum(nextMu)
     }
@@ -104,6 +110,7 @@ setMethod("redistribute", "markovchain",
     trajectory
   })
 
+# Converts the user's `initial` argument into a numeric vector in the order of the states.
 # Internal helper: an initial distribution given as NULL (uniform), a single
 # state name, or a numeric probability vector (named or in state order),
 # returned as a plain numeric vector in the order of `states`.
@@ -141,6 +148,8 @@ setMethod("redistribute", "markovchain",
   stop("initial must be NULL, a state name, or a numeric vector.")
 }
 
+# Perron root = the largest eigenvalue modulus of the 0/1 matrix that says which transitions are
+# possible (it only depends on the structure of the graph, not on the probabilities).
 # Internal helper: spectral radius (Perron root) of the 0/1 adjacency matrix
 # of the transition graph. Always >= 1, since every row of a stochastic
 # matrix has a positive entry, so every state leads to a cycle.
@@ -205,6 +214,8 @@ setMethod("redistribute", "markovchain",
 #' topologicalEntropy(mc)
 #'
 #' @exportMethod topologicalEntropy
+# Topological entropy = log of the Perron root: the growth rate of the number of possible paths.
+# It is the maximum value the entropy rate can take for chains with the same graph.
 setGeneric("topologicalEntropy", function(object, base = 2)
   standardGeneric("topologicalEntropy"))
 
@@ -262,6 +273,8 @@ setMethod("topologicalEntropy", "markovchain", function(object, base = 2) {
 #' normalizedEntropyRate(mc)
 #'
 #' @exportMethod normalizedEntropyRate
+# Normalised entropy rate = entropyRate / topologicalEntropy, between 0 (deterministic) and 1
+# (as random as the graph allows).
 setGeneric("normalizedEntropyRate", function(object)
   standardGeneric("normalizedEntropyRate"))
 
@@ -316,6 +329,8 @@ setMethod("normalizedEntropyRate", "markovchain", function(object) {
 #' relaxationTime(mc)
 #'
 #' @exportMethod relaxationTime
+# Relaxation time = 1 / spectral gap: the order of magnitude of the number of steps needed to
+# forget the starting state.
 setGeneric("relaxationTime", function(object)
   standardGeneric("relaxationTime"))
 
@@ -328,6 +343,7 @@ setMethod("relaxationTime", "markovchain", function(object) {
   as.numeric(1 / gap)
 })
 
+# Counts how many times each state appears in an observed sequence (the observable f).
 # Internal helper: number of occurrences of every state in an observed
 # sequence, in the order of `states`.
 .sequenceCounts <- function(sequence, states, argName) {
@@ -355,6 +371,9 @@ setMethod("relaxationTime", "markovchain", function(object) {
   timePoints
 }
 
+# Computes v P^t for several values of t efficiently: the times are visited in increasing order
+# (each power starts from the previous one); for long jumps repeated squaring is used:
+# P^13 = P^8 * P^4 * P^1, only about log2(t) matrix products instead of t.
 # Internal helper: v applied to the powers P^t for every t in `times`, from
 # the right (P^t v) or from the left (v P^t). The distinct times are visited
 # in increasing order, so each power is reached from the previous one; a
@@ -378,6 +397,7 @@ setMethod("relaxationTime", "markovchain", function(object) {
         e <- e %/% 2
         if (e > 0) {
           M <- M %*% M
+          # Squaring several times accumulates rounding errors, so we renormalise the rows to sum to one.
           # every power of a stochastic matrix is stochastic: renormalising
           # the rows stops the rounding drift of the repeated squarings
           M <- M / rowSums(M)
@@ -461,6 +481,9 @@ setMethod("relaxationTime", "markovchain", function(object) {
 #' timeRelaxations(mc, x, initial = "a", timePoints = c(0, 1, 10, 100))
 #'
 #' @exportMethod timeCorrelations
+# timeCorrelations(): stationary correlation between f(X_0) and g(X_t) for the observables f, g
+# (here: how often each state appears in the given sequences):
+#    Cov = sum_i pi_i f_i (P^t g)_i - E[f] E[g]  (computed below as  powers %*% (f * pi)).
 setGeneric("timeCorrelations", function(object, sequence1, sequence2 = NULL,
                                         timePoints = 1)
   standardGeneric("timeCorrelations"))
@@ -474,6 +497,7 @@ setMethod("timeCorrelations", "markovchain",
       .sequenceCounts(sequence2, states, "sequence2")
     timePoints <- .timePoints(timePoints)
 
+    # Needs the stationary distribution pi, which must be unique.
     stationary <- steadyStates(object)
     if (!object@byrow) {
       stationary <- t(stationary)
@@ -492,6 +516,8 @@ setMethod("timeCorrelations", "markovchain",
 
 #' @rdname timeCorrelations
 #' @exportMethod timeRelaxations
+# timeRelaxations(): expected value of the observable f at time t starting from the distribution mu:
+#   E[f(X_t)] = mu P^t f .
 setGeneric("timeRelaxations", function(object, sequence, initial = NULL,
                                        timePoints = 1)
   standardGeneric("timeRelaxations"))

@@ -161,6 +161,10 @@
 #' @keywords classes
 #' 
 #' @export
+# Overview of this file: the S4 classes of the package ('markovchain', 'markovchainList') and their
+# basic methods: initialization, validity, printing, plotting, coercion (as(x, 'class')), arithmetic
+# operators, prediction. S4 in two lines: a CLASS has typed SLOTS (read with @), setValidity() adds
+# consistency checks, setMethod() defines the behaviour of a generic function for a class.
 setClass(
   # Class name
   "markovchain",
@@ -180,6 +184,8 @@ setClass(
 )
 
 # Initializing method for markovchain objects
+# initialize() runs inside new('markovchain', ...): it fills defaults for missing arguments
+# (a 2-state example chain, byrow = TRUE, a default name) and makes row/column names consistent.
 setMethod(
   "initialize",
   signature(.Object = "markovchain"),
@@ -282,6 +288,8 @@ setMethod(
 #' @keywords classes
 #' 
 #' @export
+# A markovchainList is a list of markovchains: a chain whose transition matrix changes with time
+# (non-homogeneous chain): the matrix at time t is the t-th element.
 setClass(
   "markovchainList",
   slots = list(
@@ -293,6 +301,7 @@ setClass(
 # A markovchainList is valid iff all the slots are markovchain objects
 # Returns true if the markovchainList is valid, the indexes of the
 # wrong slots otherwise
+# Validity of markovchainList: every element must be a markovchain; the error lists the wrong positions.
 setValidity(
   "markovchainList",
   function(object) {
@@ -461,6 +470,9 @@ setMethod(
 
 
 # method  to set the validity of a markovchain object
+# Validity of markovchain: unique states; entries are probabilities; square matrix; rows (or
+# columns, depending on byrow) sum to one; names of rows and columns coincide with the states.
+# The errors found are collected and returned together.
 setValidity(
   "markovchain",
   function(object) {
@@ -543,6 +555,8 @@ setValidity(
 #' @rdname transitionProbability
 #'      
 #' @exportMethod transitionProbability
+# Probability of moving from state t0 to state t1: entry [t0, t1] if the matrix is stored by row,
+# [t1, t0] if by column.
 setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("transitionProbability"))
 
 #' @rdname transitionProbability
@@ -558,6 +572,8 @@ setMethod("transitionProbability", "markovchain",
 
 #  print, plot and show methods
 
+# Common code of show() and print(): header with name, dimension, states and the orientation of the
+# matrix, followed by the matrix itself.
 .showInt <- function(object, verbose = TRUE) {
 	
   # find the direction
@@ -609,6 +625,8 @@ setMethod("print", "markovchain",
   }
 )
 
+# Builds the igraph graph used by plot(): the weights are multiplied by 100 because igraph rounds the
+# weights and we want to keep two decimals.
 .getNet <- function(object, round = FALSE) {
  	
   # function to get the absorbency matrix to plot and export to igraph
@@ -634,6 +652,7 @@ setMethod("print", "markovchain",
 	return(net)
 }
 
+# One colour for each communicating class.
 getColorVector <- function(object){
   list <- .communicatingClassesRcpp(object)
   sections <- length(list)
@@ -656,6 +675,8 @@ setGeneric("plot")
 # Plot methods for markovchain objects
 
 # plot method from stat5
+# plot() for chains: package = 'igraph' (default), 'diagram' or 'DiagrammeR'. If the requested package
+# is not installed we fall back on igraph, which is always available (it is a required dependency).
 setMethod("plot", signature(x = "markovchain", y = "missing"),
   function(x, y, package = "igraph", ...) {
     switch(package,
@@ -687,8 +708,10 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 )
 
 
+# Coercion section: as(object, 'markovchain') and as(chain, 'matrix' | 'data.frame' | 'igraph' ...).
 ##################################################AS METHODS#########################
 
+# Is the matrix square and stochastic (rows sum to 1 if byrow = TRUE, otherwise columns)?
 .checkMatrix <- function(matr, byrow = TRUE, verbose = FALSE) {
 	
   # firstly, check size
@@ -712,6 +735,8 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 }
 
 # Internal function to return a markovchain object given a matrix
+# matrix -> markovchain: tries first as row-stochastic, then as column-stochastic. States get the names
+# of the rows/columns, or s1, s2, ... when the matrix has no names.
 .matrix2Mc <- function(from) {
 	# enforce class matrix
   from <- as.matrix(from)
@@ -767,6 +792,7 @@ setAs(from = "Matrix", to = "markovchain", def = .matrix2Mc)
 #
 # returns:
 # a data.frame
+# markovchain -> data.frame with the columns t0 (from), t1 (to) and prob, one row for each pair.
 .mc2Df <- function(from) {
   
   # number of rows or columns
@@ -795,6 +821,7 @@ setAs(from = "Matrix", to = "markovchain", def = .matrix2Mc)
 setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 
 # method to find the column which stores transition probability
+# Finds which column of a data frame contains probabilities (numeric values between 0 and 1).
 .whichColProb <- function(df) {
 	
   # column number which stores transition probability
@@ -830,6 +857,8 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 # Returns:
 # A markovchain object 
 
+# data.frame (from, to, probability) -> markovchain: puts every probability in the right cell of a
+# zero matrix. States are the distinct values of the first column.
 .df2Mc <- function(from) {
 	
 	statesNames <- unique(from[, 1])
@@ -862,6 +891,7 @@ setAs(from = "data.frame", to = "markovchain", def = .df2Mc)
 # from <- table(data)
 # .table2Mc(from)
 
+# table -> markovchain: normalises the rows of a contingency table (e.g. from table(from, to)).
 .table2Mc <- function(from) {
 	
   # check whether table has square dimension or not
@@ -896,6 +926,8 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
 # msm is a package. Use this package to create msm object.
 # see how to create msm object using ?msm
 
+# Coercions from objects of other packages (msm, etm): the packages are optional; if msm is not installed
+# we warn and return NULL.
 .msm2Mc <- function(from) {
   if(requireNamespace(package='msm', quietly = TRUE)) {
   temp <- msm::pmatrix.msm(from)
@@ -916,6 +948,7 @@ setAs(from = "msm", to = "markovchain", def = .msm2Mc)
 
 
 # function for msm.est to mc. Assume a probability matrix given
+# msm.est (matrix or list of matrices): the central estimate is the first element.
 .msmest2Mc <- function(from) {
   
   if (is.matrix(from)) {
@@ -939,6 +972,8 @@ setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
 
 
 # function from etm to markovchain
+# etm object -> markovchain: counts the observed transitions and normalises each row; states never
+# left get a uniform row.
 .etm2Mc<-function(from) {
   
   # data frame consists of  'from' and 'to' column
@@ -987,6 +1022,7 @@ setAs(from = "etm", to = "markovchain", def = .etm2Mc)
 
 
 #sparse matrix from Matrix package
+# Sparse matrices (Matrix package) are converted through ordinary matrices.
 .sparseMatrix2markovchain<-function(from){
   temp<-as(from,"matrix")
   out <- as(temp, "markovchain")
@@ -1033,6 +1069,10 @@ setAs(from = "markovchain", to = "igraph", def = .mc2igraph)
 
 
 #' @exportMethod t
+# Operators for chains: t(x) transposes (and flips byrow); * multiplies two chains (the matrix product,
+# that is the two-step transition if the chain is multiplied by itself); == compares the matrices
+# with a numeric tolerance; ^ raises to a power with the matrix power %^% (fast exponentiation by
+# repeated squaring); [ and [[ extract an element.
 setGeneric("t")
 
 
@@ -1219,6 +1259,7 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 #' conditionalDistribution(markovB, "b")                       
 #' 
 #' @exportMethod conditionalDistribution
+# conditionalDistribution(): the row (or column) of the transition matrix for a given state, named by state.
 setGeneric("conditionalDistribution", function(object, state) standardGeneric("conditionalDistribution"))
 setMethod("conditionalDistribution", "markovchain",
   function(object, state) {
@@ -1257,6 +1298,7 @@ setMethod("conditionalDistribution", "markovchain",
 
 # Stop with an informative message unless `state` is a single, non-missing
 # name of one of the chain's states.
+# Error message helper: the state must be a single known state; the message lists up to 10 valid states.
 .checkKnownState <- function(state, stateNames, argName = "state") {
   if (length(state) != 1L || is.na(state) || !(as.character(state) %in% stateNames)) {
     shown <- if (length(stateNames) > 10L) {
@@ -1275,6 +1317,8 @@ setMethod("conditionalDistribution", "markovchain",
   invisible(TRUE)
 }
 
+# Most probable element of a probability vector. In case of ties one of them is chosen at random
+# (ties = 'random') or all of them are returned.
 .getMode <- function(probVector, ties = "random") {
 	maxIndex <- which(probVector == max(probVector))
 	temp <- probVector[maxIndex] # index of maximum probabilty
@@ -1295,6 +1339,8 @@ setGeneric("predict")
 # predict method for markovchain objects
 # given initial state return a vector of next n.ahead states
 
+# predict(): given the observed states, predicts the next n.ahead states. At each step it takes the
+# MOST PROBABLE next state from the last state (it does not simulate).
 setMethod("predict", "markovchain", 
   function(object, newdata, n.ahead = 1) {
     if (length(newdata) < 1L) {
@@ -1323,6 +1369,8 @@ setMethod("predict", "markovchain",
 )
 
 # predict method for markovchainList objects
+# predict() for markovchainList: the t-th prediction uses the t-th matrix of the list; if the list is
+# exhausted, continue = TRUE keeps using the last matrix.
 setMethod("predict", "markovchainList",
   function(object, newdata, n.ahead = 1, continue = FALSE) {
     # object a markovchainList
@@ -1357,6 +1405,7 @@ setMethod("predict", "markovchainList",
 
 setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
 
+# sort(): reorders the states alphabetically (rows and columns together).
 setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
     #get matrix and state names 2 be sorted
    

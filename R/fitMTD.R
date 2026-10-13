@@ -220,9 +220,21 @@
 #' fit2$se$lambda
 #' fitMTD(wind, order = 2, start = 15, model = "MTDg")$logLikelihood
 #' @export
+# Overview of the MTD (Mixture Transition Distribution) fit. Model:
+#   P(x_t = j | x_{t-1} = i1, ..., x_{t-k} = ik) = sum_g lambda_g * Q[i_g, j]
+# One SINGLE matrix Q (shared by all lags) and k weights lambda that sum to 1: much fewer parameters than
+# a full order-k chain (r^k (r-1)). The 'MTDg' variant uses a different matrix for each lag.
+# Parameters are estimated by maximum likelihood with the EM algorithm (the heavy loops are in C++,
+# see src/fitMTD.cpp). The function proceeds in the following steps:
+#   1. validate all the arguments;
+#   2. build the table of lagged observations;
+#   3. fit orders 1, 2, ..., order in turn (each order is started from the previous fit);
+#   4. optionally refit with negative weights (MTD) or with one matrix per lag (MTDg);
+#   5. assemble the result: weights, matrices, logLik, AIC/BIC and, if asked, standard errors.
 fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                    tol = 1e-10, maxit = 10000L, model = c("MTD", "MTDg"),
                    accelerate = FALSE, se = FALSE, negativeWeights = FALSE) {
+  # Step 1: validation (match.arg picks one of the allowed values of `model`).
   model <- match.arg(model)
   seqs <- .asSequenceList(
     sequence, 3L, "sequence must be a vector of at least three states without missing values")
@@ -258,6 +270,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   }
   maxit <- as.integer(maxit)
 
+  # Step 2: states sorted alphabetically; r = number of states.
   states <- sort(unique(unlist(seqs, use.names = FALSE)))
   r <- length(states)
   if (r < 2L) stop("sequence must contain at least two different states")
@@ -274,6 +287,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   }))
   times <- seq_len(nrow(lagged))
 
+  # runEM(): runs one EM from a starting point (plain C++ version, or accelerated with SQUAREM).
   # one run of the EM algorithm from the given starting point, plain or SQUAREM
   # accelerated; Q is a matrix if shared (MTD), otherwise a list of matrices
   runEM <- function(shared, patterns, counts, lambda, Q) {
@@ -286,6 +300,8 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     if (shared) out$Q <- out$Q[[1L]]
     out
   }
+  # bestOf(): of several fits started from different points, keep the one with the highest
+  # log-likelihood (the likelihood can have several local maxima).
   bestOf <- function(fits) {
     fits <- Filter(Negate(is.null), fits)
     if (length(fits) == 0L) stop("the EM algorithm could not be started")
@@ -297,14 +313,18 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   # fit of order k - 1 with a zero weight for the new lag, a fixed point of the
   # EM algorithm with the same likelihood, so that the likelihood returned can
   # never decrease with the order, and with a small positive weight for it.
+  # Step 3: loop over the orders 1..order.
   best <- NULL
   fitsMTD <- vector("list", order)
   for (k in seq_len(order)) {
+    # Instead of the n observations we store only the DISTINCT patterns (x_t, x_{t-1}, ..., x_{t-k})
+    # and how many times each occurs: the likelihood only depends on these counts, so the EM is faster.
     pc <- .mtdPatterns(lagged, k)
     patterns <- pc$patterns
     counts <- pc$counts
     cols <- lagged[, seq_len(k + 1L), drop = FALSE]
 
+    # Starting point 1: equal weights and one matrix obtained by pooling the transitions of all lags.
     # deterministic start: equal weights and the transitions of all lags pooled
     pooled <- matrix(0, r, r)
     for (g in seq_len(k)) pooled <- pooled + .lagCounts(patterns, counts, g, r)
@@ -315,6 +335,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                   list(list(lambda = c(best$lambda, 0), Q = best$Q),
                        list(lambda = c(best$lambda * (1 - 1 / k), 1 / k), Q = best$Q)))
     }
+    # Optional extra random starts (nstart > 1): random weights and matrix.
     if (k == order && nstart > 1L) {
       for (s in seq_len(nstart - 1L)) {
         lambda0 <- stats::rexp(k)
@@ -329,6 +350,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   }
   fit <- best
 
+  # Step 4a: negative weights allowed (Raftery 1985): see .mtdFreeWeights below.
   if (negativeWeights) {
     # Raftery's model with weights of any sign. Order k starts from the fit with
     # non-negative weights of the same order and from the fit of order k - 1
@@ -363,6 +385,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     if (order > 1L) fit <- prev
   }
 
+  # Step 4b: MTDg model, one transition matrix per lag. Same scheme as above.
   if (model == "MTDg") {
     # Same scheme for the model with a matrix for each lag. Order k starts from
     # the MTD fit of order k (so that the likelihood is never below it), from the
@@ -404,10 +427,13 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                  error = function(e) NULL)))
     }
   }
+  # Report a warning if the EM did not converge within `maxit` steps.
   if (!fit$converged) {
     warning("the EM algorithm did not converge in ", maxit, " iterations")
   }
 
+  # Step 5: assemble the output. The rows of Q for states never seen as a conditioning state do not
+  # affect the likelihood, so they cannot be estimated: they are reported as uniform.
   nobs <- length(times)
   # rows of states never observed in a conditioning position (at the lag, for
   # MTDg) do not enter the likelihood and are not identified: report them as
@@ -432,6 +458,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
       Q[unseen, ] <- matrix(colMeans(Q[seenRows, , drop = FALSE]), length(unseen), r,
                             byrow = TRUE)
     }
+    # Parameters: r(r-1) for the matrix Q + (k-1) free weights.
     npar <- r * (r - 1L) + order - 1L
     estimate <- new("markovchain", states = states, byrow = TRUE,
                     transitionMatrix = Q, name = paste0("MTD(", order, ")"))
@@ -451,6 +478,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
               nobs = nobs, order = order, start = start,
               iterations = fit$iterations, converged = fit$converged,
               model = model, negativeWeights = negativeWeights)
+  # Optional standard errors: from the observed information matrix (see .mtdStdErrors).
   if (se) {
     pc <- .mtdPatterns(lagged, order)
     if (model == "MTD") {
@@ -467,6 +495,8 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   out
 }
 
+# Helper: from the table of lagged observations keeps the distinct patterns of the first k lags,
+# and counts how many times each one appears.
 # distinct (x_t, x_{t-1}, ..., x_{t-k}) patterns of the first k + 1 columns of
 # `lagged` (0-based states) and their frequencies
 .mtdPatterns <- function(lagged, k) {
@@ -477,6 +507,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
        counts = as.numeric(table(factor(key, levels = key[first]))))
 }
 
+# Helper: weighted count of the transitions x_{t-g} -> x_t as an r x r matrix [from, to].
 # r x r matrix [from, to] of the weighted transitions x_{t-g} -> x_t
 .lagCounts <- function(patterns, counts, g, r) {
   idx <- patterns[, g + 1L] * r + patterns[, 1L] + 1L
@@ -486,6 +517,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   matrix(v, r, r, byrow = TRUE)
 }
 
+# Helper: EM that estimates only the weights, with the matrices fixed (used as starting values).
 # EM for the weights only, the matrices Qs (rows are departure states) being fixed
 .weightsEM <- function(patterns, counts, Qs, lambda, iters = 2000L, tol = 1e-13) {
   k <- length(Qs)
@@ -503,6 +535,10 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   lambda
 }
 
+# SQUAREM: accelerates the EM. Idea: two plain EM steps show the 'direction' in which the parameters
+# are moving; instead of crawling along it the algorithm jumps ahead by an extrapolated amount
+# (alpha), projects the result back to valid probabilities, and falls back (backtracking) to a
+# shorter jump whenever the likelihood would decrease.
 # SQUAREM acceleration (Varadhan and Roland, 2008, scheme S3) of the EM
 # iteration of the MTD (shared = TRUE, Qs a list with one matrix) or MTDg model
 # (Qs a list of k matrices). A cycle needs two EM steps, an extrapolation that
@@ -576,6 +612,13 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   list(lambda = u$lambda, Q = u$Qs, logLik = L0, iterations = evals, converged = converged)
 }
 
+# Standard errors via the delta method:
+#  (1) the free parameters are those that are not on the boundary (zero); in each block summing to one
+#      one entry is determined by the others;
+#  (2) the information matrix J is minus the Hessian of the log-likelihood, available in closed form;
+#  (3) the covariance of the parameters is the (generalised) inverse of J;
+#  (4) the variance of any function of the parameters (as the transition probabilities) follows from
+#      its gradient D: Var = D Cov D'.
 # Standard errors of the MTD (one matrix in Qs) or MTDg (one matrix per lag)
 # estimates from the observed information, by the delta method. In every block
 # that must sum to one (the weights and each row of each matrix) the entries
@@ -702,6 +745,8 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
        probabilities = probSE)
 }
 
+# Raftery's condition: with negative weights a probability sum_g lambda_g q_g may become negative.
+# This function measures the 'slack' of that constraint (>= 0 means all probabilities are valid).
 # Raftery's condition for the MTD model with weights of any sign: every
 # probability sum_g lambda_g q[i_g, j], over all the combinations of the
 # departure states i_g in `rows`, must be non-negative (they then sum to one, so
@@ -719,6 +764,9 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   all(Q >= 0) && .mtdFeasibilitySlack(lambda, Q, rows) >= -tol
 }
 
+# Maximum likelihood with weights of any sign: block coordinate ascent. At each move a small amount
+# of mass is shifted between two entries of a block that sums to one, in the direction in which the
+# likelihood increases most, with the step length chosen by a one-dimensional search.
 # Maximum likelihood for the MTD model with weights of any sign, by block
 # coordinate ascent in the spirit of Berchtold (2001): in each block that sums
 # to one (the weights, then each identified row of Q) mass moves from the entry
@@ -742,6 +790,7 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     stop("the starting point of the MTD fit with negative weights is not feasible")
   }
 
+  # Largest feasible step along a direction (by bisection: halve the interval repeatedly).
   # largest feasible step in [0, upper] along a direction, the feasible set
   # being convex
   maxStep <- function(upper, feasible) {
@@ -754,6 +803,8 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     }
     lo
   }
+  # Best step length along a direction, again by bisection on the derivative of the log-likelihood
+  # (concave along any line, so the derivative changes sign only once).
   # maximizer of sum c log(f + delta h) on [0, upper], concave in delta, with a
   # positive derivative at 0
   lineMax <- function(h, upper) {

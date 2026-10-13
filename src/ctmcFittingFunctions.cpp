@@ -5,6 +5,7 @@ using namespace Rcpp;
 
 #include <math.h>
 
+// Forward declaration: markovchainFit is defined in fittingFunctions.cpp; here we only say that it exists.
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
                     int nboot = 10, double laplacian = 0, String name = "",
                     bool parallel = false, double confidencelevel = 0.95, bool confint = true,
@@ -66,9 +67,11 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 //      clipping of the same "-" value. Separately, lambda is a rate (not
 //      a probability), so clipping it above at 1 was never appropriate;
 //      only the lower clip at 0 (non-negativity) is kept.
+// ctmcFit(): ML estimation of a continuous time chain from the visited states and the times of the jumps.
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   
+  // Validation: the data are a list (states, times) of the same length.
   // data must be list(states, times) of equal length; Rcpp's operator[] does
   // not bounds check, so reading data[1] or transData[i + 1] unguarded can
   // read past the end.
@@ -77,6 +80,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   if (as<CharacterVector>(data[0]).size() != as<NumericVector>(data[1]).size())
     stop("the states and the transition times must have the same length");
 
+  // Copy the states in a character vector.
   CharacterVector stateData(as<CharacterVector>(data[0]).size());
   
   for (int i = 0; i < as<CharacterVector>(data[0]).size(); i++)
@@ -87,8 +91,11 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   NumericVector stateCount(sortedStates.size());
   NumericVector stateSojournTime(sortedStates.size());
   
+  // Stage 1: fit the embedded discrete chain (the sequence of visited states) with markovchainFit().
   List dtmcData = markovchainFit(stateData, "mle", byrow, 10, 0, name, false, confidencelevel);
   
+  // Stage 2: for each state count the departures and add up the time spent there (sojourn time)
+  // = difference between the next jump time and the current one.
   for (int i = 0; i < stateData.size() - 1; i++){
     int idx = std::find(sortedStates.begin(),
                         sortedStates.end(),
@@ -97,6 +104,9 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
     stateSojournTime[idx] += transData[i+1] - transData[i];
   }
   
+  // Stage 3: the generator = (transition probability) x (exit rate), with exit rate
+  // lambda_i = departures from i / total time in i (the MLE for an exponential holding time),
+  // and the diagonal equal to minus the exit rate.
   S4 dtmcEst = dtmcData["estimate"];
   NumericMatrix gen = dtmcEst.slot("transitionMatrix");
   
@@ -123,6 +133,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   // rather than the 1.96 a two-sided 95% interval requires. The transition
   // rate lambda is not a probability (it has no upper bound of 1), so only
   // non-negativity is enforced, matching the definition of a rate.
+  // Stage 4: confidence interval for each exit rate: lambda_hat +/- z * lambda_hat / sqrt(n).
   double zscore = stats::qnorm_0(1.0 - (1.0 - confidencelevel) / 2.0, 1.0, 0.0);
   NumericVector lowerConfVecLambda(sortedStates.size()), upperConfVecLambda(sortedStates.size());
   
@@ -139,6 +150,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
     }
   }
   
+  // Build the S4 object 'ctmc' and return it together with the confidence intervals.
   S4 outCtmc("ctmc");
   outCtmc.slot("states") = sortedStates;
   outCtmc.slot("generator") = gen;

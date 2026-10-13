@@ -2,6 +2,11 @@
 #include <cmath>
 using namespace Rcpp;
 
+// This file implements the EM algorithm (Expectation-Maximisation) of the MTD model in C++ for speed;
+// R/fitMTD.R calls it. EM in two lines: we do not know which lag 'generated' each observation
+// (latent variable). E-step: compute the posterior probability of each lag for every observation.
+// M-step: update the parameters as weighted averages using those probabilities. Repeat until the
+// log-likelihood stops increasing (it never decreases).
 // EM algorithm for the mixture transition distribution (MTD) model of
 // Raftery (1985) with non-negative lag weights (Lebre and Bourguignon, 2008):
 //
@@ -18,6 +23,9 @@ using namespace Rcpp;
 // counts:   number of times each pattern occurs
 // lambda0, Q0: starting values (Q0 rows sum to one)
 // The log-likelihood returned is the one of the parameters returned.
+// mtdEM(): iterate E-step and M-step until convergence (relative change of the log-likelihood below tol)
+// or maxit iterations. The data come as distinct patterns with counts to avoid looping over
+// identical observations.
 // [[Rcpp::export(.mtdEM)]]
 List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
            NumericMatrix Q0, double tol, int maxit) {
@@ -27,6 +35,7 @@ List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
   if (k < 1 || lambda0.size() != k || Q0.ncol() != r || counts.size() != m)
     stop("inconsistent dimensions");
 
+  // Work on copies (clone): Rcpp vectors share memory with the R object, and we must not modify the input.
   NumericVector lambda = clone(lambda0);
   NumericMatrix Q = clone(Q0);
   NumericVector lambdaNew(k);
@@ -39,6 +48,8 @@ List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
   bool converged = false;
   int iter = 0;
   for (iter = 1; iter <= maxit; ++iter) {
+    // E-step. For each pattern: w[g] = lambda[g] * Q(previous state at lag g, current state) is the joint
+    // probability that lag g generated the observation; mix = sum over g = probability of the pattern.
     // E-step and sufficient statistics at the current parameters
     std::fill(lambdaNew.begin(), lambdaNew.end(), 0.0);
     std::fill(Qnew.begin(), Qnew.end(), 0.0);
@@ -54,6 +65,7 @@ List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
         logLik = R_NegInf;
         break;
       }
+      // Log-likelihood = sum counts * log(mix). Posterior of lag g = w[g] / mix.
       logLik += counts[p] * std::log(mix);
       for (int g = 0; g < k; ++g) {
         const double post = counts[p] * w[g] / mix;
@@ -63,12 +75,14 @@ List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
     }
     if (!std::isfinite(logLik))
       stop("an observed pattern has probability zero at the starting values");
+    // Convergence test on the relative increase of the log-likelihood.
     if (logLik - logLikOld <= tol * (std::fabs(logLik) + tol)) {
       converged = true;
       break;
     }
     if (iter == maxit) break;
     logLikOld = logLik;
+    // M-step: lambda = average posterior; Q(i, .) = posterior-weighted transition counts, normalised by row.
     // M-step
     for (int g = 0; g < k; ++g) lambda[g] = lambdaNew[g] / total;
     for (int i = 0; i < r; ++i) {
@@ -85,6 +99,8 @@ List mtdEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
                       _["converged"] = converged);
 }
 
+// mtdStep(): ONE iteration of the same algorithm, exposed to R for the SQUAREM acceleration
+// (see .accelerateEM in R/fitMTD.R). It also returns the log-likelihood of the INPUT parameters.
 // ---------------------------------------------------------------------------
 // One EM step for the MTD model with a single matrix shared by all lags, used
 // by the SQUAREM acceleration written in R. It returns F(theta), the
@@ -139,6 +155,8 @@ List mtdStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda,
   return List::create(_["lambda"] = lambdaOut, _["Q"] = Qout, _["logLik"] = logLik);
 }
 
+// MTDg model: same EM but each lag g has its own matrix Q_g. The three helpers below perform the E-step,
+// the M-step and the copying of the matrices; mtdgEM and mtdgStep use them.
 // ---------------------------------------------------------------------------
 // EM for the MTDg model, in which every lag g has its own row-stochastic
 // matrix Q_g (rows are the departure state):
@@ -151,6 +169,7 @@ List mtdStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda,
 // Every iteration does not decrease the log-likelihood.
 // Arguments as in mtdEM(), with the list Qlist0 of the k starting matrices.
 
+// E-step of MTDg: accumulates the weights of the lags and the posterior-weighted counts for each lag's matrix.
 static double mtdgEStep(const IntegerMatrix& patterns, const NumericVector& counts,
                         const NumericVector& lambda, const std::vector<NumericMatrix>& Q,
                         NumericVector& lambdaNew, std::vector<NumericMatrix>& Qnew,
@@ -178,6 +197,7 @@ static double mtdgEStep(const IntegerMatrix& patterns, const NumericVector& coun
   return logLik;
 }
 
+// M-step of MTDg: normalise.
 static void mtdgMStep(const NumericVector& lambdaNew, const std::vector<NumericMatrix>& Qnew,
                       double total, NumericVector& lambda, std::vector<NumericMatrix>& Q) {
   const int k = lambda.size();
@@ -194,6 +214,7 @@ static void mtdgMStep(const NumericVector& lambdaNew, const std::vector<NumericM
   }
 }
 
+// Copy a list of R matrices into C++ vectors of matrices, checking the dimensions.
 static std::vector<NumericMatrix> mtdgCopyMatrices(const List& Qlist, int k, int r) {
   if (Qlist.size() != k) stop("inconsistent dimensions");
   std::vector<NumericMatrix> Q(k);
@@ -211,6 +232,7 @@ static List mtdgWrapMatrices(const std::vector<NumericMatrix>& Q) {
   return out;
 }
 
+// mtdgEM(): iterate until convergence, as mtdEM().
 // [[Rcpp::export(.mtdgEM)]]
 List mtdgEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
             List Qlist0, double tol, int maxit) {
@@ -272,3 +294,4 @@ List mtdgStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda
   return List::create(_["lambda"] = lambdaOut, _["Q"] = mtdgWrapMatrices(Q),
                       _["logLik"] = logLik);
 }
+// The code that follows (clean_nas and _mcFitMap) belongs to mapFitFunctions.h, see the comments there.

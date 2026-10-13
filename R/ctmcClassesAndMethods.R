@@ -58,6 +58,9 @@
 #' @keywords classes
 #' 
 #' @export
+# S4 class 'ctmc' = continuous time Markov chain. It is described by a GENERATOR matrix Q
+# (off-diagonal entries = jump rates, diagonal = minus the total rate of leaving the state,
+# so every row sums to zero), instead of a matrix of probabilities.
 setClass("ctmc",
          slots = list(states = "character",
                       byrow = "logical",
@@ -71,6 +74,8 @@ setClass("ctmc",
            name = "Unnamed CTMC")
 )
 
+# initialize() is called by new(): it fills in default values for the missing arguments and
+# repairs the dimension names before the object is built.
 setMethod("initialize",
           signature(.Object = "ctmc"),
           function (.Object, states, byrow, generator,name,...) {
@@ -83,6 +88,7 @@ setMethod("initialize",
             
             # check names of transition matrix, filling in missing/inconsistent
             # row or column names and resolving the states vector accordingly
+            # Shared helper (utils.R): makes row names, column names and states consistent.
             filled <- .fillDimNames(generator, if (missing(states)) NULL else states)
             generator <- filled$matrix
             states <- filled$states
@@ -92,6 +98,7 @@ setMethod("initialize",
           }
 )
 
+# Accessors: states(x) returns the state names, dim(x) the number of states.
 #returns states of the ctmc
 setMethod("states", "ctmc", 
           function(object) {
@@ -108,6 +115,9 @@ setMethod("dim", "ctmc",
           }
 )
 
+# Validity: runs every time an object is created and returns TRUE or an error message.
+# Here it checks that the matrix is a generator (rows, or columns, sum to 0), is square and
+# that its names match the states.
 setValidity("ctmc",
             function(object) {
               check<-NULL
@@ -125,6 +135,9 @@ setValidity("ctmc",
             }
 )
 
+# Finds the eigenvector of the eigenvalue 1 of a matrix. For a stochastic matrix this eigenvector is
+# proportional to the stationary distribution. Returns NULL (with a warning) if there is not exactly
+# one such eigenvalue, or if the vector is complex.
 .ctmcEigen<-function(matr, transpose=TRUE)
 {
   # Function to extract eigenvalues, core of get steady states 
@@ -135,8 +148,10 @@ setValidity("ctmc",
   #
   # Results:
   # a matrix / vector
+  # Row-stochastic matrices need the transpose: the stationary distribution is a LEFT eigenvector.
   if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
   eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
+  # Pick the eigenvalues equal to 1 (rounded to 3 digits to absorb numerical noise).
   onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
   #do the following: 1:get eigenvectors whose eigenvalues==1
   #2: normalize
@@ -167,6 +182,9 @@ setValidity("ctmc",
   return(out)
 }
 
+# Steady state of a ctmc: (1) take the embedded jump chain (the discrete chain that records only the
+# visited states), (2) find its stationary vector, (3) divide each entry by the rate of leaving the
+# state (the longer a chain stays in a state, the more weight that state has) and renormalise.
 setMethod("steadyStates", "ctmc", 
           function(object) {
             transposeYN <- object@byrow
@@ -194,6 +212,8 @@ setMethod("steadyStates", "ctmc",
 
 
 
+# Builds an igraph graph from the generator, for plotting (weights are multiplied by 100 to keep
+# the digits when igraph rounds them).
 # internal function for plotting ctmc object using igraph
 .getNetctmc <- function(object, round = FALSE) {
   # function to get the graph adjacency object to plot and export to igraph
@@ -221,6 +241,8 @@ setMethod("steadyStates", "ctmc",
 }
 
 
+# plot(): the package argument chooses the drawing library; if the chosen one is not installed
+# we fall back on igraph, which is always available.
 setMethod("plot",signature(x="ctmc",y="missing"),
           function(x,y,package = "igraph",...){
             switch(package,
@@ -252,6 +274,7 @@ setMethod("plot",signature(x="ctmc",y="missing"),
           )
 
 
+# 'ictmc' = imprecise CTMC: a generator Q whose rates may vary within the interval given in `range`.
 
 #' An S4 class for representing Imprecise Continuous Time Markovchains
 #' 
@@ -268,6 +291,7 @@ ictmc <- setClass("ictmc",
 
 
 
+# Default values of the arguments, as for the ctmc class.
 setMethod("initialize",
           signature(.Object = "ictmc"),
           function (.Object, states, Q, range, name, ...) {
@@ -297,6 +321,8 @@ setMethod("initialize",
 
 
 
+# Validity of an ictmc: Q must be a generator and each interval [low, high] must be well ordered
+# and not negative.
 setValidity("ictmc",
             function(object) {
               check<-NULL

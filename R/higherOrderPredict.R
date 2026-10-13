@@ -54,8 +54,11 @@
 #' higherOrderPredict(fit2, c("0", "6+"))
 #' @name higherOrderPredict
 #' @export
+# Probabilities of the next state for one history (a vector of states, oldest first),
+# or for many histories at once (one per row of a matrix / data frame).
 higherOrderPredict <- function(fit, history) {
   model <- .higherOrderModel(fit)
+  # A matrix of histories: apply the single-history function to every row.
   if (is.data.frame(history)) history <- as.matrix(history)
   if (is.matrix(history)) {
     out <- t(apply(history, 1L, function(h) .higherOrderNext(model, h)))
@@ -67,13 +70,17 @@ higherOrderPredict <- function(fit, history) {
 
 #' @rdname higherOrderPredict
 #' @export
+# Simulates n new states from a fitted higher-order model, starting from the history t0.
 higherOrderSimulate <- function(n, fit, t0, include.t0 = FALSE) {
   if (length(n) != 1L || is.na(n) || n < 0 || n != floor(n)) {
     stop("n must be a non-negative integer")
   }
   model <- .higherOrderModel(fit)
+  # k = order of the model = number of past states that matter.
   k <- length(model$lambda)
   history <- .higherOrderHistory(model, t0)
+  # Step by step: draw the next state with the model probabilities, append it to the
+  # history, drop the oldest state, repeat.
   out <- character(n)
   past <- utils::tail(history, k)
   for (t in seq_len(n)) {
@@ -84,6 +91,7 @@ higherOrderSimulate <- function(n, fit, t0, include.t0 = FALSE) {
   if (isTRUE(include.t0)) c(history, out) else out
 }
 
+# Internal helpers follow (the leading dot means 'not for users').
 # checks the fit and extracts what the predictions need
 .higherOrderModel <- function(fit) {
   if (!is.list(fit) || is.null(fit$lambda) || !is.list(fit$Q) ||
@@ -108,6 +116,9 @@ higherOrderSimulate <- function(n, fit, t0, include.t0 = FALSE) {
   history
 }
 
+# The model: P(next = j | past) = sum_i lambda_i * Q_i[j, state i steps ago],
+# i.e. a weighted average of one transition matrix per lag. 'past' is oldest first, so lag i
+# is element k - i + 1. Dividing by sum(p) guards against round-off (and negative weights).
 # probabilities of the next state given the last k states (oldest first)
 .higherOrderProbabilities <- function(model, past) {
   k <- length(model$lambda)

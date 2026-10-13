@@ -1,3 +1,9 @@
+# In plain words: aggregateStates() reduces a chain with many states to a chain with only k
+# 'macro-states', grouping together states that behave similarly, while losing as little
+# information as possible. The reading guide for the code below:
+#   - phi is an n x k 0/1 matrix: phi[i, j] = 1 if state i belongs to macro-state j;
+#   - Q is the k x k transition matrix between macro-states;
+#   - the quality of the reduction is measured by a Kullback-Leibler divergence (smaller = better).
 # Internal helpers for aggregateStates() ------------------------------------
 #
 # These implement the spectral-theoretic Kullback-Leibler (KL) state-space
@@ -26,6 +32,8 @@
 # phi: n x z indicator matrix (z macro-states). Returns the z x z
 # macro-transition matrix Q implied by phi, using the closed-form projection
 # above. Shared by both the bottom-up and top-down heuristics below.
+# Step A: given the grouping phi, compute the macro-chain Q: its entry (a, b) is the
+# stationary probability flow from group a to group b divided by the stationary probability of a.
 .aggregationQ <- function(P, pi, phi) {
   piDiag <- diag(pi, nrow = length(pi))
   z <- ncol(phi)
@@ -44,6 +52,8 @@
 # incurred just by aggregating the stationary distribution itself. Convention
 # 0*log(0/y) = 0 (an all-zero row of P never contributes, including against
 # a superQ/superPi of 0) is applied directly rather than via a NaN patch-up.
+# Step B: measure the loss (KL divergence) of the grouping: how different the original process is
+# from the one that can be described through the macro-states.
 .klDivergenceAggregate <- function(P, pi, phi, Q) {
   superQ <- phi %*% Q %*% t(phi)
   ratioP <- ifelse(P == 0, 1, P / superQ)
@@ -62,6 +72,9 @@
 # logical vector aligned with idx (TRUE/FALSE = the two sides of the cut).
 # Falls back to a rank-based split (guaranteed non-empty on both sides) in
 # the rare degenerate case where the eigenvector does not change sign.
+# Step C: split a set of states in two, using the sign of the second eigenvector of the
+# (symmetrised) transition matrix: states with positive entries go on one side, negative on the other.
+# This is spectral bisection, the same idea used to cut graphs.
 .spectralSplit <- function(M, pi, idx) {
   Msub <- M[idx, idx, drop = FALSE]
   piSub <- diag(pi[idx], nrow = length(idx))
@@ -84,6 +97,7 @@
 # partition `phi` into two, returning the resulting n x (ncol(phi)+1)
 # candidate partition, or NULL if that macro-state is a singleton (nothing
 # to split).
+# Splits ONE macro-state in two, producing a candidate partition with one more group.
 .createBipartitionCandidate <- function(P, pi, phi, index) {
   v <- phi[, index]
   if (sum(v) <= 1) {
@@ -104,6 +118,8 @@
 # one-macro-state partition and, at each step, split whichever macro-state
 # yields the smallest resulting KL divergence, until k macro-states are
 # reached.
+# Bottom-up: begin with one macro-state containing everything; try splitting each group, keep the
+# split with the smallest loss; repeat until k groups.
 .aggregateSpectralBottomUp <- function(P, pi, k) {
   n <- nrow(P)
   phi <- matrix(1, nrow = n, ncol = 1)
@@ -115,6 +131,7 @@
     bestQ <- NULL
     bestR <- Inf
 
+    # Try to split every existing group, and remember the candidate with the lowest divergence.
     for (i in seq_len(ncol(phi))) {
       candidate <- .createBipartitionCandidate(P, pi, phi, i)
       if (is.null(candidate)) {
@@ -144,6 +161,8 @@
 # Q, by simple Cesaro-averaged power iteration; used only to weight the
 # spectral cuts proposed while growing the top-down candidate pairs below,
 # never as the divergence's own pi (which is always the original chain's).
+# Stationary distribution of the macro-chain by power iteration: the distribution is averaged with its
+# own update until it stops changing.
 .calculateInvariant <- function(Q) {
   n <- nrow(Q)
   kappa <- rep(1 / n, n)
@@ -166,6 +185,8 @@
 # still belongs to some ancestor piece, and remains available the next time
 # aggregateStates() rebuilds the candidate list from the (unchanged) states
 # outside whichever pair actually gets merged.
+# Creates the list of PAIRS of macro-states that look similar (the candidates to merge), by splitting
+# recursively in halves until the groups have 2 elements.
 .buildPairCandidates <- function(Q, pi) {
   n <- ncol(Q)
   worklist <- list(seq_len(n))
@@ -194,6 +215,7 @@
 # matrix `eta` into one, preserving every other column (and the relative
 # order of the states within it) exactly. Returns the resulting n x (m-1)
 # matrix together with the macro-chain it implies.
+# Merges two columns of the grouping matrix and recomputes the macro-chain.
 .calculateQTopDown <- function(P, pi, eta, vi0, vi1) {
   mergedCol <- pmax(eta[, vi0], eta[, vi1])
   keep <- setdiff(seq_len(ncol(eta)), c(vi0, vi1))
@@ -211,6 +233,8 @@
 # micro-state as its own macro-state and, at each step, merge whichever pair
 # of current macro-states yields the smallest resulting KL divergence, until
 # only k macro-states remain.
+# Top-down: begin with one group per state; at each step try the merge of every candidate pair and keep
+# the one with the smallest loss, until k groups remain.
 .aggregateSpectralTopDown <- function(P, pi, k) {
   n <- nrow(P)
   Q <- P
@@ -240,6 +264,7 @@
 # Number of macro-states suggested by the eigengap heuristic: the number of
 # eigenvalues (by modulus, including the trivial one) before the largest
 # relative drop, restricted to the valid aggregateStates() range [2, n-1].
+# Choosing k automatically: look at the sorted eigenvalue moduli and cut where the largest gap is.
 .chooseKByEigengap <- function(P) {
   n <- nrow(P)
   ev <- sort(Mod(eigen(P, only.values = TRUE)$values), decreasing = TRUE)
@@ -375,6 +400,8 @@
 #' result$klDivergence # zero up to rounding
 #'
 #' @exportMethod aggregateStates
+# Public function. Steps: (1) validate the chain, (2) get the stationary distribution, (3) choose k and
+# the method, (4) run bottom-up or top-down, (5) package the partition and the macro-chain.
 setGeneric("aggregateStates", function(object, k = NULL,
                                         method = c("adaptive", "spectral-bottom-up", "spectral-top-down")) {
   standardGeneric("aggregateStates")
@@ -429,6 +456,7 @@ setMethod("aggregateStates", "markovchain",
     }
   }
 
+  # 'adaptive' picks bottom-up for a strong reduction of a large chain, top-down otherwise.
   if (method == "adaptive") {
     if (n < 30L) {
       method <- "spectral-top-down"
@@ -450,6 +478,7 @@ setMethod("aggregateStates", "markovchain",
     stop("Internal error: the aggregation partition does not cover every state exactly once.")
   }
 
+  # Name the groups Macro_1 ... Macro_k and list their states.
   macroStates <- paste0("Macro_", seq_len(k))
   partition <- stats::setNames(vector("list", k), macroStates)
   for (j in seq_len(k)) {

@@ -36,8 +36,12 @@
 #' rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
 #' rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
 #' @export
+# rctmc(): simulates a continuous time chain. Algorithm: in the current state i the chain waits an
+# exponential time with rate -Q[i,i] (the total rate of leaving i), then jumps to a state j drawn
+# with probabilities given by the embedded jump chain. It stops after n jumps or at time T.
 rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, 
                   out.type = "list") {
+  # Step 1: validate the arguments.
   if (!is(ctmc, "ctmc")) stop("ctmc must be a ctmc object")
   if (length(n) != 1L || is.na(n) || n <= 0 ||
       (!is.finite(n) && !is.infinite(n)) ||
@@ -53,6 +57,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
   if (!out.type %in% c("list", "df")) {
     stop("out.type must be 'list' or 'df'")
   }
+  # Step 2: choose the initial state (random, or according to the distribution initDist).
   if (identical(initDist, numeric()))
     state <- sample(ctmc@states, 1) # sample state randomly
   else if (!is.numeric(initDist) || length(initDist) != dim(ctmc) ||
@@ -63,6 +68,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
     state <- sample(ctmc@states, 1, prob = initDist) # if valid probability distribution,
   # sample accordingly
   
+  # Step 3: probabilities of the jump chain: P[i,j] = Q[i,j] / (-Q[i,i]), for j != i.
   # obtain transition probability matrix from the generator matrix
   trans <- generatorToTransitionMatrix(ctmc@generator)
   
@@ -74,6 +80,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
     time <- c(time, 0)
   }
   
+  # Step 4: simulation loop. `t` = current time; a state with zero exit rate is absorbing.
   t <- 0
   i <- 1
   while (i <= n){
@@ -82,18 +89,22 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
       # absorbing state; stay here forever
       t <- Inf
     } else {
+      # Holding time in the current state: exponential with rate -Q[idx, idx].
       t <- t + rexp(1, -ctmc@generator[idx, idx])
     }
     
+    # Stop if the time limit T has been exceeded (or the chain is stuck in an absorbing state).
     if((T > 0 & t > T) | (is.infinite(t)))
       break
     
+    # Next state: drawn with the jump probabilities of the current state.
     state <- ctmc@states[sample(1:dim(ctmc), 1, prob = trans[idx, ])]
     states <- c(states, state)
     time <- c(time, t)
     i <- i + 1
   }
   
+  # Step 5: return the visited states and the jump times, as a list or a data frame.
   out <- list(states, time)
   if (out.type == "list")
     return(out)
@@ -125,6 +136,8 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
 #' expm::expm(Q)
 #'  
 #' @seealso \code{\link{rctmc}}
+# Generator from a transition matrix over a period t: Q = log(P) / t (matrix logarithm).
+# It only gives a valid generator if the matrix logarithm has non-negative off-diagonal entries.
 transition2Generator<-function(P, t = 1,method = "logarithm") {
   if (method == "logarithm") {
     Q = logm(P)/t
@@ -160,6 +173,8 @@ transition2Generator<-function(P, t = 1,method = "logarithm") {
 #' 
 #' @export
 #' 
+# Estimates a generator from the frequencies P of a discrete time process over a period t,
+# using the methods of the optional package ctmcd (QO, WA, DA).
 freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
   if(requireNamespace('ctmcd', quietly = TRUE)) {
   if(method == "QO"){
@@ -204,6 +219,8 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' ExpectedTime(ctmc,1,4,TRUE)
 #' 
 #' @export
+# Expected time to reach state j starting from state i. Let Q' be the generator restricted to the states
+# other than j; the vector m of expected hitting times solves the linear system  Q' m = -1.
 ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   # take generator from ctmc-class object
   Q <- C@generator
@@ -226,6 +243,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
     stop("Holding times for all states except j should be greater than 0")
   }
   
+  # Right-hand side b = (-1, ..., -1) and the system  Q' x = b.
   # get b for solving the system of linear equation Ax = b where A is Q_Exceptj
   b <- rep(-1,dim(Q_Exceptj)[1])
   
@@ -236,6 +254,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
     out <- solve(Q_Exceptj,b)
   }
   
+  # The solution omits state j: adjust the index for states i > j.
   # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
   if(i<j){
     return(out[[i]])
@@ -277,6 +296,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
 #' probabilityatT(ctmc,1,useRCpp = TRUE)
 #' 
 #' @export
+# Transition probabilities of a continuous chain at time t: P(t) = exp(t Q) (matrix exponential).
 probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   
   if(!is(C,"ctmc")){
@@ -295,6 +315,7 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   NoofStates <- dim(C)
   
   
+  # Matrix exponential, in C++ or with expm::expm().
   # calculate transition functoin at time t using Kolmogorov backward equation
   if (useRCpp) {
     P <- .probabilityatTRCpp(t*Q);
@@ -304,6 +325,7 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   }
   
   
+  # With x0 only the row of the starting state is returned, otherwise the whole matrix.
   # return the row vector according to state at time t=0 if x0 is provided
   # if x0 not provided returns the whole matrix
   # hence returns probability of being at state j at time t if state at t =0 is x0
@@ -348,6 +370,10 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
 #' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
 #' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
 #' @export
+# Imprecise CTMC: the rates are only known to lie within intervals. This function computes the LOWER
+# expectation of the indicator of state i at time s (Krak et al. 2017) by repeated small Euler steps:
+#   g <- g + delta * lower(Q g),  delta = (s - t)/n ,
+# where the number of steps n is chosen so that the error is below `error`.
 impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE){
   if (length(error) != 1L || is.na(error) || !is.finite(error) || error <= 0) {
     stop("error must be a finite positive number")
@@ -383,6 +409,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
   Q <- C@Q
   range <- C@range
   
+  # Norm of the operator Q: the largest row sum of |Q| times the upper range.
   ### calculate ||QI_i||
   
   #initialise Q norm value
@@ -396,6 +423,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
     QNorm <- max(sum*range[i,2],QNorm)
   }
   
+  # n = number of Euler steps needed to reach the required precision.
   ### calculate no of iterations
   # The 1 is for norm of I_s i.e. ||I_s|| which equals 1
   n <- max((s-t)*QNorm, (s-t)*(s-t)*QNorm*QNorm*1/(2*error))
@@ -408,6 +436,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
   Ii[i] <- 1
   
   
+  # Lower operator: for each state take the minimum of the two extremes of the interval.
   ### calculate value of lower operator _QI_i(x) for all x belongs to no ofStates
   values <- Q%*%Ii
   Qgx <- rep(0, noOfstates)
@@ -459,6 +488,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 #' is.CTMCirreducible(molecularCTMC)
 #' 
 #' @export
+# A CTMC is irreducible iff its embedded jump chain is irreducible.
 is.CTMCirreducible <- function(ctmc) {
   
   if(!is(ctmc, 'ctmc') ) {
@@ -510,6 +540,7 @@ is.CTMCirreducible <- function(ctmc) {
 #' is.TimeReversible(molecularCTMC)
 #' 
 #' @export
+# Time reversibility (detailed balance in continuous time): pi_i Q_ij = pi_j Q_ji for all i, j.
 is.TimeReversible <- function(ctmc) {
   
   if(!is(ctmc,"ctmc")) {
@@ -549,6 +580,7 @@ is.TimeReversible <- function(ctmc) {
 
 
 
+# Old, disabled code kept for reference (a search for generators of a transition matrix).
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

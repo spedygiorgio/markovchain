@@ -10,10 +10,13 @@
       minProbability >= 1) {
     stop("minProbability must be a single number in [0, 1).")
   }
+  # Row-stochastic version of the matrix (transposed if the object is stored by column).
   P <- .rowStochasticMatrix(object)
+  # Find every (from, to) pair whose probability is above the threshold, as row/column indices.
   idx <- which(t(P) > minProbability, arr.ind = TRUE)
   # t(P) makes which() run along the rows of P: column 1 is the target
   # state, column 2 the source state
+  # Sort the edges by source state, then by target state, so that the output is reproducible.
   idx <- idx[order(idx[, 2L], idx[, 1L]), , drop = FALSE]
   data.frame(from = idx[, 2L], to = idx[, 1L],
              probability = P[cbind(idx[, 2L], idx[, 1L])])
@@ -25,19 +28,23 @@
       digits < 1 || digits != round(digits)) {
     stop("digits must be a single positive whole number.")
   }
+  # Round to `digits` significant digits and print without exponent or useless trailing zeros.
   format(signif(p, digits), digits = digits, trim = TRUE, scientific = FALSE,
          drop0trailing = TRUE)
 }
 
 # Internal helper: return the text, also writing it to `file` when given.
 .graphOutput <- function(lines, file) {
+  # Join the lines of text into a single string with line breaks.
   text <- paste(lines, collapse = "\n")
+  # No file requested: just return the text.
   if (is.null(file)) {
     return(text)
   }
   if (length(file) != 1L || !is.character(file) || !nzchar(file)) {
     stop("file must be NULL or a single non-empty file path.")
   }
+  # Open the file in UTF-8, and make sure it is closed when the function exits (on.exit).
   con <- base::file(file, open = "w", encoding = "UTF-8")
   on.exit(close(con))
   writeLines(lines, con)
@@ -98,9 +105,11 @@ setGeneric("toDot", function(object, file = NULL, digits = 3,
 setMethod("toDot", "markovchain",
   function(object, file = NULL, digits = 3, minProbability = 0,
            direction = "LR") {
+    # DOT format: 'digraph name { A -> B [label=...]; }'. Graphviz can render this text.
     direction <- match.arg(direction, c("LR", "TB", "RL", "BT"))
     edges <- .chainEdges(object, minProbability)
     labels <- .edgeLabels(edges$probability, digits)
+    # quote(): escape backslashes, double quotes and newlines so the state names are safe inside DOT strings.
     quote <- function(x) {
       x <- gsub("\\", "\\\\", x, fixed = TRUE)
       x <- gsub("\"", "\\\"", x, fixed = TRUE)
@@ -108,6 +117,7 @@ setMethod("toDot", "markovchain",
       paste0("\"", x, "\"")
     }
     states <- object@states
+    # Assemble the file line by line: header, layout direction, node style, nodes, edges, closing brace.
     lines <- c(
       paste0("digraph ", quote(object@name), " {"),
       paste0("  rankdir=", direction, ";"),
@@ -135,6 +145,7 @@ setMethod("toMermaid", "markovchain",
     direction <- match.arg(direction, c("LR", "TB", "RL", "BT"))
     edges <- .chainEdges(object, minProbability)
     labels <- .edgeLabels(edges$probability, digits)
+    # Mermaid output: 'flowchart LR' followed by node and edge declarations.
     # Mermaid labels in double quotes accept any text except the double
     # quote itself, written as the entity #quot;
     label <- function(x) {
@@ -142,6 +153,7 @@ setMethod("toMermaid", "markovchain",
       gsub("\n", " ", x, fixed = TRUE)
     }
     states <- object@states
+    # Node ids are s1, s2, ... (always valid), while the real state names are shown as labels.
     ids <- paste0("s", seq_along(states))
     lines <- c(
       paste0("flowchart ", direction),

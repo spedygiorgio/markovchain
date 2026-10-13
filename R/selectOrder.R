@@ -100,8 +100,12 @@
 #' sel$order
 #' sel$table
 #' @export
+# Chooses the order k of a Markov chain using AIC or BIC. Idea: fit chains of order 0..maxOrder
+# on the same observations, compute log-likelihood and number of parameters of each, and pick the
+# order with the best criterion (the smallest value).
 selectOrder <- function(sequence, maxOrder = 3, criterion = c("BIC", "AIC"),
                         start = NULL, parameters = c("full", "observed")) {
+  # Step 1: validate the inputs. A single sequence is treated as a list with one sequence.
   criterion <- match.arg(criterion)
   parameters <- match.arg(parameters)
   sequences <- if (is.list(sequence)) sequence else list(sequence)
@@ -123,14 +127,19 @@ selectOrder <- function(sequence, maxOrder = 3, criterion = c("BIC", "AIC"),
     stop("start must be an integer of at least maxOrder + 1")
   }
   start <- as.integer(start)
+  # Observations start from position `start` so that every order sees the same data and the
+  # likelihoods are comparable (an order-k chain needs k past values).
   lengths <- vapply(sequences, length, integer(1))
   sequences <- sequences[lengths >= start]
   if (length(sequences) == 0L) {
     stop("no sequence has observations from position start onwards")
   }
+  # r = number of distinct states.
   r <- length(unique(unlist(sequences)))
   if (r < 2L) stop("the sequences must contain at least two different states")
 
+  # nextState = the state to predict at each time; context(k) = the k previous states
+  # stuck together in one string (the '\r' is a separator that cannot appear in state names).
   # next states and, for each order, the context of every observation used
   nextState <- unlist(lapply(sequences, function(s) s[start:length(s)]))
   nobs <- length(nextState)
@@ -143,6 +152,9 @@ selectOrder <- function(sequence, maxOrder = 3, criterion = c("BIC", "AIC"),
     }))
   }
 
+  # Step 2: for every order compute the maximum likelihood. For each context (history)
+  # the MLE of each transition probability is count / total, and
+  # logLik = sum counts * log(count / total).
   orders <- 0:maxOrder
   logLik <- npar <- numeric(length(orders))
   for (k in orders) {
@@ -152,16 +164,22 @@ selectOrder <- function(sequence, maxOrder = 3, criterion = c("BIC", "AIC"),
     positive <- counts > 0
     logLik[k + 1L] <- sum(counts[positive] *
                             log(counts[positive] / (contextTotals %o% rep(1, ncol(counts)))[positive]))
+    # Number of parameters: all r^k*(r-1) possible ones ('full'), or only those of transitions
+    # actually seen ('observed').
     npar[k + 1L] <- if (parameters == "full") r^k * (r - 1) else sum(rowSums(positive) - 1)
   }
+  # Warn when there are more possible contexts than observations: estimates are then unreliable.
   if (r^maxOrder > nobs) {
     warning("the number of contexts of the highest order (", r^maxOrder,
             ") exceeds the number of observations (", nobs,
             "): the criteria and tests for the highest orders are unreliable")
   }
+  # Step 3: likelihood-ratio test of each order against the previous one (chi-squared, df = extra parameters).
   df <- c(NA, diff(npar))
   LR <- c(NA, 2 * diff(logLik))
   p.value <- ifelse(!is.na(df) & df > 0, stats::pchisq(pmax(LR, 0), df, lower.tail = FALSE), NA_real_)
+  # Step 4: information criteria AIC = -2 logLik + 2 npar and BIC = -2 logLik + log(n) npar; the
+  # best order is the one minimising the chosen criterion.
   table <- data.frame(order = orders, logLik = logLik, npar = npar,
                       AIC = -2 * logLik + 2 * npar,
                       BIC = -2 * logLik + log(nobs) * npar,

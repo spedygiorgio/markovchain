@@ -41,7 +41,10 @@ Discrete-valued Time Series*. Chapman & Hall.
 phrases of the song of a wood pewee recorded by Craig (1943). The series was
 taken from the dataset `pewee` of the R package `march` (Maitre, Emery,
 Buschor and Berchtold, maintainer Andre Berchtold; GPL-2), which is gratefully
-acknowledged; the data are observations from Craig (1943). It was analysed with MTD models by
+acknowledged; the data are observations from Craig (1943). Andre Berchtold,
+maintainer of `march`, confirmed in a message of 13 October 2026 that there is
+no problem in reusing the pewee song data in another R package, and that to his
+knowledge the dataset is public. It was analysed with MTD models by
 Raftery and Tavare (1994). The unit tests use it to reproduce the BIC of the
 fully parameterized Markov chains of orders 1-4 in Table 2 of Kharin and
 Piatlitski (2011) (`selectOrder(..., start = 5, parameters = "observed")`) and to

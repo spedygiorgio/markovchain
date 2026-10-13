@@ -903,7 +903,8 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
   out <- new("markovchain", transitionMatrix = prMatr)
   } else {
     out <- NULL
-    print("msm unavailable")
+    warning("package msm is required to coerce an msm object and is not available: NULL is returned",
+            call. = FALSE)
   }
   return(out)
 }

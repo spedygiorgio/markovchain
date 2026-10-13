@@ -59,14 +59,16 @@ test_that("the NaN no longer propagates into fitHigherOrder()'s Q %*% X products
 }
 
 test_that("fitHigherOrder returns valid weights", {
-  skip_if_not_installed("Rsolnp")
   data(rain)
-  for (k in 1:3) {
-    fit <- fitHigherOrder(rain$rain, order = k)
+  for (method in c("mle", "lsq")) for (k in 1:3) {
+    if (method == "lsq") skip_if_not_installed("Rsolnp")
+    fit <- fitHigherOrder(rain$rain, order = k, method = method)
     expect_length(fit$lambda, k)
     expect_true(all(fit$lambda >= -1e-6))
     expect_equal(sum(fit$lambda), 1, tolerance = 1e-6)
   }
+  # the default is the maximum likelihood fit
+  expect_equal(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "mle"))
 })
 
 test_that("fitHigherOrder minimizes the distance to the stationary distribution", {
@@ -74,7 +76,7 @@ test_that("fitHigherOrder minimizes the distance to the stationary distribution"
   data(rain)
   data(preproglucacon)
   for (s in list(rain$rain, preproglucacon$preproglucacon)) {
-    fit <- fitHigherOrder(s, order = 2)
+    fit <- fitHigherOrder(s, order = 2, method = "lsq")
     grid <- seq(0, 1, by = 0.01)
     gridObjective <- sapply(grid, function(a) .hoObjective(s, c(a, 1 - a)))
     # the fit must be at least as good as every point of a fine grid
@@ -85,7 +87,7 @@ test_that("fitHigherOrder minimizes the distance to the stationary distribution"
 test_that("fitHigherOrder no longer stays at the starting point", {
   skip_if_not_installed("Rsolnp")
   data(preproglucacon)
-  fit <- fitHigherOrder(preproglucacon$preproglucacon, order = 2)
+  fit <- fitHigherOrder(preproglucacon$preproglucacon, order = 2, method = "lsq")
   # the minimum of the distance is at about (0.69, 0.31), not at (0.5, 0.5)
   expect_gt(abs(fit$lambda[1] - 0.5), 0.1)
   expect_lt(.hoObjective(preproglucacon$preproglucacon, fit$lambda),
@@ -94,8 +96,10 @@ test_that("fitHigherOrder no longer stays at the starting point", {
 
 test_that("order 1 gives weight 1", {
   skip_if_not_installed("Rsolnp")
-  expect_equal(fitHigherOrder(c("a","b","a","c","b","a","b","c","a"), order = 1)$lambda, 1,
-               tolerance = 1e-6)
+  for (method in c("lsq", "mle")) {
+    expect_equal(fitHigherOrder(c("a","b","a","c","b","a","b","c","a"), order = 1,
+                                method = method)$lambda, 1, tolerance = 1e-6)
+  }
 })
 
 ### method = "mle": weights by maximum likelihood (EM), same lag matrices.
@@ -116,20 +120,19 @@ test_that("method = 'mle' returns weights on the simplex and the usual structure
   expect_equal(fitHigherOrder(rain$rain, order = 1, method = "mle")$lambda, 1)
 })
 
-test_that("method = 'mle' uses the same lag matrices as the default method", {
+test_that("method = 'mle' uses the same lag matrices as method = 'lsq'", {
   skip_if_not_installed("Rsolnp")
   data(preproglucacon)
   s <- preproglucacon$preproglucacon
-  lsq <- fitHigherOrder(s, 2)
+  lsq <- fitHigherOrder(s, 2, method = "lsq")
   mle <- fitHigherOrder(s, 2, method = "mle")
   expect_equal(mle$Q, lsq$Q)
   expect_equal(mle$X, lsq$X)
 })
 
-test_that("the default method is unchanged by the new argument", {
-  skip_if_not_installed("Rsolnp")
+test_that("the default method is the maximum likelihood one", {
   data(rain)
-  expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "lsq"))
+  expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "mle"))
   expect_error(fitHigherOrder(rain$rain, 2, method = "foo"), "should be one of")
 })
 
@@ -158,7 +161,7 @@ test_that("maximum likelihood weights never give a lower log-likelihood than lea
   data(rain)
   data(preproglucacon)
   for (s in list(rain$rain, preproglucacon$preproglucacon)) for (k in 2:3) {
-    lsq <- fitHigherOrder(s, k)
+    lsq <- fitHigherOrder(s, k, method = "lsq")
     mle <- fitHigherOrder(s, k, method = "mle")
     expect_gte(higherOrderLogLik(s, mle)$logLik, higherOrderLogLik(s, lsq)$logLik - 1e-8)
   }

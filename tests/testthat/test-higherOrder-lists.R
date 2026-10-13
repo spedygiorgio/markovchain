@@ -54,7 +54,7 @@ test_that("fitHigherOrder on a list: mle weights maximize the pooled likelihood"
   expect_equal(unname(fit$lambda[1]), best, tolerance = 0.01)
   expect_gte(ll(fit$lambda[1]), max(vapply(grid, ll, numeric(1))) - 1e-8)
   skip_if_not_installed("Rsolnp")
-  lsq <- fitHigherOrder(seqs, 2)
+  lsq <- fitHigherOrder(seqs, 2, method = "lsq")
   expect_equal(lsq$Q, fit$Q)
 })
 

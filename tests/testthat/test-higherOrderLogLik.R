@@ -57,7 +57,6 @@ test_that("start puts models of different orders on the same observations", {
 })
 
 test_that("it works on the output of fitHigherOrder", {
-  skip_if_not_installed("Rsolnp")
   fit <- fitHigherOrder(seqA, order = 2)
   res <- higherOrderLogLik(seqA, fit)
   expect_true(is.finite(res$logLik))

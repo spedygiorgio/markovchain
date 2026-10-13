@@ -45,11 +45,12 @@ test_that("the warning does not change the fit", {
 test_that("fitHigherOrder(method = 'lsq') warns and returns NULL when Rsolnp is unavailable", {
   testthat::local_mocked_bindings(requireNamespace = function(package, ..., quietly = FALSE) FALSE,
                                   .package = "base")
-  expect_warning(out <- fitHigherOrder(.seqHO(), 2), "Rsolnp is required")
+  expect_warning(out <- fitHigherOrder(.seqHO(), 2, method = "lsq"), "Rsolnp is required")
   expect_null(out)
-  # the maximum likelihood fit does not need Rsolnp
-  expect_no_warning(mle <- fitHigherOrder(.seqHO(), 2, method = "mle"))
+  # the maximum likelihood fit, the default, does not need Rsolnp
+  expect_no_warning(mle <- fitHigherOrder(.seqHO(), 2))
   expect_length(mle$lambda, 2L)
-  expect_warning(expect_error(higherOrderLogLik(.seqHO(), order = 2), "Rsolnp is required"),
-                 "Rsolnp is required")
+  # higherOrderLogLik() fits by maximum likelihood by default, so it does not need Rsolnp either
+  expect_no_warning(ll <- higherOrderLogLik(.seqHO(), order = 2))
+  expect_true(is.finite(ll$logLik))
 })

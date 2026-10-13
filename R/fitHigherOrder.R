@@ -46,7 +46,7 @@ setClass("HigherOrderMarkovChain", #class name
 #' @description Given a sequence of states arising from a stationary state, it
 #'   fits the underlying Markov chain distribution with higher order.
 #' @usage  
-#' fitHigherOrder(sequence, order = 2, method = c("lsq", "mle"))
+#' fitHigherOrder(sequence, order = 2, method = c("mle", "lsq"))
 #' seq2freqProb(sequence)
 #' seq2matHigh(sequence, order)
 #'
@@ -55,8 +55,8 @@ setClass("HigherOrderMarkovChain", #class name
 #'   character strings), without missing values. A list of such vectors is
 #'   taken as independent sequences, see Details.
 #' @param order Markov chain order
-#' @param method How the weights \eqn{\lambda} are estimated: \code{"lsq"}
-#'   (default) or \code{"mle"}, see Details.
+#' @param method How the weights \eqn{\lambda} are estimated: \code{"mle"}
+#'   (default) or \code{"lsq"}, see Details.
 #' @return A list containing lambda, Q, and X.
 #'
 #' @details The fitted model expresses the distribution of the next state as
@@ -65,19 +65,19 @@ setClass("HigherOrderMarkovChain", #class name
 #'   weights \eqn{\lambda_i \ge 0} summing to one. The matrices \eqn{Q_i}
 #'   are the same for both methods; only the weights differ.
 #'
-#'   \code{method = "lsq"} (the default, and the only behaviour before the
-#'   argument existed) chooses \eqn{\lambda} to minimize the squared distance
+#'   \code{method = "lsq"} (the default before version 1.2, and the only method
+#'   before the argument existed) chooses \eqn{\lambda} to minimize the squared distance
 #'   between the stationary distribution and its image under the mixture, as in
 #'   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
 #'   with a warning if it is unavailable. This criterion is weak: each lag
 #'   matrix maps the empirical distribution onto itself up to end effects,
 #'   \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
 #'   objective is nearly flat in \eqn{\lambda} and the weights it returns can
-#'   be unstable from one sample to another. It is kept as the default for
-#'   backward compatibility; \code{method = "mle"} is preferable when the
-#'   weights are interpreted or models are compared by likelihood.
+#'   be unstable from one sample to another. It remains available, to
+#'   reproduce earlier results or the method of Ching et al., but it is no
+#'   longer the default.
 #'
-#'   \code{method = "mle"} chooses \eqn{\lambda} to maximize the
+#'   \code{method = "mle"} (the default) chooses \eqn{\lambda} to maximize the
 #'   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
 #'   x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
 #'   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
@@ -124,14 +124,15 @@ setClass("HigherOrderMarkovChain", #class name
 #' @examples
 #' sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
 #'             "c", "a", "b", "c", "a", "b", "a", "b")
-#' fitHigherOrder(sequence)
-#' # weights by maximum likelihood (no Rsolnp needed)
-#' fit <- fitHigherOrder(sequence, order = 2, method = "mle")
+#' # weights by maximum likelihood (the default, no Rsolnp needed)
+#' fit <- fitHigherOrder(sequence, order = 2)
 #' fit$lambda
+#' # weights by least squares on the stationary distribution, as in Ching et al.
+#' fitHigherOrder(sequence, order = 2, method = "lsq")
 #' higherOrderLogLik(sequence, fit)$logLik
 #'
 #' @export
-fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
+fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   method <- match.arg(method)
   # one sequence, or a list of independent sequences; as in fitMTD(), numbers
   # and factors are matched to the states as character
@@ -279,11 +280,12 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #'
 #'   Two points matter when interpreting the output. First,
 #'   \code{fitHigherOrder} chooses \eqn{\lambda} by default
-#'   (\code{method = "lsq"}) by least squares on the stationary distribution,
-#'   not by maximum likelihood, so the value returned is the log-likelihood
-#'   \emph{of the fitted model}, not the maximum attainable one; with
-#'   \code{method = "mle"} the weights maximize this log-likelihood for the
-#'   observations a model of that order can predict. Second, a model of order \eqn{k} can only be evaluated from
+#'   (\code{method = "mle"}) to maximize this log-likelihood, conditionally on
+#'   the empirical lag matrices, for the observations a model of that order can
+#'   predict; with \code{method = "lsq"} the weights come from a least squares
+#'   fit on the stationary distribution, not from maximum likelihood, so the
+#'   value returned is the log-likelihood \emph{of the fitted model}, not the
+#'   maximum attainable one. Second, a model of order \eqn{k} can only be evaluated from
 #'   observation \eqn{k + 1} onwards; to compare orders on exactly the same data
 #'   set \code{start} to \eqn{1 +} the largest order compared, otherwise the
 #'   models are evaluated on different numbers of observations and neither the
@@ -340,12 +342,10 @@ fitHigherOrder<-function(sequence, order = 2, method = c("lsq", "mle")) {
 #' sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
 #'               "c", "a", "b", "c", "a", "b", "a", "b")
 #' # compare orders 1 and 2 on the same observations (start = 3)
-#' if (requireNamespace("Rsolnp", quietly = TRUE)) {
-#'   fit1 <- fitHigherOrder(sequence, order = 1)
-#'   fit2 <- fitHigherOrder(sequence, order = 2)
-#'   sapply(list(order1 = fit1, order2 = fit2), function(f)
-#'     unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
-#' }
+#' fit1 <- fitHigherOrder(sequence, order = 1)
+#' fit2 <- fitHigherOrder(sequence, order = 2)
+#' sapply(list(order1 = fit1, order2 = fit2), function(f)
+#'   unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
 #'
 #' @export
 higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {

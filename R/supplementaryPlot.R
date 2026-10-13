@@ -23,7 +23,9 @@
   
   
   if (!requireNamespace("diagram", quietly = TRUE)) {
-    print("The diagram package is not available")
+    warning("package diagram is required to draw this plot and is not available: NULL is returned",
+            call. = FALSE)
+    return(invisible(NULL))
   } else{
     diagram::plotmat(t(mat),relsize = 0.75,box.col = colorvector, ...)  
   }
@@ -79,7 +81,9 @@
   
   return (res)
   } else {
-    print("Diagrammer unavailable")
+    warning("package DiagrammeR is required to draw this plot and is not available: NULL is returned",
+            call. = FALSE)
+    return(invisible(NULL))
   }
 }
 

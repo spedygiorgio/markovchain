@@ -93,6 +93,18 @@ seq2matHigh <- function(sequence, order) {
     .Call(`_markovchain_mtdEM`, patterns, counts, lambda0, Q0, tol, maxit)
 }
 
+.mtdStep <- function(patterns, counts, lambda, Q) {
+    .Call(`_markovchain_mtdStep`, patterns, counts, lambda, Q)
+}
+
+.mtdgEM <- function(patterns, counts, lambda0, Qlist0, tol, maxit) {
+    .Call(`_markovchain_mtdgEM`, patterns, counts, lambda0, Qlist0, tol, maxit)
+}
+
+.mtdgStep <- function(patterns, counts, lambda, Qlist) {
+    .Call(`_markovchain_mtdgStep`, patterns, counts, lambda, Qlist)
+}
+
 .markovchainSequenceRcpp <- function(n, markovchain, t0, include_t0 = FALSE) {
     .Call(`_markovchain_markovchainSequenceRcpp`, n, markovchain, t0, include_t0)
 }

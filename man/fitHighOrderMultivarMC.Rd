@@ -8,7 +8,8 @@ fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
 }
 \arguments{
 \item{seqMat}{a matrix or a data frame where each column 
-is a categorical sequence}
+is a categorical sequence; numeric or factor values are
+taken as state labels (compared as character strings)}
 
 \item{order}{Multivariate Markov chain order. Default is 2.}
 

@@ -10,12 +10,17 @@ using namespace Rcpp;
 using namespace arma;
 using namespace std;
 
+// Small utility functions shared by the other C++ files (matrix power, tolerant comparisons, checks of
+// stochastic matrices) and functions used ONLY by the test suite (names that start with .testthat...).
 // Defined in probabilistic.cpp
 bool isAccessible(S4 obj, String from, String to);
 
 // Defined in probabilistic.cpp
 LogicalMatrix reachabilityMatrix(S4 obj);
 
+// matrixPow(A, n): A^n by 'exponentiation by squaring' (fast): write n in binary; at each step
+// `partial` holds A, A^2, A^4, A^8, ... and it is multiplied into the result when the bit of n is 1.
+// Only about log2(n) matrix products instead of n - 1.
 // matrix power function
 // O(log n * m³) where m is the number of rows / cols of A
 mat matrixPow(const mat& A, int n) {
@@ -36,6 +41,7 @@ mat matrixPow(const mat& A, int n) {
   return result;
 }
 
+// Do the two sets of strings have a common element? (the smaller one is looked up in a hash set)
 // check if two vectors are intersected
 bool intersects(CharacterVector x, CharacterVector y) {
   if (x.size() < y.size())
@@ -54,6 +60,8 @@ bool intersects(CharacterVector x, CharacterVector y) {
   }
 }
 
+// anyElement / allElements: apply a test function to every entry of a matrix and stop at the first
+// entry that decides the answer (short-circuit).
 bool anyElement(const mat& matrix, bool (*condition)(const double&)) {
   int numRows = matrix.n_rows;
   int numCols = matrix.n_cols;
@@ -78,6 +86,8 @@ bool allElements(const mat& matrix, bool (*condition)(const double&)) {
   return all;
 }
 
+// Numerical comparison: two numbers are 'equal' if they differ by less than 1e-7 (rounding errors
+// make exact == unreliable for floating point numbers). The second version does the same for complex numbers.
 bool approxEqual(const double& a, const double& b) {
   // with a NaN both a >= b and the swapped call are false: the recursion
   // below would never end
@@ -100,12 +110,14 @@ bool approxEqual(const cx_double& a, const cx_double& b){
 }
 
 
+// Is `prob` a probability (a number between 0 and 1)?
 // check if prob is probability or not
 // [[Rcpp::export(.isProbability)]]
 bool isProb(double prob) {
   return (prob >= 0 && prob <= 1);
 }
 
+// Stochastic matrix = non-negative entries and rows (or columns) summing to 1.
 // checks if a matrix is stochastic (by rows or by columns), i.e. all
 // elements are probabilities and the rows (cols, resp.) sum 1
 // [[Rcpp::export(.isStochasticMatrix)]]
@@ -134,6 +146,7 @@ bool isStochasticMatrix(NumericMatrix m, bool byrow) {
   return isStochastic;
 }
 
+// Is the vector a probability distribution (non-negative, sum 1)?
 // [[Rcpp::export(.isProbabilityVector)]]
 bool isProbVector(NumericVector prob) {
   bool result = true;
@@ -147,6 +160,7 @@ bool isProbVector(NumericVector prob) {
   return result && approxEqual(sumProbs, 1);
 }
 
+// Test helper: checks that is.accessible(from, to) agrees with the full reachability matrix.
 // [[Rcpp::export(.testthatIsAccesibleRcpp)]]
 bool checkIsAccesibleMethod(S4 obj) {
   CharacterVector states = obj.slot("states");
@@ -166,6 +180,7 @@ bool checkIsAccesibleMethod(S4 obj) {
   return correct;
 }
 
+// Test helper (also used by == for chains): are two matrices equal up to the tolerance?
 // [[Rcpp::export(.approxEqualMatricesRcpp)]]
 bool approxEqual(NumericMatrix a, NumericMatrix b) {
   int a_ncol = a.ncol();
@@ -186,6 +201,8 @@ bool approxEqual(NumericMatrix a, NumericMatrix b) {
   }
 }
 
+// Test helper: checks that the communicating classes are a partition of the set of states
+// (every state in exactly one class).
 // This method receives the output of communicatingClasses(object) and object@states
 // and checks that in fact the communicating classes are a partition of states
 // Is a method agnostic on whether the Markov Chain was given by rows or columns
@@ -217,6 +234,7 @@ bool isPartition(List commClasses,
   return partition && numClassStates == n;
 }
 
+// Test helper: verifies the equations satisfied by the hitting probabilities, f = p + sum p f.
 // This is simply a method that checks the following recurrence,
 // naming p = probs, f = hitting, it checks:
 //
@@ -256,6 +274,7 @@ bool areHittingProbabilities(NumericMatrix probs,
 }
 
 
+// Test helper: verifies the equations satisfied by the mean number of visits.
 // This is simply a method that checks the following recurrence,
 // naming p = probs, E = mean number of visits, f = hitting 
 // probabilities, it checks:
@@ -306,6 +325,7 @@ bool areMeanNumVisits(NumericMatrix probs, NumericMatrix numVisits,
   return holds;
 }
 
+// Test helper: for a recurrent class the hitting probability is 1 inside the class and 0 outside.
 // [[Rcpp::export(.testthatRecurrentHittingRcpp)]]
 bool recurrentHitting(List recurrentClasses,
                       NumericMatrix hitting,
@@ -341,6 +361,7 @@ bool recurrentHitting(List recurrentClasses,
 }
 
 
+// Test helper: all the entries must be 1.
 // [[Rcpp::export(.testthatHittingAreOneRcpp)]]
 bool hittingProbsAreOne(NumericMatrix matrix) {
   bool allOne = true;
@@ -354,6 +375,7 @@ bool hittingProbsAreOne(NumericMatrix matrix) {
   return allOne;
 }
 
+// Test helper: the absorbing states are exactly the recurrent classes with a single state.
 // [[Rcpp::export(.testthatAbsorbingAreRecurrentClassRcpp)]]
 bool absorbingAreRecurrentClass(CharacterVector absorbingStates, List recurrentClasses) {
   unordered_set<string> singletonRecurrent;

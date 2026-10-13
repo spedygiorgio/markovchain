@@ -6,17 +6,20 @@
 \alias{seq2matHigh}
 \title{Functions to fit a higher order Markov chain}
 \usage{
-fitHigherOrder(sequence, order = 2, method = c("lsq", "mle"))
+fitHigherOrder(sequence, order = 2, method = c("mle", "lsq"))
 seq2freqProb(sequence)
 seq2matHigh(sequence, order)
 }
 \arguments{
-\item{sequence}{A character list.}
+\item{sequence}{The sequence of states: a character vector, or a vector
+coercible to character (numbers and factors are matched to the states as
+character strings), without missing values. A list of such vectors is
+taken as independent sequences, see Details.}
 
 \item{order}{Markov chain order}
 
-\item{method}{How the weights \eqn{\lambda} are estimated: \code{"lsq"}
-(default) or \code{"mle"}, see Details.}
+\item{method}{How the weights \eqn{\lambda} are estimated: \code{"mle"}
+(default) or \code{"lsq"}, see Details.}
 }
 \value{
 A list containing lambda, Q, and X.
@@ -32,19 +35,19 @@ The fitted model expresses the distribution of the next state as
   weights \eqn{\lambda_i \ge 0} summing to one. The matrices \eqn{Q_i}
   are the same for both methods; only the weights differ.
 
-  \code{method = "lsq"} (the default, and the only behaviour before the
-  argument existed) chooses \eqn{\lambda} to minimize the squared distance
+  \code{method = "lsq"} (the default before version 1.2, and the only method
+  before the argument existed) chooses \eqn{\lambda} to minimize the squared distance
   between the stationary distribution and its image under the mixture, as in
   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
-  with a message if it is unavailable. This criterion is weak: each lag
+  with a warning if it is unavailable. This criterion is weak: each lag
   matrix maps the empirical distribution onto itself up to end effects,
   \eqn{Q_i X \approx X} with an error of order \eqn{i/n}, so the
   objective is nearly flat in \eqn{\lambda} and the weights it returns can
-  be unstable from one sample to another. It is kept as the default for
-  backward compatibility; \code{method = "mle"} is preferable when the
-  weights are interpreted or models are compared by likelihood.
+  be unstable from one sample to another. It remains available, to
+  reproduce earlier results or the method of Ching et al., but it is no
+  longer the default.
 
-  \code{method = "mle"} chooses \eqn{\lambda} to maximize the
+  \code{method = "mle"} (the default) chooses \eqn{\lambda} to maximize the
   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
   x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
@@ -61,14 +64,27 @@ The fitted model expresses the distribution of the next state as
   that this is not the mixture transition distribution model of Raftery
   (1985), in which a single matrix is shared by all lags and is estimated
   together with the weights; that model is fitted by \code{\link{fitMTD}}.
+
+  With a list of sequences the lag matrices \eqn{Q_i} and the state
+  frequencies are computed from the counts pooled over the sequences, which
+  are treated as independent: no pair of observations spans two sequences,
+  and a sequence with no more than \code{order} states contributes to the
+  frequencies only. The weights are then estimated as for a single sequence,
+  from the observations that a model of that order can predict in every
+  sequence.
+
+  A warning is given when the sequence supplies no more observations than the
+  model has free parameters (the number used by \code{\link{higherOrderLogLik}}),
+  since the weights are then essentially undetermined.
 }
 \examples{
 sequence<-c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
             "c", "a", "b", "c", "a", "b", "a", "b")
-fitHigherOrder(sequence)
-# weights by maximum likelihood (no Rsolnp needed)
-fit <- fitHigherOrder(sequence, order = 2, method = "mle")
+# weights by maximum likelihood (the default, no Rsolnp needed)
+fit <- fitHigherOrder(sequence, order = 2)
 fit$lambda
+# weights by least squares on the stationary distribution, as in Ching et al.
+fitHigherOrder(sequence, order = 2, method = "lsq")
 higherOrderLogLik(sequence, fit)$logLik
 
 }

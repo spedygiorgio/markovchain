@@ -79,7 +79,9 @@ future states conditional on the present state. Degrees of freedom are
 summed, present-state by present-state, over only the past and future
 states actually observed with that present state, mirroring the other
 functions documented on this page. Factors and numeric sequences are
-compared as character strings.
+compared as character strings. A list of vectors is taken as a set of
+independent sequences: the triples of consecutive states are formed within
+each sequence, never across two, and the counts are pooled.
 
 Tests whether transition probabilities are constant across consecutive blocks.
 Structural zeros can be supplied explicitly through a logical transition matrix.

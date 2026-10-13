@@ -1,7 +1,12 @@
+# Overview: a chain is saved/loaded in two layers.
+#   1. toDictionary()/fromDictionary(): chain <-> nested R list (name, states, byrow, matrix as list of lists);
+#   2. toFile()/fromFile(): the dictionary <-> a file in JSON, YAML, CSV or XML.
+# The JSON/YAML/XML packages are optional (Suggests), so they are only used when needed.
 # Internal helper: build the states x states nested named-list representation
 # shared by toDictionary() and every toFile() format, from a row-stochastic
 # matrix with dimnames already set to the state names.
 .matrixToNestedList <- function(P, stateNames) {
+  # For every departure state build a named list of probabilities towards all states.
   stats::setNames(lapply(stateNames, function(from) {
     stats::setNames(as.list(as.numeric(P[from, ])), stateNames)
   }), stateNames)
@@ -10,10 +15,12 @@
 # Internal helper: the inverse of .matrixToNestedList(), also accepting a
 # plain n x n matrix (with or without dimnames) for convenience when a
 # dictionary is built by hand rather than round-tripped through toDictionary().
+# The reverse operation: nested list (or plain matrix) -> numeric matrix with state names.
 .nestedListToMatrix <- function(tm, stateNames) {
   n <- length(stateNames)
   P <- matrix(NA_real_, n, n, dimnames = list(stateNames, stateNames))
 
+  # Case A: a plain matrix. It must be n x n; if it has names they must match the states.
   if (is.matrix(tm)) {
     if (!identical(dim(tm), c(n, n))) {
       stop("transitionMatrix must be an n x n matrix, with n = length(states).")
@@ -28,6 +35,7 @@
     } else {
       P[] <- as.numeric(tm)
     }
+  # Case B: a nested list tm[[from]][[to]]; check that every state appears as a key, then fill row by row.
   } else if (is.list(tm)) {
     if (is.null(names(tm)) || !setequal(names(tm), stateNames)) {
       stop("transitionMatrix must be named after every state (one entry per source state).")
@@ -98,6 +106,7 @@
 setGeneric("toDictionary", function(object) standardGeneric("toDictionary"))
 
 #' @rdname toDictionary
+# Always export row-stochastic: transpose if the chain is stored by column.
 setMethod("toDictionary", "markovchain", function(object) {
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
@@ -132,6 +141,7 @@ setMethod("toDictionary", "markovchain", function(object) {
 #'   \code{d$byrow}.
 #' @return \code{fromDictionary} returns a \code{markovchain} object.
 #' @export
+# Rebuilds a chain from a dictionary, validating the content before calling new().
 fromDictionary <- function(d) {
   if (!is.list(d)) {
     stop("d must be a list, as returned by toDictionary().")
@@ -168,6 +178,7 @@ fromDictionary <- function(d) {
 
 # Internal helper: infer a supported serialization format from a file's
 # extension, or validate an explicitly given one.
+# Choose the file format from the extension (.yml is an alias of .yaml), or validate the explicit one.
 .resolveSerializationFormat <- function(file, format) {
   supported <- c("json", "yaml", "csv", "xml")
   if (is.null(format)) {
@@ -252,6 +263,7 @@ fromDictionary <- function(d) {
 setGeneric("toFile", function(object, file, format = NULL) standardGeneric("toFile"))
 
 #' @rdname toFile
+# Write to file: first make the dictionary, then write it in the requested format.
 setMethod("toFile", "markovchain", function(object, file, format = NULL) {
   if (length(file) != 1L || !is.character(file) || !nzchar(file)) {
     stop("file must be a single non-empty file path.")
@@ -260,6 +272,7 @@ setMethod("toFile", "markovchain", function(object, file, format = NULL) {
   d <- toDictionary(object)
 
   if (format == "json") {
+    # JSON and YAML need optional packages: stop with a clear message if they are missing.
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
       stop("Writing JSON requires the 'jsonlite' package. Install it with install.packages(\"jsonlite\").")
     }
@@ -270,6 +283,7 @@ setMethod("toFile", "markovchain", function(object, file, format = NULL) {
     }
     yaml::write_yaml(d, file, precision = 17)
   } else if (format == "csv") {
+    # CSV: only the matrix, with the state names as header row and first column.
     P <- matrix(unlist(lapply(d$states, function(from) unlist(d$transitionMatrix[[from]][d$states], use.names = FALSE))),
                 nrow = length(d$states), byrow = TRUE,
                 dimnames = list(d$states, d$states))
@@ -283,6 +297,8 @@ setMethod("toFile", "markovchain", function(object, file, format = NULL) {
 
 #' @rdname toFile
 #' @export
+# Read from file: the format decides how to read; JSON/YAML/XML go through the dictionary or the
+# XML reader, CSV is read directly.
 fromFile <- function(file, format = NULL) {
   if (length(file) != 1L || !is.character(file) || !nzchar(file)) {
     stop("file must be a single non-empty file path.")
@@ -311,6 +327,7 @@ fromFile <- function(file, format = NULL) {
     return(.readChainXml(file))
   }
 
+  # CSV reading: the header row and the first column must list the same states in the same order.
   # CSV: the header row and the first column both give the state names; no
   # "name" field is stored (see Details in ?toFile), so the result is unnamed.
   raw <- utils::read.csv(file, row.names = 1, check.names = FALSE)
@@ -324,6 +341,7 @@ fromFile <- function(file, format = NULL) {
 }
 
 
+# Escapes the five special XML characters (& < > " ') so names can be written safely as attributes.
 # Internal helper: escape a string for use inside a double-quoted XML
 # attribute.
 .xmlEscape <- function(x) {
@@ -334,6 +352,7 @@ fromFile <- function(file, format = NULL) {
   gsub("'", "&apos;", x, fixed = TRUE)
 }
 
+# Writes the PyDTMC XML format: one <Item state_from= state_to= probability=/> for each pair.
 # Internal helper: write the dictionary of a chain in PyDTMC's XML format,
 # plus the name as an attribute of the root element. Built as text, so that
 # writing needs no XML package.
@@ -343,6 +362,7 @@ fromFile <- function(file, format = NULL) {
   to <- rep(states, times = length(states))
   probs <- unlist(lapply(states, function(s)
     unlist(d$transitionMatrix[[s]][states], use.names = FALSE)))
+  # sprintf('%.17g'): 17 significant digits are enough to recover any double exactly.
   items <- paste0("\t<Item state_from=\"", .xmlEscape(from),
                   "\" state_to=\"", .xmlEscape(to),
                   "\" probability=\"", sprintf("%.17g", probs), "\"/>")
@@ -355,6 +375,11 @@ fromFile <- function(file, format = NULL) {
   writeLines(lines, con)
 }
 
+# Reads decimal strings with EXACT rounding. Why? R's as.numeric() can be one unit in the last digit
+# away from the closest double on some platforms (e.g. Apple silicon), which would break the exact
+# round trip toFile() -> fromFile(). The code below implements 'error-free' arithmetic where a number
+# is stored as a sum of two doubles (hi + lo), so no precision is lost before the final rounding.
+# Junior note: you do not need to modify this helper; it is covered by tests.
 # Internal helper: convert decimal strings to doubles, correctly rounded.
 #
 # as.numeric() uses R's own parser, which accumulates the digits in a
@@ -396,9 +421,12 @@ fromFile <- function(file, format = NULL) {
   digits <- digits[k]
   nd <- nd[k]
   e10 <- e10[k]
+  # The integer made of all the digits of the number is split in two parts that fit exactly in a double.
   # the integer as hi * 1e8 + lo, both parts exact doubles (hi < 1e9, lo < 1e8)
   hi <- ifelse(nd > 8L, as.numeric(substr(digits, 1L, nd - 8L)), 0)
   lo <- as.numeric(substr(digits, pmax(nd - 7L, 1L), nd))
+  # twoProd/twoSum: classic algorithms (Dekker/Veltkamp, Knuth) returning a product/sum together with
+  # its exact rounding error.
   # error-free transformations (Veltkamp-Dekker), vectorised
   twoProd <- function(a, b) {
     p <- a * b
@@ -434,6 +462,7 @@ fromFile <- function(file, format = NULL) {
     s <- pp$p + l
     list(hi = s, lo = l - (s - pp$p))
   }
+  # The power of ten is applied in steps of 1e22 (the largest exact power of ten in a double), then a remainder.
   # |e10| = 22 * nBig + r: nBig steps by 1e22, then one by 10^r (all exact)
   nBig <- abs(e10) %/% 22L
   pw <- cumprod(c(1, rep(10, 21L)))[abs(e10) %% 22L + 1L]
@@ -466,6 +495,8 @@ fromFile <- function(file, format = NULL) {
   v
 }
 
+# Reads PyDTMC's XML: checks the structure, collects (from, to, probability) triples, checks that all
+# n*n pairs are present exactly once, and fills the matrix.
 # Internal helper: read a chain from PyDTMC's XML format.
 .readChainXml <- function(file) {
   if (!requireNamespace("xml2", quietly = TRUE)) {

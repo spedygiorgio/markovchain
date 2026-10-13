@@ -55,14 +55,19 @@
 #' entropyRate(mc, base = exp(1))
 #'
 #' @exportMethod entropyRate
+# Entropy rate H = - sum_i pi_i sum_j p_ij log(p_ij): the average uncertainty about the next
+# state, weighted by how often each state is visited (pi = stationary distribution).
 setGeneric("entropyRate", function(object, base = 2) standardGeneric("entropyRate"))
 
 #' @rdname entropyRate
+# Method for markovchain objects.
 setMethod("entropyRate", "markovchain", function(object, base = 2) {
+  # Step 1: validate the logarithm base (bits = 2, nats = e, ...).
   if (length(base) != 1L || !is.numeric(base) || !is.finite(base) ||
       base <= 1) {
     stop("base must be a single finite number strictly greater than 1.")
   }
+  # The weights pi must be unique, hence the chain must be irreducible.
   if (!is.irreducible(object)) {
     stop(paste0(
       "Entropy rate is defined here using the unique stationary ",
@@ -81,6 +86,7 @@ setMethod("entropyRate", "markovchain", function(object, base = 2) {
     stop("The transition matrix must be square, finite, and non-negative.")
   }
 
+  # Step 2: stationary distribution, cleaned of round-off and normalised to sum to 1.
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) ||
       any(pi < -sqrt(.Machine$double.eps)) || sum(pi) <= 0) {
@@ -90,6 +96,8 @@ setMethod("entropyRate", "markovchain", function(object, base = 2) {
   pi[pi < 0] <- 0
   pi <- pi / sum(pi)
 
+  # Step 3: build the matrix of terms p_ij * log_b(p_ij). Zero probabilities contribute 0
+  # (by the convention 0 * log 0 = 0), so only positive entries are computed.
   # Store p_ij log_b(p_ij) directly, avoiding separate full-size log(P) and
   # P * log(P) matrices. Entries with p_ij = 0 remain zero.
   contributions <- matrix(0, nrow = n, ncol = n)
@@ -98,6 +106,7 @@ setMethod("entropyRate", "markovchain", function(object, base = 2) {
   contributions[positive] <-
     P[positive] * log(P[positive]) / logBase
 
+  # Step 4: combine: H = - sum_i pi_i * (row sum of the terms of row i)
   value <- -sum(pi * rowSums(contributions))
   # Guard only against a negative signed zero or round-off at zero.
   if (value < 0 && value > -100 * .Machine$double.eps) {

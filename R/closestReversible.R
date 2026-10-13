@@ -128,6 +128,8 @@
 #' approximation$distance
 #'
 #' @exportMethod closestReversible
+# Closest reversible chain to P: the one that satisfies detailed balance pi_i p_ij = pi_j p_ji.
+# It is the average of P and its time reversal (Nielsen and Weber 2015).
 setGeneric("closestReversible", function(object, stationaryDistribution = NULL,
                                          tolerance = sqrt(.Machine$double.eps)) {
   standardGeneric("closestReversible")
@@ -137,6 +139,7 @@ setGeneric("closestReversible", function(object, stationaryDistribution = NULL,
 setMethod("closestReversible", "markovchain",
           function(object, stationaryDistribution = NULL,
                    tolerance = sqrt(.Machine$double.eps)) {
+  # Step 1: validate the arguments and the chain.
   if (length(tolerance) != 1L || !is.numeric(tolerance) ||
       !is.finite(tolerance) || tolerance < 0) {
     stop("tolerance must be a single finite non-negative number.")
@@ -158,6 +161,8 @@ setMethod("closestReversible", "markovchain",
 
   stateNames <- states(object)
 
+  # Step 2: obtain pi, either computed from the chain or supplied by the user (then it must be
+  # strictly positive and actually stationary for P, otherwise the reversal is not a valid matrix).
   if (is.null(stationaryDistribution)) {
     pi <- as.numeric(steadyStates(object))
     if (length(pi) != n || any(!is.finite(pi)) || sum(pi) <= 0) {
@@ -190,15 +195,18 @@ setMethod("closestReversible", "markovchain",
     }
   }
 
+  # Step 3: time reversal P*[i,j] = pi_j P[j,i] / pi_i.
   # Time reversal: Pstar[i, j] = pi[j] * P[j, i] / pi[i]. The sweep scales
   # column j of t(P) by pi[j]; dividing by pi then scales row i by 1/pi[i].
   Pstar <- sweep(t(P), 2L, pi, FUN = "*") / pi
 
+  # Step 4: the average of P and P* is reversible and is the closest in the pi-weighted norm.
   R <- (P + Pstar) / 2
   # Rows sum to one already; renormalize only to absorb rounding.
   R <- R / rowSums(R)
   dimnames(R) <- list(stateNames, stateNames)
 
+  # Step 5: report how far the result is from the original chain (two different norms).
   difference <- P - R
   # The pi-weighted Hilbert-Schmidt norm this construction minimizes:
   # ||A||^2 = sum_ij (pi_i / pi_j) A_ij^2. Scaling rows by pi_i and columns
@@ -207,6 +215,7 @@ setMethod("closestReversible", "markovchain",
   distance <- sqrt(sum(weighted))
   frobeniusDistance <- sqrt(sum(difference^2))
 
+  # Return in the same orientation (rows or columns) as the input object.
   if (!object@byrow) {
     R <- t(R)
   }

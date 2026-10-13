@@ -1,3 +1,9 @@
+# Overview: most functions in this file are thin R wrappers (generic + method) around the C++ code in
+# src/probabilistic.cpp. The R layer gives them a public name, validates the arguments and puts the
+# matrix in the row-stochastic orientation; the algorithms (graph search, linear systems, ...) are in C++.
+# Legend for the vocabulary used here: a 'class' is a set of states that communicate (can reach each
+# other); a class is 'recurrent' if it cannot be left, otherwise 'transient'; an 'absorbing' state
+# is a recurrent class made of one state.
 # given a markovchain object is it possible to reach goal state from 
 # a given state
 
@@ -31,8 +37,11 @@
 #' is.accessible(markovB, "a", "c")
 #' 
 #' @exportMethod is.accessible
+# S4 generic: `is.accessible(chain, from, to)`. S4 methods are chosen according to the CLASS of ALL
+# the arguments listed in the signature.
 setGeneric("is.accessible", function(object, from, to) standardGeneric("is.accessible"))
 
+# Method 1: two state names -> TRUE/FALSE, 'is `to` reachable from `from`'.
 setMethod("is.accessible", c("markovchain", "character", "character"), 
   function(object, from, to) {
     # O(n²) procedure to see if to state is reachable starting at from state
@@ -40,6 +49,8 @@ setMethod("is.accessible", c("markovchain", "character", "character"),
   }
 )
 
+# Method 2: no state names -> the whole reachability matrix (see zzz_reachability.R, which replaces
+# this method with a version that handles byrow = FALSE).
 setMethod("is.accessible", c("markovchain", "missing", "missing"), 
   function(object, from, to) {
     .reachabilityMatrixRcpp(object)
@@ -71,6 +82,7 @@ setMethod("is.accessible", c("markovchain", "missing", "missing"),
 #' is.irreducible(mcA)
 #' 
 #' @exportMethod is.irreducible
+# Irreducible: the whole chain is a single communicating class (every state reaches every other).
 setGeneric("is.irreducible", function(object) standardGeneric("is.irreducible"))
 
 setMethod("is.irreducible", "markovchain", function(object) {
@@ -107,6 +119,8 @@ setMethod("is.irreducible", "markovchain", function(object) {
 #' firstPassage(simpleMc, "b", 20)
 #'
 #' @export
+# firstPassage(): probability that the chain started in `state` reaches each state for the FIRST time
+# exactly at step 1, 2, ..., n. Row k of the result is the distribution of the first passage at time k.
 firstPassage <- function(object, state, n) {
   if (!is(object, "markovchain")) {
     stop("object must be a markovchain object")
@@ -160,6 +174,8 @@ firstPassage <- function(object, state, n) {
 #' firstPassageMultiple(markovB,"a",c("b","c"),4)  
 #' 
 #' @export 
+# firstPassageMultiple(): same idea, but the target is a SET of states: probability of entering the
+# set for the first time at step k.
 firstPassageMultiple <- function(object, state, set, n) {
   if (!is(object, "markovchain")) {
     stop("object must be a markovchain object")
@@ -267,6 +283,8 @@ firstPassageMultiple <- function(object, state, set, n) {
 #' period(mcB)
 #' 
 #' @exportMethod communicatingClasses
+# Communicating classes, recurrent classes, transient classes and states, absorbing states and
+# canonical form: each is computed in C++ from the graph of possible transitions.
 setGeneric("communicatingClasses", function(object) standardGeneric("communicatingClasses"))
 
 setMethod("communicatingClasses", "markovchain", function(object) {
@@ -376,6 +394,9 @@ setMethod("canonicForm", "markovchain", function(object) {
 #' committorAB(object,c(5),c(3))
 #' 
 #' @export
+# committorAB(): probability of hitting the set B before the set A (committor probability).
+# It solves the linear system  (P - I) q = 0  for the states outside A and B, with q = 1 on one set
+# and 0 on the other; the code below rewrites the rows of A and B to impose these boundary conditions.
 committorAB <- function(object, A, B, p = 1) {
   if (!is(object, "markovchain")) {
     stop("object must be a markovchain object")
@@ -402,6 +423,7 @@ committorAB <- function(object, A, B, p = 1) {
     stop("please provide a valid initial state")
   }
 
+  # coefficient matrix of the system, with the boundary conditions q[A] = 1 and q[B] = 0.
   coefficient <- .rowStochasticMatrix(object) - diag(nstates)
   coefficient[A, ] <- 0
   coefficient[cbind(A, A)] <- 1
@@ -443,6 +465,8 @@ committorAB <- function(object, A, B, p = 1) {
 #'              transitionMatrix=transMatr)
 #' expectedRewards(simpleMc,1,c(0,1))
 #' @export
+# expectedRewards(): each state i gives a reward r_i each time it is visited; the function returns,
+# for each starting state, the expected total reward after n steps = sum_{k<=n} P^k r.
 expectedRewards <- function(markovchain, n, rewards) {
   if (!is(markovchain, "markovchain")) {
     stop("markovchain must be a markovchain object")
@@ -485,6 +509,8 @@ expectedRewards <- function(markovchain, n, rewards) {
 #' @author Sai Bhargav Yalamanchi, Vandit Jain
 #'  
 #' @export
+# expectedRewardsBeforeHittingA(): same as above but the chain is stopped when it enters the set A.
+# The states in A are removed from the matrix, so only the transitions among the remaining states count.
 expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
   if (!is(markovchain, "markovchain")) {
     stop("markovchain must be a markovchain object")
@@ -510,6 +536,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
     stop("n must be a non-negative integer")
   }
 
+  # Keep only the states outside A.
   keep <- which(!stateNames %in% A)
   initial <- match(state, stateNames[keep])
   .expectedRewardsBeforeHittingARCpp(
@@ -565,6 +592,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 #' meanFirstPassageTime(mcOz)
 #'
 #' @export meanFirstPassageTime
+# Mean first passage time: expected number of steps to go from i to a destination state.
 setGeneric("meanFirstPassageTime", function(object, destination) {
   standardGeneric("meanFirstPassageTime")
 })
@@ -621,6 +649,7 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
 #' meanRecurrenceTime(mc)
 #'
 #' @export meanRecurrenceTime
+# Mean recurrence time of a state: expected number of steps to return to it (1 / stationary prob.).
 setGeneric("meanRecurrenceTime", function(object) {
   standardGeneric("meanRecurrenceTime")
 })
@@ -656,6 +685,7 @@ setMethod("meanRecurrenceTime", "markovchain", function(object) {
 #' times <- meanAbsorptionTime(mc)
 #'
 #' @export meanAbsorptionTime
+# Mean absorption time: expected number of steps before being absorbed, from each transient state.
 setGeneric("meanAbsorptionTime", function(object) {
   standardGeneric("meanAbsorptionTime")
 })
@@ -693,6 +723,7 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
 #' absorptionProbabilities(mc)
 #'
 #' @export absorptionProbabilities
+# Absorption probabilities: probability of ending in each absorbing state, from each transient state.
 setGeneric("absorptionProbabilities", function(object) {
   standardGeneric("absorptionProbabilities")
 })
@@ -729,6 +760,7 @@ setMethod("absorptionProbabilities",  "markovchain", function(object) {
 #' @seealso \code{\link{is.irreducible}}
 #' 
 #' @exportMethod is.regular
+# Regular: some power of the matrix has all strictly positive entries.
 setGeneric("is.regular", function(object) standardGeneric("is.regular"))
 
 setMethod("is.regular", "markovchain", function(object) {
@@ -741,6 +773,7 @@ setMethod("is.regular", "markovchain", function(object) {
 #' @param object A markovchain object or a transition matrix.
 #' @return A boolean value.
 #' @export
+# Stochastically monotone: higher current states imply stochastically higher next states.
 setGeneric("is.stochasticallyMonotone", function(object) standardGeneric("is.stochasticallyMonotone"))
 
 #' @rdname is.stochasticallyMonotone
@@ -845,6 +878,9 @@ setMethod("is.stochasticallyMonotone",
 #' hittingProbabilities(mc, targets = "1", solver = "bicgstab")
 #'
 #' @exportMethod hittingProbabilities
+# hittingProbabilities(): probability that the chain started at state i ever reaches the target state.
+# Solvers: 'direct' (LU factorisation), 'bicgstab' (iterative, for large sparse chains) and
+# 'doubling' (older method); the numeric code is passed to C++.
 setGeneric("hittingProbabilities", function(object, targets = NULL,
                                             solver = c("direct", "bicgstab", "doubling"),
                                             tol = 1e-13, maxIter = 200)
@@ -853,6 +889,7 @@ setGeneric("hittingProbabilities", function(object, targets = NULL,
 setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL,
                                                           solver = c("direct", "bicgstab", "doubling"),
                                                           tol = 1e-13, maxIter = 200) {
+  # Step 1: choose the target states (all of them by default) and validate.
   allStates <- object@states
   if (is.null(targets)) {
     idx <- seq_along(allStates)
@@ -866,6 +903,7 @@ setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL
       stop("Unknown state(s) in targets: ", paste(targets[is.na(idx)], collapse = ", "))
   }
 
+  # Step 2: choose and validate the solver, then call C++.
   solver <- match.arg(solver)
   # Keep in sync with the HittingSolver enum in src/probabilistic.cpp.
   solverCode <- switch(solver, direct = 0L, bicgstab = 1L, doubling = 2L)
@@ -910,6 +948,7 @@ setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL
 #' meanNumVisits(mc)
 #' 
 #' @exportMethod meanNumVisits
+# Mean number of visits to each transient state before leaving the transient states.
 setGeneric("meanNumVisits", function(object) standardGeneric("meanNumVisits"))
 
 setMethod("meanNumVisits", "markovchain", function(object) {
@@ -917,6 +956,7 @@ setMethod("meanNumVisits", "markovchain", function(object) {
 })
 
 
+# The steady states (stationary distributions, one for each recurrent class) are computed in C++.
 setMethod(
   "steadyStates",
   "markovchain", 
@@ -926,6 +966,8 @@ setMethod(
 )
 
 
+# Builds the extra block of properties shown by summary(details = TRUE). `safe()` runs an expression
+# and returns NA instead of failing, because some properties are not defined for every chain.
 # Internal helper: the properties shown by summary(object, details = TRUE),
 # in the spirit of the printout of a PyDTMC MarkovChain. Quantities that
 # need a unique stationary distribution (or an irreducible chain) are NA
@@ -963,6 +1005,7 @@ setMethod(
   )
 }
 
+# Prints the block built by .summaryDetails() as two aligned columns.
 .printSummaryDetails <- function(d) {
   yn <- function(x) if (is.na(x)) "not defined" else if (x) "yes" else "no"
   num <- function(x) if (is.na(x)) "not defined" else format(signif(x, 6))
@@ -994,6 +1037,8 @@ setMethod(
 #' @exportMethod summary
 setGeneric("summary")
 
+# summary() for chains: prints closed classes, recurrent classes, transient classes, irreducibility and
+# absorbing states. The classic output is unchanged; details = TRUE adds more properties.
 # summary method for markovchain class
 # lists: closed, transient classes, irreducibility, absorbint, transient states
 setMethod("summary", signature(object = "markovchain"),
@@ -1084,6 +1129,9 @@ setMethod("summary", signature(object = "markovchain"),
   }
 )
 
+# Lumping: merging several states into one macro-state. A partition is a named list: each element is a
+# vector of state names. This helper checks that the partition covers every state exactly once, then
+# converts names into 0-based positions (C++ counts from 0, R from 1).
 # Validate and convert a partition to C++ indices.
 #
 # This internal helper checks that `partition` is a named, exhaustive and
@@ -1135,6 +1183,8 @@ setMethod("summary", signature(object = "markovchain"),
 #' @return A logical value.
 #' @references Kemeny, J. G. and Snell, J. L. (1960). \emph{Finite Markov Chains}.
 #' @export
+# Exact lumpability (Kemeny and Snell): the partition is lumpable if, for every group, the probability
+# of moving into a group A is the same for all the states of the same group B.
 setGeneric("is.lumpable", function(object, partition, tol = 1e-10) standardGeneric("is.lumpable"))
 
 #' @rdname is.lumpable
@@ -1165,6 +1215,8 @@ setMethod("is.lumpable", signature(object = "markovchain"),
 #' \code{TRUE}, return a weighted approximate lumping.
 #' @return A \code{markovchain} object on the macro-state space.
 #' @export
+# lump(): builds the lumped chain. If the chain is not exactly lumpable, force = TRUE computes an
+# approximate chain weighting the states by their stationary probability.
 setGeneric("lump", function(object, partition, force = FALSE) standardGeneric("lump"))
 
 #' @rdname lump
@@ -1218,6 +1270,8 @@ setMethod("lump", signature(object = "markovchain"),
 #' @param k Number of macro-states to discover.
 #' @return A list with \code{partition} and \code{lumped_chain}.
 #' @export
+# autoLump(): finds a partition automatically by clustering (k-means) the states on the first k
+# eigenvectors, then lumps the chain.
 setGeneric("autoLump", function(object, k) standardGeneric("autoLump"))
 
 #' @rdname autoLump
@@ -1238,10 +1292,13 @@ setMethod("autoLump", signature(object = "markovchain"),
               stop("The number of macro-states 'k' must be between 2 and the number of states - 1.")
             }
 
+            # Eigenvectors of the k eigenvalues with the largest moduli.
             eig <- eigen(P)
             ord <- order(Mod(eig$values), decreasing = TRUE)
             V_eig <- Re(eig$vectors[, ord[seq_len(k)], drop = FALSE])
 
+            # k-means starts at random: fix the seed (42) so that the result is reproducible, and restore the
+            # user's random number stream when the function exits.
             # Make the example deterministic without permanently changing the
             # user's random-number stream.
             old_seed <- if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {

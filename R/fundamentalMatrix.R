@@ -53,7 +53,11 @@
 #' fundamentalMatrix(mc)
 #'
 #' @export
+# Fundamental matrix N = (I - Q)^-1 of an absorbing chain, where Q holds the transitions
+# among the transient states. N[i,j] = expected number of visits to j starting from i,
+# before absorption.
 fundamentalMatrix <- function(object) {
+  # Step 1: argument check.
   if (!is(object, "markovchain")) {
     stop("please provide a valid markovchain object")
   }
@@ -67,20 +71,24 @@ fundamentalMatrix <- function(object) {
     stop("fundamental matrix requires an absorbing Markov chain")
   }
 
+  # Step 2: split the states into recurrent (= absorbing here) and transient.
   recurrent <- unlist(recurrent_classes, use.names = FALSE)
   transient <- states(object)[!states(object) %in% recurrent]
 
+  # A chain with no transient state has nothing to invert: return an empty 0 x 0 matrix.
   if (length(transient) == 0L) {
     out <- matrix(numeric(0), nrow = 0L, ncol = 0L)
     dimnames(out) <- list(character(0), character(0))
     return(out)
   }
 
+  # Step 3: get the matrix with rows summing to one.
   P <- object@transitionMatrix
   if (!object@byrow) {
     P <- t(P)
   }
 
+  # Q = transitions among transient states only; N = (I - Q)^-1.
   q <- P[transient, transient, drop = FALSE]
   a <- diag(nrow(q)) - q
 

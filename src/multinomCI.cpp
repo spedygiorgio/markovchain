@@ -1,9 +1,15 @@
+// Simultaneous confidence intervals for multinomial proportions (Sison and Glaz 1995), used to build
+// confidence intervals for the rows of a transition matrix. Idea: find the smallest integer c such that
+// the probability that all the counts fall in [n_i - c, n_i + c] is at least the confidence level;
+// that probability is approximated by a truncated Poisson distribution with Edgeworth expansion
+// (the functions moments() and truncpoi() below).
 // [[Rcpp::depends(RcppArmadillo)]]
 
 #include <RcppArmadillo.h>
 
 using namespace Rcpp;
 
+// Sum of each column.
 // returns the column sums of a matrix
 NumericVector colSums(NumericMatrix m) {
   NumericVector out;
@@ -14,11 +20,13 @@ NumericVector colSums(NumericMatrix m) {
   return out;
 }
 
+// Poisson cumulative distribution (shortcut to R::ppois).
 // poisson distribution
 double ppois(double n, double lambda) {
   return R::ppois(n,lambda, true, false);
 }
 
+// First four moments of a Poisson variable truncated to [lambda - c, lambda + c].
 // moments
 NumericVector moments(int c, double lambda) {
   double a = lambda+c;
@@ -67,6 +75,7 @@ NumericVector moments(int c, double lambda) {
   return mom;
 }
 
+// Approximate probability that every count lies within +/- c of the observed one.
 // coverage probability for the particular choice of c 
 double truncpoi(int c, NumericVector x, double n, int k) {
   NumericMatrix m(k,5);
@@ -106,6 +115,8 @@ double truncpoi(int c, NumericVector x, double n, int k) {
   return(probn * probx * f / sqrt(s2));
 }
 
+// Confidence intervals for the proportions of ONE row of counts x: search the smallest c whose coverage
+// exceeds the level, then build the lower/upper endpoints (with interpolation `delta`) clipped to [0, 1].
 // multinomial confidence intervals for a row
 // [[Rcpp::export(.multinomialCIForRowRcpp)]]
 NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
@@ -155,6 +166,7 @@ NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
   return salida;
 }
 
+// Applies the previous function to every row of the matrix of counts.
 // multinomial confidence intervals
 // [[Rcpp::export(.multinomialCIRcpp)]]
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel) {

@@ -1,3 +1,7 @@
+# Overview of this file: the functions that build a chain from DATA (counting transitions) and
+# the functions that SIMULATE sequences from a chain. The heavy computations are in C++
+# (src/fittingFunctions.cpp); the R code validates the arguments and chooses between the
+# C++ and the pure R implementations (useRCpp).
 # Normalise the `sanitize` argument of createSequenceMatrix()/markovchainFit()
 # to one of "none", "uniform" or "absorbing".
 #
@@ -33,15 +37,19 @@
 
 #' @rdname markovchainFit
 #' @export
+# createSequenceMatrix(): counts how many times each state i is followed by each state j in a
+# sequence, giving a square matrix of counts (toRowProbs = FALSE) or of probabilities (TRUE).
 createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
                                  sanitize = FALSE,
                                  possibleStates = character()) {
+  # Normalise the `sanitize` option to one of 'none', 'uniform', 'absorbing'.
   mode <- .sanitizeMode(sanitize)
 
   if (mode != "absorbing")
     return(.createSequenceMatrixRcpp(stringchar, toRowProbs,
                                      mode == "uniform", possibleStates))
 
+  # For 'absorbing' the C++ code is called with sanitize off and the empty rows are then fixed in R.
   # With sanitize = FALSE a row with no observed outgoing transition stays at
   # zero, whether the result holds counts or row probabilities, so the same
   # single call identifies those rows in both cases.
@@ -50,6 +58,8 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
   )
 }
 
+# How many threads to use in the parallel code: the explicit argument first, then the R options and
+# the environment variables; the default is at most 2, as required by the CRAN policy.
 # Resolve the number of threads the parallel code should run on, respecting
 # the CRAN policy against grabbing all available cores by default. Honours,
 # in this order: an explicit `num.cores` from the caller; the
@@ -119,9 +129,12 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
 #' 
 #' @export
 
+# markovchainSequence(): simulates n steps of the chain, starting from state t0.
+# At each step the next state is drawn from the row of the transition matrix of the current state.
 markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 1),
                                include.t0 = FALSE, useRCpp = TRUE) {
 
+  # Step 1: validation (n must be a non-negative whole number and t0 an existing state).
   # validate requested sequence length
   if (!is.numeric(n) || length(n) != 1 || is.na(n) || !is.finite(n)) {
     stop("`n` must be a finite numeric scalar")
@@ -141,6 +154,7 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   if (!(t0 %in% markovchain@states))
     stop("Error! Initial state not defined")
   
+  # Step 2: the fast C++ version, or the pure R version below (same result, slower).
   # call to cpp implmentation of markovchainSequence
   if (useRCpp) {
     return(.markovchainSequenceRcpp(n, markovchain, t0, include.t0))
@@ -155,6 +169,8 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   state <- t0
   
   # populate the sequence
+  # R version: for each step take the probabilities of the current state (row or column, depending
+  # on `byrow`), sample the next state with sample(), and move to it.
   for (i in seq_len(n)) {
     # row probabilty corresponding to the current state
     rowProbs <- if (markovchain@byrow) {
@@ -189,6 +205,8 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 # random sampler #
 ##################
 
+# Checks that a list of chains (non-homogeneous chain) is consistent: the states reachable
+# after chain i-1 must all be states of chain i, otherwise the sequence could get stuck.
 # check if the subsequent states are included in the previous ones
 # check the validity of non homogeneous markovchain list
 # object is a list of markovchain object
@@ -296,6 +314,9 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
 #'      
 #' @export
 
+# rmarkovchain(): generates n independent sequences from a markovchain or from a markovchainList
+# (a chain whose transition matrix changes with time). Output: data.frame, matrix or list.
+# The code has one branch for each combination of useRCpp (C++ or R) and parallel.
 rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, parallel = FALSE, num.cores = NULL, ...) {
   if (!is(object, "markovchain") && !is(object, "markovchainList")) {
     stop("object must be a markovchain or markovchainList object")
@@ -310,14 +331,17 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
   }
   
   # check the class of the object
+  # A single homogeneous chain: it is enough to call markovchainSequence().
   if (is(object,"markovchain")) {
     out <- markovchainSequence(n = n, markovchain = object, useRCpp = useRCpp, ...)
     return(out)
   }
     
+  # A markovchainList: one sequence has one state for each matrix of the list.
   if (is(object,"markovchainList"))
   {
     #######################################################
+    # Branch 1: C++, not parallel.
     if(useRCpp && !parallel) {
       
       # if include.t0 is not passed as extra argument then set include.t0 as false
@@ -354,6 +378,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
       return(out)
     }
     ##########################################################
+    # Branch 2: C++, parallel (threads handled by RcppParallel).
     if(useRCpp && parallel) {
 
       # Resolve the thread count: honour options()/env variables and cap at
@@ -398,6 +423,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
     }
     
     ##########################################################
+    # Branch 3: R, parallel (socket cluster).
     if(!useRCpp && parallel) {
       # if include.t0 is not passed as extra argument then set include.t0 as false
       include.t0 <- list(...)$include.t0
@@ -433,6 +459,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
       return(data.frame(iteration = iteration, values = values))
       
     }
+    # Branch 4: R, not parallel: generate the sequence one step at a time with markovchainSequence().
     ##########################################################
     
     # store list of markovchain object in object
@@ -498,6 +525,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 
 ######################################################################
 
+# Generates ONE sequence from a markovchainList (called by each parallel worker).
 # helper function to calculate one sequence
 .markovchainSPHelper <- function(x, t0, mclist, include.t0) {
   # number of transition matrices
@@ -549,6 +577,8 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 # @param num.cores Number of cores
 #   
 
+# Parallel generation of n sequences with a cluster of R processes: create the cluster, run the helper
+# in each process with parLapply(), and always release the cluster.
 .markovchainSequenceParallel <- function(n, object,
                                         t0 = character(),
                                         num.cores = NULL, include.t0 = FALSE) {
@@ -587,6 +617,8 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 
 ######################################################################
 
+# Historical note (kept on purpose): the old R code for the Laplace smoothing was removed because
+# the C++ code is the one actually used.
 # NOTE: the R implementation of Laplacian-smoothed fitting that used to
 # live here (.mcFitLaplacianSmooth) was dead code -- markovchainFit()
 # dispatches method = "laplace" to the C++ _mcFitLaplacianSmooth
@@ -594,6 +626,7 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 # and is the one actually used. Removed to avoid the two copies silently
 # drifting apart.
 
+# Old, disabled code kept for reference.
 # function that return a Markov Chain from a given matrix of observations
 # .matr2Mc <- function(matrData, laplacian = 0) {
 #   
@@ -686,6 +719,8 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 #' # fitting a markovchainList
 #' mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
 #' @export
+# markovchainListFit(): estimates a different transition matrix for each pair of consecutive columns
+# of the data (each row of the data is one sequence): matrix i describes the passage from column i to i+1.
 markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   
   # check the format of input data
@@ -693,6 +728,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
     stop("Error: data must be either a matrix or a data.frame or a list")
   }
   
+  # Step 1: count the transitions between consecutive columns (or use the list of count matrices).
   freqMatrixes <- list() 
   # a pure list= a list and not a data frame 
   if((is.list(data) == TRUE) & (is.data.frame(data)==FALSE)) {
@@ -735,6 +771,8 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   }
   
   
+  # Step 2: from the counts to probabilities. Laplace smoothing = add a constant to every count
+  # before normalising each row.
   markovchains <- lapply(freqMatrixes, function(freqMatrix){
     # add laplacian correction
     freqMatrix <- freqMatrix + laplacian
@@ -782,6 +820,7 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' seqmat<-createSequenceMatrix(seq)
 #' multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 #' @export
+# Confidence intervals (multinomial) for the transition probabilities: computed in C++ (Sison and Glaz).
 multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)
@@ -831,6 +870,8 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' 5 * noofVisitsDist(simpleMc,5,"a")
 #' 
 #' @export
+# noofVisitsDist(): expected fraction of time spent in each state over the first N steps,
+# starting from `state` (the computation is in C++).
 noofVisitsDist <- function(markovchain, N = 5, state) {
   if (!is(markovchain, "markovchain")) {
     stop("please provide a valid markovchain-class object")

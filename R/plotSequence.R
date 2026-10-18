@@ -117,7 +117,9 @@
 #' \code{\link{assessStationarity}}). The proportions at each time point
 #' are computed over the sequences observed at that time point.
 #'
-#' The plot is drawn with base graphics. The legend is placed in the right
+#' The sequences of a \code{markovchain} are simulated in C++ by inversion of
+#' the cumulative probabilities with R's uniform generator, so \code{set.seed}
+#' and \code{seed} control them. The plot is drawn with base graphics. The legend is placed in the right
 #' margin, which is widened for the purpose and restored afterwards.
 #'
 #' @references
@@ -164,19 +166,12 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
     stateNames <- x@states
     mu <- .initialDistribution(initial, stateNames)
     P <- .rowStochasticMatrix(x)
-    m <- .withLocalSeed(seed, t(vapply(seq_len(nSequences), function(k) {
-      out <- character(steps)
-      cur <- sample.int(length(stateNames), 1L, prob = mu)
-      out[1L] <- stateNames[cur]
-      for (t in seq_len(steps - 1L)) {
-        cur <- sample.int(length(stateNames), 1L, prob = P[cur, ])
-        out[t + 1L] <- stateNames[cur]
-      }
-      out
-    }, character(steps))))
-    if (steps == 1L) {
-      m <- matrix(m, ncol = 1L)
-    }
+    storage.mode(P) <- "double"
+    # simulated in C++ (src/bootstrapProperties.cpp) with R's uniform
+    # generator: the initial state from mu, then each state from its row
+    codes <- .withLocalSeed(seed, .simulateCodesRcpp(P, as.numeric(mu), as.integer(nSequences),
+                                                     as.integer(steps)))
+    m <- matrix(stateNames[codes], nrow(codes), ncol(codes))
     chain <- x
     if (is.null(main)) {
       main <- if (type == "index") paste("Simulated sequences of", x@name)

@@ -34,6 +34,9 @@ T sortByDimNames(const T m);
 
 typedef unsigned int uint;
 
+// Defined below, after period().
+int periodKernel(NumericMatrix P);
+
 
 // Returns whether a Markov chain is ergodic
 // Declared in this same file
@@ -634,6 +637,16 @@ int period(S4 object) {
     return 0;
   } else {
     NumericMatrix P = object.slot("transitionMatrix");
+    return periodKernel(P);
+  }
+}
+
+// periodKernel(): the search of period() on the transition matrix of an
+// irreducible chain, also used by the bootstrap of src/bootstrapProperties.cpp.
+// Only the pattern of positive entries matters, so P may be stored by rows or
+// by columns.
+int periodKernel(NumericMatrix P) {
+  {
     int n = P.ncol();
     std::vector<double> r, T(1), w;
     int d = 0, m = T.size(), i = 0, j = 0;

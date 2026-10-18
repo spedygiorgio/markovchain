@@ -95,6 +95,13 @@ state is never left cannot be estimated and counts as a failure. The
 parametric version is slower but closer to the actual sampling scheme of a
 single path.
 
+When all the statistics are among \code{"slem"}, \code{"spectralGap"},
+\code{"relaxationTime"} and \code{"mixingTime"}, the replicates are
+computed in C++, with one eigen-decomposition per replicate; otherwise each
+replicate is turned into a \code{markovchain} object and the statistics are
+evaluated in R. The results are the same either way, and the random draws
+come from R's generator, so \code{set.seed} and \code{seed} control them.
+
 The percentile interval is formed by the \eqn{(1-\code{level})/2} and
 \eqn{(1+\code{level})/2} quantiles of the replicates; the basic interval
 reflects them around the estimate, \eqn{2\hat\theta - q_{1-\alpha/2}} and

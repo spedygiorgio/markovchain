@@ -2437,7 +2437,9 @@ estimated from one path is developed by \cite{hsu2019mixing}. The coverage
 of the intervals was therefore checked by simulation. For each of two chains
 and two methods, 300 sequences were simulated, a 95\% percentile interval
 with 499 replicates was computed from each, and the proportion of intervals
-containing the true value was recorded:
+containing the true value was recorded (the whole study takes about half a
+minute, since the replicates of the built-in statistics are computed in
+\proglang{C++}):
 
 ```{r bootstrap-properties-coverage, eval = FALSE}
 coverage <- function(truth, n, method, reps = 300) {
@@ -2458,11 +2460,11 @@ coverage <- function(truth, n, method, reps = 300) {
 Chain & Method & $n$ & SLEM & Relaxation time & Mixing time \\
 \hline
 Alofi rainfall (SLEM 0.41) & multinomial & 1096 & 0.950 & 0.950 & 1.000 \\
- & parametric & 1096 & 0.940 & 0.940 & 1.000 \\
+ & parametric & 1096 & 0.943 & 0.943 & 1.000 \\
  & multinomial & 200 & 0.943 & 0.943 & 0.997 \\
- & parametric & 200 & 0.957 & 0.957 & 1.000 \\
+ & parametric & 200 & 0.963 & 0.963 & 1.000 \\
 Slowly mixing (SLEM 0.88) & multinomial & 300 & 0.950 & 0.950 & 0.950 \\
- & parametric & 300 & 0.977 & 0.977 & 0.980 \\
+ & parametric & 300 & 0.977 & 0.977 & 0.983 \\
 \hline
 \end{tabular}
 \end{center}

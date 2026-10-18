@@ -86,3 +86,15 @@ test_that("invalid input is rejected", {
     expect_error(plotSequence(weather, col = "red"), "colour")
   })
 })
+
+test_that("simulation never uses states or transitions of probability zero", {
+  out <- withNullDevice(plotSequence(weather, nSequences = 300, steps = 3,
+                                     initial = c(0.5, 0.5, 0), seed = 9))
+  expect_false(any(out$sequences[, 1] == "rain"))
+  sparse <- new("markovchain", states = s, transitionMatrix = matrix(
+    c(0, 1, 0, 0, 0, 1, 1, 0, 0), 3, byrow = TRUE, dimnames = list(s, s)))
+  cyc <- withNullDevice(plotSequence(sparse, nSequences = 5, steps = 7, initial = "sunny",
+                                     seed = 1))
+  expect_true(all(cyc$sequences == matrix(rep(c("sunny", "cloudy", "rain"), length.out = 7),
+                                          5, 7, byrow = TRUE)))
+})

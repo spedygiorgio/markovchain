@@ -11,6 +11,68 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// spectralStatisticsRcpp
+NumericVector spectralStatisticsRcpp(NumericMatrix Pr, IntegerVector which, double epsilon, int maxIter);
+RcppExport SEXP _markovchain_spectralStatisticsRcpp(SEXP PrSEXP, SEXP whichSEXP, SEXP epsilonSEXP, SEXP maxIterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type which(whichSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(spectralStatisticsRcpp(Pr, which, epsilon, maxIter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bootstrapCountsRcpp
+NumericMatrix bootstrapCountsRcpp(NumericMatrix Pr, IntegerVector departures, bool parametric, IntegerVector lengths, IntegerVector starts);
+RcppExport SEXP _markovchain_bootstrapCountsRcpp(SEXP PrSEXP, SEXP departuresSEXP, SEXP parametricSEXP, SEXP lengthsSEXP, SEXP startsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type departures(departuresSEXP);
+    Rcpp::traits::input_parameter< bool >::type parametric(parametricSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type starts(startsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrapCountsRcpp(Pr, departures, parametric, lengths, starts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bootstrapSpectralRcpp
+NumericMatrix bootstrapSpectralRcpp(NumericMatrix Pr, IntegerVector departures, int nboot, bool parametric, IntegerVector lengths, IntegerVector starts, IntegerVector which, double epsilon, int maxIter);
+RcppExport SEXP _markovchain_bootstrapSpectralRcpp(SEXP PrSEXP, SEXP departuresSEXP, SEXP nbootSEXP, SEXP parametricSEXP, SEXP lengthsSEXP, SEXP startsSEXP, SEXP whichSEXP, SEXP epsilonSEXP, SEXP maxIterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type departures(departuresSEXP);
+    Rcpp::traits::input_parameter< int >::type nboot(nbootSEXP);
+    Rcpp::traits::input_parameter< bool >::type parametric(parametricSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type starts(startsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type which(whichSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrapSpectralRcpp(Pr, departures, nboot, parametric, lengths, starts, which, epsilon, maxIter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simulateCodesRcpp
+IntegerMatrix simulateCodesRcpp(NumericMatrix Pr, NumericVector mu, int nSequences, int steps);
+RcppExport SEXP _markovchain_simulateCodesRcpp(SEXP PrSEXP, SEXP muSEXP, SEXP nSequencesSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< int >::type nSequences(nSequencesSEXP);
+    Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulateCodesRcpp(Pr, mu, nSequences, steps));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isGen
 bool isGen(NumericMatrix gen);
 RcppExport SEXP _markovchain_isGen(SEXP genSEXP) {
@@ -838,6 +900,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_markovchain_spectralStatisticsRcpp", (DL_FUNC) &_markovchain_spectralStatisticsRcpp, 4},
+    {"_markovchain_bootstrapCountsRcpp", (DL_FUNC) &_markovchain_bootstrapCountsRcpp, 5},
+    {"_markovchain_bootstrapSpectralRcpp", (DL_FUNC) &_markovchain_bootstrapSpectralRcpp, 9},
+    {"_markovchain_simulateCodesRcpp", (DL_FUNC) &_markovchain_simulateCodesRcpp, 4},
     {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
     {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
     {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},

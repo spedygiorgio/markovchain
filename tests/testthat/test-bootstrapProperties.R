@@ -100,3 +100,72 @@ test_that("invalid input is rejected", {
   # a periodic estimated chain has no mixing time
   expect_error(bootstrapProperties(rep(c("a", "b"), 20)), "cannot be computed")
 })
+
+test_that("the C++ statistics equal slem(), spectralGap(), relaxationTime() and mixingTime()", {
+  rstat <- function(mc) vapply(list(slem, spectralGap, relaxationTime, mixingTime), function(f)
+    tryCatch(as.numeric(suppressWarnings(f(mc))), error = function(e) NA_real_), numeric(1))
+  gen <- function(type, n) {
+    M <- switch(type,
+      dense = matrix(rexp(n * n), n),
+      sparse = { M <- matrix(rexp(n * n) * (runif(n * n) < 0.35), n)
+                 diag(M) <- diag(M) + (rowSums(M) == 0); M },
+      cycle = { M <- matrix(0, n, n); M[cbind(1:n, c(2:n, 1))] <- 1; M },          # periodic
+      reducible = { M <- matrix(rexp(n * n), n); M[1, ] <- 0; M[1, 1] <- 1; M },
+      symmetric = { M <- matrix(rexp(n * n), n); M + t(M) },
+      rotation = { M <- matrix(0, n, n); M[cbind(1:n, c(2:n, 1))] <- 0.8           # complex
+                   diag(M) <- 0.2; M },                                             # eigenvalues
+      lazy = { M <- matrix(rexp(n * n), n); 0.97 * diag(n) + 0.03 * M / rowSums(M) })
+    M <- M / rowSums(M)
+    s <- paste0("s", seq_len(n))
+    dimnames(M) <- list(s, s)
+    new("markovchain", states = s, transitionMatrix = M)
+  }
+  set.seed(2026)
+  for (type in c("dense", "sparse", "cycle", "reducible", "symmetric", "rotation", "lazy")) {
+    for (n in c(1, 2, 3, 6)) {
+      if (n == 1 && type %in% c("cycle", "rotation")) next
+      for (r in 1:3) {
+        mc <- gen(type, n)
+        expect_equal(markovchain:::.spectralStatisticsRcpp(mc@transitionMatrix, 0:3, 0.25, 10000L),
+                     rstat(mc), tolerance = 1e-12, info = paste(type, n))
+      }
+    }
+  }
+  # the stopping rules of mixingTime(): epsilon and maxIter
+  lazy <- gen("lazy", 4)
+  expect_equal(markovchain:::.spectralStatisticsRcpp(lazy@transitionMatrix, 3L, 0.01, 10000L),
+               mixingTime(lazy, epsilon = 0.01))
+  expect_true(is.na(markovchain:::.spectralStatisticsRcpp(lazy@transitionMatrix, 3L, 0.01, 2L)))
+})
+
+test_that("the C++ and R paths give the same replicates", {
+  wrapped <- list(slem = function(m) slem(m), spectralGap = function(m) spectralGap(m),
+                  relaxationTime = function(m) relaxationTime(m),
+                  mixingTime = function(m) mixingTime(m))
+  for (method in c("multinomial", "parametric")) {
+    fast <- bootstrapProperties(rain$rain, nboot = 100, method = method, seed = 11)
+    slow <- bootstrapProperties(rain$rain, nboot = 100, method = method, seed = 11,
+                                statistics = wrapped)
+    expect_equal(fast$replicates, slow$replicates, tolerance = 1e-12, info = method)
+  }
+  # a built-in under another name still uses its definition
+  renamed <- bootstrapProperties(rain$rain, nboot = 20, seed = 3,
+                                 statistics = list(gap = "spectralGap"))
+  expect_equal(unname(renamed$replicates[, 1]),
+               unname(bootstrapProperties(rain$rain, nboot = 20, seed = 3,
+                                          statistics = "spectralGap")$replicates[, 1]))
+})
+
+test_that("the multinomial counts are those of stats::rmultinom(), state by state", {
+  counts <- createSequenceMatrix(rain$rain)
+  P <- counts / rowSums(counts)
+  set.seed(21)
+  expected <- vapply(1:25, function(b) {
+    N <- t(vapply(1:3, function(i) as.numeric(stats::rmultinom(1L, sum(counts[i, ]), P[i, ])),
+                  numeric(3)))
+    mc <- new("markovchain", states = rownames(P), transitionMatrix = N / rowSums(N))
+    slem(mc)
+  }, numeric(1))
+  b <- bootstrapProperties(rain$rain, nboot = 25, seed = 21, statistics = "slem")
+  expect_equal(unname(b$replicates[, 1]), expected, tolerance = 1e-12)
+})

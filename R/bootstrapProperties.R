@@ -110,6 +110,13 @@
 #' parametric version is slower but closer to the actual sampling scheme of a
 #' single path.
 #'
+#' When all the statistics are among \code{"slem"}, \code{"spectralGap"},
+#' \code{"relaxationTime"} and \code{"mixingTime"}, the replicates are
+#' computed in C++, with one eigen-decomposition per replicate; otherwise each
+#' replicate is turned into a \code{markovchain} object and the statistics are
+#' evaluated in R. The results are the same either way, and the random draws
+#' come from R's generator, so \code{set.seed} and \code{seed} control them.
+#'
 #' The percentile interval is formed by the \eqn{(1-\code{level})/2} and
 #' \eqn{(1+\code{level})/2} quantiles of the replicates; the basic interval
 #' reflects them around the estimate, \eqn{2\hat\theta - q_{1-\alpha/2}} and
@@ -175,6 +182,9 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     stop("level must be a single number strictly between 0 and 1.")
   }
   builtins <- .bootstrapBuiltins(epsilon)
+  # builtinName records, for each statistic, the built-in it is (NA for a
+  # user function): the replicates are computed entirely in C++ when all the
+  # statistics are among the four that C++ implements.
   if (is.character(statistics)) {
     unknown <- setdiff(statistics, names(builtins))
     if (length(statistics) == 0L || length(unknown)) {
@@ -182,7 +192,8 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
            ". Use some of ", paste(names(builtins), collapse = ", "),
            " or a named list of functions.")
     }
-    statistics <- builtins[unique(statistics)]
+    builtinName <- unique(statistics)
+    statistics <- builtins[builtinName]
   } else if (is.list(statistics)) {
     # an unnamed built-in, as in list(dry = f, "slem"), is named after itself
     if (length(statistics)) {
@@ -197,6 +208,9 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
         any(!nzchar(names(statistics))) || anyDuplicated(names(statistics))) {
       stop("a list of statistics must have distinct, non-empty names.")
     }
+    builtinName <- vapply(statistics, function(s)
+      if (is.character(s) && length(s) == 1L) s else NA_character_, character(1),
+      USE.NAMES = FALSE)
     statistics <- lapply(statistics, function(s) {
       if (is.function(s)) {
         s
@@ -277,28 +291,42 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
   }))
   estimate <- stats::setNames(unlist(estimates, use.names = FALSE), labels)
 
-  # Step 4: the replicates.
+  # Step 4: the replicates. The counts are drawn in C++ (src/bootstrapProperties.cpp)
+  # with R's random number generator: for the multinomial bootstrap, state by
+  # state with stats::rmultinom()'s algorithm; for the parametric one, by
+  # simulating a path of each observed length from its observed first state.
   P <- chain@transitionMatrix
-  replicateOnce <- function() {
-    if (method == "multinomial") {
-      N <- t(vapply(seq_along(stateNames), function(i)
-        as.numeric(stats::rmultinom(1L, departures[i], P[i, ])), numeric(length(stateNames))))
-      dimnames(N) <- dimnames(counts)
-    } else {
-      N <- Reduce(`+`, lapply(sequences, function(s) {
-        path <- rmarkovchain(length(s) - 1L, chain, t0 = s[1L], include.t0 = TRUE)
-        createSequenceMatrix(path, possibleStates = stateNames)[stateNames, stateNames, drop = FALSE]
-      }))
+  storage.mode(P) <- "double"
+  parametric <- method == "parametric"
+  lengths <- if (parametric) vapply(sequences, length, integer(1)) else integer(0)
+  starts <- if (parametric) {
+    vapply(sequences, function(s) match(s[1L], stateNames) - 1L, integer(1))
+  } else {
+    integer(0)
+  }
+  departuresInt <- as.integer(departures)
+  fastCodes <- c(slem = 0L, spectralGap = 1L, relaxationTime = 2L, mixingTime = 3L)
+  if (all(!is.na(builtinName) & builtinName %in% names(fastCodes))) {
+    # all the statistics are built in: everything is done in C++
+    replicates <- .withLocalSeed(seed, .bootstrapSpectralRcpp(
+      P, departuresInt, nboot, parametric, lengths, starts,
+      unname(fastCodes[builtinName]), epsilon, 10000L))
+  } else {
+    # some statistic is a user function: each replicate is a markovchain
+    # object on which the statistics are evaluated in R
+    replicateOnce <- function() {
+      N <- .bootstrapCountsRcpp(P, departuresInt, parametric, lengths, starts)
       if (any(rowSums(N) == 0)) {
         return(rep(NA_real_, length(estimate)))
       }
+      dimnames(N) <- dimnames(counts)
+      .evaluateStatistics(makeChain(N), statistics, widths)
     }
-    .evaluateStatistics(makeChain(N), statistics, widths)
-  }
-  replicates <- .withLocalSeed(seed, t(vapply(seq_len(nboot), function(b) replicateOnce(),
-                                              numeric(length(estimate)))))
-  if (length(estimate) == 1L) {
-    replicates <- matrix(replicates, ncol = 1L)
+    replicates <- .withLocalSeed(seed, t(vapply(seq_len(nboot), function(b) replicateOnce(),
+                                                numeric(length(estimate)))))
+    if (length(estimate) == 1L) {
+      replicates <- matrix(replicates, ncol = 1L)
+    }
   }
   colnames(replicates) <- labels
 

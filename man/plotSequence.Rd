@@ -96,7 +96,9 @@ two suggests that the chain is not time-homogeneous (see
 \code{\link{assessStationarity}}). The proportions at each time point
 are computed over the sequences observed at that time point.
 
-The plot is drawn with base graphics. The legend is placed in the right
+The sequences of a \code{markovchain} are simulated in C++ by inversion of
+the cumulative probabilities with R's uniform generator, so \code{set.seed}
+and \code{seed} control them. The plot is drawn with base graphics. The legend is placed in the right
 margin, which is widened for the purpose and restored afterwards.
 }
 \examples{

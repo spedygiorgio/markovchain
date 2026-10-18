@@ -1218,12 +1218,50 @@ Hilbert--Schmidt norm of that space,
 for which $A\mapsto A^*$ is an isometric involution: $R$ is then the
 orthogonal projection of $P$ onto the reversible subspace, and the
 stochasticity and non-negativity constraints are satisfied automatically, so
-no constrained optimization is needed. Two warnings follow from this, both
-documented in `?closestReversible`. First, $R$ does *not* minimize the plain
-Frobenius distance, which the return value reports separately as a
-descriptive figure only. Second, the minimization holds $\pi$ fixed; letting
-the stationary distribution vary as well is a harder optimization problem
-\citep{nielsen2015computing} that is not solved here.
+no constrained optimization is needed. The price is that $R$ does *not*
+minimize the plain Frobenius distance $\|P - R\|_F$, which the return value
+reports separately.
+
+That distance is the one used by \cite{nielsen2015computing}, who show that,
+for a fixed $\pi$, the reversible chain nearest to $P$ in the Frobenius norm
+solves a convex quadratic program. `closestReversible(norm = "frobenius")`
+solves it exactly with \pkg{quadprog}, taking the entries $R_{ij}$, $i<j$, as
+unknowns, $R_{ji}=\pi_i R_{ij}/\pi_j$ by detailed balance and the diagonal
+as the remainder of each row. Here $\pi$ need not be stationary for $P$:
+any positive distribution can be imposed, and the result is reversible, and
+therefore stationary, with respect to it. With
+`stationaryDistribution = "free"` the stationary distribution is optimized
+too. Every reversible chain is $R_{ij} = S_{ij}/\sum_k S_{ik}$ for a symmetric
+non-negative matrix of flows $S$, so the problem becomes a smooth
+minimization over $S$, solved by L-BFGS-B from several starting points and
+then polished by the convex problem at the $\pi$ found. The set of reversible
+chains is not convex, so this is a local optimum. Nielsen and Weber keep
+$\pi$ fixed: this extension is specific to the package.
+
+For the weather chain the three answers differ:
+
+```{r closest-reversible-frobenius}
+weatherFrobenius <- closestReversible(mcWeather, norm = "frobenius")
+set.seed(2)
+weatherFree <- closestReversible(mcWeather, "free", norm = "frobenius")
+c(additive = weatherReversible$frobeniusDistance,
+  fixedPi = weatherFrobenius$distance,
+  freePi = weatherFree$distance)
+rbind(original = steadyStates(mcWeather)[1, ],
+      freePi = weatherFree$stationaryDistribution)
+weatherFree$chain
+```
+
+The weather chain is close to reversible: the free solution is 22\% closer
+to it than the additive reversibilization, and it moves the stationary
+probability of each state by less than 0.003.
+
+No published example of the Frobenius problem with its data was found to
+reproduce. The fixed-$\pi$ solutions agree with those of
+`closest_reversible` in \pkg{PyDTMC}, which uses an iterative solver, to
+about $10^{-5}$, with a distance that is never larger. For the free problem
+the tests check that the distance found is not larger than the best fixed-$\pi$
+solution on a fine grid of stationary distributions.
 
 ## Mixing time
 
@@ -2565,6 +2603,80 @@ verifyHomogeneity(list(x1, x2), method = "G")
 
 For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
 
+### Distances and divergences between two chains
+
+A test says whether two estimated chains differ by more than sampling noise;
+it does not say by how much. `compareChains()` reports both kinds of
+quantities for two chains on the same states, matched by name. The
+row-wise distances compare the next-step distributions from each state: the
+largest total variation distance $\max_i \frac12\sum_j|P_{ij}-Q_{ij}|$,
+the same distances averaged with the stationary distribution of the first
+chain, the largest Hellinger distance, the Frobenius and maximum entrywise
+distances, and the total variation distance between the two stationary
+distributions. These follow the definitions of \pkg{PyDTMC} and give the
+same values.
+
+The divergences include the Kullback-Leibler divergence *rate*
+\[
+D(P\,\|\,Q) = \sum_i \pi_i \sum_j P_{ij}\log\frac{P_{ij}}{Q_{ij}},
+\]
+also available on its own as `divergenceRate()`. For irreducible chains it
+is the limit of $\frac1n D(X_1,\ldots,X_n\,\|\,Y_1,\ldots,Y_n)$
+\citep{rached2004kullback}, and therefore the average information per step
+for discriminating the first chain from the second; it is not symmetric,
+and it is infinite when the first chain makes a transition that the second
+forbids. It also connects the distances to the tests above. With the
+departure frequencies of a sample as weights, $2N D(\hat P\,\|\,Q)$, $N$
+being the number of transitions, is the likelihood-ratio statistic of the
+hypothesis that the sample comes from $Q$, and summing it over the samples
+of a homogeneity test, with $Q$ the pooled estimate, gives Kullback's
+information statistic. For the two six-state samples of the `kullback`
+dataset, Table 9.2 of \cite{kullback1962tests} reports $2\hat I = 160.961$:
+
+```{r divergence-rate-kullback}
+data(kullback)
+pooled <- kullback[[1]] + kullback[[2]]
+pooledChain <- new("markovchain", states = rownames(pooled),
+                   transitionMatrix = pooled / rowSums(pooled))
+sum(sapply(kullback, function(counts) {
+  sampleChain <- new("markovchain", states = rownames(counts),
+                     transitionMatrix = counts / rowSums(counts))
+  2 * sum(counts) *
+    divergenceRate(sampleChain, pooledChain, weights = rowSums(counts))
+}))
+verifyHomogeneity(kullback, verbose = FALSE)$statistic
+```
+
+Both computations reproduce the published value. The degrees of freedom of
+`verifyHomogeneity()` are 29, not the 30 of the paper's formula $r(s-1)(r-1)$,
+because no transition from `d` to `a` is observed in either sample and that
+cell is not counted.
+
+Given two sequences, `compareChains()` estimates both chains on the union of
+their states and adds the test of equality of `verifyHomogeneity()`. Here the
+sequences `x1` and `x2` simulated above from the same chain are compared with
+one simulated from a chain with a different first row:
+
+```{r compare-chains}
+other_P <- homogeneity_P
+other_P["a", ] <- c(.50, .30, .20)
+other_mc <- new("markovchain", states = c("a", "b", "c"),
+                transitionMatrix = other_P)
+set.seed(321)
+x3 <- rmarkovchain(500, other_mc, t0 = "a")
+compareChains(x1, x2)
+compareChains(x1, x3)
+```
+
+The two samples of the same chain are at a weighted total variation
+distance of a few hundredths, which the test attributes to sampling noise.
+For the second pair the largest row-wise distance, 0.16, is that of the row
+of `a`, an estimate of the 0.2 by which the two chains differ there; but
+sampling noise alone produces distances of 0.11 in the row of `b`, and the
+test rejects equality at the 5\% level only just ($p \approx 0.05$). With
+500 observations a difference of this size is close to the limit of what can
+be detected.
+
 ## Pseudo-Bayesian estimation
 
 \cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical $\hat{P}$ transition matrix (estimated using the classical approach) and an a priori estimate $Q$. In particular, each row of the matrix is estimated using the linear combination $\alpha \cdot Q+\left(1-\alpha\right) \cdot P$, where $\alpha$ is defined for each row as Equation \ref{eq:pseudobayes} shows
@@ -3205,6 +3317,102 @@ effectively 0), while `tauchen()`'s fixed-width grid is off by tens of
 percent at small sizes and still off by nearly 10\% at 25 states -- worse,
 at 25 states, than `rouwenhorst()` already is at only 5 -- matching Kopecky
 and Suen's own qualitative conclusion.
+
+#### Quadrature-based discretizations
+
+A third family of methods replaces the integral that defines the next
+period's expectations with a quadrature rule. If the process moves from $x$
+to $y$ with density $f(x, y)$, and $y_1, \ldots, y_n$ and $w_1, \ldots, w_n$
+are the nodes and weights of a rule for $\int g(y)\,dy$, then
+\[
+P_{ij} = \frac{w_j f(y_i, y_j)}{\sum_k w_k f(y_i, y_k)}
+\]
+is a transition matrix whose conditional expectations
+$\sum_j P_{ij} h(y_j)$ approximate $E[h(Y_{t+1}) \mid Y_t = y_i]$
+\citep{tauchenHussey1991}. `fitFunction()` builds this chain for any
+kernel $f$ and any of seven rules with positive weights (Gauss-Legendre,
+Gauss-Chebyshev, Fejér, Gauss-Hermite, trapezoid, Simpson and midpoint);
+the Gauss rules are computed from the eigenvalues of the Jacobi matrix
+\citep{golubWelsch1969}. It returns the chain, the nodes and the weights.
+
+`tauchenHussey()` is the special case of an AR(1) with Gauss-Hermite nodes
+for a normal distribution of standard deviation $\hat\sigma$. Tauchen and
+Hussey take $\hat\sigma=\sigma$, the conditional standard deviation, which
+concentrates the nodes too much when the process is persistent;
+\cite{floden2008} proposes the weighted choice
+$\hat\sigma = w\sigma + (1-w)\sigma_y$ with $w = 1/2 + \rho/4$
+(`sigmaWeight = "floden"`), and also reports $\hat\sigma=\sigma_y$
+(`sigmaWeight = "unconditional"`). His Table 1 gives, for the income process labelled HSZ
+($\rho = 0.95$, $\sigma_\varepsilon^2 = 0.030$,
+so that $\sigma_\varepsilon = 0.1732$ and $\sigma_y = 0.5547$), the
+conditional and unconditional standard deviations implied by each chain.
+The chains built here reproduce all twelve values:
+
+```{r tauchen-hussey-floden}
+impliedSd <- function(out) {
+  P <- out$chain@transitionMatrix
+  z <- out$states
+  p <- as.numeric(steadyStates(out$chain))
+  condVar <- P %*% z^2 - (P %*% z)^2
+  c(sigmaEps = sqrt(sum(p * condVar)),
+    sigmaY = sqrt(sum(p * (z - sum(p * z))^2)))
+}
+designs <- expand.grid(size = c(5, 9),
+                       sigmaWeight = c("conditional", "unconditional", "floden"),
+                       stringsAsFactors = FALSE)
+ours <- t(mapply(function(n, s)
+  impliedSd(tauchenHussey(alpha = 0, sigma = sqrt(0.03), rho = 0.95,
+                          size = n, sigmaWeight = s)),
+  designs$size, designs$sigmaWeight))
+floden <- rbind(c(0.1576, 0.3275), c(0.1670, 0.4303),
+                c(0.0101, 0.5622), c(0.0561, 0.5556),
+                c(0.1410, 0.4792), c(0.1692, 0.5407))
+colnames(floden) <- c("sigmaEps (Floden)", "sigmaY (Floden)")
+cbind(designs, round(ours, 4), floden)
+```
+
+The original choice understates the unconditional standard deviation by
+41\% with five nodes, the unconditional one makes the chain almost
+deterministic (a conditional standard deviation of 0.0101 instead of
+0.1732), and Flodén's weighting is the best compromise of the three. The
+same table also reports the autocorrelation implied by each chain, which is
+not reproduced here: the paper does not say how it is computed, and the
+lag-one autocorrelation under the stationary distribution of these chains
+does not match it when the approximation is coarse (0.8757 against 0.9073 for
+the original method with five nodes; 0.5976 against 0.5992 for the $\rho=0.6$
+process of the same table). The standard deviations of the $\rho=0.6$
+process are reproduced too, and both sets are in the package's tests.
+
+`fitFunction()` is not restricted to Gaussian processes. A proportion, such
+as a loss ratio or an occupancy rate, can be modelled on $[0, 1]$ with a
+Beta transition density whose mean moves linearly with the current value,
+$Y_{t+1} \mid Y_t = x \sim \mathrm{Beta}(\kappa m(x), \kappa(1 - m(x)))$ with
+$m(x) = 0.2 + 0.6x$. Its stationary mean is $0.5$ and, since
+$\mathrm{Var}(Y_{t+1}\mid Y_t=x) = m(x)(1-m(x))/(\kappa+1)$, its stationary
+variance solves $v = 0.36v + (0.25 - 0.36v)/(\kappa+1)$. The chains built with
+two rules approach it as the number of nodes grows:
+
+```{r fit-function-beta}
+kappa <- 20
+m <- function(x) 0.2 + 0.6 * x
+betaKernel <- function(x, y) dbeta(y, kappa * m(x), kappa * (1 - m(x)))
+stationaryVariance <- function(out) {
+  p <- as.numeric(steadyStates(out$chain))
+  sum(p * (out$states - sum(p * out$states))^2)
+}
+(trueVariance <- (0.25 / (kappa + 1)) / (1 - 0.36 + 0.36 / (kappa + 1)))
+sapply(c(5, 10, 20), function(n)
+  c(nodes = n,
+    gaussLegendre = stationaryVariance(fitFunction(betaKernel, n)),
+    trapezoid = stationaryVariance(fitFunction(betaKernel, n, "trapezoid"))))
+```
+
+With five nodes Gauss-Legendre places no node close enough to the end
+points and misses almost a third of the variance, while the trapezoid rule is
+already within 3\%; from ten nodes on both are within $0.03\%$ of the
+exact value. For the same kernel, interval and number of nodes the
+Gauss-Legendre, Fejér, trapezoid and Simpson rules give the same matrices
+as `fit_function` in \pkg{PyDTMC}.
 
 ## Actuarial science {#app:act}
 

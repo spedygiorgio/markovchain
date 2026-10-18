@@ -8,13 +8,17 @@
 closestReversible(
   object,
   stationaryDistribution = NULL,
-  tolerance = sqrt(.Machine$double.eps)
+  tolerance = sqrt(.Machine$double.eps),
+  norm = c("pi", "frobenius"),
+  nstart = 5L
 )
 
 \S4method{closestReversible}{markovchain}(
   object,
   stationaryDistribution = NULL,
-  tolerance = sqrt(.Machine$double.eps)
+  tolerance = sqrt(.Machine$double.eps),
+  norm = c("pi", "frobenius"),
+  nstart = 5L
 )
 }
 \arguments{
@@ -23,48 +27,79 @@ irreducible discrete-time Markov chain.}
 
 \item{stationaryDistribution}{Optional numeric vector giving the
 stationary distribution \eqn{\pi} to make the result reversible with
-respect to. It must have one strictly positive entry per state, sum to
-one (it is normalized if it does not), and be stationary for
-\code{object}, i.e. satisfy \eqn{\pi P = \pi}; otherwise an error is
-raised. The default, \code{NULL}, uses the chain's own unique
-stationary distribution from \code{\link{steadyStates}}.}
+respect to, with one strictly positive entry per state (it is
+normalized if it does not sum to one). With \code{norm = "pi"} it must
+be stationary for \code{object}, i.e. satisfy \eqn{\pi P = \pi},
+otherwise an error is raised; with \code{norm = "frobenius"} any
+positive distribution is allowed, and the result is the chain nearest to
+\eqn{P} among those reversible with respect to it. The default,
+\code{NULL}, uses the chain's own unique stationary distribution from
+\code{\link{steadyStates}}. With \code{norm = "frobenius"} the string
+\code{"free"} lets the stationary distribution vary as well (see
+Details).}
 
 \item{tolerance}{A single finite non-negative number, used when checking
-that a supplied \code{stationaryDistribution} really is stationary. It
-is a numerical-noise tolerance, not a modelling one.}
+that a supplied \code{stationaryDistribution} really is stationary
+(\code{norm = "pi"} only). It is a numerical-noise tolerance, not a
+modelling one.}
+
+\item{norm}{The distance to minimize: \code{"pi"} (the default), the
+\eqn{\pi}-weighted Hilbert-Schmidt norm, whose minimizer is the
+additive reversibilization above; or \code{"frobenius"}, the plain
+Frobenius norm \eqn{\|P - R\|_F}, which needs the \pkg{quadprog}
+package.}
+
+\item{nstart}{With \code{stationaryDistribution = "free"}, the number of
+starting points of the optimization (at least one); ignored otherwise.
+The first starts from the stationary distribution of \code{object} (or
+the uniform distribution if it is not unique), the second from the
+uniform distribution, the others from random distributions drawn with
+the session's random number generator.}
 }
 \value{
-A named list with four elements:
+A named list with five elements:
   \describe{
     \item{\code{chain}}{The approximating \code{markovchain} object
       \eqn{R}, with the same states and the same row/column-stochastic
       storage convention as \code{object}.}
-    \item{\code{stationaryDistribution}}{The \eqn{\pi} used, as a named
-      numeric vector.}
-    \item{\code{distance}}{The distance \eqn{\|P-R\|_\pi} actually
-      minimized (see Details).}
+    \item{\code{stationaryDistribution}}{The \eqn{\pi} with respect to
+      which \eqn{R} is reversible, as a named numeric vector: the one used
+      or, with \code{"free"}, the one found.}
+    \item{\code{distance}}{The distance actually minimized:
+      \eqn{\|P-R\|_\pi} for \code{norm = "pi"}, \eqn{\|P-R\|_F} for
+      \code{norm = "frobenius"} (see Details).}
     \item{\code{frobeniusDistance}}{The plain Frobenius distance
-      \eqn{\|P-R\|_F}, reported for convenience. It is \emph{not} the
-      quantity being minimized.}
+      \eqn{\|P-R\|_F}, reported for convenience; with
+      \code{norm = "pi"} it is \emph{not} the quantity being minimized.}
+    \item{\code{norm}}{The norm used.}
   }
+  With \code{stationaryDistribution = "free"} a sixth element,
+  \code{starts}, gives for each starting point the Frobenius distance
+  reached.
 }
 \description{
-Finds the Markov chain closest to a given one among those that are
-reversible with respect to a fixed stationary distribution.
+Finds the Markov chain closest to a given one among the reversible
+chains, either with respect to a fixed stationary distribution or, with
+\code{stationaryDistribution = "free"}, over all stationary
+distributions.
 }
 \details{
 For a row-stochastic transition matrix \eqn{P} with stationary
 distribution \eqn{\pi}, define the \emph{time reversal} \eqn{P^*} by
 \deqn{P^*_{ij} = \frac{\pi_j P_{ji}}{\pi_i}.}
 \eqn{P^*} is the transition matrix of the same chain run backwards in
-time, and \eqn{P} is reversible exactly when \eqn{P = P^*}. The
-approximation returned is the \emph{additive reversibilization}
+time, and \eqn{P} is reversible exactly when \eqn{P = P^*}. With the
+default \code{norm = "pi"} the approximation returned is the
+\emph{additive reversibilization}
 \deqn{R = \tfrac{1}{2}\left(P + P^*\right),}
 which is stochastic, non-negative, and reversible with respect to the
-same \eqn{\pi} (see Details).
+same \eqn{\pi} (see Details). With \code{norm = "frobenius"} it is the
+reversible chain nearest to \eqn{P} in the plain Frobenius norm, the
+problem solved by Nielsen and Weber (2015).
 
 
-\strong{In what sense is this the closest chain?} Work in the space
+\strong{In what sense is this the closest chain?} With the default
+\code{norm = "pi"}, work in the space
 \eqn{\ell^2(\pi)} of functions on the states with inner product
 \eqn{\langle f,g\rangle_\pi=\sum_i \pi_i f_i g_i}. Reversible chains are
 exactly the self-adjoint operators on that space, and they form a linear
@@ -81,25 +116,45 @@ row sums \eqn{\sum_j \pi_j P_{ji}/\pi_i = (\pi P)_i/\pi_i = 1} because
 non-negative, so the minimizer over the subspace already lies in the set
 of transition matrices and no constrained optimization is needed.
 
-\strong{What this function does not do.} The minimization is over
-reversible chains \emph{with \eqn{\pi} held fixed}, in the
-\eqn{\pi}-weighted norm above. Two related problems are different and are
-not solved here:
-\itemize{
-  \item Minimizing the \emph{plain} Frobenius distance
-    \eqn{\|P-R\|_F} with \eqn{\pi} fixed. The involution
-    \eqn{A\mapsto A^*} is not an isometry for that norm, so \eqn{R} is
-    generally not its minimizer; \code{frobeniusDistance} is reported
-    only as a descriptive figure.
-  \item Letting the stationary distribution \emph{vary}, i.e. finding
-    the reversible chain nearest to \eqn{P} over all choices of
-    \eqn{\pi}. That is a genuinely harder constrained optimization
-    problem, studied by Nielsen and Weber (2015), and it needs a
-    numerical optimizer rather than a closed form. If you need it,
-    supply candidate distributions through
-    \code{stationaryDistribution} and compare \code{distance} values, or
-    use a dedicated implementation.
-}
+\strong{The Frobenius norm with a fixed \eqn{\pi}.} With
+\code{norm = "frobenius"} the result minimizes
+\eqn{\|P - R\|_F^2 = \sum_{i,j}(P_{ij} - R_{ij})^2} over the transition
+matrices that satisfy detailed balance
+\eqn{\pi_i R_{ij} = \pi_j R_{ji}}. This is the problem of Nielsen and
+Weber (2015). Since \eqn{A\mapsto A^*} is not an isometry of this norm,
+the additive reversibilization is generally not its solution, and the
+non-negativity constraints can be active. The problem is a convex
+quadratic program: with the \eqn{n(n-1)/2} entries \eqn{R_{ij}}, \eqn{i<j},
+as unknowns, \eqn{R_{ji} = \pi_i R_{ij}/\pi_j} and
+\eqn{R_{ii} = 1 - \sum_{j\ne i}R_{ij}}, the objective is strictly convex
+and the constraints are \eqn{R_{ij} \ge 0} and \eqn{R_{ii} \ge 0}. It
+is solved exactly by the dual active-set method of
+\code{quadprog::solve.QP}, in \eqn{O(n^6)} time, which is practical up to
+about 50 states. \eqn{\pi} need not be stationary for \eqn{P}; the
+result is reversible, hence stationary, with respect to it.
+
+\strong{Letting \eqn{\pi} vary.} With
+\code{stationaryDistribution = "free"} the minimization is over all
+reversible chains, whatever their stationary distribution. Every such
+chain can be written as \eqn{R_{ij} = S_{ij}/\sum_k S_{ik}} with
+\eqn{S} symmetric and non-negative (\eqn{S_{ij} = \pi_i R_{ij}}, the
+probability flows), so the problem becomes a smooth minimization over
+\eqn{S \ge 0}, solved with \code{optim(method = "L-BFGS-B")} and the
+analytic gradient. The set of reversible chains is not convex, so the
+result is a local minimum: \code{nstart} starting points are tried, and
+each local solution is polished by solving the convex problem above at its
+own \eqn{\pi}, which can only decrease the distance. Nielsen and Weber
+(2015) keep \eqn{\pi} fixed; this extension is specific to the package.
+The distance found is never larger than the one obtained with the
+stationary distribution of \code{object}.
+
+\strong{What this function does not do.} With \code{norm = "pi"} the
+minimization holds \eqn{\pi} fixed: the \eqn{\pi}-weighted norm itself
+depends on \eqn{\pi}, so letting it vary is only offered for the
+Frobenius norm. Also, the weighted Frobenius norm of PyDTMC's
+\code{closest_reversible(weighted = TRUE)} is not offered. PyDTMC solves
+the unweighted problem with an iterative solver, whose solutions agree with
+the ones here to about \eqn{10^{-5}} and have a slightly larger distance.
 
 \strong{Properties worth knowing.} \eqn{R} has the same stationary
 distribution \eqn{\pi} as \eqn{P}, and it preserves the support pattern
@@ -136,6 +191,21 @@ approximation <- closestReversible(cycle3)
 approximation$chain
 is.reversible(approximation$chain)
 approximation$distance
+
+# The nearest reversible chain in the Frobenius norm (needs quadprog),
+# first with the stationary distribution held fixed, then free.
+if (requireNamespace("quadprog", quietly = TRUE)) {
+  P <- new("markovchain", states = letters[1:4], transitionMatrix = matrix(
+    c(0.1, 0.6, 0.2, 0.1, 0.05, 0.15, 0.7, 0.1,
+      0.3, 0.05, 0.25, 0.4, 0.5, 0.2, 0.1, 0.2), 4, byrow = TRUE,
+    dimnames = list(letters[1:4], letters[1:4])))
+  closestReversible(P)$frobeniusDistance
+  closestReversible(P, norm = "frobenius")$distance
+  set.seed(1)
+  free <- closestReversible(P, "free", norm = "frobenius")
+  free$distance
+  free$stationaryDistribution
+}
 
 }
 \references{

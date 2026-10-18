@@ -1874,6 +1874,55 @@ patientStates[1:10,]
 
 Two advanced parameters of `rmarkovchain` select the implementation, among four options: \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. The boolean parameters `useRcpp` and `parallel` choose the implementation; the default is \code{useRcpp = TRUE} and \code{parallel = FALSE}, i.e. the sequential \proglang{C++} implementation, which is generally faster than the \proglang{R} one. On multicore processors, setting `parallel = TRUE` takes advantage of several cores; when both `useRcpp = TRUE` and `parallel = TRUE`, the parallelization relies on the \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that `set.seed()` gives the same result whatever the number of threads. That number is set by the argument `num.cores`; when it is `NULL`, the default, the options `RcppParallel.numThreads` and `Ncpus` and the environment variables `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS` are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
 
+### Plotting sequences
+
+`plotSequence()` draws simulated or observed sequences in the two basic
+graphs of sequence analysis \citep{gabadinho2011}: the *sequence index plot*,
+in which each sequence is a row of cells coloured by state, and the *state
+distribution plot*, which shows the proportion of sequences in each state at
+each time point. Given a `markovchain`, it simulates `nSequences` sequences of
+`steps` time points from an initial distribution given as in `redistribute()`;
+given observed data (a sequence, a list of sequences, or a matrix or data
+frame with one sequence per row), it plots them, and a `chain` can be supplied
+to overlay the state distribution it predicts from the observed one at the
+first time point. Figure \ref{fig:plot-sequence-weather} shows thirty weather
+sequences started from rain and the distribution of three hundred of them,
+which approaches the stationary distribution in about five days, as the
+expected distribution (dashed) does.
+
+```{r plot-sequence-weather, fig.cap = "Weather chain: thirty simulated sequences started from rain (left) and the state distribution of three hundred, with the distribution expected from the chain (right).", fig.height = 3.6, out.width = "100%"}
+par(mfrow = c(1, 2))
+plotSequence(mcWeather, nSequences = 30, steps = 30, initial = "rain",
+             seed = 1, main = "Weather sequences")
+plotSequence(mcWeather, type = "distribution", nSequences = 300, steps = 15,
+             initial = "rain", seed = 1, main = "Weather state distribution")
+```
+
+With observed data the second graph is a check of time-homogeneity. The
+`holson` data contain the trajectories of 1000 individuals over eleven time
+points; Figure \ref{fig:plot-sequence-holson} sorts sixty of them by their
+first state and compares the distribution of all of them with the one
+predicted by a single time-homogeneous chain fitted to the whole data set.
+
+```{r plot-sequence-holson, fig.cap = "Holson data: sixty trajectories sorted by their first state (left) and the state distribution of the 1000 trajectories against a time-homogeneous chain fitted to them (right).", fig.height = 3.6, out.width = "100%"}
+data(holson)
+holsonChain <- markovchainFit(holson[, 2:12])$estimate
+par(mfrow = c(1, 2))
+plotSequence(holson[1:60, 2:12], sort = "first", main = "Holson trajectories")
+holsonPlot <- plotSequence(holson[, 2:12], type = "distribution",
+                           chain = holsonChain, main = "Holson distribution")
+gap <- holsonPlot$proportions - holsonPlot$expected
+round(gap[, c(2, 6, 9, 11)], 3)
+```
+
+Most individuals stay in state `1` for the whole period. The proportions
+observed at each time point stay within three percentage points of those
+predicted by the fitted chain (the largest gap, 2.9 points for state `1`, is
+at the ninth time point), so the plot gives no strong sign that the transition
+probabilities change over time; `assessStationarity()` tests it formally. The values returned invisibly
+(the sequences as plotted and the observed and expected proportions) allow
+such comparisons to be made numerically.
+
 ## Lumpability and aggregation of states
 
 In some applications the original state space is too detailed, and it is useful
@@ -2350,6 +2399,88 @@ markovchainListFit(data=mylist)
 ```
 
 If any transition contains `NA`, it will be ignored in the results as the above example showed.
+
+### Uncertainty of derived properties
+
+The standard errors above refer to the transition probabilities. Properties
+of the chain computed from them, such as the SLEM, the spectral gap, the
+relaxation time or the mixing time, are returned by the corresponding
+functions as single numbers, although they inherit the sampling error of the
+estimated matrix through non-linear, and sometimes non-smooth,
+transformations. `bootstrapProperties()` estimates the chain by maximum
+likelihood from one or more sequences (or from transition counts) and gives
+bootstrap standard errors and percentile or basic intervals for any such
+property. With `method = "multinomial"`, the default, each replicate redraws
+the departures of every state from its estimated row, keeping the number of
+visits fixed, which is the conditional bootstrap of \cite{basawa1990};
+`method = "parametric"` simulates new sequences of the observed lengths from
+the estimated chain \citep{kulperger1989}. Besides the four default
+properties, the entropy rate, Kemeny's constant, the stationary distribution
+and any function of a `markovchain` returning numbers can be bootstrapped.
+For the Alofi rainfall data:
+
+```{r bootstrap-properties-rain}
+data(rain)
+rainBoot <- bootstrapProperties(rain$rain, nboot = 1000, seed = 1)
+rainBoot
+bootstrapProperties(rain$rain, nboot = 1000, seed = 1,
+  statistics = list(dryDays = function(mc) steadyStates(mc)[1, "0"],
+                    "kemenyConstant"))
+```
+
+The rainfall chain forgets its initial state quickly: its SLEM is 0.41 with
+a standard error of 0.03, and the mixing time is two days in practically
+every replicate, so its interval collapses to a single value. No published
+example of bootstrap intervals for these properties with available data was
+found; the asymptotic theory of the spectral gap of reversible chains
+estimated from one path is developed by \cite{hsu2019mixing}. The coverage
+of the intervals was therefore checked by simulation. For each of two chains
+and two methods, 300 sequences were simulated, a 95\% percentile interval
+with 499 replicates was computed from each, and the proportion of intervals
+containing the true value was recorded:
+
+```{r bootstrap-properties-coverage, eval = FALSE}
+coverage <- function(truth, n, method, reps = 300) {
+  theta <- c(slem(truth), relaxationTime(truth), mixingTime(truth))
+  hits <- replicate(reps, {
+    x <- rmarkovchain(n - 1, truth, t0 = states(truth)[1], include.t0 = TRUE)
+    ci <- bootstrapProperties(x, nboot = 499, method = method,
+      statistics = c("slem", "relaxationTime", "mixingTime"))$ci
+    ci[, 1] <= theta & theta <= ci[, 2]
+  })
+  rowMeans(hits)
+}
+```
+
+\begin{center}
+\begin{tabular}{llrrrr}
+\hline
+Chain & Method & $n$ & SLEM & Relaxation time & Mixing time \\
+\hline
+Alofi rainfall (SLEM 0.41) & multinomial & 1096 & 0.950 & 0.950 & 1.000 \\
+ & parametric & 1096 & 0.940 & 0.940 & 1.000 \\
+ & multinomial & 200 & 0.943 & 0.943 & 0.997 \\
+ & parametric & 200 & 0.957 & 0.957 & 1.000 \\
+Slowly mixing (SLEM 0.88) & multinomial & 300 & 0.950 & 0.950 & 0.950 \\
+ & parametric & 300 & 0.977 & 0.977 & 0.980 \\
+\hline
+\end{tabular}
+\end{center}
+
+The first chain is the one estimated from the rainfall data; the second has
+0.9 on the diagonal and rare transitions of probability 0.02, so that its
+relaxation time is 8.3 steps. With 300 simulations the Monte Carlo standard
+error of a coverage of 0.95 is about 0.013, so the observed coverage of the
+spectral properties agrees with the nominal level; the spectral gap, equal to
+one minus the SLEM for these chains, has the same coverage as the SLEM. The
+intervals of the mixing time, an integer, are conservative when the chain
+mixes fast. For the slowly mixing chain the intervals are wide (on average
+12.8 steps for a relaxation time of 8.3) and skewed, and in two or three
+replicates out of 499 the rare transitions vanish, the replicate is
+reducible and the spectral properties cannot be computed: such replicates are
+counted in `failures` and left out. Wide intervals of this kind are an
+accurate description of how little 300 observations reveal about a slowly
+mixing chain, not a failure of the method.
 
 
 ## Prediction

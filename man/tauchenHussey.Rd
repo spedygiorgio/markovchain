@@ -81,7 +81,7 @@ obtaining approximate solutions to nonlinear asset pricing models.
 
 Floden, M. (2008). A note on the accuracy of Markov-chain approximations
 to highly persistent AR(1) processes. \emph{Economics Letters}, 99(3),
-516-520. \doi{10.1016/j.econlet.2007.09.040}
+516-520.
 
 Kopecky, K. A. and Suen, R. M. H. (2010). Finite state Markov-chain
 approximations to highly persistent processes. \emph{Review of Economic

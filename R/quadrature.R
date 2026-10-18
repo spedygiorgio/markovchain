@@ -202,7 +202,7 @@
 #'
 #' Golub, G. H. and Welsch, J. H. (1969). Calculation of Gauss quadrature
 #' rules. \emph{Mathematics of Computation}, 23(106), 221-230.
-#' \doi{10.1090/S0025-5718-69-99647-1}
+#' \doi{10.2307/2004418}
 #'
 #' Fejer, L. (1933). Mechanische Quadraturen mit positiven Cotesschen
 #' Zahlen. \emph{Mathematische Zeitschrift}, 37, 287-309.
@@ -355,7 +355,7 @@ fitFunction <- function(f, size, quadrature = c("gauss-legendre", "gauss-chebysh
 #'
 #' Floden, M. (2008). A note on the accuracy of Markov-chain approximations
 #' to highly persistent AR(1) processes. \emph{Economics Letters}, 99(3),
-#' 516-520. \doi{10.1016/j.econlet.2007.09.040}
+#' 516-520.
 #'
 #' Kopecky, K. A. and Suen, R. M. H. (2010). Finite state Markov-chain
 #' approximations to highly persistent processes. \emph{Review of Economic

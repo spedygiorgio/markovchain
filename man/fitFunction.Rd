@@ -132,7 +132,7 @@ obtaining approximate solutions to nonlinear asset pricing models.
 
 Golub, G. H. and Welsch, J. H. (1969). Calculation of Gauss quadrature
 rules. \emph{Mathematics of Computation}, 23(106), 221-230.
-\doi{10.1090/S0025-5718-69-99647-1}
+\doi{10.2307/2004418}
 
 Fejer, L. (1933). Mechanische Quadraturen mit positiven Cotesschen
 Zahlen. \emph{Mathematische Zeitschrift}, 37, 287-309.

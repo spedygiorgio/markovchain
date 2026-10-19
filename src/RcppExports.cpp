@@ -389,6 +389,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// markovPropertyStatisticRcpp
+double markovPropertyStatisticRcpp(IntegerVector x, int r, bool pearson);
+RcppExport SEXP _markovchain_markovPropertyStatisticRcpp(SEXP xSEXP, SEXP rSEXP, SEXP pearsonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type r(rSEXP);
+    Rcpp::traits::input_parameter< bool >::type pearson(pearsonSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovPropertyStatisticRcpp(x, r, pearson));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mtdFreeWeightsRcpp
 List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0, NumericMatrix Q0, IntegerVector rows, double tol, int maxit);
 RcppExport SEXP _markovchain_mtdFreeWeightsRcpp(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambda0SEXP, SEXP Q0SEXP, SEXP rowsSEXP, SEXP tolSEXP, SEXP maxitSEXP) {
@@ -959,6 +972,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 13},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
     {"_markovchain_markovPropertySimulationRcpp", (DL_FUNC) &_markovchain_markovPropertySimulationRcpp, 5},
+    {"_markovchain_markovPropertyStatisticRcpp", (DL_FUNC) &_markovchain_markovPropertyStatisticRcpp, 3},
     {"_markovchain_mtdFreeWeightsRcpp", (DL_FUNC) &_markovchain_mtdFreeWeightsRcpp, 7},
     {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},

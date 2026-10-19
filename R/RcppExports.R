@@ -306,6 +306,10 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
     .Call(`_markovchain_markovPropertySimulationRcpp`, P, x1, n, B, pearson)
 }
 
+.markovPropertyStatisticRcpp <- function(x, r, pearson) {
+    .Call(`_markovchain_markovPropertyStatisticRcpp`, x, r, pearson)
+}
+
 .mtdFreeWeightsRcpp <- function(patterns, counts, lambda0, Q0, rows, tol, maxit) {
     .Call(`_markovchain_mtdFreeWeightsRcpp`, patterns, counts, lambda0, Q0, rows, tol, maxit)
 }

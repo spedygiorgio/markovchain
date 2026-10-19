@@ -114,12 +114,11 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
     }, numeric(1))
   }
   # The sequences are the same everywhere (same random numbers, same
-  # inversion). The statistics agree to the last bit where the C++ sums are
-  # carried out as in R: x86-64 (both in 80-bit long double) and macOS (both in
-  # double, contraction turned off for clang in the C++ file). Elsewhere, for
-  # instance GCC on Linux arm64, which fuses multiply-adds by default, they
-  # may differ in the last bits only.
-  sameBits <- R.version$arch %in% c("x86_64", "amd64") || Sys.info()[["sysname"]] == "Darwin"
+  # inversion). The statistics are bit for bit those of R on x86-64, where the
+  # C++ sums are accumulated in the same 80-bit long double as R's sum(), and
+  # agree to the last bits elsewhere (on macOS arm64 they differ in the last
+  # bit, as seen in CI).
+  sameBits <- R.version$arch %in% c("x86_64", "amd64")
   expectSame <- function(object, expected) {
     if (sameBits) expect_identical(object, expected) else expect_equal(object, expected, tolerance = 1e-12)
   }
@@ -134,10 +133,25 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
     expectSame(ans$simulations, referenceSimulations(x, 60, seed))
     expect_equal(ans$p.value, (1 + sum(ans$simulations >= ans$statistic)) / 61)
   }
+  # the observed statistic, recomputed in C++ for the comparison, is the one of
+  # method = "G"
+  expectSame(ans$statistic, verifyMarkovProperty(x, method = "G", verbose = FALSE)$statistic)
   # ties between probabilities (a uniform row) and two states
   set.seed(4)
   y <- sample(c("u", "v"), 80, replace = TRUE)
   expectSame(verifyMarkovProperty(y, method = "simulation", B = 40, seed = 9,
                                   verbose = FALSE)$simulations,
              referenceSimulations(y, 40, 9))
+})
+
+test_that("a simulated sequence with the observed triple counts counts as a tie", {
+  # In a short sequence of two states many simulated sequences have the same
+  # triple counts as the observed one: their statistic must equal the observed
+  # value exactly, on every platform, so that they enter the p-value (>=).
+  x <- c("a", "b", "a", "a", "b", "b", "a", "b")
+  ans <- verifyMarkovProperty(x, method = "simulation", B = 500, seed = 1, verbose = FALSE)
+  expect_gt(sum(ans$simulations == ans$statistic), 0)
+  expect_identical(unname(ans$statistic),
+                   markovchain:::.markovPropertyStatisticRcpp(match(x, unique(x)), 2L, FALSE))
+  expect_error(markovchain:::.markovPropertyStatisticRcpp(c(1L, 3L, 1L), 2L, FALSE), "codes")
 })

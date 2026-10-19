@@ -92,10 +92,15 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
     if (!is.null(seed)) set.seed(seed)
     # The B sequences are simulated in C++ (src/markovPropertyTest.cpp), each
     # step drawn exactly as sample.int(r, 1, prob = P[x, ]) would draw it, and
-    # the G statistic of each is computed with the same arithmetic as
-    # statistic_fun(): same random numbers and same values as an R loop.
+    # the G statistic of each is computed with the same operations as
+    # statistic_fun(): same random numbers as an R loop, and the same values up
+    # to the last bits (bit for bit on x86-64). The observed statistic is
+    # recomputed by the same C++ function, so that a simulated sequence with
+    # the observed triple counts gives exactly the observed value on every
+    # platform and counts as a tie (>=) in the p-value.
     storage.mode(P) <- "double"
     simulated <- .markovPropertySimulationRcpp(P, idx[1L], n, as.integer(B), FALSE)
+    statistic <- .markovPropertyStatisticRcpp(idx, r, FALSE)
     p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
     result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
                    observed = Nijk, expected = expected, transitionMatrix = P,

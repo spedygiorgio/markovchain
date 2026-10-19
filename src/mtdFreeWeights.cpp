@@ -29,8 +29,10 @@
 
 // Floating-point contraction off: clang (the compiler of CRAN's and GitHub's
 // macOS arm64 builds) by default fuses a * b + c into one fused multiply-add,
-// rounded once, while R rounds the product and the sum separately; the last
-// bits would then differ from R's. GCC on x86-64 never fuses without -mfma.
+// rounded once, while R rounds the product and the sum separately. This keeps
+// the operations those of the R code; the results are bit for bit R's on
+// x86-64, and may still differ in the last bits elsewhere (they do on macOS
+// arm64, where long double is double).
 #ifdef __clang__
 #pragma clang fp contract(off)
 #endif

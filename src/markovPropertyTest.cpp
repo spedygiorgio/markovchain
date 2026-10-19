@@ -17,7 +17,11 @@
 // - the statistic is computed with the same operations in the same order,
 //   the cells taken in the column-major order of the R array and summed in
 //   long double as R's sum() does, so the same counts give the same value.
-// The observed statistic is still computed in R; the tests compare the
+// For method = "simulation" the observed statistic is computed here too, by
+// the same function as the simulated ones: a simulated sequence with the same
+// triple counts as the observed one then gives exactly the same value on every
+// platform, and the tie counts in the p-value as it should (on x86-64 the
+// value is also bit for bit the one computed in R). The tests compare the
 // simulated statistics with those of the former R loop.
 
 #include <Rcpp.h>
@@ -28,8 +32,10 @@
 
 // Floating-point contraction off: clang (the compiler of CRAN's and GitHub's
 // macOS arm64 builds) by default fuses a * b + c into one fused multiply-add,
-// rounded once, while R rounds the product and the sum separately; the last
-// bits would then differ from R's. GCC on x86-64 never fuses without -mfma.
+// rounded once, while R rounds the product and the sum separately. This keeps
+// the operations those of the R code; the results are bit for bit R's on
+// x86-64, and may still differ in the last bits elsewhere (they do on macOS
+// arm64, where long double is double).
 #ifdef __clang__
 #pragma clang fp contract(off)
 #endif
@@ -138,4 +144,19 @@ NumericVector markovPropertySimulationRcpp(NumericMatrix P, int x1, int n, int B
     out[b] = markovStatistic(x.data(), n, r, pearson, N, Nij, Njk, Nj);
   }
   return out;
+}
+
+// Statistic of the observed sequence x (1-based codes of r states), with the
+// same arithmetic as the simulated ones.
+// [[Rcpp::export(.markovPropertyStatisticRcpp)]]
+double markovPropertyStatisticRcpp(IntegerVector x, int r, bool pearson) {
+  const int n = x.size();
+  if (r < 1 || n < 3) stop("x must have at least three observations of r >= 1 states.");
+  std::vector<int> codes(n);
+  for (int t = 0; t < n; ++t) {
+    if (x[t] == NA_INTEGER || x[t] < 1 || x[t] > r) stop("x must contain codes between 1 and r.");
+    codes[t] = x[t] - 1;
+  }
+  std::vector<int> N((size_t) r * r * r), Nij(r * r), Njk(r * r), Nj(r);
+  return markovStatistic(codes.data(), n, r, pearson, N, Nij, Njk, Nj);
 }

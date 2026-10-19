@@ -191,15 +191,26 @@ test_that("grouping the observations by history leaves the EM weights unchanged"
     }
     lambda
   }
-  # The sums are the same up to rounding, so the iteration may stop one step
-  # earlier or later, which moves the weights by far less than 1e-8.
+  # Grouping changes only the order and the precision of the sums, so the EM
+  # iterates agree up to rounding; but the iteration stops when the
+  # log-likelihood gains less than 1e-10, a quantity close to the rounding
+  # error of the log-likelihood in double precision, so where the sums are not
+  # carried out in extended precision (macOS arm64) it can stop a few
+  # iterations earlier or later. Near the maximum the weights then move by up
+  # to about 1e-5 for order 2 on these data (measured), with a log-likelihood
+  # equal to 1e-10.
   data(rain, package = "markovchain")
   halves <- list(rain$rain[1:500], rain$rain[501:1096])
   for (order in 2:4) {
-    expect_equal(fitHigherOrder(rain$rain, order)$lambda, emReference(list(rain$rain), order),
-                 tolerance = 1e-8, info = order)
-    expect_equal(fitHigherOrder(halves, order)$lambda, emReference(halves, order),
-                 tolerance = 1e-8, info = order)
+    for (s in list(list(rain$rain), halves)) {
+      grouped <- fitHigherOrder(s, order)
+      reference <- grouped
+      reference$lambda <- emReference(s, order)
+      info <- paste("order", order, "sequences", length(s))
+      expect_equal(grouped$lambda, reference$lambda, tolerance = 1e-4, info = info)
+      expect_equal(higherOrderLogLik(s, grouped)$logLik, higherOrderLogLik(s, reference)$logLik,
+                   tolerance = 1e-10, info = info)
+    }
   }
 })
 

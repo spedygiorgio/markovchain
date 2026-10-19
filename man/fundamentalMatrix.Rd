@@ -12,8 +12,8 @@ Markov chain.}
 }
 \value{
 A numeric matrix containing the fundamental matrix, with transient
-  state names as row and column names. If all states are absorbing, the
-  result is a 0-by-0 matrix because there are no transient states.
+state names as row and column names. If all states are absorbing, the
+result is a 0-by-0 matrix because there are no transient states.
 }
 \description{
 Computes the fundamental matrix of a finite absorbing discrete-time Markov
@@ -53,13 +53,13 @@ fundamentalMatrix(mc)
 
 }
 \references{
-Kemeny, J. G. and Snell, J. L. (1976). *Finite Markov Chains*.
+Kemeny, J. G. and Snell, J. L. (1976). \emph{Finite Markov Chains}.
 Springer.
 
-Grinstead, C. M. and Snell, J. L. (1997). *Introduction to Probability*.
+Grinstead, C. M. and Snell, J. L. (1997). \emph{Introduction to Probability}.
 American Mathematical Society.
 }
 \seealso{
 \code{\link{absorbingStates}}, \code{\link{transientStates}},
-  \code{\link{meanAbsorptionTime}}, \code{\link{absorptionProbabilities}}
+\code{\link{meanAbsorptionTime}}, \code{\link{absorptionProbabilities}}
 }

@@ -49,13 +49,13 @@ unique).}
 }
 \value{
 A list with three elements:
-  \describe{
-    \item{\code{chain}}{The \code{markovchain} object (row-stochastic).}
-    \item{\code{states}}{The nodes, a numeric vector named by the states,
-      in the order of the states of \code{chain}.}
-    \item{\code{weights}}{The quadrature weights for the plain integral
-      \eqn{\int g(y)\,dy \approx \sum_j w_j g(y_j)}, named by the states.}
-  }
+\describe{
+\item{\code{chain}}{The \code{markovchain} object (row-stochastic).}
+\item{\code{states}}{The nodes, a numeric vector named by the states,
+in the order of the states of \code{chain}.}
+\item{\code{weights}}{The quadrature weights for the plain integral
+\eqn{\int g(y)\,dy \approx \sum_j w_j g(y_j)}, named by the states.}
+}
 }
 \description{
 Builds a finite-state Markov chain from a transition density (or any
@@ -75,28 +75,28 @@ not need to integrate to one: only its values at the nodes matter.
 
 The rules, all with positive weights:
 \itemize{
-  \item \code{"gauss-legendre"}: Gauss-Legendre nodes, exact for
-    polynomials of degree \eqn{2n - 1}. A good default for smooth kernels
-    on a bounded interval.
-  \item \code{"gauss-chebyshev"}: Gauss-Chebyshev nodes of the first
-    kind, \eqn{t_k = -\cos((2k - 1)\pi / (2n))} on \eqn{[-1, 1]}, with the
-    weights \eqn{(\pi/n)\sqrt{1 - t_k^2}} of a plain integral. It is exact
-    for \eqn{g(t) = q(t)/\sqrt{1 - t^2}} with \eqn{q} a polynomial of
-    degree \eqn{2n - 1}, so it suits kernels with that kind of
-    behaviour at the end points.
-  \item \code{"fejer"}: Fejer's first rule, the same Chebyshev nodes with
-    the weights that integrate exactly every polynomial of degree
-    \eqn{n - 1}. This is the rule that PyDTMC calls
-    \code{"gauss-chebyshev"}.
-  \item \code{"gauss-hermite"}: Gauss-Hermite nodes for the normal
-    distribution \eqn{N(\code{mean}, \code{sd}^2)}, for processes on the
-    real line. The weights of the plain integral are the probability
-    weights divided by the normal density at the nodes. With an AR(1)
-    density this is the method of Tauchen and Hussey (1991); see
-    \code{\link{tauchenHussey}}.
-  \item \code{"trapezoid"} and \code{"simpson"}: equally spaced nodes
-    including the end points; Simpson's rule needs an odd \code{size}.
-  \item \code{"midpoint"}: the centres of \code{size} equal cells.
+\item \code{"gauss-legendre"}: Gauss-Legendre nodes, exact for
+polynomials of degree \eqn{2n - 1}. A good default for smooth kernels
+on a bounded interval.
+\item \code{"gauss-chebyshev"}: Gauss-Chebyshev nodes of the first
+kind, \eqn{t_k = -\cos((2k - 1)\pi / (2n))} on \eqn{[-1, 1]}, with the
+weights \eqn{(\pi/n)\sqrt{1 - t_k^2}} of a plain integral. It is exact
+for \eqn{g(t) = q(t)/\sqrt{1 - t^2}} with \eqn{q} a polynomial of
+degree \eqn{2n - 1}, so it suits kernels with that kind of
+behaviour at the end points.
+\item \code{"fejer"}: Fejer's first rule, the same Chebyshev nodes with
+the weights that integrate exactly every polynomial of degree
+\eqn{n - 1}. This is the rule that PyDTMC calls
+\code{"gauss-chebyshev"}.
+\item \code{"gauss-hermite"}: Gauss-Hermite nodes for the normal
+distribution \eqn{N(\code{mean}, \code{sd}^2)}, for processes on the
+real line. The weights of the plain integral are the probability
+weights divided by the normal density at the nodes. With an AR(1)
+density this is the method of Tauchen and Hussey (1991); see
+\code{\link{tauchenHussey}}.
+\item \code{"trapezoid"} and \code{"simpson"}: equally spaced nodes
+including the end points; Simpson's rule needs an odd \code{size}.
+\item \code{"midpoint"}: the centres of \code{size} equal cells.
 }
 Newton-Cotes rules of high order are not offered, because their weights
 become negative and would give negative probabilities.
@@ -140,5 +140,5 @@ Zahlen. \emph{Mathematische Zeitschrift}, 37, 287-309.
 }
 \seealso{
 \code{\link{tauchenHussey}}, \code{\link{tauchen}},
-  \code{\link{rouwenhorst}}
+\code{\link{rouwenhorst}}
 }

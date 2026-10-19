@@ -21,7 +21,7 @@ Given a markovchain object and reward values for every state,
 function calculates expected reward value after n steps.
 }
 \details{
-the function uses a dynamic programming approach to solve a 
+the function uses a dynamic programming approach to solve a
 recursive equation described in reference.
 }
 \examples{

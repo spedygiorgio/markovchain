@@ -21,8 +21,8 @@ rate in nats, \code{2} in bits.}
 }
 \value{
 A single non-negative number, \code{Inf} when \code{x} makes with
-  positive probability a transition that \code{y} forbids from a state of
-  positive weight.
+positive probability a transition that \code{y} forbids from a state of
+positive weight.
 }
 \description{
 Computes the Kullback-Leibler divergence rate of a Markov chain \code{x}

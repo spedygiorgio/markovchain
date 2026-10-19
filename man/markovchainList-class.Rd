@@ -21,15 +21,15 @@ A class to handle non homogeneous discrete Markov chains
 }}
 
 \note{
-The class consists in a list of \code{markovchain} objects. 
+The class consists in a list of \code{markovchain} objects.
 It is aimed at working with non homogeneous Markov chains.
 }
 \section{Objects from the Class}{
 
 
-  A \code{markovchainlist} is a list of \code{markovchain} objects. They can
-  be used to model non homogeneous discrete time Markov Chains, when
-  transition probabilities (and possible states) change by time.
+A \code{markovchainlist} is a list of \code{markovchain} objects. They can
+be used to model non homogeneous discrete time Markov Chains, when
+transition probabilities (and possible states) change by time.
 }
 
 \section{Methods}{
@@ -37,12 +37,12 @@ It is aimed at working with non homogeneous Markov chains.
 \describe{
 \item{[[}{\code{signature(x = "markovchainList")}: extract the
 i-th \code{markovchain} }
-\item{dim}{\code{signature(x = "markovchainList")}: number 
+\item{dim}{\code{signature(x = "markovchainList")}: number
 of \code{markovchain} underlying the matrix }
-\item{predict}{\code{signature(object = "markovchainList")}: predict 
+\item{predict}{\code{signature(object = "markovchainList")}: predict
 from a \code{markovchainList} }
-\item{print}{\code{signature(x = "markovchainList")}: prints the list 
-  of markovchains }
+\item{print}{\code{signature(x = "markovchainList")}: prints the list
+of markovchains }
 \item{show}{\code{signature(object = "markovchainList")}: same as \code{print} }
 }
 }

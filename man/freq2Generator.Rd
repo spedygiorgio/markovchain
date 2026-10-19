@@ -19,7 +19,7 @@ freq2Generator(P, t = 1, method = "QO", logmethod = "Eigen")
 returns a generator matix with same dimnames
 }
 \description{
-The function provides interface to calculate generator matrix corresponding to 
+The function provides interface to calculate generator matrix corresponding to
 a frequency matrix and time taken
 }
 \examples{

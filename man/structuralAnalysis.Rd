@@ -32,23 +32,23 @@ canonicForm(object)
 }
 \value{
 \describe{
-  \item{\code{period}}{returns a integer number corresponding to the periodicity of the Markov 
-    chain (if it is irreducible)}
-  \item{\code{absorbingStates}}{returns a character vector with the names of the absorbing 
-    states in the Markov chain}
-  \item{\code{communicatingClasses}}{returns a list in which each slot contains the names of
-    the states that are in that communicating class}
-  \item{\code{recurrentClasses}}{analogously to \code{communicatingClasses}, but with 
-    recurrent classes}
-  \item{\code{transientClasses}}{analogously to \code{communicatingClasses}, but with 
-    transient classes}
-  \item{\code{transientStates}}{returns a character vector with all the transient states
-    for the Markov chain}
-  \item{\code{recurrentStates}}{returns a character vector with all the recurrent states 
-    for the Markov chain}
-  \item{\code{canonicForm}}{returns the Markov chain reordered by a permutation of states 
-    so that we have blocks submatrices for each of the recurrent classes and a collection 
-    of rows in the end for the transient states}
+\item{\code{period}}{returns a integer number corresponding to the periodicity of the Markov
+chain (if it is irreducible)}
+\item{\code{absorbingStates}}{returns a character vector with the names of the absorbing
+states in the Markov chain}
+\item{\code{communicatingClasses}}{returns a list in which each slot contains the names of
+the states that are in that communicating class}
+\item{\code{recurrentClasses}}{analogously to \code{communicatingClasses}, but with
+recurrent classes}
+\item{\code{transientClasses}}{analogously to \code{communicatingClasses}, but with
+transient classes}
+\item{\code{transientStates}}{returns a character vector with all the transient states
+for the Markov chain}
+\item{\code{recurrentStates}}{returns a character vector with all the recurrent states
+for the Markov chain}
+\item{\code{canonicForm}}{returns the Markov chain reordered by a permutation of states
+so that we have blocks submatrices for each of the recurrent classes and a collection
+of rows in the end for the transient states}
 }
 }
 \description{

@@ -17,13 +17,13 @@ names, in increasing order of ball count. Defaults to
 }
 \value{
 A new, row-stochastic \code{markovchain} object with
-  \code{balls + 1} states. From state \eqn{i} (\eqn{0<i<\code{balls}}),
-  \deqn{P_{i,i-1} = i/\code{balls}, \qquad P_{i,i+1} = 1 - i/\code{balls},}
-  the probability that the ball moved was one of the \eqn{i} currently in
-  urn A (decreasing A's count) versus one of the \eqn{\code{balls}-i}
-  currently in urn B (increasing it). States \eqn{0} and \code{balls}
-  (all balls in one urn) are \emph{reflecting}: the next ball moved must
-  come from the only non-empty urn, so \eqn{P_{0,1}=P_{\code{balls},
+\code{balls + 1} states. From state \eqn{i} (\eqn{0<i<\code{balls}}),
+\deqn{P_{i,i-1} = i/\code{balls}, \qquad P_{i,i+1} = 1 - i/\code{balls},}
+the probability that the ball moved was one of the \eqn{i} currently in
+urn A (decreasing A's count) versus one of the \eqn{\code{balls}-i}
+currently in urn B (increasing it). States \eqn{0} and \code{balls}
+(all balls in one urn) are \emph{reflecting}: the next ball moved must
+come from the only non-empty urn, so \eqn{P_{0,1}=P_{\code{balls},
   \code{balls}-1}=1} exactly.
 }
 \description{

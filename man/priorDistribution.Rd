@@ -16,25 +16,25 @@ probability distribution is uniform.}
 }
 \value{
 The log of the probabilities for each state is returned in a numeric
-  vector. Each number in the vector represents the probability (log) of
-  having a probability transition vector as specified in corresponding the
-  row of the transition matrix.
+vector. Each number in the vector represents the probability (log) of
+having a probability transition vector as specified in corresponding the
+row of the transition matrix.
 }
 \description{
 Function to evaluate the prior probability of a transition
-  matrix. It is based on conjugate priors and therefore a Dirichlet
-  distribution is used to model the transitions of each state.
+matrix. It is based on conjugate priors and therefore a Dirichlet
+distribution is used to model the transitions of each state.
 }
 \details{
 The states (dimnames) of the transition matrix and the hyperparam
-  may be in any order.
+may be in any order.
 }
 \note{
 This function can be used in conjunction with inferHyperparam. For
-  example, if the user has a prior data set and a prior transition matrix,
-  he can infer the hyperparameters using inferHyperparam and then compute
-  the probability of their prior matrix using the inferred hyperparameters
-  with priorDistribution.
+example, if the user has a prior data set and a prior transition matrix,
+he can infer the hyperparameters using inferHyperparam and then compute
+the probability of their prior matrix using the inferred hyperparameters
+with priorDistribution.
 }
 \examples{
 priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), 

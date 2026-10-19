@@ -70,11 +70,11 @@ random number stream is left untouched.}
 }
 \value{
 Invisibly, a list with \code{sequences}, the character matrix of
-  the sequences as plotted (one row per sequence, after sorting);
-  \code{proportions}, the matrix of the observed proportion of each state
-  (rows) at each time point (columns); and \code{expected}, the matching
-  matrix of expected proportions, or \code{NULL} when no chain is
-  available.
+the sequences as plotted (one row per sequence, after sorting);
+\code{proportions}, the matrix of the observed proportion of each state
+(rows) at each time point (columns); and \code{expected}, the matching
+matrix of expected proportions, or \code{NULL} when no chain is
+available.
 }
 \description{
 Draws simulated or observed trajectories of a Markov chain either as a
@@ -126,5 +126,5 @@ Analyzing and visualizing state sequences in R with TraMineR.
 }
 \seealso{
 \code{\link{rmarkovchain}}, \code{\link{redistribute}},
-  \code{\link{autoplot.markovchain}} (\code{type = "flow"})
+\code{\link{autoplot.markovchain}} (\code{type = "flow"})
 }

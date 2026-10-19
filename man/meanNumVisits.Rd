@@ -13,7 +13,7 @@ meanNumVisits(object)
 a matrix with the expect number of visits to each state
 }
 \description{
-Given a markovchain object, this function calculates 
+Given a markovchain object, this function calculates
 a matrix where the element (i, j) represents the expect number of visits
 to the state j if the chain starts at i (in a Markov chain by columns it
 would be the element (j, i) instead)

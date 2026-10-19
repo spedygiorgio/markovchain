@@ -20,7 +20,7 @@ impreciseProbabilityatT(C,i,t,s,error,useRCpp)
 \item{useRCpp}{logical whether to use RCpp implementation; by default TRUE}
 }
 \description{
-This function calculates full conditional probability at given 
+This function calculates full conditional probability at given
 time s using lower rate transition matrix
 }
 \examples{

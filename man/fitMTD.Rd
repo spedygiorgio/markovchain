@@ -53,162 +53,162 @@ non-negative.}
 }
 \value{
 A list with components
-  \item{lambda}{the estimated lag weights, named \code{lag1}, \code{lag2}, \dots}
-  \item{estimate}{a \code{markovchain} object (by row) with the estimated
-    transition matrix \eqn{Q} (for \code{model = "MTDg"}, a list with the
-    \code{order} objects of the matrices \eqn{Q_1, \dots, Q_k})}
-  \item{Q}{a list of \code{order} copies of \eqn{Q} (the \eqn{Q_g} for
-    \code{"MTDg"}) stored by column
-    (\code{Q[[g]][to, from]}), the layout returned by
-    \code{\link{fitHigherOrder}}, so that the fit can be passed to
-    \code{\link{higherOrderLogLik}}}
-  \item{X}{the relative frequencies of the states in \code{sequence}}
-  \item{logLikelihood, npar, AIC, BIC, nobs}{maximized log-likelihood, number
-    of free parameters, information criteria and number of observations
-    entering the likelihood}
-  \item{order, start}{as used in the fit}
-  \item{iterations, converged}{EM iterations (sweeps of the coordinate
-    ascent with \code{negativeWeights = TRUE}) and convergence flag of the
-    returned fit}
-  \item{model}{\code{"MTD"} or \code{"MTDg"}}
-  \item{negativeWeights}{as used in the fit}
-  \item{se}{only if \code{se = TRUE}: a list with the standard errors
-    \code{lambda} of the weights, \code{Q} of the matrix (same layout as
-    \code{estimate}; \code{NA} for the entries that cannot be estimated and,
-    for MTDg, for all the weights and matrices) and \code{probabilities} of
-    the transition probabilities, a matrix with one row per history observed
-    in the data (named by its states, oldest first, separated by \code{"-"},
-    as passed to \code{\link{higherOrderPredict}}) and one column per next
-    state; see Details}
+\item{lambda}{the estimated lag weights, named \code{lag1}, \code{lag2}, \dots}
+\item{estimate}{a \code{markovchain} object (by row) with the estimated
+transition matrix \eqn{Q} (for \code{model = "MTDg"}, a list with the
+\code{order} objects of the matrices \eqn{Q_1, \dots, Q_k})}
+\item{Q}{a list of \code{order} copies of \eqn{Q} (the \eqn{Q_g} for
+\code{"MTDg"}) stored by column
+(\code{Q[[g]][to, from]}), the layout returned by
+\code{\link{fitHigherOrder}}, so that the fit can be passed to
+\code{\link{higherOrderLogLik}}}
+\item{X}{the relative frequencies of the states in \code{sequence}}
+\item{logLikelihood, npar, AIC, BIC, nobs}{maximized log-likelihood, number
+of free parameters, information criteria and number of observations
+entering the likelihood}
+\item{order, start}{as used in the fit}
+\item{iterations, converged}{EM iterations (sweeps of the coordinate
+ascent with \code{negativeWeights = TRUE}) and convergence flag of the
+returned fit}
+\item{model}{\code{"MTD"} or \code{"MTDg"}}
+\item{negativeWeights}{as used in the fit}
+\item{se}{only if \code{se = TRUE}: a list with the standard errors
+\code{lambda} of the weights, \code{Q} of the matrix (same layout as
+\code{estimate}; \code{NA} for the entries that cannot be estimated and,
+for MTDg, for all the weights and matrices) and \code{probabilities} of
+the transition probabilities, a matrix with one row per history observed
+in the data (named by its states, oldest first, separated by \code{"-"},
+as passed to \code{\link{higherOrderPredict}}) and one column per next
+state; see Details}
 }
 \description{
 Estimates by maximum likelihood the mixture transition
-  distribution model of Raftery (1985) for a high-order Markov chain: the
-  probability of the next state is a weighted mixture of the
-  contributions of the last \code{order} states, all governed by the same
-  transition matrix.
+distribution model of Raftery (1985) for a high-order Markov chain: the
+probability of the next state is a weighted mixture of the
+contributions of the last \code{order} states, all governed by the same
+transition matrix.
 }
 \details{
 For an order \eqn{k} the model is
-  \deqn{P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) =
+\deqn{P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) =
     \sum_{g=1}^{k} \lambda_g\, q_{i_g j},}
-  where \eqn{Q = (q_{ij})} is an \eqn{r \times r} transition matrix (rows
-  are departure states) and the lag weights \eqn{\lambda_g} sum to one.
-  It needs \eqn{r(r-1) + k - 1} parameters instead of the
-  \eqn{r^k (r-1)} of a fully parameterized Markov chain of order \eqn{k},
-  which makes high orders practicable (Raftery, 1985; Berchtold and
-  Raftery, 2002). This is different from the model fitted by
-  \code{\link{fitHigherOrder}}, which mixes a different empirical matrix
-  for each lag and does not estimate them jointly with the weights.
+where \eqn{Q = (q_{ij})} is an \eqn{r \times r} transition matrix (rows
+are departure states) and the lag weights \eqn{\lambda_g} sum to one.
+It needs \eqn{r(r-1) + k - 1} parameters instead of the
+\eqn{r^k (r-1)} of a fully parameterized Markov chain of order \eqn{k},
+which makes high orders practicable (Raftery, 1985; Berchtold and
+Raftery, 2002). This is different from the model fitted by
+\code{\link{fitHigherOrder}}, which mixes a different empirical matrix
+for each lag and does not estimate them jointly with the weights.
 
-  By default the weights are constrained to be non-negative, as in most
-  applications of the model (see below for negative weights). Under this
-  constraint the likelihood is maximized by
-  the EM algorithm of Lebre and Bourguignon (2008), in which the latent
-  variable is the lag that generated each observation; it is implemented in
-  C++. Every iteration increases the likelihood, but the likelihood of the
-  MTD model can have several local maxima (Berchtold, 2001). The models of
-  order \eqn{1, \dots,} \code{order} are therefore fitted in turn on the
-  same observations, and order \eqn{k} is started from equal weights with
-  the transition matrix of all lags pooled, and from the fit of order
-  \eqn{k - 1} extended with a zero and with a small positive weight for the
-  new lag. The first of these extensions has the likelihood of order
-  \eqn{k - 1}, so the likelihood returned never decreases with the order,
-  as it must for nested models. \code{nstart - 1} further random starting
-  points can be added for the requested order; they are drawn at random, so
-  call \code{\link{set.seed}} beforehand for reproducible results. The fit
-  with the highest likelihood is returned.
+By default the weights are constrained to be non-negative, as in most
+applications of the model (see below for negative weights). Under this
+constraint the likelihood is maximized by
+the EM algorithm of Lebre and Bourguignon (2008), in which the latent
+variable is the lag that generated each observation; it is implemented in
+C++. Every iteration increases the likelihood, but the likelihood of the
+MTD model can have several local maxima (Berchtold, 2001). The models of
+order \eqn{1, \dots,} \code{order} are therefore fitted in turn on the
+same observations, and order \eqn{k} is started from equal weights with
+the transition matrix of all lags pooled, and from the fit of order
+\eqn{k - 1} extended with a zero and with a small positive weight for the
+new lag. The first of these extensions has the likelihood of order
+\eqn{k - 1}, so the likelihood returned never decreases with the order,
+as it must for nested models. \code{nstart - 1} further random starting
+points can be added for the requested order; they are drawn at random, so
+call \code{\link{set.seed}} beforehand for reproducible results. The fit
+with the highest likelihood is returned.
 
-  The likelihood is conditional on the observations before \code{start}:
-  it is the product of the transition probabilities of \eqn{x_t} for
-  \eqn{t = } \code{start}, \eqn{\dots}, \eqn{n}. The default,
-  \code{order + 1}, uses every observation an order-\code{order} model can
-  predict. To compare models of different orders (or with the Markov chains
-  of \code{\link{fitHigherOrder}} via \code{\link{higherOrderLogLik}}) use
-  the same \code{start} for all, for instance \eqn{1 +} the largest order;
-  Berchtold and Raftery (2002) condition on the first 14 observations,
-  i.e. \code{start = 15}.
+The likelihood is conditional on the observations before \code{start}:
+it is the product of the transition probabilities of \eqn{x_t} for
+\eqn{t = } \code{start}, \eqn{\dots}, \eqn{n}. The default,
+\code{order + 1}, uses every observation an order-\code{order} model can
+predict. To compare models of different orders (or with the Markov chains
+of \code{\link{fitHigherOrder}} via \code{\link{higherOrderLogLik}}) use
+the same \code{start} for all, for instance \eqn{1 +} the largest order;
+Berchtold and Raftery (2002) condition on the first 14 observations,
+i.e. \code{start = 15}.
 
-  With a list of sequences the likelihood is the product over the
-  sequences: each contributes the observations from \code{start} to its end,
-  the earlier ones being only used as conditioning states, no lag spans two
-  sequences, and a sequence with fewer than \code{start} states is not used
-  (apart from the state frequencies \code{X}). \code{order} must be smaller
-  than the length of the longest sequence.
+With a list of sequences the likelihood is the product over the
+sequences: each contributes the observations from \code{start} to its end,
+the earlier ones being only used as conditioning states, no lag spans two
+sequences, and a sequence with fewer than \code{start} states is not used
+(apart from the state frequencies \code{X}). \code{order} must be smaller
+than the length of the longest sequence.
 
-  A state that never occurs in a conditioning position (for instance one
-  observed only at the end of the sequence) does not enter the likelihood;
-  its row of \eqn{Q} is not identified and is returned as uniform.
+A state that never occurs in a conditioning position (for instance one
+observed only at the end of the sequence) does not enter the likelihood;
+its row of \eqn{Q} is not identified and is returned as uniform.
 
-  A warning is given when the number of observations entering the
-  likelihood does not exceed the number of free parameters.
+A warning is given when the number of observations entering the
+likelihood does not exceed the number of free parameters.
 
-  With \code{model = "MTDg"} (Berchtold, 2001; Lebre and Bourguignon, 2008)
-  the probability of the next state is \eqn{\sum_g \lambda_g\, q^{(g)}_{i_g j}}
-  with a transition matrix \eqn{Q_g} for each lag. It has
-  \eqn{(r-1)(1 + k(r-1))} free parameters, the number of the models of
-  \code{\link{fitHigherOrder}}, of which it is the maximum likelihood
-  version: there the matrices are the empirical ones and only the weights are
-  fitted. The EM algorithm is the same; order \eqn{k} is started from the
-  MTD fit of the same order, from the empirical matrices with the best
-  weights for them, and from the fit of order \eqn{k - 1}, so its likelihood
-  is never below those of \code{model = "MTD"} and of the
-  \code{method = "mle"} fit of \code{\link{fitHigherOrder}}, nor of
-  lower orders. The row of \eqn{Q_g} of a state never seen at lag \eqn{g} is
-  returned as uniform.
+With \code{model = "MTDg"} (Berchtold, 2001; Lebre and Bourguignon, 2008)
+the probability of the next state is \eqn{\sum_g \lambda_g\, q^{(g)}_{i_g j}}
+with a transition matrix \eqn{Q_g} for each lag. It has
+\eqn{(r-1)(1 + k(r-1))} free parameters, the number of the models of
+\code{\link{fitHigherOrder}}, of which it is the maximum likelihood
+version: there the matrices are the empirical ones and only the weights are
+fitted. The EM algorithm is the same; order \eqn{k} is started from the
+MTD fit of the same order, from the empirical matrices with the best
+weights for them, and from the fit of order \eqn{k - 1}, so its likelihood
+is never below those of \code{model = "MTD"} and of the
+\code{method = "mle"} fit of \code{\link{fitHigherOrder}}, nor of
+lower orders. The row of \eqn{Q_g} of a state never seen at lag \eqn{g} is
+returned as uniform.
 
-  The weights and matrices of the MTDg model are not identified: since the
-  probabilities only depend on the products \eqn{A_g = \lambda_g Q_g}, adding
-  \eqn{\epsilon} times the same probability vector to every row of \eqn{A_1}
-  and subtracting it from every row of \eqn{A_2} changes \eqn{\lambda_1},
-  \eqn{\lambda_2}, \eqn{Q_1} and \eqn{Q_2} but no transition probability.
-  The maximum is therefore attained on a set of dimension up to
-  \eqn{(k - 1) r}, of which the values returned are one point; only the
-  transition probabilities (and the likelihood) are determined, and
-  \code{npar} counts the identified parameters. The lag weights of an MTDg
-  fit should not be interpreted as the importance of the lags.
+The weights and matrices of the MTDg model are not identified: since the
+probabilities only depend on the products \eqn{A_g = \lambda_g Q_g}, adding
+\eqn{\epsilon} times the same probability vector to every row of \eqn{A_1}
+and subtracting it from every row of \eqn{A_2} changes \eqn{\lambda_1},
+\eqn{\lambda_2}, \eqn{Q_1} and \eqn{Q_2} but no transition probability.
+The maximum is therefore attained on a set of dimension up to
+\eqn{(k - 1) r}, of which the values returned are one point; only the
+transition probabilities (and the likelihood) are determined, and
+\code{npar} counts the identified parameters. The lag weights of an MTDg
+fit should not be interpreted as the importance of the lags.
 
-  With \code{negativeWeights = TRUE} (model \code{"MTD"} only) the weights may
-  be negative, as in Raftery's (1985) original formulation, provided every
-  transition probability \eqn{\sum_g \lambda_g q_{i_g j}} lies in
-  \eqn{[0, 1]} for all the combinations of departure states \eqn{i_g}: for
-  each arrival state \eqn{j}, \eqn{\min_i q_{ij}} times the sum of the positive
-  weights must not be below \eqn{\max_i q_{ij}} times the sum of the absolute
-  negative weights (Raftery, 1985). The EM algorithm does not apply, and the
-  likelihood is maximized by block coordinate ascent in the spirit of
-  Berchtold (2001): in the weights and in each row of \eqn{Q} in turn, mass is
-  moved from the entry with the smallest to the one with the largest partial
-  derivative, by the step that maximizes the likelihood along that direction
-  within the feasible region. Order \eqn{k} starts from the fit with
-  non-negative weights of the same order and from the fit of order
-  \eqn{k - 1} with a zero weight for the new lag, so its likelihood is never
-  below either of them; for the requested order it also starts with each lag
-  in turn given a negative weight. The likelihood has several local maxima,
-  and this is slower than the EM algorithm. \code{iterations} then counts the
-  sweeps of the ascent at the requested order. Unidentified rows of \eqn{Q} are
-  returned as uniform, or as the mean of the other rows if a uniform row
-  would violate the condition.
+With \code{negativeWeights = TRUE} (model \code{"MTD"} only) the weights may
+be negative, as in Raftery's (1985) original formulation, provided every
+transition probability \eqn{\sum_g \lambda_g q_{i_g j}} lies in
+\eqn{[0, 1]} for all the combinations of departure states \eqn{i_g}: for
+each arrival state \eqn{j}, \eqn{\min_i q_{ij}} times the sum of the positive
+weights must not be below \eqn{\max_i q_{ij}} times the sum of the absolute
+negative weights (Raftery, 1985). The EM algorithm does not apply, and the
+likelihood is maximized by block coordinate ascent in the spirit of
+Berchtold (2001): in the weights and in each row of \eqn{Q} in turn, mass is
+moved from the entry with the smallest to the one with the largest partial
+derivative, by the step that maximizes the likelihood along that direction
+within the feasible region. Order \eqn{k} starts from the fit with
+non-negative weights of the same order and from the fit of order
+\eqn{k - 1} with a zero weight for the new lag, so its likelihood is never
+below either of them; for the requested order it also starts with each lag
+in turn given a negative weight. The likelihood has several local maxima,
+and this is slower than the EM algorithm. \code{iterations} then counts the
+sweeps of the ascent at the requested order. Unidentified rows of \eqn{Q} are
+returned as uniform, or as the mean of the other rows if a uniform row
+would violate the condition.
 
-  With \code{se = TRUE} the standard errors are those of the observed
-  information at the maximum, by the delta method, obtained in closed form
-  with the entries of each probability vector (the weights and each row of
-  \eqn{Q}) summing to one. Entries that are on the boundary of the parameter
-  space (below \eqn{10^{-4}}) are held fixed, as in the usual treatment of
-  constrained maxima, and have \code{NA}; a warning is given if a weight is
-  among them, since then the standard errors of the others are conditional on
-  that weight being zero (with negative weights allowed, if Raftery's
-  condition is binding). Standard errors are also given for the transition
-  probabilities of every history observed in the data. For the MTDg model
-  only these are available, the weights and matrices not being identified;
-  they are computed with a generalized inverse of the information, which
-  gives the same variance for any identified quantity. All are asymptotic,
-  and approximate in small samples or with sparse \eqn{Q}.
+With \code{se = TRUE} the standard errors are those of the observed
+information at the maximum, by the delta method, obtained in closed form
+with the entries of each probability vector (the weights and each row of
+\eqn{Q}) summing to one. Entries that are on the boundary of the parameter
+space (below \eqn{10^{-4}}) are held fixed, as in the usual treatment of
+constrained maxima, and have \code{NA}; a warning is given if a weight is
+among them, since then the standard errors of the others are conditional on
+that weight being zero (with negative weights allowed, if Raftery's
+condition is binding). Standard errors are also given for the transition
+probabilities of every history observed in the data. For the MTDg model
+only these are available, the weights and matrices not being identified;
+they are computed with a generalized inverse of the information, which
+gives the same variance for any identified quantity. All are asymptotic,
+and approximate in small samples or with sparse \eqn{Q}.
 
-  AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
-  BIC the number of observations entering the likelihood. Berchtold and
-  Raftery (2002) do not count the elements of \eqn{Q} estimated as exactly
-  zero; their BIC can be obtained by subtracting the number of those
-  elements from \code{npar}.
+AIC and BIC use the number of free parameters \eqn{r(r-1) + k - 1}, and
+BIC the number of observations entering the likelihood. Berchtold and
+Raftery (2002) do not count the elements of \eqn{Q} estimated as exactly
+zero; their BIC can be obtained by subtracting the number of those
+elements from \code{npar}.
 }
 \examples{
 # hourly wind directions at Koeberg (Berchtold and Raftery, 2002)
@@ -249,5 +249,5 @@ Statistics, 35(2), 335-353.
 }
 \seealso{
 \code{\link{fitHigherOrder}}, \code{\link{higherOrderLogLik}},
-  \code{\link{higherOrderPredict}}, \code{\link{markovchainFit}}
+\code{\link{higherOrderPredict}}, \code{\link{markovchainFit}}
 }

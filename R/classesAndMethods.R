@@ -67,13 +67,13 @@
 #' @section Methods:
 #' 
 #' \describe{
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: multiply two \code{markovchain} objects}
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "matrix")}: markovchain by matrix multiplication}
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "numeric")}: markovchain by numeric vector multiplication }
-#'    \item{*}{\code{signature(e1 = "matrix", e2 = "markovchain")}: matrix by markov chain}
-#'    \item{*}{\code{signature(e1 = "numeric", e2 = "markovchain")}: numeric vector by \code{markovchain} multiplication   }
-#'    \item{[}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
-#'    \item{^}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: multiply two \code{markovchain} objects}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "matrix")}: markovchain by matrix multiplication}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "numeric")}: markovchain by numeric vector multiplication }
+#'    \item{\code{*}}{\code{signature(e1 = "matrix", e2 = "markovchain")}: matrix by markov chain}
+#'    \item{\code{*}}{\code{signature(e1 = "numeric", e2 = "markovchain")}: numeric vector by \code{markovchain} multiplication   }
+#'    \item{\code{[}}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
+#'    \item{\code{^}}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
 #'    \item{==}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: equality of two \code{markovchain} object}
 #'    \item{!=}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: non-equality of two \code{markovchain} object}
 #'    \item{absorbingStates}{\code{signature(object = "markovchain")}: method to get absorbing states }

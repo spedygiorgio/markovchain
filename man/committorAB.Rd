@@ -19,7 +19,7 @@ committorAB(object,A,B,p)
 Return a vector of probabilities in case initial state is not provided else returns a number
 }
 \description{
-Returns the probability of hitting states rom set A before set B 
+Returns the probability of hitting states rom set A before set B
 with different initial states
 }
 \details{

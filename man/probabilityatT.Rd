@@ -22,7 +22,7 @@ returns a vector or a matrix in case \code{x0} is provided or not respectively.
 This function returns the probability of every state at time t under different conditions
 }
 \details{
-The initial state is not mandatory, In case it is not provided, 
+The initial state is not mandatory, In case it is not provided,
 function returns a matrix of transition function at time \code{t} else it returns
 vector of probaabilities of transition to different states if initial state was \code{x0}
 }

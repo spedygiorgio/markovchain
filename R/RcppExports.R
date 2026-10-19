@@ -66,7 +66,7 @@ generatorToTransitionMatrix <- function(gen, byrow = TRUE) {
 #' @return It returns a list containing the CTMC object and the confidence intervals.
 #' 
 #' @details  Note that in data, there must exist an element wise corresponding
-#'   between the two elements of the list and that data[[2]][1] is always 0.
+#'   between the two elements of the list and that `data[[2]][1]` is always 0.
 #' @references Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
 #' @author Sai Bhargav Yalamanchi
 #' @seealso \code{\link{rctmc}}
@@ -259,13 +259,13 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
 #'         The "map" method also returns the expected value of the parameters with respect to the 
 #'         posterior distribution.
 #' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-#'             
-#'             Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
-#'             and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
-#'             Alfred Hubler, Santa Fe Institute
-#' 
-#'             Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-#'             package version 0.2.5          
+#'
+#' Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate,
+#' and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield,
+#' Alfred Hubler, Santa Fe Institute
+#'
+#' Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+#' package version 0.2.5          
 #'             
 #' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
 #' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 

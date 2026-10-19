@@ -14,8 +14,8 @@ firstPassage(object, state, n)
 \item{n}{Number of rows on which compute the distribution}
 }
 \value{
-A matrix of size 1:n x number of states showing the probability of the 
-        first time of passage in states to be exactly the number in the row.
+A matrix of size 1:n x number of states showing the probability of the
+first time of passage in states to be exactly the number in the row.
 }
 \description{
 This function compute the first passage probability in states

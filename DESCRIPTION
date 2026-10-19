@@ -45,4 +45,5 @@ Encoding: UTF-8
 BugReports: https://github.com/spedygiorgio/markovchain/issues
 URL: https://github.com/spedygiorgio/markovchain/
 NeedsCompilation: yes
+Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.1.0

@@ -27,7 +27,7 @@ markovchainSequence(
 A Character Vector
 }
 \description{
-Provided any \code{markovchain} object, it returns a sequence of 
+Provided any \code{markovchain} object, it returns a sequence of
 states coming from the underlying stationary distribution.
 }
 \details{

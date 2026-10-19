@@ -16,9 +16,9 @@ A matrix corresponding to the stationary states
 This method returns the stationary vector in matricial form of a markovchain object.
 }
 \note{
-The steady states are identified starting from which eigenvectors correspond 
-      to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found 
-      in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
+The steady states are identified starting from which eigenvectors correspond
+to identity eigenvalues and then normalizing them to sum up to unity. When negative values are found
+in the matrix, the eigenvalues extraction is performed on the recurrent classes submatrix.
 }
 \examples{
 statesNames <- c("a", "b", "c")

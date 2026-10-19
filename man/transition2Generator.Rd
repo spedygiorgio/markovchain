@@ -17,8 +17,8 @@ transition2Generator(P, t = 1, method = "logarithm")
 A matrix that represent the generator of P
 }
 \description{
-Calculate the generator matrix for a 
-             corresponding transition matrix
+Calculate the generator matrix for a
+corresponding transition matrix
 }
 \examples{
 mymatr <- matrix(c(.4, .6, .1, .9), nrow = 2, byrow = TRUE)

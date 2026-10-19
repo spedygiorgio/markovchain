@@ -10,7 +10,7 @@
 \alias{plot,ctmc,missing-method}
 \title{Continuous time Markov Chains class}
 \description{
-The S4 class that describes \code{ctmc} (continuous 
+The S4 class that describes \code{ctmc} (continuous
 time Markov chain) objects.
 }
 \section{Slots}{
@@ -30,7 +30,7 @@ stochastic by rows or by columns}
 \note{
 \enumerate{
 \item \code{ctmc} classes are written using S4 classes
-\item Validation method is used to assess whether either columns or rows totals to zero. 
+\item Validation method is used to assess whether either columns or rows totals to zero.
 Rounding is used up to 5th decimal. If state names are not properly defined
 for a generator  \code{matrix}, coercing to \code{ctmc} object leads to overriding
 states name with artificial "s1", "s2", ... sequence
@@ -40,14 +40,14 @@ states name with artificial "s1", "s2", ... sequence
 
 
 \describe{
-\item{dim}{\code{signature(x = "ctmc")}: method to get the size} 
+\item{dim}{\code{signature(x = "ctmc")}: method to get the size}
 \item{initialize}{\code{signature(.Object = "ctmc")}: initialize
-  method }
+method }
 \item{states}{\code{signature(object = "ctmc")}: states method. }
 \item{steadyStates}{\code{signature(object = "ctmc")}: method to get the
-  steady state vector. } 
-\item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method 
-  for \code{ctmc} objects }
+steady state vector. }
+\item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method
+for \code{ctmc} objects }
 }
 }
 

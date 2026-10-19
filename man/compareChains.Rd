@@ -32,30 +32,30 @@ objects, whose sampling variability is not known.}
 }
 \value{
 An object of class \code{"markovchainComparison"}, a list with:
-  \describe{
-    \item{\code{distances}}{A named vector: \code{totalVariation}, the
-      largest row-wise total variation distance
-      \eqn{\max_i \frac12\sum_j |P_{ij} - Q_{ij}|};
-      \code{weightedTotalVariation}, the same row distances averaged with
-      the stationary distribution of \code{x}; \code{hellinger}, the
-      largest row-wise Hellinger distance
-      \eqn{\max_i \sqrt{\frac12 \sum_j (\sqrt{P_{ij}} - \sqrt{Q_{ij}})^2}};
-      \code{frobenius}, \eqn{\|P - Q\|_F}; \code{maximum},
-      \eqn{\max_{i,j}|P_{ij} - Q_{ij}|}; and \code{stationary}, the total
-      variation distance between the two stationary distributions.}
-    \item{\code{divergences}}{A named vector: \code{rateXY} and
-      \code{rateYX}, the Kullback-Leibler divergence rates
-      \eqn{D(P\|Q)} and \eqn{D(Q\|P)} (see \code{\link{divergenceRate}});
-      \code{maxRowXY}, the largest row-wise Kullback-Leibler divergence
-      of \eqn{P} from \eqn{Q}; and \code{jensenShannon}, the largest
-      row-wise Jensen-Shannon divergence, which is symmetric and finite.}
-    \item{\code{stationaryDistributions}}{A two-row matrix with the
-      stationary distributions of \code{x} and \code{y}.}
-    \item{\code{test}}{For sequences, the \code{htest} returned by
-      \code{\link{verifyHomogeneity}}; otherwise \code{NULL}.}
-    \item{\code{x}, \code{y}}{The two chains, as \code{markovchain}
-      objects.}
-  }
+\describe{
+\item{\code{distances}}{A named vector: \code{totalVariation}, the
+largest row-wise total variation distance
+\eqn{\max_i \frac12\sum_j |P_{ij} - Q_{ij}|};
+\code{weightedTotalVariation}, the same row distances averaged with
+the stationary distribution of \code{x}; \code{hellinger}, the
+largest row-wise Hellinger distance
+\eqn{\max_i \sqrt{\frac12 \sum_j (\sqrt{P_{ij}} - \sqrt{Q_{ij}})^2}};
+\code{frobenius}, \eqn{\|P - Q\|_F}; \code{maximum},
+\eqn{\max_{i,j}|P_{ij} - Q_{ij}|}; and \code{stationary}, the total
+variation distance between the two stationary distributions.}
+\item{\code{divergences}}{A named vector: \code{rateXY} and
+\code{rateYX}, the Kullback-Leibler divergence rates
+\eqn{D(P\|Q)} and \eqn{D(Q\|P)} (see \code{\link{divergenceRate}});
+\code{maxRowXY}, the largest row-wise Kullback-Leibler divergence
+of \eqn{P} from \eqn{Q}; and \code{jensenShannon}, the largest
+row-wise Jensen-Shannon divergence, which is symmetric and finite.}
+\item{\code{stationaryDistributions}}{A two-row matrix with the
+stationary distributions of \code{x} and \code{y}.}
+\item{\code{test}}{For sequences, the \code{htest} returned by
+\code{\link{verifyHomogeneity}}; otherwise \code{NULL}.}
+\item{\code{x}, \code{y}}{The two chains, as \code{markovchain}
+objects.}
+}
 }
 \description{
 Computes distances and divergences between two Markov chains on the same
@@ -108,5 +108,5 @@ Information Theory}, 50(5), 917-921. \doi{10.1109/TIT.2004.826687}
 }
 \seealso{
 \code{\link{divergenceRate}}, \code{\link{verifyHomogeneity}},
-  \code{\link{autoplot.markovchain}} (\code{type = "comparison"})
+\code{\link{autoplot.markovchain}} (\code{type = "comparison"})
 }

@@ -22,11 +22,11 @@ returns a expected reward (numerical value) as described above
 }
 \description{
 Given a markovchain object and reward values for every state,
-function calculates expected reward value for a set A of states after n 
+function calculates expected reward value for a set A of states after n
 steps.
 }
 \details{
-The function returns the value of expected first passage 
+The function returns the value of expected first passage
 rewards given rewards coressponding to every state, an initial state
 and number of steps.
 }

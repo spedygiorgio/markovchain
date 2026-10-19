@@ -13,8 +13,8 @@ is.irreducible(object)
 A boolean values.
 }
 \description{
-This function verifies whether a \code{markovchain} object transition matrix 
-             is composed by only one communicating class.
+This function verifies whether a \code{markovchain} object transition matrix
+is composed by only one communicating class.
 }
 \details{
 It is based on \code{.communicatingClasses} internal function.

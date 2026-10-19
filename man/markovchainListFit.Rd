@@ -21,8 +21,8 @@ estimate (the estimate)
 name
 }
 \description{
-Given a data frame or a matrix (rows are observations, by cols 
-the temporal sequence), it fits a non - homogeneous discrete time markov chain 
+Given a data frame or a matrix (rows are observations, by cols
+the temporal sequence), it fits a non - homogeneous discrete time markov chain
 process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
 estimating transitions from the n samples given by consecutive column pairs.
 }

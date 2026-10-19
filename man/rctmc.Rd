@@ -23,12 +23,12 @@ T are not returned).}
 }
 \value{
 Based on out.type, a list or a data frame is returned. The returned
-  list has two elements - a character vector (states) and a numeric vector
-  (indicating time of transitions). The data frame is similarly structured.
+list has two elements - a character vector (states) and a numeric vector
+(indicating time of transitions). The data frame is similarly structured.
 }
 \description{
 The function generates random CTMC transitions as per the
-  provided generator matrix.
+provided generator matrix.
 }
 \details{
 In order to use the T0 argument, set n to Inf.
@@ -47,7 +47,7 @@ rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
 rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
 }
 \references{
-Introduction to Stochastic Processes with Applications in the Biosciences 
+Introduction to Stochastic Processes with Applications in the Biosciences
 (2013), David F. Anderson, University of Wisconsin at Madison
 }
 \seealso{

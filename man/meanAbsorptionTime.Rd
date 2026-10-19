@@ -11,12 +11,12 @@ meanAbsorptionTime(object)
 }
 \value{
 A named vector with the expected number of steps to go from a
-  transient state to any of the recurrent ones
+transient state to any of the recurrent ones
 }
 \description{
 Computes the expected number of steps to go from any of the
-  transient states to any of the recurrent states. The Markov chain should
-  have at least one transient state for this method to work
+transient states to any of the recurrent states. The Markov chain should
+have at least one transient state for this method to work
 }
 \examples{
 m <- matrix(c(1/2, 1/2, 0,

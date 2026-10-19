@@ -20,12 +20,12 @@ autoplot.markovchain(
 )
 }
 \arguments{
-\item{object}{An object of class `markovchain`.}
+\item{object}{An object of class \code{markovchain}.}
 
 \item{threshold}{Minimum transition probability to display. Defaults to 0.}
 
 \item{show_probabilities}{Logical; whether to label edges with transition
-probabilities. Defaults to `TRUE`.}
+probabilities. Defaults to \code{TRUE}.}
 
 \item{digits}{Number of digits used to format transition probabilities.}
 

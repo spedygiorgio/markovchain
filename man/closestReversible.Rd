@@ -58,24 +58,24 @@ the session's random number generator.}
 }
 \value{
 A named list with five elements:
-  \describe{
-    \item{\code{chain}}{The approximating \code{markovchain} object
-      \eqn{R}, with the same states and the same row/column-stochastic
-      storage convention as \code{object}.}
-    \item{\code{stationaryDistribution}}{The \eqn{\pi} with respect to
-      which \eqn{R} is reversible, as a named numeric vector: the one used
-      or, with \code{"free"}, the one found.}
-    \item{\code{distance}}{The distance actually minimized:
-      \eqn{\|P-R\|_\pi} for \code{norm = "pi"}, \eqn{\|P-R\|_F} for
-      \code{norm = "frobenius"} (see Details).}
-    \item{\code{frobeniusDistance}}{The plain Frobenius distance
-      \eqn{\|P-R\|_F}, reported for convenience; with
-      \code{norm = "pi"} it is \emph{not} the quantity being minimized.}
-    \item{\code{norm}}{The norm used.}
-  }
-  With \code{stationaryDistribution = "free"} a sixth element,
-  \code{starts}, gives for each starting point the Frobenius distance
-  reached.
+\describe{
+\item{\code{chain}}{The approximating \code{markovchain} object
+\eqn{R}, with the same states and the same row/column-stochastic
+storage convention as \code{object}.}
+\item{\code{stationaryDistribution}}{The \eqn{\pi} with respect to
+which \eqn{R} is reversible, as a named numeric vector: the one used
+or, with \code{"free"}, the one found.}
+\item{\code{distance}}{The distance actually minimized:
+\eqn{\|P-R\|_\pi} for \code{norm = "pi"}, \eqn{\|P-R\|_F} for
+\code{norm = "frobenius"} (see Details).}
+\item{\code{frobeniusDistance}}{The plain Frobenius distance
+\eqn{\|P-R\|_F}, reported for convenience; with
+\code{norm = "pi"} it is \emph{not} the quantity being minimized.}
+\item{\code{norm}}{The norm used.}
+}
+With \code{stationaryDistribution = "free"} a sixth element,
+\code{starts}, gives for each starting point the Frobenius distance
+reached.
 }
 \description{
 Finds the Markov chain closest to a given one among the reversible
@@ -96,7 +96,6 @@ which is stochastic, non-negative, and reversible with respect to the
 same \eqn{\pi} (see Details). With \code{norm = "frobenius"} it is the
 reversible chain nearest to \eqn{P} in the plain Frobenius norm, the
 problem solved by Nielsen and Weber (2015).
-
 
 \strong{In what sense is this the closest chain?} With the default
 \code{norm = "pi"}, work in the space
@@ -220,5 +219,5 @@ Markov chain. \emph{Numerical Linear Algebra with Applications}, 22.
 }
 \seealso{
 \code{\link{is.reversible}}, \code{\link{steadyStates}},
-  \code{\link{is.irreducible}}
+\code{\link{is.irreducible}}
 }

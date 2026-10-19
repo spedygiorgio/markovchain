@@ -21,7 +21,7 @@ points (states) of the discretized chain.}
 }
 \value{
 A named list with two elements, \code{chain} and \code{states},
-  in the same form as returned by \code{\link{tauchen}}.
+in the same form as returned by \code{\link{tauchen}}.
 }
 \description{
 Approximates the stationary first-order autoregressive process

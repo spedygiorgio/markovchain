@@ -56,22 +56,22 @@ untouched.}
 }
 \value{
 An object of class \code{"markovchainBootstrap"}, a list with:
-  \describe{
-    \item{\code{estimate}}{The statistics of the estimated chain.}
-    \item{\code{ci}}{A matrix with one row per statistic and the lower and
-      upper limits of the interval.}
-    \item{\code{se}, \code{bias}}{Bootstrap standard errors and bias
-      estimates (mean of the replicates minus the estimate).}
-    \item{\code{failures}}{For each statistic, the number of replicates
-      for which it could not be computed (they are left out of the
-      intervals).}
-    \item{\code{replicates}}{The \code{nboot} by statistics matrix of
-      bootstrap values.}
-    \item{\code{chain}}{The estimated \code{markovchain}.}
-    \item{\code{counts}}{The matrix of observed transition counts.}
-    \item{\code{method}, \code{type}, \code{level}, \code{nboot}}{The
-      settings used.}
-  }
+\describe{
+\item{\code{estimate}}{The statistics of the estimated chain.}
+\item{\code{ci}}{A matrix with one row per statistic and the lower and
+upper limits of the interval.}
+\item{\code{se}, \code{bias}}{Bootstrap standard errors and bias
+estimates (mean of the replicates minus the estimate).}
+\item{\code{failures}}{For each statistic, the number of replicates
+for which it could not be computed (they are left out of the
+intervals).}
+\item{\code{replicates}}{The \code{nboot} by statistics matrix of
+bootstrap values.}
+\item{\code{chain}}{The estimated \code{markovchain}.}
+\item{\code{counts}}{The matrix of observed transition counts.}
+\item{\code{method}, \code{type}, \code{level}, \code{nboot}}{The
+settings used.}
+}
 }
 \description{
 Estimates a Markov chain from one or more observed sequences and gives
@@ -146,7 +146,7 @@ a single sample path. \emph{The Annals of Applied Probability}, 29(4),
 }
 \seealso{
 \code{\link{slem}}, \code{\link{spectralGap}},
-  \code{\link{relaxationTime}}, \code{\link{mixingTime}},
-  \code{\link{markovchainFit}} (whose \code{method = "bootstrap"} gives
-  bootstrap standard errors of the transition probabilities themselves)
+\code{\link{relaxationTime}}, \code{\link{mixingTime}},
+\code{\link{markovchainFit}} (whose \code{method = "bootstrap"} gives
+bootstrap standard errors of the transition probabilities themselves)
 }

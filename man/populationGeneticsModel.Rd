@@ -38,11 +38,11 @@ Defaults to \code{as.character(0:n)}.}
 }
 \value{
 A new, row-stochastic \code{markovchain} object on \code{n + 1}
-  states. States \code{"0"} and \code{as.character(n)} (loss and
-  fixation of the mutant allele) are absorbing, following the standard
-  textbook treatment of both models; every interior state has a
-  transition row determined by \code{model}, \code{s}, \code{u} and
-  \code{v} as detailed below.
+states. States \code{"0"} and \code{as.character(n)} (loss and
+fixation of the mutant allele) are absorbing, following the standard
+textbook treatment of both models; every interior state has a
+transition row determined by \code{model}, \code{s}, \code{u} and
+\code{v} as detailed below.
 }
 \description{
 Constructs the Markov chain tracking the number of copies of a mutant

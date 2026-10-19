@@ -15,7 +15,7 @@ irreducible discrete-time Markov chain.}
 }
 \value{
 A numeric scalar in \eqn{[0,1]} containing the spectral gap. For
-  the trivial one-state chain, \code{1} is returned.
+the trivial one-state chain, \code{1} is returned.
 }
 \description{
 Computes the spectral gap of a finite, irreducible discrete-time Markov
@@ -25,7 +25,6 @@ chain, a lightweight diagnostic of its convergence and mixing behaviour.
 The spectral gap is defined from the second largest eigenvalue modulus
 (SLEM, see \code{\link{slem}}) as
 \deqn{\mathrm{gap} = 1 - \mathrm{SLEM}.}
-
 
 As with \code{\link{slem}}, only irreducibility is required. A periodic
 chain has \code{SLEM = 1} and therefore spectral gap \code{0}: this is
@@ -52,5 +51,5 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{slem}}, \code{\link{impliedTimescales}},
-  \code{\link{is.irreducible}}
+\code{\link{is.irreducible}}
 }

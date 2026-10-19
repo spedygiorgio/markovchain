@@ -22,7 +22,7 @@ storage convention); \code{gamma = 1} returns \code{other} unchanged.}
 }
 \value{
 A new \code{markovchain} object, row-stochastic, on the common
-  state names, with transition matrix \eqn{P = (1-\gamma)P_1+\gamma P_2}.
+state names, with transition matrix \eqn{P = (1-\gamma)P_1+\gamma P_2}.
 }
 \description{
 Builds a new \code{markovchain} object whose transition matrix is a convex
@@ -34,7 +34,6 @@ For transition matrices \eqn{P_1} (from \code{object}) and \eqn{P_2}
 (from \code{other}), and a blending factor \eqn{\gamma\in[0,1]}, the
 merged transition matrix is
 \deqn{P = (1-\gamma) P_1 + \gamma P_2.}
-
 
 \strong{States are matched by name, not by position.} \code{object} and
 \code{other} must have exactly the same set of state names (as sets --

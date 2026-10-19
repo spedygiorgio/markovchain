@@ -17,9 +17,9 @@ is.accessible(object, from, to)
 A boolean value.
 }
 \description{
-This function verifies if a state is reachable from another, i.e., 
-             if there exists a path that leads to state j leaving from state i with 
-             positive probability
+This function verifies if a state is reachable from another, i.e.,
+if there exists a path that leads to state j leaving from state i with
+positive probability
 }
 \details{
 It wraps an internal function named \code{reachabilityMatrix}.

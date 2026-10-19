@@ -303,7 +303,7 @@
 #'   which suits a small reduction (\code{k} close to the number of
 #'   states). \code{"adaptive"} follows the same rule of thumb as PyDTMC:
 #'   top-down below 30 states, otherwise bottom-up when \code{k} is at most
-#'   30\% of the number of states and top-down otherwise.
+#'   30% of the number of states and top-down otherwise.
 #'
 #' @return A named list:
 #'   \describe{

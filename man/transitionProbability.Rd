@@ -3,8 +3,8 @@
 \name{transitionProbability}
 \alias{transitionProbability}
 \alias{transitionProbability,markovchain-method}
-\title{Function to get the transition probabilities from initial 
-       to subsequent states.}
+\title{Function to get the transition probabilities from initial
+to subsequent states.}
 \usage{
 transitionProbability(object, t0, t1)
 
@@ -33,8 +33,8 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 transitionProbability(markovB,"b", "c")
 }
 \references{
-A First Course in Probability (8th Edition), 
-            Sheldon Ross, Prentice Hall 2010
+A First Course in Probability (8th Edition),
+Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\linkS4class{markovchain}}

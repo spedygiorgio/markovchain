@@ -54,19 +54,19 @@ chain is stored by row either way.}
 
 \item{nboot}{Number of bootstrap replicates in case "bootstrap" is used.}
 
-\item{laplacian}{Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
+\item{laplacian}{Laplacian smoothing parameter, default zero. It is only used when "laplace" method
 is chosen.}
 
 \item{name}{Optional character for name slot.}
 
 \item{parallel}{Use parallel processing when performing Boostrap estimates.}
 
-\item{confidencelevel}{\deqn{\alpha} level for conficence intervals width. 
+\item{confidencelevel}{\deqn{\alpha} level for conficence intervals width.
 Used only when \code{method} equal to "mle".}
 
 \item{confint}{a boolean to decide whether to compute Confidence Interval or not.}
 
-\item{hyperparam}{Hyperparameter matrix for the a priori distribution. If none is provided, 
+\item{hyperparam}{Hyperparameter matrix for the a priori distribution. If none is provided,
 default value of 1 is assigned to each parameter. This must be of size
 \deqn{k x k} where k is the number of states in the chain and the values
 should typically be non-negative integers.}
@@ -110,19 +110,19 @@ supported only for \code{method = "mle"}.}
 as CRAN policy requires. Ignored when \code{parallel = FALSE}.}
 }
 \value{
-A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
-        of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
-        is used, the lower and upper confidence bounds are returned along with the standard error. 
-        The "map" method also returns the expected value of the parameters with respect to the 
-        posterior distribution.
+A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix
+of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method
+is used, the lower and upper confidence bounds are returned along with the standard error.
+The "map" method also returns the expected value of the parameters with respect to the
+posterior distribution.
 }
 \description{
-Given a sequence of states arising from a stationary state, 
- it fits the underlying Markov chain distribution using either MLE (also using a 
- Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
+Given a sequence of states arising from a stationary state,
+it fits the underlying Markov chain distribution using either MLE (also using a
+Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
 }
 \details{
-Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar}
 contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 
 With \code{progress = TRUE} the "bootstrap" method shows a text progress bar
@@ -133,25 +133,25 @@ parallel threads, which cannot report progress, so the bar only covers the
 estimation step. The computation can be interrupted while the bar is shown.
 
 When \code{absorbingStates} is supplied, the declared states must have
-  no observed outgoing transitions. This allows terminal states in censored
-  customer journeys to be represented as absorbing states without adding
-  artificial observations.
+no observed outgoing transitions. This allows terminal states in censored
+customer journeys to be represented as absorbing states without adding
+artificial observations.
 
 \code{sanitize = "absorbing"} reaches the same result without
-  naming the states: every state that has no observed outgoing transition,
-  which is what \code{possibleStates} typically introduces, is made
-  absorbing. Unlike \code{absorbingStates}, it works with every
-  \code{method}, since it only replaces the uniform row that
-  \code{sanitize = TRUE} would have produced. As with
-  \code{absorbingStates}, only the estimate is constrained: any confidence
-  bounds and standard errors keep the values the unconstrained fit assigned
-  to those rows.
+naming the states: every state that has no observed outgoing transition,
+which is what \code{possibleStates} typically introduces, is made
+absorbing. Unlike \code{absorbingStates}, it works with every
+\code{method}, since it only replaces the uniform row that
+\code{sanitize = TRUE} would have produced. As with
+\code{absorbingStates}, only the estimate is constrained: any confidence
+bounds and standard errors keep the values the unconstrained fit assigned
+to those rows.
 }
 \note{
-This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
-      In addition, parallel facility is not complete, involving only a part of the bootstrap process.
-      When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
-      currently available.
+This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically".
+In addition, parallel facility is not complete, involving only a part of the bootstrap process.
+When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is
+currently available.
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
@@ -172,13 +172,13 @@ mcFitMle <- markovchainFit(sequences, method = "mle")
 }
 \references{
 A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-            
-            Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
-            and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
-            Alfred Hubler, Santa Fe Institute
 
-            Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-            package version 0.2.5
+Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate,
+and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield,
+Alfred Hubler, Santa Fe Institute
+
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
+package version 0.2.5
 }
 \seealso{
 \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}

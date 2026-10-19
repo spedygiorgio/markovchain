@@ -29,7 +29,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 //' @return It returns a list containing the CTMC object and the confidence intervals.
 //' 
 //' @details  Note that in data, there must exist an element wise corresponding
-//'   between the two elements of the list and that data[[2]][1] is always 0.
+//'   between the two elements of the list and that `data[[2]][1]` is always 0.
 //' @references Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
 //' @author Sai Bhargav Yalamanchi
 //' @seealso \code{\link{rctmc}}

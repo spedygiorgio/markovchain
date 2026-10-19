@@ -19,7 +19,7 @@ rmarkovchain(
 
 \item{object}{Either a \code{markovchain} or a \code{markovchainList} object}
 
-\item{what}{It specifies whether either a \code{data.frame} or a \code{matrix} 
+\item{what}{It specifies whether either a \code{data.frame} or a \code{matrix}
 (each rows represent a simulation) or a \code{list} is returned.}
 
 \item{useRCpp}{Boolean. Should RCpp fast implementation being used? Default is yes.}
@@ -41,13 +41,13 @@ unexpectedly.}
 Character Vector, data.frame, list or matrix
 }
 \description{
-Provided any \code{markovchain} or \code{markovchainList} objects, it returns a sequence of 
+Provided any \code{markovchain} or \code{markovchainList} objects, it returns a sequence of
 states coming from the underlying stationary distribution.
 }
 \details{
-When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
+When a homogeneous process is assumed (\code{markovchain} object) a sequence is
 sampled of size n. When a non - homogeneous process is assumed,
-n samples are taken but the process is assumed to last from the begin to the end of the 
+n samples are taken but the process is assumed to last from the begin to the end of the
 non-homogeneous markov process.
 }
 \note{

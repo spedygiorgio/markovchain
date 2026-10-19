@@ -30,8 +30,8 @@ seqmat<-createSequenceMatrix(seq)
 multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 }
 \references{
-Constructing two-sided simultaneous confidence intervals 
-for multinomial proportions for small counts in a large number of cells. 
+Constructing two-sided simultaneous confidence intervals
+for multinomial proportions for small counts in a large number of cells.
 Journal of Statistical Software 5(6) (2000)
 }
 \seealso{

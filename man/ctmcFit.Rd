@@ -24,12 +24,12 @@ It returns a list containing the CTMC object and the confidence intervals.
 }
 \description{
 This function fits the underlying CTMC give the state
-  transition data and the transition times using the maximum likelihood
-  method (MLE)
+transition data and the transition times using the maximum likelihood
+method (MLE)
 }
 \details{
 Note that in data, there must exist an element wise corresponding
-  between the two elements of the list and that data[[2]][1] is always 0.
+between the two elements of the list and that \code{data[[2]][1]} is always 0.
 }
 \examples{
 data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))

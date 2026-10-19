@@ -39,7 +39,6 @@ statistically identical to running it forwards: at stationarity, the
 "flow" of probability from \eqn{i} to \eqn{j} exactly balances the flow
 from \eqn{j} to \eqn{i}.
 
-
 Only irreducibility is required, not aperiodicity: detailed balance is a
 purely algebraic condition on \eqn{P} and \eqn{\pi} and is perfectly well
 defined for periodic chains too. For example, a simple random walk on
@@ -90,5 +89,5 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{steadyStates}}, \code{\link{is.irreducible}},
-  \code{\link{slem}}, \code{\link{mixingTime}}
+\code{\link{slem}}, \code{\link{mixingTime}}
 }

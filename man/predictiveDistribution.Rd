@@ -22,14 +22,14 @@ The log of the probability is returned.
 }
 \description{
 The function computes the probability of observing a new data
-  set, given a data set
+set, given a data set
 }
 \details{
 The underlying method is Bayesian inference. The probability is
-  computed by averaging the likelihood of the new data with respect to the
-  posterior. Since the method assumes conjugate priors, the result can be
-  represented in a closed form (see the vignette for more details), which is
-  what is returned.
+computed by averaging the likelihood of the new data with respect to the
+posterior. Since the method assumes conjugate priors, the result can be
+represented in a closed form (see the vignette for more details), which is
+what is returned.
 }
 \examples{
 sequence<- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
@@ -41,11 +41,11 @@ predProb2 <- predictiveDistribution(sequence[1:10], sequence[11:17], hyperparam 
 predProb2==predProb
 }
 \references{
-Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
+Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate,
 and Out-of-Class Modeling, Christopher C. Strelioff, James P.
 Crutchfield, Alfred Hubler, Santa Fe Institute
 
-Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov 
+Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov
 Chains. R package version 0.2.5
 }
 \seealso{

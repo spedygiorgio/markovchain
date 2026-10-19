@@ -34,7 +34,7 @@ default), a single state, or a numeric probability vector, as in
 }
 \value{
 A numeric vector with one value per element of
-  \code{timePoints}, named after them.
+\code{timePoints}, named after them.
 }
 \description{
 \code{timeCorrelations} computes the time autocorrelation of an observed
@@ -90,5 +90,5 @@ Sciences}, 108(12), 4822-4827.
 }
 \seealso{
 \code{\link{redistribute}}, \code{\link{slem}},
-  \code{\link{relaxationTime}}
+\code{\link{relaxationTime}}
 }

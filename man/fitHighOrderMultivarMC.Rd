@@ -7,7 +7,7 @@
 fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
 }
 \arguments{
-\item{seqMat}{a matrix or a data frame where each column 
+\item{seqMat}{a matrix or a data frame where each column
 is a categorical sequence; numeric or factor values are
 taken as state labels (compared as character strings)}
 
@@ -19,8 +19,8 @@ taken as state labels (compared as character strings)}
 an hommc object
 }
 \description{
-Given a matrix of categorical sequences it fits 
-             Higher Order Multivariate Markov chain.
+Given a matrix of categorical sequences it fits
+Higher Order Multivariate Markov chain.
 }
 \examples{
 data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1', 

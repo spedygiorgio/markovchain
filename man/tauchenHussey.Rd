@@ -35,7 +35,7 @@ with \eqn{w = 1/2 + \rho/4}.}
 }
 \value{
 A named list with two elements, \code{chain} and \code{states},
-  in the same form as returned by \code{\link{tauchen}}.
+in the same form as returned by \code{\link{tauchen}}.
 }
 \description{
 Approximates the stationary first-order autoregressive process
@@ -89,5 +89,5 @@ Dynamics}, 13(3), 701-714.
 }
 \seealso{
 \code{\link{fitFunction}}, \code{\link{tauchen}},
-  \code{\link{rouwenhorst}}
+\code{\link{rouwenhorst}}
 }

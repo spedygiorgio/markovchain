@@ -15,8 +15,8 @@ conditionalDistribution(object, state)
 A named probability vector
 }
 \description{
-It extracts the conditional distribution of the subsequent state, 
-             given current state.
+It extracts the conditional distribution of the subsequent state,
+given current state.
 }
 \examples{
 # define a markov chain

@@ -26,8 +26,8 @@ unbounded number of iterations.}
 }
 \value{
 A single positive integer, the estimated mixing time
-  \eqn{t_{\mathrm{mix}}(\varepsilon)}. For the trivial one-state chain,
-  \code{0} is returned (it is its own stationary distribution).
+\eqn{t_{\mathrm{mix}}(\varepsilon)}. For the trivial one-state chain,
+\code{0} is returned (it is its own stationary distribution).
 }
 \description{
 Estimates the total-variation mixing time of a finite, irreducible,
@@ -42,7 +42,6 @@ after \eqn{t} steps as
 \deqn{d(t) = \max_i \tfrac{1}{2}\sum_j |P^t_{ij} - \pi_j|.}
 The mixing time returned is
 \deqn{t_{\mathrm{mix}}(\varepsilon) = \min\{t \ge 1 : d(t) \le \varepsilon\}.}
-
 
 Unlike \code{\link{slem}}, \code{\link{spectralGap}} and
 \code{\link{impliedTimescales}}, \code{mixingTime()} requires
@@ -84,6 +83,6 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{slem}}, \code{\link{spectralGap}},
-  \code{\link{impliedTimescales}}, \code{\link{period}},
-  \code{\link{is.irreducible}}
+\code{\link{impliedTimescales}}, \code{\link{period}},
+\code{\link{is.irreducible}}
 }

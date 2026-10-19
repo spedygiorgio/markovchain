@@ -13,7 +13,7 @@ toNthOrder(object, order)
 }
 \value{
 A new \code{markovchain} object on the same states as
-  \code{object}, with transition matrix \eqn{P^{\code{order}}}.
+\code{object}, with transition matrix \eqn{P^{\code{order}}}.
 }
 \description{
 Returns the \code{markovchain} object whose transition matrix is

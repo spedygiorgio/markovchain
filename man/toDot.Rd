@@ -44,7 +44,7 @@ default), \code{"TB"} (top to bottom), \code{"RL"} or \code{"BT"}.}
 }
 \value{
 The text, as a single character string (invisibly when
-  \code{file} is given).
+\code{file} is given).
 }
 \description{
 \code{toDot} writes the transition graph of a Markov chain in the DOT

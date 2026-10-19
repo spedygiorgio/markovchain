@@ -1218,12 +1218,50 @@ Hilbert--Schmidt norm of that space,
 for which $A\mapsto A^*$ is an isometric involution: $R$ is then the
 orthogonal projection of $P$ onto the reversible subspace, and the
 stochasticity and non-negativity constraints are satisfied automatically, so
-no constrained optimization is needed. Two warnings follow from this, both
-documented in `?closestReversible`. First, $R$ does *not* minimize the plain
-Frobenius distance, which the return value reports separately as a
-descriptive figure only. Second, the minimization holds $\pi$ fixed; letting
-the stationary distribution vary as well is a harder optimization problem
-\citep{nielsen2015computing} that is not solved here.
+no constrained optimization is needed. The price is that $R$ does *not*
+minimize the plain Frobenius distance $\|P - R\|_F$, which the return value
+reports separately.
+
+That distance is the one used by \cite{nielsen2015computing}, who show that,
+for a fixed $\pi$, the reversible chain nearest to $P$ in the Frobenius norm
+solves a convex quadratic program. `closestReversible(norm = "frobenius")`
+solves it exactly with \pkg{quadprog}, taking the entries $R_{ij}$, $i<j$, as
+unknowns, $R_{ji}=\pi_i R_{ij}/\pi_j$ by detailed balance and the diagonal
+as the remainder of each row. Here $\pi$ need not be stationary for $P$:
+any positive distribution can be imposed, and the result is reversible, and
+therefore stationary, with respect to it. With
+`stationaryDistribution = "free"` the stationary distribution is optimized
+too. Every reversible chain is $R_{ij} = S_{ij}/\sum_k S_{ik}$ for a symmetric
+non-negative matrix of flows $S$, so the problem becomes a smooth
+minimization over $S$, solved by L-BFGS-B from several starting points and
+then polished by the convex problem at the $\pi$ found. The set of reversible
+chains is not convex, so this is a local optimum. Nielsen and Weber keep
+$\pi$ fixed: this extension is specific to the package.
+
+For the weather chain the three answers differ:
+
+```{r closest-reversible-frobenius}
+weatherFrobenius <- closestReversible(mcWeather, norm = "frobenius")
+set.seed(2)
+weatherFree <- closestReversible(mcWeather, "free", norm = "frobenius")
+c(additive = weatherReversible$frobeniusDistance,
+  fixedPi = weatherFrobenius$distance,
+  freePi = weatherFree$distance)
+rbind(original = steadyStates(mcWeather)[1, ],
+      freePi = weatherFree$stationaryDistribution)
+weatherFree$chain
+```
+
+The weather chain is close to reversible: the free solution is 22\% closer
+to it than the additive reversibilization, and it moves the stationary
+probability of each state by less than 0.003.
+
+No published example of the Frobenius problem with its data was found to
+reproduce. The fixed-$\pi$ solutions agree with those of
+`closest_reversible` in \pkg{PyDTMC}, which uses an iterative solver, to
+about $10^{-5}$, with a distance that is never larger. For the free problem
+the tests check that the distance found is not larger than the best fixed-$\pi$
+solution on a fine grid of stationary distributions.
 
 ## Mixing time
 
@@ -1836,6 +1874,55 @@ patientStates[1:10,]
 
 Two advanced parameters of `rmarkovchain` select the implementation, among four options: \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. The boolean parameters `useRcpp` and `parallel` choose the implementation; the default is \code{useRcpp = TRUE} and \code{parallel = FALSE}, i.e. the sequential \proglang{C++} implementation, which is generally faster than the \proglang{R} one. On multicore processors, setting `parallel = TRUE` takes advantage of several cores; when both `useRcpp = TRUE` and `parallel = TRUE`, the parallelization relies on the \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that `set.seed()` gives the same result whatever the number of threads. That number is set by the argument `num.cores`; when it is `NULL`, the default, the options `RcppParallel.numThreads` and `Ncpus` and the environment variables `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS` are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
 
+### Plotting sequences
+
+`plotSequence()` draws simulated or observed sequences in the two basic
+graphs of sequence analysis \citep{gabadinho2011}: the *sequence index plot*,
+in which each sequence is a row of cells coloured by state, and the *state
+distribution plot*, which shows the proportion of sequences in each state at
+each time point. Given a `markovchain`, it simulates `nSequences` sequences of
+`steps` time points from an initial distribution given as in `redistribute()`;
+given observed data (a sequence, a list of sequences, or a matrix or data
+frame with one sequence per row), it plots them, and a `chain` can be supplied
+to overlay the state distribution it predicts from the observed one at the
+first time point. Figure \ref{fig:plot-sequence-weather} shows thirty weather
+sequences started from rain and the distribution of three hundred of them,
+which approaches the stationary distribution in about five days, as the
+expected distribution (dashed) does.
+
+```{r plot-sequence-weather, fig.cap = "Weather chain: thirty simulated sequences started from rain (left) and the state distribution of three hundred, with the distribution expected from the chain (right).", fig.height = 3.6, out.width = "100%"}
+par(mfrow = c(1, 2))
+plotSequence(mcWeather, nSequences = 30, steps = 30, initial = "rain",
+             seed = 1, main = "Weather sequences")
+plotSequence(mcWeather, type = "distribution", nSequences = 300, steps = 15,
+             initial = "rain", seed = 1, main = "Weather state distribution")
+```
+
+With observed data the second graph is a check of time-homogeneity. The
+`holson` data contain the trajectories of 1000 individuals over eleven time
+points; Figure \ref{fig:plot-sequence-holson} sorts sixty of them by their
+first state and compares the distribution of all of them with the one
+predicted by a single time-homogeneous chain fitted to the whole data set.
+
+```{r plot-sequence-holson, fig.cap = "Holson data: sixty trajectories sorted by their first state (left) and the state distribution of the 1000 trajectories against a time-homogeneous chain fitted to them (right).", fig.height = 3.6, out.width = "100%"}
+data(holson)
+holsonChain <- markovchainFit(holson[, 2:12])$estimate
+par(mfrow = c(1, 2))
+plotSequence(holson[1:60, 2:12], sort = "first", main = "Holson trajectories")
+holsonPlot <- plotSequence(holson[, 2:12], type = "distribution",
+                           chain = holsonChain, main = "Holson distribution")
+gap <- holsonPlot$proportions - holsonPlot$expected
+round(gap[, c(2, 6, 9, 11)], 3)
+```
+
+Most individuals stay in state `1` for the whole period. The proportions
+observed at each time point stay within three percentage points of those
+predicted by the fitted chain (the largest gap, 2.9 points for state `1`, is
+at the ninth time point), so the plot gives no strong sign that the transition
+probabilities change over time; `assessStationarity()` tests it formally. The values returned invisibly
+(the sequences as plotted and the observed and expected proportions) allow
+such comparisons to be made numerically.
+
 ## Lumpability and aggregation of states
 
 In some applications the original state space is too detailed, and it is useful
@@ -2313,6 +2400,90 @@ markovchainListFit(data=mylist)
 
 If any transition contains `NA`, it will be ignored in the results as the above example showed.
 
+### Uncertainty of derived properties
+
+The standard errors above refer to the transition probabilities. Properties
+of the chain computed from them, such as the SLEM, the spectral gap, the
+relaxation time or the mixing time, are returned by the corresponding
+functions as single numbers, although they inherit the sampling error of the
+estimated matrix through non-linear, and sometimes non-smooth,
+transformations. `bootstrapProperties()` estimates the chain by maximum
+likelihood from one or more sequences (or from transition counts) and gives
+bootstrap standard errors and percentile or basic intervals for any such
+property. With `method = "multinomial"`, the default, each replicate redraws
+the departures of every state from its estimated row, keeping the number of
+visits fixed, which is the conditional bootstrap of \cite{basawa1990};
+`method = "parametric"` simulates new sequences of the observed lengths from
+the estimated chain \citep{kulperger1989}. Besides the four default
+properties, the entropy rate, Kemeny's constant, the stationary distribution
+and any function of a `markovchain` returning numbers can be bootstrapped.
+For the Alofi rainfall data:
+
+```{r bootstrap-properties-rain}
+data(rain)
+rainBoot <- bootstrapProperties(rain$rain, nboot = 1000, seed = 1)
+rainBoot
+bootstrapProperties(rain$rain, nboot = 1000, seed = 1,
+  statistics = list(dryDays = function(mc) steadyStates(mc)[1, "0"],
+                    "kemenyConstant"))
+```
+
+The rainfall chain forgets its initial state quickly: its SLEM is 0.41 with
+a standard error of 0.03, and the mixing time is two days in practically
+every replicate, so its interval collapses to a single value. No published
+example of bootstrap intervals for these properties with available data was
+found; the asymptotic theory of the spectral gap of reversible chains
+estimated from one path is developed by \cite{hsu2019mixing}. The coverage
+of the intervals was therefore checked by simulation. For each of two chains
+and two methods, 300 sequences were simulated, a 95\% percentile interval
+with 499 replicates was computed from each, and the proportion of intervals
+containing the true value was recorded (the whole study takes about half a
+minute, since the replicates of the built-in statistics are computed in
+\proglang{C++}):
+
+```{r bootstrap-properties-coverage, eval = FALSE}
+coverage <- function(truth, n, method, reps = 300) {
+  theta <- c(slem(truth), relaxationTime(truth), mixingTime(truth))
+  hits <- replicate(reps, {
+    x <- rmarkovchain(n - 1, truth, t0 = states(truth)[1], include.t0 = TRUE)
+    ci <- bootstrapProperties(x, nboot = 499, method = method,
+      statistics = c("slem", "relaxationTime", "mixingTime"))$ci
+    ci[, 1] <= theta & theta <= ci[, 2]
+  })
+  rowMeans(hits)
+}
+```
+
+\begin{center}
+\begin{tabular}{llrrrr}
+\hline
+Chain & Method & $n$ & SLEM & Relaxation time & Mixing time \\
+\hline
+Alofi rainfall (SLEM 0.41) & multinomial & 1096 & 0.950 & 0.950 & 1.000 \\
+ & parametric & 1096 & 0.943 & 0.943 & 1.000 \\
+ & multinomial & 200 & 0.943 & 0.943 & 0.997 \\
+ & parametric & 200 & 0.963 & 0.963 & 1.000 \\
+Slowly mixing (SLEM 0.88) & multinomial & 300 & 0.950 & 0.950 & 0.950 \\
+ & parametric & 300 & 0.977 & 0.977 & 0.983 \\
+\hline
+\end{tabular}
+\end{center}
+
+The first chain is the one estimated from the rainfall data; the second has
+0.9 on the diagonal and rare transitions of probability 0.02, so that its
+relaxation time is 8.3 steps. With 300 simulations the Monte Carlo standard
+error of a coverage of 0.95 is about 0.013, so the observed coverage of the
+spectral properties agrees with the nominal level; the spectral gap, equal to
+one minus the SLEM for these chains, has the same coverage as the SLEM. The
+intervals of the mixing time, an integer, are conservative when the chain
+mixes fast. For the slowly mixing chain the intervals are wide (on average
+12.8 steps for a relaxation time of 8.3) and skewed, and in two or three
+replicates out of 499 the rare transitions vanish, the replicate is
+reducible and the spectral properties cannot be computed: such replicates are
+counted in `failures` and left out. Wide intervals of this kind are an
+accurate description of how little 300 observations reveal about a slowly
+mixing chain, not a failure of the method.
+
 
 ## Prediction
 
@@ -2564,6 +2735,80 @@ verifyHomogeneity(list(x1, x2), method = "G")
 ```
 
 For sparse data, the asymptotic $\chi^2$ approximation underlying any of the tests above should be interpreted with care; the `method = "simulation"` option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
+
+### Distances and divergences between two chains
+
+A test says whether two estimated chains differ by more than sampling noise;
+it does not say by how much. `compareChains()` reports both kinds of
+quantities for two chains on the same states, matched by name. The
+row-wise distances compare the next-step distributions from each state: the
+largest total variation distance $\max_i \frac12\sum_j|P_{ij}-Q_{ij}|$,
+the same distances averaged with the stationary distribution of the first
+chain, the largest Hellinger distance, the Frobenius and maximum entrywise
+distances, and the total variation distance between the two stationary
+distributions. These follow the definitions of \pkg{PyDTMC} and give the
+same values.
+
+The divergences include the Kullback-Leibler divergence *rate*
+\[
+D(P\,\|\,Q) = \sum_i \pi_i \sum_j P_{ij}\log\frac{P_{ij}}{Q_{ij}},
+\]
+also available on its own as `divergenceRate()`. For irreducible chains it
+is the limit of $\frac1n D(X_1,\ldots,X_n\,\|\,Y_1,\ldots,Y_n)$
+\citep{rached2004kullback}, and therefore the average information per step
+for discriminating the first chain from the second; it is not symmetric,
+and it is infinite when the first chain makes a transition that the second
+forbids. It also connects the distances to the tests above. With the
+departure frequencies of a sample as weights, $2N D(\hat P\,\|\,Q)$, $N$
+being the number of transitions, is the likelihood-ratio statistic of the
+hypothesis that the sample comes from $Q$, and summing it over the samples
+of a homogeneity test, with $Q$ the pooled estimate, gives Kullback's
+information statistic. For the two six-state samples of the `kullback`
+dataset, Table 9.2 of \cite{kullback1962tests} reports $2\hat I = 160.961$:
+
+```{r divergence-rate-kullback}
+data(kullback)
+pooled <- kullback[[1]] + kullback[[2]]
+pooledChain <- new("markovchain", states = rownames(pooled),
+                   transitionMatrix = pooled / rowSums(pooled))
+sum(sapply(kullback, function(counts) {
+  sampleChain <- new("markovchain", states = rownames(counts),
+                     transitionMatrix = counts / rowSums(counts))
+  2 * sum(counts) *
+    divergenceRate(sampleChain, pooledChain, weights = rowSums(counts))
+}))
+verifyHomogeneity(kullback, verbose = FALSE)$statistic
+```
+
+Both computations reproduce the published value. The degrees of freedom of
+`verifyHomogeneity()` are 29, not the 30 of the paper's formula $r(s-1)(r-1)$,
+because no transition from `d` to `a` is observed in either sample and that
+cell is not counted.
+
+Given two sequences, `compareChains()` estimates both chains on the union of
+their states and adds the test of equality of `verifyHomogeneity()`. Here the
+sequences `x1` and `x2` simulated above from the same chain are compared with
+one simulated from a chain with a different first row:
+
+```{r compare-chains}
+other_P <- homogeneity_P
+other_P["a", ] <- c(.50, .30, .20)
+other_mc <- new("markovchain", states = c("a", "b", "c"),
+                transitionMatrix = other_P)
+set.seed(321)
+x3 <- rmarkovchain(500, other_mc, t0 = "a")
+compareChains(x1, x2)
+compareChains(x1, x3)
+```
+
+The two samples of the same chain are at a weighted total variation
+distance of a few hundredths, which the test attributes to sampling noise.
+For the second pair the largest row-wise distance, 0.16, is that of the row
+of `a`, an estimate of the 0.2 by which the two chains differ there; but
+sampling noise alone produces distances of 0.11 in the row of `b`, and the
+test rejects equality at the 5\% level only just ($p \approx 0.05$). With
+500 observations a difference of this size is close to the limit of what can
+be detected.
 
 ## Pseudo-Bayesian estimation
 
@@ -3205,6 +3450,102 @@ effectively 0), while `tauchen()`'s fixed-width grid is off by tens of
 percent at small sizes and still off by nearly 10\% at 25 states -- worse,
 at 25 states, than `rouwenhorst()` already is at only 5 -- matching Kopecky
 and Suen's own qualitative conclusion.
+
+#### Quadrature-based discretizations
+
+A third family of methods replaces the integral that defines the next
+period's expectations with a quadrature rule. If the process moves from $x$
+to $y$ with density $f(x, y)$, and $y_1, \ldots, y_n$ and $w_1, \ldots, w_n$
+are the nodes and weights of a rule for $\int g(y)\,dy$, then
+\[
+P_{ij} = \frac{w_j f(y_i, y_j)}{\sum_k w_k f(y_i, y_k)}
+\]
+is a transition matrix whose conditional expectations
+$\sum_j P_{ij} h(y_j)$ approximate $E[h(Y_{t+1}) \mid Y_t = y_i]$
+\citep{tauchenHussey1991}. `fitFunction()` builds this chain for any
+kernel $f$ and any of seven rules with positive weights (Gauss-Legendre,
+Gauss-Chebyshev, Fejér, Gauss-Hermite, trapezoid, Simpson and midpoint);
+the Gauss rules are computed from the eigenvalues of the Jacobi matrix
+\citep{golubWelsch1969}. It returns the chain, the nodes and the weights.
+
+`tauchenHussey()` is the special case of an AR(1) with Gauss-Hermite nodes
+for a normal distribution of standard deviation $\hat\sigma$. Tauchen and
+Hussey take $\hat\sigma=\sigma$, the conditional standard deviation, which
+concentrates the nodes too much when the process is persistent;
+\cite{floden2008} proposes the weighted choice
+$\hat\sigma = w\sigma + (1-w)\sigma_y$ with $w = 1/2 + \rho/4$
+(`sigmaWeight = "floden"`), and also reports $\hat\sigma=\sigma_y$
+(`sigmaWeight = "unconditional"`). His Table 1 gives, for the income process labelled HSZ
+($\rho = 0.95$, $\sigma_\varepsilon^2 = 0.030$,
+so that $\sigma_\varepsilon = 0.1732$ and $\sigma_y = 0.5547$), the
+conditional and unconditional standard deviations implied by each chain.
+The chains built here reproduce all twelve values:
+
+```{r tauchen-hussey-floden}
+impliedSd <- function(out) {
+  P <- out$chain@transitionMatrix
+  z <- out$states
+  p <- as.numeric(steadyStates(out$chain))
+  condVar <- P %*% z^2 - (P %*% z)^2
+  c(sigmaEps = sqrt(sum(p * condVar)),
+    sigmaY = sqrt(sum(p * (z - sum(p * z))^2)))
+}
+designs <- expand.grid(size = c(5, 9),
+                       sigmaWeight = c("conditional", "unconditional", "floden"),
+                       stringsAsFactors = FALSE)
+ours <- t(mapply(function(n, s)
+  impliedSd(tauchenHussey(alpha = 0, sigma = sqrt(0.03), rho = 0.95,
+                          size = n, sigmaWeight = s)),
+  designs$size, designs$sigmaWeight))
+floden <- rbind(c(0.1576, 0.3275), c(0.1670, 0.4303),
+                c(0.0101, 0.5622), c(0.0561, 0.5556),
+                c(0.1410, 0.4792), c(0.1692, 0.5407))
+colnames(floden) <- c("sigmaEps (Floden)", "sigmaY (Floden)")
+cbind(designs, round(ours, 4), floden)
+```
+
+The original choice understates the unconditional standard deviation by
+41\% with five nodes, the unconditional one makes the chain almost
+deterministic (a conditional standard deviation of 0.0101 instead of
+0.1732), and Flodén's weighting is the best compromise of the three. The
+same table also reports the autocorrelation implied by each chain, which is
+not reproduced here: the paper does not say how it is computed, and the
+lag-one autocorrelation under the stationary distribution of these chains
+does not match it when the approximation is coarse (0.8757 against 0.9073 for
+the original method with five nodes; 0.5976 against 0.5992 for the $\rho=0.6$
+process of the same table). The standard deviations of the $\rho=0.6$
+process are reproduced too, and both sets are in the package's tests.
+
+`fitFunction()` is not restricted to Gaussian processes. A proportion, such
+as a loss ratio or an occupancy rate, can be modelled on $[0, 1]$ with a
+Beta transition density whose mean moves linearly with the current value,
+$Y_{t+1} \mid Y_t = x \sim \mathrm{Beta}(\kappa m(x), \kappa(1 - m(x)))$ with
+$m(x) = 0.2 + 0.6x$. Its stationary mean is $0.5$ and, since
+$\mathrm{Var}(Y_{t+1}\mid Y_t=x) = m(x)(1-m(x))/(\kappa+1)$, its stationary
+variance solves $v = 0.36v + (0.25 - 0.36v)/(\kappa+1)$. The chains built with
+two rules approach it as the number of nodes grows:
+
+```{r fit-function-beta}
+kappa <- 20
+m <- function(x) 0.2 + 0.6 * x
+betaKernel <- function(x, y) dbeta(y, kappa * m(x), kappa * (1 - m(x)))
+stationaryVariance <- function(out) {
+  p <- as.numeric(steadyStates(out$chain))
+  sum(p * (out$states - sum(p * out$states))^2)
+}
+(trueVariance <- (0.25 / (kappa + 1)) / (1 - 0.36 + 0.36 / (kappa + 1)))
+sapply(c(5, 10, 20), function(n)
+  c(nodes = n,
+    gaussLegendre = stationaryVariance(fitFunction(betaKernel, n)),
+    trapezoid = stationaryVariance(fitFunction(betaKernel, n, "trapezoid"))))
+```
+
+With five nodes Gauss-Legendre places no node close enough to the end
+points and misses almost a third of the variance, while the trapezoid rule is
+already within 3\%; from ten nodes on both are within $0.03\%$ of the
+exact value. For the same kernel, interval and number of nodes the
+Gauss-Legendre, Fejér, trapezoid and Simpson rules give the same matrices
+as `fit_function` in \pkg{PyDTMC}.
 
 ## Actuarial science {#app:act}
 

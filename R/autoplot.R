@@ -55,6 +55,10 @@
 #'   ggplot2::autoplot(mc, type = "comparison", other = sticky,
 #'                     what = "stationary")
 #' }
+# autoplot() draws a chart with ggplot2. ggplot2 builds a picture by ADDING layers with `+`:
+# data frames of coordinates are mapped to graphical elements (geom_point, geom_curve, geom_text...).
+# This function dispatches on `type`: eigenvalues / flow / comparison use the helpers below;
+# the default type 'graph' draws the transition graph in the code that follows.
 autoplot.markovchain <- function(object,
                                   threshold = 0,
                                   show_probabilities = TRUE,
@@ -68,6 +72,7 @@ autoplot.markovchain <- function(object,
                                   other = NULL,
                                   what = c("transition", "stationary"),
                                   ...) {
+  # Step 1: validation of the arguments (ggplot2 is only suggested: error if not installed).
   if (!inherits(object, "markovchain")) {
     stop("object must be a 'markovchain' object", call. = FALSE)
   }
@@ -76,6 +81,7 @@ autoplot.markovchain <- function(object,
     stop("Package 'ggplot2' is required for autoplot.markovchain()", call. = FALSE)
   }
 
+  # Step 2: the other plot types are delegated to dedicated helper functions.
   type <- match.arg(type)
   if (type == "eigenvalues") {
     return(.autoplotEigenvalues(object))
@@ -99,6 +105,7 @@ autoplot.markovchain <- function(object,
     stop("digits must be a non-negative number", call. = FALSE)
   }
 
+  # Step 3: prepare the data to draw. Orient the matrix by rows.
   mat <- object@transitionMatrix
   if (!object@byrow) {
     mat <- t(mat)
@@ -108,6 +115,7 @@ autoplot.markovchain <- function(object,
   n <- length(states)
   node_radius <- 0.13
 
+  # Place the n states on a circle: angle theta for each state, then x = cos, y = sin.
   theta <- seq(0, 2 * pi, length.out = n + 1L)[-(n + 1L)] + pi / 2
   nodes <- data.frame(
     state = states,
@@ -116,6 +124,7 @@ autoplot.markovchain <- function(object,
     stringsAsFactors = FALSE
   )
 
+  # Colour the nodes by communicating class.
   classes <- communicatingClasses(object)
   class_id <- integer(n)
   for (i in seq_along(classes)) {
@@ -123,6 +132,9 @@ autoplot.markovchain <- function(object,
   }
   nodes$class <- factor(class_id)
 
+  # Step 4: one edge for every transition above the threshold. A transition i -> i is a loop,
+  # drawn as a small circle above the node; the others are curved arrows between two nodes,
+  # shortened by the node radius so the arrow does not enter the circle.
   edge_index <- which(mat > threshold, arr.ind = TRUE)
   edges <- data.frame()
   loops <- data.frame()
@@ -176,6 +188,8 @@ autoplot.markovchain <- function(object,
     }
   }
 
+  # Step 5: add the layers in order: empty canvas, arrows with their width proportional to the
+  # probability, labels with the probabilities, loops, nodes and state names.
   p <- ggplot2::ggplot() +
     ggplot2::theme_void() +
     ggplot2::coord_equal(xlim = c(-1.25, 1.25), ylim = c(-1.35, 1.25),
@@ -255,6 +269,7 @@ autoplot.markovchain <- function(object,
     )
 }
 
+# Helpers for the other plot types follow.
 # Eigenvalues of the transition matrix in the complex plane.
 # Internal helper: white text label without a border. The argument that
 # removes the border of geom_label() was renamed from `label.size` to
@@ -271,6 +286,8 @@ autoplot.markovchain <- function(object,
             border))
 }
 
+# Eigenvalues in the complex plane, together with the unit circle: all eigenvalues of a stochastic
+# matrix lie inside it, and the closer they are to the circle the slower the convergence.
 .autoplotEigenvalues <- function(object) {
   P <- .rowStochasticMatrix(object)
   values <- eigen(P, only.values = TRUE)$values
@@ -294,6 +311,7 @@ autoplot.markovchain <- function(object,
                    plot.subtitle = ggplot2::element_text(hjust = 0.5))
 }
 
+# Evolution of the distribution: one line per state (uses redistribute()).
 # Evolution of the distribution over the states.
 .autoplotFlow <- function(object, steps, initial) {
   traj <- redistribute(object, steps = steps, initial = initial)
@@ -317,6 +335,8 @@ autoplot.markovchain <- function(object,
                    plot.subtitle = ggplot2::element_text(hjust = 0.5))
 }
 
+# Comparison of two or more chains on the same states, side by side: either their stationary
+# distributions (bar chart) or their transition matrices (heat maps).
 # Comparison of two or more chains defined on the same states.
 .autoplotComparison <- function(object, other, what, digits,
                                 show_probabilities) {
@@ -332,6 +352,7 @@ autoplot.markovchain <- function(object,
          call. = FALSE)
   }
 
+  # Names of the chains for the legend (made unique if repeated).
   chains <- c(list(object), unname(other))
   labels <- c(object@name,
               if (is.null(names(other))) vapply(other, function(x) x@name, "")
@@ -341,6 +362,7 @@ autoplot.markovchain <- function(object,
   labels <- make.unique(labels, sep = " ")
 
   states <- object@states
+  # All chains must have the same states; reorder each matrix with the states of the first chain.
   mats <- lapply(chains, function(ch) {
     if (!setequal(ch@states, states) || anyDuplicated(ch@states)) {
       stop("all chains must be defined on the same set of states",
@@ -376,6 +398,7 @@ autoplot.markovchain <- function(object,
     )
   }
 
+  # Heat map: one tile for each (from, to) pair, colour = probability, one panel for each chain.
   n <- length(states)
   long <- do.call(rbind, lapply(seq_along(mats), function(i) {
     data.frame(

@@ -2,40 +2,56 @@
 % Please edit documentation in R/probabilistic.R
 \name{firstPassage}
 \alias{firstPassage}
-\title{First passage across states}
+\title{First passage time distribution}
 \usage{
 firstPassage(object, state, n)
 }
 \arguments{
-\item{object}{A \code{markovchain} object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{state}{Initial state}
+\item{state}{Name of the initial state.}
 
-\item{n}{Number of rows on which compute the distribution}
+\item{n}{Number of steps, a positive integer.}
 }
 \value{
-A matrix of size 1:n x number of states showing the probability of the 
-        first time of passage in states to be exactly the number in the row.
+A matrix with \code{n} rows (steps \eqn{1, \dots, n}) and one column per
+state: entry \eqn{(k, j)} is the probability that the first passage to
+\eqn{j} happens at step \eqn{k}. The column sums are at most one; the
+remainder is the probability of a first passage after step \code{n}, or never.
 }
 \description{
-This function compute the first passage probability in states
+Distribution of the first passage times of a Markov chain
+started in \code{state}: for every state \eqn{j} and step \eqn{k}, the
+probability that the chain enters \eqn{j} for the first time at step
+\eqn{k}.
 }
 \details{
-Based on Feres' Matlab listings
+For \eqn{j} equal to \code{state} the probabilities are those of the
+first return. The algorithm follows the Matlab listings of Feres.
 }
 \examples{
 simpleMc <- new("markovchain", states = c("a", "b"),
-                 transitionMatrix = matrix(c(0.4, 0.6, .3, .7), 
-                                    nrow = 2, byrow = TRUE))
+                transitionMatrix = matrix(c(0.4, 0.6, 0.3, 0.7),
+                                          nrow = 2, byrow = TRUE))
 firstPassage(simpleMc, "b", 20)
-
 }
 \references{
-Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains
+Feres, R. Notes for Math 450: Matlab listings for Markov chains.
+Washington University in St. Louis.
 }
 \seealso{
-\code{\link{conditionalDistribution}}
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
 }
 \author{
 Giorgio Spedicato
 }
+\concept{first passage and hitting}

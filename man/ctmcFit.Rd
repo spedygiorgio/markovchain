@@ -2,46 +2,68 @@
 % Please edit documentation in R/RcppExports.R
 \name{ctmcFit}
 \alias{ctmcFit}
-\title{Function to fit a CTMC}
-\usage{
-ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
-}
+\title{Fit a continuous time Markov chain}
 \arguments{
-\item{data}{It is a list of two elements. The first element is a character
-vector denoting the states. The second is a numeric vector denoting the
-corresponding transition times.}
+\item{data}{A list of two vectors of equal length: the states visited
+(character) and the times at which they were entered (numeric,
+increasing, the first equal to 0).}
 
-\item{byrow}{Determines if the output transition probabilities of the
-underlying embedded DTMC are by row.}
+\item{byrow}{Logical: return the generator, and the transition matrix of
+the embedded jump chain in the confidence intervals, with the rates out
+of each state in its row (default) or in its column?}
 
-\item{name}{Optional name for the CTMC.}
+\item{name}{Optional name of the fitted chain.}
 
-\item{confidencelevel}{Confidence level for the confidence interval
-construnction.}
+\item{confidencelevel}{Confidence level of the intervals (default 0.95).}
 }
 \value{
-It returns a list containing the CTMC object and the confidence intervals.
+A list with two elements:
+\describe{
+\item{\code{estimate}}{the fitted \code{\link[=ctmc-class]{ctmc}} object;}
+\item{\code{errors}}{a list with \code{dtmcConfidenceInterval}, the confidence
+level and the lower and upper endpoint matrices of the transition
+probabilities of the embedded jump chain (as in \code{\link[=markovchainFit]{markovchainFit()}}),
+and \code{lambdaConfidenceInterval}, the lower and upper endpoints of the
+exit rate of each state.}
+}
 }
 \description{
-This function fits the underlying CTMC give the state
-  transition data and the transition times using the maximum likelihood
-  method (MLE)
+Maximum likelihood estimation of a continuous time Markov
+chain from one observed trajectory: the sequence of states visited and
+the times at which they were entered.
 }
 \details{
-Note that in data, there must exist an element wise corresponding
-  between the two elements of the list and that data[[2]][1] is always 0.
+The exit rate of state \eqn{i} is estimated as the number of
+departures from \eqn{i} divided by the total time spent in \eqn{i}, and
+the jump probabilities by the transition frequencies of the sequence of
+states; the generator is their product. The interval for each rate is the
+normal approximation \eqn{\hat\lambda_i (1 \pm z / \sqrt{n_i})},
+with \eqn{n_i} the number of departures from \eqn{i}, truncated at 0.
 }
 \examples{
-data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
-ctmcFit(data)
-
+data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"),
+             c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+fit <- ctmcFit(data)
+fit$estimate
+fit$errors$lambdaConfidenceInterval
 }
 \references{
-Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Continuous time
+Markov chains. Vignette of the markovchain package.
 }
 \seealso{
-\code{\link{rctmc}}
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Sai Bhargav Yalamanchi
 }
+\concept{continuous time Markov chains}

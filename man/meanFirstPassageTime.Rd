@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{meanFirstPassageTime}
 \alias{meanFirstPassageTime}
-\title{Mean First Passage Time for irreducible Markov chains}
+\title{Mean first passage times of an irreducible Markov chain}
 \usage{
 meanFirstPassageTime(object, destination)
 }
@@ -14,21 +14,21 @@ which we want to compute the mean first passage time. Empty by default}
 }
 \value{
 a Matrix of the same size with the average first passage times if
-  destination is empty, a vector if destination is not
+destination is empty, a vector if destination is not
 }
 \description{
 Given an irreducible (ergodic) markovchain object, this function
-  calculates the expected number of steps to reach other states
+calculates the expected number of steps to reach other states
 }
 \details{
-For an ergodic Markov chain it computes: 
-\itemize{ 
-  \item If destination is empty, the average first time (in steps) that takes
-  the Markov chain to go from initial state i to j. (i, j) represents that 
-  value in case the Markov chain is given row-wise, (j, i) in case it is given
-  col-wise. 
-  \item If destination is not empty, the average time it takes us from the 
-  remaining states to reach the states in \code{destination} 
+For an ergodic Markov chain it computes:
+\itemize{
+\item If destination is empty, the average first time (in steps) that takes
+the Markov chain to go from initial state i to j. (i, j) represents that
+value in case the Markov chain is given row-wise, (j, i) in case it is given
+col-wise.
+\item If destination is not empty, the average time it takes us from the
+remaining states to reach the states in \code{destination}
 }
 }
 \examples{
@@ -52,6 +52,19 @@ meanFirstPassageTime(mcOz)
 C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Toni Giorgino, Ignacio Cordón
 }
+\concept{first passage and hitting}

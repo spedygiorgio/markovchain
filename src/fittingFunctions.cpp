@@ -1,6 +1,16 @@
+// fittingFunctions.cpp: C++ (Rcpp) code behind the simulation and fitting functions of the package.
+// Main contents:
+//   * simulation of state sequences from markovchain / markovchainList objects (also in parallel);
+//   * creation of the transition-count (sequence) matrix from observed data;
+//   * maximum-likelihood / Bayesian estimation, confidence intervals and bootstrap;
+//   * conversion helpers that build S4 markovchain objects from matrices and lists.
+// The functions tagged with the Rcpp export attribute are callable from R (the glue code is generated
+// automatically in RcppExports.cpp / RcppExports.R: never edit those two files by hand).
 #ifndef STRICT_R_HEADERS
 #define STRICT_R_HEADERS
 
+// These two lines tell Rcpp which extra packages (RcppParallel for multithreading, RcppArmadillo for
+// linear algebra) must be on the include path when the file is compiled.
 // [[Rcpp::depends(RcppParallel)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppParallel.h>
@@ -10,11 +20,15 @@
 #include <unordered_map>
 #include <RcppArmadilloExtensions/sample.h>
 
+// 'using namespace' lets us write NumericMatrix instead of Rcpp::NumericMatrix, sample() instead of
+// RcppArmadillo::sample(), and so on.
 using namespace Rcpp;
 using namespace RcppArmadillo;
 using namespace RcppParallel;
 using namespace std;
 
+// helpers.h and mapFitFunctions.h are local headers of this package (shared helper functions and the
+// data-structure helpers used while counting transitions).
 #include "helpers.h"
 #include "mapFitFunctions.h"
 #include <math.h>
@@ -80,6 +94,11 @@ static inline unsigned int _mc_sample_weighted(const arma::vec& w,
   return n - 1u;
 }
 
+// markovchainSequenceRcpp(): simulates a single sequence of n states from one markovchain object.
+// Idea: at each step take the row of the transition matrix that belongs to the current state and draw
+// the next state with those probabilities. The first state drawn depends on t0 (the starting state).
+// This function uses R's own RNG (sample), so it runs on the main thread only and set.seed() controls it.
+// The leading comment line is placed above the export attribute on purpose: do not move it below.
 // [[Rcpp::export(.markovchainSequenceRcpp)]]
 CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t0,
                                         bool include_t0 = false) {
@@ -106,6 +125,7 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
   
   
   
+  // Main simulation loop: one iteration produces one new state.
   for (int i = 0;i < n;i++) {
     
     // extracting row probabilties for the given state from transition matrix
@@ -139,6 +159,10 @@ CharacterVector markovchainSequenceRcpp(int n, S4 markovchain, CharacterVector t
   return chain;
 }
 
+// checkSequenceRcpp(): sanity check for a markovchainList. Every state that can still be
+// reached by the i-th chain (columns with a non-zero sum) must be a state of the next chain,
+// otherwise the sequence of chains cannot be simulated consistently. Returns true when the check passes.
+// Not exported to R: it is a helper used by markovchainListRcpp().
 bool checkSequenceRcpp(List object) {
   bool out = true;
   int nob = object.size();
@@ -181,6 +205,10 @@ bool checkSequenceRcpp(List object) {
   return(out);
 }
 
+// markovchainListRcpp(): simulates n sequences from a non-homogeneous chain, i.e. from a list of
+// markovchain objects where the i-th object governs the i-th transition. It returns a list of two
+// vectors: the iteration (sequence) number and the sampled state, ready to be turned into a data.frame
+// in R. This version is sequential; the parallel version is markovchainSequenceParallelRcpp() below.
 // [[Rcpp::export(.markovchainListRcpp)]]
 List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterVector t0
                          = CharacterVector()) {
@@ -193,6 +221,7 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
     warning("Warning: some states in the markovchain sequences are not contained in the following states!");
   }
   
+  // Total number of values to return = n sequences x (number of chains + 1 if t0 is included).
   // Compute the output size without signed integer overflow.
   const R_xlen_t perSequence = object.size() + (include_t0 ? 1 : 0);
   if (n > 0 && perSequence > R_XLEN_T_MAX / static_cast<R_xlen_t>(n))
@@ -257,6 +286,12 @@ List markovchainListRcpp(int n, List object, bool include_t0 = false, CharacterV
   return(List::create(iteration, values));
 }
 
+// MCList: a 'Worker' for RcppParallel. parallelReduce() splits the range 0..n-1 of the sequences to
+// generate into sub-ranges and hands each sub-range to a copy of this struct, running on a different
+// thread. Rules to remember: (1) threads must never call R API functions (R is single threaded), so
+// everything here uses plain C++ / Armadillo types; (2) the shared inputs are const references, i.e.
+// read-only; (3) each worker stores its results in 'output', and join() merges the partial results.
+// The worker has three parts: the constructor, operator() (the real work) and join().
 struct MCList : public Worker
 {
   // 3-D matrix of transition matrices, stored row-stochastic (the caller
@@ -297,6 +332,8 @@ struct MCList : public Worker
   // storage, amortised allocation, cheap bulk join().
   vector<pair<size_t, vector<string> > > output;
 
+  // Main constructor: stores the inputs. The second constructor (with the Split tag) is used by TBB
+  // to create a copy of the worker for another thread: it copies the inputs but starts with an empty output.
   // constructor for initialization
   MCList(const arma::cube& pmat, int pnum_mat,
          const vector<vector<string> >& pnames,
@@ -313,6 +350,7 @@ struct MCList : public Worker
     include_t0(mclist.include_t0), init(mclist.init),
     init_state(mclist.init_state), base_seed(mclist.base_seed) {}
 
+  // operator(): generates the sequences numbered begin..end-1. This is where each thread works.
   void operator()(std::size_t begin, std::size_t end) {
 
     const unsigned int ci = include_t0 ? 1u : 0u;
@@ -375,6 +413,7 @@ struct MCList : public Worker
     }
   }
 
+  // join(): called by TBB to merge the results of another worker into this one.
   void join(const MCList& rhs) {
     // std::vector::insert is O(k) with amortised allocation; much faster
     // than copying one element at a time out of a std::list.
@@ -416,11 +455,18 @@ struct MCList : public Worker
 // markovchainSequenceParallelRcpp(mclist, 99999, TRUE)
 // 
 // 
+// markovchainSequenceParallelRcpp(): parallel version of markovchainListRcpp(). Steps:
+//   1. validate the input and copy every transition matrix into one 3-D Armadillo cube (plain C++
+//      data, because worker threads cannot touch R objects);
+//   2. draw ONE seed with R's RNG on the main thread (so set.seed() works);
+//   3. let MCList workers generate the sequences in parallel, each with its own C++ generator;
+//   4. sort the partial results back into the original order and return them as an R list.
 // [[Rcpp::export(.markovchainSequenceParallelRcpp)]]
 List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = false,
                                      CharacterVector init_state = CharacterVector()) {
   if (n < 0) stop("n must be non-negative");
   
+  // List of markovchain objects stored in the markovchains slot of the markovchainList.
   // list of markovchain object
   List object = listObject.slot("markovchains");
   if (object.size() < 1) stop("object must contain at least one Markov chain");
@@ -462,9 +508,11 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     size_emat[i] = states.size();
   }
   
+  // names[i][j] = name of the j-th state of the i-th chain (padded up to the largest chain).
   // Matrix with ith row store the states in ith t-matrix
   vector<vector<string> > names(num_matrix, vector<string>(max_dim_mat));
 
+  // The cube is indexed as mat(row, column, matrix number).
   // Transition matrices stacked as a cube. We always store the row-stochastic
   // orientation here, regardless of each chain's byrow slot, so that the
   // worker can read probabilities as mat(current_state, next_state, i).
@@ -507,6 +555,8 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     }
   }
 
+  // If the user gave an initial state, every sequence starts from it; otherwise each sequence
+  // starts from a state chosen uniformly at random (done inside the worker).
   // initial state is passed or not
   bool init = false;
   string ini_state;
@@ -525,6 +575,7 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
     base_seed = _mc_draw_seed();
   }
 
+  // Create the worker and run it: parallelReduce splits 0..n-1 among the available threads.
   // create an object of MCList class
   MCList mcList(mat, num_matrix, names, name_to_idx, size_emat,
                 include_t0, init, ini_state, base_seed);
@@ -540,6 +591,7 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
               return a.first < b.first;
             });
 
+  // Convert the C++ results into an R list (one character vector per sequence).
   List out(mcList.output.size());
   for (size_t i = 0; i < mcList.output.size(); ++i) {
     out[i] = mcList.output[i].second;
@@ -549,6 +601,9 @@ List markovchainSequenceParallelRcpp(S4 listObject, int n, bool include_t0 = fal
 }
 
 
+// _toRowProbs(): divides each row by its sum, turning a matrix of counts into a matrix of
+// transition probabilities. A row of zeros stays zero, unless sanitize is true, in which case it becomes
+// uniform (1/ncol). The dimnames are copied from the input.
 // convert a frequency matrix to a transition probability matrix
 NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
   int nrow = x.nrow(), ncol = x.ncol();
@@ -587,12 +642,21 @@ NumericMatrix _toRowProbs(NumericMatrix x, bool sanitize = false) {
 // The user-facing createSequenceMatrix() is the R wrapper in
 // R/fittingFunctions.R, which also implements sanitize = "absorbing"; this
 // routine only knows the historical logical behaviour.
+// createSequenceMatrix(): counts how many times each transition (from state A to state B) is observed.
+// The argument can be:
+//   * a list of sequences (counts are summed over all sequences, recursive call below);
+//   * a two-column character matrix (each row is one observed 'from' -> 'to' pair);
+//   * a character vector (consecutive elements form the transitions).
+// The result is a square matrix with the sorted states as row and column names; entry (i, j) is the
+// number of observed transitions from state i to state j. NA values are ignored.
 // [[Rcpp::export(.createSequenceMatrixRcpp)]]
 NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, bool sanitize = false,
                                    CharacterVector possibleStates = CharacterVector()) {
   
   //---------------------------------------------------------------------
   // check whether stringchar is a list or not
+  // Case 1: a list of sequences. First collect all states seen in any sequence (plus possibleStates),
+  // then build one matrix per sequence with the SAME set of states and add them up.
   if (TYPEOF(stringchar) == VECSXP) {
     List seqs = as<List>(stringchar);
     CharacterVector pstates; // possiblestates
@@ -639,6 +703,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   }
   //---------------------------------------------------------------------
   
+  // Case 2 and 3: a single sequence or a matrix of pairs.
   CharacterVector stringChar = as<CharacterVector>(stringchar);
   
   // may include missing values
@@ -654,6 +719,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   freqMatrix.attr("dimnames") = List::create(elements, elements); 
   CharacterVector rnames = rownames(freqMatrix);
   
+  // Case 2: matrix with two columns (from, to).
   if (Rf_isMatrix(stringchar)) {
     
     // coerce to CharacterMatrix
@@ -677,6 +743,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     }  
   }
   
+  // Case 3: a plain vector; transition i is the pair (element i, element i + 1).
   else {
     
     int posFrom = 0, posTo = 0;
@@ -714,6 +781,9 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
   return (freqMatrix);
 }
 
+// _loglikelihood(): log-likelihood of a sequence given a transition matrix, i.e. the sum over
+// consecutive pairs of log P(from, to). Note: it returns -Inf if the sequence uses a transition that has
+// probability zero.
 // log-likelihood
 double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   
@@ -740,6 +810,10 @@ double _loglikelihood(CharacterVector seq, NumericMatrix transMatr) {
   return out;
 }
 
+// mcListFitForList(): fits a non-homogeneous chain (markovchainList) from a list of sequences.
+// For each time step i it collects the pairs (state at time i-1, state at time i) of all the sequences
+// that are long enough, and builds the corresponding count matrix. Sequences are sorted by length so
+// that the ones that are too short are dropped progressively as i grows.
 // [[Rcpp::export(.mcListFitForList)]]
 List mcListFitForList(List data) {
   
@@ -817,6 +891,8 @@ List mcListFitForList(List data) {
 // whenever some transitions are rare, and which was verified by
 // simulation to cause coverage as low as ~55% for a nominal 95% interval
 // in that regime (vs. ~92% for the Wilson interval below).
+// generateCI(): standard errors and confidence intervals for the estimated probabilities.
+// It is called with a matrix of counts; the details of the method are explained in the comment above.
 List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   int sizeMatr = freqMatr.nrow();
   double alpha = 1.0 - confidencelevel;
@@ -870,6 +946,9 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
                       _["upperEndpointMatrix"] = upperEndpointMatr);
 }
 
+// _mcFitMle(): maximum-likelihood fit of a discrete-time Markov chain.
+// The MLE of P(i, j) is simply count(i, j) / (total transitions leaving i). The function returns a list
+// with the fitted markovchain and the standard errors and the confidence interval matrices.
 // Fit DTMC using MLE
 List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = false, 
                CharacterVector possibleStates = CharacterVector()) {
@@ -945,6 +1024,8 @@ List _mcFitMle(SEXP data, bool byrow, double confidencelevel, bool sanitize = fa
                       );
 }
 
+// _mcFitLaplacianSmooth(): like the MLE, but the constant 'laplacian' is added to every count before
+// normalising. This avoids zero probabilities for transitions that were never observed.
 // Fit DTMC using Laplacian smooth
 // stringchar is taken as SEXP rather than CharacterVector so that a list of
 // sequences is accepted as well as a single one: createSequenceMatrix() below
@@ -999,6 +1080,9 @@ List _mcFitLaplacianSmooth(SEXP stringchar, bool byrow, double laplacian = 0.01,
   return List::create(_["estimate"] = outMc);
 }
 
+// BootstrapProgress and BootstrapList below implement the parametric bootstrap used by the
+// 'bootstrap' fitting method: the fitted chain is used to simulate new sequences, each one is
+// re-estimated, and the spread of the estimates gives the standard errors.
 // bootstrap a sequence to produce a list of sample sequences
 // Optional text progress bar for the bootstrap, drawn with utils::txtProgressBar
 // (style 3) so that it looks like any other progress bar in R. It calls R, so
@@ -1033,6 +1117,9 @@ public:
   }
 };
 
+// _bootstrapCharacterSequences(): sequential (single thread) bootstrap. Starting from a random state,
+// it simulates 'n' new sequences of the same length as the data, each step drawing the next state from
+// the row of the estimated transition matrix that belongs to the current state.
 List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t size = -1, 
                                   CharacterVector possibleStates = CharacterVector(),
                                   BootstrapProgress* progress = NULL) {
@@ -1056,6 +1143,8 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t si
   int itemsetsize = itemset.size();
 
   // access R sample function
+  // We call R's own sample() function from C++; this is simple but slow, and is only possible
+  // because this code runs on the main thread.
   Function sample("sample");
   
   
@@ -1105,6 +1194,8 @@ List _bootstrapCharacterSequences(CharacterVector stringchar, int n, R_xlen_t si
 
 
 // estimate from the list of bootstrapped matrices
+// _fromBoot2Estimate(): given the list of matrices estimated on each bootstrap sample, computes the
+// mean (estMu) and the standard deviation (estSigma) of every entry across the samples.
 List _fromBoot2Estimate(List listMatr) {
   
   // number of transition matrices 
@@ -1142,6 +1233,8 @@ List _fromBoot2Estimate(List listMatr) {
   return List::create(_["estMu"] = matrMean, _["estSigma"] = matrSd);
 }
 
+// BootstrapList: RcppParallel worker that generates the bootstrap sequences in parallel
+// (same pattern as MCList above: constructor, Split constructor, operator() and join()).
 struct BootstrapList : public Worker {
 
   // Row-stochastic transition matrix (read-only). RMatrix is RcppParallel's
@@ -1208,6 +1301,8 @@ struct BootstrapList : public Worker {
   }
 };
 
+// Parallel bootstrap driver: prepares the data on the main thread, draws the seed, runs the worker,
+// then restores the original order of the generated sequences.
 List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, R_xlen_t size = -1,
                                           CharacterVector possibleStates = CharacterVector()) {
   // store length of sequence
@@ -1251,6 +1346,12 @@ List _bootstrapCharacterSequencesParallel(CharacterVector stringchar, int n, R_x
   return out;
 }
 
+// _mcFitBootStrap(): fit of a DTMC by bootstrap. Steps:
+//   1. estimate a first transition matrix from the data;
+//   2. generate 'nboot' new sequences from it (in parallel or not);
+//   3. estimate a transition matrix from each new sequence;
+//   4. the mean of those matrices is the final estimate, their standard deviation is its standard
+//      error, and a normal confidence interval is built from it.
 // Fit DTMC using bootstrap method
 List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel, double confidencelevel, bool sanitize = false,
                      CharacterVector possibleStates = CharacterVector(), bool progress = false) {
@@ -1363,6 +1464,9 @@ List _mcFitBootStrap(CharacterVector data, int nboot, bool byrow, bool parallel,
   return out;
 }
 
+// _matr2Mc(): builds a markovchain from a matrix where every row is one observed sequence
+// (columns = time steps). Counts transitions between adjacent columns, optionally adds the Laplacian
+// constant, and normalises each row of the count matrix to probabilities.
 // convert matrix data to transition probability matrix
 // [[Rcpp::export(.matr2Mc)]]
 S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = false, 
@@ -1457,6 +1561,8 @@ S4 _matr2Mc(CharacterMatrix matrData, double laplacian = 0, bool sanitize = fals
   return(outMc);
 }
 
+// _list2Mc(): same as _matr2Mc() but the sequences come as a list of character vectors,
+// so they may have different lengths.
 // convert matrix data to transition probability matrix
 // [[Rcpp::export(.list2Mc)]]
 S4 _list2Mc(List data, double laplacian = 0, bool sanitize = false) {
@@ -1544,49 +1650,57 @@ S4 _list2Mc(List data, double laplacian = 0, bool sanitize = false) {
   return(outMc);
 }
 
+// Note: lines starting with //' below are roxygen comments (they generate the help page of
+// inferHyperparam): do not modify their format.
 //' @name inferHyperparam
-//' @title Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set
-//' @description Since the Bayesian inference approach implemented in the package is based on conjugate priors, 
-//'              hyperparameters must be provided to model the prior probability distribution of the chain 
-//'              parameters. The hyperparameters are inferred from a given a priori matrix under the assumption 
-//'              that the matrix provided corresponds to the mean (expected) values of the chain parameters. A 
-//'              scaling factor vector must be provided too. Alternatively, the hyperparameters can be inferred 
-//'              from a data set. 
-//'              
-//' @param transMatr A valid transition matrix, with dimension names.
-//' @param scale A vector of scaling factors, each element corresponds to the row names of the provided transition 
-//'              matrix transMatr, in the same order. 
-//' @param data A data set from which the hyperparameters are inferred.  
-//' 
-//' @details transMatr and scale need not be provided if data is provided.
-//' @return Returns the hyperparameter matrix in a list.
-//' 
-//' @note The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, 
-//'       and the elements in the matrix are correspondingly permuted. 
-//' 
-//' @references Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-//'             package version 0.2.5       
-//'             
+//' @title Hyperparameters for Bayesian estimation of a Markov chain
+//' @description The Bayesian estimation of the package uses independent
+//'   Dirichlet priors for the rows of the transition matrix. This function
+//'   infers their hyperparameters either from a prior transition matrix,
+//'   taken as the prior mean, and a scale for each row (its total
+//'   hyperparameter), or from a data set, as the transition counts plus one.
+//'
+//' @param transMatr A prior transition matrix, with the states as dimnames.
+//' @param scale A numeric vector with the scale (sum of the hyperparameters)
+//'   of each row of `transMatr`, in the same order.
+//' @param data A sequence of states (or a data set accepted by
+//'   [markovchainFit()]) from which the hyperparameters are inferred.
+//'
+//' @details Either `data`, or `transMatr` and `scale`, must be given.
+//' @return A list with element `scaledInference` (from `transMatr` and
+//'   `scale`) or `dataInference` (from `data`), the matrix of
+//'   hyperparameters. Its rows and columns are sorted alphanumerically by
+//'   state name.
+//'
+//' @references Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian
+//'   inference of first order Markov chains. Vignette of the markovchain
+//'   package.
+//'
 //' @author Sai Bhargav Yalamanchi, Giorgio Spedicato
-//' @seealso \code{\link{markovchainFit}}, \code{\link{predictiveDistribution}}
-//' 
+//' @family Bayesian inference
+//' @seealso [markovchainFit()] (`method = "map"`), which uses them.
+//'
 //' @examples
 //' data(rain, package = "markovchain")
 //' inferHyperparam(data = rain$rain)
-//'  
+//'
 //' weatherStates <- c("sunny", "cloudy", "rain")
-//' weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
-//'                                  0.3, 0.4, 0.3, 
-//'                                  0.2, 0.4, 0.4), 
-//'                         byrow = TRUE, nrow = 3, 
+//' weatherMatrix <- matrix(c(0.7, 0.2, 0.1,
+//'                           0.3, 0.4, 0.3,
+//'                           0.2, 0.4, 0.4),
+//'                         byrow = TRUE, nrow = 3,
 //'                         dimnames = list(weatherStates, weatherStates))
 //' inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
-//'  
 //' @export
 //'  
 // [[Rcpp::export]]
 List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector scale = NumericVector(), CharacterVector data = CharacterVector()) {
   
+  // Two ways to use this function:
+  //   (a) from an a-priori transition matrix plus a scale vector (the hyperparameters are the matrix
+  //       rows multiplied by the scale of that row);
+  //   (b) from data (the hyperparameters are 1 + the observed transition counts).
+  // The code first validates the arguments, then builds the result.
   // stop if there is only one element in the matrix and size of data sequence is zero
   if (transMatr.nrow() * transMatr.ncol() == 1 && data.size() == 0)
     stop("Provide the prior transition matrix or the data set in order to infer the hyperparameters");
@@ -1600,6 +1714,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
       stop("Provide a non-zero scaling factor vector to infer integer hyperparameters");
     }
       
+    // Validity checks for the transition matrix: square, entries in [0, 1], every row sums to 1
+    // (within a small tolerance), and the row names equal the column names with no duplicates.
     // --------begin validity checks for the transition matrix---------
     if (transMatr.nrow() != transMatr.ncol()) {
       stop("Transition matrix dimensions are inconsistent");
@@ -1662,6 +1778,7 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     // --------end of validity checks for the scale factor vector---------  
       
     
+    // Hyperparameter matrix = row i of the prior matrix multiplied by scale[i].
     // Creation of output matrix i.e. hyper param matrix
     NumericMatrix hpScaled(sizeMatr);
     hpScaled.attr("dimnames") = List::create(rowNames, colNames);
@@ -1679,6 +1796,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
     out = List::create(_["scaledInference"] = hpScaled);
   }
   
+  // Case (b): hyperparameters inferred from data. Start with a count of 1 in every cell (a flat prior),
+  // then add one for each observed transition.
   else if (data.size() != 0) {
     
     // to store unique states in sorted order
@@ -1713,13 +1832,26 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 }
 
 
+// markovchainFit(): central entry point for fitting a discrete-time Markov chain. It is exported to R
+// as .markovchainFitRcpp and wrapped by the R function markovchainFit() (R/fittingFunctions.R).
+// It dispatches on the type of input data and on 'method':
+//   * data frame / matrix  -> every row is a trajectory (_matr2Mc);
+//   * list of sequences    -> mle, map or laplace on the pooled counts (bootstrap is refused);
+//   * character vector     -> mle, bootstrap, laplace or map.
+// The roxygen block (lines starting with //' ) documents the function: keep it intact.
 //' @name markovchainFit
-//' @title Function to fit a discrete Markov chain
-//' @description Given a sequence of states arising from a stationary state, 
-//'  it fits the underlying Markov chain distribution using either MLE (also using a 
-//'  Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
-//'  
-//' @param data It can be a character vector or a \deqn{n x n} matrix or a \deqn{n x n} data frame or a list
+//' @title Fit a discrete time Markov chain
+//' @description Estimates the transition matrix of a homogeneous discrete
+//'   time Markov chain from observed sequences of states, by maximum
+//'   likelihood (optionally with Laplace smoothing), by bootstrap, or by
+//'   maximum a posteriori (Bayesian) estimation with Dirichlet priors.
+//'   `createSequenceMatrix()` returns the matrix of transition counts (or
+//'   frequencies) on which the estimates are based.
+//'
+//' @param data The observed sequence(s): a character vector (one sequence), a
+//'   list of character vectors (independent sequences), or a matrix or data
+//'   frame with one trajectory per row (per column if `byrow = FALSE`) and one
+//'   time per column.
 //' @param method Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace".
 //'               All four are available for a single sequence. For a list of
 //'               sequences, "mle", "map" and "laplace" pool the transition counts
@@ -1736,15 +1868,17 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                  is chosen.  
 //' @param name Optional character for name slot. 
 //' @param parallel Use parallel processing when performing Boostrap estimates.
-//' @param confidencelevel \deqn{\alpha} level for conficence intervals width. 
-//'                        Used only when \code{method} equal to "mle".
-//' @param confint a boolean to decide whether to compute Confidence Interval or not.                       
-//' @param hyperparam Hyperparameter matrix for the a priori distribution. If none is provided, 
-//'                   default value of 1 is assigned to each parameter. This must be of size
-//'                   \deqn{k x k} where k is the number of states in the chain and the values
-//'                   should typically be non-negative integers.                        
-//' @param stringchar It can be a \deqn{n x n} matrix or a character vector or a list
-//' @param toRowProbs converts a sequence matrix into a probability matrix
+//' @param confidencelevel Confidence level of the intervals (default 0.95).
+//' @param confint Logical: compute standard errors and confidence intervals
+//'   (default `TRUE`)?
+//' @param hyperparam For `method = "map"`, the matrix of Dirichlet
+//'   hyperparameters, \eqn{k \times k} for \eqn{k} states, with the states as
+//'   dimnames (see [inferHyperparam()]). The default sets all of them to 1.
+//' @param stringchar For `createSequenceMatrix()`: a character vector (one
+//'   sequence), a list of sequences, or a two-column matrix of transitions
+//'   (from, to), one per row.
+//' @param toRowProbs Logical: return the transition frequencies (each row
+//'   divided by its total) instead of the counts?
 //' @param sanitize how to deal with the states that have no observed outgoing
 //'                 transition, which is what \code{possibleStates} typically
 //'                 introduces. \code{FALSE} (the default) leaves their row at
@@ -1759,7 +1893,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //'                 making every unobserved state absorbing; this also gives a
 //'                 stochastic matrix, but adds no transition that was never
 //'                 observed (see #213).
-//' @param possibleStates Possible states which are not present in the given sequence
+//' @param possibleStates States to include in the result even if they do not
+//'   appear in the data.
 //' @param progress Should a text progress bar be shown? It is only used by
 //'                 the "bootstrap" method, the other methods being fast; see Details.
 //' 
@@ -1773,19 +1908,33 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
 //' parallel threads, which cannot report progress, so the bar only covers the
 //' estimation step. The computation can be interrupted while the bar is shown.
 //' 
-//' @return A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
-//'         of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
-//'         is used, the lower and upper confidence bounds are returned along with the standard error. 
-//'         The "map" method also returns the expected value of the parameters with respect to the 
-//'         posterior distribution.
-//' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-//'             
-//'             Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
-//'             and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
-//'             Alfred Hubler, Santa Fe Institute
-//' 
-//'             Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-//'             package version 0.2.5          
+//' @return `markovchainFit()` returns a list whose element `estimate` is the
+//'   fitted [`markovchain`][markovchain-class] object. The other elements
+//'   depend on the method:
+//'   * `"mle"`: `standardError`, `confidenceLevel`, `lowerEndpointMatrix`,
+//'     `upperEndpointMatrix` (when `confint = TRUE`) and `logLikelihood`;
+//'   * `"laplace"`: `logLikelihood`;
+//'   * `"map"`: `expectedValue` (posterior mean of the transition matrix),
+//'     `standardError`, `confidenceInterval` and `logLikelihood`;
+//'   * `"bootstrap"`: `standardError`, `confidenceInterval`,
+//'     `bootStrapSamples` and `logLikelihood`.
+//'
+//'   For matrix or data frame input only the maximum likelihood estimate is
+//'   computed, whatever `method`, and there is no `logLikelihood`.
+//'
+//'   `createSequenceMatrix()` returns the square matrix of transition counts
+//'   (frequencies, with `toRowProbs = TRUE`), with the states as dimnames.
+//' @references
+//' Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about
+//' Markov chains. The Annals of Mathematical Statistics 28(1), 89-110.
+//'
+//' Strelioff, C. C., Crutchfield, J. P. and Hubler, A. W. (2007). Inferring
+//' Markov chains: Bayesian estimation, model comparison, entropy rate, and
+//' out-of-class modeling. Physical Review E 76, 011106.
+//' \doi{10.1103/PhysRevE.76.011106}
+//'
+//' Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian inference of
+//' first order Markov chains. Vignette of the markovchain package.          
 //'             
 //' @author Giorgio Spedicato, Tae Seung Kang, Sai Bhargav Yalamanchi
 //' @note This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
@@ -1837,9 +1986,11 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     stop("laplacian must be non-negative.");
   }
   
+  // 'out' will hold the estimate and, depending on the method, standard errors and confidence intervals.
   // list to store the output
   List out;
   
+  // Case 1: input is a data frame or a matrix.
   // if input data is data frame or matrix
   if (Rf_inherits(data, "data.frame") || Rf_isMatrix(data)) { 
     
@@ -1888,6 +2039,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
       out = List::create(_["estimate"] = outMc);
     }
   }
+  // Case 2: input is a list of sequences.
   else if (TYPEOF(data) == VECSXP) {
     if (method == "mle") {
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
@@ -1909,6 +2061,7 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
            "pick one for you. Use method = \"mle\", \"laplace\" or \"map\" on "
            "the list, or pass a single sequence to bootstrap it.");
   }
+  // Case 3: input is a single sequence (character vector).
   else {
     if (method == "mle") {
       out = _mcFitMle(data, byrow, confidencelevel, sanitize, possibleStates);
@@ -1922,6 +2075,8 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
     }
   }
   
+  // Common final steps: set the optional name, fill the 'states' slot from the row names of the
+  // transition matrix and, for a single sequence, add the log-likelihood of the data.
   // markovchain object
   S4 estimate = out["estimate"];
   
@@ -1943,6 +2098,8 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true, int nbo
 }
 
           
+// noofVisitsDistRCpp(): distribution of the number of visits to each state in N steps when starting
+// from state i (1-based index). It averages the first N powers of the transition matrix.
 // [[Rcpp::export(.noofVisitsDistRCpp)]]
 NumericVector noofVisitsDistRCpp(NumericMatrix matrix, int i,int N) {
   if (matrix.nrow() != matrix.ncol()) stop("matrix must be square");

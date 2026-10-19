@@ -12,12 +12,12 @@ data("sales")
 }
 \description{
 Sales demand sequences of five products (A, B, C, D, E).
-             Each row corresponds to a sequence. First row corresponds to Sequence A, 
-             Second row to Sequence B and so on.
+Each row corresponds to a sequence. First row corresponds to Sequence A,
+Second row to Sequence B and so on.
 }
 \details{
 The example can be used to fit High order multivariate
-         markov chain.
+markov chain.
 }
 \examples{
 data("sales")

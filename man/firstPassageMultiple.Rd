@@ -2,44 +2,58 @@
 % Please edit documentation in R/probabilistic.R
 \name{firstPassageMultiple}
 \alias{firstPassageMultiple}
-\title{function to calculate first passage probabilities}
+\title{First passage time distribution of a set of states}
 \usage{
 firstPassageMultiple(object, state, set, n)
 }
 \arguments{
-\item{object}{a markovchain-class object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{state}{intital state of the process (charactervector)}
+\item{state}{Name of the initial state.}
 
-\item{set}{set of states A, first passage of which is to be calculated}
+\item{set}{Names of the states of the target set.}
 
-\item{n}{Number of rows on which compute the distribution}
+\item{n}{Number of steps, a positive integer.}
 }
 \value{
-A vector of size n showing the first time proabilities
+A one-column matrix (column \code{"set"}) with \code{n} rows: row \eqn{k}
+is the probability that the first passage into \code{set} happens at step
+\eqn{k}.
 }
 \description{
-The function calculates first passage probability for a subset of
-states given an initial state.
+Distribution of the first passage time into a set of states:
+the probability that a Markov chain started in \code{state} enters \code{set} for
+the first time at step \eqn{k = 1, \dots, n}.
 }
 \examples{
 statesNames <- c("a", "b", "c")
 markovB <- new("markovchain", states = statesNames, transitionMatrix =
-matrix(c(0.2, 0.5, 0.3,
-         0, 1, 0,
-         0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
-       dimnames = list(statesNames, statesNames)
-))
-firstPassageMultiple(markovB,"a",c("b","c"),4)  
-
+  matrix(c(0.2, 0.5, 0.3,
+           0, 1, 0,
+           0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+         dimnames = list(statesNames, statesNames)))
+firstPassageMultiple(markovB, "a", c("b", "c"), 4)
 }
 \references{
-Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains;
-MIT OCW, course - 6.262, Discrete Stochastic Processes, course-notes, chap -05
+Feres, R. Notes for Math 450: Matlab listings for Markov chains.
+Washington University in St. Louis.
+
+Gallager, R. G. 6.262 Discrete Stochastic Processes, course notes,
+chapter 5. MIT OpenCourseWare.
 }
 \seealso{
-\code{\link{firstPassage}}
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
 }
 \author{
 Vandit Jain
 }
+\concept{first passage and hitting}

@@ -18,6 +18,7 @@
     ))
   }
 
+  # Row-stochastic dense matrix.
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -31,15 +32,21 @@
     return(numeric(0))
   }
 
+  # The eigenvalues of P describe how fast the chain forgets its starting point: the eigenvalue 1
+  # corresponds to the stationary distribution, the others (all with modulus <= 1) to the
+  # convergence speed.
   # Eigenvectors are not needed by any of the callers.
   values <- eigen(P, only.values = TRUE)$values
 
+  # Identify the trivial eigenvalue 1 as the one closest to 1 (it may be slightly off because of
+  # round-off), and check it really is close enough.
   unit <- which.min(Mod(values - 1))
   tol <- sqrt(.Machine$double.eps) * max(1, n)
   if (Mod(values[unit] - 1) > tol) {
     stop("Unable to identify the trivial (unit) eigenvalue of the transition matrix.")
   }
 
+  # Keep the moduli (absolute values; eigenvalues can be complex) of all the others.
   moduli <- Mod(values[-unit])
   sort(moduli, decreasing = TRUE)
 }
@@ -96,9 +103,12 @@
 #' slem(mc)
 #'
 #' @exportMethod slem
+# SLEM = Second Largest Eigenvalue Modulus: the largest modulus among the non-trivial eigenvalues.
+# The closer to 1, the slower the convergence to the stationary distribution.
 setGeneric("slem", function(object) standardGeneric("slem"))
 
 #' @rdname slem
+# Method for markovchain objects. A single-state chain has no other eigenvalue: SLEM = 0.
 setMethod("slem", "markovchain", function(object) {
   moduli <- .nonTrivialEigenvalueModuli(object, "slem")
   value <- if (length(moduli) == 0L) 0 else moduli[1]
@@ -150,6 +160,7 @@ setMethod("slem", "markovchain", function(object) {
 #' spectralGap(mc)
 #'
 #' @exportMethod spectralGap
+# Spectral gap = 1 - SLEM: large gap means fast mixing.
 setGeneric("spectralGap", function(object) standardGeneric("spectralGap"))
 
 #' @rdname spectralGap
@@ -241,6 +252,8 @@ setMethod("spectralGap", "markovchain", function(object) {
 #' impliedTimescales(mc)
 #'
 #' @exportMethod impliedTimescales
+# Implied timescales tau_k = -1 / log(|lambda_k|): the characteristic relaxation time of each
+# non-trivial eigenvalue (a slow process has a large tau).
 setGeneric("impliedTimescales", function(object) standardGeneric("impliedTimescales"))
 
 #' @rdname impliedTimescales
@@ -250,11 +263,13 @@ setMethod("impliedTimescales", "markovchain", function(object) {
     return(stats::setNames(numeric(0), character(0)))
   }
 
+  # Limit cases: modulus ~ 1 means the mode never decays (Inf), modulus ~ 0 means it vanishes at once (0).
   tol <- sqrt(.Machine$double.eps)
   tau <- ifelse(
     moduli >= 1 - tol, Inf,
     ifelse(moduli <= tol, 0, -1 / log(moduli))
   )
+  # Name the result tau2, tau3, ... (tau1 would belong to the trivial eigenvalue).
   names(tau) <- paste0("tau", seq(2L, length(tau) + 1L))
   tau
 })

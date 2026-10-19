@@ -2,7 +2,7 @@
 % Please edit documentation in R/fittingFunctions.R
 \name{rmarkovchain}
 \alias{rmarkovchain}
-\title{Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.}
+\title{Simulate from a homogeneous or non-homogeneous Markov chain}
 \usage{
 rmarkovchain(
   n,
@@ -15,78 +15,74 @@ rmarkovchain(
 )
 }
 \arguments{
-\item{n}{Sample size}
+\item{n}{For a \code{markovchain}, the number of steps of the trajectory; for a
+\code{markovchainList}, the number of trajectories, each as long as the list.}
 
-\item{object}{Either a \code{markovchain} or a \code{markovchainList} object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} or
+\code{\link[=markovchainList-class]{markovchainList}} object.}
 
-\item{what}{It specifies whether either a \code{data.frame} or a \code{matrix} 
-(each rows represent a simulation) or a \code{list} is returned.}
+\item{what}{Form of the output for a \code{markovchainList}: \code{"data.frame"}
+(default; columns \code{iteration} and \code{values}, one row per simulated
+state), \code{"matrix"} (one row per trajectory) or \code{"list"} (one character
+vector per trajectory). Ignored for a \code{markovchain}.}
 
-\item{useRCpp}{Boolean. Should RCpp fast implementation being used? Default is yes.}
+\item{useRCpp}{Logical: use the C++ implementation (default)?}
 
-\item{parallel}{Boolean. Should parallel implementation being used? Default is yes.}
+\item{parallel}{Logical: simulate the trajectories of a \code{markovchainList}
+in parallel (default \code{FALSE})?}
 
 \item{num.cores}{Number of threads used when \code{parallel = TRUE}. If
 \code{NULL} (the default) the thread count is read from
-\code{getOption("RcppParallel.numThreads")}, then
-\code{getOption("Ncpus")}, then \code{RCPP_PARALLEL_NUM_THREADS}, then
-\code{OMP_NUM_THREADS}, falling back to \code{min(2, cores)} as CRAN
-policy requires. Previous versions defaulted to
-\code{parallel::detectCores() - 1}, which could grab all available cores
-unexpectedly.}
+\code{getOption("RcppParallel.numThreads")}, then \code{getOption("Ncpus")}, then
+the environment variables \code{RCPP_PARALLEL_NUM_THREADS} and
+\code{OMP_NUM_THREADS}, falling back to \code{min(2, cores)} as CRAN policy
+requires.}
 
-\item{...}{additional parameters passed to the internal sampler}
+\item{...}{Further arguments: \code{t0} (initial state) and \code{include.t0}
+(include it in the output), as in \code{\link[=markovchainSequence]{markovchainSequence()}}.}
 }
 \value{
-Character Vector, data.frame, list or matrix
+For a \code{markovchain}, a character vector of states. For a
+\code{markovchainList}, a data frame, matrix or list, according to \code{what}.
 }
 \description{
-Provided any \code{markovchain} or \code{markovchainList} objects, it returns a sequence of 
-states coming from the underlying stationary distribution.
+Simulates trajectories of a homogeneous Markov chain (a
+\code{\link[=markovchain-class]{markovchain}} object) or of a non-homogeneous one (a
+\code{\link[=markovchainList-class]{markovchainList}} object, whose \eqn{k}-th
+matrix gives the transition from time \eqn{k - 1} to time \eqn{k}).
 }
 \details{
-When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
-sampled of size n. When a non - homogeneous process is assumed,
-n samples are taken but the process is assumed to last from the begin to the end of the 
-non-homogeneous markov process.
-}
-\note{
-Check the type of input
+For a \code{markovchain} the function calls \code{\link[=markovchainSequence]{markovchainSequence()}}.
+For a \code{markovchainList} each trajectory starts from \code{t0} (by default a
+state drawn at random) and moves once with each matrix of the list.
 }
 \examples{
-# define the markovchain object
 statesNames <- c("a", "b", "c")
-mcB <- new("markovchain", states = statesNames, 
-   transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
-   nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mcA <- new("markovchain", states = statesNames, transitionMatrix =
+  matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3,
+  byrow = TRUE, dimnames = list(statesNames, statesNames)))
+rmarkovchain(n = 20, object = mcA, t0 = "a")
 
-# show the sequence
-outs <- rmarkovchain(n = 100, object = mcB, what = "list")
-
-
-#define markovchainList object
-statesNames <- c("a", "b", "c")
-mcA <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mcB <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mcC <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC)) 
-
-# show the list of sequence
-rmarkovchain(100, mclist, "list")
-     
+# a non-homogeneous chain: a different matrix at each of three steps
+mcB <- new("markovchain", states = statesNames, transitionMatrix =
+  matrix(c(0.5, 0.5, 0, 0.1, 0.8, 0.1, 0, 0.5, 0.5), nrow = 3,
+  byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcA))
+rmarkovchain(5, mclist, what = "matrix")
+rmarkovchain(2, mclist, what = "list", t0 = "a", include.t0 = TRUE)
 }
 \references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+Ross, S. (2010). A First Course in Probability (8th edition).
+Prentice Hall.
 }
 \seealso{
-\code{\link{markovchainFit}}, \code{\link{markovchainSequence}}
+\code{\link[=markovchainFit]{markovchainFit()}} and \code{\link[=markovchainListFit]{markovchainListFit()}} for the reverse
+operation.
+
+Other simulation: 
+\code{\link{markovchainSequence}()}
 }
 \author{
 Giorgio Spedicato
 }
+\concept{simulation}

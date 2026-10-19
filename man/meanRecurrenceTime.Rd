@@ -10,15 +10,15 @@ meanRecurrenceTime(object)
 \item{object}{the markovchain object}
 }
 \value{
-For a Markov chain it outputs is a named vector with the expected 
-  time to first return to a state when the chain starts there.
-  States present in the vector are only the recurrent ones. If the matrix
-  is ergodic (i.e. irreducible), then all states are present in the output
-  and order is the same as states order for the Markov chain
+For a Markov chain it outputs is a named vector with the expected
+time to first return to a state when the chain starts there.
+States present in the vector are only the recurrent ones. If the matrix
+is ergodic (i.e. irreducible), then all states are present in the output
+and order is the same as states order for the Markov chain
 }
 \description{
 Computes the expected time to return to a recurrent state
-  in case the Markov chain starts there
+in case the Markov chain starts there
 }
 \examples{
 m <- matrix(1 / 10 * c(6,3,1,
@@ -32,6 +32,19 @@ meanRecurrenceTime(mc)
 C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Ignacio Cordón
 }
+\concept{first passage and hitting}

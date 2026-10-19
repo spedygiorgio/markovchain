@@ -59,14 +59,16 @@ test_that("the NaN no longer propagates into fitHigherOrder()'s Q %*% X products
 }
 
 test_that("fitHigherOrder returns valid weights", {
-  skip_if_not_installed("Rsolnp")
   data(rain)
-  for (k in 1:3) {
-    fit <- fitHigherOrder(rain$rain, order = k)
+  for (method in c("mle", "lsq")) for (k in 1:3) {
+    if (method == "lsq") skip_if_not_installed("Rsolnp")
+    fit <- fitHigherOrder(rain$rain, order = k, method = method)
     expect_length(fit$lambda, k)
     expect_true(all(fit$lambda >= -1e-6))
     expect_equal(sum(fit$lambda), 1, tolerance = 1e-6)
   }
+  # the default is the maximum likelihood fit
+  expect_equal(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "mle"))
 })
 
 test_that("fitHigherOrder minimizes the distance to the stationary distribution", {
@@ -74,7 +76,7 @@ test_that("fitHigherOrder minimizes the distance to the stationary distribution"
   data(rain)
   data(preproglucacon)
   for (s in list(rain$rain, preproglucacon$preproglucacon)) {
-    fit <- fitHigherOrder(s, order = 2)
+    fit <- fitHigherOrder(s, order = 2, method = "lsq")
     grid <- seq(0, 1, by = 0.01)
     gridObjective <- sapply(grid, function(a) .hoObjective(s, c(a, 1 - a)))
     # the fit must be at least as good as every point of a fine grid
@@ -85,7 +87,7 @@ test_that("fitHigherOrder minimizes the distance to the stationary distribution"
 test_that("fitHigherOrder no longer stays at the starting point", {
   skip_if_not_installed("Rsolnp")
   data(preproglucacon)
-  fit <- fitHigherOrder(preproglucacon$preproglucacon, order = 2)
+  fit <- fitHigherOrder(preproglucacon$preproglucacon, order = 2, method = "lsq")
   # the minimum of the distance is at about (0.69, 0.31), not at (0.5, 0.5)
   expect_gt(abs(fit$lambda[1] - 0.5), 0.1)
   expect_lt(.hoObjective(preproglucacon$preproglucacon, fit$lambda),
@@ -94,8 +96,10 @@ test_that("fitHigherOrder no longer stays at the starting point", {
 
 test_that("order 1 gives weight 1", {
   skip_if_not_installed("Rsolnp")
-  expect_equal(fitHigherOrder(c("a","b","a","c","b","a","b","c","a"), order = 1)$lambda, 1,
-               tolerance = 1e-6)
+  for (method in c("lsq", "mle")) {
+    expect_equal(fitHigherOrder(c("a","b","a","c","b","a","b","c","a"), order = 1,
+                                method = method)$lambda, 1, tolerance = 1e-6)
+  }
 })
 
 ### method = "mle": weights by maximum likelihood (EM), same lag matrices.
@@ -116,20 +120,19 @@ test_that("method = 'mle' returns weights on the simplex and the usual structure
   expect_equal(fitHigherOrder(rain$rain, order = 1, method = "mle")$lambda, 1)
 })
 
-test_that("method = 'mle' uses the same lag matrices as the default method", {
+test_that("method = 'mle' uses the same lag matrices as method = 'lsq'", {
   skip_if_not_installed("Rsolnp")
   data(preproglucacon)
   s <- preproglucacon$preproglucacon
-  lsq <- fitHigherOrder(s, 2)
+  lsq <- fitHigherOrder(s, 2, method = "lsq")
   mle <- fitHigherOrder(s, 2, method = "mle")
   expect_equal(mle$Q, lsq$Q)
   expect_equal(mle$X, lsq$X)
 })
 
-test_that("the default method is unchanged by the new argument", {
-  skip_if_not_installed("Rsolnp")
+test_that("the default method is the maximum likelihood one", {
   data(rain)
-  expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "lsq"))
+  expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "mle"))
   expect_error(fitHigherOrder(rain$rain, 2, method = "foo"), "should be one of")
 })
 
@@ -158,8 +161,78 @@ test_that("maximum likelihood weights never give a lower log-likelihood than lea
   data(rain)
   data(preproglucacon)
   for (s in list(rain$rain, preproglucacon$preproglucacon)) for (k in 2:3) {
-    lsq <- fitHigherOrder(s, k)
+    lsq <- fitHigherOrder(s, k, method = "lsq")
     mle <- fitHigherOrder(s, k, method = "mle")
     expect_gte(higherOrderLogLik(s, mle)$logLik, higherOrderLogLik(s, lsq)$logLik - 1e-8)
   }
+})
+
+test_that("the weights satisfy the optimality conditions and beat a long EM run", {
+  # Optimality (KKT) conditions of the concave problem on the simplex:
+  # g_o <= 1 for every lag, with g_o = 1 where lambda_o > 0, where g_o is the
+  # derivative of the log-likelihood in lambda_o divided by the number of
+  # observations. Checked without grouping the observations, together with
+  # the log-likelihood reached by 20000 plain EM iterations (the method used
+  # before), which the weights must not lose to.
+  check <- function(seqs, order) {
+    fit <- fitHigherOrder(seqs, order)
+    states <- rownames(fit$Q[[1L]])
+    q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
+      idx <- match(s, states)
+      times <- (order + 1L):length(idx)
+      sapply(seq_len(order), function(o) fit$Q[[o]][cbind(idx[times], idx[times - o])])
+    }))
+    g <- colMeans(q / drop(q %*% fit$lambda))
+    info <- paste("order", order)
+    expect_true(all(g <= 1 + 1e-8), info = info)
+    expect_true(all(abs(g[fit$lambda > 0] - 1) <= 1e-8), info = info)
+    expect_equal(sum(fit$lambda), 1)
+    lambda <- rep(1 / order, order)
+    for (i in seq_len(20000L)) {
+      w <- sweep(q, 2L, lambda, "*")
+      lambda <- colMeans(w / rowSums(w))
+    }
+    expect_gte(sum(log(q %*% fit$lambda)), sum(log(q %*% lambda)) - 1e-9)
+    fit$lambda
+  }
+  data(rain, package = "markovchain")
+  for (order in 2:5) check(list(rain$rain), order)
+  check(list(rain$rain[1:500], rain$rain[501:1096]), 3)
+  # i.i.d. data: the lags carry the same information, EM needed more than
+  # 10000 iterations at order 4 and stopped short of the maximum
+  set.seed(2)
+  x <- sample(letters[1:4], 3000, TRUE)
+  expect_silent(check(list(x), 4))
+  # a first-order chain fitted at order 3: the higher lags are worth nothing,
+  # their weights are (essentially) 0 and their gradients at most 1
+  set.seed(3)
+  s <- c("a", "b", "c")
+  mc <- new("markovchain", states = s, transitionMatrix = matrix(
+    c(0.8, 0.1, 0.1, 0.1, 0.8, 0.1, 0.1, 0.1, 0.8), 3, byrow = TRUE, dimnames = list(s, s)))
+  lambda <- check(list(rmarkovchain(3000, mc, t0 = "a")), 3)
+  expect_gt(lambda[1], 0.9)
+})
+
+test_that("the Newton solver handles boundary, collinear and degenerate problems", {
+  newton <- markovchain:::.mixtureWeightsNewton
+  kkt <- function(q, counts, l) {
+    g <- colSums(q * (counts / drop(q %*% l))) / sum(counts)
+    max(g - 1, abs(g[l > 0] - 1))
+  }
+  set.seed(10)
+  for (rep in 1:200) {
+    k <- sample(1:8, 1)
+    H <- sample(c(3, 5, 20, 200), 1)
+    q <- matrix(runif(H * k)^sample(c(1, 3, 8), 1), H, k)
+    if (k > 2 && rep %% 3 == 0) q[, 2] <- q[, 1] * (1 + 1e-9 * runif(H))  # nearly collinear
+    if (k > 1 && rep %% 4 == 0) q[, k] <- q[, k] * 1e-3                    # a useless lag
+    q <- pmax(q, 1e-12)
+    counts <- sample(1:50, H, TRUE)
+    l <- newton(q, counts)
+    expect_true(attr(l, "converged"), info = paste("case", rep))
+    expect_lte(kkt(q, counts, as.numeric(l)), 1e-8)
+    expect_true(all(l >= 0) && abs(sum(l) - 1) < 1e-12)
+  }
+  # one component: weight 1
+  expect_equal(as.numeric(newton(matrix(c(0.2, 0.5), 2, 1), c(3, 4))), 1)
 })

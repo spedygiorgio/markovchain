@@ -125,3 +125,50 @@ test_that("is.TimeReversible works", {
 })
 
 
+
+test_that("is.TimeReversible() tolerates rounding and checks detailed balance", {
+  s <- c("a", "b", "c")
+  # a birth-death chain is reversible; before 1.2.1 the exact comparison of
+  # pi_i Q_ij with pi_j Q_ji rejected it
+  bd <- matrix(c(-0.3, 0.3, 0, 0.1, -0.5, 0.4, 0, 0.7, -0.7), 3, byrow = TRUE,
+               dimnames = list(s, s))
+  # Kolmogorov's criterion fails: q_ab q_bc q_ca = 0.35, q_ac q_cb q_ba = 0.6
+  nr <- matrix(c(-3, 1, 2, 1, -1.5, 0.5, 0.7, 0.3, -1), 3, byrow = TRUE,
+               dimnames = list(s, s))
+  for (byrow in c(TRUE, FALSE)) {
+    mk <- function(G) new("ctmc", states = s, byrow = byrow, generator = if (byrow) G else t(G))
+    expect_true(is.TimeReversible(mk(bd)))
+    expect_false(is.TimeReversible(mk(nr)))
+  }
+})
+
+test_that("rctmc() reads a generator stored by columns correctly", {
+  s <- c("a", "b", "c")
+  Q <- matrix(c(-3, 1, 2, 1, -1.5, 0.5, 0.7, 0.3, -1), 3, byrow = TRUE,
+              dimnames = list(s, s))
+  set.seed(1)
+  byRows <- rctmc(200, new("ctmc", states = s, byrow = TRUE, generator = Q),
+                  initDist = c(1, 0, 0))
+  set.seed(1)
+  byCols <- rctmc(200, new("ctmc", states = s, byrow = FALSE, generator = t(Q)),
+                  initDist = c(1, 0, 0))
+  expect_identical(byCols, byRows)
+})
+
+test_that("impreciseProbabilityatT() with degenerate intervals is a column of exp(sQ)", {
+  st <- c("n", "y")
+  Q <- matrix(c(-1, 1, 2, -2), 2, byrow = TRUE, dimnames = list(st, st))
+  ic <- new("ictmc", states = st, Q = Q, range = matrix(1, 2, 2))
+  expect_equal(impreciseProbabilityatT(ic, 2, 0, 1, 1e-4), unname(expm::expm(Q)[, 2]),
+               tolerance = 1e-3)
+})
+
+test_that("plot() works for a ctmc stored by columns", {
+  s <- c("a", "b")
+  g <- matrix(c(-3, 3, 1, -1), 2, byrow = TRUE, dimnames = list(s, s))
+  pdf(NULL)
+  on.exit(dev.off())
+  # before 1.2.1 this failed with "argument is not a matrix"
+  expect_no_error(plot(new("ctmc", states = s, byrow = FALSE, generator = t(g))))
+  expect_no_warning(plot(new("ctmc", states = s, byrow = TRUE, generator = g)))
+})

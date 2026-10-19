@@ -374,6 +374,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// markovPropertySimulationRcpp
+NumericVector markovPropertySimulationRcpp(NumericMatrix P, int x1, int n, int B, bool pearson);
+RcppExport SEXP _markovchain_markovPropertySimulationRcpp(SEXP PSEXP, SEXP x1SEXP, SEXP nSEXP, SEXP BSEXP, SEXP pearsonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
+    Rcpp::traits::input_parameter< int >::type x1(x1SEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    Rcpp::traits::input_parameter< bool >::type pearson(pearsonSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovPropertySimulationRcpp(P, x1, n, B, pearson));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtdFreeWeightsRcpp
+List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0, NumericMatrix Q0, IntegerVector rows, double tol, int maxit);
+RcppExport SEXP _markovchain_mtdFreeWeightsRcpp(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambda0SEXP, SEXP Q0SEXP, SEXP rowsSEXP, SEXP tolSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda0(lambda0SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Q0(Q0SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rows(rowsSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdFreeWeightsRcpp(patterns, counts, lambda0, Q0, rows, tol, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // multinomialCIForRow
 NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel);
 RcppExport SEXP _markovchain_multinomialCIForRow(SEXP xSEXP, SEXP confidencelevelSEXP) {
@@ -926,6 +958,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
     {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 13},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
+    {"_markovchain_markovPropertySimulationRcpp", (DL_FUNC) &_markovchain_markovPropertySimulationRcpp, 5},
+    {"_markovchain_mtdFreeWeightsRcpp", (DL_FUNC) &_markovchain_mtdFreeWeightsRcpp, 7},
     {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
     {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},

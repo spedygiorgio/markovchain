@@ -90,17 +90,12 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
   } else {
     if (!all(informative)) stop("method = 'simulation' requires at least one observed outgoing transition from every state appearing in the sequence.")
     if (!is.null(seed)) set.seed(seed)
-    simulated <- numeric(B)
-    for (b in seq_len(B)) {
-      x <- integer(n); x[1L] <- idx[1L]
-      for (t in seq_len(n - 1L)) x[t + 1L] <- sample.int(r, 1L, prob = P[x[t], ])
-      a <- x[-c(1L, 2L)] + (x[2:(n - 1L)] - 1L) * r + (x[1:(n - 2L)] - 1L) * r * r
-      Ns <- array(tabulate(a, nbins = r^3L), dim = c(r, r, r))
-      Nijs <- apply(Ns, c(1L, 2L), sum); Njks <- apply(Ns, c(2L, 3L), sum); Njs <- rowSums(Njks)
-      Es <- array(0, dim = c(r, r, r))
-      for (j in seq_len(r)) if (Njs[j] > 0L) Es[, j, ] <- outer(Nijs[, j], Njks[j, ]) / Njs[j]
-      simulated[b] <- statistic_fun(Ns, Es, if (method == "Pearson") "Pearson" else "G")
-    }
+    # The B sequences are simulated in C++ (src/markovPropertyTest.cpp), each
+    # step drawn exactly as sample.int(r, 1, prob = P[x, ]) would draw it, and
+    # the G statistic of each is computed with the same arithmetic as
+    # statistic_fun(): same random numbers and same values as an R loop.
+    storage.mode(P) <- "double"
+    simulated <- .markovPropertySimulationRcpp(P, idx[1L], n, as.integer(B), FALSE)
     p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
     result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
                    observed = Nijk, expected = expected, transitionMatrix = P,

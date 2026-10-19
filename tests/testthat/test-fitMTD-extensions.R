@@ -145,3 +145,35 @@ test_that("standard errors with negative weights agree with the Monte Carlo spre
   expect_equal(mean(est[, 1]), -0.2, tolerance = 0.05, scale = 1)
   expect_equal(mean(est[, 2]) / stats::sd(est[, 1]), 1, tolerance = 0.3)
 })
+
+test_that("the C++ ascent with negative weights follows the R reference", {
+  # The same fits with the C++ ascent and with the former R implementation
+  # (helper-mtdFreeWeightsR.R) substituted for it.
+  wind <- read.csv(system.file("extdata", "koeberg_wind.csv", package = "markovchain"))[[1]]
+  s <- c("a", "b", "c")
+  mc <- new("markovchain", states = s, transitionMatrix = matrix(
+    c(0.5, 0.3, 0.2, 0.2, 0.5, 0.3, 0.3, 0.3, 0.4), 3, byrow = TRUE, dimnames = list(s, s)))
+  set.seed(3)
+  y <- rmarkovchain(400, mc, t0 = "a")
+  cases <- list(list(wind, 2L), list(y, 3L))
+  fast <- lapply(cases, function(cs) suppressWarnings(fitMTD(cs[[1]], cs[[2]], negativeWeights = TRUE)))
+  local_mocked_bindings(.mtdFreeWeights = .mtdFreeWeightsR, .package = "markovchain")
+  slow <- lapply(cases, function(cs) suppressWarnings(fitMTD(cs[[1]], cs[[2]], negativeWeights = TRUE)))
+  for (i in seq_along(cases)) {
+    expect_equal(fast[[i]]$logLikelihood, slow[[i]]$logLikelihood, tolerance = 1e-10)
+    expect_equal(fast[[i]]$lambda, slow[[i]]$lambda, tolerance = 1e-8)
+    expect_equal(fast[[i]]$Q, slow[[i]]$Q, tolerance = 1e-8)
+  }
+})
+
+test_that("the C++ ascent rejects inconsistent input", {
+  pat <- matrix(0L, 2, 3)
+  # Raftery's condition fails: min Q[, 1] * 1.5 - max Q[, 1] * 0.5 < 0
+  expect_error(markovchain:::.mtdFreeWeightsRcpp(pat, c(1, 1), c(1.5, -0.5), diag(2), 1:2, 1e-9, 10L),
+               "not feasible")
+  expect_error(markovchain:::.mtdFreeWeightsRcpp(pat, c(1, 1), 1, diag(2), 1L, 1e-9, 10L),
+               "inconsistent")
+  pat[1, 2] <- 5L
+  expect_error(markovchain:::.mtdFreeWeightsRcpp(pat, c(1, 1), c(0.5, 0.5), matrix(0.5, 2, 2),
+                                                 1:2, 1e-9, 10L), "codes")
+})

@@ -302,6 +302,14 @@ inferHyperparam <- function(transMatr = matrix(), scale = numeric(), data = char
     .Call(`_markovchain_noofVisitsDistRCpp`, matrix, i, N)
 }
 
+.markovPropertySimulationRcpp <- function(P, x1, n, B, pearson) {
+    .Call(`_markovchain_markovPropertySimulationRcpp`, P, x1, n, B, pearson)
+}
+
+.mtdFreeWeightsRcpp <- function(patterns, counts, lambda0, Q0, rows, tol, maxit) {
+    .Call(`_markovchain_mtdFreeWeightsRcpp`, patterns, counts, lambda0, Q0, rows, tol, maxit)
+}
+
 .multinomialCIForRowRcpp <- function(x, confidencelevel) {
     .Call(`_markovchain_multinomialCIForRow`, x, confidencelevel)
 }

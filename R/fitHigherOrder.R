@@ -91,6 +91,11 @@ setClass("HigherOrderMarkovChain", #class name
 #'   is solved by the EM algorithm for mixture weights, without
 #'   \pkg{Rsolnp}. The weights are therefore those that give the highest
 #'   value of \code{\link{higherOrderLogLik}} for the same observations.
+#'   The iteration stops when the log-likelihood increases by less than
+#'   \eqn{10^{-10}}, or after 10000 iterations; the latter happens when a
+#'   weight tends to 0 or the likelihood is nearly flat in some direction
+#'   (lags carrying the same information), where EM converges slowly, and a
+#'   warning then reports that the weights are approximate.
 #'   They are maximum likelihood estimates \emph{conditional on} the empirical
 #'   matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
 #'   likelihood estimator of the mixture with free matrices, in which the
@@ -269,29 +274,72 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
 # is positive (it is a count divided by a column total), hence the mixture
 # probability of every observation is positive and the iteration is well
 # defined.
+#
+# The likelihood depends on an observation only through its history
+# (x_t, x_{t-1}, ..., x_{t-order}), and a chain with r states has at most
+# r^(order + 1) of them, usually far fewer than the observations. The
+# observations with the same history are therefore grouped and each distinct
+# history enters the sums with its number of occurrences as weight: the EM
+# iterates are the same as with one term per observation (up to rounding in
+# the last digits), at a fraction of the cost on long sequences.
+#
+# Near a boundary of the simplex (a weight tending to 0, as when a lag adds
+# nothing to the others) EM converges slowly, and maxit iterations may not
+# reach tol: a warning says so, and the weights returned are those of the
+# last iteration, whose log-likelihood is at most marginally below the
+# maximum (EM never decreases it).
 .fitHigherOrderMle <- function(seqs, Q, X, order, tol = 1e-10, maxit = 10000L) {
   states <- rownames(Q[[1L]])
-  # q[t, o] = probability that lag o gives to the state actually observed at time t.
-  # q[t, o] = Q_o[x_t, x_{t-o}]
-  q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
+  r <- length(states)
+  # hist[t, ] = (x_t, x_{t-1}, ..., x_{t-order}) as state numbers, one row per
+  # observation a model of this order can predict.
+  hist <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
     idx <- match(s, states)
     times <- (order + 1L):length(idx)
-    out <- matrix(0, nrow = length(times), ncol = order)
-    for (o in seq_len(order)) out[, o] <- Q[[o]][cbind(idx[times], idx[times - o])]
-    out
+    vapply(0:order, function(o) idx[times - o], integer(length(times)))
   }))
+  if (is.null(hist)) hist <- matrix(integer(0), 0L, order + 1L)
+  nobs <- nrow(hist)
+  # A key identifying the history: the number sum_o (x_{t-o} - 1) r^o, exact in
+  # double precision while r^(order + 1) <= 2^53, otherwise a string.
+  key <- if (r^(order + 1) <= 2^53) {
+    drop((hist - 1L) %*% r^(0:order))
+  } else {
+    do.call(paste, c(as.data.frame(hist), sep = " "))
+  }
+  # Distinct histories, in order of first appearance, and their counts.
+  first <- which(!duplicated(key))
+  counts <- tabulate(match(key, key[first]), nbins = length(first))
+  hist <- hist[first, , drop = FALSE]
+  # q[h, o] = probability that lag o gives to the arrival state of history h,
+  # Q_o[x_t, x_{t-o}].
+  q <- matrix(0, nrow = length(first), ncol = order)
+  for (o in seq_len(order)) q[, o] <- Q[[o]][cbind(hist[, 1L], hist[, o + 1L])]
   # Start from equal weights.
   lambda <- rep(1 / order, order)
   logLikOld <- -Inf
+  converged <- FALSE
   for (iter in seq_len(maxit)) {
-    # E-step: weighted[t, o] = lambda_o * q[t, o];  mixture[t] = total probability of observation t.
+    # E-step: weighted[h, o] = lambda_o * q[h, o];  mixture[h] = total probability of history h.
     weighted <- sweep(q, 2L, lambda, "*")
     mixture <- rowSums(weighted)
-    logLik <- sum(log(mixture))
-    if (logLik - logLikOld < tol) break
+    logLik <- sum(counts * log(mixture))
+    gain <- logLik - logLikOld
+    if (gain < tol) {
+      converged <- TRUE
+      break
+    }
     logLikOld <- logLik
-    # M-step: new lambda_o = average of the responsibilities weighted[t, o] / mixture[t].
-    lambda <- colMeans(weighted / mixture)
+    # M-step: new lambda_o = average over the observations of the responsibilities
+    # weighted[h, o] / mixture[h], each history counted as many times as it occurs.
+    lambda <- colSums(counts * weighted / mixture) / nobs
+  }
+  if (!converged) {
+    warning("the EM iteration for the weights of the order ", order,
+            " model stopped after ", maxit, " iterations before converging",
+            " (log-likelihood still increasing by ", signif(gain, 3),
+            " per iteration): a weight is probably close to 0, and the weights",
+            " returned are approximate", call. = FALSE)
   }
   list(lambda = lambda, Q = Q, X = X)
 }

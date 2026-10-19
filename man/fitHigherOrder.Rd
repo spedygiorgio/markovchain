@@ -54,6 +54,11 @@ The fitted model expresses the distribution of the next state as
   is solved by the EM algorithm for mixture weights, without
   \pkg{Rsolnp}. The weights are therefore those that give the highest
   value of \code{\link{higherOrderLogLik}} for the same observations.
+  The iteration stops when the log-likelihood increases by less than
+  \eqn{10^{-10}}, or after 10000 iterations; the latter happens when a
+  weight tends to 0 or the likelihood is nearly flat in some direction
+  (lags carrying the same information), where EM converges slowly, and a
+  warning then reports that the weights are approximate.
   They are maximum likelihood estimates \emph{conditional on} the empirical
   matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
   likelihood estimator of the mixture with free matrices, in which the

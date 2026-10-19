@@ -166,3 +166,46 @@ test_that("maximum likelihood weights never give a lower log-likelihood than lea
     expect_gte(higherOrderLogLik(s, mle)$logLik, higherOrderLogLik(s, lsq)$logLik - 1e-8)
   }
 })
+
+test_that("grouping the observations by history leaves the EM weights unchanged", {
+  # Reference: the EM iteration with one term per observation, as it was
+  # before the observations were grouped.
+  emReference <- function(seqs, order, tol = 1e-10, maxit = 10000L) {
+    fit <- fitHigherOrder(seqs, order)
+    Q <- fit$Q
+    states <- rownames(Q[[1L]])
+    q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
+      idx <- match(s, states)
+      times <- (order + 1L):length(idx)
+      sapply(seq_len(order), function(o) Q[[o]][cbind(idx[times], idx[times - o])])
+    }))
+    lambda <- rep(1 / order, order)
+    old <- -Inf
+    for (iter in seq_len(maxit)) {
+      w <- sweep(q, 2L, lambda, "*")
+      m <- rowSums(w)
+      ll <- sum(log(m))
+      if (ll - old < tol) break
+      old <- ll
+      lambda <- colMeans(w / m)
+    }
+    lambda
+  }
+  data(rain, package = "markovchain")
+  halves <- list(rain$rain[1:500], rain$rain[501:1096])
+  for (order in 2:4) {
+    expect_equal(fitHigherOrder(rain$rain, order)$lambda, emReference(list(rain$rain), order),
+                 tolerance = 1e-10, info = order)
+    expect_equal(fitHigherOrder(halves, order)$lambda, emReference(halves, order),
+                 tolerance = 1e-10, info = order)
+  }
+})
+
+test_that("an EM iteration that does not converge within maxit gives a warning", {
+  # i.i.d. data: the lags carry the same information and EM is slow
+  set.seed(2)
+  x <- sample(letters[1:4], 3000, TRUE)
+  expect_warning(fit <- fitHigherOrder(x, 4), "before converging")
+  expect_equal(sum(fit$lambda), 1)
+  expect_silent(fitHigherOrder(x, 2))
+})

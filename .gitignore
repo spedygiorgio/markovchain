@@ -54,4 +54,5 @@ TAGS
 .gitmessage
 .vscode/
 
-*.patchRplots.pdf
+*.patch
+Rplots.pdf

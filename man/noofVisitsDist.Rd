@@ -46,6 +46,19 @@ noofVisitsDist(simpleMc,5,"a")
 5 * noofVisitsDist(simpleMc,5,"a")
 
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()}
+}
 \author{
 Vandit Jain
 }
+\concept{first passage and hitting}

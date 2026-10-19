@@ -876,6 +876,7 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 #' issue #139).
 #' 
 #' @return a named numeric vector with one element per state, summing to one.
+#' @family first passage and hitting
 #' 
 #' @author Vandit Jain
 #' 

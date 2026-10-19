@@ -222,23 +222,26 @@ setMethod(
   }
 )
 
-#' @title Non homogeneus discrete time Markov Chains class
+#' @title Non-homogeneous discrete time Markov chain class
 #' @name markovchainList-class
 #' @aliases [[,markovchainList-method
 #' @aliases dim,markovchainList-method
 #' @aliases predict,markovchainList-method
 #' @aliases print,markovchainList-method
 #' @aliases show,markovchainList-method
-#' @description A class to handle non homogeneous discrete Markov chains
+#' @description The S4 class of non-homogeneous discrete time Markov chains:
+#'   a sequence of [`markovchain`][markovchain-class] objects, the \eqn{k}-th
+#'   giving the transition probabilities from time \eqn{k - 1} to time
+#'   \eqn{k}.
 #' 
-#' @slot markovchains Object of class \code{"list"}: a list of markovchains
-#' @slot name Object of class \code{"character"}: optional name of the class
+#' @slot markovchains A list of [`markovchain`][markovchain-class] objects.
+#' @slot name Optional name of the object.
 #' 
 #' @section Objects from the Class:
 #'
-#'   A \code{markovchainlist} is a list of \code{markovchain} objects. They can
-#'   be used to model non homogeneous discrete time Markov Chains, when
-#'   transition probabilities (and possible states) change by time.
+#'   Objects are created with `new("markovchainList", markovchains = list(...))`
+#'   or estimated by [markovchainListFit()]. The transition probabilities, and
+#'   the states, may change from one time to the next.
 #' @section Methods:
 #' \describe{
 #' \item{[[}{\code{signature(x = "markovchainList")}: extract the
@@ -535,18 +538,17 @@ setValidity(
 # from state t0 to state t1
 
 #' @name transitionProbability
-#' @title Function to get the transition probabilities from initial 
-#'        to subsequent states.
-#' @description This is a convenience function to get transition probabilities.
+#' @title Transition probability between two states
+#' @description Returns the one-step probability of moving from state `t0` to
+#'   state `t1`.
 #' 
-#' @param object A \code{markovchain} object.
-#' @param t0 Initial state.
-#' @param t1 Subsequent state.
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param t0 Name of the current state.
+#' @param t1 Name of the next state.
 #' 
-#' @references A First Course in Probability (8th Edition), 
-#'             Sheldon Ross, Prentice Hall 2010
-#' 
-#' @return Numeric Vector  
+#' @return A number, the transition probability.
+#' @seealso [conditionalDistribution()] for the whole distribution of the
+#'   next state.
 #' 
 #' @author Giorgio Spedicato
 #' @seealso \code{\linkS4class{markovchain}}
@@ -1239,20 +1241,21 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 
 # transition probabilty vector from a given state
 
-#' @title \code{conditionalDistribution} of a Markov Chain
+#' @title Conditional distribution of the next state
 #' 
 #' @name conditionalDistribution
 #' 
-#' @description It extracts the conditional distribution of the subsequent state, 
-#'              given current state.
+#' @description Returns the distribution of the next state of a Markov chain
+#'   given its current state: the row of the transition matrix of that state
+#'   (its column if the chain is stored by columns).
 #' 
-#' @param object A \code{markovchain} object.
-#' @param state Subsequent state.
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param state Name of the current state.
 #' 
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
-#' @return A named probability vector
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @return A probability vector named by the states.
+#' @seealso [transitionProbability()] for a single probability.
 #' 
 #' @seealso \code{\linkS4class{markovchain}}
 #' 
@@ -1442,14 +1445,17 @@ setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
 # method to get stationary states
 
 #' @name steadyStates
-#' @title Stationary states of a \code{markovchain} object
+#' @title Stationary distributions of a Markov chain
 #' 
-#' @description This method returns the stationary vector in matricial form of a markovchain object.
-#' @param object A discrete \code{markovchain} object
+#' @description Returns the stationary distributions of a Markov chain: the
+#'   probability vectors \eqn{\pi} with \eqn{\pi P = \pi}. There is one for
+#'   each recurrent class; every stationary distribution is a convex
+#'   combination of them.
+#' @param object A [`markovchain`][markovchain-class] object.
 #' 
-#' @return A matrix corresponding to the stationary states
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @return A matrix with one stationary distribution per row (per column if
+#'   the chain is stored by columns, `byrow = FALSE`), with the states as
+#'   column (row) names.
 #' @author Giorgio Spedicato
 #' @seealso \code{\linkS4class{markovchain}}
 #' 

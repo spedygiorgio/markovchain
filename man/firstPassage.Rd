@@ -41,8 +41,15 @@ Washington University in St. Louis.
 }
 \seealso{
 Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
 \code{\link{committorAB}()},
-\code{\link{firstPassageMultiple}()}
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
 }
 \author{
 Giorgio Spedicato

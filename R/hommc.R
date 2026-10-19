@@ -1,11 +1,22 @@
-#' An S4 class for representing High Order Multivariate Markovchain (HOMMC)
+#' Higher order multivariate Markov chain class
+#'
+#' @description The S4 class of the higher order multivariate Markov chains
+#'   of Ching, Ng and Fung (2008), fitted by [fitHighOrderMultivarMC()]: the
+#'   distribution of the next state of each of \eqn{s} sequences is a
+#'   weighted sum, over the sequences and the lags, of transition matrices
+#'   applied to their past states.
 #' 
-#' @slot order an integer equal to order of Multivariate Markovchain
-#' @slot states a vector of states present in the HOMMC model
-#' @slot P array of transition matrices
-#' @slot Lambda a vector which stores the weightage of each transition matrices in P
-#' @slot byrow if FALSE each column sum of transition matrix is 1 else row sum = 1
-#' @slot name a name given to hommc
+#' @slot order The order of the chain (number of lags).
+#' @slot states The states, common to all the sequences.
+#' @slot P A three-dimensional array of \eqn{s^2} times `order` transition
+#'   matrices, one for each pair of sequences and lag.
+#' @slot Lambda The weights of the matrices in `P`, in the same order.
+#' @slot byrow Logical: are the matrices stochastic by rows (`TRUE`) or by
+#'   columns (`FALSE`, as returned by [fitHighOrderMultivarMC()])?
+#' @slot name Optional name of the object.
+#' @references Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+#'   multivariate Markov chains and their applications. Linear Algebra and its
+#'   Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 #' 
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 

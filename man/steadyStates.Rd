@@ -2,18 +2,23 @@
 % Please edit documentation in R/classesAndMethods.R
 \name{steadyStates}
 \alias{steadyStates}
-\title{Stationary states of a \code{markovchain} object}
+\title{Stationary distributions of a Markov chain}
 \usage{
 steadyStates(object)
 }
 \arguments{
-\item{object}{A discrete \code{markovchain} object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 }
 \value{
-A matrix corresponding to the stationary states
+A matrix with one stationary distribution per row (per column if
+the chain is stored by columns, \code{byrow = FALSE}), with the states as
+column (row) names.
 }
 \description{
-This method returns the stationary vector in matricial form of a markovchain object.
+Returns the stationary distributions of a Markov chain: the
+probability vectors \eqn{\pi} with \eqn{\pi P = \pi}. There is one for
+each recurrent class; every stationary distribution is a convex
+combination of them.
 }
 \note{
 The steady states are identified starting from which eigenvectors correspond
@@ -29,9 +34,6 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 )       
 steadyStates(markovB)
 
-}
-\references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\linkS4class{markovchain}}

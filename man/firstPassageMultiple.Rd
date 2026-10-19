@@ -43,8 +43,15 @@ chapter 5. MIT OpenCourseWare.
 }
 \seealso{
 Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
 \code{\link{committorAB}()},
-\code{\link{firstPassage}()}
+\code{\link{firstPassage}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
 }
 \author{
 Vandit Jain

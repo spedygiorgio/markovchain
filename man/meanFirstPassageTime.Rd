@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{meanFirstPassageTime}
 \alias{meanFirstPassageTime}
-\title{Mean First Passage Time for irreducible Markov chains}
+\title{Mean first passage times of an irreducible Markov chain}
 \usage{
 meanFirstPassageTime(object, destination)
 }
@@ -52,6 +52,19 @@ meanFirstPassageTime(mcOz)
 C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Toni Giorgino, Ignacio Cordón
 }
+\concept{first passage and hitting}

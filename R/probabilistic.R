@@ -8,22 +8,21 @@
 # a given state
 
 #' @name is.accessible
-#' @title Verify if a state j is reachable from state i.
-#' @description This function verifies if a state is reachable from another, i.e., 
-#'              if there exists a path that leads to state j leaving from state i with 
-#'              positive probability
-#'              
-#' @param object A \code{markovchain} object.
-#' @param from The name of state "i" (beginning state).
-#' @param to The name of state "j" (ending state).
+#' @title Check whether a state can be reached from another
+#' @description Checks whether state `to` is accessible from state `from`,
+#'   i.e. whether the chain started in `from` reaches `to` with positive
+#'   probability in some number of steps.
+#'
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param from Name of the starting state.
+#' @param to Name of the target state.
 #' 
-#' @details It wraps an internal function named \code{reachabilityMatrix}.
-#' @return A boolean value.
+#' @return `TRUE` if `to` is accessible from `from`, `FALSE` otherwise.
 #' 
 #' @references James Montgomery, University of Madison
 #' 
 #' @author Giorgio Spedicato, Ignacio Cordón
-#' @seealso \code{is.irreducible}
+#' @seealso [is.irreducible()], [communicatingClasses()]
 #' 
 #' @examples 
 #' statesNames <- c("a", "b", "c")
@@ -60,18 +59,21 @@ setMethod("is.accessible", c("markovchain", "missing", "missing"),
 # a markov chain is irreducible if it is composed of only one communicating class
 
 #' @name is.irreducible
-#' @title Function to check if a Markov chain is irreducible (i.e. ergodic)
-#' @description This function verifies whether a \code{markovchain} object transition matrix 
-#'              is composed by only one communicating class.
-#' @param object A \code{markovchain} object
+#' @title Check whether a Markov chain is irreducible
+#' @description A Markov chain is irreducible if all its states communicate,
+#'   i.e. form a single communicating class.
+#' @param object A [`markovchain`][markovchain-class] object.
 #' 
-#' @details It is based on \code{.communicatingClasses} internal function.
-#' @return A boolean values.
+#' @details Irreducibility does not imply aperiodicity: an irreducible chain
+#'   on finitely many states has a unique stationary distribution, but it
+#'   converges to it from every initial state only if it is also aperiodic
+#'   (see [period()] and [is.regular()]).
+#' @return `TRUE` if the chain is irreducible, `FALSE` otherwise.
 #' 
 #' @references Feres, Matlab listings for Markov Chains.
 #' @author Giorgio Spedicato
 #' 
-#' @seealso \code{\link{summary}}
+#' @seealso [communicatingClasses()], [is.regular()], [period()]
 #' 
 #' @examples 
 #' statesNames <- c("a", "b")
@@ -221,15 +223,20 @@ firstPassageMultiple <- function(object, state, set, n) {
 #' @aliases communicatingClasses
 #' @aliases transientClasses
 #' @aliases recurrentClasses
-#' @title Various function to perform structural analysis of DTMC
-#' @description These functions return absorbing and transient states of the \code{markovchain} objects.
+#' @title Structural analysis of a Markov chain
+#' @description Classification of the states of a Markov chain from the graph
+#'   of its possible transitions: communicating, recurrent and transient
+#'   classes and states, absorbing states, the canonical form of the
+#'   transition matrix, and the period.
 #' 
 #' @param object A \code{markovchain} object.
 #' 
 #' @return
 #' \describe{
-#'   \item{\code{period}}{returns a integer number corresponding to the periodicity of the Markov 
-#'     chain (if it is irreducible)}
+#'   \item{\code{period}}{returns an integer, the period of the Markov chain
+#'     (the greatest common divisor of the lengths of its cycles); it is
+#'     defined for an irreducible chain (otherwise a warning is given and 0
+#'     is returned)}
 #'   \item{\code{absorbingStates}}{returns a character vector with the names of the absorbing 
 #'     states in the Markov chain}
 #'   \item{\code{communicatingClasses}}{returns a list in which each slot contains the names of
@@ -264,7 +271,7 @@ firstPassageMultiple <- function(object, state, set, n) {
 #' 
 #' communicatingClasses(mc)
 #' recurrentClasses(mc)
-#' recurrentClasses(mc)
+#' transientClasses(mc)
 #' absorbingStates(mc)
 #' transientStates(mc)
 #' recurrentStates(mc)
@@ -571,7 +578,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 }
 
 
-#' Mean First Passage Time for irreducible Markov chains
+#' Mean first passage times of an irreducible Markov chain
 #'
 #' @description Given an irreducible (ergodic) markovchain object, this function
 #'   calculates the expected number of steps to reach other states
@@ -614,6 +621,7 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
 #' mcOz <- new("markovchain", states = c("s", "c", "r"), transitionMatrix = mOz)
 #' meanFirstPassageTime(mcOz)
 #'
+#' @family first passage and hitting
 #' @export meanFirstPassageTime
 # Mean first passage time: expected number of steps to go from i to a destination state.
 setGeneric("meanFirstPassageTime", function(object, destination) {
@@ -671,6 +679,7 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
 #' mc <- new("markovchain", states = c("s","c","r"), transitionMatrix = m)
 #' meanRecurrenceTime(mc)
 #'
+#' @family first passage and hitting
 #' @export meanRecurrenceTime
 # Mean recurrence time of a state: expected number of steps to return to it (1 / stationary prob.).
 setGeneric("meanRecurrenceTime", function(object) {
@@ -707,6 +716,7 @@ setMethod("meanRecurrenceTime", "markovchain", function(object) {
 #' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
 #' times <- meanAbsorptionTime(mc)
 #'
+#' @family first passage and hitting
 #' @export meanAbsorptionTime
 # Mean absorption time: expected number of steps before being absorbed, from each transient state.
 setGeneric("meanAbsorptionTime", function(object) {
@@ -745,6 +755,7 @@ setMethod("meanAbsorptionTime",  "markovchain", function(object) {
 #' mc <- new("markovchain", states = letters[1:3], transitionMatrix = m)
 #' absorptionProbabilities(mc)
 #'
+#' @family first passage and hitting
 #' @export absorptionProbabilities
 # Absorption probabilities: probability of ending in each absorbing state, from each transient state.
 setGeneric("absorptionProbabilities", function(object) {
@@ -841,7 +852,7 @@ setMethod("is.stochasticallyMonotone",
             stop("must be a `markovchain` object or a matrix")
           })
 
-#' Hitting probabilities for markovchain
+#' Hitting probabilities of a Markov chain
 #' 
 #' @description Given a markovchain object,
 #' this function calculates the probability of ever arriving from state i to j
@@ -919,6 +930,7 @@ setMethod("is.stochasticallyMonotone",
 #' # on a large sparse chain, the iterative solver avoids the dense products
 #' hittingProbabilities(mc, targets = "1", solver = "bicgstab")
 #'
+#' @family first passage and hitting
 #' @exportMethod hittingProbabilities
 # hittingProbabilities(): probability that the chain started at state i ever reaches the target state.
 # Solvers: 'direct' (LU factorisation), 'bicgstab' (iterative, for large sparse chains) and
@@ -962,7 +974,7 @@ setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL
 
 
 
-#' Mean num of visits for markovchain, starting at each state
+#' Mean number of visits to each state
 #' 
 #' @description Given a markovchain object, this function calculates 
 #' a matrix where the element (i, j) represents the expect number of visits
@@ -989,6 +1001,7 @@ setMethod("hittingProbabilities", "markovchain", function(object, targets = NULL
 #' mc <- new("markovchain", transitionMatrix = M)
 #' meanNumVisits(mc)
 #' 
+#' @family first passage and hitting
 #' @exportMethod meanNumVisits
 # Mean number of visits to each transient state before leaving the transient states.
 setGeneric("meanNumVisits", function(object) standardGeneric("meanNumVisits"))

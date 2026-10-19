@@ -162,3 +162,13 @@ test_that("impreciseProbabilityatT() with degenerate intervals is a column of ex
   expect_equal(impreciseProbabilityatT(ic, 2, 0, 1, 1e-4), unname(expm::expm(Q)[, 2]),
                tolerance = 1e-3)
 })
+
+test_that("plot() works for a ctmc stored by columns", {
+  s <- c("a", "b")
+  g <- matrix(c(-3, 3, 1, -1), 2, byrow = TRUE, dimnames = list(s, s))
+  pdf(NULL)
+  on.exit(dev.off())
+  # before 1.2.1 this failed with "argument is not a matrix"
+  expect_no_error(plot(new("ctmc", states = s, byrow = FALSE, generator = t(g))))
+  expect_no_warning(plot(new("ctmc", states = s, byrow = TRUE, generator = g)))
+})

@@ -4,7 +4,7 @@
 \alias{fitHigherOrder}
 \alias{seq2freqProb}
 \alias{seq2matHigh}
-\title{Functions to fit a higher order Markov chain}
+\title{Fit a higher order Markov chain}
 \usage{
 fitHigherOrder(sequence, order = 2, method = c("mle", "lsq"))
 seq2freqProb(sequence)
@@ -16,17 +16,30 @@ coercible to character (numbers and factors are matched to the states as
 character strings), without missing values. A list of such vectors is
 taken as independent sequences, see Details.}
 
-\item{order}{Markov chain order}
+\item{order}{Order of the chain, a positive integer smaller than the
+sequence length; for \code{seq2matHigh()}, the lag.}
 
 \item{method}{How the weights \eqn{\lambda} are estimated: \code{"mle"}
 (default) or \code{"lsq"}, see Details.}
 }
 \value{
-A list containing lambda, Q, and X.
+\code{fitHigherOrder()}: a list with \code{lambda}, the weights of the lags;
+\code{Q}, the list of the lag-\eqn{i} transition matrices (column-stochastic:
+entry \eqn{[j, k]} is the probability of moving to \eqn{j} from \eqn{k});
+and \code{X}, the state frequencies. With \code{method = "lsq"}, \code{NULL} with a
+warning if \pkg{Rsolnp} is not available.
+
+\code{seq2freqProb()}: the vector of state frequencies, named by state.
+\code{seq2matHigh()}: the column-stochastic lag-\code{order} transition matrix (a
+state never observed as a departure state gets a uniform column).
 }
 \description{
-Given a sequence of states arising from a stationary state, it
-fits the underlying Markov chain distribution with higher order.
+Fits the higher order Markov chain of Ching et al., in which
+the distribution of the next state is a weighted mixture of the empirical
+lag-\eqn{i} transition matrices, \eqn{i = 1, \dots,} \code{order}.
+\code{seq2freqProb()} returns the state frequencies of a sequence and
+\code{seq2matHigh()} its empirical lag-\code{order} transition matrix, the building
+blocks of the model.
 }
 \details{
 The fitted model expresses the distribution of the next state as
@@ -98,13 +111,22 @@ higherOrderLogLik(sequence, fit)$logLik
 Ching, W. K., Huang, X., Ng, M. K., & Siu, T. K. (2013). Higher-order markov
 chains. In Markov Chains (pp. 141-176). Springer US.
 
-Ching, W. K., Ng, M. K., & Fung, E. S. (2008). Higher-order multivariate
-Markov chains and their applications. Linear Algebra and its Applications,
-428(2), 492-507.
+Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order multivariate
+Markov chains and their applications. Linear Algebra and its Applications
+428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 
 Raftery, A. E. (1985). A model for high-order Markov chains. Journal of the
 Royal Statistical Society, Series B, 47(3), 528-539.
 }
+\seealso{
+\code{\link[=higherOrderLogLik]{higherOrderLogLik()}}, \code{\link[=higherOrderPredict]{higherOrderPredict()}}, \code{\link[=fitMTD]{fitMTD()}},
+\code{\link[=selectOrder]{selectOrder()}}
+
+Other higher order chains: 
+\code{\link{fitHighOrderMultivarMC}()},
+\code{\link{predictHommc}()}
+}
 \author{
 Giorgio Spedicato, Tae Seung Kang
 }
+\concept{higher order chains}

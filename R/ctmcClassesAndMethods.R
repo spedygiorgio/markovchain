@@ -1,19 +1,20 @@
-#' @title Continuous time Markov Chains class
+#' @title Continuous time Markov chain class
 #' @name ctmc-class
 #' @aliases dim,ctmc-method
 #' @aliases initialize,ctmc_method
 #' @aliases states,ctmc-method
 #' @aliases steadyStates,ctmc-method
 #' @aliases plot,ctmc,missing-method
-#' @description The S4 class that describes \code{ctmc} (continuous 
-#' time Markov chain) objects.
+#' @description The S4 class of continuous time Markov chains, described by
+#'   their generator (rate) matrix.
 #' 
-#' @slot states Name of the states. Must be the same of
-#'   \code{colnames} and \code{rownames} of the generator matrix
-#' @slot byrow TRUE or FALSE. Indicates whether the given matrix is
-#'    stochastic by rows or by columns
-#' @slot generator Square generator matrix
-#' @slot name Optional character name of the Markov chain
+#' @slot states Names of the states, equal to the row and column names of the
+#'   generator.
+#' @slot byrow Logical: are the rates out of each state in its row (rows sum
+#'   to zero) or in its column?
+#' @slot generator The square generator matrix: non-negative off-diagonal
+#'   rates, with rows (or columns) summing to zero.
+#' @slot name Optional name of the chain.
 #' 
 #' @section Methods:
 #' 
@@ -33,14 +34,9 @@
 #' (2013), David F. Anderson, University of Wisconsin at Madison. Sai Bhargav
 #' Yalamanchi, Giorgio Spedicato
 #' 
-#' @note
-#' \enumerate{
-#' \item \code{ctmc} classes are written using S4 classes
-#' \item Validation method is used to assess whether either columns or rows totals to zero. 
-#' Rounding is used up to 5th decimal. If state names are not properly defined
-#' for a generator  \code{matrix}, coercing to \code{ctmc} object leads to overriding
-#' states name with artificial "s1", "s2", ... sequence
-#' }
+#' @note The validity method checks that the rows (or columns) of the
+#'   generator sum to zero, rounded to the fifth decimal. If the generator has
+#'   no state names, the states are named "s1", "s2", ...
 #' @seealso \code{\link{generatorToTransitionMatrix}},\code{\link{rctmc}}
 #'
 #' @examples
@@ -52,8 +48,8 @@
 #' molecularCTMC <- new("ctmc", states = energyStates, 
 #'                      byrow = byRow, generator = gen, 
 #'                      name = "Molecular Transition Model")
-#'                      steadyStates(molecularCTMC)
-#' \dontrun{plot(molecularCTMC)}
+#' steadyStates(molecularCTMC)
+#' \donttest{plot(molecularCTMC)}
 #' 
 #' @keywords classes
 #' 
@@ -226,12 +222,13 @@ setMethod("steadyStates", "ctmc",
   #
   # a graph adjacency
   
-  if (!object@byrow) {
-    object <- t(object)
-  }
-  
-  #gets the generator matrix
-  matr <- object@generator * 100
+  # The graph has an edge i -> j for every positive rate. The generator is
+  # taken by rows (transposed if stored by columns), and its diagonal, the
+  # negative total exit rates, is left out: as self-loops with negative
+  # weights it only made igraph warn and drop all the weights in the layout.
+  generator <- if (object@byrow) object@generator else t(object@generator)
+  diag(generator) <- 0
+  matr <- generator * 100
   if (round) {
     matr <- round(matr, 2)
   }

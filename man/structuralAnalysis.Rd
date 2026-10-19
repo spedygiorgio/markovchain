@@ -9,7 +9,7 @@
 \alias{transientClasses}
 \alias{recurrentClasses}
 \alias{canonicForm}
-\title{Various function to perform structural analysis of DTMC}
+\title{Structural analysis of a Markov chain}
 \usage{
 period(object)
 
@@ -32,8 +32,10 @@ canonicForm(object)
 }
 \value{
 \describe{
-\item{\code{period}}{returns a integer number corresponding to the periodicity of the Markov
-chain (if it is irreducible)}
+\item{\code{period}}{returns an integer, the period of the Markov chain
+(the greatest common divisor of the lengths of its cycles); it is
+defined for an irreducible chain (otherwise a warning is given and 0
+is returned)}
 \item{\code{absorbingStates}}{returns a character vector with the names of the absorbing
 states in the Markov chain}
 \item{\code{communicatingClasses}}{returns a list in which each slot contains the names of
@@ -52,7 +54,10 @@ of rows in the end for the transient states}
 }
 }
 \description{
-These functions return absorbing and transient states of the \code{markovchain} objects.
+Classification of the states of a Markov chain from the graph
+of its possible transitions: communicating, recurrent and transient
+classes and states, absorbing states, the canonical form of the
+transition matrix, and the period.
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -65,7 +70,7 @@ mc <- new("markovchain", states = statesNames, transitionMatrix =
 
 communicatingClasses(mc)
 recurrentClasses(mc)
-recurrentClasses(mc)
+transientClasses(mc)
 absorbingStates(mc)
 transientStates(mc)
 recurrentStates(mc)

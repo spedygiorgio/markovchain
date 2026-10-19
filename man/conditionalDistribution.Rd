@@ -2,21 +2,22 @@
 % Please edit documentation in R/classesAndMethods.R
 \name{conditionalDistribution}
 \alias{conditionalDistribution}
-\title{\code{conditionalDistribution} of a Markov Chain}
+\title{Conditional distribution of the next state}
 \usage{
 conditionalDistribution(object, state)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{state}{Subsequent state.}
+\item{state}{Name of the current state.}
 }
 \value{
-A named probability vector
+A probability vector named by the states.
 }
 \description{
-It extracts the conditional distribution of the subsequent state,
-given current state.
+Returns the distribution of the next state of a Markov chain
+given its current state: the row of the transition matrix of that state
+(its column if the chain is stored by columns).
 }
 \examples{
 # define a markov chain
@@ -28,10 +29,9 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 conditionalDistribution(markovB, "b")                       
 
 }
-\references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-}
 \seealso{
+\code{\link[=transitionProbability]{transitionProbability()}} for a single probability.
+
 \code{\linkS4class{markovchain}}
 }
 \author{

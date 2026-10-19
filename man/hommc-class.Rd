@@ -4,24 +4,30 @@
 \name{hommc-class}
 \alias{hommc-class}
 \alias{hommc}
-\title{An S4 class for representing High Order Multivariate Markovchain (HOMMC)}
+\title{Higher order multivariate Markov chain class}
 \description{
-An S4 class for representing High Order Multivariate Markovchain (HOMMC)
+The S4 class of the higher order multivariate Markov chains
+of Ching, Ng and Fung (2008), fitted by \code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}}: the
+distribution of the next state of each of \eqn{s} sequences is a
+weighted sum, over the sequences and the lags, of transition matrices
+applied to their past states.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{order}}{an integer equal to order of Multivariate Markovchain}
+\item{\code{order}}{The order of the chain (number of lags).}
 
-\item{\code{states}}{a vector of states present in the HOMMC model}
+\item{\code{states}}{The states, common to all the sequences.}
 
-\item{\code{P}}{array of transition matrices}
+\item{\code{P}}{A three-dimensional array of \eqn{s^2} times \code{order} transition
+matrices, one for each pair of sequences and lag.}
 
-\item{\code{Lambda}}{a vector which stores the weightage of each transition matrices in P}
+\item{\code{Lambda}}{The weights of the matrices in \code{P}, in the same order.}
 
-\item{\code{byrow}}{if FALSE each column sum of transition matrix is 1 else row sum = 1}
+\item{\code{byrow}}{Logical: are the matrices stochastic by rows (\code{TRUE}) or by
+columns (\code{FALSE}, as returned by \code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}})?}
 
-\item{\code{name}}{a name given to hommc}
+\item{\code{name}}{Optional name of the object.}
 }}
 
 \examples{
@@ -38,6 +44,11 @@ Lambda <- c(0.8, 0.2, 0.3, 0.7)
 ob <- new("hommc", order = 1, states = statesName, P = P, 
           Lambda = Lambda, byrow = FALSE, name = "FOMMC")
           
+}
+\references{
+Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+multivariate Markov chains and their applications. Linear Algebra and its
+Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 }
 \author{
 Giorgio Spedicato, Deepak Yadav

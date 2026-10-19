@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{meanNumVisits}
 \alias{meanNumVisits}
-\title{Mean num of visits for markovchain, starting at each state}
+\title{Mean number of visits to each state}
 \usage{
 meanNumVisits(object)
 }
@@ -32,6 +32,19 @@ meanNumVisits(mc)
 \references{
 R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Ignacio Cordón
 }
+\concept{first passage and hitting}

@@ -3,25 +3,25 @@
 \name{transitionProbability}
 \alias{transitionProbability}
 \alias{transitionProbability,markovchain-method}
-\title{Function to get the transition probabilities from initial
-to subsequent states.}
+\title{Transition probability between two states}
 \usage{
 transitionProbability(object, t0, t1)
 
 \S4method{transitionProbability}{markovchain}(object, t0, t1)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{t0}{Initial state.}
+\item{t0}{Name of the current state.}
 
-\item{t1}{Subsequent state.}
+\item{t1}{Name of the next state.}
 }
 \value{
-Numeric Vector
+A number, the transition probability.
 }
 \description{
-This is a convenience function to get transition probabilities.
+Returns the one-step probability of moving from state \code{t0} to
+state \code{t1}.
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -32,11 +32,10 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 )    
 transitionProbability(markovB,"b", "c")
 }
-\references{
-A First Course in Probability (8th Edition),
-Sheldon Ross, Prentice Hall 2010
-}
 \seealso{
+\code{\link[=conditionalDistribution]{conditionalDistribution()}} for the whole distribution of the
+next state.
+
 \code{\linkS4class{markovchain}}
 }
 \author{

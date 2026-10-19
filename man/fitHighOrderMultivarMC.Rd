@@ -46,6 +46,7 @@ Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 \code{\link[=predictHommc]{predictHommc()}} to simulate from the fit.
 
 Other higher order chains: 
+\code{\link{fitHigherOrder}()},
 \code{\link{predictHommc}()}
 }
 \author{

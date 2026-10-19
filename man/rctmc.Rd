@@ -2,57 +2,84 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{rctmc}
 \alias{rctmc}
-\title{rctmc}
+\title{Simulate a continuous time Markov chain}
 \usage{
-rctmc(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
-  out.type = "list")
+rctmc(
+  n,
+  ctmc,
+  initDist = numeric(),
+  T = 0,
+  include.T0 = TRUE,
+  out.type = "list"
+)
 }
 \arguments{
-\item{n}{The number of samples to generate.}
+\item{n}{Number of jumps to simulate: a positive integer, or \code{Inf} to
+simulate up to time \code{T}.}
 
-\item{ctmc}{The CTMC S4 object.}
+\item{ctmc}{A \code{\link[=ctmc-class]{ctmc}} object.}
 
-\item{initDist}{The initial distribution of states.}
+\item{initDist}{Distribution of the initial state, a probability vector in
+the order of \code{states(ctmc)}. The default, an empty vector, draws the initial
+state uniformly at random.}
 
-\item{T}{The time up to which the simulation runs (all transitions after time
-T are not returned).}
+\item{T}{Time horizon: the jumps after time \code{T} are not returned. The
+default \code{0} means no horizon, which requires a finite \code{n}.}
 
-\item{include.T0}{Flag to determine if start state is to be included.}
+\item{include.T0}{Logical: include the initial state, at time 0, in the
+output?}
 
-\item{out.type}{"list" or "df"}
+\item{out.type}{\code{"list"} (default) or \code{"df"}, the form of the output.}
 }
 \value{
-Based on out.type, a list or a data frame is returned. The returned
-list has two elements - a character vector (states) and a numeric vector
-(indicating time of transitions). The data frame is similarly structured.
+With \code{out.type = "list"}, an unnamed list of two vectors of equal
+length: the states visited (character) and the times at which they were
+entered (numeric). With \code{out.type = "df"}, a data frame with the same
+content in the columns \code{states} and \code{time}.
 }
 \description{
-The function generates random CTMC transitions as per the
-provided generator matrix.
+Simulates the jumps of a continuous time Markov chain: in each
+state \eqn{i} the chain waits an exponential time with rate
+\eqn{-Q_{ii}}, then jumps to \eqn{j \ne i} with probability
+\eqn{-Q_{ij} / Q_{ii}} (the embedded jump chain, see
+\code{\link[=generatorToTransitionMatrix]{generatorToTransitionMatrix()}}).
 }
 \details{
-In order to use the T0 argument, set n to Inf.
+The simulation stops after \code{n} jumps, at the first jump after
+\code{T} (when \code{T > 0}), or when an absorbing state (zero exit rate) is
+reached, whichever comes first. The generator is used in the orientation
+given by the \code{byrow} slot of \code{ctmc}.
 }
 \examples{
 energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3, 1, -1), nrow = 2,
-             byrow = byRow, dimnames = list(energyStates, energyStates))
-molecularCTMC <- new("ctmc", states = energyStates, 
-                     byrow = byRow, generator = gen, 
-                     name = "Molecular Transition Model")   
+gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+              dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+                     generator = gen, name = "Molecular Transition Model")
 
-statesDist <- c(0.8, 0.2)
+# all the jumps up to time 1
 rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
-rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
+# five jumps from an initial state drawn from c(0.8, 0.2)
+rctmc(n = 5, ctmc = molecularCTMC, initDist = c(0.8, 0.2),
+      include.T0 = FALSE, out.type = "df")
 }
 \references{
-Introduction to Stochastic Processes with Applications in the Biosciences
-(2013), David F. Anderson, University of Wisconsin at Madison
+Anderson, D. F. (2013). Introduction to Stochastic Processes
+with Applications in the Biosciences. University of Wisconsin at Madison.
 }
 \seealso{
-\code{\link{generatorToTransitionMatrix}},\code{\link{ctmc-class}}
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Sai Bhargav Yalamanchi
 }
+\concept{continuous time Markov chains}

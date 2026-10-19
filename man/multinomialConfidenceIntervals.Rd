@@ -2,7 +2,7 @@
 % Please edit documentation in R/fittingFunctions.R
 \name{multinomialConfidenceIntervals}
 \alias{multinomialConfidenceIntervals}
-\title{A function to compute multinomial confidence intervals of DTMC}
+\title{Simultaneous confidence intervals for transition probabilities}
 \usage{
 multinomialConfidenceIntervals(
   transitionMatrix,
@@ -11,29 +11,40 @@ multinomialConfidenceIntervals(
 )
 }
 \arguments{
-\item{transitionMatrix}{An estimated transition matrix.}
+\item{transitionMatrix}{The estimated transition matrix.}
 
-\item{countsTransitionMatrix}{Empirical (conts) transition matrix, on which the \code{transitionMatrix} was performed.}
+\item{countsTransitionMatrix}{The matrix of transition counts from which
+\code{transitionMatrix} was estimated (see \code{\link[=createSequenceMatrix]{createSequenceMatrix()}}).}
 
-\item{confidencelevel}{confidence interval level.}
+\item{confidencelevel}{Confidence level (default 0.95).}
 }
 \value{
-Two matrices containing the confidence intervals.
+A list with \code{confidenceLevel}, \code{lowerEndpointMatrix} and
+\code{upperEndpointMatrix}, the latter two with the dimnames of
+\code{transitionMatrix}.
 }
 \description{
-Return estimated transition matrix assuming a Multinomial Distribution
+Simultaneous confidence intervals for the rows of an estimated
+transition matrix, each row being a multinomial proportion, by the method
+of Sison and Glaz (1995) in the implementation of May and Johnson (2000).
 }
 \examples{
-seq<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-mcfit<-markovchainFit(data=seq,byrow=TRUE)
-seqmat<-createSequenceMatrix(seq)
+seq <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a",
+         "b", "b", "b", "a")
+mcfit <- markovchainFit(data = seq, byrow = TRUE)
+seqmat <- createSequenceMatrix(seq)
 multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 }
 \references{
-Constructing two-sided simultaneous confidence intervals
-for multinomial proportions for small counts in a large number of cells.
-Journal of Statistical Software 5(6) (2000)
+Sison, C. P. and Glaz, J. (1995). Simultaneous confidence intervals and
+sample size determination for multinomial proportions. Journal of the
+American Statistical Association 90, 366-369.
+
+May, W. L. and Johnson, W. D. (2000). Constructing two-sided simultaneous
+confidence intervals for multinomial proportions for small counts in a
+large number of cells. Journal of Statistical Software 5(6).
 }
 \seealso{
-\code{markovchainFit}
+\code{\link[=markovchainFit]{markovchainFit()}}, whose \code{method = "mle"} gives intervals for
+each probability separately rather than simultaneous ones for each row.
 }

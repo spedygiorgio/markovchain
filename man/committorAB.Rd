@@ -2,38 +2,49 @@
 % Please edit documentation in R/probabilistic.R
 \name{committorAB}
 \alias{committorAB}
-\title{Calculates committor of a markovchain object with respect to set A, B}
+\title{Committor probabilities}
 \usage{
-committorAB(object,A,B,p)
+committorAB(object, A, B, p = 1)
 }
 \arguments{
-\item{object}{a markovchain class object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{A}{a set of states}
+\item{A, B}{Disjoint sets of states, given as indices (positions in
+\code{states(object)}).}
 
-\item{B}{a set of states}
-
-\item{p}{initial state (default value : 1)}
+\item{p}{Optional index of the initial state. If omitted, the probabilities
+for all initial states are returned.}
 }
 \value{
-Return a vector of probabilities in case initial state is not provided else returns a number
+A numeric vector with the probability for each initial state, or
+a single number if \code{p} is given.
 }
 \description{
-Returns the probability of hitting states rom set A before set B
-with different initial states
+Probability that a Markov chain hits the set of states \code{A}
+before the set \code{B} (the committor function), from every initial state or
+from one.
 }
 \details{
-The function solves a system of linear equations to calculate probaility that the process hits
-a state from set A before any state from set B
+The committor \eqn{q} solves the linear system
+\eqn{q_i = \sum_j P_{ij} q_j} for the states outside \eqn{A \cup B},
+with \eqn{q = 1} on \code{A} and \eqn{q = 0} on \code{B}. The system has a unique
+solution when \code{A} or \code{B} can be reached from every state.
 }
 \examples{
-transMatr <- matrix(c(0,0,0,1,0.5,
-                      0.5,0,0,0,0,
-                      0.5,0,0,0,0,
-                      0,0.2,0.4,0,0,
-                      0,0.8,0.6,0,0.5),
-                      nrow = 5)
-object <- new("markovchain", states=c("a","b","c","d","e"),transitionMatrix=transMatr)
-committorAB(object,c(5),c(3))
-
+transMatr <- matrix(c(0, 0, 0, 1, 0.5,
+                      0.5, 0, 0, 0, 0,
+                      0.5, 0, 0, 0, 0,
+                      0, 0.2, 0.4, 0, 0,
+                      0, 0.8, 0.6, 0, 0.5), nrow = 5)
+object <- new("markovchain", states = c("a", "b", "c", "d", "e"),
+              transitionMatrix = transMatr)
+# probability of reaching "e" before "c", from each state
+committorAB(object, 5, 3)
+committorAB(object, 5, 3, p = 1)
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()}
+}
+\concept{first passage and hitting}

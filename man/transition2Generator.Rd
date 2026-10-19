@@ -2,30 +2,52 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{transition2Generator}
 \alias{transition2Generator}
-\title{Return the generator matrix for a corresponding transition matrix}
+\title{Generator matrix from a transition matrix}
 \usage{
 transition2Generator(P, t = 1, method = "logarithm")
 }
 \arguments{
-\item{P}{transition matrix between time 0 and t}
+\item{P}{A transition matrix (rows summing to one) over a period of length
+\code{t}.}
 
-\item{t}{time of observation}
+\item{t}{Length of the period, a positive number.}
 
-\item{method}{"logarithm" returns the Matrix logarithm of the transition matrix}
+\item{method}{Method used: only \code{"logarithm"}, the principal matrix
+logarithm computed by \code{\link[expm:logm]{expm::logm()}}, is available.}
 }
 \value{
-A matrix that represent the generator of P
+A square matrix with the dimensions of \code{P}, the generator
+\eqn{\log(P) / t}.
 }
 \description{
-Calculate the generator matrix for a
-corresponding transition matrix
+Computes the generator \eqn{Q} of a continuous time Markov
+chain whose transition matrix over a period of length \code{t} is \code{P}, as the
+matrix logarithm \eqn{Q = \log(P) / t}, so that
+\eqn{\exp(t Q) = P}.
+}
+\details{
+Not every transition matrix is the transition matrix of a
+continuous time chain (the embedding problem): the matrix returned is a
+valid generator only if its off-diagonal entries are non-negative, which
+is not checked. \code{\link[=freq2Generator]{freq2Generator()}} gives regularized estimates that are
+always valid generators.
 }
 \examples{
-mymatr <- matrix(c(.4, .6, .1, .9), nrow = 2, byrow = TRUE)
-Q <- transition2Generator(P = mymatr)
-expm::expm(Q)
- 
+P <- matrix(c(0.4, 0.6, 0.1, 0.9), nrow = 2, byrow = TRUE)
+Q <- transition2Generator(P)
+Q
+expm::expm(Q) # gives back P
 }
 \seealso{
-\code{\link{rctmc}}
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()}
 }
+\concept{continuous time Markov chains}

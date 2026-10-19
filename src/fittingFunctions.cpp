@@ -1653,43 +1653,44 @@ S4 _list2Mc(List data, double laplacian = 0, bool sanitize = false) {
 // Note: lines starting with //' below are roxygen comments (they generate the help page of
 // inferHyperparam): do not modify their format.
 //' @name inferHyperparam
-//' @title Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set
-//' @description Since the Bayesian inference approach implemented in the package is based on conjugate priors, 
-//'              hyperparameters must be provided to model the prior probability distribution of the chain 
-//'              parameters. The hyperparameters are inferred from a given a priori matrix under the assumption 
-//'              that the matrix provided corresponds to the mean (expected) values of the chain parameters. A 
-//'              scaling factor vector must be provided too. Alternatively, the hyperparameters can be inferred 
-//'              from a data set. 
-//'              
-//' @param transMatr A valid transition matrix, with dimension names.
-//' @param scale A vector of scaling factors, each element corresponds to the row names of the provided transition 
-//'              matrix transMatr, in the same order. 
-//' @param data A data set from which the hyperparameters are inferred.  
-//' 
-//' @details transMatr and scale need not be provided if data is provided.
-//' @return Returns the hyperparameter matrix in a list.
-//' 
-//' @note The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically, 
-//'       and the elements in the matrix are correspondingly permuted. 
-//' 
-//' @references Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-//'             package version 0.2.5       
-//'             
+//' @title Hyperparameters for Bayesian estimation of a Markov chain
+//' @description The Bayesian estimation of the package uses independent
+//'   Dirichlet priors for the rows of the transition matrix. This function
+//'   infers their hyperparameters either from a prior transition matrix,
+//'   taken as the prior mean, and a scale for each row (its total
+//'   hyperparameter), or from a data set, as the transition counts plus one.
+//'
+//' @param transMatr A prior transition matrix, with the states as dimnames.
+//' @param scale A numeric vector with the scale (sum of the hyperparameters)
+//'   of each row of `transMatr`, in the same order.
+//' @param data A sequence of states (or a data set accepted by
+//'   [markovchainFit()]) from which the hyperparameters are inferred.
+//'
+//' @details Either `data`, or `transMatr` and `scale`, must be given.
+//' @return A list with element `scaledInference` (from `transMatr` and
+//'   `scale`) or `dataInference` (from `data`), the matrix of
+//'   hyperparameters. Its rows and columns are sorted alphanumerically by
+//'   state name.
+//'
+//' @references Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian
+//'   inference of first order Markov chains. Vignette of the markovchain
+//'   package.
+//'
 //' @author Sai Bhargav Yalamanchi, Giorgio Spedicato
-//' @seealso \code{\link{markovchainFit}}, \code{\link{predictiveDistribution}}
-//' 
+//' @family Bayesian inference
+//' @seealso [markovchainFit()] (`method = "map"`), which uses them.
+//'
 //' @examples
 //' data(rain, package = "markovchain")
 //' inferHyperparam(data = rain$rain)
-//'  
+//'
 //' weatherStates <- c("sunny", "cloudy", "rain")
-//' weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
-//'                                  0.3, 0.4, 0.3, 
-//'                                  0.2, 0.4, 0.4), 
-//'                         byrow = TRUE, nrow = 3, 
+//' weatherMatrix <- matrix(c(0.7, 0.2, 0.1,
+//'                           0.3, 0.4, 0.3,
+//'                           0.2, 0.4, 0.4),
+//'                         byrow = TRUE, nrow = 3,
 //'                         dimnames = list(weatherStates, weatherStates))
 //' inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
-//'  
 //' @export
 //'  
 // [[Rcpp::export]]

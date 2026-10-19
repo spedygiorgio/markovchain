@@ -2,7 +2,7 @@
 % Please edit documentation in R/fittingFunctions.R
 \name{markovchainSequence}
 \alias{markovchainSequence}
-\title{Function to generate a sequence of states from homogeneous Markov chains.}
+\title{Simulate a trajectory of a Markov chain}
 \usage{
 markovchainSequence(
   n,
@@ -13,43 +13,48 @@ markovchainSequence(
 )
 }
 \arguments{
-\item{n}{Sample size}
+\item{n}{Number of steps, a non-negative integer.}
 
-\item{markovchain}{\code{markovchain} object}
+\item{markovchain}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{t0}{The initial state}
+\item{t0}{Name of the initial state. The default draws it uniformly at
+random among the states.}
 
-\item{include.t0}{Specify if the initial state shall be used}
+\item{include.t0}{Logical: include the initial state in the output? If
+\code{TRUE} the output has \code{n + 1} states.}
 
-\item{useRCpp}{Boolean. Should RCpp fast implementation being used? Default is yes.}
+\item{useRCpp}{Logical: use the C++ implementation (default) or the R one?
+Both give the same sequence for the same random seed.}
 }
 \value{
-A Character Vector
+A character vector with the simulated states.
 }
 \description{
-Provided any \code{markovchain} object, it returns a sequence of
-states coming from the underlying stationary distribution.
-}
-\details{
-A sequence of size n is sampled.
+Simulates \code{n} steps of a homogeneous discrete time Markov
+chain from the initial state \code{t0}, drawing each state from the
+transition probabilities of the previous one.
 }
 \examples{
-# define the markovchain object
 statesNames <- c("a", "b", "c")
-mcB <- new("markovchain", states = statesNames, 
-   transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
-   nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
-
-# show the sequence
-outs <- markovchainSequence(n = 100, markovchain = mcB, t0 = "a")
-
+mcB <- new("markovchain", states = statesNames,
+  transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1),
+  nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+markovchainSequence(n = 20, markovchain = mcB, t0 = "a")
+markovchainSequence(n = 20, markovchain = mcB, t0 = "a", include.t0 = TRUE)
 }
 \references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+Ross, S. (2010). A First Course in Probability (8th edition).
+Prentice Hall.
 }
 \seealso{
-\code{\link{markovchainFit}}
+\code{\link[=rmarkovchain]{rmarkovchain()}}, which also simulates from non-homogeneous chains
+(\code{\link[=markovchainList-class]{markovchainList}} objects);
+\code{\link[=markovchainFit]{markovchainFit()}} for the reverse operation.
+
+Other simulation: 
+\code{\link{rmarkovchain}()}
 }
 \author{
 Giorgio Spedicato
 }
+\concept{simulation}

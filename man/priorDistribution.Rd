@@ -2,55 +2,48 @@
 % Please edit documentation in R/RcppExports.R
 \name{priorDistribution}
 \alias{priorDistribution}
-\title{priorDistribution}
+\title{Prior density of a transition matrix}
 \usage{
 priorDistribution(transMatr, hyperparam = matrix())
 }
 \arguments{
-\item{transMatr}{The transition matrix whose probability is the parameter of
-interest.}
+\item{transMatr}{The transition matrix, with the states as dimnames.}
 
-\item{hyperparam}{The hyperparam matrix (optional). If not provided, a
-default value of 1 is assumed for each and therefore the resulting
-probability distribution is uniform.}
+\item{hyperparam}{Matrix of Dirichlet hyperparameters, with the states as
+dimnames (in any order). The default, an empty matrix, sets all of them
+to 1, the uniform prior.}
 }
 \value{
-The log of the probabilities for each state is returned in a numeric
-vector. Each number in the vector represents the probability (log) of
-having a probability transition vector as specified in corresponding the
-row of the transition matrix.
+A named numeric vector with, for each state, the logarithm of the
+Dirichlet density of its row of \code{transMatr}.
 }
 \description{
-Function to evaluate the prior probability of a transition
-matrix. It is based on conjugate priors and therefore a Dirichlet
-distribution is used to model the transitions of each state.
-}
-\details{
-The states (dimnames) of the transition matrix and the hyperparam
-may be in any order.
+Log-density of each row of a transition matrix under
+independent Dirichlet priors, the conjugate priors used by the Bayesian
+estimation of the package.
 }
 \note{
-This function can be used in conjunction with inferHyperparam. For
-example, if the user has a prior data set and a prior transition matrix,
-he can infer the hyperparameters using inferHyperparam and then compute
-the probability of their prior matrix using the inferred hyperparameters
-with priorDistribution.
+With a prior data set and a prior transition matrix, the
+hyperparameters can be inferred with \code{\link[=inferHyperparam]{inferHyperparam()}} and the prior
+density of the matrix then evaluated with these hyperparameters.
 }
 \examples{
-priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), 
-                  nrow = 2, 
-                  dimnames = list(c("a", "b"), c("a", "b"))), 
-                  matrix(c(2, 2, 2, 2), 
-                  nrow = 2, 
-                  dimnames = list(c("a", "b"), c("a", "b"))))
+priorDistribution(matrix(c(0.5, 0.5, 0.5, 0.5), nrow = 2,
+                         dimnames = list(c("a", "b"), c("a", "b"))),
+                  matrix(c(2, 2, 2, 2), nrow = 2,
+                         dimnames = list(c("a", "b"), c("a", "b"))))
 }
 \references{
-Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First
-Order Markov Chains. R package version 0.2.5
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian
+inference of first order Markov chains. Vignette of the markovchain
+package.
 }
 \seealso{
-\code{\link{predictiveDistribution}}, \code{\link{inferHyperparam}}
+Other Bayesian inference: 
+\code{\link{inferHyperparam}()},
+\code{\link{predictiveDistribution}()}
 }
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato
 }
+\concept{Bayesian inference}

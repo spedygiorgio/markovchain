@@ -2,56 +2,60 @@
 % Please edit documentation in R/RcppExports.R
 \name{inferHyperparam}
 \alias{inferHyperparam}
-\title{Function to infer the hyperparameters for Bayesian inference from an a priori matrix or a data set}
+\title{Hyperparameters for Bayesian estimation of a Markov chain}
 \usage{
 inferHyperparam(transMatr = matrix(), scale = numeric(), data = character())
 }
 \arguments{
-\item{transMatr}{A valid transition matrix, with dimension names.}
+\item{transMatr}{A prior transition matrix, with the states as dimnames.}
 
-\item{scale}{A vector of scaling factors, each element corresponds to the row names of the provided transition
-matrix transMatr, in the same order.}
+\item{scale}{A numeric vector with the scale (sum of the hyperparameters)
+of each row of \code{transMatr}, in the same order.}
 
-\item{data}{A data set from which the hyperparameters are inferred.}
+\item{data}{A sequence of states (or a data set accepted by
+\code{\link[=markovchainFit]{markovchainFit()}}) from which the hyperparameters are inferred.}
 }
 \value{
-Returns the hyperparameter matrix in a list.
+A list with element \code{scaledInference} (from \code{transMatr} and
+\code{scale}) or \code{dataInference} (from \code{data}), the matrix of
+hyperparameters. Its rows and columns are sorted alphanumerically by
+state name.
 }
 \description{
-Since the Bayesian inference approach implemented in the package is based on conjugate priors,
-hyperparameters must be provided to model the prior probability distribution of the chain
-parameters. The hyperparameters are inferred from a given a priori matrix under the assumption
-that the matrix provided corresponds to the mean (expected) values of the chain parameters. A
-scaling factor vector must be provided too. Alternatively, the hyperparameters can be inferred
-from a data set.
+The Bayesian estimation of the package uses independent
+Dirichlet priors for the rows of the transition matrix. This function
+infers their hyperparameters either from a prior transition matrix,
+taken as the prior mean, and a scale for each row (its total
+hyperparameter), or from a data set, as the transition counts plus one.
 }
 \details{
-transMatr and scale need not be provided if data is provided.
-}
-\note{
-The hyperparameter matrix returned is such that the row and column names are sorted alphanumerically,
-and the elements in the matrix are correspondingly permuted.
+Either \code{data}, or \code{transMatr} and \code{scale}, must be given.
 }
 \examples{
 data(rain, package = "markovchain")
 inferHyperparam(data = rain$rain)
- 
+
 weatherStates <- c("sunny", "cloudy", "rain")
-weatherMatrix <- matrix(data = c(0.7, 0.2, 0.1, 
-                                 0.3, 0.4, 0.3, 
-                                 0.2, 0.4, 0.4), 
-                        byrow = TRUE, nrow = 3, 
+weatherMatrix <- matrix(c(0.7, 0.2, 0.1,
+                          0.3, 0.4, 0.3,
+                          0.2, 0.4, 0.4),
+                        byrow = TRUE, nrow = 3,
                         dimnames = list(weatherStates, weatherStates))
 inferHyperparam(transMatr = weatherMatrix, scale = c(10, 10, 10))
- 
 }
 \references{
-Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-package version 0.2.5
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian
+inference of first order Markov chains. Vignette of the markovchain
+package.
 }
 \seealso{
-\code{\link{markovchainFit}}, \code{\link{predictiveDistribution}}
+\code{\link[=markovchainFit]{markovchainFit()}} (\code{method = "map"}), which uses them.
+
+Other Bayesian inference: 
+\code{\link{predictiveDistribution}()},
+\code{\link{priorDistribution}()}
 }
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato
 }
+\concept{Bayesian inference}

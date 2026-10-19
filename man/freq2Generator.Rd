@@ -2,38 +2,62 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{freq2Generator}
 \alias{freq2Generator}
-\title{Returns a generator matrix corresponding to frequency matrix}
+\title{Generator matrix estimated from a matrix of transition frequencies}
 \usage{
 freq2Generator(P, t = 1, method = "QO", logmethod = "Eigen")
 }
 \arguments{
-\item{P}{relative frequency matrix}
+\item{P}{Matrix of relative transition frequencies over the period: a
+square matrix whose rows sum to one.}
 
-\item{t}{(default value = 1)}
+\item{t}{Length of the observation period, a positive number (default 1).}
 
-\item{method}{one among "QO"(Quasi optimaisation), "WA"(weighted adjustment), "DA"(diagonal adjustment)}
+\item{method}{Regularization algorithm: \code{"QO"} (quasi-optimization, the
+default), \code{"WA"} (weighted adjustment) or \code{"DA"} (diagonal adjustment).}
 
-\item{logmethod}{method for computation of matrx algorithm (by default : Eigen)}
+\item{logmethod}{Method of the matrix logarithm used by \pkg{ctmcd}
+(default \code{"Eigen"}, see \code{ctmcd::gmQO()}).}
 }
 \value{
-returns a generator matix with same dimnames
+The estimated generator, a matrix with the dimensions and dimnames
+of \code{P}; \code{NULL}, with a warning, if \pkg{ctmcd} is not installed.
 }
 \description{
-The function provides interface to calculate generator matrix corresponding to
-a frequency matrix and time taken
+Estimates the generator of a continuous time Markov chain from
+the empirical transition matrix observed over a period of length \code{t},
+with the regularization algorithms of Kreinin and Sidelnikova (2001),
+which return a valid generator (non-negative off-diagonal rates, rows
+summing to zero) even when the matrix logarithm of \code{P} is not one. The
+computation is done by the suggested package \pkg{ctmcd}.
 }
 \examples{
-sample <- matrix(c(150,2,1,1,1,200,2,1,2,1,175,1,1,1,1,150),nrow = 4,byrow = TRUE)
-sample_rel = rbind((sample/rowSums(sample))[1:dim(sample)[1]-1,],c(rep(0,dim(sample)[1]-1),1)) 
-freq2Generator(sample_rel,1)
+counts <- matrix(c(150, 2, 1, 1,
+                   1, 200, 2, 1,
+                   2, 1, 175, 1,
+                   1, 1, 1, 150), nrow = 4, byrow = TRUE)
+# relative frequencies, with the last state made absorbing
+rel <- rbind((counts / rowSums(counts))[1:3, ], c(0, 0, 0, 1))
+if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(rel, 1)
 
+# rating transitions (quasi-optimization estimate)
 data(tm_abs)
-tm_rel=rbind((tm_abs/rowSums(tm_abs))[1:7,],c(rep(0,7),1))
-## Derive quasi optimization generator matrix estimate
-freq2Generator(tm_rel,1)
-
+tmRel <- rbind((tm_abs / rowSums(tm_abs))[1:7, ], c(rep(0, 7), 1))
+if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(tmRel, 1)
 }
 \references{
-E. Kreinin and M. Sidelnikova: Regularization Algorithms for
-Transition Matrices. Algo Research Quarterly 4(1):23-40, 2001
+Kreinin, A. and Sidelnikova, M. (2001). Regularization
+algorithms for transition matrices. Algo Research Quarterly 4(1), 23-40.
 }
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
+}
+\concept{continuous time Markov chains}

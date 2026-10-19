@@ -96,37 +96,40 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
   as.integer(min(2L, avail))
 }
 
-#' Function to generate a sequence of states from homogeneous Markov chains.
-#' 
-#' Provided any \code{markovchain} object, it returns a sequence of 
-#' states coming from the underlying stationary distribution. 
-#' 
-#' @param n Sample size
-#' @param markovchain \code{markovchain} object
-#' @param t0 The initial state
-#' @param include.t0 Specify if the initial state shall be used
-#' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
-#' 
-#' @details A sequence of size n is sampled.
-#' 
-#' @return A Character Vector
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-#' 
+#' Simulate a trajectory of a Markov chain
+#'
+#' @description Simulates `n` steps of a homogeneous discrete time Markov
+#'   chain from the initial state `t0`, drawing each state from the
+#'   transition probabilities of the previous one.
+#'
+#' @param n Number of steps, a non-negative integer.
+#' @param markovchain A [`markovchain`][markovchain-class] object.
+#' @param t0 Name of the initial state. The default draws it uniformly at
+#'   random among the states.
+#' @param include.t0 Logical: include the initial state in the output? If
+#'   `TRUE` the output has `n + 1` states.
+#' @param useRCpp Logical: use the C++ implementation (default) or the R one?
+#'   Both give the same sequence for the same random seed.
+#'
+#' @return A character vector with the simulated states.
+#'
+#' @references Ross, S. (2010). A First Course in Probability (8th edition).
+#'   Prentice Hall.
+#'
 #' @author Giorgio Spedicato
-#' 
-#' @seealso \code{\link{markovchainFit}}
-#' 
-#' @examples 
-#' # define the markovchain object
+#'
+#' @seealso [rmarkovchain()], which also simulates from non-homogeneous chains
+#'   ([`markovchainList`][markovchainList-class] objects);
+#'   [markovchainFit()] for the reverse operation.
+#' @family simulation
+#'
+#' @examples
 #' statesNames <- c("a", "b", "c")
-#' mcB <- new("markovchain", states = statesNames, 
-#'    transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
-#'    nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
-#' 
-#' # show the sequence
-#' outs <- markovchainSequence(n = 100, markovchain = mcB, t0 = "a")
-#' 
+#' mcB <- new("markovchain", states = statesNames,
+#'   transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1),
+#'   nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' markovchainSequence(n = 20, markovchain = mcB, t0 = "a")
+#' markovchainSequence(n = 20, markovchain = mcB, t0 = "a", include.t0 = TRUE)
 #' @export
 
 # markovchainSequence(): simulates n steps of the chain, starting from state t0.
@@ -249,69 +252,63 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
   return(out)
 }
 
-#' Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.
-#' 
-#' Provided any \code{markovchain} or \code{markovchainList} objects, it returns a sequence of 
-#' states coming from the underlying stationary distribution. 
-#' 
-#' @param n Sample size
-#' @param object Either a \code{markovchain} or a \code{markovchainList} object
-#' @param what It specifies whether either a \code{data.frame} or a \code{matrix} 
-#'        (each rows represent a simulation) or a \code{list} is returned.
-#' @param useRCpp Boolean. Should RCpp fast implementation being used? Default is yes.
-#' @param parallel Boolean. Should parallel implementation being used? Default is yes.
-#' @param num.cores Number of threads used when \code{parallel = TRUE}. If
-#'   \code{NULL} (the default) the thread count is read from
-#'   \code{getOption("RcppParallel.numThreads")}, then
-#'   \code{getOption("Ncpus")}, then \code{RCPP_PARALLEL_NUM_THREADS}, then
-#'   \code{OMP_NUM_THREADS}, falling back to \code{min(2, cores)} as CRAN
-#'   policy requires. Previous versions defaulted to
-#'   \code{parallel::detectCores() - 1}, which could grab all available cores
-#'   unexpectedly.
-#' @param ... additional parameters passed to the internal sampler
-#' 
-#' @details When a homogeneous process is assumed (\code{markovchain} object) a sequence is 
-#' sampled of size n. When a non - homogeneous process is assumed,
-#' n samples are taken but the process is assumed to last from the begin to the end of the 
-#' non-homogeneous markov process.
-#' 
-#' @return Character Vector, data.frame, list or matrix
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-#' 
+#' Simulate from a homogeneous or non-homogeneous Markov chain
+#'
+#' @description Simulates trajectories of a homogeneous Markov chain (a
+#'   [`markovchain`][markovchain-class] object) or of a non-homogeneous one (a
+#'   [`markovchainList`][markovchainList-class] object, whose \eqn{k}-th
+#'   matrix gives the transition from time \eqn{k - 1} to time \eqn{k}).
+#'
+#' @param n For a `markovchain`, the number of steps of the trajectory; for a
+#'   `markovchainList`, the number of trajectories, each as long as the list.
+#' @param object A [`markovchain`][markovchain-class] or
+#'   [`markovchainList`][markovchainList-class] object.
+#' @param what Form of the output for a `markovchainList`: `"data.frame"`
+#'   (default; columns `iteration` and `values`, one row per simulated
+#'   state), `"matrix"` (one row per trajectory) or `"list"` (one character
+#'   vector per trajectory). Ignored for a `markovchain`.
+#' @param useRCpp Logical: use the C++ implementation (default)?
+#' @param parallel Logical: simulate the trajectories of a `markovchainList`
+#'   in parallel (default `FALSE`)?
+#' @param num.cores Number of threads used when `parallel = TRUE`. If
+#'   `NULL` (the default) the thread count is read from
+#'   `getOption("RcppParallel.numThreads")`, then `getOption("Ncpus")`, then
+#'   the environment variables `RCPP_PARALLEL_NUM_THREADS` and
+#'   `OMP_NUM_THREADS`, falling back to `min(2, cores)` as CRAN policy
+#'   requires.
+#' @param ... Further arguments: `t0` (initial state) and `include.t0`
+#'   (include it in the output), as in [markovchainSequence()].
+#'
+#' @details For a `markovchain` the function calls [markovchainSequence()].
+#'   For a `markovchainList` each trajectory starts from `t0` (by default a
+#'   state drawn at random) and moves once with each matrix of the list.
+#'
+#' @return For a `markovchain`, a character vector of states. For a
+#'   `markovchainList`, a data frame, matrix or list, according to `what`.
+#'
+#' @references Ross, S. (2010). A First Course in Probability (8th edition).
+#'   Prentice Hall.
+#'
 #' @author Giorgio Spedicato
-#' 
-#' @note Check the type of input
-#' 
-#' @seealso \code{\link{markovchainFit}}, \code{\link{markovchainSequence}}
-#' 
-#' @examples 
-#' # define the markovchain object
+#'
+#' @seealso [markovchainFit()] and [markovchainListFit()] for the reverse
+#'   operation.
+#' @family simulation
+#'
+#' @examples
 #' statesNames <- c("a", "b", "c")
-#' mcB <- new("markovchain", states = statesNames, 
-#'    transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
-#'    nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
-#' 
-#' # show the sequence
-#' outs <- rmarkovchain(n = 100, object = mcB, what = "list")
-#' 
-#' 
-#' #define markovchainList object
-#' statesNames <- c("a", "b", "c")
-#' mcA <- new("markovchain", states = statesNames, transitionMatrix = 
-#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
-#' mcB <- new("markovchain", states = statesNames, transitionMatrix = 
-#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
-#' mcC <- new("markovchain", states = statesNames, transitionMatrix = 
-#'    matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-#'    byrow = TRUE, dimnames = list(statesNames, statesNames)))
-#' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC)) 
-#' 
-#' # show the list of sequence
-#' rmarkovchain(100, mclist, "list")
-#'      
+#' mcA <- new("markovchain", states = statesNames, transitionMatrix =
+#'   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3,
+#'   byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' rmarkovchain(n = 20, object = mcA, t0 = "a")
+#'
+#' # a non-homogeneous chain: a different matrix at each of three steps
+#' mcB <- new("markovchain", states = statesNames, transitionMatrix =
+#'   matrix(c(0.5, 0.5, 0, 0.1, 0.8, 0.1, 0, 0.5, 0.5), nrow = 3,
+#'   byrow = TRUE, dimnames = list(statesNames, statesNames)))
+#' mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcA))
+#' rmarkovchain(5, mclist, what = "matrix")
+#' rmarkovchain(2, mclist, what = "list", t0 = "a", include.t0 = TRUE)
 #' @export
 
 # rmarkovchain(): generates n independent sequences from a markovchain or from a markovchainList
@@ -693,31 +690,42 @@ rmarkovchain <- function(n, object, what = "data.frame", useRCpp = TRUE, paralle
 # }
 
 
-#' @title markovchainListFit
-#' 
-#' @description  Given a data frame or a matrix (rows are observations, by cols 
-#' the temporal sequence), it fits a non - homogeneous discrete time markov chain 
-#' process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
-#' estimating transitions from the n samples given by consecutive column pairs.
-#' 
-#' @param data Either a matrix or a data.frame or a list object.
-#' @param laplacian Laplacian correction (default 0).
-#' @param byrow Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.
-#' @param name Optional name.
-#' 
-#' @details If \code{data} contains \code{NAs} then the transitions containing \code{NA} will be ignored.
-#' @return A list containing two slots:
-#' estimate (the estimate)
-#' name
-#' 
+#' Fit a non-homogeneous Markov chain
+#'
+#' @description Estimates a non-homogeneous discrete time Markov chain, with
+#'   one transition matrix for each pair of consecutive times, from a panel of
+#'   trajectories observed at the same times.
+#'
+#' @param data The trajectories: a matrix or data frame with one trajectory
+#'   per row and one time per column (or the transpose, see `byrow`), or a
+#'   list of trajectories (character vectors), possibly of different lengths.
+#' @param byrow Logical: for a matrix or data frame, is each trajectory a row
+#'   (default) or a column?
+#' @param laplacian Laplace smoothing: a constant added to every transition
+#'   count before normalizing (default 0).
+#' @param name Optional name of the fitted
+#'   [`markovchainList`][markovchainList-class].
+#'
+#' @details The \eqn{k}-th transition matrix is the maximum likelihood
+#'   estimate from the transitions observed between times \eqn{k} and
+#'   \eqn{k + 1} (columns \eqn{k} and \eqn{k + 1}, or positions \eqn{k} and
+#'   \eqn{k + 1} of the trajectories long enough). Transitions with a missing
+#'   value (`NA`) are ignored, and pairs of times without any complete
+#'   transition are skipped.
+#'
+#' @return A list with element `estimate`, the fitted
+#'   [`markovchainList`][markovchainList-class]; an empty list if no
+#'   transition can be counted.
+#'
+#' @seealso [markovchainFit()] for a homogeneous chain, [rmarkovchain()] to
+#'   simulate from the fit.
 #' @examples
-#' 
-#' # using holson dataset
 #' data(holson)
-#' # fitting a single markovchain
-#' singleMc <- markovchainFit(data = holson[,2:12])
-#' # fitting a markovchainList
+#' # a homogeneous chain for the whole panel
+#' singleMc <- markovchainFit(data = holson[, 2:12])
+#' # one transition matrix for each pair of consecutive years
 #' mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
+#' mclistFit$estimate
 #' @export
 # markovchainListFit(): estimates a different transition matrix for each pair of consecutive columns
 # of the data (each row of the data is one sequence): matrix i describes the passage from column i to i+1.
@@ -798,26 +806,38 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
   return(out)
 }  
 
-#' A function to compute multinomial confidence intervals of DTMC
-#' 
-#' @description Return estimated transition matrix assuming a Multinomial Distribution
-#' 
-#' @param transitionMatrix An estimated transition matrix.
-#' @param countsTransitionMatrix Empirical (conts) transition matrix, on which the \code{transitionMatrix} was performed.
-#' @param confidencelevel confidence interval level.
-#' 
-#' @return Two matrices containing the confidence intervals.
-#' 
-#' @seealso \code{markovchainFit}
-#' 
-#' @references Constructing two-sided simultaneous confidence intervals 
-#' for multinomial proportions for small counts in a large number of cells. 
-#' Journal of Statistical Software 5(6) (2000)
-#' 
-#' @examples 
-#' seq<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-#' mcfit<-markovchainFit(data=seq,byrow=TRUE)
-#' seqmat<-createSequenceMatrix(seq)
+#' Simultaneous confidence intervals for transition probabilities
+#'
+#' @description Simultaneous confidence intervals for the rows of an estimated
+#'   transition matrix, each row being a multinomial proportion, by the method
+#'   of Sison and Glaz (1995) in the implementation of May and Johnson (2000).
+#'
+#' @param transitionMatrix The estimated transition matrix.
+#' @param countsTransitionMatrix The matrix of transition counts from which
+#'   `transitionMatrix` was estimated (see [createSequenceMatrix()]).
+#' @param confidencelevel Confidence level (default 0.95).
+#'
+#' @return A list with `confidenceLevel`, `lowerEndpointMatrix` and
+#'   `upperEndpointMatrix`, the latter two with the dimnames of
+#'   `transitionMatrix`.
+#'
+#' @seealso [markovchainFit()], whose `method = "mle"` gives intervals for
+#'   each probability separately rather than simultaneous ones for each row.
+#'
+#' @references
+#' Sison, C. P. and Glaz, J. (1995). Simultaneous confidence intervals and
+#' sample size determination for multinomial proportions. Journal of the
+#' American Statistical Association 90, 366-369.
+#'
+#' May, W. L. and Johnson, W. D. (2000). Constructing two-sided simultaneous
+#' confidence intervals for multinomial proportions for small counts in a
+#' large number of cells. Journal of Statistical Software 5(6).
+#'
+#' @examples
+#' seq <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a",
+#'          "b", "b", "b", "a")
+#' mcfit <- markovchainFit(data = seq, byrow = TRUE)
+#' seqmat <- createSequenceMatrix(seq)
 #' multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 #' @export
 # Confidence intervals (multinomial) for the transition probabilities: computed in C++ (Sison and Glaz).

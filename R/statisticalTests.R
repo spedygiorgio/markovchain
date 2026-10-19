@@ -20,20 +20,88 @@
   result
 }
 
-#' Test the first-order Markov property of an empirical sequence
+#' Statistical tests for Markov chains
 #'
-#' Tests the null hypothesis that the conditional distribution of the next
-#' state depends only on the current state, against a second-order alternative.
+#' @description Tests of hypotheses on observed sequences of states, based on
+#'   transition counts (Anderson and Goodman 1957; Kullback, Kupperman and Ku
+#'   1962):
+#'   * `verifyMarkovProperty()`: the first-order Markov property, i.e. that
+#'     the next state is independent of the previous one given the present one
+#'     (against a second-order chain);
+#'   * `assessOrder()`: the same hypothesis with the Pearson statistic, also
+#'     for a list of independent sequences;
+#'   * `verifyEmpiricalToTheoretical()`: that the sequence (or a matrix of
+#'     transition counts) comes from a given chain;
+#'   * `verifyHomogeneity()`: that several sequences (or count matrices) share
+#'     the same transition matrix;
+#'   * `assessStationarity()`: that the transition probabilities do not change
+#'     over time, comparing `nblocks` consecutive blocks of the sequence.
+#'
+#' @details Each test compares observed transition counts with the counts
+#'   expected under the null hypothesis, by the likelihood-ratio statistic
+#'   \eqn{G^2 = 2 \sum O \log(O / E)} (`method = "G"`) or by Pearson's
+#'   \eqn{X^2 = \sum (O - E)^2 / E} (`method = "Pearson"`); cells with no
+#'   expected count are left out, and the degrees of freedom count only the
+#'   transitions actually observed. The p-value is from the chi-squared
+#'   distribution, or, with `method = "simulation"`, from `B` samples
+#'   simulated under the null hypothesis (the \eqn{G^2} statistic, p-value
+#'   \eqn{(1 + \#\{simulated \ge observed\}) / (B + 1)}), which is more
+#'   reliable when many counts are small. Sequences of numbers or factors are
+#'   compared as character strings.
+#'
+#' @return An object of class `"htest"`, printed if `verbose = TRUE` and
+#'   returned invisibly, with the usual components `statistic`, `parameter`
+#'   (degrees of freedom), `p.value`, `method` and `data.name`, and also
+#'   `dof`. Depending on the test it also contains the `observed` and
+#'   `expected` counts and the estimated `transitionMatrix`
+#'   (`verifyMarkovProperty()`, `verifyEmpiricalToTheoretical()`), the
+#'   `pooled` counts and the `transitionCounts` of each element
+#'   (`verifyHomogeneity()`), and, with `method = "simulation"`, the
+#'   simulated statistics (`simulations`) and `B`.
+#'
+#' @references
+#' Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about
+#' Markov chains. The Annals of Mathematical Statistics 28(1), 89-110.
+#'
+#' Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for contingency
+#' tables and Markov chains. Technometrics 4(4), 573-608.
+#'
+#' @seealso [assessIndependence()] (independence of consecutive states),
+#'   [selectOrder()] (order by information criteria), [compareChains()].
+#' @examples
+#' data(rain, package = "markovchain")
+#' # first-order Markov property of the Alofi rainfall sequence
+#' verifyMarkovProperty(rain$rain)
+#' assessOrder(rain$rain)
+#'
+#' # compatibility with a chain: the fitted one, and a different one
+#' fit <- markovchainFit(rain$rain)$estimate
+#' verifyEmpiricalToTheoretical(rain$rain, fit)
+#' s <- c("0", "1-5", "6+")
+#' uniform <- new("markovchain", states = s,
+#'                transitionMatrix = matrix(1 / 3, 3, 3, dimnames = list(s, s)))
+#' verifyEmpiricalToTheoretical(rain$rain, uniform)
+#'
+#' # the first and second half of the sequence have the same transitions
+#' verifyHomogeneity(list(rain$rain[1:548], rain$rain[549:1096]))
+#' # time-homogeneity over four blocks
+#' assessStationarity(rain$rain, nblocks = 4)
+#'
+#' # a Monte Carlo p-value
+#' verifyMarkovProperty(rain$rain, method = "simulation", B = 499, seed = 1)
+#' @name statisticalTests
+NULL
+
 #' @rdname statisticalTests
-#' @family statisticalTests
-#' @param sequence An empirical sequence of states.
-#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
-#' @param B Number of Monte Carlo replicates for simulation.
-#' @param seed Optional random seed.
-#' @param verbose Should results be printed?
-#' @return An `htest` object with additional package-specific components.
-#' @references Anderson, T. W. and Goodman, L. A. (1957). Statistical inference
-#' about Markov chains. *The Annals of Mathematical Statistics*, 28(1), 89--110.
+#' @param sequence An observed sequence of states (a vector); for
+#'   `assessOrder()` also a list of independent sequences, whose triples of
+#'   consecutive states are formed within each sequence and pooled.
+#' @param method The statistic: `"G"` (likelihood ratio, the default),
+#'   `"Pearson"`, or `"simulation"` (likelihood ratio with a Monte Carlo
+#'   p-value).
+#' @param B Number of Monte Carlo samples for `method = "simulation"`.
+#' @param seed Optional random seed for `method = "simulation"`.
+#' @param verbose Logical: print the result?
 #' @export
 # Test of the Markov property (Anderson-Goodman): is the next state independent of the PAST given the
 # PRESENT? For every present state j it builds the table of (past i, future k) counts and compares it
@@ -112,22 +180,7 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
   invisible(result)
 }
 
-#' Assess the order of an empirical Markov chain
-#'
-#' Tests whether the sequence is compatible with a first-order Markov chain
-#' against a second-order alternative, by testing independence of past and
-#' future states conditional on the present state. Degrees of freedom are
-#' summed, present-state by present-state, over only the past and future
-#' states actually observed with that present state, mirroring the other
-#' functions documented on this page. Factors and numeric sequences are
-#' compared as character strings. A list of vectors is taken as a set of
-#' independent sequences: the triples of consecutive states are formed within
-#' each sequence, never across two, and the counts are pooled.
 #' @rdname statisticalTests
-#' @family statisticalTests
-#' @param sequence An empirical sequence of states.
-#' @param verbose Should test results be printed?
-#' @return An `htest` object.
 #' @export
 # Tests the order of the chain: is the future independent of the past given the present? (the same idea
 # as verifyMarkovProperty, but with the Pearson statistic pooled over present states.)
@@ -178,17 +231,11 @@ assessOrder <- function(sequence, verbose = TRUE) {
   invisible(result)
 }
 
-#' Test compatibility of an empirical transition matrix with a theoretical one
 #' @rdname statisticalTests
-#' @family statisticalTests
-#' @param data An empirical sequence or a matrix of transition counts.
-#' @param object A `markovchain` object specifying theoretical probabilities.
-#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
-#' @param B Number of Monte Carlo replicates for simulation.
-#' @param seed Optional random seed.
-#' @param verbose Should results be printed?
-#' @return An `htest` object with observed and expected counts.
-#' @references Kullback, S., Kupperman, M. and Ku, H. H. (1962). Tests for Contingency Tables and Markov Chains. *Technometrics*, 4(4), 573--608.
+#' @param data An observed sequence of states, or a matrix of transition
+#'   counts with the states as dimnames.
+#' @param object A [`markovchain`][markovchain-class] object, the chain of the
+#'   null hypothesis.
 #' @export
 # Tests whether an observed sequence (or a matrix of transition counts) is compatible with a given
 # theoretical chain `object`. Expected counts are rowTotals[i] * P[i, j].
@@ -252,15 +299,9 @@ verifyEmpiricalToTheoretical <- function(data, object, method = c("G", "Pearson"
   invisible(result)
 }
 
-#' Test homogeneity of transition probabilities across empirical sequences
 #' @rdname statisticalTests
-#' @family statisticalTests
-#' @param inputList A list whose elements are empirical sequences or matrices.
-#' @param method Test statistic: `"G"`, `"Pearson"`, or `"simulation"`.
-#' @param B Number of Monte Carlo replicates for simulation.
-#' @param seed Optional random seed.
-#' @param verbose Should results be printed?
-#' @return An `htest` object with pooled and individual transition counts.
+#' @param inputList A list of at least two observed sequences or matrices of
+#'   transition counts (with the states as dimnames).
 #' @export
 # Tests whether several sequences (or count matrices) share the same transition matrix:
 # for each state the rows of the different samples are compared with the pooled row.
@@ -336,19 +377,13 @@ verifyHomogeneity <- function(inputList, method = c("G", "Pearson", "simulation"
   invisible(result)
 }
 
-#' Assess time-homogeneity of an empirical Markov chain
-#'
-#' Tests whether transition probabilities are constant across consecutive blocks.
-#' Structural zeros can be supplied explicitly through a logical transition matrix.
 #' @rdname statisticalTests
-#' @family statisticalTests
-#' @param sequence An empirical sequence.
-#' @param nblocks Number of blocks, at least two.
-#' @param structural.zeros Optional logical matrix marking impossible transitions.
-#' @param verbose Should test results be printed?
-#' @return An `htest` object.
-#' @references Anderson, T. W. and Goodman, L. A. (1957). Statistical inference
-#' about Markov chains. *The Annals of Mathematical Statistics*, 28(1), 89--110.
+#' @param nblocks Number of consecutive blocks of (nearly) equal length into
+#'   which the sequence is split, at least two.
+#' @param structural.zeros Optional logical matrix, with one row and column
+#'   per state (in the order of `unique(sequence)`, or with the states as
+#'   dimnames), marking the transitions that are impossible; they are left
+#'   out of the comparison.
 #' @export
 # Tests time-homogeneity: split the sequence into `nblocks` blocks and check, for every state, whether
 # the distribution of the next state is the same in all blocks (chi-squared test of independence on the

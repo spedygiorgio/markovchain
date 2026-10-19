@@ -2,37 +2,53 @@
 % Please edit documentation in R/hommc.R
 \name{fitHighOrderMultivarMC}
 \alias{fitHighOrderMultivarMC}
-\title{Function to fit Higher Order Multivariate Markov chain}
+\title{Fit a higher order multivariate Markov chain}
 \usage{
 fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
 }
 \arguments{
-\item{seqMat}{a matrix or a data frame where each column
-is a categorical sequence; numeric or factor values are
-taken as state labels (compared as character strings)}
+\item{seqMat}{A matrix or data frame with one categorical sequence per
+column, all of the same length; numeric or factor values are taken as
+state labels (compared as character strings).}
 
-\item{order}{Multivariate Markov chain order. Default is 2.}
+\item{order}{Order of the chain (default 2).}
 
-\item{Norm}{Norm to be used. Default is 2.}
+\item{Norm}{Norm used to estimate the weights (default 2): the weights
+minimize this norm of the difference between the state frequencies of
+each sequence and their image under the model, as in Ching et al.
+(2008). The minimization needs the suggested package \pkg{Rsolnp}.}
 }
 \value{
-an hommc object
+An \code{\link[=hommc-class]{hommc}} object. If \pkg{Rsolnp} is not
+available, \code{NULL} with a warning.
 }
 \description{
-Given a matrix of categorical sequences it fits
-Higher Order Multivariate Markov chain.
+Fits the higher order multivariate Markov chain of Ching, Ng
+and Fung (2008) to several categorical sequences observed together: the
+next state of each sequence depends on the last \code{order} states of all the
+sequences, through a weighted sum of lag-specific transition matrices.
 }
 \examples{
-data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1', 
-               c('2', '4', '4', '4', '4', '2', '3', '3', '1', '4', '3', '3')), 
-               ncol = 2, byrow = FALSE)
-               
-fitHighOrderMultivarMC(data, order = 2, Norm = 2)                
+data <- matrix(c("2", "1", "3", "3", "4", "3", "2", "1", "3", "3", "2", "1",
+                 "2", "4", "4", "4", "4", "2", "3", "3", "1", "4", "3", "3"),
+               ncol = 2)
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
+  fitHighOrderMultivarMC(data, order = 2, Norm = 2)
+}
 
 }
 \references{
-W.-K. Ching et al. / Linear Algebra and its Applications
+Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+multivariate Markov chains and their applications. Linear Algebra and its
+Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
+}
+\seealso{
+\code{\link[=predictHommc]{predictHommc()}} to simulate from the fit.
+
+Other higher order chains: 
+\code{\link{predictHommc}()}
 }
 \author{
 Giorgio Spedicato, Deepak Yadav
 }
+\concept{higher order chains}

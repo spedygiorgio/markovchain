@@ -5,9 +5,6 @@
 \alias{hommc-class}
 \alias{hommc}
 \title{An S4 class for representing High Order Multivariate Markovchain (HOMMC)}
-\usage{
-hommc
-}
 \description{
 An S4 class for representing High Order Multivariate Markovchain (HOMMC)
 }

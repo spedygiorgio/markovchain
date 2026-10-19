@@ -5,28 +5,28 @@ using namespace Rcpp;
 // jumps to j != i with probability -Q[i,j] / Q[i,i]; the diagonal is 0 (the chain always leaves),
 // unless the state is absorbing (Q[i,i] = 0), in which case the chain stays with probability 1.
 //' @name generatorToTransitionMatrix
-//' @title Function to obtain the transition matrix from the generator
-//' @description The transition matrix of the embedded DTMC is inferred from the CTMC's generator
-//'
-//' @usage generatorToTransitionMatrix(gen, byrow = TRUE)
-//'
-//' @param gen The generator matrix
-//' @param byrow Flag to determine if rows (columns) sum to 0
-//' @return Returns the transition matrix.
-//' 
-//' @references
-//' Introduction to Stochastic Processes with Applications in the Biosciences (2013), David F.
-//' Anderson, University of Wisconsin at Madison
-//' 
+//' @title Transition matrix of the embedded jump chain
+//' @description Computes, from the generator \eqn{Q} of a continuous time
+//'   Markov chain, the transition matrix of its embedded (jump) chain: the
+//'   probability of jumping from \eqn{i} to \eqn{j \ne i} is
+//'   \eqn{-Q_{ij} / Q_{ii}}.
+//' @param gen A generator matrix: non-negative off-diagonal rates, with rows
+//'   (or columns, if `byrow = FALSE`) summing to zero.
+//' @param byrow Logical: are the rates out of each state in its row (default)
+//'   or in its column? The result has the same orientation.
+//' @return The transition matrix of the embedded chain, with the dimnames of
+//'   `gen`. A state with zero exit rate (absorbing) gets probability 1 of
+//'   staying where it is.
+//' @references Anderson, D. F. (2013). Introduction to Stochastic Processes
+//'   with Applications in the Biosciences. University of Wisconsin at
+//'   Madison.
 //' @author Sai Bhargav Yalamanchi
-//' @seealso \code{\link{rctmc}},\code{\link{ctmc-class}}
+//' @family continuous time Markov chains
 //' @examples
 //' energyStates <- c("sigma", "sigma_star")
-//' byRow <- TRUE
-//' gen <- matrix(data = c(-3, 3, 1, -1), nrow = 2,
-//'               byrow = byRow, dimnames = list(energyStates, energyStates))
+//' gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+//'               dimnames = list(energyStates, energyStates))
 //' generatorToTransitionMatrix(gen)
-//' 
 //' @export
 // [[Rcpp::export]]
 NumericMatrix generatorToTransitionMatrix(NumericMatrix gen, bool byrow = true){

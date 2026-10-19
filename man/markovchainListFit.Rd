@@ -2,39 +2,51 @@
 % Please edit documentation in R/fittingFunctions.R
 \name{markovchainListFit}
 \alias{markovchainListFit}
-\title{markovchainListFit}
+\title{Fit a non-homogeneous Markov chain}
 \usage{
 markovchainListFit(data, byrow = TRUE, laplacian = 0, name)
 }
 \arguments{
-\item{data}{Either a matrix or a data.frame or a list object.}
+\item{data}{The trajectories: a matrix or data frame with one trajectory
+per row and one time per column (or the transpose, see \code{byrow}), or a
+list of trajectories (character vectors), possibly of different lengths.}
 
-\item{byrow}{Indicates whether distinc stochastic processes trajectiories are shown in distinct rows.}
+\item{byrow}{Logical: for a matrix or data frame, is each trajectory a row
+(default) or a column?}
 
-\item{laplacian}{Laplacian correction (default 0).}
+\item{laplacian}{Laplace smoothing: a constant added to every transition
+count before normalizing (default 0).}
 
-\item{name}{Optional name.}
+\item{name}{Optional name of the fitted
+\code{\link[=markovchainList-class]{markovchainList}}.}
 }
 \value{
-A list containing two slots:
-estimate (the estimate)
-name
+A list with element \code{estimate}, the fitted
+\code{\link[=markovchainList-class]{markovchainList}}; an empty list if no
+transition can be counted.
 }
 \description{
-Given a data frame or a matrix (rows are observations, by cols
-the temporal sequence), it fits a non - homogeneous discrete time markov chain
-process (storing row). In particular a markovchainList of size = ncol - 1 is obtained
-estimating transitions from the n samples given by consecutive column pairs.
+Estimates a non-homogeneous discrete time Markov chain, with
+one transition matrix for each pair of consecutive times, from a panel of
+trajectories observed at the same times.
 }
 \details{
-If \code{data} contains \code{NAs} then the transitions containing \code{NA} will be ignored.
+The \eqn{k}-th transition matrix is the maximum likelihood
+estimate from the transitions observed between times \eqn{k} and
+\eqn{k + 1} (columns \eqn{k} and \eqn{k + 1}, or positions \eqn{k} and
+\eqn{k + 1} of the trajectories long enough). Transitions with a missing
+value (\code{NA}) are ignored, and pairs of times without any complete
+transition are skipped.
 }
 \examples{
-
-# using holson dataset
 data(holson)
-# fitting a single markovchain
-singleMc <- markovchainFit(data = holson[,2:12])
-# fitting a markovchainList
+# a homogeneous chain for the whole panel
+singleMc <- markovchainFit(data = holson[, 2:12])
+# one transition matrix for each pair of consecutive years
 mclistFit <- markovchainListFit(data = holson[, 2:12], name = "holsonMcList")
+mclistFit$estimate
+}
+\seealso{
+\code{\link[=markovchainFit]{markovchainFit()}} for a homogeneous chain, \code{\link[=rmarkovchain]{rmarkovchain()}} to
+simulate from the fit.
 }

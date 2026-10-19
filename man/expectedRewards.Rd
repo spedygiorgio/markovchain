@@ -2,38 +2,46 @@
 % Please edit documentation in R/probabilistic.R
 \name{expectedRewards}
 \alias{expectedRewards}
-\title{Expected Rewards for a markovchain}
+\title{Expected cumulative reward of a Markov chain}
 \usage{
-expectedRewards(markovchain,n,rewards)
+expectedRewards(markovchain, n, rewards)
 }
 \arguments{
-\item{markovchain}{the markovchain-class object}
+\item{markovchain}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{n}{no of steps of the process}
+\item{n}{Number of steps, a non-negative integer.}
 
-\item{rewards}{vector depicting rewards coressponding to states}
+\item{rewards}{Numeric vector with the reward of each state, in the order
+of \code{states(markovchain)}.}
 }
 \value{
-returns a vector of expected rewards for different initial states
+A numeric vector with one value per initial state.
 }
 \description{
-Given a markovchain object and reward values for every state,
-function calculates expected reward value after n steps.
+Expected total reward collected by a Markov chain over the
+times \eqn{0, 1, \dots, n}, for every initial state, when state \eqn{i}
+pays \code{rewards[i]} at each visit.
 }
 \details{
-the function uses a dynamic programming approach to solve a
-recursive equation described in reference.
+The values solve the dynamic programming recursion
+\eqn{v_0 = r}, \eqn{v_k = r + P v_{k-1}} (Gallager 2013, Section 3.5),
+so that \eqn{v_n = \sum_{k=0}^{n} P^k r}.
 }
 \examples{
-transMatr<-matrix(c(0.99,0.01,0.01,0.99),nrow=2,byrow=TRUE)
-simpleMc<-new("markovchain", states=c("a","b"),
-             transitionMatrix=transMatr)
-expectedRewards(simpleMc,1,c(0,1))
+transMatr <- matrix(c(0.99, 0.01, 0.01, 0.99), nrow = 2, byrow = TRUE)
+simpleMc <- new("markovchain", states = c("a", "b"),
+                transitionMatrix = transMatr)
+expectedRewards(simpleMc, 1, c(0, 1))
 }
 \references{
-Stochastic Processes: Theory for Applications, Robert G. Gallager,
-Cambridge University Press
+Gallager, R. G. (2013). Stochastic Processes: Theory for
+Applications. Cambridge University Press.
+}
+\seealso{
+Other rewards: 
+\code{\link{expectedRewardsBeforeHittingA}()}
 }
 \author{
 Vandit Jain
 }
+\concept{rewards}

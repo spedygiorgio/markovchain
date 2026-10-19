@@ -321,14 +321,14 @@ setValidity(
 
 #' @name states
 #' 
-#' @title Defined states of a transition matrix
+#' @title States of a Markov chain
 #' 
-#' @description This method returns the states of a transition matrix.
+#' @description Returns the names of the states of a Markov chain, in the
+#'   order of its transition matrix.
 #' 
-#' @param object A discrete \code{markovchain} object
-#' @return The character vector corresponding to states slot.
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @param object A [`markovchain`][markovchain-class] object (or a
+#'   [`ctmc`][ctmc-class] object).
+#' @return A character vector, the `states` slot.
 #' 
 #' @author Giorgio Spedicato
 #' 
@@ -372,13 +372,16 @@ setMethod(
   }
 )
 
-#' @title Method to retrieve name of markovchain object  
+#' @title Name of a Markov chain
 #' 
 #' @name name
 #' 
-#' @description This method returns the name of a markovchain object
+#' @description Returns the name of a [`markovchain`][markovchain-class]
+#'   object (its `name` slot).
 #' 
-#' @param object A markovchain object
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @return A character string.
+#' @seealso [`name<-`][name<-] to change it.
 #' @rdname getName
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
@@ -403,14 +406,17 @@ setMethod(
     object@name
 })
 
-#' @title Method to set name of markovchain object
+#' @title Set the name of a Markov chain
 #' 
 #' @name name<-
 #' 
-#' @description This method modifies the existing name of markovchain object
+#' @description Replaces the name of a [`markovchain`][markovchain-class]
+#'   object (its `name` slot).
 #' 
-#' @param object A markovchain object
-#' @param value New name of markovchain object
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param value The new name, a character string.
+#' @return The object with the new name (used as `name(object) <- value`).
+#' @seealso [name()] to read it.
 #' @rdname setName
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
@@ -422,6 +428,7 @@ setMethod(
 #'                 name = "A markovchain Object" 
 #' )
 #' name(markovB) <- "dangerous mc"
+#' name(markovB)
 #' 
 #' @export
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))

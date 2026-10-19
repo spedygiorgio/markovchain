@@ -7,7 +7,6 @@
 #' @slot byrow if FALSE each column sum of transition matrix is 1 else row sum = 1
 #' @slot name a name given to hommc
 #' 
-#' @usage hommc
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
 #' @examples 
@@ -227,31 +226,40 @@ setMethod("show", "hommc",
   return(toReturn)
 }
 
-#' Function to fit Higher Order Multivariate Markov chain
+#' Fit a higher order multivariate Markov chain
 #'
-#' @description Given a matrix of categorical sequences it fits 
-#'              Higher Order Multivariate Markov chain.
+#' @description Fits the higher order multivariate Markov chain of Ching, Ng
+#'   and Fung (2008) to several categorical sequences observed together: the
+#'   next state of each sequence depends on the last `order` states of all the
+#'   sequences, through a weighted sum of lag-specific transition matrices.
 #'
-#' @param seqMat a matrix or a data frame where each column 
-#'               is a categorical sequence; numeric or factor values are
-#'               taken as state labels (compared as character strings)
-#' @param order Multivariate Markov chain order. Default is 2.
-#' @param Norm Norm to be used. Default is 2.
-#' 
-#' @return an hommc object
-#' 
-#' @examples 
-#' data <- matrix(c('2', '1', '3', '3', '4', '3', '2', '1', '3', '3', '2', '1', 
-#'                c('2', '4', '4', '4', '4', '2', '3', '3', '1', '4', '3', '3')), 
-#'                ncol = 2, byrow = FALSE)
-#'                
-#' fitHighOrderMultivarMC(data, order = 2, Norm = 2)                
-#' 
-#' @references W.-K. Ching et al. / Linear Algebra and its Applications
-#' 
-#' @usage fitHighOrderMultivarMC(seqMat, order = 2, Norm = 2)
+#' @param seqMat A matrix or data frame with one categorical sequence per
+#'   column, all of the same length; numeric or factor values are taken as
+#'   state labels (compared as character strings).
+#' @param order Order of the chain (default 2).
+#' @param Norm Norm used to estimate the weights (default 2): the weights
+#'   minimize this norm of the difference between the state frequencies of
+#'   each sequence and their image under the model, as in Ching et al.
+#'   (2008). The minimization needs the suggested package \pkg{Rsolnp}.
+#'
+#' @return An [`hommc`][hommc-class] object. If \pkg{Rsolnp} is not
+#'   available, `NULL` with a warning.
+#'
+#' @examples
+#' data <- matrix(c("2", "1", "3", "3", "4", "3", "2", "1", "3", "3", "2", "1",
+#'                  "2", "4", "4", "4", "4", "2", "3", "3", "1", "4", "3", "3"),
+#'                ncol = 2)
+#' if (requireNamespace("Rsolnp", quietly = TRUE)) {
+#'   fitHighOrderMultivarMC(data, order = 2, Norm = 2)
+#' }
+#'
+#' @references Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+#'   multivariate Markov chains and their applications. Linear Algebra and its
+#'   Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
+#' @family higher order chains
+#' @seealso [predictHommc()] to simulate from the fit.
 #' @author Giorgio Spedicato, Deepak Yadav
-#' 
+#'
 #' @export
 # Fitting: estimate the transition matrices by counting, and the weights by minimising .fn3 with
 # the constraints of .eqn3 (non-negative weights summing to 1 for every sequence).
@@ -305,39 +313,44 @@ fitHighOrderMultivarMC <- function(seqMat, order = 2, Norm = 2) {
 }
 
 
-#' Simulate a higher order multivariate markovchain
-#' 
-#' @description 
-#' This function provides a prediction of states for a higher order 
-#' multivariate markovchain object
-#' 
-#' @usage predictHommc(hommc,t,init)
-#' 
-#' @param hommc a hommc-class object
-#' @param t no of iterations to predict
-#' @param init matrix of previous states size of which depends on hommc
-#' 
-#' @details 
-#' The user is required to provide a matrix of giving n previous coressponding
-#' every categorical sequence. Dimensions of the init are s X n, where s is 
-#' number of categorical sequences and n is order of the homc. The last
-#' column of \code{init} holds the most recent state of each sequence.
+#' Simulate from a higher order multivariate Markov chain
 #'
-#' At each step the next state of sequence \eqn{j} is drawn from
-#' \eqn{\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}}, where
-#' \eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1} steps
-#' before the current one (Ching et al., 2008). The matrices are read by column
-#' (\code{P[to, from]}), as returned by \code{\link{fitHighOrderMultivarMC}},
-#' or by row when \code{byrow = TRUE}, and all sequences are drawn from the same
-#' past before it is updated.
-#' 
-#' @return 
-#' The function returns a matrix of size s X t displaying t predicted states 
-#' in each row coressponding to every categorical sequence. 
-#' 
+#' @description Simulates the next `t` states of each sequence of a higher
+#'   order multivariate Markov chain, given their last `order` states.
+#'
+#' @param hommc An [`hommc`][hommc-class] object, for instance fitted by
+#'   [fitHighOrderMultivarMC()].
+#' @param t Number of steps to simulate, a positive integer.
+#' @param init A matrix with one row per sequence and `order` columns, the
+#'   last states of each sequence, the most recent in the last column. If
+#'   missing, every sequence starts from the first state, repeated.
+#'
+#' @details At each step the next state of sequence \eqn{j} is drawn from
+#'   \eqn{\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}}, where
+#'   \eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1}
+#'   steps before the current one (Ching et al., 2008). The matrices are read
+#'   by column (`P[to, from]`), as returned by [fitHighOrderMultivarMC()], or
+#'   by row when the `byrow` slot of `hommc` is `TRUE`; all the sequences are
+#'   drawn from the same past before it is updated.
+#'
+#' @return A character matrix with one row per sequence and `t` columns, the
+#'   simulated states.
+#'
+#' @references Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+#'   multivariate Markov chains and their applications. Linear Algebra and its
+#'   Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 #' @author Vandit Jain
-#' 
-#' 
+#' @family higher order chains
+#' @examples
+#' data <- matrix(c("2", "1", "3", "3", "4", "3", "2", "1", "3", "3", "2", "1",
+#'                  "2", "4", "4", "4", "4", "2", "3", "3", "1", "4", "3", "3"),
+#'                ncol = 2)
+#' if (requireNamespace("Rsolnp", quietly = TRUE)) {
+#'   fit <- fitHighOrderMultivarMC(data, order = 2, Norm = 2)
+#'   # the last two states of each sequence
+#'   init <- t(data[11:12, ])
+#'   predictHommc(fit, 5, init)
+#' }
 #' @export
 # Predicts (simulates) t future values of every sequence, starting from the last `order` values
 # of each sequence given in `init`.

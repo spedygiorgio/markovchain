@@ -2,42 +2,59 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{probabilityatT}
 \alias{probabilityatT}
-\title{Calculating probability from a ctmc object}
+\title{Transition probabilities of a continuous time Markov chain at time t}
 \usage{
-probabilityatT(C,t,x0,useRCpp)
+probabilityatT(C, t, x0, useRCpp = TRUE)
 }
 \arguments{
-\item{C}{A CTMC S4 object}
+\item{C}{A \code{\link[=ctmc-class]{ctmc}} object.}
 
-\item{t}{final time t}
+\item{t}{Time, a non-negative number.}
 
-\item{x0}{initial state}
+\item{x0}{Optional index (position in \code{states(C)}) of the initial state.}
 
-\item{useRCpp}{logical whether to use RCpp implementation}
+\item{useRCpp}{Logical: compute the matrix exponential in C++ (default) or
+with \code{\link[expm:expm]{expm::expm()}}?}
 }
 \value{
-returns a vector or a matrix in case \code{x0} is provided or not respectively.
+Without \code{x0}, the matrix \eqn{P(t)}, with the states as dimnames,
+whose entry \eqn{(i, j)} is the probability of being in state \code{j} at time
+\code{t} when starting from \code{i}. With \code{x0}, row \code{x0} of that matrix: the
+distribution of the state at time \code{t} when starting from \code{x0}.
 }
 \description{
-This function returns the probability of every state at time t under different conditions
-}
-\details{
-The initial state is not mandatory, In case it is not provided,
-function returns a matrix of transition function at time \code{t} else it returns
-vector of probaabilities of transition to different states if initial state was \code{x0}
+Computes the transition matrix \eqn{P(t) = \exp(t Q)} of a
+continuous time Markov chain with generator \eqn{Q}, or one of its rows.
 }
 \examples{
-states <- c("a","b","c","d")
-byRow <- TRUE
-gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
-nrow = 4,byrow = byRow, dimnames = list(states,states))
-ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-probabilityatT(ctmc,1,useRCpp = TRUE)
-
+states <- c("a", "b", "c", "d")
+gen <- matrix(c(-1, 1/2, 1/2, 0,
+                1/4, -1/2, 0, 1/4,
+                1/6, 0, -1/3, 1/6,
+                0, 0, 0, 0), nrow = 4, byrow = TRUE,
+              dimnames = list(states, states))
+ctmc <- new("ctmc", states = states, byrow = TRUE, generator = gen,
+            name = "testctmc")
+probabilityatT(ctmc, 1)
+probabilityatT(ctmc, 1, x0 = 1)
 }
 \references{
-INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
+Dobrow, R. P. (2016). Introduction to Stochastic Processes with
+R. Wiley.
+}
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Vandit Jain
 }
+\concept{continuous time Markov chains}

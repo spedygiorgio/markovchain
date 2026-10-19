@@ -35,7 +35,7 @@ The fitted model expresses the distribution of the next state as
   weights \eqn{\lambda_i \ge 0} summing to one. The matrices \eqn{Q_i}
   are the same for both methods; only the weights differ.
 
-  \code{method = "lsq"} (the default before version 1.2, and the only method
+  \code{method = "lsq"} (the default before version 1.2.1, and the only method
   before the argument existed) chooses \eqn{\lambda} to minimize the squared distance
   between the stationary distribution and its image under the mixture, as in
   Ching et al.; it needs the \pkg{Rsolnp} package and returns \code{NULL}
@@ -56,7 +56,7 @@ The fitted model expresses the distribution of the next state as
   the maximum hold within \eqn{10^{-10}} (in practice after 3 to 10
   iterations, also when some weights are 0). The weights are therefore
   those that give the highest value of \code{\link{higherOrderLogLik}} for
-  the same observations. (Up to the development version 1.2 the EM
+  the same observations. (Up to version 1.2 the EM
   algorithm for mixture weights was used: near a weight equal to 0, or
   when the lags carry nearly the same information, it converged very
   slowly and could stop visibly short of the maximum.)

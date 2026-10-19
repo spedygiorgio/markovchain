@@ -191,13 +191,15 @@ test_that("grouping the observations by history leaves the EM weights unchanged"
     }
     lambda
   }
+  # The sums are the same up to rounding, so the iteration may stop one step
+  # earlier or later, which moves the weights by far less than 1e-8.
   data(rain, package = "markovchain")
   halves <- list(rain$rain[1:500], rain$rain[501:1096])
   for (order in 2:4) {
     expect_equal(fitHigherOrder(rain$rain, order)$lambda, emReference(list(rain$rain), order),
-                 tolerance = 1e-10, info = order)
+                 tolerance = 1e-8, info = order)
     expect_equal(fitHigherOrder(halves, order)$lambda, emReference(halves, order),
-                 tolerance = 1e-10, info = order)
+                 tolerance = 1e-8, info = order)
   }
 })
 

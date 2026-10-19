@@ -113,6 +113,16 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
       gStat(triples(x))
     }, numeric(1))
   }
+  # The sequences are the same everywhere (same random numbers, same
+  # inversion). The statistics agree to the last bit where the C++ sums are
+  # carried out as in R: x86-64 (both in 80-bit long double) and macOS (both in
+  # double, contraction turned off for clang in the C++ file). Elsewhere, for
+  # instance GCC on Linux arm64, which fuses multiply-adds by default, they
+  # may differ in the last bits only.
+  sameBits <- R.version$arch %in% c("x86_64", "amd64") || Sys.info()[["sysname"]] == "Darwin"
+  expectSame <- function(object, expected) {
+    if (sameBits) expect_identical(object, expected) else expect_equal(object, expected, tolerance = 1e-12)
+  }
   s <- c("a", "b", "c", "d")
   mc <- new("markovchain", states = s, transitionMatrix = matrix(
     c(0.5, 0.3, 0.2, 0, 0.1, 0.6, 0.3, 0, 0.25, 0.25, 0.25, 0.25, 0.2, 0.2, 0.3, 0.3),
@@ -121,13 +131,13 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
     set.seed(seed)
     x <- rmarkovchain(150, mc, t0 = "a")
     ans <- verifyMarkovProperty(x, method = "simulation", B = 60, seed = seed, verbose = FALSE)
-    expect_identical(ans$simulations, referenceSimulations(x, 60, seed))
+    expectSame(ans$simulations, referenceSimulations(x, 60, seed))
     expect_equal(ans$p.value, (1 + sum(ans$simulations >= ans$statistic)) / 61)
   }
   # ties between probabilities (a uniform row) and two states
   set.seed(4)
   y <- sample(c("u", "v"), 80, replace = TRUE)
-  expect_identical(verifyMarkovProperty(y, method = "simulation", B = 40, seed = 9,
-                                        verbose = FALSE)$simulations,
-                   referenceSimulations(y, 40, 9))
+  expectSame(verifyMarkovProperty(y, method = "simulation", B = 40, seed = 9,
+                                  verbose = FALSE)$simulations,
+             referenceSimulations(y, 40, 9))
 })

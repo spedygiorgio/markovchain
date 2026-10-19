@@ -22,8 +22,17 @@
 
 #include <Rcpp.h>
 #include <R_ext/Utils.h>
+#include <algorithm>
 #include <cmath>
 #include <vector>
+
+// Floating-point contraction off: clang (the compiler of CRAN's and GitHub's
+// macOS arm64 builds) by default fuses a * b + c into one fused multiply-add,
+// rounded once, while R rounds the product and the sum separately; the last
+// bits would then differ from R's. GCC on x86-64 never fuses without -mfma.
+#ifdef __clang__
+#pragma clang fp contract(off)
+#endif
 
 using namespace Rcpp;
 

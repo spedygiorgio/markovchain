@@ -51,14 +51,15 @@ The fitted model expresses the distribution of the next state as
   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
   x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
-  is solved by the EM algorithm for mixture weights, without
-  \pkg{Rsolnp}. The weights are therefore those that give the highest
-  value of \code{\link{higherOrderLogLik}} for the same observations.
-  The iteration stops when the log-likelihood increases by less than
-  \eqn{10^{-10}}, or after 10000 iterations; the latter happens when a
-  weight tends to 0 or the likelihood is nearly flat in some direction
-  (lags carrying the same information), where EM converges slowly, and a
-  warning then reports that the weights are approximate.
+  is solved, without \pkg{Rsolnp}, by Newton's method with an active set
+  on the simplex, which stops when the Karush-Kuhn-Tucker conditions of
+  the maximum hold within \eqn{10^{-10}} (in practice after 3 to 10
+  iterations, also when some weights are 0). The weights are therefore
+  those that give the highest value of \code{\link{higherOrderLogLik}} for
+  the same observations. (Up to the development version 1.2 the EM
+  algorithm for mixture weights was used: near a weight equal to 0, or
+  when the lags carry nearly the same information, it converged very
+  slowly and could stop visibly short of the maximum.)
   They are maximum likelihood estimates \emph{conditional on} the empirical
   matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
   likelihood estimator of the mixture with free matrices, in which the

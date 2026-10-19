@@ -167,58 +167,72 @@ test_that("maximum likelihood weights never give a lower log-likelihood than lea
   }
 })
 
-test_that("grouping the observations by history leaves the EM weights unchanged", {
-  # Reference: the EM iteration with one term per observation, as it was
-  # before the observations were grouped.
-  emReference <- function(seqs, order, tol = 1e-10, maxit = 10000L) {
+test_that("the weights satisfy the optimality conditions and beat a long EM run", {
+  # Optimality (KKT) conditions of the concave problem on the simplex:
+  # g_o <= 1 for every lag, with g_o = 1 where lambda_o > 0, where g_o is the
+  # derivative of the log-likelihood in lambda_o divided by the number of
+  # observations. Checked without grouping the observations, together with
+  # the log-likelihood reached by 20000 plain EM iterations (the method used
+  # before), which the weights must not lose to.
+  check <- function(seqs, order) {
     fit <- fitHigherOrder(seqs, order)
-    Q <- fit$Q
-    states <- rownames(Q[[1L]])
+    states <- rownames(fit$Q[[1L]])
     q <- do.call(rbind, lapply(seqs[lengths(seqs) > order], function(s) {
       idx <- match(s, states)
       times <- (order + 1L):length(idx)
-      sapply(seq_len(order), function(o) Q[[o]][cbind(idx[times], idx[times - o])])
+      sapply(seq_len(order), function(o) fit$Q[[o]][cbind(idx[times], idx[times - o])])
     }))
+    g <- colMeans(q / drop(q %*% fit$lambda))
+    info <- paste("order", order)
+    expect_true(all(g <= 1 + 1e-8), info = info)
+    expect_true(all(abs(g[fit$lambda > 0] - 1) <= 1e-8), info = info)
+    expect_equal(sum(fit$lambda), 1)
     lambda <- rep(1 / order, order)
-    old <- -Inf
-    for (iter in seq_len(maxit)) {
+    for (i in seq_len(20000L)) {
       w <- sweep(q, 2L, lambda, "*")
-      m <- rowSums(w)
-      ll <- sum(log(m))
-      if (ll - old < tol) break
-      old <- ll
-      lambda <- colMeans(w / m)
+      lambda <- colMeans(w / rowSums(w))
     }
-    lambda
+    expect_gte(sum(log(q %*% fit$lambda)), sum(log(q %*% lambda)) - 1e-9)
+    fit$lambda
   }
-  # Grouping changes only the order and the precision of the sums, so the EM
-  # iterates agree up to rounding; but the iteration stops when the
-  # log-likelihood gains less than 1e-10, a quantity close to the rounding
-  # error of the log-likelihood in double precision, so where the sums are not
-  # carried out in extended precision (macOS arm64) it can stop a few
-  # iterations earlier or later. Near the maximum the weights then move by up
-  # to about 1e-5 for order 2 on these data (measured), with a log-likelihood
-  # equal to 1e-10.
   data(rain, package = "markovchain")
-  halves <- list(rain$rain[1:500], rain$rain[501:1096])
-  for (order in 2:4) {
-    for (s in list(list(rain$rain), halves)) {
-      grouped <- fitHigherOrder(s, order)
-      reference <- grouped
-      reference$lambda <- emReference(s, order)
-      info <- paste("order", order, "sequences", length(s))
-      expect_equal(grouped$lambda, reference$lambda, tolerance = 1e-4, info = info)
-      expect_equal(higherOrderLogLik(s, grouped)$logLik, higherOrderLogLik(s, reference)$logLik,
-                   tolerance = 1e-10, info = info)
-    }
-  }
-})
-
-test_that("an EM iteration that does not converge within maxit gives a warning", {
-  # i.i.d. data: the lags carry the same information and EM is slow
+  for (order in 2:5) check(list(rain$rain), order)
+  check(list(rain$rain[1:500], rain$rain[501:1096]), 3)
+  # i.i.d. data: the lags carry the same information, EM needed more than
+  # 10000 iterations at order 4 and stopped short of the maximum
   set.seed(2)
   x <- sample(letters[1:4], 3000, TRUE)
-  expect_warning(fit <- fitHigherOrder(x, 4), "before converging")
-  expect_equal(sum(fit$lambda), 1)
-  expect_silent(fitHigherOrder(x, 2))
+  expect_silent(check(list(x), 4))
+  # a first-order chain fitted at order 3: the higher lags are worth nothing,
+  # their weights are (essentially) 0 and their gradients at most 1
+  set.seed(3)
+  s <- c("a", "b", "c")
+  mc <- new("markovchain", states = s, transitionMatrix = matrix(
+    c(0.8, 0.1, 0.1, 0.1, 0.8, 0.1, 0.1, 0.1, 0.8), 3, byrow = TRUE, dimnames = list(s, s)))
+  lambda <- check(list(rmarkovchain(3000, mc, t0 = "a")), 3)
+  expect_gt(lambda[1], 0.9)
+})
+
+test_that("the Newton solver handles boundary, collinear and degenerate problems", {
+  newton <- markovchain:::.mixtureWeightsNewton
+  kkt <- function(q, counts, l) {
+    g <- colSums(q * (counts / drop(q %*% l))) / sum(counts)
+    max(g - 1, abs(g[l > 0] - 1))
+  }
+  set.seed(10)
+  for (rep in 1:200) {
+    k <- sample(1:8, 1)
+    H <- sample(c(3, 5, 20, 200), 1)
+    q <- matrix(runif(H * k)^sample(c(1, 3, 8), 1), H, k)
+    if (k > 2 && rep %% 3 == 0) q[, 2] <- q[, 1] * (1 + 1e-9 * runif(H))  # nearly collinear
+    if (k > 1 && rep %% 4 == 0) q[, k] <- q[, k] * 1e-3                    # a useless lag
+    q <- pmax(q, 1e-12)
+    counts <- sample(1:50, H, TRUE)
+    l <- newton(q, counts)
+    expect_true(attr(l, "converged"), info = paste("case", rep))
+    expect_lte(kkt(q, counts, as.numeric(l)), 1e-8)
+    expect_true(all(l >= 0) && abs(sum(l) - 1) < 1e-12)
+  }
+  # one component: weight 1
+  expect_equal(as.numeric(newton(matrix(c(0.2, 0.5), 2, 1), c(3, 4))), 1)
 })

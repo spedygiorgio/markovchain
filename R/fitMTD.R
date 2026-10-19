@@ -422,6 +422,16 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
           starts[[length(starts) + 1L]] <- list(lambda = lambda0 / sum(lambda0), Q = Qs)
         }
       }
+      # Last, the empirical matrices with the exact maximum likelihood weights
+      # for them (the fitHigherOrder() mle weights, computed by Newton's
+      # method), so that the likelihood is never below that model even where
+      # the EM for the weights above stops short of their maximum. It comes
+      # after the other starts, so that it is chosen only when it gives a
+      # strictly higher likelihood.
+      if (k > 1L) {
+        starts[[length(starts) + 1L]] <- list(lambda = .weightsNewton(patterns, counts, Qemp),
+                                              Q = Qemp)
+      }
       fit <- bestOf(lapply(starts, function(s0)
         tryCatch(runEM(FALSE, patterns, counts, s0$lambda, s0$Q),
                  error = function(e) NULL)))
@@ -519,6 +529,16 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
 
 # Helper: EM that estimates only the weights, with the matrices fixed (used as starting values).
 # EM for the weights only, the matrices Qs (rows are departure states) being fixed
+# The same maximum likelihood weights for fixed matrices, exactly, by the
+# active-set Newton method of fitHigherOrder() (R/fitHigherOrder.R).
+.weightsNewton <- function(patterns, counts, Qs) {
+  k <- length(Qs)
+  comp <- matrix(vapply(seq_len(k), function(g)
+    Qs[[g]][cbind(patterns[, g + 1L] + 1L, patterns[, 1L] + 1L)],
+    numeric(nrow(patterns))), ncol = k)
+  as.numeric(.mixtureWeightsNewton(comp, counts))
+}
+
 .weightsEM <- function(patterns, counts, Qs, lambda, iters = 2000L, tol = 1e-13) {
   k <- length(Qs)
   comp <- matrix(vapply(seq_len(k), function(g)

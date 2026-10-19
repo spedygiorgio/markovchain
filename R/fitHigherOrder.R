@@ -88,14 +88,15 @@ setClass("HigherOrderMarkovChain", #class name
 #'   log-likelihood \eqn{\sum_{t=k+1}^{n} \log \sum_i \lambda_i Q_i[x_t,
 #'   x_{t-i}]} of the observations a model of order \eqn{k} can predict. For
 #'   fixed \eqn{Q_i} the problem is concave, so the maximum is global, and it
-#'   is solved by the EM algorithm for mixture weights, without
-#'   \pkg{Rsolnp}. The weights are therefore those that give the highest
-#'   value of \code{\link{higherOrderLogLik}} for the same observations.
-#'   The iteration stops when the log-likelihood increases by less than
-#'   \eqn{10^{-10}}, or after 10000 iterations; the latter happens when a
-#'   weight tends to 0 or the likelihood is nearly flat in some direction
-#'   (lags carrying the same information), where EM converges slowly, and a
-#'   warning then reports that the weights are approximate.
+#'   is solved, without \pkg{Rsolnp}, by Newton's method with an active set
+#'   on the simplex, which stops when the Karush-Kuhn-Tucker conditions of
+#'   the maximum hold within \eqn{10^{-10}} (in practice after 3 to 10
+#'   iterations, also when some weights are 0). The weights are therefore
+#'   those that give the highest value of \code{\link{higherOrderLogLik}} for
+#'   the same observations. (Up to the development version 1.2 the EM
+#'   algorithm for mixture weights was used: near a weight equal to 0, or
+#'   when the lags carry nearly the same information, it converged very
+#'   slowly and could stop visibly short of the maximum.)
 #'   They are maximum likelihood estimates \emph{conditional on} the empirical
 #'   matrices \eqn{Q_i}, which are not re-estimated: this is not the maximum
 #'   likelihood estimator of the mixture with free matrices, in which the
@@ -183,7 +184,7 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   # probability of each state of the sequence(s) and lag-o transition matrices
   X <- seq2freqProb(unlist(seqs))
   Q <- lapply(seq_len(order), function(o) .seq2matHighList(seqs, o))
-  # Step 4a: 'mle' -> EM algorithm for the weights (function below).
+  # Step 4a: 'mle' -> maximum likelihood weights (function below).
   if (method == "mle") return(.fitHigherOrderMle(seqs, Q, X, order))
   # Step 4b: 'lsq' -> constrained least squares with solnp: weights >= 0 (LB) and summing to 1.
   QX <- lapply(Q, function(Qo) Qo %*% X)
@@ -259,36 +260,52 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   invisible(NULL)
 }
 
-# EM algorithm (Expectation-Maximisation) for the weights. Intuition: for each observation, how
-# much is each lag responsible for the probability of what happened? 'responsibility of lag o' =
-# lambda_o * q_o / (sum of all). The new weight of lag o is the average responsibility. Repeat until
-# the log-likelihood stops improving; it never decreases.
 # Maximum likelihood weights of the higher order model. The lag-o transition
 # matrices Q_o are the empirical ones (seq2matHigh), exactly as for the least
 # squares fit, and the weights maximize
-#   sum_{t = order + 1}^{n} log( sum_o lambda_o * Q_o[x_t, x_{t-o}] )
+#   L(lambda) = sum_{t = order + 1}^{n} log( sum_o lambda_o * Q_o[x_t, x_{t-o}] )
 # over the simplex (the sum running over the observations of every sequence a
-# model of this order can predict). For fixed Q_o the objective is concave in
-# lambda, so there are no local maxima, and the EM iteration for mixture
-# weights increases it monotonically. The probability of every observed pair
-# is positive (it is a count divided by a column total), hence the mixture
-# probability of every observation is positive and the iteration is well
-# defined.
+# model of this order can predict). The probability of every observed pair is
+# positive (a count divided by a column total), so every mixture probability
+# is positive on the whole simplex and L is finite there. For fixed Q_o, L is
+# concave in lambda: there are no local maxima, and a point is the maximum if
+# and only if it satisfies the Karush-Kuhn-Tucker conditions
+#   g_o <= 1 for every lag, with g_o = 1 where lambda_o > 0,
+# where g_o = (1 / nobs) dL / dlambda_o (the g_o average to 1 under lambda).
 #
 # The likelihood depends on an observation only through its history
 # (x_t, x_{t-1}, ..., x_{t-order}), and a chain with r states has at most
 # r^(order + 1) of them, usually far fewer than the observations. The
 # observations with the same history are therefore grouped and each distinct
-# history enters the sums with its number of occurrences as weight: the EM
-# iterates are the same as with one term per observation (up to rounding in
-# the last digits), at a fraction of the cost on long sequences.
+# history enters the sums with its number of occurrences as weight.
 #
-# Near a boundary of the simplex (a weight tending to 0, as when a lag adds
-# nothing to the others) EM converges slowly, and maxit iterations may not
-# reach tol: a warning says so, and the weights returned are those of the
-# last iteration, whose log-likelihood is at most marginally below the
-# maximum (EM never decreases it).
-.fitHigherOrderMle <- function(seqs, Q, X, order, tol = 1e-10, maxit = 10000L) {
+# How the maximum is found (for a junior reader). Until version 1.2 the
+# weights came from the EM algorithm for mixture weights. EM is simple and
+# never decreases L, but near a weight that tends to 0, or where lags carry
+# the same information, it crawls (thousands of iterations), and its stopping
+# rule (gain below 1e-10) stopped it short of the maximum: weights wrong in the
+# fifth decimal, or even in the second for i.i.d. data at order 6, and up to
+# 4e-3 in log-likelihood. Here the problem, which has only `order` unknowns,
+# is solved by Newton's method with an active set:
+#  - the weights that are positive form the free set F; on F, with the
+#    constraint that the weights sum to one, the quadratic model of L
+#    (gradient and Hessian, both in closed form) gives the Newton direction;
+#  - the step is cut at the boundary of the simplex, where the weight that
+#    reaches 0 leaves F, and halved until L increases enough (Armijo rule), so
+#    every iteration increases L;
+#  - when the gradients of the free weights are all equal (to 1, within tol),
+#    so that the Newton step on F gives no further gain, the KKT conditions are
+#    checked on the zero weights: if one has g_o > 1, L increases by moving
+#    towards it, which is done with an exact line search along the segment to
+#    that vertex, and the lag re-enters F; otherwise the point is the maximum.
+# A tiny ridge keeps the reduced Hessian invertible when two lags are almost
+# collinear (the weights are then nearly unidentified, but L is maximized),
+# and if the Newton step still fails to increase L the projected gradient is
+# used instead for that iteration.
+# The method converges in a handful of iterations (3 to 9 on the data of the
+# tests and vignettes) to a point that satisfies the KKT conditions within
+# tol; the warning below is a safeguard that should not be reached.
+.fitHigherOrderMle <- function(seqs, Q, X, order, tol = 1e-10, maxit = 500L) {
   states <- rownames(Q[[1L]])
   r <- length(states)
   # hist[t, ] = (x_t, x_{t-1}, ..., x_{t-order}) as state numbers, one row per
@@ -315,33 +332,147 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
   # Q_o[x_t, x_{t-o}].
   q <- matrix(0, nrow = length(first), ncol = order)
   for (o in seq_len(order)) q[, o] <- Q[[o]][cbind(hist[, 1L], hist[, o + 1L])]
-  # Start from equal weights.
-  lambda <- rep(1 / order, order)
-  logLikOld <- -Inf
+  lambda <- .mixtureWeightsNewton(q, counts, tol = tol, maxit = maxit)
+  if (!attr(lambda, "converged")) {
+    warning("the maximization of the likelihood in the weights of the order ", order,
+            " model stopped after ", maxit, " iterations before meeting its",
+            " optimality conditions: the weights returned are approximate", call. = FALSE)
+  }
+  list(lambda = as.numeric(lambda), Q = Q, X = X)
+}
+
+# Weights lambda in the simplex maximizing sum_h counts_h log((q lambda)_h),
+# with q a matrix of positive probabilities (one column per component): the
+# active-set Newton method described above. Returns lambda, with an attribute
+# "converged" (the KKT conditions hold within tol) and "iterations".
+.mixtureWeightsNewton <- function(q, counts, tol = 1e-10, maxit = 500L) {
+  k <- ncol(q)
+  N <- sum(counts)
+  lambda <- rep(1 / k, k)
+  logLik <- function(l) {
+    m <- drop(q %*% l)
+    if (any(!(m > 0))) -Inf else sum(counts * log(m))
+  }
+  L <- logLik(lambda)
   converged <- FALSE
-  for (iter in seq_len(maxit)) {
-    # E-step: weighted[h, o] = lambda_o * q[h, o];  mixture[h] = total probability of history h.
-    weighted <- sweep(q, 2L, lambda, "*")
-    mixture <- rowSums(weighted)
-    logLik <- sum(counts * log(mixture))
-    gain <- logLik - logLikOld
-    if (gain < tol) {
+  iter <- 0L
+  if (k == 1L || N == 0) {
+    converged <- TRUE
+    maxit <- 0L
+  }
+  while (iter < maxit) {
+    iter <- iter + 1L
+    m <- drop(q %*% lambda)
+    # normalized gradient: g_o = (1 / N) sum_h counts_h q[h, o] / m_h
+    g <- colSums(q * (counts / m)) / N
+    free <- which(lambda > 0)
+    freeGap <- max(abs(g[free] - 1))
+    if (freeGap > tol) {
+      # Newton direction on the free set
+      nF <- length(free)
+      # normalized Hessian on the free set: -(1 / N) sum_h counts_h q_h q_h' / m_h^2
+      H <- -crossprod(q[, free, drop = FALSE] * (sqrt(counts) / m)) / N
+      # directions that keep the sum equal to one: d = Z z, with Z a basis of
+      # {d : sum(d) = 0}
+      Z <- rbind(diag(nF - 1L), -1)
+      reducedGradient <- drop(crossprod(Z, g[free]))
+      M <- -crossprod(Z, H %*% Z)
+      ridge <- 1e-12 * max(1, max(abs(diag(M))))
+      z <- tryCatch(solve(M + diag(ridge, nF - 1L), reducedGradient),
+                    error = function(e) reducedGradient)
+      d <- numeric(k)
+      d[free] <- drop(Z %*% z)
+      # predicted gain per observation of the step (positive for an ascent
+      # direction)
+      gain <- sum(g * d)
+      step <- if (gain > 0) .newtonStep(lambda, d, gain, L, N, logLik) else NULL
+      if (is.null(step)) {
+        # The Newton direction did not help (badly conditioned Hessian, as
+        # with fewer distinct histories than lags): fall back to the
+        # projected gradient, g_o minus its mean on the free set, which is an
+        # ascent direction whenever the free gradients are not all equal.
+        d <- numeric(k)
+        d[free] <- g[free] - mean(g[free])
+        gain <- sum(g * d)
+        if (gain > 0) step <- .newtonStep(lambda, d, gain, L, N, logLik)
+      }
+      if (!is.null(step)) {
+        lambda <- step$lambda
+        L <- step$logLik
+        next
+      }
+      # No step improves L any more: rounding level. The free weights are
+      # taken as optimal if their gradients agree to sqrt(tol).
+      if (freeGap > sqrt(tol)) break
+    }
+    # The free weights are optimal: check the KKT condition on the zero ones.
+    blocked <- which(lambda == 0 & g > 1 + tol)
+    if (length(blocked) == 0L) {
       converged <- TRUE
       break
     }
-    logLikOld <- logLik
-    # M-step: new lambda_o = average over the observations of the responsibilities
-    # weighted[h, o] / mixture[h], each history counted as many times as it occurs.
-    lambda <- colSums(counts * weighted / mixture) / nobs
+    # Move towards the vertex of the lag that violates the condition most,
+    # with the exact maximizer on the segment (L is concave along it, and
+    # increasing at 0 because g_o > 1).
+    o <- blocked[which.max(g[blocked])]
+    d <- -lambda
+    d[o] <- d[o] + 1
+    qd <- drop(q %*% d)
+    slope <- function(t) sum(counts * qd / (m + t * qd))
+    if (slope(1) >= 0) {
+      t <- 1
+    } else {
+      lo <- 0
+      hi <- 1
+      for (b in seq_len(60L)) {
+        mid <- (lo + hi) / 2
+        if (slope(mid) > 0) lo <- mid else hi <- mid
+      }
+      t <- lo
+    }
+    if (!(t > 0)) break
+    lambda <- pmax(lambda + t * d, 0)
+    lambda <- lambda / sum(lambda)
+    L <- logLik(lambda)
   }
-  if (!converged) {
-    warning("the EM iteration for the weights of the order ", order,
-            " model stopped after ", maxit, " iterations before converging",
-            " (log-likelihood still increasing by ", signif(gain, 3),
-            " per iteration): a weight is probably close to 0, and the weights",
-            " returned are approximate", call. = FALSE)
+  structure(lambda, converged = converged, iterations = iter)
+}
+
+# One step lambda + t d of the Newton method above, or NULL if no step
+# increases L. The step is cut at the boundary of the simplex (the weights
+# that reach it are set exactly to 0) and halved until L increases by at least
+# 1e-4 of the predicted gain (Armijo rule). Near the maximum the predicted gain
+# falls below what L can resolve in double precision; there the full Newton
+# step, which converges quadratically, is taken as long as it does not lower L
+# beyond rounding.
+.newtonStep <- function(lambda, d, gain, L, N, logLik) {
+  decreasing <- d < 0
+  tBound <- if (any(decreasing)) min(-lambda[decreasing] / d[decreasing]) else Inf
+  candidateAt <- function(t) {
+    candidate <- lambda + t * d
+    if (t == tBound) candidate[decreasing & (-lambda / d) <= tBound] <- 0
+    candidate <- pmax(candidate, 0)
+    candidate / sum(candidate)
   }
-  list(lambda = lambda, Q = Q, X = X)
+  roundingL <- 1e-12 * max(1, abs(L))
+  if (gain * N <= roundingL) {
+    candidate <- candidateAt(min(1, tBound))
+    Lc <- logLik(candidate)
+    if (is.finite(Lc) && Lc >= L - roundingL && any(candidate != lambda)) {
+      return(list(lambda = candidate, logLik = Lc))
+    }
+    return(NULL)
+  }
+  t <- min(1, tBound)
+  while (t >= 1e-20) {
+    candidate <- candidateAt(t)
+    Lc <- logLik(candidate)
+    if (is.finite(Lc) && Lc > L && Lc >= L + 1e-4 * t * gain * N) {
+      return(list(lambda = candidate, logLik = Lc))
+    }
+    t <- t / 2
+  }
+  NULL
 }
 
 

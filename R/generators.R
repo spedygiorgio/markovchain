@@ -629,16 +629,22 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
 #' \eqn{P_{ij}=\binom{n}{j}p'^{\,j}(1-p')^{n-j}}.
 #'
 #' Both constructions follow \pkg{PyDTMC}'s
-#' \code{population_genetics_model}, with one deliberate difference: this
+#' \code{population_genetics_model}, with two deliberate differences. First, this
 #' function uses mutant relative fitness \eqn{1+s} in \emph{both} models
 #' (PyDTMC's Moran implementation instead uses \eqn{1-s}, so that a
 #' positive \code{s} there favours the wild-type rather than the mutant,
 #' the opposite of its own Wright-Fisher convention and of the usual
-#' textbook one). \code{s = 0} (neutral drift) and the mutation-rate terms
-#' are unaffected by this choice and match PyDTMC exactly; away from
-#' \code{s = 0} the two packages' Moran chains differ by construction, by
-#' design, to keep \code{s}'s meaning consistent between \code{"moran"} and
-#' \code{"wright-fisher"} within this package. As \code{u, v} shrink to
+#' textbook one). Second, in the mutation terms: for
+#' \code{u != v} the probability \eqn{P_{i,i-1}} follows the description of
+#' the model (a mutant parent has a wild-type offspring with probability
+#' \code{u}, a wild-type parent with probability \code{1-v}), whereas
+#' PyDTMC uses \eqn{r_i v} in place of \eqn{r_i u} in the numerator, which
+#' makes its chain depend on how the two alleles are labelled; for
+#' \code{u = v} (the default) the two coincide. With \code{s = 0} and
+#' \code{u = v} the two packages' Moran chains are identical; otherwise they
+#' differ by construction, by design (for \code{s}, to keep its meaning
+#' consistent between \code{"moran"} and \code{"wright-fisher"} within this
+#' package). As \code{u, v} shrink to
 #' \code{0}, both reduce to the classical drift-only chains with absorbing
 #' loss/fixation states, going back to Wright (1931) and Moran (1958); see
 #' Ewens (2004) for a modern textbook treatment of both.
@@ -721,10 +727,10 @@ populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
       ri <- r * i
       # pm1 = P(i -> i - 1) = P(a mutant dies) * P(the offspring is wild type);
       # pp1 = P(i -> i + 1) = P(a wild type dies) * P(the offspring is a mutant).
-      # NOTE: the expressions are those of PyDTMC (see ?populationGeneticsModel). For u != v
-      # the first one is not what the description of the model gives, which would have
-      # ri * u + nmi * vi in the numerator; for the default u = v it is the same.
-      pm1 <- (i / n) * ((ri * v + nmi * vi) / (ri + nmi))
+      # Mutation: a mutant parent has a wild-type offspring with probability u, a wild-type parent
+      # a wild-type offspring with probability 1 - v (PyDTMC uses ri * v in the first numerator,
+      # which equals this only for u = v).
+      pm1 <- (i / n) * ((ri * u + nmi * vi) / (ri + nmi))
       pp1 <- (nmi / n) * ((ri * ui + nmi * v) / (ri + nmi))
       P[i + 1L, i] <- pm1
       P[i + 1L, i + 1L] <- 1 - pm1 - pp1     # nothing changes

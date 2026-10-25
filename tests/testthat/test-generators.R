@@ -263,3 +263,31 @@ test_that("tauchen and rouwenhorst fall back to generic labels when the rounded 
   expect_equal(names(outR$states), as.character(1:5))
   expect_false(anyDuplicated(names(outR$states)) > 0)
 })
+
+test_that("Moran chain with u != v follows the model and is invariant to relabelling the alleles", {
+  n <- 7; u <- 0.03; v <- 0.11
+  P <- populationGeneticsModel("moran", n = n, s = 0, u = u, v = v)@transitionMatrix
+  Q <- populationGeneticsModel("moran", n = n, s = 0, u = v, v = u)@transitionMatrix
+  # relabelling mutant <-> wild type maps state i to n - i and swaps u and v
+  for (i in 1:(n - 1)) {
+    expect_equal(P[i + 1, i], Q[n - i + 1, n - i + 2])
+    expect_equal(P[i + 1, i + 2], Q[n - i + 1, n - i])
+  }
+  # explicit formula (neutral case: r_i = i, m_i = n - i)
+  for (i in 1:(n - 1))
+    expect_equal(P[i + 1, i], (i / n) * (i * u + (n - i) * (1 - v)) / n)
+})
+
+test_that("Moran chain with u != v matches a direct simulation of one birth-death step", {
+  n <- 5; s <- 0.3; u <- 0.05; v <- 0.2; i <- 2
+  P <- populationGeneticsModel("moran", n = n, s = s, u = u, v = v)@transitionMatrix
+  set.seed(1)
+  B <- 4e5
+  dies_mutant <- runif(B) < i / n
+  parent_mutant <- runif(B) < ((1 + s) * i) / ((1 + s) * i + (n - i))
+  offspring_mutant <- ifelse(parent_mutant, runif(B) >= u, runif(B) < v)
+  new <- i - dies_mutant + offspring_mutant
+  # a mutant that dies and is replaced by a mutant offspring leaves i unchanged, etc.
+  emp <- tabulate(new + 1, nbins = n + 1) / B
+  expect_equal(unname(emp[(i - 1):(i + 1) + 1]), unname(P[i + 1, (i - 1):(i + 1) + 1]), tolerance = 0.01)
+})

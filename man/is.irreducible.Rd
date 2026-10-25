@@ -2,22 +2,25 @@
 % Please edit documentation in R/probabilistic.R
 \name{is.irreducible}
 \alias{is.irreducible}
-\title{Function to check if a Markov chain is irreducible (i.e. ergodic)}
+\title{Check whether a Markov chain is irreducible}
 \usage{
 is.irreducible(object)
 }
 \arguments{
-\item{object}{A \code{markovchain} object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 }
 \value{
-A boolean values.
+\code{TRUE} if the chain is irreducible, \code{FALSE} otherwise.
 }
 \description{
-This function verifies whether a \code{markovchain} object transition matrix 
-             is composed by only one communicating class.
+A Markov chain is irreducible if all its states communicate,
+i.e. form a single communicating class.
 }
 \details{
-It is based on \code{.communicatingClasses} internal function.
+Irreducibility does not imply aperiodicity: an irreducible chain
+on finitely many states has a unique stationary distribution, but it
+converges to it from every initial state only if it is also aperiodic
+(see \code{\link[=period]{period()}} and \code{\link[=is.regular]{is.regular()}}).
 }
 \examples{
 statesNames <- c("a", "b")
@@ -32,7 +35,7 @@ is.irreducible(mcA)
 Feres, Matlab listings for Markov Chains.
 }
 \seealso{
-\code{\link{summary}}
+\code{\link[=communicatingClasses]{communicatingClasses()}}, \code{\link[=is.regular]{is.regular()}}, \code{\link[=period]{period()}}
 }
 \author{
 Giorgio Spedicato

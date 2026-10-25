@@ -7,7 +7,7 @@
 #'   
 #' @author 
 #' Giorgio Alfredo Spedicato 
-#' Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
+#' Maintainer: Giorgio Alfredo Spedicato \email{spedicato_giorgio@yahoo.it}
 #' @references Discrete-Time Markov Models, Bremaud, Springer 1999
 #' @keywords package
 #' 

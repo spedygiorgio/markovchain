@@ -2,38 +2,73 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{impreciseProbabilityatT}
 \alias{impreciseProbabilityatT}
-\title{Calculating full conditional probability using lower rate transition matrix}
+\title{Lower transition probability of an imprecise continuous time Markov chain}
 \usage{
-impreciseProbabilityatT(C,i,t,s,error,useRCpp)
+impreciseProbabilityatT(C, i, t = 0, s, error = 10^-3, useRCpp = TRUE)
 }
 \arguments{
-\item{C}{a ictmc class object}
+\item{C}{An \code{ictmc} object: its slot \code{Q} is a generator and row \eqn{k} of
+the rates may be scaled by any factor in \code{range[k, ]}.}
 
-\item{i}{initial state at time t}
+\item{i}{Index (position in the states of \code{C}) of the state whose lower
+probability is computed.}
 
-\item{t}{initial time t. Default value = 0}
+\item{t}{Initial time (default 0).}
 
-\item{s}{final time}
+\item{s}{Final time, larger than \code{t}.}
 
-\item{error}{error rate. Default value = 0.001}
+\item{error}{Maximum approximation error (default 0.001).}
 
-\item{useRCpp}{logical whether to use RCpp implementation; by default TRUE}
+\item{useRCpp}{Logical: use the C++ implementation (default)? It requires
+\code{t} and \code{s} to be integer-valued.}
+}
+\value{
+A numeric vector with one element per state \eqn{x}: the lower
+probability that the chain is in state \code{i} at time \code{s} given that it is in
+\eqn{x} at time \code{t}. With degenerate intervals (\code{range} equal to 1) it is
+column \code{i} of \eqn{\exp((s - t) Q)}, up to \code{error}.
 }
 \description{
-This function calculates full conditional probability at given 
-time s using lower rate transition matrix
+For an imprecise continuous time Markov chain, whose
+transition rates are only known to lie in intervals, computes the lower
+probability of being in state \code{i} at time \code{s}, as a function of the state
+at time \code{t} (Krak et al. 2017).
+}
+\details{
+The lower transition operator is approximated by
+\eqn{n} steps \eqn{g \leftarrow g + \delta \underline{Q} g}, with
+\eqn{\delta = (s - t) / n} and \eqn{n} chosen so that the error is below
+\code{error}, starting from the indicator of state \code{i}; \eqn{\underline{Q}}
+takes, in each row, the smaller of the values given by the two extremes of
+the interval of rates.
 }
 \examples{
-states <- c("n","y")
-Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = TRUE,dimnames = list(states,states))
-range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
-name <- "testictmc"
-ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
+states <- c("n", "y")
+Q <- matrix(c(-1, 1, 1, -1), nrow = 2, byrow = TRUE,
+            dimnames = list(states, states))
+range <- matrix(c(1/52, 3/52, 1/2, 2), nrow = 2, byrow = TRUE)
+ictmc <- new("ictmc", states = states, Q = Q, range = range,
+             name = "testictmc")
+impreciseProbabilityatT(ictmc, i = 2, t = 0, s = 1, error = 1e-3)
 }
 \references{
-Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
+Krak, T., De Bock, J. and Siebes, A. (2017). Imprecise
+continuous-time Markov chains. International Journal of Approximate
+Reasoning 88, 452-528.
+}
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Vandit Jain
 }
+\concept{continuous time Markov chains}

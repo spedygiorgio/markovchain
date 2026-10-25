@@ -236,3 +236,25 @@ test_that("toFile()/fromFile() report an informative error when jsonlite/yaml is
   expect_error(toFile(mcRow, tempfile(fileext = ".yaml")), "yaml")
   expect_error(fromFile(tempfile(fileext = ".json")), "jsonlite|not found")
 })
+
+test_that("fromFile() does not evaluate R code in YAML !expr tags", {
+  skip_if_not_installed("yaml")
+  marker <- tempfile("pwned")
+  tmp <- tempfile(fileext = ".yaml")
+  on.exit(unlink(c(tmp, marker)))
+  Sys.setenv(MARKOVCHAIN_TEST_MARKER = marker)
+  writeLines(c("name: evil",
+               "states: [a, b]",
+               "transitionMatrix:",
+               "  a: {a: 0.5, b: 0.5}",
+               "  b: {a: 0.5, b: !expr 'writeLines(\"x\", Sys.getenv(\"MARKOVCHAIN_TEST_MARKER\")); 0.5'}"),
+             tmp)
+  old <- options(yaml.eval.expr = TRUE)
+  on.exit(options(old), add = TRUE)
+  # precondition: yaml itself would run the code under this option
+  yaml::read_yaml(tmp, eval.expr = TRUE)
+  expect_true(file.exists(marker))
+  unlink(marker)
+  try(suppressWarnings(fromFile(tmp)), silent = TRUE)
+  expect_false(file.exists(marker))
+})

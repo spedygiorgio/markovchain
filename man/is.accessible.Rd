@@ -2,27 +2,24 @@
 % Please edit documentation in R/probabilistic.R
 \name{is.accessible}
 \alias{is.accessible}
-\title{Verify if a state j is reachable from state i.}
+\title{Check whether a state can be reached from another}
 \usage{
 is.accessible(object, from, to)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{from}{The name of state "i" (beginning state).}
+\item{from}{Name of the starting state.}
 
-\item{to}{The name of state "j" (ending state).}
+\item{to}{Name of the target state.}
 }
 \value{
-A boolean value.
+\code{TRUE} if \code{to} is accessible from \code{from}, \code{FALSE} otherwise.
 }
 \description{
-This function verifies if a state is reachable from another, i.e., 
-             if there exists a path that leads to state j leaving from state i with 
-             positive probability
-}
-\details{
-It wraps an internal function named \code{reachabilityMatrix}.
+Checks whether state \code{to} is accessible from state \code{from},
+i.e. whether the chain started in \code{from} reaches \code{to} with positive
+probability in some number of steps.
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -40,7 +37,7 @@ is.accessible(markovB, "a", "c")
 James Montgomery, University of Madison
 }
 \seealso{
-\code{is.irreducible}
+\code{\link[=is.irreducible]{is.irreducible()}}, \code{\link[=communicatingClasses]{communicatingClasses()}}
 }
 \author{
 Giorgio Spedicato, Ignacio Cordón

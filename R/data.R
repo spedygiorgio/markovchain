@@ -43,12 +43,9 @@
 #' @usage data(craigsendi)
 #' 
 #' @format 
-#' The format is:
-#' table [1:3, 1:3] 682 154 19 33 64 19 25 47 43
-#' - attr(*, "dimnames")=List of 2
-#'   ..$ : chr [1:3] "0-49" "50-74" "75-UP"
-#'   ..$ : chr [1:3] "0-49" "50-74" "75-UP"
-#'   
+#' A 3 x 3 contingency table of counts, with rows and columns named
+#' \code{"0-49"}, \code{"50-74"} and \code{"75-UP"}.
+#
 #' @details Rows represent counts at the beginning, cols represent counts after six months.
 #' 
 #' @source Estimation of the transition matrix of a discrete time Markov chain, Bruce A. Craig and Peter P. Sendi, Health Economics 11, 2002.
@@ -160,11 +157,9 @@
 #' @usage data(tm_abs)
 #' 
 #' @format 
-#' The format is:
-#' num [1:8, 1:8] 17 2 0 0 0 0 0 0 1 455 ...
-#' - attr(*, "dimnames")=List of 2
-#' ..$ : chr [1:8] "AAA" "AA" "A" "BBB" ...
-#' ..$ : chr [1:8] "AAA" "AA" "A" "BBB" ...
+#' An 8 x 8 numeric matrix of transition counts, with rows and columns named
+#' after the rating classes \code{"AAA"}, \code{"AA"}, \code{"A"},
+#' \code{"BBB"}, \code{"BB"}, \code{"B"}, \code{"C"} and \code{"D"}.
 #' 
 #' @references 
 #' European Securities and Markets Authority, 2016 

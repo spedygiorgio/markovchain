@@ -2,36 +2,52 @@
 % Please edit documentation in R/RcppExports.R
 \name{generatorToTransitionMatrix}
 \alias{generatorToTransitionMatrix}
-\title{Function to obtain the transition matrix from the generator}
+\title{Transition matrix of the embedded jump chain}
 \usage{
 generatorToTransitionMatrix(gen, byrow = TRUE)
 }
 \arguments{
-\item{gen}{The generator matrix}
+\item{gen}{A generator matrix: non-negative off-diagonal rates, with rows
+(or columns, if \code{byrow = FALSE}) summing to zero.}
 
-\item{byrow}{Flag to determine if rows (columns) sum to 0}
+\item{byrow}{Logical: are the rates out of each state in its row (default)
+or in its column? The result has the same orientation.}
 }
 \value{
-Returns the transition matrix.
+The transition matrix of the embedded chain, with the dimnames of
+\code{gen}. A state with zero exit rate (absorbing) gets probability 1 of
+staying where it is.
 }
 \description{
-The transition matrix of the embedded DTMC is inferred from the CTMC's generator
+Computes, from the generator \eqn{Q} of a continuous time
+Markov chain, the transition matrix of its embedded (jump) chain: the
+probability of jumping from \eqn{i} to \eqn{j \ne i} is
+\eqn{-Q_{ij} / Q_{ii}}.
 }
 \examples{
 energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3, 1, -1), nrow = 2,
-              byrow = byRow, dimnames = list(energyStates, energyStates))
+gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+              dimnames = list(energyStates, energyStates))
 generatorToTransitionMatrix(gen)
-
 }
 \references{
-Introduction to Stochastic Processes with Applications in the Biosciences (2013), David F.
-Anderson, University of Wisconsin at Madison
+Anderson, D. F. (2013). Introduction to Stochastic Processes
+with Applications in the Biosciences. University of Wisconsin at
+Madison.
 }
 \seealso{
-\code{\link{rctmc}},\code{\link{ctmc-class}}
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Sai Bhargav Yalamanchi
 }
+\concept{continuous time Markov chains}

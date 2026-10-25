@@ -29,58 +29,63 @@ likelihood, at least \code{maxOrder + 1} (the default).}
 }
 \value{
 A list with components
-  \item{order}{the order selected by \code{criterion}}
-  \item{criterion}{the criterion used}
-  \item{table}{a data frame with one row per order: \code{order},
-    \code{logLik}, \code{npar}, \code{AIC}, \code{BIC}, and the
-    likelihood-ratio test against the previous order (\code{LR},
-    \code{df}, \code{p.value}; \code{NA} for order 0)}
-  \item{nobs}{number of observations entering the likelihood}
-  \item{start, parameters}{as used}
+\item{order}{the order selected by \code{criterion}}
+\item{criterion}{the criterion used}
+\item{table}{a data frame with one row per order: \code{order},
+\code{logLik}, \code{npar}, \code{AIC}, \code{BIC}, and the
+likelihood-ratio test against the previous order (\code{LR},
+\code{df}, \code{p.value}; \code{NA} for order 0)}
+\item{nobs}{number of observations entering the likelihood}
+\item{start, parameters}{as used}
 }
 \description{
 Fits by maximum likelihood fully parameterized Markov chains of
-  order \eqn{0, 1, \dots,} \code{maxOrder} to an empirical sequence (or to a
-  list of independent sequences), all on the same observations, and selects
-  the order that minimizes the BIC or the AIC (Tong, 1975; Katz, 1981).
+order \eqn{0, 1, \dots,} \code{maxOrder} to an empirical sequence (or to a
+list of independent sequences), all on the same observations, and selects
+the order that minimizes the BIC or the AIC (Tong, 1975; Katz, 1981).
 }
 \details{
 A Markov chain of order \eqn{k} on \eqn{r} states has a transition
-  probability for each context (the \eqn{k} previous states) and next state;
-  order 0 is independence. Its maximum likelihood estimates are the observed
-  transition frequencies, and its log-likelihood is
-  \eqn{\sum N(c, j) \log\{N(c, j) / N(c)\}}, where \eqn{N(c, j)} counts
-  context \eqn{c} followed by state \eqn{j}.
+probability for each context (the \eqn{k} previous states) and next state;
+order 0 is independence. Its maximum likelihood estimates are the observed
+transition frequencies, and its log-likelihood is
+\eqn{\sum N(c, j) \log\{N(c, j) / N(c)\}}, where \eqn{N(c, j)} counts
+context \eqn{c} followed by state \eqn{j}.
 
-  Information criteria are only comparable when every model is evaluated on
-  the same observations. An order-\eqn{k} chain can only predict an
-  observation from position \eqn{k + 1} onwards, so all orders are
-  evaluated on the observations from \code{start} (by default
-  \code{maxOrder + 1}) to the end of each sequence, the earlier ones being
-  only used as contexts. Berchtold and Raftery (2002), for instance, condition
-  on the first 14 observations (\code{start = 15}). For a list of sequences
-  the counts are pooled, the observations before \code{start} of each
-  sequence are only used as contexts, and no context crosses from one
-  sequence to the next.
+Information criteria are only comparable when every model is evaluated on
+the same observations. An order-\eqn{k} chain can only predict an
+observation from position \eqn{k + 1} onwards, so all orders are
+evaluated on the observations from \code{start} (by default
+\code{maxOrder + 1}) to the end of each sequence, the earlier ones being
+only used as contexts. Berchtold and Raftery (2002), for instance, condition
+on the first 14 observations (\code{start = 15}). For a list of sequences
+the counts are pooled, the observations before \code{start} of each
+sequence are only used as contexts, and no context crosses from one
+sequence to the next.
 
-  With \code{parameters = "full"} (the default) an order-\eqn{k} chain has
-  \eqn{r^k (r - 1)} free parameters, as in Tong (1975) and Katz (1981).
-  With \code{parameters = "observed"} only the probabilities that are not
-  estimated as zero are counted, that is the number of distinct next states
-  minus one summed over the observed contexts; this is the convention of
-  Berchtold and Raftery (2002), which is less penalizing when many
-  transitions are never observed. In both cases BIC uses the number of
-  observations entering the likelihood.
+With \code{parameters = "full"} (the default) an order-\eqn{k} chain has
+\eqn{r^k (r - 1)} free parameters, as in Tong (1975) and Katz (1981).
+With \code{parameters = "observed"} only the probabilities that are not
+estimated as zero are counted, that is the number of distinct next states
+minus one summed over the observed contexts; this is the convention of
+Berchtold and Raftery (2002), which is less penalizing when many
+transitions are never observed. In both cases BIC uses the number of
+observations entering the likelihood.
 
-  The table also reports the likelihood-ratio statistic of each order
-  against the previous one, \eqn{G = 2 (\ell_k - \ell_{k-1})}, with degrees
-  of freedom equal to the difference in the number of parameters and an
-  asymptotic chi-squared p-value (Anderson and Goodman, 1957). These tests
-  are not adjusted for multiplicity, and they and the criteria become
-  unreliable when the number of contexts \eqn{r^k} is not small compared with
-  the number of observations: BIC is consistent for the order (Csiszar and
-  Shields, 2000), whereas AIC tends to select too high an order in long
-  sequences (Katz, 1981).
+The table also reports the likelihood-ratio statistic of each order
+against the previous one, \eqn{G = 2 (\ell_k - \ell_{k-1})}, with degrees
+of freedom equal to the difference in the number of parameters and an
+asymptotic chi-squared p-value (Anderson and Goodman, 1957). With
+\code{parameters = "observed"} the degrees of freedom are the differences
+of the observed counts, that is transitions never observed are treated as
+structurally impossible, the usual adjustment for sparse tables (it is
+the one of \code{\link{assessOrder}}) but an approximate one, since a zero
+count may be a sampling zero: the p-values are then indicative only. These
+tests are not adjusted for multiplicity, and they and the criteria become
+unreliable when the number of contexts \eqn{r^k} is not small compared with
+the number of observations: BIC is consistent for the order (Csiszar and
+Shields, 2000), whereas AIC tends to select too high an order in long
+sequences (Katz, 1981).
 }
 \examples{
 # Alofi rainfall: three states
@@ -113,6 +118,6 @@ Statistical Science, 17(3), 328-356.
 }
 \seealso{
 \code{\link{assessOrder}}, \code{\link{verifyMarkovProperty}},
-  \code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
-  \code{\link{higherOrderLogLik}}
+\code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
+\code{\link{higherOrderLogLik}}
 }

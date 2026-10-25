@@ -2,7 +2,7 @@
 % Please edit documentation in R/probabilistic.R
 \name{hittingProbabilities}
 \alias{hittingProbabilities}
-\title{Hitting probabilities for markovchain}
+\title{Hitting probabilities of a Markov chain}
 \usage{
 hittingProbabilities(object, targets = NULL,
   solver = c("direct", "bicgstab", "doubling"), tol = 1e-13, maxIter = 200)
@@ -88,6 +88,19 @@ H. A. van der Vorst (1992). Bi-CGSTAB: A Fast and Smoothly Converging
 Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems.
 \emph{SIAM Journal on Scientific and Statistical Computing}, 13(2), 631-644.
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{absorptionProbabilities}()},
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Ignacio Cordón
 }
+\concept{first passage and hitting}

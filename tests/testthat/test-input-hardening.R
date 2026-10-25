@@ -51,3 +51,34 @@ test_that("committorAB validates complete sets", {
   expect_error(committorAB(mc, c(0, 2), 3), "set A")
   expect_error(committorAB(mc, c(1, 2), c(2, 3)), "disjoint")
 })
+
+## ---- hardening round (1.2.1): arguments that used to be accepted silently ----
+
+test_that("multinomialConfidenceIntervals validates the confidence level", {
+  P <- matrix(c(0.5, 0.5, 0.25, 0.75), 2, byrow = TRUE, dimnames = list(c("a", "b"), c("a", "b")))
+  N <- matrix(c(5, 5, 3, 9), 2, byrow = TRUE, dimnames = dimnames(P))
+  for (bad in list(0, 1, 2, -0.1, NA_real_, Inf, c(0.9, 0.95), "0.95")) {
+    expect_error(multinomialConfidenceIntervals(P, N, confidencelevel = bad), "confidencelevel")
+  }
+  ci <- multinomialConfidenceIntervals(P, N, confidencelevel = 0.9)
+  expect_true(all(ci$lowerEndpointMatrix <= ci$upperEndpointMatrix))
+})
+
+test_that("priorDistribution and inferHyperparam reject NA hyperparameters and bad scales", {
+  st <- c("a", "b")
+  P <- matrix(0.5, 2, 2, dimnames = list(st, st))
+  H <- matrix(2, 2, 2, dimnames = list(st, st))
+  H[1, 2] <- NA
+  expect_error(priorDistribution(P, H), "greater than or equal to 1")
+  expect_error(inferHyperparam(P, scale = c(10, -5)), "positive")
+  expect_error(inferHyperparam(P, scale = c(10, NA)), "positive")
+  expect_error(inferHyperparam(P, scale = c(10, 0)), "positive")
+  expect_silent(inferHyperparam(P, scale = c(10, 10)))
+})
+
+test_that("absurdly large n gives a clear error", {
+  mc <- new("markovchain", states = c("a", "b"),
+            transitionMatrix = matrix(c(0.5, 0.5, 0.5, 0.5), 2, byrow = TRUE))
+  expect_error(firstPassage(mc, "a", 2^31), "too large")
+  expect_error(markovchainSequence(2^31, mc, t0 = "a"), "must not exceed")
+})

@@ -2,39 +2,59 @@
 % Please edit documentation in R/hommc.R
 \name{predictHommc}
 \alias{predictHommc}
-\title{Simulate a higher order multivariate markovchain}
+\title{Simulate from a higher order multivariate Markov chain}
 \usage{
-predictHommc(hommc,t,init)
+predictHommc(hommc, t, init)
 }
 \arguments{
-\item{hommc}{a hommc-class object}
+\item{hommc}{An \code{\link[=hommc-class]{hommc}} object, for instance fitted by
+\code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}}.}
 
-\item{t}{no of iterations to predict}
+\item{t}{Number of steps to simulate, a positive integer.}
 
-\item{init}{matrix of previous states size of which depends on hommc}
+\item{init}{A matrix with one row per sequence and \code{order} columns, the
+last states of each sequence, the most recent in the last column. If
+missing, every sequence starts from the first state, repeated.}
 }
 \value{
-The function returns a matrix of size s X t displaying t predicted states 
-in each row coressponding to every categorical sequence.
+A character matrix with one row per sequence and \code{t} columns, the
+simulated states.
 }
 \description{
-This function provides a prediction of states for a higher order 
-multivariate markovchain object
+Simulates the next \code{t} states of each sequence of a higher
+order multivariate Markov chain, given their last \code{order} states.
 }
 \details{
-The user is required to provide a matrix of giving n previous coressponding
-every categorical sequence. Dimensions of the init are s X n, where s is 
-number of categorical sequences and n is order of the homc. The last
-column of \code{init} holds the most recent state of each sequence.
-
 At each step the next state of sequence \eqn{j} is drawn from
 \eqn{\sum_k \sum_h \lambda_{jkh} P_h^{(jk)} x^{(k)}_{t-h+1}}, where
-\eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1} steps
-before the current one (Ching et al., 2008). The matrices are read by column
-(\code{P[to, from]}), as returned by \code{\link{fitHighOrderMultivarMC}},
-or by row when \code{byrow = TRUE}, and all sequences are drawn from the same
-past before it is updated.
+\eqn{x^{(k)}_{t-h+1}} is the state of sequence \eqn{k} \eqn{h - 1}
+steps before the current one (Ching et al., 2008). The matrices are read
+by column (\code{P[to, from]}), as returned by \code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}}, or
+by row when the \code{byrow} slot of \code{hommc} is \code{TRUE}; all the sequences are
+drawn from the same past before it is updated.
+}
+\examples{
+data <- matrix(c("2", "1", "3", "3", "4", "3", "2", "1", "3", "3", "2", "1",
+                 "2", "4", "4", "4", "4", "2", "3", "3", "1", "4", "3", "3"),
+               ncol = 2)
+if (requireNamespace("Rsolnp", quietly = TRUE)) {
+  fit <- fitHighOrderMultivarMC(data, order = 2, Norm = 2)
+  # the last two states of each sequence
+  init <- t(data[11:12, ])
+  predictHommc(fit, 5, init)
+}
+}
+\references{
+Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+multivariate Markov chains and their applications. Linear Algebra and its
+Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
+}
+\seealso{
+Other higher order chains: 
+\code{\link{fitHighOrderMultivarMC}()},
+\code{\link{fitHigherOrder}()}
 }
 \author{
 Vandit Jain
 }
+\concept{higher order chains}

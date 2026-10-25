@@ -11,8 +11,11 @@ using namespace std;
 
 
 
+// Solves the linear system T x = c with Armadillo (used by ExpectedTime in R: expected hitting times).
 // [[Rcpp::export(.ExpectedTimeRCpp)]]
 NumericVector ExpectedTimeRcpp(NumericMatrix x, NumericVector y) {
+  // Copy the R matrix/vector into Armadillo objects (arma::mat / arma::vec): Armadillo offers
+  // fast linear algebra (solve, expmat, ...).
   NumericVector out;
   int size = x.nrow();
   arma::mat T = arma::zeros(size, size);
@@ -32,6 +35,7 @@ NumericVector ExpectedTimeRcpp(NumericMatrix x, NumericVector y) {
 }
 
 
+// Matrix exponential exp(Y): with Y = t*Q it gives the transition matrix P(t) of a continuous time chain.
 // [[Rcpp::export(.probabilityatTRCpp)]]
 NumericMatrix probabilityatTRCpp(NumericMatrix y) {
   
@@ -54,6 +58,9 @@ NumericMatrix probabilityatTRCpp(NumericMatrix y) {
 
 
 
+// Lower expectation for an imprecise continuous time chain (see impreciseProbabilityatT in R):
+// small Euler steps  g <- g + delta * lower(Q g), where `lower` takes, for each state, the least favourable
+// of the two ends of the rate interval.
 // [[Rcpp::export(.impreciseProbabilityatTRCpp)]]
 NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error) {
   if (!std::isfinite(error) || error <= 0.0)
@@ -65,6 +72,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   NumericMatrix non_Q = C.slot("Q");
   NumericMatrix non_range = C.slot("range");
   
+  // Validate: Rcpp/Armadillo operator[] do NOT check bounds, so we check the sizes explicitly.
   // Rcpp and arma vector operator[] are not bounds checked
   if (non_Q.nrow() != noOfstates || non_Q.ncol() != noOfstates ||
       non_range.nrow() != noOfstates || non_range.ncol() < 2)
@@ -85,6 +93,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
     for (int q = 0; q < 2; q++)
       range(p, q) = non_range(p, q);
   
+  // Norm of the operator Q = max over rows of (sum |Q_ij|) * upper range.
   // initialses value of norm of Q
   double QNorm = -1.0;
   
@@ -103,6 +112,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
       QNorm = sum * range(p, 1);
   }
   
+  // Number of steps n needed for the requested precision; checked before converting to int.
   // Calculate the number of iterations in floating point, validate it before
   // conversion to int, and guarantee at least one iteration.
   const double horizon = static_cast<double>(s - t);
@@ -117,6 +127,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   // sets delta value
   const double delta = horizon / static_cast<double>(n);
   
+  // Ii = indicator vector of the state i.
   // declares and initialises initial f
   arma::vec Ii(noOfstates);
   
@@ -126,6 +137,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   Ii[i-1] = 1;
   
   
+  // First step, then the loop of the remaining n - 1 steps.
   // calculation of Qgx vector
   arma::vec values =  Q * Ii;
   arma::vec Qgx(noOfstates);
@@ -146,6 +158,7 @@ NumericVector impreciseProbabilityatTRCpp(S4 C, int i,int t, int s, double error
   // Qgx_i = Qgx_{i-1} + delta*Q*Qgx_{i-1}
   Qgx = Qgx + Ii;
   
+  // Remaining steps: g <- g + delta * lower(Q g).
   for (int iter = 0; iter < n - 1; iter++) {
     // n can be large for a small `error`: let the user interrupt
     if ((iter & 0x3FFF) == 0) checkUserInterrupt();

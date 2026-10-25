@@ -3,20 +3,22 @@
 \name{states}
 \alias{states}
 \alias{states,markovchain-method}
-\title{Defined states of a transition matrix}
+\title{States of a Markov chain}
 \usage{
 states(object)
 
 \S4method{states}{markovchain}(object)
 }
 \arguments{
-\item{object}{A discrete \code{markovchain} object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object (or a
+\code{\link[=ctmc-class]{ctmc}} object).}
 }
 \value{
-The character vector corresponding to states slot.
+A character vector, the \code{states} slot.
 }
 \description{
-This method returns the states of a transition matrix.
+Returns the names of the states of a Markov chain, in the
+order of its transition matrix.
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -28,9 +30,6 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 states(markovB)
 names(markovB)
 
-}
-\references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
 }
 \seealso{
 \code{\linkS4class{markovchain}}

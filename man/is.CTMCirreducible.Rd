@@ -2,34 +2,46 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{is.CTMCirreducible}
 \alias{is.CTMCirreducible}
-\title{Check if CTMC is irreducible}
+\title{Check whether a continuous time Markov chain is irreducible}
 \usage{
 is.CTMCirreducible(ctmc)
 }
 \arguments{
-\item{ctmc}{a ctmc-class object}
+\item{ctmc}{A \code{\link[=ctmc-class]{ctmc}} object.}
 }
 \value{
-a boolean value as described above.
+\code{TRUE} if the chain is irreducible, \code{FALSE} otherwise.
 }
 \description{
-This function verifies whether a CTMC object is irreducible
+A continuous time Markov chain is irreducible if every state
+can be reached from every other state, which is the case if and only if
+its embedded jump chain is irreducible.
 }
 \examples{
 energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3,
-                       1, -1), nrow = 2,
-              byrow = byRow, dimnames = list(energyStates, energyStates))
-molecularCTMC <- new("ctmc", states = energyStates, 
-                     byrow = byRow, generator = gen, 
-                     name = "Molecular Transition Model")
+gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+              dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+                     generator = gen, name = "Molecular Transition Model")
 is.CTMCirreducible(molecularCTMC)
-
 }
 \references{
-Continuous-Time Markov Chains, Karl Sigman, Columbia University
+Sigman, K. (2009). Continuous-time Markov chains. Lecture
+notes, Columbia University.
+}
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Vandit Jain
 }
+\concept{continuous time Markov chains}

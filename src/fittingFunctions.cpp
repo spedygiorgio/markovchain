@@ -1785,8 +1785,8 @@ List inferHyperparam(NumericMatrix transMatr = NumericMatrix(), NumericVector sc
       
     // if any value in the scale vector is zero  
     for (int i = 0; i < sizeMatr; i++) {
-      if (scale(i) == 0)
-        stop("The scaling factors must be non-zero!");
+      if (!(scale(i) > 0))  // also rejects NA, NaN and negative values
+        stop("The scaling factors must be positive!");
     }
     // --------end of validity checks for the scale factor vector---------  
       

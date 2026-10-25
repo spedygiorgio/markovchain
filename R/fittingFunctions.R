@@ -152,6 +152,11 @@ markovchainSequence <-function (n, markovchain, t0 = sample(markovchain@states, 
     stop("`n` must be an integer value")
   }
 
+  # a length beyond the integer range cannot be allocated (and as.integer() would give NA)
+  if (n > .Machine$integer.max) {
+    stop("`n` must not exceed ", .Machine$integer.max)
+  }
+
   n <- as.integer(n)
 
   if (n < 0) {
@@ -847,6 +852,12 @@ markovchainListFit <- function(data, byrow = TRUE, laplacian = 0, name) {
 #' @export
 # Confidence intervals (multinomial) for the transition probabilities: computed in C++ (Sison and Glaz).
 multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatrix, confidencelevel=0.95) {
+  
+  # the confidence level must be a single number strictly between 0 and 1
+  if (!is.numeric(confidencelevel) || length(confidencelevel) != 1L ||
+      !is.finite(confidencelevel) || confidencelevel <= 0 || confidencelevel >= 1) {
+    stop("`confidencelevel` must be a single number strictly between 0 and 1")
+  }
   
   out<-.multinomialCIRcpp(transMat=transitionMatrix, seqMat=countsTransitionMatrix,confidencelevel=confidencelevel)
   return(out)

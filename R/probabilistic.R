@@ -141,6 +141,10 @@ firstPassage <- function(object, state, n) {
       n < 1 || n != floor(n)) {
     stop("n must be a positive integer")
   }
+  # the result is an n x (number of states) matrix of doubles: refuse sizes that cannot be allocated
+  if (n * length(stateNames) > .Machine$integer.max) {
+    stop("n is too large: the result would have more than ", .Machine$integer.max, " elements")
+  }
 
   # the C++ code works on the row-stochastic matrix and returns an n x (number of states) matrix
   outMatr <- .firstpassageKernelRcpp(

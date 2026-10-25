@@ -828,7 +828,7 @@ double predictiveDistribution(CharacterVector stringchar, CharacterVector newDat
   
   for (int i = 0; i < sizeMatr; i++)
     for (int j = 0; j < sizeMatr; j++)
-      if (hyperparam(i, j) < 1.)
+      if (!(hyperparam(i, j) >= 1.))  // also rejects NA and NaN
         stop("The hyperparameter elements must all be greater than or equal to 1");
   
   // permute the elements of hyperparam such that the row, column names are sorted
@@ -997,7 +997,7 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
   
   for (int i = 0; i < sizeMatr; i++)
     for (int j = 0; j < sizeMatr; j++)
-      if (hyperparam(i, j) < 1.)
+      if (!(hyperparam(i, j) >= 1.))  // also rejects NA and NaN
         stop("The hyperparameter elements must all be greater than or equal to 1");
  
   // Sort both matrices by state name so that row i of one corresponds to row i of the other.

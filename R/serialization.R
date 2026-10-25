@@ -319,7 +319,7 @@ fromFile <- function(file, format = NULL) {
     if (!requireNamespace("yaml", quietly = TRUE)) {
       stop("Reading YAML requires the 'yaml' package. Install it with install.packages(\"yaml\").")
     }
-    d <- yaml::read_yaml(file)
+    d <- yaml::read_yaml(file, eval.expr = FALSE)
     return(fromDictionary(d))
   }
 

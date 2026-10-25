@@ -527,26 +527,32 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   matrix(v, r, r, byrow = TRUE)
 }
 
-# Helper: EM that estimates only the weights, with the matrices fixed (used as starting values).
-# EM for the weights only, the matrices Qs (rows are departure states) being fixed
-# The same maximum likelihood weights for fixed matrices, exactly, by the
-# active-set Newton method of fitHigherOrder() (R/fitHigherOrder.R).
+# Helper: exact maximum likelihood weights when the k matrices Qs (rows are departure states) are
+# fixed, by the active-set Newton method of fitHigherOrder() (R/fitHigherOrder.R). Used as an
+# additional starting point of the MTDg fit.
 .weightsNewton <- function(patterns, counts, Qs) {
   k <- length(Qs)
+  # comp[p, g] = probability that lag g alone gives the observed transition of pattern p;
+  # the likelihood of the weights is then sum_p counts[p] * log(sum_g lambda_g * comp[p, g])
   comp <- matrix(vapply(seq_len(k), function(g)
     Qs[[g]][cbind(patterns[, g + 1L] + 1L, patterns[, 1L] + 1L)],
     numeric(nrow(patterns))), ncol = k)
   as.numeric(.mixtureWeightsNewton(comp, counts))
 }
 
+# Helper: EM that estimates only the weights, with the matrices fixed (used as starting values).
+# Slower than .weightsNewton() but never leaves the simplex, whatever the starting point.
 .weightsEM <- function(patterns, counts, Qs, lambda, iters = 2000L, tol = 1e-13) {
   k <- length(Qs)
+  # same matrix of component probabilities as in .weightsNewton()
   comp <- matrix(vapply(seq_len(k), function(g)
     Qs[[g]][cbind(patterns[, g + 1L] + 1L, patterns[, 1L] + 1L)],
     numeric(nrow(patterns))), ncol = k)
   total <- sum(counts)
   for (i in seq_len(iters)) {
+    # E step: w[p, g] is proportional to the responsibility of lag g for pattern p
     w <- sweep(comp, 2L, lambda, "*")
+    # M step: the new weight of lag g is its average responsibility
     new <- colSums(counts * w / rowSums(w)) / total
     done <- max(abs(new - lambda)) < tol
     lambda <- new
@@ -567,21 +573,27 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
 # not decrease the likelihood, so every cycle is monotone. `maxit` bounds the
 # number of EM steps.
 .accelerateEM <- function(patterns, counts, lambda, Qs, shared, tol, maxit) {
-  k <- length(lambda)
-  nQ <- length(Qs)
-  r <- nrow(Qs[[1L]])
+  k <- length(lambda)         # number of lags (= number of weights)
+  nQ <- length(Qs)            # 1 matrix (MTD) or k matrices (MTDg)
+  r <- nrow(Qs[[1L]])         # number of states
   rr <- r * r
+  # SQUAREM works on a single parameter vector theta = (lambda, vec(Q_1), ..., vec(Q_nQ));
+  # pack() and unpack() convert between that vector and the list form used by the EM step.
   pack <- function(lambda, Qs) c(lambda, unlist(lapply(Qs, as.vector), use.names = FALSE))
   unpack <- function(theta) {
     list(lambda = theta[seq_len(k)],
          Qs = lapply(seq_len(nQ), function(b) matrix(theta[k + (b - 1L) * rr + seq_len(rr)], r, r)))
   }
+  # step(): one plain EM step from theta; returns the new theta and the log-likelihood
+  # of the parameters it started from (computed by the C++ code in src/fitMTD.cpp).
   step <- function(theta) {
     u <- unpack(theta)
     s <- if (shared) .mtdStep(patterns, counts, u$lambda, u$Qs[[1L]])
          else .mtdgStep(patterns, counts, u$lambda, u$Qs)
     list(theta = pack(s$lambda, if (shared) list(s$Q) else s$Q), logLik = s$logLik)
   }
+  # project(): brings an extrapolated theta back to valid parameters, i.e. weights >= 0
+  # summing to one and matrices with non-negative rows summing to one.
   project <- function(theta) {
     u <- unpack(theta)
     l <- pmax(u$lambda, 0)
@@ -589,22 +601,24 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     Qs <- lapply(u$Qs, function(M) {
       M <- pmax(M, 0)
       s <- rowSums(M)
-      M[s == 0, ] <- 1
+      M[s == 0, ] <- 1            # a row that was cut to zero becomes uniform
       M / rowSums(M)
     })
     pack(l, Qs)
   }
   theta <- pack(lambda, Qs)
   s0 <- step(theta)
-  evals <- 1L
+  evals <- 1L                     # number of EM steps used so far (bounded by maxit)
   if (!is.finite(s0$logLik)) stop("an observed pattern has probability zero at the starting values")
   L0 <- s0$logLik
   converged <- FALSE
   while (evals < maxit) {
+    # Two plain EM steps: theta -> th1 -> th2.
     th1 <- s0$theta
     s1 <- step(th1)
     evals <- evals + 1L
     L1 <- s1$logLik
+    # Convergence: the first step improved the log-likelihood by less than tol (relative).
     if (L1 - L0 <= tol * (abs(L1) + tol)) {
       theta <- th1
       L0 <- L1
@@ -612,10 +626,15 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
       break
     }
     th2 <- s1$theta
+    # res = first difference, vv = second difference of the EM sequence; the SQUAREM
+    # extrapolation is theta - 2 * alpha * res + alpha^2 * vv.
     res <- th1 - theta
     vv <- th2 - th1 - res
     nv <- sqrt(sum(vv^2))
+    # S3 step length of Varadhan and Roland (2008); alpha = -1 is exactly th2 (no acceleration).
     alpha <- if (nv > 0) -max(1, sqrt(sum(res^2)) / nv) else -1
+    # Backtracking: shorten the jump until the log-likelihood is at least that of th1,
+    # which makes every cycle monotone; at alpha = -1 the plain double step is accepted.
     repeat {
       cand <- if (alpha == -1) th2 else project(theta - 2 * alpha * res + alpha^2 * vv)
       sc <- step(cand)
@@ -649,20 +668,27 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
 # and the matrices, so its Hessian is available in closed form.
 .mtdStdErrors <- function(patterns, counts, lambda, Qs, seen, states, lagNames,
                           freeWeights = FALSE, eps = 1e-4) {
-  k <- length(lambda)
-  B <- length(Qs)
-  r <- nrow(Qs[[1L]])
+  k <- length(lambda)               # number of lags
+  B <- length(Qs)                   # number of matrices: 1 (MTD) or k (MTDg)
+  r <- nrow(Qs[[1L]])               # number of states
   rr <- r * r
-  m <- nrow(patterns)
-  P <- k + B * rr
+  m <- nrow(patterns)               # number of distinct patterns
+  P <- k + B * rr                   # total number of parameters (weights + matrix entries)
+  # phi = (lambda, vec(Q_1), ..., vec(Q_B)), the matrices stored column by column
   phi <- c(lambda, unlist(lapply(Qs, as.vector), use.names = FALSE))
-  block <- function(g) if (B == 1L) 1L else g
+  block <- function(g) if (B == 1L) 1L else g   # which matrix is used by lag g
+  # Parameter blocks that must sum to one: the weights, plus every row of every
+  # matrix whose departure state was observed (indices of that row's entries in phi).
   rowBlocks <- unlist(lapply(seq_len(B), function(b)
     lapply(which(seen[[b]]), function(i) k + (b - 1L) * rr + i + r * (seq_len(r) - 1L))),
     recursive = FALSE)
+  # The columns of A express the free parameters psi through phi = phi0 + A psi: one column
+  # for each non-reference entry of a block, +1 on it and -1 on the reference entry (the
+  # largest one), so that the block keeps summing to one.
   cols <- list()
   for (bl in c(list(seq_len(k)), rowBlocks)) {
     isWeights <- identical(bl, seq_len(k))
+    # entries on the boundary (at or below eps) are held fixed and get no column
     act <- if (isWeights && freeWeights) bl else bl[phi[bl] > eps]
     if (length(act) < 2L) next
     ref <- act[which.max(phi[act])]
@@ -678,7 +704,9 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
                   matrix(NA_real_, r, r, dimnames = list(states, states))))
   if (length(cols) == 0L) return(empty)
   A <- do.call(cbind, cols)
-  # gradient of f_p and the cross terms of its Hessian
+  # f[p] is the model probability of pattern p; G[p, ] its gradient with respect to phi;
+  # cells[[g]][p] is the position in phi of the matrix entry used by lag g for pattern p.
+  # f is bilinear in (lambda, Q): d f / d lambda_g = q_g and d f / d q_g = lambda_g.
   G <- matrix(0, m, P)
   f <- numeric(m)
   cells <- lapply(seq_len(k), function(g)
@@ -689,7 +717,9 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     G[, g] <- q
     G[cbind(seq_len(m), cells[[g]])] <- G[cbind(seq_len(m), cells[[g]])] + lambda[g]
   }
-  if (any(f <= 0)) return(empty)
+  if (any(f <= 0)) return(empty)   # a pattern with probability zero: the information is undefined
+  # S collects the cross terms (weight, matrix entry) of the second derivative of f, the
+  # only non-zero ones because f is bilinear.
   S <- matrix(0, P, P)
   for (g in seq_len(k)) {
     tot <- rowsum(counts / f, cells[[g]])
@@ -697,7 +727,10 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     S[g, idx] <- S[g, idx] + tot
     S[idx, g] <- S[idx, g] + tot
   }
-  info <- crossprod(G * (sqrt(counts) / f)) - S      # minus the Hessian
+  # Observed information = minus the Hessian of sum_p counts_p * log f_p, i.e.
+  # sum_p counts_p * grad f_p grad f_p' / f_p^2 minus the second-derivative term S.
+  info <- crossprod(G * (sqrt(counts) / f)) - S
+  # restricted to the free parameters psi (phi = phi0 + A psi), and symmetrized
   J <- crossprod(A, info %*% A)
   J <- (J + t(J)) / 2
   # In the MTDg model the weights and the matrices are not identified (mass can
@@ -726,7 +759,9 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     return(empty)
   }
 
-  # transition probabilities of every context observed in the data
+  # Delta method for the transition probabilities of every context (x_{t-1}, ..., x_{t-k})
+  # observed in the data: P(j | context) = sum_g lambda_g q_g(i_g, j); D holds its
+  # gradient with respect to phi, and Var = D A covPsi A' D'.
   contexts <- unique(patterns[, -1L, drop = FALSE])
   nc <- nrow(contexts)
   probSE <- matrix(NA_real_, nc, r)
@@ -746,9 +781,12 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
     states)
   probSE <- probSE[order(rownames(probSE)), , drop = FALSE]
 
+  # In the MTDg model individual weights and matrix entries are not identified, so only
+  # the standard errors of the probabilities are reported.
   if (B > 1L) {
     return(list(lambda = empty$lambda, Q = empty$Q, probabilities = probSE))
   }
+  # MTD: standard errors of every entry of phi, the diagonal of A covPsi A'
   variance <- rowSums((A %*% covPsi) * A)
   se <- sqrt(pmax(variance, 0))
   se[rowSums(abs(A)) == 0] <- NA_real_
@@ -780,6 +818,8 @@ fitMTD <- function(sequence, order = 2, start = NULL, nstart = 1,
   min(apply(Qr, 2L, min) * pos - apply(Qr, 2L, max) * neg)
 }
 
+# TRUE if (lambda, Q) is admissible: Q has no negative entry and Raftery's condition holds
+# (up to a small tolerance for rounding errors).
 .mtdFeasible <- function(lambda, Q, rows, tol = 1e-12) {
   all(Q >= 0) && .mtdFeasibilitySlack(lambda, Q, rows) >= -tol
 }

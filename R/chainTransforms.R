@@ -458,22 +458,26 @@ setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
     P <- t(P)
   }
 
-  # The new first row and last row of the matrix.
+  # The new first row and last row of the matrix (the boundaries of the bounded chain).
   firstRow <- numeric(n)
   lastRow <- numeric(n)
 
   if (is.character(boundaryCondition) && length(boundaryCondition) == 1L &&
       boundaryCondition %in% c("absorbing", "reflecting")) {
     if (boundaryCondition == "absorbing") {
+      # the end states stay where they are
       firstRow[1] <- 1
       lastRow[n] <- 1
     } else {
+      # reflecting: the end states move to their only neighbour
       firstRow[min(2L, n)] <- 1
       lastRow[max(n - 1L, 1L)] <- 1
     }
   } else if (is.numeric(boundaryCondition) && length(boundaryCondition) == 1L &&
              is.finite(boundaryCondition) &&
              boundaryCondition >= 0 && boundaryCondition <= 1) {
+    # a number beta in [0, 1] mixes the two: stay with probability 1 - beta, move inwards
+    # with probability beta (beta = 0 absorbing, beta = 1 reflecting)
     beta <- boundaryCondition
     firstRow[1] <- 1 - beta
     firstRow[min(2L, n)] <- firstRow[min(2L, n)] + beta

@@ -257,6 +257,7 @@ bool areHittingProbabilities(NumericMatrix probs,
   bool holds = true;
   double result;
   
+  // residual of the equation for every cell (i, j); stop at the first one that fails
   for (int i = 0; i < numStates && holds; ++i) {
     for (int j = 0; j < numStates && holds; ++j) {
       result = 0;
@@ -306,6 +307,8 @@ bool areMeanNumVisits(NumericMatrix probs, NumericMatrix numVisits,
   double inverse;
   
   for (int j = 0; j < numStates && holds; ++j) {
+    // when state j is recurrent (hitting(j, j) = 1) the number of visits is infinite and the
+    // equation is not checked; otherwise inverse = expected number of visits to j when starting from j
     if (!approxEqual(hitting(j, j), 1)) {
       inverse = 1 / (1 - hitting(j, j));
       
@@ -341,6 +344,8 @@ bool recurrentHitting(List recurrentClasses,
   for (int i = 0; i < n; ++i)
     stateToIndex[(string) states(i)] = i;
   
+  // for each recurrent class: from a state of the class, hitting probability 1 for the states
+  // of the class and 0 for all the others
   for (CharacterVector recClass : recurrentClasses) {
     unordered_set<int> classIndexes;
     
@@ -383,10 +388,12 @@ bool absorbingAreRecurrentClass(CharacterVector absorbingStates, List recurrentC
   string current;
   bool diffEmpty = true;
   
+  // the states that form a recurrent class on their own ...
   for (CharacterVector recClass : recurrentClasses)
     if (recClass.size() == 1)
       singletonRecurrent.insert((string) (*recClass.begin()));
     
+  // ... must be exactly the absorbing states: check the inclusion in both directions
   for (auto state : absorbingStates)
     absorbing.insert((string) state);
 

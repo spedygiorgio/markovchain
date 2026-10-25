@@ -142,6 +142,7 @@ firstPassage <- function(object, state, n) {
     stop("n must be a positive integer")
   }
 
+  # the C++ code works on the row-stochastic matrix and returns an n x (number of states) matrix
   outMatr <- .firstpassageKernelRcpp(
     P = .rowStochasticMatrix(object),
     i = match(state, stateNames),
@@ -204,6 +205,8 @@ firstPassageMultiple <- function(object, state, set, n) {
     stop("n must be a positive integer")
   }
 
+  # `set` is a single absorbing target for the C++ code: the states of the set are
+  # identified by position (duplicates removed)
   out <- .firstPassageMultipleRCpp(
     .rowStochasticMatrix(object),
     match(state, stateNames),
@@ -424,6 +427,7 @@ committorAB <- function(object, A, B, p = 1) {
   }
 
   nstates <- length(object@states)
+  # A, B are given as positions of states (1-based) in the order of states(object)
   valid_indices <- function(x) {
     is.numeric(x) && length(x) > 0L && !anyNA(x) &&
       all(is.finite(x)) && all(x == floor(x)) &&
@@ -437,6 +441,7 @@ committorAB <- function(object, A, B, p = 1) {
     stop("sets A and B must be disjoint")
   }
 
+  # without `p` the committor of every state is returned, otherwise only that of state p
   return_all <- missing(p)
   if (!return_all &&
       (length(p) != 1L || is.na(p) || !is.finite(p) ||
@@ -447,12 +452,12 @@ committorAB <- function(object, A, B, p = 1) {
   # coefficient matrix of the system, with the boundary conditions q[A] = 1 and q[B] = 0.
   coefficient <- .rowStochasticMatrix(object) - diag(nstates)
   coefficient[A, ] <- 0
-  coefficient[cbind(A, A)] <- 1
+  coefficient[cbind(A, A)] <- 1       # row of a state of A: the equation q_i = 1
   coefficient[B, ] <- 0
-  coefficient[cbind(B, B)] <- 1
-  rhs <- numeric(nstates)
+  coefficient[cbind(B, B)] <- 1       # row of a state of B: the equation q_i = 0
+  rhs <- numeric(nstates)             # 0 outside A, and for B
   rhs[A] <- 1
-  out <- solve(coefficient, rhs)
+  out <- solve(coefficient, rhs)      # q_i = sum_j P_ij q_j for every other state
 
   if (return_all) out else out[as.integer(p)]
 }
@@ -566,7 +571,8 @@ expectedRewardsBeforeHittingA <- function(markovchain, A, state, rewards, n) {
     stop("n must be a non-negative integer")
   }
 
-  # Keep only the states outside A.
+  # Keep only the states outside A: the reward is collected only while the chain has not
+  # entered A, and `initial` is the position of the starting state among the kept ones.
   keep <- which(!stateNames %in% A)
   initial <- match(state, stateNames[keep])
   .expectedRewardsBeforeHittingARCpp(
@@ -629,6 +635,7 @@ setGeneric("meanFirstPassageTime", function(object, destination) {
 })
 
 
+# No destination: matrix of the mean first passage times between every pair of states
 setMethod("meanFirstPassageTime",  signature("markovchain", "missing"),
   function(object, destination) {
     destination = character()
@@ -636,6 +643,8 @@ setMethod("meanFirstPassageTime",  signature("markovchain", "missing"),
   }
 )
 
+# With a destination (a set of states): vector with the mean time from each other state
+# to reach the set
 setMethod("meanFirstPassageTime",  signature("markovchain", "character"),
   function(object, destination) {
     states <- object@states
@@ -1031,6 +1040,7 @@ setMethod(
   P <- .rowStochasticMatrix(object)
   n <- nrow(P)
   tol <- sqrt(.Machine$double.eps)
+  # safe(): evaluates an expression and returns NA if it fails
   safe <- function(expr) tryCatch(suppressWarnings(expr), error = function(e) NA)
 
   classes <- communicatingClasses(object)
@@ -1038,6 +1048,7 @@ setMethod(
   irreducible <- is.irreducible(object)
   absorbing <- absorbingStates(object)
   per <- if (irreducible) safe(period(object)) else NA_integer_
+  # exactly one recurrent class <=> unique stationary distribution (needed for the entropy rate)
   uniqueStationary <- length(recurrent) == 1L
 
   list(
@@ -1062,6 +1073,7 @@ setMethod(
 
 # Prints the block built by .summaryDetails() as two aligned columns.
 .printSummaryDetails <- function(d) {
+  # yn(), num(): format a logical / numeric property, "not defined" for NA
   yn <- function(x) if (is.na(x)) "not defined" else if (x) "yes" else "no"
   num <- function(x) if (is.na(x)) "not defined" else format(signif(x, 6))
   rows <- c(
@@ -1203,6 +1215,7 @@ setMethod("summary", signature(object = "markovchain"),
     stop("Invalid partition: macro-state names must be unique.")
   }
 
+  # each block -> its states as 0-based positions in state_names (what the C++ code expects)
   part_idx <- lapply(partition, function(x) {
     if (!is.character(x) || length(x) < 1L) {
       stop("Invalid partition: each macro-state must contain at least one state name.")
@@ -1214,6 +1227,7 @@ setMethod("summary", signature(object = "markovchain"),
     as.integer(idx - 1L)
   })
 
+  # exhaustive and mutually exclusive: every state appears exactly once across the blocks
   all_idx <- unlist(part_idx, use.names = FALSE)
   if (length(all_idx) != length(state_names)) {
     stop("Invalid partition: The partition must contain all states of the Markov chain exactly once (no duplicates, no omissions).")
@@ -1441,11 +1455,13 @@ setMethod("autoLump", signature(object = "markovchain"),
             set.seed(42)
             clust <- stats::kmeans(V_eig, centers = k, nstart = 10)
 
+            # states with similar rows of the dominant eigenvectors go in the same block
             partition <- stats::setNames(vector("list", k), paste0("Macro_", seq_len(k)))
             for (i in seq_len(k)) {
               partition[[i]] <- state_names[clust$cluster == i]
             }
 
+            # force = TRUE: the clustering gives an approximate lumping, not an exact one
             list(
               partition = partition,
               lumped_chain = lump(object, partition, force = TRUE)

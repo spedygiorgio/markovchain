@@ -430,13 +430,15 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
     # with the exact maximizer on the segment (L is concave along it, and
     # increasing at 0 because g_o > 1).
     o <- blocked[which.max(g[blocked])]
-    d <- -lambda
-    d[o] <- d[o] + 1
+    d <- -lambda                 # direction from lambda to the vertex e_o ...
+    d[o] <- d[o] + 1             # ... is e_o - lambda
     qd <- drop(q %*% d)
+    # derivative of L along lambda + t d, decreasing in t (L is concave)
     slope <- function(t) sum(counts * qd / (m + t * qd))
     if (slope(1) >= 0) {
-      t <- 1
+      t <- 1                     # L still increases at the vertex: go all the way
     } else {
+      # otherwise find the zero of the slope in (0, 1) by bisection
       lo <- 0
       hi <- 1
       for (b in seq_len(60L)) {
@@ -461,15 +463,20 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
 # step, which converges quadratically, is taken as long as it does not lower L
 # beyond rounding.
 .newtonStep <- function(lambda, d, gain, L, N, logLik) {
+  # largest t keeping all weights non-negative: the first weight to hit zero along d
   decreasing <- d < 0
   tBound <- if (any(decreasing)) min(-lambda[decreasing] / d[decreasing]) else Inf
+  # the point lambda + t d, renormalized; at t = tBound the weights that reach the
+  # boundary are set exactly to zero (not to a tiny rounding residue)
   candidateAt <- function(t) {
     candidate <- lambda + t * d
     if (t == tBound) candidate[decreasing & (-lambda / d) <= tBound] <- 0
     candidate <- pmax(candidate, 0)
     candidate / sum(candidate)
   }
-  roundingL <- 1e-12 * max(1, abs(L))
+  roundingL <- 1e-12 * max(1, abs(L))   # smallest change of L that can be resolved
+  # Rounding level: the predicted gain is below what L can show, so the Armijo test
+  # below would be meaningless. Accept the full step unless it clearly lowers L.
   if (gain * N <= roundingL) {
     candidate <- candidateAt(min(1, tBound))
     Lc <- logLik(candidate)
@@ -478,6 +485,8 @@ fitHigherOrder<-function(sequence, order = 2, method = c("mle", "lsq")) {
     }
     return(NULL)
   }
+  # Backtracking (Armijo rule): halve the step until L increases by at least 1e-4 of
+  # the gain predicted by the gradient.
   t <- min(1, tBound)
   while (t >= 1e-20) {
     candidate <- candidateAt(t)
@@ -590,12 +599,14 @@ higherOrderLogLik <- function(sequence, fit = NULL, order = 2, start = NULL) {
     fit <- fitHigherOrder(sequence, order)
     if (is.null(fit)) stop("package Rsolnp is required to fit the model")
   }
+  # `fit` must look like the output of fitHigherOrder() / fitMTD(): weights lambda and a
+  # list Q of k matrices with the state names as dimnames.
   if (!is.list(fit) || is.null(fit$lambda) || !is.list(fit$Q) ||
       length(fit$Q) != length(fit$lambda)) {
     stop("fit must be the list returned by fitHigherOrder()")
   }
   lambda <- as.numeric(fit$lambda)
-  k <- length(lambda)
+  k <- length(lambda)               # order of the model
   states <- rownames(fit$Q[[1L]])
   if (is.null(states)) stop("fit$Q must have state names")
   if (anyNA(match(unlist(seqs, use.names = FALSE), states))) {

@@ -103,6 +103,7 @@ higherOrderSimulate <- function(n, fit, t0, include.t0 = FALSE) {
   list(lambda = as.numeric(fit$lambda), Q = fit$Q, states = states)
 }
 
+# checks that a history (oldest state first) is long enough and uses known states
 .higherOrderHistory <- function(model, history) {
   if (!is.atomic(history) || anyNA(history)) {
     stop("a history must be a vector of states without missing values")

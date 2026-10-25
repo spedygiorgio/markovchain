@@ -267,6 +267,7 @@ compareChains <- function(x, y, base = exp(1), test = c("G", "Pearson", "simulat
       stop("the sequences must not contain missing values.")
     }
     allStates <- sort(unique(c(xs, ys)))
+    # estimate(): maximum likelihood chain (row-normalized counts) on the common set of states
     estimate <- function(seq, label) {
       counts <- createSequenceMatrix(seq, possibleStates = allStates)
       counts <- counts[allStates, allStates, drop = FALSE]
@@ -281,6 +282,7 @@ compareChains <- function(x, y, base = exp(1), test = c("G", "Pearson", "simulat
     }
     xChain <- estimate(xs, "x")
     yChain <- estimate(ys, "y")
+    # optional test that the two sequences share the same transition matrix
     if (test != "none") {
       testResult <- verifyHomogeneity(list(x = xs, y = ys), method = test,
                                       verbose = FALSE, ...)
@@ -297,6 +299,8 @@ compareChains <- function(x, y, base = exp(1), test = c("G", "Pearson", "simulat
   m <- .alignChains(xChain, yChain)
   P <- m$P
   Q <- m$Q
+  # stationaryOrNA(): the stationary distribution in the order of the states of x, or NA
+  # for every state if it is not unique (the weighted summaries are then not defined)
   stationaryOrNA <- function(chain) {
     ss <- .stationaryRows(chain)
     if (nrow(ss) == 1L) {
@@ -308,11 +312,14 @@ compareChains <- function(x, y, base = exp(1), test = c("G", "Pearson", "simulat
   piX <- stationaryOrNA(xChain)
   piY <- stationaryOrNA(yChain)
 
-  # Step 3: row-wise distances and their summaries.
+  # Step 3: row-wise distances and their summaries. Row i of P and of Q are the two
+  # distributions of the next state given the current state i.
   rowTV <- 0.5 * rowSums(abs(P - Q))
   rowHellinger <- sqrt(0.5 * rowSums((sqrt(P) - sqrt(Q))^2))
   distances <- c(
-    totalVariation = max(rowTV),
+    totalVariation = max(rowTV),            # worst row
+    # (the other entries: average over the stationary law of x, worst Hellinger row,
+    # Frobenius norm and largest entry of P - Q, total variation of the stationary laws)
     weightedTotalVariation = sum(piX * rowTV),
     hellinger = max(rowHellinger),
     frobenius = sqrt(sum((P - Q)^2)),
@@ -323,10 +330,11 @@ compareChains <- function(x, y, base = exp(1), test = c("G", "Pearson", "simulat
   # Step 4: divergences. The rates weight the row divergences by the
   # stationary distribution of the first chain; states of weight zero
   # contribute nothing even if their row divergence is infinite.
-  rowXY <- .rowKL(P, Q, base)
+  rowXY <- .rowKL(P, Q, base)        # KL divergence of row i of P from row i of Q
   rowYX <- .rowKL(Q, P, base)
-  M <- (P + Q) / 2
+  M <- (P + Q) / 2                   # mixture used by the Jensen-Shannon divergence
   rowJS <- 0.5 * (.rowKL(P, M, base) + .rowKL(Q, M, base))
+  # rate(): weighted average of the row divergences, NA if the weights are not available
   rate <- function(w, rows) if (anyNA(w)) NA_real_ else sum(w[w > 0] * rows[w > 0])
   divergences <- c(
     rateXY = rate(piX, rowXY),

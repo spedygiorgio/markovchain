@@ -69,19 +69,23 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
 # Otherwise falls back to min(2, available cores), matching the two-core
 # ceiling that CRAN enforces during checks. Never returns < 1.
 .mcDesiredThreads <- function(num.cores = NULL) {
+  # 1. explicit argument (anything that is not a positive integer is ignored)
   if (!is.null(num.cores)) {
     nc <- suppressWarnings(as.integer(num.cores)[1L])
     if (!is.na(nc) && nc >= 1L) return(nc)
   }
 
+  # 2. option RcppParallel.numThreads
   opt_rp <- getOption("RcppParallel.numThreads", NA_integer_)
   if (is.numeric(opt_rp) && length(opt_rp) == 1L && !is.na(opt_rp) && opt_rp >= 1)
     return(as.integer(opt_rp))
 
+  # 3. option Ncpus
   opt_nc <- getOption("Ncpus", NA_integer_)
   if (is.numeric(opt_nc) && length(opt_nc) == 1L && !is.na(opt_nc) && opt_nc >= 1)
     return(as.integer(opt_nc))
 
+  # 4. environment variables
   env_names <- c("RCPP_PARALLEL_NUM_THREADS", "OMP_NUM_THREADS")
   for (nm in env_names) {
     env_val <- Sys.getenv(nm, unset = NA)
@@ -91,6 +95,7 @@ createSequenceMatrix <- function(stringchar, toRowProbs = FALSE,
     }
   }
 
+  # 5. default: physical cores, but never more than 2 (CRAN policy)
   avail <- tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_)
   if (is.na(avail) || !is.finite(avail) || avail < 1L) avail <- 1L
   as.integer(min(2L, avail))
@@ -894,6 +899,7 @@ multinomialConfidenceIntervals<-function(transitionMatrix, countsTransitionMatri
 # noofVisitsDist(): expected fraction of time spent in each state over the first N steps,
 # starting from `state` (the computation is in C++).
 noofVisitsDist <- function(markovchain, N = 5, state) {
+  # argument checks
   if (!is(markovchain, "markovchain")) {
     stop("please provide a valid markovchain-class object")
   }
@@ -905,6 +911,7 @@ noofVisitsDist <- function(markovchain, N = 5, state) {
   if (length(state) != 1L || is.na(state) || !state %in% stateNames) {
     stop("please provide a valid initial state")
   }
+  # the C++ code works with a row-stochastic matrix, whatever the byrow slot of the chain
   out <- .noofVisitsDistRCpp(
     .rowStochasticMatrix(markovchain),
     match(state, stateNames),

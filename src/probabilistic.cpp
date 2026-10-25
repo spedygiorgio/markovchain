@@ -590,10 +590,11 @@ double expectedRewardsBeforeHittingARCpp(NumericMatrix matrix,int s0,
   arma::mat matr = as<arma::mat>(matrix);
   arma::mat temp = as<arma::mat>(matrix);
   arma::vec r = as<arma::vec>(rewards);
-  arma::mat I = arma::zeros(1,size);
+  arma::mat I = arma::zeros(1,size);    // row vector e_{s0}: picks the starting state
   
   I(0,s0-1) = 1;
   
+  // temp = P^(j+1); the expected reward at time j + 1 from s0 is e_{s0} P^(j+1) r
   for (int j = 0; j < n; j++) {
     arma::mat res = I*(temp*r);
     result = result + res(0,0);
@@ -645,35 +646,48 @@ int period(S4 object) {
 // irreducible chain, also used by the bootstrap of src/bootstrapProperties.cpp.
 // Only the pattern of positive entries matters, so P may be stored by rows or
 // by columns.
+//
+// Method: breadth-first search of the transition graph from state 0, labelling each state
+// with its distance v from the start. Whenever an edge i -> j leads to a state already
+// reached, it closes a cycle and v[i] + 1 - v[j] is a multiple of the period; the period
+// is the gcd of all these numbers (for an irreducible chain). The search stops early as
+// soon as the gcd reaches 1 (aperiodic).
 int periodKernel(NumericMatrix P) {
   {
     int n = P.ncol();
+    // T = queue of states to expand (starts with state 0), w = states already expanded,
+    // r = scratch list of the states already reached (expanded or queued)
     std::vector<double> r, T(1), w;
     int d = 0, m = T.size(), i = 0, j = 0;
     
     if (n > 0) {
-      arma::vec v(n);
+      arma::vec v(n);     // v[s] = distance of state s from state 0 (the start has v = 1)
       v[0] = 1;
       
       while (m>0 && d!=1) {
+        // take the next state i from the queue
         i = T[0];
         T.erase(T.begin());
         w.push_back(i);
         j = 0;
         
+        // look at every edge i -> j
         while (j < n) {
           if (P(i,j) > 0) {
             r.insert(r.end(), w.begin(), w.end());
             r.insert(r.end(), T.begin(), T.end());
             double k = 0;
             
+            // k > 0 if j was already reached
             for (std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
               if (*it == j) k ++;
             
             if (k > 0) {
+               // j already reached: the edge closes a cycle, update the gcd
                int b = v[i] + 1 - v[j];
                d = gcd(d, b);
             } else {
+              // new state: put it in the queue, one step further from the start
               T.push_back(j);
               v[j] = v[i] + 1;
             }
@@ -993,6 +1007,9 @@ NumericVector priorDistribution(NumericMatrix transMatr, NumericMatrix hyperpara
   hyperparam = sortByDimNames(hyperparam);
   NumericVector logProbVec;
   
+  // log of the Dirichlet density of each row of the transition matrix, with the parameters of
+  // the same row of the hyperparameter matrix a_i:
+  //   log Gamma(sum_j a_ij) + sum_j [ (a_ij - 1) log p_ij - log Gamma(a_ij) ]
   for (int i = 0; i < sizeMatr; i++) {
     double logProb_i = 0., hyperparamRowSum = 0;
   
@@ -1138,6 +1155,9 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
     return x;
   }
 
+  // State of the iteration, in the usual notation of BiCGSTAB: r = residual b - A x,
+  // rHat = fixed 'shadow' vector, p = search direction, v = A p; rhoOld, alpha, omega are
+  // the scalars of the previous iteration.
   arma::vec r = b;              // b - A * 0
   arma::vec rHat = r;
   arma::vec v(m, arma::fill::zeros);
@@ -1164,6 +1184,7 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
   for (int it = 1; it <= maxIter; ++it) {
     iterationsUsed = it;
 
+    // Convergence test on the relative residual.
     const double rNorm = arma::norm(r, 2);
     if (rNorm / bNorm <= tol) {
       relativeResidual = rNorm / bNorm;
@@ -1171,6 +1192,7 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
       return x;
     }
 
+    // First breakdown check: rho = (rHat, r) must not vanish.
     const double rho = arma::dot(rHat, r);
     if (!std::isfinite(rho) ||
         std::abs(rho) <= breakdownTol * arma::norm(rHat, 2) * rNorm) {
@@ -1178,10 +1200,12 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
       continue;
     }
 
+    // New search direction and its image under A (first matrix-vector product).
     const double beta = (rho / rhoOld) * (alpha / omega);
     p = r + beta * (p - omega * v);
     v = A * p;
 
+    // Second breakdown check: (rHat, v) must not vanish; then the step length alpha.
     const double rHatV = arma::dot(rHat, v);
     if (!std::isfinite(rHatV) ||
         std::abs(rHatV) <= breakdownTol * arma::norm(rHat, 2) * arma::norm(v, 2)) {
@@ -1190,6 +1214,7 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
     }
     alpha = rho / rHatV;
 
+    // s = residual after the BiCG half step x + alpha p; if it is already small, stop here.
     const arma::vec s = r - alpha * v;
     const double sNorm = arma::norm(s, 2);
     if (sNorm / bNorm <= tol) {
@@ -1201,6 +1226,8 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
       continue;
     }
 
+    // Stabilizing step (second matrix-vector product): omega minimizes the norm of
+    // s - omega * A s.
     const arma::vec t = A * s;
     const double tt = arma::dot(t, t);
     omega = (tt > 0.0 && std::isfinite(tt)) ? arma::dot(t, s) / tt : 0.0;
@@ -1212,10 +1239,13 @@ static arma::vec solveHittingBiCGSTAB(const arma::sp_mat& A, const arma::vec& b,
       continue;
     }
 
+    // Update of the solution and of the residual.
     x += alpha * p + omega * s;
     r = s - omega * t;
     rhoOld = rho;
   }
+
+  // Iteration limit reached: report the true residual of the last iterate.
 
   relativeResidual = arma::norm(b - A * x, 2) / bNorm;
   converged = relativeResidual <= tol;
@@ -1243,10 +1273,13 @@ void hittingProbabilitiesColumn(
     double tol, int maxIter,
     const CharacterVector& states,
     int solver) {
+  // States from which j is reachable at all (a backward search from j in the jump graph).
   const std::vector<int> targetSeed(1, j);
   const std::vector<bool> canReachTarget =
     reverseReachable(predecessors, targetSeed);
 
+  // Closed classes other than j's: once there, j can never be reached. States that cannot
+  // reach any of them (without passing through j) hit j with probability exactly 1.
   std::vector<int> badClosedSeeds;
   badClosedSeeds.reserve(numStates);
   for (int k = 0; k < numStates; ++k) {
@@ -1256,6 +1289,8 @@ void hittingProbabilitiesColumn(
   const std::vector<bool> canReachBadClosed =
     reverseReachable(predecessors, badClosedSeeds, j);
 
+  // The 'free' states are those outside closed classes (and different from j): their hitting
+  // probability is the unknown of the linear system.
   std::vector<int> freeIdx;
   freeIdx.reserve(numStates);
   for (int i = 0; i < numStates; ++i) {
@@ -1265,6 +1300,8 @@ void hittingProbabilitiesColumn(
 
   const int m = static_cast<int>(freeIdx.size());
   if (m > 0) {
+    // Q = transitions among free states, R = one-step probability of landing in j or in
+    // j's closed class; the system is (I - Q) h = R.
     arma::mat Q(m, m, arma::fill::zeros);
     arma::vec R(m, arma::fill::zeros);
 
@@ -1350,6 +1387,7 @@ void hittingProbabilitiesColumn(
               "); values may be imprecise.");
     }
 
+    // Clamp rounding noise to [0, 1] and impose the structural zeros and ones found above.
     arma::vec h = arma::clamp(acc, 0.0, 1.0);
     for (int a = 0; a < m; ++a) {
       const int source = freeIdx[a];
@@ -1361,6 +1399,7 @@ void hittingProbabilitiesColumn(
     }
   }
 
+  // States in a closed class: probability 1 for j's own class, 0 for any other.
   for (int i = 0; i < numStates; ++i) {
     if (closedClass(i))
       hittingProbs(i, j) = communicating(i, j) ? 1.0 : 0.0;
@@ -1412,6 +1451,8 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
     }
   }
 
+  // closedClass[i]: the communicating class of i is closed (recurrent);
+  // communicating(i, j): i and j are in the same class.
   List commClasses = commClassesKernel(transitionMatrix);
   LogicalVector closedClass = commClasses["closed"];
   LogicalMatrix communicating = commClasses["classes"];
@@ -1426,6 +1467,7 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
     }
   }
 
+  // One column of the result for each requested target state, independent of the others.
   for (int j : targets) {
     if (j < 0 || j >= numStates)
       stop("hittingProbabilities(): target index out of range");
@@ -1452,6 +1494,7 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
     }
   }
 
+  // Copy the requested columns into the result, with state names as dimnames.
   const int numTargets = static_cast<int>(targets.size());
   NumericMatrix result(numStates, numTargets);
   CharacterVector targetNames(numTargets);
@@ -1463,6 +1506,7 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
   colnames(result) = targetNames;
   rownames(result) = states;
 
+  // Chains stored by columns get the result transposed, as for the full matrix.
   if (!byrow)
     result = transpose(result);
 
@@ -2068,6 +2112,7 @@ bool is_stochastically_monotone_cpp(NumericMatrix P) {
   
   double tol = 1e-10; 
   
+  // compare the cumulative distribution functions of rows i and i + 1, column by column
   for (int i = 0; i < n - 1; ++i) {
     double cumsum_i = 0.0;
     double cumsum_next = 0.0;
@@ -2094,6 +2139,9 @@ bool is_lumpable_cpp(NumericMatrix P, List partition, double tol = 1e-10) {
   if (P.ncol() != n) stop("P must be a square transition matrix.");
   if (tol < 0.0) stop("tol must be non-negative.");
 
+  // For every pair (source block ci, destination block cj), every state of ci must have the
+  // same probability of jumping into cj: compare each one with the first state of the block.
+  // (A block with a single state satisfies the condition trivially.)
   int k = partition.size();
   for (int cj = 0; cj < k; ++cj) {
     IntegerVector dest = partition[cj];

@@ -106,6 +106,7 @@ setMethod("is.reversible", "markovchain", function(object, tolerance = sqrt(.Mac
     stop("is.reversible is defined here only for irreducible Markov chains.")
   }
 
+  # work with the row-stochastic matrix, whatever the orientation in which it is stored
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -118,6 +119,8 @@ setMethod("is.reversible", "markovchain", function(object, tolerance = sqrt(.Mac
     return(TRUE) # a single-state chain trivially satisfies detailed balance
   }
 
+  # stationary distribution (unique because the chain is irreducible); tiny negative values
+  # due to rounding are set to zero and the vector is renormalised
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) ||
       any(pi < -sqrt(.Machine$double.eps)) || sum(pi) <= 0) {
@@ -243,6 +246,7 @@ setMethod("mixingTime", "markovchain", function(object, epsilon = 0.25, maxIter 
     ))
   }
 
+  # row-stochastic matrix, as in is.reversible()
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -252,9 +256,10 @@ setMethod("mixingTime", "markovchain", function(object, epsilon = 0.25, maxIter 
     stop("The transition matrix must be square and finite.")
   }
   if (n == 1L) {
-    return(0L)
+    return(0L)     # a one-state chain is already in equilibrium at time 0
   }
 
+  # stationary distribution, cleaned as in is.reversible()
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) ||
       any(pi < -sqrt(.Machine$double.eps)) || sum(pi) <= 0) {

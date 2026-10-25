@@ -106,6 +106,9 @@
 selectOrder <- function(sequence, maxOrder = 3, criterion = c("BIC", "AIC"),
                         start = NULL, parameters = c("full", "observed")) {
   # Step 1: validate the inputs. A single sequence is treated as a list with one sequence.
+  # criterion: the information criterion minimised; parameters: how the number of free
+  # parameters of each order is counted ("full" = all r^k (r - 1) transition probabilities,
+  # "observed" = in each observed history, the number of next states seen minus one).
   criterion <- match.arg(criterion)
   parameters <- match.arg(parameters)
   sequences <- if (is.list(sequence)) sequence else list(sequence)

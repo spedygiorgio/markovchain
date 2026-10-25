@@ -688,6 +688,8 @@ setGeneric("plot")
 # is not installed we fall back on igraph, which is always available (it is a required dependency).
 setMethod("plot", signature(x = "markovchain", y = "missing"),
   function(x, y, package = "igraph", ...) {
+    # in the three cases the chain is drawn as a weighted directed graph; edge labels are
+    # the transition probabilities (the graph weights are scaled by 100, hence / 100)
     switch(package,
      diagram = {
        if (requireNamespace("diagram", quietly = TRUE)) {
@@ -709,6 +711,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
        }
      },
      {
+       # default: igraph
        netMc <- .getNet(object = x,round = TRUE)
        edgeLabel <- round(E(netMc)$weight / 100, 2)
        plot.igraph(x = netMc, edge.label = edgeLabel, ...)
@@ -1140,6 +1143,8 @@ setMethod("*", c("markovchain", "markovchain"),
 
 # methods implemented for multiplication of markovchain object with 
 # matrix, 1-D vector, and vice-versa
+# NOTE: the product is the ordinary matrix product with the matrix as it is STORED in the
+# object, so for a chain with byrow = FALSE the matrix is the transpose of the row-stochastic one.
 
 setMethod("*", c("matrix", "markovchain"),
   function(e1, e2) {
@@ -1155,6 +1160,7 @@ setMethod("*", c("markovchain", "matrix"),
   }
 )
 
+# a numeric vector is a row vector on the left, and a column vector on the right
 setMethod("*", c("numeric", "markovchain"), 
   function(e1, e2) {
     if(length(e1) != dim(e2)) {
@@ -1388,6 +1394,8 @@ setMethod("predict", "markovchainList",
     # n.ahead = how much ahead 
     # continue = veryfy if that lasts
       
+    # The i-th chain of the list governs the transition from time i to time i + 1, so the
+    # chain to use at each step depends on how many observations `newdata` already has.
     # allocate output
     out <- character() 
     actualPos <- length(newdata) 
@@ -1399,6 +1407,7 @@ setMethod("predict", "markovchainList",
         out <- c(out, newState)
         lastState <- newState
       } else {
+          # past the end of the list: keep using the last chain if continue = TRUE, else stop
           if (continue) {
             newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
             out <- c(out, newState)

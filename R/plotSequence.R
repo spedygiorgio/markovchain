@@ -17,6 +17,8 @@
   if (is.data.frame(x)) {
     x <- as.matrix(x)
   }
+  # A matrix / data frame already has one sequence per row; otherwise a vector is one
+  # sequence and a list is several, padded with NA on the right up to the longest one.
   if (is.matrix(x)) {
     levelsFromFactor <- NULL
     m <- matrix(as.character(x), nrow(x), ncol(x))
@@ -37,6 +39,8 @@
       m <- matrix(m, ncol = 1L)
     }
   }
+  # Order of the states (colours and legend): that of the chain if given, else the levels
+  # of the factors (if any), else alphabetical.
   observed <- unique(m[!is.na(m)])
   if (!length(observed)) {
     stop("the sequences contain no states.")
@@ -163,6 +167,7 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
         stop(arg, " must be a single positive integer.")
       }
     }
+    # x is a chain: simulate nSequences trajectories of `steps` steps from the initial law
     stateNames <- x@states
     mu <- .initialDistribution(initial, stateNames)
     P <- .rowStochasticMatrix(x)
@@ -178,6 +183,7 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
               else paste("State distribution of", x@name)
     }
   } else {
+    # x holds observed sequences; `chain`, if given, is only used for the expected distribution
     if (!is.null(chain) && !is(chain, "markovchain")) {
       stop("chain must be a markovchain object.")
     }
@@ -188,16 +194,19 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
       main <- if (type == "index") "Sequence index plot" else "State distribution plot"
     }
   }
-  k <- length(stateNames)
-  nTimes <- ncol(m)
+  k <- length(stateNames)    # number of states
+  nTimes <- ncol(m)          # number of time points
   if (is.null(col)) {
     col <- grDevices::hcl.colors(max(k, 2L), "Dark 3")[seq_len(k)]
   } else if (length(col) < k) {
     stop("col must give at least one colour per state.")
   }
+  # codes: the same matrix with each state replaced by its position in stateNames (NA stays NA)
   codes <- matrix(match(m, stateNames), nrow(m), nTimes)
 
   # Step 2: observed proportions and, if a chain is available, expected ones.
+  # counts[s, t] = number of sequences in state s at time t; proportions divide by the number
+  # of sequences still observed at t (NA if none)
   counts <- vapply(seq_len(nTimes), function(t) tabulate(codes[, t], nbins = k), numeric(k))
   counts <- matrix(counts, k, nTimes, dimnames = list(stateNames, NULL))
   totals <- colSums(counts)
@@ -208,6 +217,8 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
     if (!setequal(chain@states, stateNames)) {
       stop("chain must have the same states as the sequences.")
     }
+    # The expected distribution starts from the initial law (simulated chain) or from the
+    # observed proportions at the first time point, and then evolves as mu_{t+1} = mu_t P.
     start <- if (is(x, "markovchain")) {
       stats::setNames(mu, stateNames)
     } else {
@@ -220,6 +231,7 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
   }
 
   # Step 3: sorting of the sequences for the index plot.
+  # lexicographic order of the rows of `codes`, from the first time point (or from the last one)
   if (sort != "none") {
     keys <- as.data.frame(codes)
     if (sort == "last") {
@@ -260,6 +272,8 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
     if (is.null(ylab)) ylab <- "Proportion"
     graphics::plot.default(NA, xlim = range(times) + c(-0.5, 0.5), ylim = c(0, 1),
                            xlab = xlab, ylab = ylab, main = main, xaxs = "i", yaxs = "i", ...)
+    # Stacked bars: at each time the proportions are piled up, so cumObs[s, t] and
+    # cumObs[s + 1, t] are the bottom and the top of the bar segment of state s.
     cumObs <- apply(rbind(0, proportions), 2L, cumsum)
     cumObs <- matrix(cumObs, k + 1L, nTimes)
     for (s in seq_len(k)) {
@@ -268,6 +282,7 @@ plotSequence <- function(x, type = c("index", "distribution"), nSequences = 20L,
                        col = col[s], border = NA)
       }
     }
+    # dashed lines: the boundaries between the states in the expected distribution
     if (expected && !is.null(expectedProportions)) {
       cumExp <- apply(expectedProportions, 2L, cumsum)
       cumExp <- matrix(cumExp, k, nTimes)

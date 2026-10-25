@@ -185,6 +185,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
   # builtinName records, for each statistic, the built-in it is (NA for a
   # user function): the replicates are computed entirely in C++ when all the
   # statistics are among the four that C++ implements.
+  # `statistics` is either a character vector of built-in names ...
   if (is.character(statistics)) {
     unknown <- setdiff(statistics, names(builtins))
     if (length(statistics) == 0L || length(unknown)) {
@@ -194,6 +195,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     }
     builtinName <- unique(statistics)
     statistics <- builtins[builtinName]
+  # ... or a (possibly mixed) list of functions and built-in names.
   } else if (is.list(statistics)) {
     # an unnamed built-in, as in list(dry = f, "slem"), is named after itself
     if (length(statistics)) {
@@ -211,6 +213,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     builtinName <- vapply(statistics, function(s)
       if (is.character(s) && length(s) == 1L) s else NA_character_, character(1),
       USE.NAMES = FALSE)
+    # from here on every statistic is a function of the chain
     statistics <- lapply(statistics, function(s) {
       if (is.function(s)) {
         s
@@ -226,6 +229,8 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
 
   # Step 2: transition counts, and for the parametric bootstrap the lengths
   # and first states of the sequences.
+  # `data` is a matrix of counts (then only the multinomial bootstrap is possible), a single
+  # sequence or a list of independent sequences.
   if (is.matrix(data)) {
     if (method == "parametric") {
       stop("method = \"parametric\" needs the sequences, not only their counts.")
@@ -235,6 +240,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
       stop("a count matrix must be square, with the states as identical row and ",
            "column names, and non-negative whole numbers.")
     }
+    # extra states from `possibleStates` are added with zero counts
     stateNames <- union(rownames(data), as.character(possibleStates))
     counts <- matrix(0, length(stateNames), length(stateNames),
                      dimnames = list(stateNames, stateNames))
@@ -257,6 +263,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
       createSequenceMatrix(s, possibleStates = stateNames)[stateNames, stateNames, drop = FALSE]
     }))
   }
+  # number of departures from each state: the multinomial sample sizes of the bootstrap rows
   departures <- rowSums(counts)
   if (any(departures == 0)) {
     stop("the state(s) ", paste(stateNames[departures == 0], collapse = ", "),
@@ -277,6 +284,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     }
     value
   })
+  # widths: how many numbers each statistic returns (a vector statistic gets one column each)
   widths <- vapply(estimates, length, integer(1))
   if (any(widths == 0L)) {
     stop("every statistic must return at least one number.")
@@ -298,6 +306,8 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
   P <- chain@transitionMatrix
   storage.mode(P) <- "double"
   parametric <- method == "parametric"
+  # parametric bootstrap: each replicate simulates every observed sequence again, with its
+  # own length and first state
   lengths <- if (parametric) vapply(sequences, length, integer(1)) else integer(0)
   starts <- if (parametric) {
     vapply(sequences, function(s) match(s[1L], stateNames) - 1L, integer(1))
@@ -305,6 +315,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     integer(0)
   }
   departuresInt <- as.integer(departures)
+  # codes of the statistics implemented in C++ (must match src/bootstrapProperties.cpp)
   fastCodes <- c(slem = 0L, spectralGap = 1L, relaxationTime = 2L, mixingTime = 3L)
   if (all(!is.na(builtinName) & builtinName %in% names(fastCodes))) {
     # all the statistics are built in: everything is done in C++
@@ -316,6 +327,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
     # object on which the statistics are evaluated in R
     replicateOnce <- function() {
       N <- .bootstrapCountsRcpp(P, departuresInt, parametric, lengths, starts)
+      # a state never left in the resample: the chain cannot be estimated, count a failure
       if (any(rowSums(N) == 0)) {
         return(rep(NA_real_, length(estimate)))
       }
@@ -331,6 +343,8 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
   colnames(replicates) <- labels
 
   # Step 5: summaries and intervals.
+  # q[, j] = the alpha/2 and 1 - alpha/2 quantiles of the replicates of statistic j;
+  # percentile interval = (q1, q2); basic interval = (2 * estimate - q2, 2 * estimate - q1)
   alpha <- 1 - level
   q <- apply(replicates, 2L, stats::quantile, probs = c(alpha / 2, 1 - alpha / 2),
              na.rm = TRUE, names = FALSE, type = 7)
@@ -341,7 +355,7 @@ bootstrapProperties <- function(data, statistics = c("slem", "spectralGap", "rel
   structure(list(
     estimate = estimate,
     ci = ci,
-    se = apply(replicates, 2L, stats::sd, na.rm = TRUE),
+    se = apply(replicates, 2L, stats::sd, na.rm = TRUE),   # bootstrap standard error
     bias = colMeans(replicates, na.rm = TRUE) - estimate,
     failures = colSums(is.na(replicates)),
     replicates = replicates,

@@ -249,28 +249,32 @@ setGeneric("closestReversible", function(object, stationaryDistribution = NULL,
 # unknowns.
 .nearestReversibleFreePi <- function(P, startPis) {
   n <- nrow(P)
-  upper <- upper.tri(P, diag = TRUE)
+  upper <- upper.tri(P, diag = TRUE)               # positions of the free unknowns u
   onDiagonal <- (row(P) == col(P))[upper]
+  # build(u): the symmetric matrix S with upper triangle u, and the reversible chain
+  # R = S / rowSums(S) it defines (r = rowSums(S) is proportional to its stationary law).
   build <- function(u) {
     S <- matrix(0, n, n)
     S[upper] <- u
-    S <- S + t(S) - diag(diag(S), n)
+    S <- S + t(S) - diag(diag(S), n)               # mirror below the diagonal
     r <- rowSums(S)
     list(R = S / r, r = r)
   }
-  objective <- function(u) sum((build(u)$R - P)^2)
+  objective <- function(u) sum((build(u)$R - P)^2)   # squared Frobenius distance to P
+  # analytic gradient of the objective with respect to u (formula in the header above)
   gradient <- function(u) {
     b <- build(u)
     E <- b$R - P
     H <- 2 * (E - rowSums(E * b$R)) / b$r
-    G <- H + t(H)
+    G <- H + t(H)                                  # an off-diagonal u enters S twice
     diag(G) <- diag(H)
     G[upper]
   }
-  lower <- ifelse(onDiagonal, 1e-12, 0)
+  lower <- ifelse(onDiagonal, 1e-12, 0)            # bounds: S >= 0, diagonal slightly positive
+  # Local optimization from each starting stationary distribution; the best result is kept.
   results <- lapply(startPis, function(pi0) {
-    R0 <- .nearestReversibleFixedPi(P, pi0)
-    S0 <- pi0 * R0
+    R0 <- .nearestReversibleFixedPi(P, pi0)        # exact solution for the starting pi
+    S0 <- pi0 * R0                                 # its flow matrix, the starting point
     opt <- stats::optim(S0[upper], objective, gradient, method = "L-BFGS-B",
                         lower = lower, control = list(maxit = 10000L, factr = 10))
     found <- build(opt$par)
@@ -349,6 +353,8 @@ setMethod("closestReversible", "markovchain",
     }
     pi0 <- pmax(pi0, 0)
     pi0 <- pi0 / sum(pi0)
+    # The problem is not convex in pi, so several starting points are used: the chain's own
+    # stationary law, the uniform law, then random laws (uniform on the simplex) up to nstart.
     startPis <- c(list(pi0, rep(1 / n, n)),
                   lapply(seq_len(max(0L, as.integer(nstart) - 2L)), function(k) {
                     g <- stats::rexp(n)

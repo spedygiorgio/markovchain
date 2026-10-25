@@ -116,20 +116,22 @@ List mtdStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda,
   const int r = Q.nrow();
   if (k < 1 || lambda.size() != k || Q.ncol() != r || counts.size() != m)
     stop("inconsistent dimensions");
-  NumericVector lambdaNew(k);
-  NumericMatrix Qnew(r, r);
-  std::vector<double> w(k);
+  NumericVector lambdaNew(k);     // accumulated posterior mass of each lag
+  NumericMatrix Qnew(r, r);       // accumulated posterior-weighted transition counts
+  std::vector<double> w(k);       // w[g] = lambda_g * Q(x_{t-g}, x_t) for the current pattern
   double total = 0.0, logLik = 0.0;
   for (int p = 0; p < m; ++p) total += counts[p];
+  // E step over the distinct patterns: the posterior probability that lag g generated the
+  // observed state is w[g] / mix, and every pattern is weighted by how often it occurs.
   for (int p = 0; p < m; ++p) {
     const int to = patterns(p, 0);
-    double mix = 0.0;
+    double mix = 0.0;           // model probability of the pattern
     for (int g = 0; g < k; ++g) {
       w[g] = lambda[g] * Q(patterns(p, g + 1), to);
       mix += w[g];
     }
     if (!(mix > 0.0)) {
-      logLik = R_NegInf;
+      logLik = R_NegInf;        // reported to R without an error, see the header above
       break;
     }
     logLik += counts[p] * std::log(mix);
@@ -140,7 +142,8 @@ List mtdStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda,
     }
   }
   NumericVector lambdaOut(k);
-  NumericMatrix Qout = clone(Q);
+  NumericMatrix Qout = clone(Q);   // rows never observed keep their previous values
+  // M step: weights = average posterior; each row of Q = normalized posterior counts.
   if (std::isfinite(logLik)) {
     for (int g = 0; g < k; ++g) lambdaOut[g] = lambdaNew[g] / total;
     for (int i = 0; i < r; ++i) {
@@ -226,6 +229,7 @@ static std::vector<NumericMatrix> mtdgCopyMatrices(const List& Qlist, int k, int
   return Q;
 }
 
+// Convert the vector of matrices back into an R list.
 static List mtdgWrapMatrices(const std::vector<NumericMatrix>& Q) {
   List out(Q.size());
   for (size_t g = 0; g < Q.size(); ++g) out[g] = Q[g];
@@ -236,6 +240,8 @@ static List mtdgWrapMatrices(const std::vector<NumericMatrix>& Q) {
 // [[Rcpp::export(.mtdgEM)]]
 List mtdgEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
             List Qlist0, double tol, int maxit) {
+  // patterns: one row per distinct (x_t, x_{t-1}, ..., x_{t-k}) with 0-based states;
+  // counts: how many times each occurs
   const int m = patterns.nrow();
   const int k = patterns.ncol() - 1;
   if (k < 1 || lambda0.size() != k || counts.size() != m || Qlist0.size() != k)
@@ -250,6 +256,8 @@ List mtdgEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
   double total = 0.0;
   for (int p = 0; p < m; ++p) total += counts[p];
 
+  // Each iteration: the E step gives the log-likelihood of the CURRENT parameters; if it
+  // improved by less than tol (relative) we stop, otherwise the M step updates them.
   double logLik = R_NegInf, logLikOld = R_NegInf;
   bool converged = false;
   int iter = 0;
@@ -281,6 +289,8 @@ List mtdgStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda
   if (k < 1 || lambda.size() != k || counts.size() != m || Qlist.size() != k)
     stop("inconsistent dimensions");
   const int r = as<NumericMatrix>(Qlist[0]).nrow();
+  // Q: working copy of the matrices (updated in place by the M step); Qnew, lambdaNew:
+  // accumulators of the E step; lambdaOut: the updated weights returned to R
   std::vector<NumericMatrix> Q = mtdgCopyMatrices(Qlist, k, r);
   std::vector<NumericMatrix> Qnew(k);
   for (int g = 0; g < k; ++g) Qnew[g] = NumericMatrix(r, r);

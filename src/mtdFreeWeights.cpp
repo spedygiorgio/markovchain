@@ -96,6 +96,7 @@ void mixture(const MtdProblem& pb, const std::vector<double>& lambda,
   }
 }
 
+// log-likelihood sum_p counts_p log f_p, -Inf if some observed pattern has probability <= 0
 double logLik(const MtdProblem& pb, const std::vector<double>& f) {
   long double s = 0;
   for (int p = 0; p < pb.P; ++p) {
@@ -159,9 +160,17 @@ int firstMax(const std::vector<double>& v) {
 
 } // namespace
 
+// mtdFreeWeightsRcpp(): maximum likelihood for the MTD model with weights of any sign, by block
+// coordinate ascent (see .mtdFreeWeights() in R/fitMTD.R for the description of the method).
+//   patterns, counts: distinct (x_t, x_{t-1}, ..., x_{t-k}) with 0-based states, and frequencies
+//   lambda0, Q0:      feasible starting values
+//   rows:             1-based departure states of Q that enter the likelihood
+//   tol, maxit:       relative improvement of a sweep below which we stop, and maximum sweeps
+// Returns lambda, Q, logLik, the number of sweeps and whether it converged.
 // [[Rcpp::export(.mtdFreeWeightsRcpp)]]
 List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0,
                         NumericMatrix Q0, IntegerVector rows, double tol, int maxit) {
+  // Copy the data into the plain C++ structure used by the helpers above.
   MtdProblem pb;
   pb.P = patterns.nrow();
   pb.k = patterns.ncol() - 1;
@@ -188,6 +197,8 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
   const int P = pb.P, k = pb.k, r = pb.r;
   std::vector<double> lambda(lambda0.begin(), lambda0.end());
   std::vector<double> Q(Q0.begin(), Q0.end());   // column-major, Q[i + r j]
+  // f: model probability of each pattern; h: direction of a move expressed as the change
+  // of f per unit step; w, lamI, grad, trial: scratch vectors
   std::vector<double> f(P), h(P), w(P), lamI(P), grad, trial;
 
   mixture(pb, lambda, Q, f);
@@ -196,6 +207,8 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
     stop("the starting point of the MTD fit with negative weights is not feasible");
   }
 
+  // One sweep = one move on the weights, then one move on each row of Q. A move shifts mass
+  // between two entries of a block that sums to one, which keeps the constraint exactly.
   int sweeps = 0;
   bool converged = false;
   while (sweeps < maxit) {
@@ -212,6 +225,7 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
       grad[g] = (double) s;
     }
     {
+      // move mass from the lag b with the smallest gradient to the lag a with the largest
       int a = firstMax(grad);
       int b = 0;
       for (int g = 1; g < k; ++g) if (grad[g] < grad[b]) b = g;
@@ -219,6 +233,8 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
         for (int p = 0; p < P; ++p) {
           h[p] = Q[pb.from[p + P * a] + r * pb.to[p]] - Q[pb.from[p + P * b] + r * pb.to[p]];
         }
+        // longest admissible step: probabilities of the patterns stay positive and Raftery's
+        // condition holds (the step is also capped at 10)
         double upper = std::min(positiveBound(f, h), 10.0);
         upper = maxStep(upper, [&](double d) {
           trial = lambda;
@@ -227,6 +243,7 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
           return feasible(pb, trial, Q);
         });
         if (upper > 0) {
+          // best step length along the direction (one-dimensional concave maximization)
           double delta = lineMax(pb, f, h, upper);
           lambda[a] += delta;
           lambda[b] -= delta;
@@ -235,7 +252,7 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
       }
     }
 
-    // rows of Q
+    // rows of Q: same kind of move inside each identified row i (entries sum to one)
     for (int i : pb.rows) {
       for (int p = 0; p < P; ++p) {
         w[p] = pb.counts[p] / f[p];
@@ -244,12 +261,15 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
         for (int g = 0; g < k; ++g) if (pb.from[p + P * g] == i) s += lambda[g];
         lamI[p] = s;
       }
+      // gradient of the log-likelihood with respect to the entries Q[i, j] of this row
       grad.assign(r, 0);
       {
         std::vector<long double> acc(r, 0);
         for (int p = 0; p < P; ++p) acc[pb.to[p]] += w[p] * lamI[p];
         for (int j = 0; j < r; ++j) grad[j] = (double) acc[j];
       }
+      // take mass from the entry b with the smallest gradient that still has some (Q >= 0),
+      // and give it to the entry a with the largest gradient
       int a = firstMax(grad);
       int b = -1;
       for (int j = 0; j < r; ++j) {
@@ -273,6 +293,8 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
       for (int p = 0; p < P; ++p) f[p] += delta * h[p];
     }
 
+    // recompute f from scratch (removes the drift of the incremental updates) and test
+    // the improvement of the whole sweep
     mixture(pb, lambda, Q, f);
     L = logLik(pb, f);
     if (L - Lstart <= tol * (std::abs(L) + tol)) {

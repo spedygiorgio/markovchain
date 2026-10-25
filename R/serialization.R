@@ -394,14 +394,18 @@ fromFile <- function(file, format = NULL) {
 # (more than 17 significant digits, a decimal exponent beyond 280 in absolute
 # value, or not a plain decimal number) fall back to as.numeric().
 .asDoubleExact <- function(s) {
+  # v = the fallback result, R's own parser; it is kept for every string the code below
+  # does not handle (and for NA)
   v <- suppressWarnings(as.numeric(s))
   s <- trimws(as.character(s))
+  # only plain decimal numbers (optional sign, digits with an optional point, optional exponent)
   plain <- !is.na(s) & grepl("^[+-]?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE][+-]?[0-9]+)?$", s)
   if (!any(plain)) {
     return(v)
   }
   idx <- which(plain)
   x <- s[idx]
+  # Split each number as sign, decimal exponent `ex`, and the digits before and after the point.
   neg <- startsWith(x, "-")
   x <- sub("^[+-]", "", x)
   ex <- integer(length(x))
@@ -410,9 +414,11 @@ fromFile <- function(file, format = NULL) {
   x <- sub("[eE].*$", "", x)
   int <- sub("\\..*$", "", x)
   frac <- ifelse(grepl("\\.", x), sub("^[^.]*\\.", "", x), "")
+  # The value is then the integer `digits` times 10^e10 (leading zeros removed).
   digits <- sub("^0+", "", paste0(int, frac))
   nd <- nchar(digits)
   e10 <- ex - nchar(frac)
+  # handled here only if the integer has at most 17 digits and the power of ten is moderate
   ok <- !is.na(e10) & nd >= 1L & nd <= 17L & abs(e10) <= 280L
   if (!any(ok)) {
     return(v)
@@ -443,6 +449,7 @@ fromFile <- function(file, format = NULL) {
     bb <- s - a
     list(s = s, e = (a - (s - bb)) + (b - bb))
   }
+  # (nhi, nlo) = hi * 1e8 + lo as an unevaluated sum of two doubles, exact for up to 17 digits
   pr <- twoProd(hi, 1e8)
   sm <- twoSum(pr$p, lo)
   lo2 <- sm$e + pr$e
@@ -466,8 +473,9 @@ fromFile <- function(file, format = NULL) {
   # |e10| = 22 * nBig + r: nBig steps by 1e22, then one by 10^r (all exact)
   nBig <- abs(e10) %/% 22L
   pw <- cumprod(c(1, rep(10, 21L)))[abs(e10) %% 22L + 1L]
-  down <- e10 < 0L
+  down <- e10 < 0L                      # negative exponent: divide; otherwise multiply
   cur <- list(hi = nhi, lo = nlo)
+  # step(): applies one division or multiplication by d to the elements selected by `sel`
   step <- function(cur, sel, d) {
     if (!any(sel)) {
       return(cur)
@@ -487,6 +495,8 @@ fromFile <- function(file, format = NULL) {
     cur <- step(cur, nBig >= i, 1e22)
   }
   cur <- step(cur, pw != 1, pw)
+  # the single final rounding hi + lo; put the results back in their positions, keeping the
+  # fallback value of as.numeric() where the exact computation did not give a finite number
   pos <- idx[k]
   res <- cur$hi + cur$lo
   res <- ifelse(neg[k], -res, res)
@@ -511,6 +521,7 @@ fromFile <- function(file, format = NULL) {
   if (length(items) == 0L || any(xml2::xml_name(items) != "Item")) {
     stop("The XML file must contain only 'Item' elements.")
   }
+  # each <Item state_from="a" state_to="b" probability="0.3"/> is one cell of the matrix
   required <- c("probability", "state_from", "state_to")
   attrs <- xml2::xml_attrs(items)
   if (any(vapply(attrs, function(a) !identical(sort(names(a)), required), logical(1)))) {
@@ -522,6 +533,8 @@ fromFile <- function(file, format = NULL) {
   if (any(!nzchar(from)) || any(!nzchar(to)) || anyNA(probs)) {
     stop("The XML file contains empty state names or probabilities that are not numbers.")
   }
+  # The file lists every pair (from, to), self transitions included, so the states are
+  # those that appear as a self transition; there must be exactly n * n distinct items.
   stateNames <- unique(from[from == to])
   n <- length(stateNames)
   if (n == 0L || !setequal(unique(c(from, to)), stateNames) ||
@@ -529,7 +542,7 @@ fromFile <- function(file, format = NULL) {
     stop("The XML file must contain exactly one 'Item' for every pair of states, self transitions included.")
   }
   P <- matrix(0, n, n, dimnames = list(stateNames, stateNames))
-  P[cbind(match(from, stateNames), match(to, stateNames))] <- probs
+  P[cbind(match(from, stateNames), match(to, stateNames))] <- probs   # [from, to]
   nm <- xml2::xml_attr(doc, "name")
   if (is.na(nm)) {
     nm <- "Unnamed Markov chain"

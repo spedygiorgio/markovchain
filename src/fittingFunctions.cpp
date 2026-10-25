@@ -174,6 +174,8 @@ bool checkSequenceRcpp(List object) {
   S4 ob0, ob1;
   CharacterVector statesN1, statesN, intersection;
   
+  // For each consecutive pair of chains (i - 1, i): statesNm1 = states of chain i - 1 with a
+  // non-zero column sum (states that can be reached), which must all be states of chain i.
   for (int i = 1; i < nob;i++) {
     
     CharacterVector statesNm1;
@@ -679,11 +681,15 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
     NumericMatrix freqMatrix(sizeMatr);
     freqMatrix.attr("dimnames") = List::create(pstates, pstates);
     
+    // counts of each sequence on the common set of states (recursive call), then summed:
+    // no transition is counted between the last state of a sequence and the first of the next
     for (int i = 0;i < seqs.size();i++) {
       NumericMatrix temp = createSequenceMatrix(seqs[i], false, false, pstates);
       freqMatrix += temp;
     }
     
+    // sanitize: a state with no departures gets a row of ones, i.e. a uniform row after
+    // normalisation, instead of a row of zeros
     if (sanitize == true) {
       for (int i = 0; i < sizeMatr; i++) {
         double rowSum = 0;
@@ -695,6 +701,7 @@ NumericMatrix createSequenceMatrix(SEXP stringchar, bool toRowProbs = false, boo
       }
     }
     
+    // optionally turn the counts into row probabilities
     if (toRowProbs == true)
       return _toRowProbs(freqMatrix, sanitize);
       
@@ -896,7 +903,7 @@ List mcListFitForList(List data) {
 List generateCI(double confidencelevel, NumericMatrix freqMatr) {
   int sizeMatr = freqMatr.nrow();
   double alpha = 1.0 - confidencelevel;
-  double zscore = stats::qnorm_0(1.0 - alpha / 2.0, 1.0, 0.0);
+  double zscore = stats::qnorm_0(1.0 - alpha / 2.0, 1.0, 0.0);   // two-sided normal quantile
   double z2 = zscore * zscore;
 
   // No point-estimate matrix is allocated here: generateCI() only returns
@@ -924,6 +931,9 @@ List generateCI(double confidencelevel, NumericMatrix freqMatr) {
         continue;
       }
 
+      // n = number of departures from state i, x = observed transitions i -> j.
+      // The standard error is the usual one for a binomial proportion, sqrt(p(1 - p) / n);
+      // the interval is not p +/- z se but the Wilson score interval (center +/- halfwidth).
       double n = rowSum;
       double x = freqMatr(i, j);
       double p_hat = x / n;
@@ -1089,9 +1099,10 @@ List _mcFitLaplacianSmooth(SEXP stringchar, bool byrow, double laplacian = 0.01,
 // it must only be updated from the main thread, never from RcppParallel workers.
 // Each update also lets the user interrupt the computation.
 class BootstrapProgress {
-  bool active;
-  RObject bar;
+  bool active;     // false when no bar is shown (show = FALSE, or nothing to do)
+  RObject bar;     // the R progress bar object
 public:
+  // creates the bar (with `total` steps) only if it has to be shown
   BootstrapProgress(bool show, int total) : active(show && total > 0) {
     if (active) {
       Environment utils = Environment::namespace_env("utils");
@@ -1099,6 +1110,7 @@ public:
       bar = txtProgressBar(_["min"] = 0, _["max"] = total, _["style"] = 3);
     }
   }
+  // moves the bar to `value`; also gives the user the chance to interrupt
   void update(int value) {
     Rcpp::checkUserInterrupt();
     if (active) {
@@ -1107,6 +1119,7 @@ public:
       setTxtProgressBar(bar, value);
     }
   }
+  // closes the bar (it prints the final newline); safe to call more than once
   void close() {
     if (active) {
       Environment base = Environment::base_namespace();

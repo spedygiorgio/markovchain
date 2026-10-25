@@ -190,7 +190,8 @@ setMethod("show", "hommc",
   # norm
   Norm <- hdata$Norm
   
-  # `helper` stacks the predictions of the n lags; the lag-1 block gets the weighted sum, the blocks for
+  # Objective of the parameter estimation (a norm of the difference between each sequence's
+  # distribution and the model's prediction): `helper` stacks the predictions of the n lags; the lag-1 block gets the weighted sum, the blocks for
   # lags 2..n get x_j itself (the fixed part of the Ching et al. formulation).
   for(i in 1:s) {
     helper <- matrix(0, nrow = m*n, ncol = 1)

@@ -531,10 +531,12 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
   n <- as.integer(size)
   theta <- (1 + rho) / 2
 
-  # Recursive construction: the n x n matrix is the sum of four shifted copies of the (n-1) x (n-1)
-  # matrix, weighted by theta and 1 - theta; interior rows are halved because they were counted twice.
+  # Recursive construction (Rouwenhorst, 1995): the m x m matrix is the sum of four copies of the
+  # (m-1) x (m-1) one, placed in the four corners (top-left and bottom-right weighted by theta,
+  # the other two by 1 - theta); interior rows are halved because they were counted twice.
   buildTheta <- function(m) {
     if (m == 2L) {
+      # base case: two states, stay with probability theta
       return(matrix(c(theta, 1 - theta, 1 - theta, theta), 2, 2, byrow = TRUE))
     }
     inner <- buildTheta(m - 1L)
@@ -551,10 +553,15 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
 
   P <- buildTheta(n)
 
+  # Grid of the values taken by the process: n equally spaced points centred on `alpha`
+  # (the mean), with half-width psi = sqrt(n - 1) times the unconditional standard deviation
+  # sigma / sqrt(1 - rho^2) of the AR(1).
   yStd <- sigma / sqrt(1 - rho^2)
   psi <- yStd * sqrt(n - 1)
   y <- seq(alpha - psi, alpha + psi, length.out = n)
 
+  # State names are the grid values rounded to 4 significant digits; if rounding makes
+  # two names equal, plain indices are used instead.
   states <- format(signif(y, 4))
   states <- trimws(states)
   if (anyDuplicated(states)) {
@@ -696,29 +703,40 @@ populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
     states <- as.character(0:n)
   }
 
+  # State i (= i copies of the mutant allele) is row i + 1. The boundary states 0 and n are
+  # absorbing (loss and fixation of the mutant allele); only the interior rows are filled below.
   P <- matrix(0, size, size, dimnames = list(states, states))
   P[1L, 1L] <- 1
   P[size, size] <- 1
 
-  ui <- 1 - u
-  vi <- 1 - v
+  ui <- 1 - u      # probability that a mutant parent has a mutant offspring
+  vi <- 1 - v      # probability that a wild-type parent has a wild-type offspring
 
   if (model == "moran") {
+    # Moran: one birth and one death per step, so the count moves by -1, 0 or +1.
+    # ri = total reproductive weight of the mutants, nmi = that of the wild types.
     r <- 1 + s
     for (i in seq_len(n - 1L)) {
       nmi <- n - i
       ri <- r * i
+      # pm1 = P(i -> i - 1) = P(a mutant dies) * P(the offspring is wild type);
+      # pp1 = P(i -> i + 1) = P(a wild type dies) * P(the offspring is a mutant).
+      # NOTE: the expressions are those of PyDTMC (see ?populationGeneticsModel). For u != v
+      # the first one is not what the description of the model gives, which would have
+      # ri * u + nmi * vi in the numerator; for the default u = v it is the same.
       pm1 <- (i / n) * ((ri * v + nmi * vi) / (ri + nmi))
       pp1 <- (nmi / n) * ((ri * ui + nmi * v) / (ri + nmi))
       P[i + 1L, i] <- pm1
-      P[i + 1L, i + 1L] <- 1 - pm1 - pp1
+      P[i + 1L, i + 1L] <- 1 - pm1 - pp1     # nothing changes
       P[i + 1L, i + 2L] <- pp1
     }
   } else {
+    # Wright-Fisher: the next generation is a Binomial(n, ps) sample, so every row of the
+    # interior is dense. k = current frequency of the mutant allele.
     for (i in seq_len(n - 1L)) {
       k <- i / n
-      pm <- k * ui + (1 - k) * v
-      ps <- min((pm * (1 + s)) / (1 + pm * s), 1)
+      pm <- k * ui + (1 - k) * v                        # frequency after mutation
+      ps <- min((pm * (1 + s)) / (1 + pm * s), 1)       # frequency after selection
       P[i + 1L, ] <- stats::dbinom(0:n, n, ps)
     }
   }

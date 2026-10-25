@@ -204,6 +204,8 @@ assessOrder <- function(sequence, verbose = TRUE) {
     # factors (and numbers) are compared as character, like in verifyMarkovProperty
     seqs <- list(as.character(sequence))
   }
+  # Triples (past, present, future) = (x_{t-1}, x_t, x_{t+1}): the three vectors below are aligned
+  # element by element. A first order chain makes past and future independent given the present.
   seqs <- seqs[lengths(seqs) >= 3L]
   states <- unique(unlist(seqs, use.names = FALSE))
   past <- factor(unlist(lapply(seqs, function(s) s[seq_len(length(s) - 2L)])), levels = states)
@@ -213,9 +215,11 @@ assessOrder <- function(sequence, verbose = TRUE) {
   statistic <- 0; dof <- 0L
   for (present in states) {
     selected <- present_state == present
-    mat <- unclass(table(past[selected], future[selected]))
+    mat <- unclass(table(past[selected], future[selected]))     # rows: past, columns: future
     row_totals <- rowSums(mat); active <- row_totals > 0
     active_cols <- sum(colSums(mat) > 0)
+    # empty rows and columns carry no information and are dropped; with fewer than two
+    # rows or columns this present state contributes neither statistic nor degrees of freedom
     if (sum(active) > 1L && active_cols > 1L) {
       expected <- outer(row_totals[active], colSums(mat)) / sum(row_totals[active])
       observed <- mat[active, , drop = FALSE]; positive <- expected > 0
@@ -246,6 +250,7 @@ verifyEmpiricalToTheoretical <- function(data, object, method = c("G", "Pearson"
   if (!methods::is(object, "markovchain")) stop("object must be a markovchain object.")
   if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B)) stop("B must be a positive integer.")
   states <- names(object); P <- object@transitionMatrix
+  # `observed` = matrix of transition counts, given directly or obtained from a sequence
   if (is.matrix(data)) {
     observed <- data
     if (is.null(rownames(observed)) || is.null(colnames(observed))) stop("A transition-count matrix must have row and column names.")
@@ -253,6 +258,8 @@ verifyEmpiricalToTheoretical <- function(data, object, method = c("G", "Pearson"
   else stop("data must be an empirical sequence or a transition-count matrix.")
   if (anyNA(observed) || any(observed < 0) || any(observed != floor(observed))) stop("Observed transition counts must be non-negative integers.")
   if (!setequal(rownames(observed), states) || !setequal(colnames(observed), states)) stop("Empirical and theoretical transition matrices must have the same state support.")
+  # same order of the states as in the chain; expected[i, j] = (visits to i) * P[i, j];
+  # only the rows with at least one observation are informative
   observed <- observed[states, states, drop = FALSE]; row_totals <- rowSums(observed)
   expected <- sweep(P, 1L, row_totals, "*"); informative <- row_totals > 0
   # Impossible transition observed (probability 0 in the theory): the data cannot come from the chain.
@@ -260,7 +267,8 @@ verifyEmpiricalToTheoretical <- function(data, object, method = c("G", "Pearson"
     result <- list(statistic = Inf, dof = NA_integer_, p.value = 0, method = method,
                    observed = observed, expected = expected, transitionMatrix = P)
   } else {
-    # Test statistic (Pearson or G).
+    # Test statistic: Pearson's chi-squared or the likelihood ratio G. The "simulation" method
+    # uses G, with a Monte Carlo p-value instead of the chi-squared approximation.
     statistic <- if (method == "Pearson") {
       pos <- outer(informative, rep(TRUE, length(states))) & P > 0
       sum((observed[pos] - expected[pos])^2 / expected[pos])
@@ -288,6 +296,7 @@ verifyEmpiricalToTheoretical <- function(data, object, method = c("G", "Pearson"
           simulated[b] <- 2 * sum(sim[pos] * log(sim[pos] / expected[pos]))
         }
       }
+      # Monte Carlo p-value: the observed sample counts as one of the B + 1 replicates
       p.value <- (1 + sum(simulated >= statistic)) / (B + 1)
       result <- list(statistic = statistic, dof = dof, p.value = p.value, method = method,
                      observed = observed, expected = expected, transitionMatrix = P,
@@ -354,6 +363,8 @@ verifyHomogeneity <- function(inputList, method = c("G", "Pearson", "simulation"
   if (method != "simulation") {
     p.value <- if (dof > 0) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_
   } else {
+    # Monte Carlo: under homogeneity every sample draws its row of counts from the pooled
+    # row probabilities, keeping the sample size of that row fixed (multinomial).
     if (!is.null(seed)) set.seed(seed); simulated <- numeric(B)
     for (b in seq_len(B)) {
       sim_mats <- lapply(mats, function(m) matrix(0, nrow(m), ncol(m), dimnames = dimnames(m)))

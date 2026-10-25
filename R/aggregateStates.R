@@ -241,10 +241,15 @@
   eta <- diag(n)
   iterations <- n - k
 
+  # Each iteration merges two macro-states, from n of them down to k.
+  # Q is the current macro-chain and eta the current n x (n - i) membership matrix.
   for (i in seq_len(iterations)) {
+    # stationary distribution of the current macro-chain (known for the original chain)
     qPi <- if (i == 1L) pi else .calculateInvariant(Q)
+    # the pairs of macro-states worth trying, proposed from the spectrum of Q
     pairs <- .buildPairCandidates(Q, qPi)
 
+    # evaluate the merge of each pair on the ORIGINAL chain and keep the cheapest
     divergences <- numeric(length(pairs))
     candidates <- vector("list", length(pairs))
     for (j in seq_along(pairs)) {
@@ -413,6 +418,8 @@ setMethod("aggregateStates", "markovchain",
                    method = c("adaptive", "spectral-bottom-up", "spectral-top-down")) {
   method <- match.arg(method)
 
+  # (1) The divergence used to compare partitions needs a unique, strictly positive
+  # stationary distribution and a convergent power iteration: irreducible and aperiodic.
   if (!is.irreducible(object)) {
     stop("aggregateStates is defined here only for irreducible Markov chains.")
   }
@@ -425,6 +432,7 @@ setMethod("aggregateStates", "markovchain",
     ))
   }
 
+  # All the internal helpers work with a row-stochastic matrix P (rows = departure state).
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -437,6 +445,7 @@ setMethod("aggregateStates", "markovchain",
     stop("aggregateStates requires at least 3 states (a 2-state chain cannot be reduced further).")
   }
 
+  # (2) stationary distribution of the original chain: the weights of the divergence
   stateNames <- states(object)
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) || any(pi <= 0)) {
@@ -444,6 +453,7 @@ setMethod("aggregateStates", "markovchain",
   }
   pi <- pi / sum(pi)
 
+  # (3) number of macro-states: chosen by the eigengap heuristic, or validated if given
   if (is.null(k)) {
     k <- .chooseKByEigengap(P)
   } else {
@@ -465,6 +475,8 @@ setMethod("aggregateStates", "markovchain",
     }
   }
 
+  # (4) Both algorithms return the macro-chain Q (k x k, row-stochastic) and the n x k
+  # membership matrix phi (phi[i, j] = 1 if state i belongs to macro-state j, else 0).
   result <- if (method == "spectral-bottom-up") {
     .aggregateSpectralBottomUp(P, pi, k)
   } else {
@@ -474,6 +486,7 @@ setMethod("aggregateStates", "markovchain",
   Q <- result$Q
   phi <- result$phi
 
+  # sanity check: every state belongs to exactly one macro-state
   if (!isTRUE(all.equal(rowSums(phi), rep(1, n), check.attributes = FALSE))) {
     stop("Internal error: the aggregation partition does not cover every state exactly once.")
   }
@@ -486,8 +499,10 @@ setMethod("aggregateStates", "markovchain",
   }
 
   dimnames(Q) <- list(macroStates, macroStates)
-  Q <- Q / rowSums(Q)
+  Q <- Q / rowSums(Q)          # remove rounding drift so the rows sum to exactly one
 
+  # (5) information lost by the aggregation: KL divergence rate between the original
+  # chain and the one it induces from the macro-chain (zero for an exact lumping)
   klDivergence <- .klDivergenceAggregate(P, pi, phi, Q)
 
   aggregatedChain <- new("markovchain",

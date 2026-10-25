@@ -151,6 +151,7 @@ setValidity("ctmc",
   onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
   #do the following: 1:get eigenvectors whose eigenvalues==1
   #2: normalize
+  # Exactly one eigenvalue 1 is required (irreducible embedded chain); otherwise give up with NULL.
   if (length(onesIndex)==0) {
     warning("No eigenvalue = 1 found - the embedded Markov Chain must be irreducible, recurrent")
     return(NULL)
@@ -159,6 +160,8 @@ setValidity("ctmc",
     warning("Eigenvalue = 1 multiplicity > 1! - the embedded Markov Chain must be irreducible, recurrent")
     return(NULL)
   }
+  # The eigenvector must be real (the stationary vector of a stochastic matrix is);
+  # a row when the chain is stored by rows, a column otherwise.
   if (transpose)
   {
     eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
@@ -183,6 +186,7 @@ setValidity("ctmc",
 # state (the longer a chain stays in a state, the more weight that state has) and renormalise.
 setMethod("steadyStates", "ctmc", 
           function(object) {
+            # (1) embedded jump chain; (2) its stationary vector (rows or columns by byrow)
             transposeYN <- object@byrow
             transMatr <- generatorToTransitionMatrix(object@generator, byrow = object@byrow)
             out<-.ctmcEigen(matr=transMatr, transpose=transposeYN) 
@@ -195,6 +199,8 @@ setMethod("steadyStates", "ctmc",
             } else {
               rownames(out) <- object@states
             }
+            # (3) divide by the exit rate of each state (diag of the generator is minus the rate)
+            # and renormalise to a probability vector
             out <- - out / diag(object@generator)
             if (transposeYN) {
               out <- out / rowSums(out)

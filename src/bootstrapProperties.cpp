@@ -105,6 +105,7 @@ void spectralStatistics(const arma::mat& P, const IntegerVector& which,
                         double epsilon, int maxIter, double* out) {
   const int n = P.n_rows;
   const int k = which.size();
+  // Everything is NA unless the statistic can be computed.
   for (int s = 0; s < k; ++s) {
     out[s] = NA_REAL;
   }
@@ -114,6 +115,8 @@ void spectralStatistics(const arma::mat& P, const IntegerVector& which,
   }
   const double sqrtEps = std::sqrt(std::numeric_limits<double>::epsilon());
 
+  // The eigenvalue computation is shared by slem, spectralGap and relaxationTime, and the
+  // mixing time needs its own loop: do each of them only if requested.
   bool wantSpectral = false, wantMixing = false;
   for (int s = 0; s < k; ++s) {
     if (which[s] <= 2) wantSpectral = true;
@@ -156,8 +159,10 @@ void spectralStatistics(const arma::mat& P, const IntegerVector& which,
         if (valid) {
           pi.elem(arma::find(pi < 0)).zeros();
           pi /= arma::accu(pi);
-          arma::mat Pt = P;
+          arma::mat Pt = P;                      // P^t
           for (int t = 1; ; ++t) {
+            // worst = max over the starting states of the total variation distance
+            // between row i of P^t and pi
             double worst = 0;
             for (int i = 0; i < n; ++i) {
               double d = 0;
@@ -176,6 +181,8 @@ void spectralStatistics(const arma::mat& P, const IntegerVector& which,
     }
   }
 
+  // Derive the requested statistics: spectral gap = 1 - slem, relaxation time = 1 / gap
+  // (infinite if the gap is numerically zero).
   for (int s = 0; s < k; ++s) {
     switch (which[s]) {
       case 0: out[s] = slem; break;
@@ -201,6 +208,7 @@ void drawCounts(const arma::mat& P, const arma::mat& cum, const IntegerVector& d
   const int n = P.n_rows;
   N.zeros();
   if (!parametric) {
+    // multinomial: row i of the new counts is Multinomial(departures[i], row i of P)
     for (int i = 0; i < n; ++i) {
       double sum = 0;
       for (int j = 0; j < n; ++j) if (P(i, j) > 0) sum += P(i, j);
@@ -209,6 +217,8 @@ void drawCounts(const arma::mat& P, const arma::mat& cum, const IntegerVector& d
       for (int j = 0; j < n; ++j) N(i, j) = draw[j];
     }
   } else {
+    // parametric: simulate again every observed sequence (same first state and length) and
+    // count its transitions
     for (int s = 0; s < lengths.size(); ++s) {
       int x = starts[s];
       for (int t = 1; t < lengths[s]; ++t) {
@@ -279,6 +289,7 @@ NumericMatrix bootstrapSpectralRcpp(NumericMatrix Pr, IntegerVector departures, 
   NumericMatrix out(nboot, k);
   for (int b = 0; b < nboot; ++b) {
     if (b % 64 == 0) Rcpp::checkUserInterrupt();
+    // new counts, then the chain estimated from them (row-normalized counts)
     drawCounts(P, cum, departures, parametric, lengths, starts, N, prob, draw);
     arma::vec totals = arma::sum(N, 1);
     if (totals.min() <= 0) {
@@ -302,6 +313,7 @@ IntegerMatrix simulateCodesRcpp(NumericMatrix Pr, NumericVector mu, int nSequenc
   if (mu.size() != n) {
     stop("mu must have one probability per state.");
   }
+  // cum: cumulative probabilities of each row, for sampling by inversion of one uniform draw
   arma::mat cum = rowCumulative(P);
   std::vector<double> cumMu(n);
   double acc = 0;

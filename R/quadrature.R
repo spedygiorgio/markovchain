@@ -226,7 +226,8 @@ fitFunction <- function(f, size, quadrature = c("gauss-legendre", "gauss-chebysh
                                                 "fejer", "gauss-hermite", "trapezoid",
                                                 "simpson", "midpoint"),
                         interval = c(0, 1), mean = 0, sd = 1, states = NULL, name = NULL) {
-  # Step 1: check the arguments.
+  # Step 1: check the arguments. The interval is the support of the rules on a finite
+  # interval; Gauss-Hermite instead lives on the whole line and uses `mean` and `sd`.
   if (!is.function(f)) {
     stop("f must be a function of two arguments, f(x, y).")
   }
@@ -264,7 +265,8 @@ fitFunction <- function(f, size, quadrature = c("gauss-legendre", "gauss-chebysh
     }
   }
 
-  # Step 2: nodes and weights of the rule.
+  # Step 2: nodes x_1..x_n and weights w_1..w_n of the rule: the chain has the n nodes as
+  # states and approximates P(x_i -> dy) = f(x_i, y) dy / int f(x_i, z) dz by the rule.
   rule <- .quadratureRule(quadrature, n, interval, mean, sd)
   x <- rule$nodes
 
@@ -274,6 +276,8 @@ fitFunction <- function(f, size, quadrature = c("gauss-legendre", "gauss-chebysh
   from <- rep(x, times = n)
   to <- rep(x, each = n)
   values <- tryCatch(f(from, to), error = function(e) NULL)
+  # f is first called once on all the pairs; if it is not vectorized the call is repeated
+  # pair by pair
   if (!is.numeric(values) || length(values) != n * n) {
     # not vectorized: one call per pair
     values <- tryCatch(mapply(function(u, v) as.numeric(f(u, v))[1L], from, to),
@@ -294,6 +298,7 @@ fitFunction <- function(f, size, quadrature = c("gauss-legendre", "gauss-chebysh
   }
   P <- P / rowTotals
 
+  # state names: the nodes formatted as text, unless given by the user
   if (is.null(states)) {
     states <- .nodeStateNames(x)
   }

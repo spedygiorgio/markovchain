@@ -95,6 +95,7 @@ autoplot.markovchain <- function(object,
                                show_probabilities = show_probabilities))
   }
 
+  # type = "graph" from here on; threshold: smallest probability for which an arrow is drawn
   if (length(threshold) != 1L || !is.numeric(threshold) ||
       is.na(threshold) || threshold < 0 || threshold > 1) {
     stop("threshold must be a single number between 0 and 1", call. = FALSE)
@@ -113,7 +114,7 @@ autoplot.markovchain <- function(object,
 
   states <- object@states
   n <- length(states)
-  node_radius <- 0.13
+  node_radius <- 0.13       # radius of a node in plot units, used to shorten the arrows
 
   # Place the n states on a circle: angle theta for each state, then x = cos, y = sin.
   theta <- seq(0, 2 * pi, length.out = n + 1L)[-(n + 1L)] + pi / 2
@@ -135,9 +136,10 @@ autoplot.markovchain <- function(object,
   # Step 4: one edge for every transition above the threshold. A transition i -> i is a loop,
   # drawn as a small circle above the node; the others are curved arrows between two nodes,
   # shortened by the node radius so the arrow does not enter the circle.
+  # edge_index has one row (from, to) for each transition to draw
   edge_index <- which(mat > threshold, arr.ind = TRUE)
-  edges <- data.frame()
-  loops <- data.frame()
+  edges <- data.frame()    # one row per arrow between two different states
+  loops <- data.frame()    # the points of the circle of each loop, with a `group` per node
 
   if (nrow(edge_index) > 0L) {
     edge_rows <- vector("list", nrow(edge_index))
@@ -149,6 +151,7 @@ autoplot.markovchain <- function(object,
       probability <- mat[i, j]
 
       if (i == j) {
+        # loop: a circle of radius 0.10 centred just above the node, as 40 points
         a <- seq(-pi / 2, 3 * pi / 2, length.out = 40)
         loop_rows[[length(loop_rows) + 1L]] <- data.frame(
           x = nodes$x[i] + 0.10 * cos(a),
@@ -158,6 +161,8 @@ autoplot.markovchain <- function(object,
           stringsAsFactors = FALSE
         )
       } else {
+        # unit vector from node i to node j; the arrow starts and ends one node radius
+        # away from the centres, and its label sits at the midpoint
         dx <- nodes$x[j] - nodes$x[i]
         dy <- nodes$y[j] - nodes$y[i]
         distance <- sqrt(dx^2 + dy^2)
@@ -179,6 +184,7 @@ autoplot.markovchain <- function(object,
       }
     }
 
+    # edge_rows has an empty slot for each loop: drop them, then stack the pieces
     edge_rows <- edge_rows[!vapply(edge_rows, is.null, logical(1))]
     if (length(edge_rows) > 0L) {
       edges <- do.call(rbind, edge_rows)
@@ -195,6 +201,7 @@ autoplot.markovchain <- function(object,
     ggplot2::coord_equal(xlim = c(-1.25, 1.25), ylim = c(-1.35, 1.25),
                          expand = FALSE)
 
+  # arrows between states, curved a little so that opposite arrows (i -> j and j -> i) do not overlap
   if (nrow(edges) > 0L) {
     p <- p + ggplot2::geom_curve(
       data = edges,
@@ -215,6 +222,7 @@ autoplot.markovchain <- function(object,
     }
   }
 
+  # loops, with the label above the circle
   if (nrow(loops) > 0L) {
     p <- p + ggplot2::geom_path(
       data = loops,
@@ -247,6 +255,7 @@ autoplot.markovchain <- function(object,
     )
   }
 
+  # finally the nodes (filled by communicating class) with the state names on top
   p +
     ggplot2::geom_point(
       data = nodes,
@@ -293,6 +302,7 @@ autoplot.markovchain <- function(object,
   values <- eigen(P, only.values = TRUE)$values
   ev <- data.frame(re = Re(values), im = Im(values))
   theta <- seq(0, 2 * pi, length.out = 361L)
+  # the unit circle, as a polyline
   circle <- data.frame(x = cos(theta), y = sin(theta))
 
   ggplot2::ggplot() +
@@ -315,6 +325,7 @@ autoplot.markovchain <- function(object,
 # Evolution of the distribution over the states.
 .autoplotFlow <- function(object, steps, initial) {
   traj <- redistribute(object, steps = steps, initial = initial)
+  # wide (one column per state) to long format, as ggplot2 wants one row per point
   long <- data.frame(
     step = rep(as.numeric(rownames(traj)), times = ncol(traj)),
     state = factor(rep(colnames(traj), each = nrow(traj)),
@@ -371,6 +382,7 @@ autoplot.markovchain <- function(object,
     .rowStochasticMatrix(ch)[states, states, drop = FALSE]
   })
 
+  # Stationary distributions: one bar per state and chain (unique only for irreducible chains).
   if (what == "stationary") {
     pis <- lapply(seq_along(chains), function(i) {
       if (!is.irreducible(chains[[i]])) {

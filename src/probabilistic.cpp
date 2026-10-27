@@ -1680,7 +1680,6 @@ NumericVector meanAbsorptionTime(S4 obj) {
   NumericMatrix transitions = obj.slot("transitionMatrix");
   CharacterVector states = obj.slot("states");
   bool byrow = obj.slot("byrow");
-  unordered_set<string> allStates;
   
   if (!byrow)
     transitions = transpose(transitions);

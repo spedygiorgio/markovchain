@@ -1,6 +1,9 @@
-# A function to compute multinomial confidence intervals of DTMC
+# Simultaneous confidence intervals for transition probabilities
 
-Return estimated transition matrix assuming a Multinomial Distribution
+Simultaneous confidence intervals for the rows of an estimated
+transition matrix, each row being a multinomial proportion, by the
+method of Sison and Glaz (1995) in the implementation of May and Johnson
+(2000).
 
 ## Usage
 
@@ -16,37 +19,46 @@ multinomialConfidenceIntervals(
 
 - transitionMatrix:
 
-  An estimated transition matrix.
+  The estimated transition matrix.
 
 - countsTransitionMatrix:
 
-  Empirical (conts) transition matrix, on which the `transitionMatrix`
-  was performed.
+  The matrix of transition counts from which `transitionMatrix` was
+  estimated (see [`createSequenceMatrix()`](markovchainFit.md)).
 
 - confidencelevel:
 
-  confidence interval level.
+  Confidence level (default 0.95).
 
 ## Value
 
-Two matrices containing the confidence intervals.
+A list with `confidenceLevel`, `lowerEndpointMatrix` and
+`upperEndpointMatrix`, the latter two with the dimnames of
+`transitionMatrix`.
 
 ## References
 
-Constructing two-sided simultaneous confidence intervals for multinomial
-proportions for small counts in a large number of cells. Journal of
-Statistical Software 5(6) (2000)
+Sison, C. P. and Glaz, J. (1995). Simultaneous confidence intervals and
+sample size determination for multinomial proportions. Journal of the
+American Statistical Association 90, 366-369.
+
+May, W. L. and Johnson, W. D. (2000). Constructing two-sided
+simultaneous confidence intervals for multinomial proportions for small
+counts in a large number of cells. Journal of Statistical Software 5(6).
 
 ## See also
 
-`markovchainFit`
+[`markovchainFit()`](markovchainFit.md), whose `method = "mle"` gives
+intervals for each probability separately rather than simultaneous ones
+for each row.
 
 ## Examples
 
 ``` r
-seq<-c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", "b", "b", "b", "a")
-mcfit<-markovchainFit(data=seq,byrow=TRUE)
-seqmat<-createSequenceMatrix(seq)
+seq <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a",
+         "b", "b", "b", "a")
+mcfit <- markovchainFit(data = seq, byrow = TRUE)
+seqmat <- createSequenceMatrix(seq)
 multinomialConfidenceIntervals(mcfit$estimate@transitionMatrix, seqmat, 0.95)
 #> $confidenceLevel
 #> [1] 0.95

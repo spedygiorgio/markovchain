@@ -1,4 +1,4 @@
-# Mean First Passage Time for irreducible Markov chains
+# Mean first passage times of an irreducible Markov chain
 
 Given an irreducible (ergodic) markovchain object, this function
 calculates the expected number of steps to reach other states
@@ -41,6 +41,18 @@ For an ergodic Markov chain it computes:
 
 C. M. Grinstead and J. L. Snell. Introduction to Probability. American
 Mathematical Soc., 2012.
+
+## See also
+
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
 
 ## Author
 

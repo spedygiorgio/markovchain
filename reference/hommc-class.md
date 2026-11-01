@@ -1,38 +1,47 @@
-# An S4 class for representing High Order Multivariate Markovchain (HOMMC)
+# Higher order multivariate Markov chain class
 
-An S4 class for representing High Order Multivariate Markovchain (HOMMC)
-
-## Usage
-
-``` r
-hommc
-```
+The S4 class of the higher order multivariate Markov chains of Ching, Ng
+and Fung (2008), fitted by
+[`fitHighOrderMultivarMC()`](fitHighOrderMultivarMC.md): the
+distribution of the next state of each of \\s\\ sequences is a weighted
+sum, over the sequences and the lags, of transition matrices applied to
+their past states.
 
 ## Slots
 
 - `order`:
 
-  an integer equal to order of Multivariate Markovchain
+  The order of the chain (number of lags).
 
 - `states`:
 
-  a vector of states present in the HOMMC model
+  The states, common to all the sequences.
 
 - `P`:
 
-  array of transition matrices
+  A three-dimensional array of \\s^2\\ times `order` transition
+  matrices, one for each pair of sequences and lag.
 
 - `Lambda`:
 
-  a vector which stores the weightage of each transition matrices in P
+  The weights of the matrices in `P`, in the same order.
 
 - `byrow`:
 
-  if FALSE each column sum of transition matrix is 1 else row sum = 1
+  Logical: are the matrices stochastic by rows (`TRUE`) or by columns
+  (`FALSE`, as returned by
+  [`fitHighOrderMultivarMC()`](fitHighOrderMultivarMC.md))?
 
 - `name`:
 
-  a name given to hommc
+  Optional name of the object.
+
+## References
+
+Ching, W.-K., Ng, M. K. and Fung, E. S. (2008). Higher-order
+multivariate Markov chains and their applications. Linear Algebra and
+its Applications 428(2-3), 492-507.
+[doi:10.1016/j.laa.2007.05.021](https://doi.org/10.1016/j.laa.2007.05.021)
 
 ## Author
 

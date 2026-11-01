@@ -93,5 +93,5 @@ data(rain)
 fit2 <- fitHigherOrder(rain$rain, order = 2, method = "mle")
 higherOrderPredict(fit2, c("0", "6+"))
 #>         0       1-5        6+ 
-#> 0.2464501 0.3040798 0.4494701 
+#> 0.2464482 0.3040801 0.4494718 
 ```

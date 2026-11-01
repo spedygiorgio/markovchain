@@ -17,7 +17,9 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 
   The empirical sequence of states, a character vector or a vector
   coercible to character (numbers and factors are matched to the states
-  of the fit as character strings).
+  of the fit as character strings), or a list of such vectors, taken as
+  independent sequences: the log-likelihood is then the sum over the
+  sequences.
 
 - fit:
 
@@ -34,7 +36,8 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 
   Index of the first observation included in the likelihood. Defaults to
   `order + 1`, the earliest observation a model of that order can
-  predict.
+  predict. For a list of sequences it applies to each sequence, and the
+  sequences with fewer than `start` observations are skipped.
 
 ## Value
 
@@ -57,11 +60,12 @@ the observations \\t = \\ `start`, \\\dots\\, \\T\\, and the deviance is
 \\-2\\ times the log-likelihood.
 
 Two points matter when interpreting the output. First, `fitHigherOrder`
-chooses \\\lambda\\ by default (`method = "lsq"`) by least squares on
-the stationary distribution, not by maximum likelihood, so the value
-returned is the log-likelihood *of the fitted model*, not the maximum
-attainable one; with `method = "mle"` the weights maximize this
-log-likelihood for the observations a model of that order can predict.
+chooses \\\lambda\\ by default (`method = "mle"`) to maximize this
+log-likelihood, conditionally on the empirical lag matrices, for the
+observations a model of that order can predict; with `method = "lsq"`
+the weights come from a least squares fit on the stationary
+distribution, not from maximum likelihood, so the value returned is the
+log-likelihood *of the fitted model*, not the maximum attainable one.
 Second, a model of order \\k\\ can only be evaluated from observation
 \\k + 1\\ onwards; to compare orders on exactly the same data set
 `start` to \\1 +\\ the largest order compared, otherwise the models are
@@ -102,12 +106,10 @@ markov chains. In Markov Chains (pp. 141-176). Springer US.
 sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
               "c", "a", "b", "c", "a", "b", "a", "b")
 # compare orders 1 and 2 on the same observations (start = 3)
-if (requireNamespace("Rsolnp", quietly = TRUE)) {
-  fit1 <- fitHigherOrder(sequence, order = 1)
-  fit2 <- fitHigherOrder(sequence, order = 2)
-  sapply(list(order1 = fit1, order2 = fit2), function(f)
-    unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
-}
+fit1 <- fitHigherOrder(sequence, order = 1)
+fit2 <- fitHigherOrder(sequence, order = 2)
+sapply(list(order1 = fit1, order2 = fit2), function(f)
+  unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
 #>             order1    order2
 #> logLik   -13.08457 -13.08457
 #> deviance  26.16914  26.16914

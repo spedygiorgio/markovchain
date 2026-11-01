@@ -21,7 +21,7 @@ Useful links:
 ## Author
 
 Giorgio Alfredo Spedicato Maintainer: Giorgio Alfredo Spedicato
-\<spedicato_giorgio@yahoo.it\>
+<spedicato_giorgio@yahoo.it>
 
 ## Examples
 

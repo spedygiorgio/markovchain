@@ -11,9 +11,9 @@ data(tm_abs)
 
 ## Format
 
-The format is: num \[1:8, 1:8\] 17 2 0 0 0 0 0 0 1 455 ... - attr(\*,
-"dimnames")=List of 2 ..\$ : chr \[1:8\] "AAA" "AA" "A" "BBB" ... ..\$ :
-chr \[1:8\] "AAA" "AA" "A" "BBB" ...
+An 8 x 8 numeric matrix of transition counts, with rows and columns
+named after the rating classes `"AAA"`, `"AA"`, `"A"`, `"BBB"`, `"BB"`,
+`"B"`, `"C"` and `"D"`.
 
 ## References
 

@@ -41,6 +41,18 @@ this page, the result is not the joint distribution of the numbers of
 visits \\(V_1(N), \dots, V_n(N))\\, which the package does not compute
 (see issue \#139).
 
+## See also
+
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md)
+
 ## Author
 
 Vandit Jain

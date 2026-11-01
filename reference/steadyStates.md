@@ -1,7 +1,8 @@
-# Stationary states of a `markovchain` object
+# Stationary distributions of a Markov chain
 
-This method returns the stationary vector in matricial form of a
-markovchain object.
+Returns the stationary distributions of a Markov chain: the probability
+vectors \\\pi\\ with \\\pi P = \pi\\. There is one for each recurrent
+class; every stationary distribution is a convex combination of them.
 
 ## Usage
 
@@ -13,11 +14,13 @@ steadyStates(object)
 
 - object:
 
-  A discrete `markovchain` object
+  A [`markovchain`](markovchain-class.md) object.
 
 ## Value
 
-A matrix corresponding to the stationary states
+A matrix with one stationary distribution per row (per column if the
+chain is stored by columns, `byrow = FALSE`), with the states as column
+(row) names.
 
 ## Note
 
@@ -25,11 +28,6 @@ The steady states are identified starting from which eigenvectors
 correspond to identity eigenvalues and then normalizing them to sum up
 to unity. When negative values are found in the matrix, the eigenvalues
 extraction is performed on the recurrent classes submatrix.
-
-## References
-
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
 
 ## See also
 

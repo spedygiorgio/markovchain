@@ -70,8 +70,8 @@ fitness \\r=1+s\\ against wild-type fitness \\1\\) and one individual,
 chosen uniformly at random, dies and is replaced by the offspring, which
 mutates with probability `u` or `v` depending on the parent's type. From
 interior state \\i\\ (\\0\<i\<n\\), writing \\r_i=(1+s)i\\ and
-\\m_i=n-i\\, \$\$P\_{i,i-1}=\frac{i}{n}\cdot\frac{r_i v +
-m_i(1-u)}{r_i+m_i},\qquad P\_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) +
+\\m_i=n-i\\, \$\$P\_{i,i-1}=\frac{i}{n}\cdot\frac{r_i u +
+m_i(1-v)}{r_i+m_i},\qquad P\_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) +
 m_i v}{r_i+m_i},\$\$ with \\P\_{ii}\\ the remainder.
 
 **Wright-Fisher model.** Generations are discrete and non-overlapping:
@@ -81,19 +81,24 @@ selection, \\p'=\min\bigl(p(1+s)/(1+ps),\\1\bigr)\\, and the next
 generation's mutant count is \\\mathrm{Binomial}(n,p')\\-distributed:
 \\P\_{ij}=\binom{n}{j}p'^{\\j}(1-p')^{n-j}\\.
 
-Both constructions follow PyDTMC's `population_genetics_model`, with one
-deliberate difference: this function uses mutant relative fitness
-\\1+s\\ in *both* models (PyDTMC's Moran implementation instead uses
-\\1-s\\, so that a positive `s` there favours the wild-type rather than
-the mutant, the opposite of its own Wright-Fisher convention and of the
-usual textbook one). `s = 0` (neutral drift) and the mutation-rate terms
-are unaffected by this choice and match PyDTMC exactly; away from
-`s = 0` the two packages' Moran chains differ by construction, by
-design, to keep `s`'s meaning consistent between `"moran"` and
-`"wright-fisher"` within this package. As `u, v` shrink to `0`, both
-reduce to the classical drift-only chains with absorbing loss/fixation
-states, going back to Wright (1931) and Moran (1958); see Ewens (2004)
-for a modern textbook treatment of both.
+Both constructions follow PyDTMC's `population_genetics_model`, with two
+deliberate differences. First, this function uses mutant relative
+fitness \\1+s\\ in *both* models (PyDTMC's Moran implementation instead
+uses \\1-s\\, so that a positive `s` there favours the wild-type rather
+than the mutant, the opposite of its own Wright-Fisher convention and of
+the usual textbook one). Second, in the mutation terms: for `u != v` the
+probability \\P\_{i,i-1}\\ follows the description of the model (a
+mutant parent has a wild-type offspring with probability `u`, a
+wild-type parent with probability `1-v`), whereas PyDTMC uses \\r_i v\\
+in place of \\r_i u\\ in the numerator, which makes its chain depend on
+how the two alleles are labelled; for `u = v` (the default) the two
+coincide. With `s = 0` and `u = v` the two packages' Moran chains are
+identical; otherwise they differ by construction, by design (for `s`, to
+keep its meaning consistent between `"moran"` and `"wright-fisher"`
+within this package). As `u, v` shrink to `0`, both reduce to the
+classical drift-only chains with absorbing loss/fixation states, going
+back to Wright (1931) and Moran (1958); see Ewens (2004) for a modern
+textbook treatment of both.
 
 ## References
 

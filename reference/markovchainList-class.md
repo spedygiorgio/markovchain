@@ -1,16 +1,18 @@
-# Non homogeneus discrete time Markov Chains class
+# Non-homogeneous discrete time Markov chain class
 
-A class to handle non homogeneous discrete Markov chains
+The S4 class of non-homogeneous discrete time Markov chains: a sequence
+of [`markovchain`](markovchain-class.md) objects, the \\k\\-th giving
+the transition probabilities from time \\k - 1\\ to time \\k\\.
 
 ## Slots
 
 - `markovchains`:
 
-  Object of class `"list"`: a list of markovchains
+  A list of [`markovchain`](markovchain-class.md) objects.
 
 - `name`:
 
-  Object of class `"character"`: optional name of the class
+  Optional name of the object.
 
 ## Note
 
@@ -19,9 +21,10 @@ working with non homogeneous Markov chains.
 
 ## Objects from the Class
 
-A `markovchainlist` is a list of `markovchain` objects. They can be used
-to model non homogeneous discrete time Markov Chains, when transition
-probabilities (and possible states) change by time.
+Objects are created with
+`new("markovchainList", markovchains = list(...))` or estimated by
+[`markovchainListFit()`](markovchainListFit.md). The transition
+probabilities, and the states, may change from one time to the next.
 
 ## Methods
 

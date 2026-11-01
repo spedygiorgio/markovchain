@@ -1,8 +1,8 @@
-# Verify if a state j is reachable from state i.
+# Check whether a state can be reached from another
 
-This function verifies if a state is reachable from another, i.e., if
-there exists a path that leads to state j leaving from state i with
-positive probability
+Checks whether state `to` is accessible from state `from`, i.e. whether
+the chain started in `from` reaches `to` with positive probability in
+some number of steps.
 
 ## Usage
 
@@ -14,23 +14,19 @@ is.accessible(object, from, to)
 
 - object:
 
-  A `markovchain` object.
+  A [`markovchain`](markovchain-class.md) object.
 
 - from:
 
-  The name of state "i" (beginning state).
+  Name of the starting state.
 
 - to:
 
-  The name of state "j" (ending state).
+  Name of the target state.
 
 ## Value
 
-A boolean value.
-
-## Details
-
-It wraps an internal function named `reachabilityMatrix`.
+`TRUE` if `to` is accessible from `from`, `FALSE` otherwise.
 
 ## References
 
@@ -38,7 +34,8 @@ James Montgomery, University of Madison
 
 ## See also
 
-`is.irreducible`
+[`is.irreducible()`](is.irreducible.md),
+[`communicatingClasses()`](structuralAnalysis.md)
 
 ## Author
 

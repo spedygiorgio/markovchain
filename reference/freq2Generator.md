@@ -1,7 +1,11 @@
-# Returns a generator matrix corresponding to frequency matrix
+# Generator matrix estimated from a matrix of transition frequencies
 
-The function provides interface to calculate generator matrix
-corresponding to a frequency matrix and time taken
+Estimates the generator of a continuous time Markov chain from the
+empirical transition matrix observed over a period of length `t`, with
+the regularization algorithms of Kreinin and Sidelnikova (2001), which
+return a valid generator (non-negative off-diagonal rates, rows summing
+to zero) even when the matrix logarithm of `P` is not one. The
+computation is done by the suggested package ctmcd.
 
 ## Usage
 
@@ -13,46 +17,64 @@ freq2Generator(P, t = 1, method = "QO", logmethod = "Eigen")
 
 - P:
 
-  relative frequency matrix
+  Matrix of relative transition frequencies over the period: a square
+  matrix whose rows sum to one.
 
 - t:
 
-  (default value = 1)
+  Length of the observation period, a positive number (default 1).
 
 - method:
 
-  one among "QO"(Quasi optimaisation), "WA"(weighted adjustment),
-  "DA"(diagonal adjustment)
+  Regularization algorithm: `"QO"` (quasi-optimization, the default),
+  `"WA"` (weighted adjustment) or `"DA"` (diagonal adjustment).
 
 - logmethod:
 
-  method for computation of matrx algorithm (by default : Eigen)
+  Method of the matrix logarithm used by ctmcd (default `"Eigen"`, see
+  [`ctmcd::gmQO()`](https://rdrr.io/pkg/ctmcd/man/gmQO.html)).
 
 ## Value
 
-returns a generator matix with same dimnames
+The estimated generator, a matrix with the dimensions and dimnames of
+`P`; `NULL`, with a warning, if ctmcd is not installed.
 
 ## References
 
-E. Kreinin and M. Sidelnikova: Regularization Algorithms for Transition
-Matrices. Algo Research Quarterly 4(1):23-40, 2001
+Kreinin, A. and Sidelnikova, M. (2001). Regularization algorithms for
+transition matrices. Algo Research Quarterly 4(1), 23-40.
+
+## See also
+
+Other continuous time Markov chains:
+[`ExpectedTime()`](ExpectedTime.md), [`ctmcFit()`](ctmcFit.md),
+[`generatorToTransitionMatrix()`](generatorToTransitionMatrix.md),
+[`impreciseProbabilityatT()`](impreciseProbabilityatT.md),
+[`is.CTMCirreducible()`](is.CTMCirreducible.md),
+[`is.TimeReversible()`](is.TimeReversible.md),
+[`probabilityatT()`](probabilityatT.md), [`rctmc()`](rctmc.md),
+[`transition2Generator()`](transition2Generator.md)
 
 ## Examples
 
 ``` r
-sample <- matrix(c(150,2,1,1,1,200,2,1,2,1,175,1,1,1,1,150),nrow = 4,byrow = TRUE)
-sample_rel = rbind((sample/rowSums(sample))[1:dim(sample)[1]-1,],c(rep(0,dim(sample)[1]-1),1)) 
-freq2Generator(sample_rel,1)
+counts <- matrix(c(150, 2, 1, 1,
+                   1, 200, 2, 1,
+                   2, 1, 175, 1,
+                   1, 1, 1, 150), nrow = 4, byrow = TRUE)
+# relative frequencies, with the last state made absorbing
+rel <- rbind((counts / rowSums(counts))[1:3, ], c(0, 0, 0, 1))
+if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(rel, 1)
 #>              [,1]        [,2]         [,3] [,4]
 #> [1,] -0.024212164  0.01544797  0.008764198    0
 #> [2,]  0.006594821 -0.01822834  0.011633520    0
 #> [3,]  0.013302567  0.00749703 -0.020799597    0
 #> [4,]  0.000000000  0.00000000  0.000000000    0
 
+# rating transitions (quasi-optimization estimate)
 data(tm_abs)
-tm_rel=rbind((tm_abs/rowSums(tm_abs))[1:7,],c(rep(0,7),1))
-## Derive quasi optimization generator matrix estimate
-freq2Generator(tm_rel,1)
+tmRel <- rbind((tm_abs / rowSums(tm_abs))[1:7, ], c(rep(0, 7), 1))
+if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(tmRel, 1)
 #>              AAA           AA            A          BBB           BB
 #> AAA -0.109688198  0.104742772  0.004945426  0.000000000  0.000000000
 #> AA   0.006375885 -0.095416840  0.088027218  0.001013738  0.000000000

@@ -1,6 +1,7 @@
-# Defined states of a transition matrix
+# States of a Markov chain
 
-This method returns the states of a transition matrix.
+Returns the names of the states of a Markov chain, in the order of its
+transition matrix.
 
 ## Usage
 
@@ -15,16 +16,12 @@ states(object)
 
 - object:
 
-  A discrete `markovchain` object
+  A [`markovchain`](markovchain-class.md) object (or a
+  [`ctmc`](ctmc-class.md) object).
 
 ## Value
 
-The character vector corresponding to states slot.
-
-## References
-
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
+A character vector, the `states` slot.
 
 ## See also
 

@@ -11,9 +11,8 @@ data(craigsendi)
 
 ## Format
 
-The format is: table \[1:3, 1:3\] 682 154 19 33 64 19 25 47 43 -
-attr(\*, "dimnames")=List of 2 ..\$ : chr \[1:3\] "0-49" "50-74" "75-UP"
-..\$ : chr \[1:3\] "0-49" "50-74" "75-UP"
+A 3 x 3 contingency table of counts, with rows and columns named
+`"0-49"`, `"50-74"` and `"75-UP"`.
 
 ## Source
 

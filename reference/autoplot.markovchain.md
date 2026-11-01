@@ -27,7 +27,7 @@ autoplot.markovchain(
 
 - object:
 
-  An object of class \`markovchain\`.
+  An object of class `markovchain`.
 
 - threshold:
 
@@ -36,7 +36,7 @@ autoplot.markovchain(
 - show_probabilities:
 
   Logical; whether to label edges with transition probabilities.
-  Defaults to \`TRUE\`.
+  Defaults to `TRUE`.
 
 - digits:
 

@@ -1,8 +1,11 @@
-# Function to fit a discrete Markov chain
+# Fit a discrete time Markov chain
 
-Given a sequence of states arising from a stationary state, it fits the
-underlying Markov chain distribution using either MLE (also using a
-Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
+Estimates the transition matrix of a homogeneous discrete time Markov
+chain from observed sequences of states, by maximum likelihood
+(optionally with Laplace smoothing), by bootstrap, or by maximum a
+posteriori (Bayesian) estimation with Dirichlet priors.
+`createSequenceMatrix()` returns the matrix of transition counts (or
+frequencies) on which the estimates are based.
 
 ## Usage
 
@@ -41,8 +44,10 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 - data:
 
-  It can be a character vector or a \$\$n x n\$\$ matrix or a \$\$n x
-  n\$\$ data frame or a list
+  The observed sequence(s): a character vector (one sequence), a list of
+  character vectors (independent sequences), or a matrix or data frame
+  with one trajectory per row (per column if `byrow = FALSE`) and one
+  time per column.
 
 - method:
 
@@ -80,19 +85,19 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 - confidencelevel:
 
-  \$\$\alpha\$\$ level for conficence intervals width. Used only when
-  `method` equal to "mle".
+  Confidence level of the intervals (default 0.95).
 
 - confint:
 
-  a boolean to decide whether to compute Confidence Interval or not.
+  Logical: compute standard errors and confidence intervals (default
+  `TRUE`)?
 
 - hyperparam:
 
-  Hyperparameter matrix for the a priori distribution. If none is
-  provided, default value of 1 is assigned to each parameter. This must
-  be of size \$\$k x k\$\$ where k is the number of states in the chain
-  and the values should typically be non-negative integers.
+  For `method = "map"`, the matrix of Dirichlet hyperparameters, \\k
+  \times k\\ for \\k\\ states, with the states as dimnames (see
+  [`inferHyperparam()`](inferHyperparam.md)). The default sets all of
+  them to 1.
 
 - sanitize:
 
@@ -110,7 +115,8 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 - possibleStates:
 
-  Possible states which are not present in the given sequence
+  States to include in the result even if they do not appear in the
+  data.
 
 - progress:
 
@@ -119,11 +125,14 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 - stringchar:
 
-  It can be a \$\$n x n\$\$ matrix or a character vector or a list
+  For `createSequenceMatrix()`: a character vector (one sequence), a
+  list of sequences, or a two-column matrix of transitions (from, to),
+  one per row.
 
 - toRowProbs:
 
-  converts a sequence matrix into a probability matrix
+  Logical: return the transition frequencies (each row divided by its
+  total) instead of the counts?
 
 - absorbingStates:
 
@@ -144,12 +153,26 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
 
 ## Value
 
-A list containing an estimate, log-likelihood, and, when "bootstrap"
-method is used, a matrix of standards deviations and the bootstrap
-samples. When the "mle", "bootstrap" or "map" method is used, the lower
-and upper confidence bounds are returned along with the standard error.
-The "map" method also returns the expected value of the parameters with
-respect to the posterior distribution.
+`markovchainFit()` returns a list whose element `estimate` is the fitted
+[`markovchain`](markovchain-class.md) object. The other elements depend
+on the method:
+
+- `"mle"`: `standardError`, `confidenceLevel`, `lowerEndpointMatrix`,
+  `upperEndpointMatrix` (when `confint = TRUE`) and `logLikelihood`;
+
+- `"laplace"`: `logLikelihood`;
+
+- `"map"`: `expectedValue` (posterior mean of the transition matrix),
+  `standardError`, `confidenceInterval` and `logLikelihood`;
+
+- `"bootstrap"`: `standardError`, `confidenceInterval`,
+  `bootStrapSamples` and `logLikelihood`.
+
+For matrix or data frame input only the maximum likelihood estimate is
+computed, whatever `method`, and there is no `logLikelihood`.
+
+`createSequenceMatrix()` returns the square matrix of transition counts
+(frequencies, with `toRowProbs = TRUE`), with the states as dimnames.
 
 ## Details
 
@@ -188,15 +211,16 @@ involving only a part of the bootstrap process. When `data` is either a
 
 ## References
 
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
+Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about
+Markov chains. The Annals of Mathematical Statistics 28(1), 89-110.
 
-Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy
-Rate, and Out-of-Class Modeling, Christopher C. Strelioff, James P.
-Crutchfield, Alfred Hubler, Santa Fe Institute
+Strelioff, C. C., Crutchfield, J. P. and Hubler, A. W. (2007). Inferring
+Markov chains: Bayesian estimation, model comparison, entropy rate, and
+out-of-class modeling. Physical Review E 76, 011106.
+[doi:10.1103/PhysRevE.76.011106](https://doi.org/10.1103/PhysRevE.76.011106)
 
-Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order
-Markov Chains. R package version 0.2.5
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian inference of
+first order Markov chains. Vignette of the markovchain package.
 
 ## See also
 

@@ -1,7 +1,9 @@
-# Function to generate a sequence of states from homogeneous or non-homogeneous Markov chains.
+# Simulate from a homogeneous or non-homogeneous Markov chain
 
-Provided any `markovchain` or `markovchainList` objects, it returns a
-sequence of states coming from the underlying stationary distribution.
+Simulates trajectories of a homogeneous Markov chain (a
+[`markovchain`](markovchain-class.md) object) or of a non-homogeneous
+one (a [`markovchainList`](markovchainList-class.md) object, whose
+\\k\\-th matrix gives the transition from time \\k - 1\\ to time \\k\\).
 
 ## Usage
 
@@ -21,63 +23,69 @@ rmarkovchain(
 
 - n:
 
-  Sample size
+  For a `markovchain`, the number of steps of the trajectory; for a
+  `markovchainList`, the number of trajectories, each as long as the
+  list.
 
 - object:
 
-  Either a `markovchain` or a `markovchainList` object
+  A [`markovchain`](markovchain-class.md) or
+  [`markovchainList`](markovchainList-class.md) object.
 
 - what:
 
-  It specifies whether either a `data.frame` or a `matrix` (each rows
-  represent a simulation) or a `list` is returned.
+  Form of the output for a `markovchainList`: `"data.frame"` (default;
+  columns `iteration` and `values`, one row per simulated state),
+  `"matrix"` (one row per trajectory) or `"list"` (one character vector
+  per trajectory). Ignored for a `markovchain`.
 
 - useRCpp:
 
-  Boolean. Should RCpp fast implementation being used? Default is yes.
+  Logical: use the C++ implementation (default)?
 
 - parallel:
 
-  Boolean. Should parallel implementation being used? Default is yes.
+  Logical: simulate the trajectories of a `markovchainList` in parallel
+  (default `FALSE`)?
 
 - num.cores:
 
   Number of threads used when `parallel = TRUE`. If `NULL` (the default)
   the thread count is read from `getOption("RcppParallel.numThreads")`,
-  then `getOption("Ncpus")`, then `RCPP_PARALLEL_NUM_THREADS`, then
-  `OMP_NUM_THREADS`, falling back to `min(2, cores)` as CRAN policy
-  requires. Previous versions defaulted to
-  `parallel::detectCores() - 1`, which could grab all available cores
-  unexpectedly.
+  then `getOption("Ncpus")`, then the environment variables
+  `RCPP_PARALLEL_NUM_THREADS` and `OMP_NUM_THREADS`, falling back to
+  `min(2, cores)` as CRAN policy requires.
 
 - ...:
 
-  additional parameters passed to the internal sampler
+  Further arguments: `t0` (initial state) and `include.t0` (include it
+  in the output), as in
+  [`markovchainSequence()`](markovchainSequence.md).
 
 ## Value
 
-Character Vector, data.frame, list or matrix
+For a `markovchain`, a character vector of states. For a
+`markovchainList`, a data frame, matrix or list, according to `what`.
 
 ## Details
 
-When a homogeneous process is assumed (`markovchain` object) a sequence
-is sampled of size n. When a non - homogeneous process is assumed, n
-samples are taken but the process is assumed to last from the begin to
-the end of the non-homogeneous markov process.
-
-## Note
-
-Check the type of input
+For a `markovchain` the function calls
+[`markovchainSequence()`](markovchainSequence.md). For a
+`markovchainList` each trajectory starts from `t0` (by default a state
+drawn at random) and moves once with each matrix of the list.
 
 ## References
 
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
+Ross, S. (2010). A First Course in Probability (8th edition). Prentice
+Hall.
 
 ## See also
 
-[`markovchainFit`](markovchainFit.md),
-[`markovchainSequence`](markovchainSequence.md)
+[`markovchainFit()`](markovchainFit.md) and
+[`markovchainListFit()`](markovchainListFit.md) for the reverse
+operation.
+
+Other simulation: [`markovchainSequence()`](markovchainSequence.md)
 
 ## Author
 
@@ -86,330 +94,31 @@ Giorgio Spedicato
 ## Examples
 
 ``` r
-# define the markovchain object
 statesNames <- c("a", "b", "c")
-mcB <- new("markovchain", states = statesNames, 
-   transitionMatrix = matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), 
-   nrow = 3, byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mcA <- new("markovchain", states = statesNames, transitionMatrix =
+  matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3,
+  byrow = TRUE, dimnames = list(statesNames, statesNames)))
+rmarkovchain(n = 20, object = mcA, t0 = "a")
+#>  [1] "b" "b" "c" "b" "c" "b" "c" "b" "c" "b" "c" "b" "c" "b" "b" "c" "b" "b" "b"
+#> [20] "c"
 
-# show the sequence
-outs <- rmarkovchain(n = 100, object = mcB, what = "list")
-
-
-#define markovchainList object
-statesNames <- c("a", "b", "c")
-mcA <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mcB <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mcC <- new("markovchain", states = statesNames, transitionMatrix = 
-   matrix(c(0.2, 0.5, 0.3, 0, 0.2, 0.8, 0.1, 0.8, 0.1), nrow = 3, 
-   byrow = TRUE, dimnames = list(statesNames, statesNames)))
-mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcC)) 
-
-# show the list of sequence
-rmarkovchain(100, mclist, "list")
+# a non-homogeneous chain: a different matrix at each of three steps
+mcB <- new("markovchain", states = statesNames, transitionMatrix =
+  matrix(c(0.5, 0.5, 0, 0.1, 0.8, 0.1, 0, 0.5, 0.5), nrow = 3,
+  byrow = TRUE, dimnames = list(statesNames, statesNames)))
+mclist <- new("markovchainList", markovchains = list(mcA, mcB, mcA))
+rmarkovchain(5, mclist, what = "matrix")
+#>      [,1] [,2] [,3]
+#> [1,] "c"  "b"  "c" 
+#> [2,] "b"  "b"  "b" 
+#> [3,] "c"  "b"  "c" 
+#> [4,] "b"  "b"  "c" 
+#> [5,] "c"  "c"  "b" 
+rmarkovchain(2, mclist, what = "list", t0 = "a", include.t0 = TRUE)
 #> [[1]]
-#> [1] "b" "c" "b"
+#> [1] "a" "c" "b" "c"
 #> 
 #> [[2]]
-#> [1] "c" "b" "c"
+#> [1] "a" "b" "b" "b"
 #> 
-#> [[3]]
-#> [1] "b" "b" "c"
-#> 
-#> [[4]]
-#> [1] "b" "b" "c"
-#> 
-#> [[5]]
-#> [1] "b" "b" "c"
-#> 
-#> [[6]]
-#> [1] "b" "c" "b"
-#> 
-#> [[7]]
-#> [1] "b" "c" "b"
-#> 
-#> [[8]]
-#> [1] "b" "c" "b"
-#> 
-#> [[9]]
-#> [1] "b" "c" "b"
-#> 
-#> [[10]]
-#> [1] "c" "b" "b"
-#> 
-#> [[11]]
-#> [1] "b" "c" "a"
-#> 
-#> [[12]]
-#> [1] "a" "b" "c"
-#> 
-#> [[13]]
-#> [1] "b" "c" "b"
-#> 
-#> [[14]]
-#> [1] "c" "b" "c"
-#> 
-#> [[15]]
-#> [1] "c" "c" "a"
-#> 
-#> [[16]]
-#> [1] "b" "c" "b"
-#> 
-#> [[17]]
-#> [1] "a" "a" "b"
-#> 
-#> [[18]]
-#> [1] "b" "c" "b"
-#> 
-#> [[19]]
-#> [1] "c" "b" "b"
-#> 
-#> [[20]]
-#> [1] "c" "b" "c"
-#> 
-#> [[21]]
-#> [1] "c" "b" "b"
-#> 
-#> [[22]]
-#> [1] "a" "a" "b"
-#> 
-#> [[23]]
-#> [1] "c" "b" "b"
-#> 
-#> [[24]]
-#> [1] "b" "c" "c"
-#> 
-#> [[25]]
-#> [1] "b" "c" "b"
-#> 
-#> [[26]]
-#> [1] "b" "c" "c"
-#> 
-#> [[27]]
-#> [1] "b" "b" "c"
-#> 
-#> [[28]]
-#> [1] "c" "b" "c"
-#> 
-#> [[29]]
-#> [1] "b" "c" "b"
-#> 
-#> [[30]]
-#> [1] "b" "c" "b"
-#> 
-#> [[31]]
-#> [1] "a" "c" "b"
-#> 
-#> [[32]]
-#> [1] "c" "b" "b"
-#> 
-#> [[33]]
-#> [1] "b" "c" "b"
-#> 
-#> [[34]]
-#> [1] "b" "c" "b"
-#> 
-#> [[35]]
-#> [1] "b" "b" "b"
-#> 
-#> [[36]]
-#> [1] "c" "b" "c"
-#> 
-#> [[37]]
-#> [1] "b" "c" "c"
-#> 
-#> [[38]]
-#> [1] "b" "c" "b"
-#> 
-#> [[39]]
-#> [1] "c" "a" "b"
-#> 
-#> [[40]]
-#> [1] "c" "b" "c"
-#> 
-#> [[41]]
-#> [1] "b" "c" "a"
-#> 
-#> [[42]]
-#> [1] "b" "b" "c"
-#> 
-#> [[43]]
-#> [1] "c" "b" "c"
-#> 
-#> [[44]]
-#> [1] "c" "b" "c"
-#> 
-#> [[45]]
-#> [1] "b" "c" "b"
-#> 
-#> [[46]]
-#> [1] "b" "b" "c"
-#> 
-#> [[47]]
-#> [1] "c" "b" "c"
-#> 
-#> [[48]]
-#> [1] "c" "b" "c"
-#> 
-#> [[49]]
-#> [1] "c" "b" "c"
-#> 
-#> [[50]]
-#> [1] "b" "c" "b"
-#> 
-#> [[51]]
-#> [1] "b" "b" "c"
-#> 
-#> [[52]]
-#> [1] "c" "a" "c"
-#> 
-#> [[53]]
-#> [1] "a" "c" "b"
-#> 
-#> [[54]]
-#> [1] "b" "b" "b"
-#> 
-#> [[55]]
-#> [1] "c" "b" "c"
-#> 
-#> [[56]]
-#> [1] "b" "c" "b"
-#> 
-#> [[57]]
-#> [1] "a" "b" "c"
-#> 
-#> [[58]]
-#> [1] "b" "b" "c"
-#> 
-#> [[59]]
-#> [1] "b" "b" "c"
-#> 
-#> [[60]]
-#> [1] "b" "c" "b"
-#> 
-#> [[61]]
-#> [1] "c" "b" "c"
-#> 
-#> [[62]]
-#> [1] "b" "c" "b"
-#> 
-#> [[63]]
-#> [1] "b" "b" "c"
-#> 
-#> [[64]]
-#> [1] "c" "b" "c"
-#> 
-#> [[65]]
-#> [1] "c" "b" "c"
-#> 
-#> [[66]]
-#> [1] "c" "b" "c"
-#> 
-#> [[67]]
-#> [1] "b" "b" "c"
-#> 
-#> [[68]]
-#> [1] "c" "b" "c"
-#> 
-#> [[69]]
-#> [1] "b" "c" "b"
-#> 
-#> [[70]]
-#> [1] "b" "c" "b"
-#> 
-#> [[71]]
-#> [1] "c" "b" "c"
-#> 
-#> [[72]]
-#> [1] "b" "b" "c"
-#> 
-#> [[73]]
-#> [1] "a" "b" "c"
-#> 
-#> [[74]]
-#> [1] "b" "c" "b"
-#> 
-#> [[75]]
-#> [1] "b" "b" "c"
-#> 
-#> [[76]]
-#> [1] "b" "c" "a"
-#> 
-#> [[77]]
-#> [1] "c" "b" "b"
-#> 
-#> [[78]]
-#> [1] "c" "b" "c"
-#> 
-#> [[79]]
-#> [1] "c" "b" "b"
-#> 
-#> [[80]]
-#> [1] "c" "b" "c"
-#> 
-#> [[81]]
-#> [1] "c" "c" "b"
-#> 
-#> [[82]]
-#> [1] "c" "b" "c"
-#> 
-#> [[83]]
-#> [1] "b" "c" "b"
-#> 
-#> [[84]]
-#> [1] "c" "b" "c"
-#> 
-#> [[85]]
-#> [1] "b" "c" "b"
-#> 
-#> [[86]]
-#> [1] "c" "b" "c"
-#> 
-#> [[87]]
-#> [1] "a" "b" "c"
-#> 
-#> [[88]]
-#> [1] "b" "c" "b"
-#> 
-#> [[89]]
-#> [1] "b" "b" "c"
-#> 
-#> [[90]]
-#> [1] "c" "b" "c"
-#> 
-#> [[91]]
-#> [1] "c" "b" "c"
-#> 
-#> [[92]]
-#> [1] "b" "c" "b"
-#> 
-#> [[93]]
-#> [1] "c" "b" "c"
-#> 
-#> [[94]]
-#> [1] "b" "c" "b"
-#> 
-#> [[95]]
-#> [1] "c" "c" "b"
-#> 
-#> [[96]]
-#> [1] "a" "b" "c"
-#> 
-#> [[97]]
-#> [1] "c" "b" "c"
-#> 
-#> [[98]]
-#> [1] "b" "c" "b"
-#> 
-#> [[99]]
-#> [1] "a" "b" "c"
-#> 
-#> [[100]]
-#> [1] "c" "b" "c"
-#> 
-     
 ```

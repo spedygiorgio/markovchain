@@ -1,7 +1,8 @@
-# `conditionalDistribution` of a Markov Chain
+# Conditional distribution of the next state
 
-It extracts the conditional distribution of the subsequent state, given
-current state.
+Returns the distribution of the next state of a Markov chain given its
+current state: the row of the transition matrix of that state (its
+column if the chain is stored by columns).
 
 ## Usage
 
@@ -13,22 +14,20 @@ conditionalDistribution(object, state)
 
 - object:
 
-  A `markovchain` object.
+  A [`markovchain`](markovchain-class.md) object.
 
 - state:
 
-  Subsequent state.
+  Name of the current state.
 
 ## Value
 
-A named probability vector
-
-## References
-
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
+A probability vector named by the states.
 
 ## See also
+
+[`transitionProbability()`](transitionProbability.md) for a single
+probability.
 
 [`markovchain`](markovchain-class.md)
 

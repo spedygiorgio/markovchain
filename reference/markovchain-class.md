@@ -40,36 +40,36 @@ Objects can be created by calls of the form
 
 ## Methods
 
-- \*:
+- `*`:
 
   `signature(e1 = "markovchain", e2 = "markovchain")`: multiply two
   `markovchain` objects
 
-- \*:
+- `*`:
 
   `signature(e1 = "markovchain", e2 = "matrix")`: markovchain by matrix
   multiplication
 
-- \*:
+- `*`:
 
   `signature(e1 = "markovchain", e2 = "numeric")`: markovchain by
   numeric vector multiplication
 
-- \*:
+- `*`:
 
   `signature(e1 = "matrix", e2 = "markovchain")`: matrix by markov chain
 
-- \*:
+- `*`:
 
   `signature(e1 = "numeric", e2 = "markovchain")`: numeric vector by
   `markovchain` multiplication
 
-- \[:
+- `[`:
 
   `signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")`:
   ...
 
-- ^:
+- `^`:
 
   `signature(e1 = "markovchain", e2 = "numeric")`: power of a
   `markovchain` object

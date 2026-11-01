@@ -1,4 +1,4 @@
-# Hitting probabilities for markovchain
+# Hitting probabilities of a Markov chain
 
 Given a markovchain object, this function calculates the probability of
 ever arriving from state i to j
@@ -83,6 +83,18 @@ R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 H. A. van der Vorst (1992). Bi-CGSTAB: A Fast and Smoothly Converging
 Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems. *SIAM
 Journal on Scientific and Statistical Computing*, 13(2), 631-644.
+
+## See also
+
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
 
 ## Author
 

@@ -1,7 +1,8 @@
-# function to calculate first passage probabilities
+# First passage time distribution of a set of states
 
-The function calculates first passage probability for a subset of states
-given an initial state.
+Distribution of the first passage time into a set of states: the
+probability that a Markov chain started in `state` enters `set` for the
+first time at step \\k = 1, \dots, n\\.
 
 ## Usage
 
@@ -13,33 +14,44 @@ firstPassageMultiple(object, state, set, n)
 
 - object:
 
-  a markovchain-class object
+  A [`markovchain`](markovchain-class.md) object.
 
 - state:
 
-  intital state of the process (charactervector)
+  Name of the initial state.
 
 - set:
 
-  set of states A, first passage of which is to be calculated
+  Names of the states of the target set.
 
 - n:
 
-  Number of rows on which compute the distribution
+  Number of steps, a positive integer.
 
 ## Value
 
-A vector of size n showing the first time proabilities
+A one-column matrix (column `"set"`) with `n` rows: row \\k\\ is the
+probability that the first passage into `set` happens at step \\k\\.
 
 ## References
 
-Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains; MIT
-OCW, course - 6.262, Discrete Stochastic Processes, course-notes, chap
--05
+Feres, R. Notes for Math 450: Matlab listings for Markov chains.
+Washington University in St. Louis.
+
+Gallager, R. G. 6.262 Discrete Stochastic Processes, course notes,
+chapter 5. MIT OpenCourseWare.
 
 ## See also
 
-[`firstPassage`](firstPassage.md)
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
 
 ## Author
 
@@ -50,12 +62,11 @@ Vandit Jain
 ``` r
 statesNames <- c("a", "b", "c")
 markovB <- new("markovchain", states = statesNames, transitionMatrix =
-matrix(c(0.2, 0.5, 0.3,
-         0, 1, 0,
-         0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
-       dimnames = list(statesNames, statesNames)
-))
-firstPassageMultiple(markovB,"a",c("b","c"),4)  
+  matrix(c(0.2, 0.5, 0.3,
+           0, 1, 0,
+           0.1, 0.8, 0.1), nrow = 3, byrow = TRUE,
+         dimnames = list(statesNames, statesNames)))
+firstPassageMultiple(markovB, "a", c("b", "c"), 4)
 #>      set
 #> 1 0.8000
 #> 2 0.4000

@@ -1,6 +1,8 @@
-# First passage across states
+# First passage time distribution
 
-This function compute the first passage probability in states
+Distribution of the first passage times of a Markov chain started in
+`state`: for every state \\j\\ and step \\k\\, the probability that the
+chain enters \\j\\ for the first time at step \\k\\.
 
 ## Usage
 
@@ -12,32 +14,45 @@ firstPassage(object, state, n)
 
 - object:
 
-  A `markovchain` object
+  A [`markovchain`](markovchain-class.md) object.
 
 - state:
 
-  Initial state
+  Name of the initial state.
 
 - n:
 
-  Number of rows on which compute the distribution
+  Number of steps, a positive integer.
 
 ## Value
 
-A matrix of size 1:n x number of states showing the probability of the
-first time of passage in states to be exactly the number in the row.
+A matrix with `n` rows (steps \\1, \dots, n\\) and one column per state:
+entry \\(k, j)\\ is the probability that the first passage to \\j\\
+happens at step \\k\\. The column sums are at most one; the remainder is
+the probability of a first passage after step `n`, or never.
 
 ## Details
 
-Based on Feres' Matlab listings
+For \\j\\ equal to `state` the probabilities are those of the first
+return. The algorithm follows the Matlab listings of Feres.
 
 ## References
 
-Renaldo Feres, Notes for Math 450 Matlab listings for Markov chains
+Feres, R. Notes for Math 450: Matlab listings for Markov chains.
+Washington University in St. Louis.
 
 ## See also
 
-[`conditionalDistribution`](conditionalDistribution.md)
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
 
 ## Author
 
@@ -47,8 +62,8 @@ Giorgio Spedicato
 
 ``` r
 simpleMc <- new("markovchain", states = c("a", "b"),
-                 transitionMatrix = matrix(c(0.4, 0.6, .3, .7), 
-                                    nrow = 2, byrow = TRUE))
+                transitionMatrix = matrix(c(0.4, 0.6, 0.3, 0.7),
+                                          nrow = 2, byrow = TRUE))
 firstPassage(simpleMc, "b", 20)
 #>               a            b
 #> 1  0.3000000000 7.000000e-01

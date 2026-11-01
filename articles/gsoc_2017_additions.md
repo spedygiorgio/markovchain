@@ -112,8 +112,6 @@ The plot is the following graph:
 
 ``` r
 plot(molecularCTMC)
-#> Warning: Non-positive edge weight found, ignoring all weights during graph
-#> layout.
 ```
 
 ![](gsoc_2017_additions_files/figure-html/unnamed-chunk-6-1.png)

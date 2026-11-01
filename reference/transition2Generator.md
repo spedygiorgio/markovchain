@@ -1,6 +1,8 @@
-# Return the generator matrix for a corresponding transition matrix
+# Generator matrix from a transition matrix
 
-Calculate the generator matrix for a corresponding transition matrix
+Computes the generator \\Q\\ of a continuous time Markov chain whose
+transition matrix over a period of length `t` is `P`, as the matrix
+logarithm \\Q = \log(P) / t\\, so that \\\exp(t Q) = P\\.
 
 ## Usage
 
@@ -12,32 +14,53 @@ transition2Generator(P, t = 1, method = "logarithm")
 
 - P:
 
-  transition matrix between time 0 and t
+  A transition matrix (rows summing to one) over a period of length `t`.
 
 - t:
 
-  time of observation
+  Length of the period, a positive number.
 
 - method:
 
-  "logarithm" returns the Matrix logarithm of the transition matrix
+  Method used: only `"logarithm"`, the principal matrix logarithm
+  computed by [`expm::logm()`](https://rdrr.io/pkg/expm/man/logm.html),
+  is available.
 
 ## Value
 
-A matrix that represent the generator of P
+A square matrix with the dimensions of `P`, the generator \\\log(P) /
+t\\.
+
+## Details
+
+Not every transition matrix is the transition matrix of a continuous
+time chain (the embedding problem): the matrix returned is a valid
+generator only if its off-diagonal entries are non-negative, which is
+not checked. [`freq2Generator()`](freq2Generator.md) gives regularized
+estimates that are always valid generators.
 
 ## See also
 
-[`rctmc`](rctmc.md)
+Other continuous time Markov chains:
+[`ExpectedTime()`](ExpectedTime.md), [`ctmcFit()`](ctmcFit.md),
+[`freq2Generator()`](freq2Generator.md),
+[`generatorToTransitionMatrix()`](generatorToTransitionMatrix.md),
+[`impreciseProbabilityatT()`](impreciseProbabilityatT.md),
+[`is.CTMCirreducible()`](is.CTMCirreducible.md),
+[`is.TimeReversible()`](is.TimeReversible.md),
+[`probabilityatT()`](probabilityatT.md), [`rctmc()`](rctmc.md)
 
 ## Examples
 
 ``` r
-mymatr <- matrix(c(.4, .6, .1, .9), nrow = 2, byrow = TRUE)
-Q <- transition2Generator(P = mymatr)
-expm::expm(Q)
+P <- matrix(c(0.4, 0.6, 0.1, 0.9), nrow = 2, byrow = TRUE)
+Q <- transition2Generator(P)
+Q
+#>            [,1]       [,2]
+#> [1,] -1.0319767  1.0319767
+#> [2,]  0.1719961 -0.1719961
+expm::expm(Q) # gives back P
 #>      [,1] [,2]
 #> [1,]  0.4  0.6
 #> [2,]  0.1  0.9
- 
 ```

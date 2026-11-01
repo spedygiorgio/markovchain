@@ -1,7 +1,7 @@
-# Function to check if a Markov chain is irreducible (i.e. ergodic)
+# Check whether a Markov chain is irreducible
 
-This function verifies whether a `markovchain` object transition matrix
-is composed by only one communicating class.
+A Markov chain is irreducible if all its states communicate, i.e. form a
+single communicating class.
 
 ## Usage
 
@@ -13,15 +13,19 @@ is.irreducible(object)
 
 - object:
 
-  A `markovchain` object
+  A [`markovchain`](markovchain-class.md) object.
 
 ## Value
 
-A boolean values.
+`TRUE` if the chain is irreducible, `FALSE` otherwise.
 
 ## Details
 
-It is based on `.communicatingClasses` internal function.
+Irreducibility does not imply aperiodicity: an irreducible chain on
+finitely many states has a unique stationary distribution, but it
+converges to it from every initial state only if it is also aperiodic
+(see [`period()`](structuralAnalysis.md) and
+[`is.regular()`](is.regular.md)).
 
 ## References
 
@@ -29,7 +33,8 @@ Feres, Matlab listings for Markov Chains.
 
 ## See also
 
-[`summary`](https://rdrr.io/r/base/summary.html)
+[`communicatingClasses()`](structuralAnalysis.md),
+[`is.regular()`](is.regular.md), [`period()`](structuralAnalysis.md)
 
 ## Author
 

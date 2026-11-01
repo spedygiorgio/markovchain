@@ -1,37 +1,34 @@
-# Continuous time Markov Chains class
+# Continuous time Markov chain class
 
-The S4 class that describes `ctmc` (continuous time Markov chain)
-objects.
+The S4 class of continuous time Markov chains, described by their
+generator (rate) matrix.
 
 ## Slots
 
 - `states`:
 
-  Name of the states. Must be the same of `colnames` and `rownames` of
-  the generator matrix
+  Names of the states, equal to the row and column names of the
+  generator.
 
 - `byrow`:
 
-  TRUE or FALSE. Indicates whether the given matrix is stochastic by
-  rows or by columns
+  Logical: are the rates out of each state in its row (rows sum to zero)
+  or in its column?
 
 - `generator`:
 
-  Square generator matrix
+  The square generator matrix: non-negative off-diagonal rates, with
+  rows (or columns) summing to zero.
 
 - `name`:
 
-  Optional character name of the Markov chain
+  Optional name of the chain.
 
 ## Note
 
-1.  `ctmc` classes are written using S4 classes
-
-2.  Validation method is used to assess whether either columns or rows
-    totals to zero. Rounding is used up to 5th decimal. If state names
-    are not properly defined for a generator `matrix`, coercing to
-    `ctmc` object leads to overriding states name with artificial "s1",
-    "s2", ... sequence
+The validity method checks that the rows (or columns) of the generator
+sum to zero, rounded to the fifth decimal. If the generator has no state
+names, the states are named "s1", "s2", ...
 
 ## Methods
 
@@ -76,8 +73,9 @@ gen <- matrix(data = c(-3, 3,
 molecularCTMC <- new("ctmc", states = energyStates, 
                      byrow = byRow, generator = gen, 
                      name = "Molecular Transition Model")
-                     steadyStates(molecularCTMC)
+steadyStates(molecularCTMC)
 #>      sigma sigma_star
 #> [1,]  0.25       0.75
-if (FALSE) plot(molecularCTMC) # \dontrun{}
+plot(molecularCTMC)
+
 ```

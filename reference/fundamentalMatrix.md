@@ -44,11 +44,10 @@ matrix.
 
 ## References
 
-Kemeny, J. G. and Snell, J. L. (1976). \*Finite Markov Chains\*.
-Springer.
+Kemeny, J. G. and Snell, J. L. (1976). *Finite Markov Chains*. Springer.
 
-Grinstead, C. M. and Snell, J. L. (1997). \*Introduction to
-Probability\*. American Mathematical Society.
+Grinstead, C. M. and Snell, J. L. (1997). *Introduction to Probability*.
+American Mathematical Society.
 
 ## See also
 

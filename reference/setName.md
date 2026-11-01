@@ -1,6 +1,7 @@
-# Method to set name of markovchain object
+# Set the name of a Markov chain
 
-This method modifies the existing name of markovchain object
+Replaces the name of a [`markovchain`](markovchain-class.md) object (its
+`name` slot).
 
 ## Usage
 
@@ -15,11 +16,19 @@ name(object) <- value
 
 - object:
 
-  A markovchain object
+  A [`markovchain`](markovchain-class.md) object.
 
 - value:
 
-  New name of markovchain object
+  The new name, a character string.
+
+## Value
+
+The object with the new name (used as `name(object) <- value`).
+
+## See also
+
+[`name()`](getName.md) to read it.
 
 ## Author
 
@@ -35,4 +44,6 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
                 name = "A markovchain Object" 
 )
 name(markovB) <- "dangerous mc"
+name(markovB)
+#> [1] "dangerous mc"
 ```

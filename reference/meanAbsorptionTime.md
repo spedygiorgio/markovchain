@@ -26,6 +26,18 @@ state to any of the recurrent ones
 C. M. Grinstead and J. L. Snell. Introduction to Probability. American
 Mathematical Soc., 2012.
 
+## See also
+
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanNumVisits()`](meanNumVisits.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
+
 ## Author
 
 Ignacio Cordón

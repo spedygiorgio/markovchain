@@ -1,4 +1,4 @@
-# Mean num of visits for markovchain, starting at each state
+# Mean number of visits to each state
 
 Given a markovchain object, this function calculates a matrix where the
 element (i, j) represents the expect number of visits to the state j if
@@ -24,6 +24,18 @@ a matrix with the expect number of visits to each state
 ## References
 
 R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
+
+## See also
+
+Other first passage and hitting:
+[`absorptionProbabilities()`](absorptionProbabilities.md),
+[`committorAB()`](committorAB.md), [`firstPassage()`](firstPassage.md),
+[`firstPassageMultiple()`](firstPassageMultiple.md),
+[`hittingProbabilities()`](hittingProbabilities.md),
+[`meanAbsorptionTime()`](meanAbsorptionTime.md),
+[`meanFirstPassageTime()`](meanFirstPassageTime.md),
+[`meanRecurrenceTime()`](meanRecurrenceTime.md),
+[`noofVisitsDist()`](noofVisitsDist.md)
 
 ## Author
 

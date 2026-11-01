@@ -1883,12 +1883,75 @@ Hilbert--Schmidt norm of that space,
 for which \(A\mapsto A^*\) is an isometric involution: \(R\) is then the
 orthogonal projection of \(P\) onto the reversible subspace, and the
 stochasticity and non-negativity constraints are satisfied automatically, so
-no constrained optimization is needed. Two warnings follow from this, both
-documented in \texttt{?closestReversible}. First, \(R\) does \emph{not} minimize the plain
-Frobenius distance, which the return value reports separately as a
-descriptive figure only. Second, the minimization holds \(\pi\) fixed; letting
-the stationary distribution vary as well is a harder optimization problem
-\citep{nielsen2015computing} that is not solved here.
+no constrained optimization is needed. The price is that \(R\) does \emph{not}
+minimize the plain Frobenius distance \(\|P - R\|_F\), which the return value
+reports separately.
+
+That distance is the one used by \cite{nielsen2015computing}, who show that,
+for a fixed \(\pi\), the reversible chain nearest to \(P\) in the Frobenius norm
+solves a convex quadratic program. \texttt{closestReversible(norm\ =\ "frobenius")}
+solves it exactly with \pkg{quadprog}, taking the entries \(R_{ij}\), \(i<j\), as
+unknowns, \(R_{ji}=\pi_i R_{ij}/\pi_j\) by detailed balance and the diagonal
+as the remainder of each row. Here \(\pi\) need not be stationary for \(P\):
+any positive distribution can be imposed, and the result is reversible, and
+therefore stationary, with respect to it. With
+\texttt{stationaryDistribution\ =\ "free"} the stationary distribution is optimized
+too. Every reversible chain is \(R_{ij} = S_{ij}/\sum_k S_{ik}\) for a symmetric
+non-negative matrix of flows \(S\), so the problem becomes a smooth
+minimization over \(S\), solved by L-BFGS-B from several starting points and
+then polished by the convex problem at the \(\pi\) found. The set of reversible
+chains is not convex, so this is a local optimum. Nielsen and Weber keep
+\(\pi\) fixed: this extension is specific to the package.
+
+For the weather chain the three answers differ:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> weatherFrobenius <- closestReversible(mcWeather, norm = "frobenius")
+R> set.seed(2)
+R> weatherFree <- closestReversible(mcWeather, "free", norm = "frobenius")
+R> c(additive = weatherReversible$frobeniusDistance,
++   fixedPi = weatherFrobenius$distance,
++   freePi = weatherFree$distance)
+\end{CodeInput}
+\begin{CodeOutput}
+   additive     fixedPi      freePi 
+0.011496118 0.010500198 0.009021996 
+\end{CodeOutput}
+\begin{CodeInput}
+R> rbind(original = steadyStates(mcWeather)[1, ],
++       freePi = weatherFree$stationaryDistribution)
+\end{CodeInput}
+\begin{CodeOutput}
+             sunny    cloudy      rain
+original 0.4636364 0.3181818 0.2181818
+freePi   0.4648462 0.3195120 0.2156418
+\end{CodeOutput}
+\begin{CodeInput}
+R> weatherFree$chain
+\end{CodeInput}
+\begin{CodeOutput}
+New Name (closest reversible) 
+ A  3 - dimensional discrete Markov Chain defined by the following states: 
+ sunny, cloudy, rain 
+ The transition matrix  (by rows)  is defined as follows: 
+           sunny    cloudy       rain
+sunny  0.7013060 0.2046385 0.09405552
+cloudy 0.2977209 0.4000115 0.30226760
+rain   0.2027499 0.4478637 0.34938639
+\end{CodeOutput}
+\end{CodeChunk}
+
+The weather chain is close to reversible: the free solution is 22\% closer
+to it than the additive reversibilization, and it moves the stationary
+probability of each state by less than 0.003.
+
+No published example of the Frobenius problem with its data was found to
+reproduce. The fixed-\(\pi\) solutions agree with those of
+\texttt{closest\_reversible} in \pkg{PyDTMC}, which uses an iterative solver, to
+about \(10^{-5}\), with a distance that is never larger. For the free problem
+the tests check that the distance found is not larger than the best fixed-\(\pi\)
+solution on a fine grid of stationary distributions.
 
 \subsection{Mixing time}\label{mixing-time}
 
@@ -2874,10 +2937,10 @@ R> weathersOfDays <- rmarkovchain(n = 220, object = mcWeather, t0 = "sunny")
 R> weathersOfDays[1:30]
 \end{CodeInput}
 \begin{CodeOutput}
- [1] "cloudy" "rain"   "rain"   "rain"   "cloudy" "rain"   "rain"   "cloudy"
- [9] "sunny"  "rain"   "cloudy" "cloudy" "cloudy" "rain"   "rain"   "rain"  
-[17] "cloudy" "rain"   "rain"   "rain"   "rain"   "cloudy" "cloudy" "sunny" 
-[25] "sunny"  "sunny"  "sunny"  "sunny"  "cloudy" "sunny" 
+ [1] "cloudy" "rain"   "cloudy" "sunny"  "sunny"  "sunny"  "sunny"  "cloudy"
+ [9] "cloudy" "cloudy" "sunny"  "sunny"  "sunny"  "rain"   "cloudy" "cloudy"
+[17] "cloudy" "rain"   "sunny"  "sunny"  "sunny"  "cloudy" "cloudy" "sunny" 
+[25] "sunny"  "rain"   "cloudy" "cloudy" "cloudy" "rain"  
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -2894,7 +2957,7 @@ R> patientStates[1:10,]
    iteration values
 1          1      H
 2          1      H
-3          1      D
+3          1      I
 4          1      D
 5          1      D
 6          2      H
@@ -2906,6 +2969,83 @@ R> patientStates[1:10,]
 \end{CodeChunk}
 
 Two advanced parameters of \texttt{rmarkovchain} select the implementation, among four options: \proglang{R}, \proglang{R} in parallel, \proglang{C++} and \proglang{C++} in parallel. The boolean parameters \texttt{useRcpp} and \texttt{parallel} choose the implementation; the default is \code{useRcpp = TRUE} and \code{parallel = FALSE}, i.e.~the sequential \proglang{C++} implementation, which is generally faster than the \proglang{R} one. On multicore processors, setting \texttt{parallel\ =\ TRUE} takes advantage of several cores; when both \texttt{useRcpp\ =\ TRUE} and \texttt{parallel\ =\ TRUE}, the parallelization relies on the \pkg{RcppParallel} package \citep{pkg:RcppParallel}. Every simulated sequence draws from its own random number generator, seeded from \proglang{R}'s generator, so that \texttt{set.seed()} gives the same result whatever the number of threads. That number is set by the argument \texttt{num.cores}; when it is \texttt{NULL}, the default, the options \texttt{RcppParallel.numThreads} and \texttt{Ncpus} and the environment variables \texttt{RCPP\_PARALLEL\_NUM\_THREADS} and \texttt{OMP\_NUM\_THREADS} are honoured, in this order, and otherwise at most two threads are used, as required by the CRAN policy.
+
+\subsubsection{Plotting sequences}\label{plotting-sequences}
+
+\texttt{plotSequence()} draws simulated or observed sequences in the two basic
+graphs of sequence analysis \citep{gabadinho2011}: the \emph{sequence index plot},
+in which each sequence is a row of cells coloured by state, and the \emph{state
+distribution plot}, which shows the proportion of sequences in each state at
+each time point. Given a \texttt{markovchain}, it simulates \texttt{nSequences} sequences of
+\texttt{steps} time points from an initial distribution given as in \texttt{redistribute()};
+given observed data (a sequence, a list of sequences, or a matrix or data
+frame with one sequence per row), it plots them, and a \texttt{chain} can be supplied
+to overlay the state distribution it predicts from the observed one at the
+first time point. Figure \ref{fig:plot-sequence-weather} shows thirty weather
+sequences started from rain and the distribution of three hundred of them,
+which approaches the stationary distribution in about five days, as the
+expected distribution (dashed) does.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> par(mfrow = c(1, 2))
+R> plotSequence(mcWeather, nSequences = 30, steps = 30, initial = "rain",
++              seed = 1, main = "Weather sequences")
+R> plotSequence(mcWeather, type = "distribution", nSequences = 300, steps = 15,
++              initial = "rain", seed = 1, main = "Weather state distribution")
+\end{CodeInput}
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/plot-sequence-weather-1} 
+
+}
+
+\caption[Weather chain]{Weather chain: thirty simulated sequences started from rain (left) and the state distribution of three hundred, with the distribution expected from the chain (right).}\label{fig:plot-sequence-weather}
+\end{figure}
+\end{CodeChunk}
+
+With observed data the second graph is a check of time-homogeneity. The
+\texttt{holson} data contain the trajectories of 1000 individuals over eleven time
+points; Figure \ref{fig:plot-sequence-holson} sorts sixty of them by their
+first state and compares the distribution of all of them with the one
+predicted by a single time-homogeneous chain fitted to the whole data set.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(holson)
+R> holsonChain <- markovchainFit(holson[, 2:12])$estimate
+R> par(mfrow = c(1, 2))
+R> plotSequence(holson[1:60, 2:12], sort = "first", main = "Holson trajectories")
+R> holsonPlot <- plotSequence(holson[, 2:12], type = "distribution",
++                            chain = holsonChain, main = "Holson distribution")
+\end{CodeInput}
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{/home/runner/work/markovchain/markovchain/docs/articles/an_introduction_to_markovchain_package_files/figure-latex/plot-sequence-holson-1} 
+
+}
+
+\caption[Holson data]{Holson data: sixty trajectories sorted by their first state (left) and the state distribution of the 1000 trajectories against a time-homogeneous chain fitted to them (right).}\label{fig:plot-sequence-holson}
+\end{figure}
+\begin{CodeInput}
+R> gap <- holsonPlot$proportions - holsonPlot$expected
+R> round(gap[, c(2, 6, 9, 11)], 3)
+\end{CodeInput}
+\begin{CodeOutput}
+    [,1]   [,2]   [,3]   [,4]
+1  0.014  0.005 -0.029 -0.005
+2  0.004  0.001  0.013  0.007
+3 -0.017 -0.006  0.016 -0.002
+\end{CodeOutput}
+\end{CodeChunk}
+
+Most individuals stay in state \texttt{1} for the whole period. The proportions
+observed at each time point stay within three percentage points of those
+predicted by the fitted chain (the largest gap, 2.9 points for state \texttt{1}, is
+at the ninth time point), so the plot gives no strong sign that the transition
+probabilities change over time; \texttt{assessStationarity()} tests it formally. The values returned invisibly
+(the sequences as plotted and the observed and expected proportions) allow
+such comparisons to be made numerically.
 
 \subsection{Lumpability and aggregation of states}\label{lumpability-and-aggregation-of-states}
 
@@ -3403,19 +3543,19 @@ Weather MLE
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.3947368 0.35526316 0.2500000
-rain   0.4909091 0.38181818 0.1272727
-sunny  0.2045455 0.07954545 0.7159091
+          cloudy      rain     sunny
+cloudy 0.4285714 0.2987013 0.2727273
+rain   0.5813953 0.1627907 0.2558140
+sunny  0.1919192 0.1313131 0.6767677
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedMLE$standardError
 \end{CodeInput}
 \begin{CodeOutput}
            cloudy       rain      sunny
-cloudy 0.05606853 0.05489838 0.04966996
-rain   0.06740884 0.06550962 0.04493923
-sunny  0.04299929 0.02884480 0.04807467
+cloudy 0.05639586 0.05215845 0.05075368
+rain   0.07523217 0.05629860 0.06653783
+sunny  0.03957938 0.03394440 0.04700668
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3438,10 +3578,10 @@ Weather LAPLACE
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.3947126 0.35525450 0.2500329
-rain   0.4908232 0.38179175 0.1273851
-sunny  0.2045893 0.07963194 0.7157787
+          cloudy      rain     sunny
+cloudy 0.4285343 0.2987148 0.2727509
+rain   0.5812224 0.1629096 0.2558680
+sunny  0.1919620 0.1313743 0.6766636
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3453,9 +3593,9 @@ R> createSequenceMatrix(stringchar = weathersOfDays)
 \end{CodeInput}
 \begin{CodeOutput}
        cloudy rain sunny
-cloudy     30   27    19
-rain       27   21     7
-sunny      18    7    63
+cloudy     33   23    21
+rain       25    7    11
+sunny      19   13    67
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3527,19 +3667,19 @@ BootStrap Estimate
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.4039584 0.34401538 0.2520262
-rain   0.4619274 0.42383613 0.1142365
-sunny  0.2139972 0.09615059 0.6898522
+          cloudy      rain     sunny
+cloudy 0.4281249 0.2784138 0.2934612
+rain   0.5826604 0.1538263 0.2635133
+sunny  0.1765214 0.1437399 0.6797386
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedBOOT$standardError
 \end{CodeInput}
 \begin{CodeOutput}
            cloudy       rain      sunny
-cloudy 0.07466146 0.06249693 0.05123581
-rain   0.03943952 0.06057494 0.04185424
-sunny  0.05526397 0.02727959 0.04988424
+cloudy 0.05504898 0.05025193 0.05483873
+rain   0.05661726 0.05881230 0.06499345
+sunny  0.03585856 0.03563507 0.03333761
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3583,13 +3723,13 @@ where \(n_{ij}\) is the entry of the frequency matrix and \(p_{ij}\) is the entr
 R> weatherFittedMLE$logLikelihood
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -203.3674
+[1] -208.2122
 \end{CodeOutput}
 \begin{CodeInput}
 R> weatherFittedBOOT$logLikelihood
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -203.7924
+[1] -208.4616
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3620,16 +3760,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy       rain      sunny
-cloudy 0.2576246 0.22152365 0.15160591
-rain   0.3846273 0.30511143 0.03220371
-sunny  0.1056818 0.04268359 0.59208089
+          cloudy       rain     sunny
+cloudy 0.3202309 0.17992186 0.1859793
+rain   0.4716926 0.03855633 0.1361285
+sunny  0.1062399 0.07389647 0.6143981
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5502921 0.4665071 0.3524466
-rain   0.5392274 0.5425608 0.1962693
-sunny  0.3223126 0.1496176 0.7876235
+cloudy 0.5360190 0.3769058 0.4009431
+rain   0.6936282 0.2690963 0.3908981
+sunny  0.2468029 0.2135834 0.7450791
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3646,16 +3786,16 @@ $confidenceLevel
 [1] 0.95
 
 $lowerEndpointMatrix
-          cloudy      rain     sunny
-cloudy 0.2894737 0.2500000 0.1447368
-rain   0.3636364 0.2545455 0.0000000
-sunny  0.1250000 0.0000000 0.6363636
+          cloudy       rain     sunny
+cloudy 0.3116883 0.18181818 0.1558442
+rain   0.4418605 0.02325581 0.1162791
+sunny  0.1111111 0.05050505 0.5959596
 
 $upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.5262267 0.4867530 0.3814898
-rain   0.6329951 0.5239042 0.2693588
-sunny  0.3049268 0.1799268 0.8162905
+cloudy 0.5464247 0.4165545 0.3905805
+rain   0.7298932 0.3112885 0.4043118
+sunny  0.2895186 0.2289126 0.7743671
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -3778,6 +3918,116 @@ Unnamed Markov chain
 \end{CodeChunk}
 
 If any transition contains \texttt{NA}, it will be ignored in the results as the above example showed.
+
+\subsubsection{Uncertainty of derived properties}\label{uncertainty-of-derived-properties}
+
+The standard errors above refer to the transition probabilities. Properties
+of the chain computed from them, such as the SLEM, the spectral gap, the
+relaxation time or the mixing time, are returned by the corresponding
+functions as single numbers, although they inherit the sampling error of the
+estimated matrix through non-linear, and sometimes non-smooth,
+transformations. \texttt{bootstrapProperties()} estimates the chain by maximum
+likelihood from one or more sequences (or from transition counts) and gives
+bootstrap standard errors and percentile or basic intervals for any such
+property. With \texttt{method\ =\ "multinomial"}, the default, each replicate redraws
+the departures of every state from its estimated row, keeping the number of
+visits fixed, which is the conditional bootstrap of \cite{basawa1990};
+\texttt{method\ =\ "parametric"} simulates new sequences of the observed lengths from
+the estimated chain \citep{kulperger1989}. Besides the four default
+properties, the entropy rate, Kemeny's constant, the stationary distribution
+and any function of a \texttt{markovchain} returning numbers can be bootstrapped.
+For the Alofi rainfall data:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(rain)
+R> rainBoot <- bootstrapProperties(rain$rain, nboot = 1000, seed = 1)
+R> rainBoot
+\end{CodeInput}
+\begin{CodeOutput}
+Bootstrap of a Markov chain on 3 states (multinomial, 1000 replicates)
+
+               estimate      se   2.5%  97.5%
+slem             0.4106 0.02982 0.3533 0.4664
+spectralGap      0.5894 0.02982 0.5336 0.6467
+relaxationTime   1.6970 0.08648 1.5460 1.8740
+mixingTime       2.0000 0.10440 2.0000 2.0000
+
+Percentile 95% intervals.
+\end{CodeOutput}
+\begin{CodeInput}
+R> bootstrapProperties(rain$rain, nboot = 1000, seed = 1,
++   statistics = list(dryDays = function(mc) steadyStates(mc)[1, "0"],
++                     "kemenyConstant"))
+\end{CodeInput}
+\begin{CodeOutput}
+Bootstrap of a Markov chain on 3 states (multinomial, 1000 replicates)
+
+               estimate      se   2.5%  97.5%
+dryDays          0.5009 0.02161 0.4582 0.5427
+kemenyConstant   2.7450 0.09742 2.5790 2.9510
+
+Percentile 95% intervals.
+\end{CodeOutput}
+\end{CodeChunk}
+
+The rainfall chain forgets its initial state quickly: its SLEM is 0.41 with
+a standard error of 0.03, and the mixing time is two days in practically
+every replicate, so its interval collapses to a single value. No published
+example of bootstrap intervals for these properties with available data was
+found; the asymptotic theory of the spectral gap of reversible chains
+estimated from one path is developed by \cite{hsu2019mixing}. The coverage
+of the intervals was therefore checked by simulation. For each of two chains
+and two methods, 300 sequences were simulated, a 95\% percentile interval
+with 499 replicates was computed from each, and the proportion of intervals
+containing the true value was recorded (the whole study takes about half a
+minute, since the replicates of the built-in statistics are computed in
+\proglang{C++}):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> coverage <- function(truth, n, method, reps = 300) {
++   theta <- c(slem(truth), relaxationTime(truth), mixingTime(truth))
++   hits <- replicate(reps, {
++     x <- rmarkovchain(n - 1, truth, t0 = states(truth)[1], include.t0 = TRUE)
++     ci <- bootstrapProperties(x, nboot = 499, method = method,
++       statistics = c("slem", "relaxationTime", "mixingTime"))$ci
++     ci[, 1] <= theta & theta <= ci[, 2]
++   })
++   rowMeans(hits)
++ }
+\end{CodeInput}
+\end{CodeChunk}
+
+\begin{center}
+\begin{tabular}{llrrrr}
+\hline
+Chain & Method & $n$ & SLEM & Relaxation time & Mixing time \\
+\hline
+Alofi rainfall (SLEM 0.41) & multinomial & 1096 & 0.950 & 0.950 & 1.000 \\
+ & parametric & 1096 & 0.943 & 0.943 & 1.000 \\
+ & multinomial & 200 & 0.943 & 0.943 & 0.997 \\
+ & parametric & 200 & 0.963 & 0.963 & 1.000 \\
+Slowly mixing (SLEM 0.88) & multinomial & 300 & 0.950 & 0.950 & 0.950 \\
+ & parametric & 300 & 0.977 & 0.977 & 0.983 \\
+\hline
+\end{tabular}
+\end{center}
+
+The first chain is the one estimated from the rainfall data; the second has
+0.9 on the diagonal and rare transitions of probability 0.02, so that its
+relaxation time is 8.3 steps. With 300 simulations the Monte Carlo standard
+error of a coverage of 0.95 is about 0.013, so the observed coverage of the
+spectral properties agrees with the nominal level; the spectral gap, equal to
+one minus the SLEM for these chains, has the same coverage as the SLEM. The
+intervals of the mixing time, an integer, are conservative when the chain
+mixes fast. For the slowly mixing chain the intervals are wide (on average
+12.8 steps for a relaxation time of 8.3) and skewed, and in two or three
+replicates out of 499 the rare transitions vanish, the replicate is
+reducible and the spectral properties cannot be computed: such replicates are
+counted in \texttt{failures} and left out. Wide intervals of this kind are an
+accurate description of how little 300 observations reveal about a slowly
+mixing chain, not a failure of the method.
 
 \subsection{Prediction}\label{prediction}
 
@@ -4151,6 +4401,127 @@ G-squared = 1.8881, df = 6, p-value = 0.9297
 
 For sparse data, the asymptotic \(\chi^2\) approximation underlying any of the tests above should be interpreted with care; the \texttt{method\ =\ "simulation"} option provides a Monte Carlo alternative that does not rely on the asymptotic approximation.
 
+\subsubsection{Distances and divergences between two chains}\label{distances-and-divergences-between-two-chains}
+
+A test says whether two estimated chains differ by more than sampling noise;
+it does not say by how much. \texttt{compareChains()} reports both kinds of
+quantities for two chains on the same states, matched by name. The
+row-wise distances compare the next-step distributions from each state: the
+largest total variation distance \(\max_i \frac12\sum_j|P_{ij}-Q_{ij}|\),
+the same distances averaged with the stationary distribution of the first
+chain, the largest Hellinger distance, the Frobenius and maximum entrywise
+distances, and the total variation distance between the two stationary
+distributions. These follow the definitions of \pkg{PyDTMC} and give the
+same values.
+
+The divergences include the Kullback-Leibler divergence \emph{rate}
+\[
+D(P\,\|\,Q) = \sum_i \pi_i \sum_j P_{ij}\log\frac{P_{ij}}{Q_{ij}},
+\]
+also available on its own as \texttt{divergenceRate()}. For irreducible chains it
+is the limit of \(\frac1n D(X_1,\ldots,X_n\,\|\,Y_1,\ldots,Y_n)\)
+\citep{rached2004kullback}, and therefore the average information per step
+for discriminating the first chain from the second; it is not symmetric,
+and it is infinite when the first chain makes a transition that the second
+forbids. It also connects the distances to the tests above. With the
+departure frequencies of a sample as weights, \(2N D(\hat P\,\|\,Q)\), \(N\)
+being the number of transitions, is the likelihood-ratio statistic of the
+hypothesis that the sample comes from \(Q\), and summing it over the samples
+of a homogeneity test, with \(Q\) the pooled estimate, gives Kullback's
+information statistic. For the two six-state samples of the \texttt{kullback}
+dataset, Table 9.2 of \cite{kullback1962tests} reports \(2\hat I = 160.961\):
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(kullback)
+R> pooled <- kullback[[1]] + kullback[[2]]
+R> pooledChain <- new("markovchain", states = rownames(pooled),
++                    transitionMatrix = pooled / rowSums(pooled))
+R> sum(sapply(kullback, function(counts) {
++   sampleChain <- new("markovchain", states = rownames(counts),
++                      transitionMatrix = counts / rowSums(counts))
++   2 * sum(counts) *
++     divergenceRate(sampleChain, pooledChain, weights = rowSums(counts))
++ }))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 160.9606
+\end{CodeOutput}
+\begin{CodeInput}
+R> verifyHomogeneity(kullback, verbose = FALSE)$statistic
+\end{CodeInput}
+\begin{CodeOutput}
+G-squared 
+ 160.9606 
+\end{CodeOutput}
+\end{CodeChunk}
+
+Both computations reproduce the published value. The degrees of freedom of
+\texttt{verifyHomogeneity()} are 29, not the 30 of the paper's formula \(r(s-1)(r-1)\),
+because no transition from \texttt{d} to \texttt{a} is observed in either sample and that
+cell is not counted.
+
+Given two sequences, \texttt{compareChains()} estimates both chains on the union of
+their states and adds the test of equality of \texttt{verifyHomogeneity()}. Here the
+sequences \texttt{x1} and \texttt{x2} simulated above from the same chain are compared with
+one simulated from a chain with a different first row:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> other_P <- homogeneity_P
+R> other_P["a", ] <- c(.50, .30, .20)
+R> other_mc <- new("markovchain", states = c("a", "b", "c"),
++                 transitionMatrix = other_P)
+R> set.seed(321)
+R> x3 <- rmarkovchain(500, other_mc, t0 = "a")
+R> compareChains(x1, x2)
+\end{CodeInput}
+\begin{CodeOutput}
+Comparison of two Markov chains on 3 states
+
+Distances:
+        totalVariation weightedTotalVariation              hellinger 
+               0.05407                0.02475                0.04958 
+             frobenius                maximum             stationary 
+               0.07660                0.05407                0.03439 
+
+Divergences (rates weighted by the stationary distributions):
+       rateXY        rateYX      maxRowXY jensenShannon 
+     0.003850      0.003793      0.009558      0.002455 
+
+Test that both sequences come from the same chain:
+  G-squared = 1.888, df = 6, p-value = 0.9297
+\end{CodeOutput}
+\begin{CodeInput}
+R> compareChains(x1, x3)
+\end{CodeInput}
+\begin{CodeOutput}
+Comparison of two Markov chains on 3 states
+
+Distances:
+        totalVariation weightedTotalVariation              hellinger 
+               0.15680                0.09775                0.11700 
+             frobenius                maximum             stationary 
+               0.23820                0.15680                0.07174 
+
+Divergences (rates weighted by the stationary distributions):
+       rateXY        rateYX      maxRowXY jensenShannon 
+      0.02686       0.02448       0.05299       0.01363 
+
+Test that both sequences come from the same chain:
+  G-squared = 12.68, df = 6, p-value = 0.04832
+\end{CodeOutput}
+\end{CodeChunk}
+
+The two samples of the same chain are at a weighted total variation
+distance of a few hundredths, which the test attributes to sampling noise.
+For the second pair the largest row-wise distance, 0.16, is that of the row
+of \texttt{a}, an estimate of the 0.2 by which the two chains differ there; but
+sampling noise alone produces distances of 0.11 in the row of \texttt{b}, and the
+test rejects equality at the 5\% level only just (\(p \approx 0.05\)). With
+500 observations a difference of this size is close to the limit of what can
+be detected.
+
 \subsection{Pseudo-Bayesian estimation}\label{pseudo-bayesian-estimation}
 
 \cite{Hu2002} show an empirical quasi-Bayesian method to estimate transition matrices, given an empirical \(\hat{P}\) transition matrix (estimated using the classical approach) and an a priori estimate \(Q\). In particular, each row of the matrix is estimated using the linear combination \(\alpha \cdot Q+\left(1-\alpha\right) \cdot P\), where \(\alpha\) is defined for each row as Equation \ref{eq:pseudobayes} shows
@@ -4214,9 +4585,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-           s1         s2
-s1 -0.1000000  0.1000000
-s2  0.0806874 -0.0806874
+           s1          s2
+s1 0.03742072 -0.03742072
+s2 0.05471698 -0.05471698
 \end{CodeOutput}
 \begin{CodeInput}
 R> biggerSample<-rmarkovchain(n=60,object = trueMc)
@@ -4227,9 +4598,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-            s1         s2
-s1 -0.10000000 0.10000000
-s2 -0.09574646 0.09574646
+            s1          s2
+s1 -0.01671885  0.01671885
+s2  0.03764148 -0.03764148
 \end{CodeOutput}
 \begin{CodeInput}
 R> bigSample<-rmarkovchain(n=100,object = trueMc)
@@ -4240,9 +4611,9 @@ R> pseudoBayesEstimator(
 + ) - trueMc@transitionMatrix
 \end{CodeInput}
 \begin{CodeOutput}
-             s1          s2
-s1 -0.026752827 0.026752827
-s2 -0.001470588 0.001470588
+           s1          s2
+s1 0.05301222 -0.05301222
+s2 0.07310699 -0.07310699
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4396,50 +4767,50 @@ Bayesian Fit
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.2923077 0.35384615 0.3538462
-rain   0.5365854 0.31707317 0.1463415
-sunny  0.2277228 0.03960396 0.7326733
+          cloudy      rain     sunny
+cloudy 0.3750000 0.3437500 0.2812500
+rain   0.2950820 0.3770492 0.3278689
+sunny  0.2560976 0.1829268 0.5609756
 
 
 $expectedValue
-          cloudy       rain     sunny
-cloudy 0.2941176 0.35294118 0.3529412
-rain   0.5227273 0.31818182 0.1590909
-sunny  0.2307692 0.04807692 0.7211538
+          cloudy      rain     sunny
+cloudy 0.3731343 0.3432836 0.2835821
+rain   0.2968750 0.3750000 0.3281250
+sunny  0.2588235 0.1882353 0.5529412
 
 $standardError
            cloudy       rain      sunny
-cloudy 0.05485322 0.05753055 0.05753055
-rain   0.07445856 0.06943297 0.05452441
-sunny  0.04111711 0.02087731 0.04376245
+cloudy 0.05864965 0.05757859 0.05465982
+rain   0.05666911 0.06004806 0.05823810
+sunny  0.04722951 0.04215183 0.05361330
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
 [1] 0.92
 
 $confidenceInterval$lowerEndpointMatrix
-          cloudy       rain      sunny
-cloudy 0.2024315 0.25531059 0.25531059
-rain   0.3917409 0.20261227 0.07519196
-sunny  0.1624958 0.01813559 0.64169687
+          cloudy      rain     sunny
+cloudy 0.2731590 0.2458239 0.1925325
+rain   0.2022249 0.2726645 0.2300146
+sunny  0.1802077 0.1197595 0.4582499
 
 $confidenceInterval$upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.3941775 0.4565555 0.4565555
-rain   0.6522800 0.4452100 0.2643798
-sunny  0.3061880 0.0898865 0.7947391
+cloudy 0.4783496 0.4472152 0.3835650
+rain   0.4003057 0.4827417 0.4336671
+sunny  0.3452775 0.2668332 0.6459104
 
 
 $logLikelihood
-[1] -169.9034
+[1] -207.746
 \end{CodeOutput}
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix) 
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -156.7419
+[1] -161.2824
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4457,50 +4828,50 @@ Bayesian Fit
  A  3 - dimensional discrete Markov Chain defined by the following states: 
  cloudy, rain, sunny 
  The transition matrix  (by rows)  is defined as follows: 
-          cloudy       rain     sunny
-cloudy 0.2923077 0.35384615 0.3538462
-rain   0.5365854 0.31707317 0.1463415
-sunny  0.2277228 0.03960396 0.7326733
+          cloudy      rain     sunny
+cloudy 0.3750000 0.3437500 0.2812500
+rain   0.2950820 0.3770492 0.3278689
+sunny  0.2560976 0.1829268 0.5609756
 
 
 $expectedValue
-          cloudy       rain     sunny
-cloudy 0.2941176 0.35294118 0.3529412
-rain   0.5227273 0.31818182 0.1590909
-sunny  0.2307692 0.04807692 0.7211538
+          cloudy      rain     sunny
+cloudy 0.3731343 0.3432836 0.2835821
+rain   0.2968750 0.3750000 0.3281250
+sunny  0.2588235 0.1882353 0.5529412
 
 $standardError
            cloudy       rain      sunny
-cloudy 0.05485322 0.05753055 0.05753055
-rain   0.07445856 0.06943297 0.05452441
-sunny  0.04111711 0.02087731 0.04376245
+cloudy 0.05864965 0.05757859 0.05465982
+rain   0.05666911 0.06004806 0.05823810
+sunny  0.04722951 0.04215183 0.05361330
 
 $confidenceInterval
 $confidenceInterval$confidenceLevel
 [1] 0.92
 
 $confidenceInterval$lowerEndpointMatrix
-          cloudy       rain      sunny
-cloudy 0.2024315 0.25531059 0.25531059
-rain   0.3917409 0.20261227 0.07519196
-sunny  0.1624958 0.01813559 0.64169687
+          cloudy      rain     sunny
+cloudy 0.2731590 0.2458239 0.1925325
+rain   0.2022249 0.2726645 0.2300146
+sunny  0.1802077 0.1197595 0.4582499
 
 $confidenceInterval$upperEndpointMatrix
           cloudy      rain     sunny
-cloudy 0.3941775 0.4565555 0.4565555
-rain   0.6522800 0.4452100 0.2643798
-sunny  0.3061880 0.0898865 0.7947391
+cloudy 0.4783496 0.4472152 0.3835650
+rain   0.4003057 0.4827417 0.4336671
+sunny  0.3452775 0.2668332 0.6459104
 
 
 $logLikelihood
-[1] -169.9034
+[1] -207.746
 \end{CodeOutput}
 \begin{CodeInput}
 R> predictiveDistribution(weathersOfDays[1:200], 
 +                        weathersOfDays[201:365],hyperparam = hyperMatrix2)
 \end{CodeInput}
 \begin{CodeOutput}
-[1] -156.7419
+[1] -161.2824
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4529,9 +4900,9 @@ R> inferHyperparam(data = weathersOfDays[1:15])
 \begin{CodeOutput}
 $dataInference
        cloudy rain sunny
-cloudy      4    4     2
-rain        4    3     1
-sunny       2    1     2
+cloudy      2    2     2
+rain        2    3     2
+sunny       2    2     6
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4693,9 +5064,9 @@ R> rctmc(n = 3, ctmc = molecularCTMC, initDist = statesDist, out.type = "df", in
 \end{CodeInput}
 \begin{CodeOutput}
       states               time
-1 sigma_star 0.0204442738157116
-2      sigma   1.27491917071131
-3 sigma_star   1.39663587353391
+1 sigma_star 0.0610785912722349
+2      sigma   1.85906361780109
+3 sigma_star    2.0077206621969
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -4708,11 +5079,10 @@ R> rctmc(n = Inf, ctmc = molecularCTMC, initDist = statesDist, T = 2)
 \end{CodeInput}
 \begin{CodeOutput}
 [[1]]
-[1] "sigma"      "sigma_star" "sigma"      "sigma_star" "sigma"     
-[6] "sigma_star"
+[1] "sigma"      "sigma_star"
 
 [[2]]
-[1] 0.00000000 0.07218092 0.07432856 0.78912847 1.58864151 1.78023148
+[1] 0.0000000 0.1090702
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -5184,7 +5554,7 @@ R> sapply(c(5, 10, 25), relativeError)
 \begin{CodeOutput}
                     [,1]         [,2]         [,3]
 tauchen     8.139476e+01 4.979587e+01 9.328706e+00
-rouwenhorst 1.738363e-14 1.043018e-13 5.562760e-13
+rouwenhorst 1.390690e-13 2.607544e-13 1.425457e-12
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -5194,6 +5564,126 @@ effectively 0), while \texttt{tauchen()}'s fixed-width grid is off by tens of
 percent at small sizes and still off by nearly 10\% at 25 states -- worse,
 at 25 states, than \texttt{rouwenhorst()} already is at only 5 -- matching Kopecky
 and Suen's own qualitative conclusion.
+
+\paragraph{Quadrature-based discretizations}\label{quadrature-based-discretizations}
+
+A third family of methods replaces the integral that defines the next
+period's expectations with a quadrature rule. If the process moves from \(x\)
+to \(y\) with density \(f(x, y)\), and \(y_1, \ldots, y_n\) and \(w_1, \ldots, w_n\)
+are the nodes and weights of a rule for \(\int g(y)\,dy\), then
+\[
+P_{ij} = \frac{w_j f(y_i, y_j)}{\sum_k w_k f(y_i, y_k)}
+\]
+is a transition matrix whose conditional expectations
+\(\sum_j P_{ij} h(y_j)\) approximate \(E[h(Y_{t+1}) \mid Y_t = y_i]\)
+\citep{tauchenHussey1991}. \texttt{fitFunction()} builds this chain for any
+kernel \(f\) and any of seven rules with positive weights (Gauss-Legendre,
+Gauss-Chebyshev, Fejér, Gauss-Hermite, trapezoid, Simpson and midpoint);
+the Gauss rules are computed from the eigenvalues of the Jacobi matrix
+\citep{golubWelsch1969}. It returns the chain, the nodes and the weights.
+
+\texttt{tauchenHussey()} is the special case of an AR(1) with Gauss-Hermite nodes
+for a normal distribution of standard deviation \(\hat\sigma\). Tauchen and
+Hussey take \(\hat\sigma=\sigma\), the conditional standard deviation, which
+concentrates the nodes too much when the process is persistent;
+\cite{floden2008} proposes the weighted choice
+\(\hat\sigma = w\sigma + (1-w)\sigma_y\) with \(w = 1/2 + \rho/4\)
+(\texttt{sigmaWeight\ =\ "floden"}), and also reports \(\hat\sigma=\sigma_y\)
+(\texttt{sigmaWeight\ =\ "unconditional"}). His Table 1 gives, for the income process labelled HSZ
+(\(\rho = 0.95\), \(\sigma_\varepsilon^2 = 0.030\),
+so that \(\sigma_\varepsilon = 0.1732\) and \(\sigma_y = 0.5547\)), the
+conditional and unconditional standard deviations implied by each chain.
+The chains built here reproduce all twelve values:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> impliedSd <- function(out) {
++   P <- out$chain@transitionMatrix
++   z <- out$states
++   p <- as.numeric(steadyStates(out$chain))
++   condVar <- P %*% z^2 - (P %*% z)^2
++   c(sigmaEps = sqrt(sum(p * condVar)),
++     sigmaY = sqrt(sum(p * (z - sum(p * z))^2)))
++ }
+R> designs <- expand.grid(size = c(5, 9),
++                        sigmaWeight = c("conditional", "unconditional", "floden"),
++                        stringsAsFactors = FALSE)
+R> ours <- t(mapply(function(n, s)
++   impliedSd(tauchenHussey(alpha = 0, sigma = sqrt(0.03), rho = 0.95,
++                           size = n, sigmaWeight = s)),
++   designs$size, designs$sigmaWeight))
+R> floden <- rbind(c(0.1576, 0.3275), c(0.1670, 0.4303),
++                 c(0.0101, 0.5622), c(0.0561, 0.5556),
++                 c(0.1410, 0.4792), c(0.1692, 0.5407))
+R> colnames(floden) <- c("sigmaEps (Floden)", "sigmaY (Floden)")
+R> cbind(designs, round(ours, 4), floden)
+\end{CodeInput}
+\begin{CodeOutput}
+  size   sigmaWeight sigmaEps sigmaY sigmaEps (Floden) sigmaY (Floden)
+1    5   conditional   0.1576 0.3275            0.1576          0.3275
+2    9   conditional   0.1670 0.4303            0.1670          0.4303
+3    5 unconditional   0.0101 0.5622            0.0101          0.5622
+4    9 unconditional   0.0561 0.5556            0.0561          0.5556
+5    5        floden   0.1410 0.4792            0.1410          0.4792
+6    9        floden   0.1692 0.5407            0.1692          0.5407
+\end{CodeOutput}
+\end{CodeChunk}
+
+The original choice understates the unconditional standard deviation by
+41\% with five nodes, the unconditional one makes the chain almost
+deterministic (a conditional standard deviation of 0.0101 instead of
+0.1732), and Flodén's weighting is the best compromise of the three. The
+same table also reports the autocorrelation implied by each chain, which is
+not reproduced here: the paper does not say how it is computed, and the
+lag-one autocorrelation under the stationary distribution of these chains
+does not match it when the approximation is coarse (0.8757 against 0.9073 for
+the original method with five nodes; 0.5976 against 0.5992 for the \(\rho=0.6\)
+process of the same table). The standard deviations of the \(\rho=0.6\)
+process are reproduced too, and both sets are in the package's tests.
+
+\texttt{fitFunction()} is not restricted to Gaussian processes. A proportion, such
+as a loss ratio or an occupancy rate, can be modelled on \([0, 1]\) with a
+Beta transition density whose mean moves linearly with the current value,
+\(Y_{t+1} \mid Y_t = x \sim \mathrm{Beta}(\kappa m(x), \kappa(1 - m(x)))\) with
+\(m(x) = 0.2 + 0.6x\). Its stationary mean is \(0.5\) and, since
+\(\mathrm{Var}(Y_{t+1}\mid Y_t=x) = m(x)(1-m(x))/(\kappa+1)\), its stationary
+variance solves \(v = 0.36v + (0.25 - 0.36v)/(\kappa+1)\). The chains built with
+two rules approach it as the number of nodes grows:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> kappa <- 20
+R> m <- function(x) 0.2 + 0.6 * x
+R> betaKernel <- function(x, y) dbeta(y, kappa * m(x), kappa * (1 - m(x)))
+R> stationaryVariance <- function(out) {
++   p <- as.numeric(steadyStates(out$chain))
++   sum(p * (out$states - sum(p * out$states))^2)
++ }
+R> (trueVariance <- (0.25 / (kappa + 1)) / (1 - 0.36 + 0.36 / (kappa + 1)))
+\end{CodeInput}
+\begin{CodeOutput}
+[1] 0.01811594
+\end{CodeOutput}
+\begin{CodeInput}
+R> sapply(c(5, 10, 20), function(n)
++   c(nodes = n,
++     gaussLegendre = stationaryVariance(fitFunction(betaKernel, n)),
++     trapezoid = stationaryVariance(fitFunction(betaKernel, n, "trapezoid"))))
+\end{CodeInput}
+\begin{CodeOutput}
+                    [,1]        [,2]        [,3]
+nodes         5.00000000 10.00000000 20.00000000
+gaussLegendre 0.01245155  0.01811544  0.01811594
+trapezoid     0.01771685  0.01811055  0.01811588
+\end{CodeOutput}
+\end{CodeChunk}
+
+With five nodes Gauss-Legendre places no node close enough to the end
+points and misses almost a third of the variance, while the trapezoid rule is
+already within 3\%; from ten nodes on both are within \(0.03\%\) of the
+exact value. For the same kernel, interval and number of nodes the
+Gauss-Legendre, Fejér, trapezoid and Simpson rules give the same matrices
+as \texttt{fit\_function} in \pkg{PyDTMC}.
 
 \subsection{Actuarial science}\label{app:act}
 
@@ -5364,16 +5854,16 @@ R> rmarkovchain(n = 10, object = transitionsSince100,
 \end{CodeInput}
 \begin{CodeOutput}
       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
- [1,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [2,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [3,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [1,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [2,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "D"   "D"   "D"   "D"  
+ [3,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
  [4,] "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [5,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [6,] "A"  "A"  "A"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [7,] "A"  "A"  "A"  "I"  "I"  "I"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [8,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
- [9,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
-[10,] "A"  "A"  "I"  "I"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [5,] "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"   "A"   "A"   "D"  
+ [6,] "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [7,] "A"  "A"  "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [8,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+ [9,] "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
+[10,] "A"  "A"  "A"  "D"  "D"  "D"  "D"  "D"  "D"  "D"   "D"   "D"   "D"  
       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
  [1,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
  [2,] "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"   "D"  
@@ -5401,7 +5891,7 @@ R> expected_period_disabled<-mean(rowSums((temp)))
 R> expected_period_disabled
 \end{CodeInput}
 \begin{CodeOutput}
-[1] 1.12
+[1] 0.86
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -5412,7 +5902,7 @@ Assuming that the health insurance will pay a benefit of 12000 per year disabled
 R> mean(rowMeans(12000*temp%*%( matrix((1+0.02)^-seq(from=0, to=ncol(temp)-1)))))
 \end{CodeInput}
 \begin{CodeOutput}
-[1] 11077.49
+[1] 8576.511
 \end{CodeOutput}
 \end{CodeChunk}
 

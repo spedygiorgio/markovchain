@@ -60,9 +60,9 @@ adding any other per-column constant to \\S\\ would give the same
 directional derivatives, but this one has the convenient side effect
 that `sensitivity(object, state)[state, ]` is the sensitivity of
 "leaving row `state` unchanged", which is informative on its own (it
-need not be zero: the \*direction\* \\d=e\_{\mathrm{state}}\\ is
-generally not itself a valid zero-sum perturbation by itself, only
-differences of rows are).
+need not be zero: the *direction* \\d=e\_{\mathrm{state}}\\ is generally
+not itself a valid zero-sum perturbation by itself, only differences of
+rows are).
 
 **The common two-state case.** The usual textbook question – "increase
 \\p\_{k,\mathrm{to}}\\ by \\\varepsilon\\, decrease

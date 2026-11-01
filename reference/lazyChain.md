@@ -40,7 +40,7 @@ chain's transition matrix is \$\$L = \alpha I + (1-\alpha) P.\$\$
 Laziness is a standard device for forcing aperiodicity without changing
 where the chain can go or its stationary distribution:
 
-- \\L\\ has the \*same\* stationary distribution as \\P\\ (if \\\pi
+- \\L\\ has the *same* stationary distribution as \\P\\ (if \\\pi
   P=\pi\\ then \\\pi L = \alpha\pi + (1-\alpha)\pi P = \pi\\), and the
   same communicating classes, since \\L\_{ij}\>0 \iff P\_{ij}\>0\\ for
   \\i\ne j\\.
@@ -57,7 +57,7 @@ where the chain can go or its stationary distribution:
   (1-\alpha)\lambda\\ for the corresponding eigenvalue \\\lambda\\ of
   \\P\\: laziness shrinks the whole non-trivial spectrum towards
   \\\alpha\\, so [`slem`](slem.md) and
-  [`impliedTimescales`](impliedTimescales.md) generally get \*worse\*
+  [`impliedTimescales`](impliedTimescales.md) generally get *worse*
   (mixing gets slower) as `alpha` increases towards `1`.
 
 \\\alpha=0\\ returns \\P\\ unchanged; \\\alpha=1\\ returns the identity

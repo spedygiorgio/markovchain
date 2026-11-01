@@ -1,6 +1,7 @@
-# Function to get the transition probabilities from initial to subsequent states.
+# Transition probability between two states
 
-This is a convenience function to get transition probabilities.
+Returns the one-step probability of moving from state `t0` to state
+`t1`.
 
 ## Usage
 
@@ -15,26 +16,24 @@ transitionProbability(object, t0, t1)
 
 - object:
 
-  A `markovchain` object.
+  A [`markovchain`](markovchain-class.md) object.
 
 - t0:
 
-  Initial state.
+  Name of the current state.
 
 - t1:
 
-  Subsequent state.
+  Name of the next state.
 
 ## Value
 
-Numeric Vector
-
-## References
-
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall
-2010
+A number, the transition probability.
 
 ## See also
+
+[`conditionalDistribution()`](conditionalDistribution.md) for the whole
+distribution of the next state.
 
 [`markovchain`](markovchain-class.md)
 

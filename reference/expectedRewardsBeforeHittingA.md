@@ -1,7 +1,8 @@
-# Expected first passage Rewards for a set of states in a markovchain
+# Expected reward collected before hitting a set of states
 
-Given a markovchain object and reward values for every state, function
-calculates expected reward value for a set A of states after n steps.
+Expected total reward collected by a Markov chain started in `state` at
+the steps \\1, \dots, n\\ it spends outside the set `A` before entering
+it, when state \\i\\ pays `rewards[i]` at each visit.
 
 ## Usage
 
@@ -13,34 +14,53 @@ expectedRewardsBeforeHittingA(markovchain, A, state, rewards, n)
 
 - markovchain:
 
-  the markovchain-class object
+  A [`markovchain`](markovchain-class.md) object.
 
 - A:
 
-  set of states for first passage expected reward
+  Names of the states of the target set.
 
 - state:
 
-  initial state
+  Name of the initial state, not in `A`.
 
 - rewards:
 
-  vector depicting rewards coressponding to states
+  Numeric vector with the reward of each state, in the order of
+  `states(markovchain)` (the rewards of the states in `A` are not used).
 
 - n:
 
-  no of steps of the process
+  Number of steps, a non-negative integer.
 
 ## Value
 
-returns a expected reward (numerical value) as described above
+A number, the expected reward.
 
 ## Details
 
-The function returns the value of expected first passage rewards given
-rewards coressponding to every state, an initial state and number of
-steps.
+With \\Q\\ the transition matrix restricted to the states outside `A`,
+the value is \\\sum\_{k=1}^{n} (Q^k r)\_{s}\\, with \\s\\ the initial
+state: the reward of the initial state at time 0 is not included.
+
+## See also
+
+Other rewards: [`expectedRewards()`](expectedRewards.md)
 
 ## Author
 
 Sai Bhargav Yalamanchi, Vandit Jain
+
+## Examples
+
+``` r
+transMatr <- matrix(c(0.5, 0.3, 0.2,
+                      0.2, 0.5, 0.3,
+                      0, 0, 1), nrow = 3, byrow = TRUE)
+mc <- new("markovchain", states = c("a", "b", "c"),
+          transitionMatrix = transMatr)
+# reward 1 per step spent in "a" or "b" before absorption in "c"
+expectedRewardsBeforeHittingA(mc, A = "c", state = "a",
+                              rewards = c(1, 1, 0), n = 100)
+#> [1] 3.210526
+```

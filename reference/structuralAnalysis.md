@@ -1,7 +1,9 @@
-# Various function to perform structural analysis of DTMC
+# Structural analysis of a Markov chain
 
-These functions return absorbing and transient states of the
-`markovchain` objects.
+Classification of the states of a Markov chain from the graph of its
+possible transitions: communicating, recurrent and transient classes and
+states, absorbing states, the canonical form of the transition matrix,
+and the period.
 
 ## Usage
 
@@ -33,8 +35,9 @@ canonicForm(object)
 
 - `period`:
 
-  returns a integer number corresponding to the periodicity of the
-  Markov chain (if it is irreducible)
+  returns an integer, the period of the Markov chain (the greatest
+  common divisor of the lengths of its cycles); it is defined for an
+  irreducible chain (otherwise a warning is given and 0 is returned)
 
 - `absorbingStates`:
 
@@ -104,9 +107,9 @@ recurrentClasses(mc)
 #> [[1]]
 #> [1] "b"
 #> 
-recurrentClasses(mc)
+transientClasses(mc)
 #> [[1]]
-#> [1] "b"
+#> [1] "a" "c"
 #> 
 absorbingStates(mc)
 #> [1] "b"

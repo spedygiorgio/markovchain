@@ -1,6 +1,7 @@
-# Method to retrieve name of markovchain object
+# Name of a Markov chain
 
-This method returns the name of a markovchain object
+Returns the name of a [`markovchain`](markovchain-class.md) object (its
+`name` slot).
 
 ## Usage
 
@@ -15,7 +16,15 @@ name(object)
 
 - object:
 
-  A markovchain object
+  A [`markovchain`](markovchain-class.md) object.
+
+## Value
+
+A character string.
+
+## See also
+
+`name<-` to change it.
 
 ## Author
 

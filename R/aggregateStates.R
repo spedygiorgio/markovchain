@@ -272,7 +272,7 @@
 # Choosing k automatically: look at the sorted eigenvalue moduli and cut where the largest gap is.
 .chooseKByEigengap <- function(P) {
   n <- nrow(P)
-  ev <- sort(Mod(eigen(P, only.values = TRUE)$values), decreasing = TRUE)
+  ev <- sort(Mod(.eigenvaluesCached(P)), decreasing = TRUE)
   gaps <- ev[-n] - ev[-1L]
   candidates <- seq(2L, n - 1L)
   candidates[which.max(gaps[candidates])]

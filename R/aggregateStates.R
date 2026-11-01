@@ -235,11 +235,27 @@
 # only k macro-states remain.
 # Top-down: begin with one group per state; at each step try the merge of every candidate pair and keep
 # the one with the smallest loss, until k groups remain.
+#
+# Speed (since version 1.2.1): the divergence of a partition depends on the chain only through
+# the z x z matrix W of the stationary flows between macro-states, W[a, b] = sum over i in a,
+# j in b of pi[i] * P[i, j], with row sums r[a] and macro-state weights Pi[a] = sum of pi[i]:
+#   divergence = const - sum W log2 W + sum_a (r[a] + Pi[a]) log2 Pi[a]
+# (the constant does not depend on the partition; see .topDownMergeScores()). Merging two
+# macro-states only changes two rows and two columns of W, so every candidate merge is scored
+# in O(z) instead of the O(n^3) of building its macro-chain and divergence from scratch. The
+# scores are used only to select: when two or more candidates are within a tiny tolerance of the
+# best, they are ranked with the original functions, and the macro-chain of the chosen merge is
+# built with .calculateQTopDown() as before. The result is therefore exactly the one of the
+# original algorithm, which evaluated every candidate in full.
 .aggregateSpectralTopDown <- function(P, pi, k) {
   n <- nrow(P)
   Q <- P
   eta <- diag(n)
   iterations <- n - k
+
+  # flows between the current macro-states (initially the states themselves) and their weights
+  W <- pi * P
+  Pi <- pi
 
   # Each iteration merges two macro-states, from n of them down to k.
   # Q is the current macro-chain and eta the current n x (n - i) membership matrix.
@@ -249,21 +265,86 @@
     # the pairs of macro-states worth trying, proposed from the spectrum of Q
     pairs <- .buildPairCandidates(Q, qPi)
 
-    # evaluate the merge of each pair on the ORIGINAL chain and keep the cheapest
-    divergences <- numeric(length(pairs))
-    candidates <- vector("list", length(pairs))
-    for (j in seq_along(pairs)) {
-      res <- .calculateQTopDown(P, pi, eta, pairs[[j]][1L], pairs[[j]][2L])
-      candidates[[j]] <- res
-      divergences[j] <- .klDivergenceAggregate(P, pi, res$phi, res$Q)
+    # score the merge of each pair on the ORIGINAL chain (through W) and keep the cheapest
+    scores <- .topDownMergeScores(W, Pi, pairs)
+    best <- which.min(scores)
+    tied <- which(scores <= scores[best] + 1e-9 * max(1, abs(scores[best])))
+    if (length(tied) > 1L) {
+      # near tie: rank these candidates with the original, full computation
+      divergences <- vapply(tied, function(j) {
+        res <- .calculateQTopDown(P, pi, eta, pairs[[j]][1L], pairs[[j]][2L])
+        .klDivergenceAggregate(P, pi, res$phi, res$Q)
+      }, numeric(1))
+      best <- tied[which.min(divergences)]
     }
 
-    best <- which.min(divergences)
-    Q <- candidates[[best]]$Q
-    eta <- candidates[[best]]$phi
+    vi0 <- pairs[[best]][1L]
+    vi1 <- pairs[[best]][2L]
+    res <- .calculateQTopDown(P, pi, eta, vi0, vi1)
+    Q <- res$Q
+    eta <- res$phi
+
+    # merge vi1 into vi0 in W and Pi, with the column order of .calculateQTopDown()
+    W[vi0, ] <- W[vi0, ] + W[vi1, ]
+    W[, vi0] <- W[, vi0] + W[, vi1]
+    W <- W[-vi1, -vi1, drop = FALSE]
+    Pi[vi0] <- Pi[vi0] + Pi[vi1]
+    Pi <- Pi[-vi1]
   }
 
   list(Q = Q, phi = eta)
+}
+
+# Scores of the candidate merges of the top-down heuristic: for each pair (a, b), the divergence of
+# the partition after merging a and b, up to a constant common to all candidates.
+#
+# With f(x) = x log2(x) (f(0) = 0), r = rowSums(W) and Pi the weights of the macro-states,
+# .klDivergenceAggregate() equals
+#   sum_ij pi[i] P[i, j] log2 P[i, j] - sum_i pi[i] log2 pi[i]       (does not depend on the partition)
+#   - sum_ab f(W[a, b]) + sum_a (r[a] + Pi[a]) log2 Pi[a],
+# because log2 Q[a, b] = log2 W[a, b] - log2 Pi[a]. Merging a and b into c replaces rows a, b by
+# their sum and columns a, b by their sum, so only those entries and the two weights change.
+.topDownMergeScores <- function(W, Pi, pairs) {
+  # x log2(x), with 0 log2(0) = 0
+  f <- function(x) {
+    y <- x * log2(x)
+    y[!(x > 0)] <- 0
+    y
+  }
+  A <- vapply(pairs, `[`, integer(1), 1L)
+  B <- vapply(pairs, `[`, integer(1), 2L)
+  m <- length(A)
+  F <- f(W)
+  rowF <- rowSums(F)
+  colF <- colSums(F)
+  r <- rowSums(W)
+
+  # entries that disappear: rows a and b (all columns) and columns a and b (the other rows)
+  removed <- rowF[A] + rowF[B] +
+    colF[A] - F[cbind(A, A)] - F[cbind(B, A)] +
+    colF[B] - F[cbind(A, B)] - F[cbind(B, B)]
+
+  # entries of the merged row and column, without the merged diagonal entry
+  rowM <- W[A, , drop = FALSE] + W[B, , drop = FALSE]      # one merged row per candidate
+  colM <- W[, A, drop = FALSE] + W[, B, drop = FALSE]      # one merged column per candidate
+  idx <- seq_len(m)
+  fRow <- f(rowM)
+  fCol <- f(colM)
+  addedRow <- rowSums(fRow) - fRow[cbind(idx, A)] - fRow[cbind(idx, B)]
+  addedCol <- colSums(fCol) - fCol[cbind(A, idx)] - fCol[cbind(B, idx)]
+  diagM <- W[cbind(A, A)] + W[cbind(A, B)] + W[cbind(B, A)] + W[cbind(B, B)]
+  added <- addedRow + addedCol + f(diagM)
+
+  # the weights of the two macro-states and of the merged one
+  g <- function(w, s) {
+    y <- s * log2(w)
+    y[!(w > 0)] <- 0
+    y
+  }
+  nodes <- g(Pi[A] + Pi[B], r[A] + r[B] + Pi[A] + Pi[B]) -
+    g(Pi[A], r[A] + Pi[A]) - g(Pi[B], r[B] + Pi[B])
+
+  as.numeric(removed - added + nodes)
 }
 
 # Number of macro-states suggested by the eigengap heuristic: the number of

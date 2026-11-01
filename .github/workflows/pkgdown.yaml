@@ -108,7 +108,7 @@ jobs:
 
       - name: Restore TinyTeX
         id: texcache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.TinyTeX
           key: tinytex-${{ runner.os }}-${{ hashFiles('.github/tinytex-packages.txt') }}-${{ steps.texkey.outputs.month }}

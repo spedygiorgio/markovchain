@@ -31,7 +31,6 @@ returns
 \deqn{K = \sum_j \pi_j m_{ij} = \mathrm{tr}(Z)-1.}
 The value does not depend on the starting state \eqn{i}.
 
-
 Irreducibility is sufficient; aperiodicity is not required. Reducible chains
 can have multiple stationary distributions and are rejected.
 
@@ -62,5 +61,5 @@ D. Van Nostrand, Princeton, NJ.
 }
 \seealso{
 \code{\link{meanFirstPassageTime}},
-  \code{\link{steadyStates}}, \code{\link{is.irreducible}}
+\code{\link{steadyStates}}, \code{\link{is.irreducible}}
 }

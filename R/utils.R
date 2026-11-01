@@ -14,26 +14,35 @@
 # Returns:
 #   a list with `matrix` (dimnames filled in) and `states`
 .fillDimNames <- function(matr, states = NULL) {
+  # Row and column names of a square matrix identify its states, so they must exist and agree.
   rowNames <- rownames(matr)
   colNames <- colnames(matr)
 
+  # Case 1: no names at all -> use the supplied states, or the labels '1','2',...
   if (is.null(rowNames) && is.null(colNames)) {
     stateNames <- if (is.null(states)) as.character(seq_len(nrow(matr))) else states
     rownames(matr) <- stateNames
     colnames(matr) <- stateNames
+  # Case 2: only column names exist -> copy them to the rows
   } else if (is.null(rowNames)) {
     rownames(matr) <- colNames
+  # Case 3: only row names exist -> copy them to the columns
   } else if (is.null(colNames)) {
     colnames(matr) <- rowNames
+  # Case 4: both exist but differ -> the row names win
   } else if (!setequal(rowNames, colNames)) {
     colnames(matr) <- rowNames
   }
 
+  # If the caller did not supply states, take them from the (now complete) row names
   if (is.null(states)) states <- rownames(matr)
 
   list(matrix = matr, states = states)
 }
 
+# Computes, once, every structural property of a chain (classes, hitting probabilities,
+# steady states, ...) and stores them in a list. Used by the test suite so expensive
+# quantities are not recomputed for each expectation.
 precomputeData <- function(mc) {
   list(
     object = mc,
@@ -57,6 +66,7 @@ precomputeData <- function(mc) {
   )
 }
 
+# Same idea as precomputeData(), but only for the stationary distributions.
 precomputeSteadyStates <- function(mc) {
   list(
     object = mc,

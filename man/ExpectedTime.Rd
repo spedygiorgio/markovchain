@@ -2,40 +2,62 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{ExpectedTime}
 \alias{ExpectedTime}
-\title{Returns expected hitting time from state i to state j}
+\title{Expected hitting time of a state in a continuous time Markov chain}
 \usage{
-ExpectedTime(C,i,j,useRCpp)
+ExpectedTime(C, i, j, useRCpp = TRUE)
 }
 \arguments{
-\item{C}{A CTMC S4 object}
+\item{C}{A \code{\link[=ctmc-class]{ctmc}} object.}
 
-\item{i}{Initial state i}
+\item{i, j}{Indices (positions in \code{states(C)}) of the starting and target
+states.}
 
-\item{j}{Final state j}
-
-\item{useRCpp}{logical whether to use Rcpp}
+\item{useRCpp}{Logical: solve the linear system in C++ (default) or with
+\code{\link[=solve]{solve()}}?}
 }
 \value{
-A numerical value that returns expected hitting times from i to j
+A number, the expected hitting time of \code{j} from \code{i} (0 if
+\code{i == j}).
 }
 \description{
-Returns expected hitting time from state i to state j
+Expected time for a continuous time Markov chain started in
+state \code{i} to reach state \code{j} for the first time.
 }
 \details{
-According to the theorem, holding times for all states except j should be greater than 0.
+The expected hitting times \eqn{m_k} of \code{j} from the states
+\eqn{k \ne j} solve \eqn{\sum_{l \ne j} Q_{kl} m_l = -1} (Norris 1997,
+Section 3.3). Every state other than \code{j} must have a positive exit
+rate, otherwise an error is given; the times are finite only if \code{j} is
+reachable from every state, otherwise the system is singular.
 }
 \examples{
-states <- c("a","b","c","d")
-byRow <- TRUE
-gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
-nrow = 4,byrow = byRow, dimnames = list(states,states))
-ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-ExpectedTime(ctmc,1,4,TRUE)
-
+states <- c("a", "b", "c", "d")
+gen <- matrix(c(-1, 1/2, 1/2, 0,
+                1/4, -1/2, 0, 1/4,
+                1/6, 0, -1/3, 1/6,
+                0, 0, 0, 0), nrow = 4, byrow = TRUE,
+              dimnames = list(states, states))
+ctmc <- new("ctmc", states = states, byrow = TRUE, generator = gen,
+            name = "testctmc")
+ExpectedTime(ctmc, 1, 4) # from "a" to the absorbing state "d"
 }
 \references{
-Markovchains, J. R. Norris, Cambridge University Press
+Norris, J. R. (1997). Markov Chains. Cambridge University
+Press.
+}
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{is.TimeReversible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Vandit Jain
 }
+\concept{continuous time Markov chains}

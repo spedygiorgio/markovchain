@@ -9,7 +9,9 @@ higherOrderLogLik(sequence, fit = NULL, order = 2, start = NULL)
 \arguments{
 \item{sequence}{The empirical sequence of states, a character vector or a
 vector coercible to character (numbers and factors are matched to the
-states of the fit as character strings).}
+states of the fit as character strings), or a list of such vectors, taken
+as independent sequences: the log-likelihood is then the sum over the
+sequences.}
 
 \item{fit}{The list returned by \code{\link{fitHigherOrder}} (or by
 \code{\link{fitMTD}}) for \code{sequence}. If \code{NULL}, \code{fitHigherOrder(sequence, order)} is
@@ -20,70 +22,70 @@ computed.}
 
 \item{start}{Index of the first observation included in the likelihood.
 Defaults to \code{order + 1}, the earliest observation a model of that
-order can predict.}
+order can predict. For a list of sequences it applies to each sequence,
+and the sequences with fewer than \code{start} observations are skipped.}
 }
 \value{
 A list with components \code{logLik}, \code{deviance}, \code{AIC},
-  \code{BIC}, \code{nobs} (number of observations entering the likelihood),
-  \code{npar}, \code{order} and \code{start}. The log-likelihood is
-  \code{-Inf} if an observed transition has probability zero under the model
-  (possible only for a sequence other than the one the model was fitted on).
+\code{BIC}, \code{nobs} (number of observations entering the likelihood),
+\code{npar}, \code{order} and \code{start}. The log-likelihood is
+\code{-Inf} if an observed transition has probability zero under the model
+(possible only for a sequence other than the one the model was fitted on).
 }
 \description{
 Evaluates the log-likelihood of an empirical sequence under the
-  higher order Markov chain returned by \code{\link{fitHigherOrder}}, and
-  derives the deviance, AIC and BIC, so that models of different orders can
-  be compared.
+higher order Markov chain returned by \code{\link{fitHigherOrder}}, and
+derives the deviance, AIC and BIC, so that models of different orders can
+be compared.
 }
 \details{
 The fitted model is the mixture-transition-distribution model of
-  Raftery (1985) in the form used by Ching et al.: the probability of moving
-  to state \eqn{x_t} given the past is
-  \deqn{P(x_t \mid x_{t-1}, \dots, x_{t-k}) = \sum_{i=1}^{k} \lambda_i\, Q_i[x_t, x_{t-i}],}
-  where \eqn{Q_i} is the lag-\eqn{i} transition matrix (see
-  \code{\link{seq2matHigh}}) and \eqn{k} is the order. The log-likelihood is
-  the sum of the logarithms of these probabilities over the observations
-  \eqn{t = } \code{start}, \eqn{\dots}, \eqn{T}, and the deviance is
-  \eqn{-2} times the log-likelihood.
+Raftery (1985) in the form used by Ching et al.: the probability of moving
+to state \eqn{x_t} given the past is
+\deqn{P(x_t \mid x_{t-1}, \dots, x_{t-k}) = \sum_{i=1}^{k} \lambda_i\, Q_i[x_t, x_{t-i}],}
+where \eqn{Q_i} is the lag-\eqn{i} transition matrix (see
+\code{\link{seq2matHigh}}) and \eqn{k} is the order. The log-likelihood is
+the sum of the logarithms of these probabilities over the observations
+\eqn{t = } \code{start}, \eqn{\dots}, \eqn{T}, and the deviance is
+\eqn{-2} times the log-likelihood.
 
-  Two points matter when interpreting the output. First,
-  \code{fitHigherOrder} chooses \eqn{\lambda} by default
-  (\code{method = "lsq"}) by least squares on the stationary distribution,
-  not by maximum likelihood, so the value returned is the log-likelihood
-  \emph{of the fitted model}, not the maximum attainable one; with
-  \code{method = "mle"} the weights maximize this log-likelihood for the
-  observations a model of that order can predict. Second, a model of order \eqn{k} can only be evaluated from
-  observation \eqn{k + 1} onwards; to compare orders on exactly the same data
-  set \code{start} to \eqn{1 +} the largest order compared, otherwise the
-  models are evaluated on different numbers of observations and neither the
-  log-likelihood nor the information criteria are comparable.
+Two points matter when interpreting the output. First,
+\code{fitHigherOrder} chooses \eqn{\lambda} by default
+(\code{method = "mle"}) to maximize this log-likelihood, conditionally on
+the empirical lag matrices, for the observations a model of that order can
+predict; with \code{method = "lsq"} the weights come from a least squares
+fit on the stationary distribution, not from maximum likelihood, so the
+value returned is the log-likelihood \emph{of the fitted model}, not the
+maximum attainable one. Second, a model of order \eqn{k} can only be evaluated from
+observation \eqn{k + 1} onwards; to compare orders on exactly the same data
+set \code{start} to \eqn{1 +} the largest order compared, otherwise the
+models are evaluated on different numbers of observations and neither the
+log-likelihood nor the information criteria are comparable.
 
-  The number of parameters used for AIC and BIC is the dimension of the
-  set of transition laws the model can represent,
-  \eqn{(r - 1)(1 + k (r - 1))}, with \eqn{r} the number of states: each of
-  the \eqn{k} lag matrices has \eqn{r (r - 1)} free probabilities and there
-  are \eqn{k - 1} free weights, but the weights of a mixture of lag
-  matrices are not identifiable (a distribution common to all departure
-  states can be moved from \eqn{\lambda_j Q_j} to \eqn{\lambda_i Q_i}
-  without changing any transition probability), which removes
-  \eqn{r (k - 1)} parameters from the naive count
-  \eqn{k\, r (r - 1) + (k - 1)}: for each next state the transition
-  probability is a sum of one term for each lag, a main-effects function of
-  the \eqn{k} past states, with \eqn{1 + k (r - 1)} free coefficients.
-  For \eqn{k = 1} both counts are \eqn{r (r - 1)}. For a fit returned by
-  \code{\link{fitMTD}}, whose lags share a single matrix, it is
-  \eqn{r (r - 1) + (k - 1)}.
+The number of parameters used for AIC and BIC is the dimension of the
+set of transition laws the model can represent,
+\eqn{(r - 1)(1 + k (r - 1))}, with \eqn{r} the number of states: each of
+the \eqn{k} lag matrices has \eqn{r (r - 1)} free probabilities and there
+are \eqn{k - 1} free weights, but the weights of a mixture of lag
+matrices are not identifiable (a distribution common to all departure
+states can be moved from \eqn{\lambda_j Q_j} to \eqn{\lambda_i Q_i}
+without changing any transition probability), which removes
+\eqn{r (k - 1)} parameters from the naive count
+\eqn{k\, r (r - 1) + (k - 1)}: for each next state the transition
+probability is a sum of one term for each lag, a main-effects function of
+the \eqn{k} past states, with \eqn{1 + k (r - 1)} free coefficients.
+For \eqn{k = 1} both counts are \eqn{r (r - 1)}. For a fit returned by
+\code{\link{fitMTD}}, whose lags share a single matrix, it is
+\eqn{r (r - 1) + (k - 1)}.
 }
 \examples{
 sequence <- c("a", "a", "b", "b", "a", "c", "b", "a", "b", "c", "a", "b",
               "c", "a", "b", "c", "a", "b", "a", "b")
 # compare orders 1 and 2 on the same observations (start = 3)
-if (requireNamespace("Rsolnp", quietly = TRUE)) {
-  fit1 <- fitHigherOrder(sequence, order = 1)
-  fit2 <- fitHigherOrder(sequence, order = 2)
-  sapply(list(order1 = fit1, order2 = fit2), function(f)
-    unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
-}
+fit1 <- fitHigherOrder(sequence, order = 1)
+fit2 <- fitHigherOrder(sequence, order = 2)
+sapply(list(order1 = fit1, order2 = fit2), function(f)
+  unlist(higherOrderLogLik(sequence, f, start = 3)[c("logLik", "deviance", "AIC", "BIC")]))
 
 }
 \references{
@@ -95,5 +97,5 @@ chains. In Markov Chains (pp. 141-176). Springer US.
 }
 \seealso{
 \code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
-  \code{\link{higherOrderPredict}}
+\code{\link{higherOrderPredict}}
 }

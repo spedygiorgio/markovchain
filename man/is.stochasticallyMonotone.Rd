@@ -5,7 +5,7 @@
 \alias{is.stochasticallyMonotone,markovchain-method}
 \alias{is.stochasticallyMonotone,matrix-method}
 \alias{is.stochasticallyMonotone,ANY-method}
-\title{Check if a Markov chain is stochastically monotone}
+\title{Check whether a Markov chain is stochastically monotone}
 \usage{
 is.stochasticallyMonotone(object)
 
@@ -16,11 +16,35 @@ is.stochasticallyMonotone(object)
 \S4method{is.stochasticallyMonotone}{ANY}(object)
 }
 \arguments{
-\item{object}{A markovchain object or a transition matrix.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object, or a
+row-stochastic transition matrix.}
 }
 \value{
-A boolean value.
+\code{TRUE} if the chain is stochastically monotone, \code{FALSE} otherwise.
 }
 \description{
-Verifies if the transition matrix of the Markov chain is stochastically monotone.
+A Markov chain on ordered states is stochastically monotone
+if starting from a higher state never makes the next state
+stochastically smaller: for every pair of consecutive states \eqn{i},
+\eqn{i + 1} and every \eqn{j}, \eqn{\sum_{l \le j} P_{i+1, l} \le
+  \sum_{l \le j} P_{i, l}}.
+}
+\details{
+The states are taken in the order of the transition matrix, and
+the inequalities are checked up to a tolerance of \eqn{10^{-10}}.
+}
+\examples{
+# a birth-death chain is monotone
+P <- matrix(c(0.7, 0.3, 0,
+              0.2, 0.5, 0.3,
+              0, 0.4, 0.6), nrow = 3, byrow = TRUE,
+            dimnames = list(c("low", "mid", "high"), c("low", "mid", "high")))
+is.stochasticallyMonotone(new("markovchain", transitionMatrix = P))
+# reversing the order of the rows breaks monotonicity
+is.stochasticallyMonotone(P[3:1, ])
+}
+\references{
+Keilson, J. and Kester, A. (1977). Monotone matrices and
+monotone Markov processes. Stochastic Processes and their Applications
+5(3), 231-241.
 }

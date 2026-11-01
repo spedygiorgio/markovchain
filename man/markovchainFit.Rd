@@ -5,7 +5,7 @@
 \alias{markovchainFit}
 \alias{.markovchainFitRcpp}
 \alias{createSequenceMatrix}
-\title{Function to fit a discrete Markov chain}
+\title{Fit a discrete time Markov chain}
 \usage{
 .markovchainFitRcpp(
   data,
@@ -37,7 +37,10 @@ markovchainFit(data, method = "mle", byrow = TRUE, nboot = 10L,
   progress = FALSE, num.cores = NULL)
 }
 \arguments{
-\item{data}{It can be a character vector or a \deqn{n x n} matrix or a \deqn{n x n} data frame or a list}
+\item{data}{The observed sequence(s): a character vector (one sequence), a
+list of character vectors (independent sequences), or a matrix or data
+frame with one trajectory per row (per column if \code{byrow = FALSE}) and one
+time per column.}
 
 \item{method}{Method used to estimate the Markov chain. Either "mle", "map", "bootstrap" or "laplace".
 All four are available for a single sequence. For a list of
@@ -54,22 +57,21 @@ chain is stored by row either way.}
 
 \item{nboot}{Number of bootstrap replicates in case "bootstrap" is used.}
 
-\item{laplacian}{Laplacian smoothing parameter, default zero. It is only used when "laplace" method 
+\item{laplacian}{Laplacian smoothing parameter, default zero. It is only used when "laplace" method
 is chosen.}
 
 \item{name}{Optional character for name slot.}
 
 \item{parallel}{Use parallel processing when performing Boostrap estimates.}
 
-\item{confidencelevel}{\deqn{\alpha} level for conficence intervals width. 
-Used only when \code{method} equal to "mle".}
+\item{confidencelevel}{Confidence level of the intervals (default 0.95).}
 
-\item{confint}{a boolean to decide whether to compute Confidence Interval or not.}
+\item{confint}{Logical: compute standard errors and confidence intervals
+(default \code{TRUE})?}
 
-\item{hyperparam}{Hyperparameter matrix for the a priori distribution. If none is provided, 
-default value of 1 is assigned to each parameter. This must be of size
-\deqn{k x k} where k is the number of states in the chain and the values
-should typically be non-negative integers.}
+\item{hyperparam}{For \code{method = "map"}, the matrix of Dirichlet
+hyperparameters, \eqn{k \times k} for \eqn{k} states, with the states as
+dimnames (see \code{\link[=inferHyperparam]{inferHyperparam()}}). The default sets all of them to 1.}
 
 \item{sanitize}{how to deal with the states that have no observed outgoing
 transition, which is what \code{possibleStates} typically
@@ -86,14 +88,18 @@ making every unobserved state absorbing; this also gives a
 stochastic matrix, but adds no transition that was never
 observed (see #213).}
 
-\item{possibleStates}{Possible states which are not present in the given sequence}
+\item{possibleStates}{States to include in the result even if they do not
+appear in the data.}
 
 \item{progress}{Should a text progress bar be shown? It is only used by
 the "bootstrap" method, the other methods being fast; see Details.}
 
-\item{stringchar}{It can be a \deqn{n x n} matrix or a character vector or a list}
+\item{stringchar}{For \code{createSequenceMatrix()}: a character vector (one
+sequence), a list of sequences, or a two-column matrix of transitions
+(from, to), one per row.}
 
-\item{toRowProbs}{converts a sequence matrix into a probability matrix}
+\item{toRowProbs}{Logical: return the transition frequencies (each row
+divided by its total) instead of the counts?}
 
 \item{absorbingStates}{Character vector of states that are known a priori to be
 absorbing. The corresponding rows are set to the identity row after MLE
@@ -110,19 +116,35 @@ supported only for \code{method = "mle"}.}
 as CRAN policy requires. Ignored when \code{parallel = FALSE}.}
 }
 \value{
-A list containing an estimate, log-likelihood, and, when "bootstrap" method is used, a matrix 
-        of standards deviations and the bootstrap samples. When the "mle", "bootstrap" or "map" method 
-        is used, the lower and upper confidence bounds are returned along with the standard error. 
-        The "map" method also returns the expected value of the parameters with respect to the 
-        posterior distribution.
+\code{markovchainFit()} returns a list whose element \code{estimate} is the
+fitted \code{\link[=markovchain-class]{markovchain}} object. The other elements
+depend on the method:
+\itemize{
+\item \code{"mle"}: \code{standardError}, \code{confidenceLevel}, \code{lowerEndpointMatrix},
+\code{upperEndpointMatrix} (when \code{confint = TRUE}) and \code{logLikelihood};
+\item \code{"laplace"}: \code{logLikelihood};
+\item \code{"map"}: \code{expectedValue} (posterior mean of the transition matrix),
+\code{standardError}, \code{confidenceInterval} and \code{logLikelihood};
+\item \code{"bootstrap"}: \code{standardError}, \code{confidenceInterval},
+\code{bootStrapSamples} and \code{logLikelihood}.
+}
+
+For matrix or data frame input only the maximum likelihood estimate is
+computed, whatever \code{method}, and there is no \code{logLikelihood}.
+
+\code{createSequenceMatrix()} returns the square matrix of transition counts
+(frequencies, with \code{toRowProbs = TRUE}), with the states as dimnames.
 }
 \description{
-Given a sequence of states arising from a stationary state, 
- it fits the underlying Markov chain distribution using either MLE (also using a 
- Laplacian smoother), bootstrap or by MAP (Bayesian) inference.
+Estimates the transition matrix of a homogeneous discrete
+time Markov chain from observed sequences of states, by maximum
+likelihood (optionally with Laplace smoothing), by bootstrap, or by
+maximum a posteriori (Bayesian) estimation with Dirichlet priors.
+\code{createSequenceMatrix()} returns the matrix of transition counts (or
+frequencies) on which the estimates are based.
 }
 \details{
-Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar} 
+Disabling confint would lower the computation time on large datasets. If \code{data} or \code{stringchar}
 contain \code{NAs}, the related \code{NA} containing transitions will be ignored.
 
 With \code{progress = TRUE} the "bootstrap" method shows a text progress bar
@@ -133,25 +155,25 @@ parallel threads, which cannot report progress, so the bar only covers the
 estimation step. The computation can be interrupted while the bar is shown.
 
 When \code{absorbingStates} is supplied, the declared states must have
-  no observed outgoing transitions. This allows terminal states in censored
-  customer journeys to be represented as absorbing states without adding
-  artificial observations.
+no observed outgoing transitions. This allows terminal states in censored
+customer journeys to be represented as absorbing states without adding
+artificial observations.
 
 \code{sanitize = "absorbing"} reaches the same result without
-  naming the states: every state that has no observed outgoing transition,
-  which is what \code{possibleStates} typically introduces, is made
-  absorbing. Unlike \code{absorbingStates}, it works with every
-  \code{method}, since it only replaces the uniform row that
-  \code{sanitize = TRUE} would have produced. As with
-  \code{absorbingStates}, only the estimate is constrained: any confidence
-  bounds and standard errors keep the values the unconstrained fit assigned
-  to those rows.
+naming the states: every state that has no observed outgoing transition,
+which is what \code{possibleStates} typically introduces, is made
+absorbing. Unlike \code{absorbingStates}, it works with every
+\code{method}, since it only replaces the uniform row that
+\code{sanitize = TRUE} would have produced. As with
+\code{absorbingStates}, only the estimate is constrained: any confidence
+bounds and standard errors keep the values the unconstrained fit assigned
+to those rows.
 }
 \note{
-This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically". 
-      In addition, parallel facility is not complete, involving only a part of the bootstrap process.
-      When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is 
-      currently available.
+This function has been rewritten in Rcpp. Bootstrap algorithm has been defined "heuristically".
+In addition, parallel facility is not complete, involving only a part of the bootstrap process.
+When \code{data} is either a \code{data.frame} or a \code{matrix} object, only MLE fit is
+currently available.
 }
 \examples{
 sequence <- c("a", "b", "a", "a", "a", "a", "b", "a", "b", "a", "b", "a", "a", 
@@ -171,14 +193,16 @@ mcFitMap <- markovchainFit(sequences, method = "map")
 mcFitMle <- markovchainFit(sequences, method = "mle")
 }
 \references{
-A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
-            
-            Inferring Markov Chains: Bayesian Estimation, Model Comparison, Entropy Rate, 
-            and Out-of-Class Modeling, Christopher C. Strelioff, James P. Crutchfield, 
-            Alfred Hubler, Santa Fe Institute
+Anderson, T. W. and Goodman, L. A. (1957). Statistical inference about
+Markov chains. The Annals of Mathematical Statistics 28(1), 89-110.
 
-            Yalamanchi SB, Spedicato GA (2015). Bayesian Inference of First Order Markov Chains. R
-            package version 0.2.5
+Strelioff, C. C., Crutchfield, J. P. and Hubler, A. W. (2007). Inferring
+Markov chains: Bayesian estimation, model comparison, entropy rate, and
+out-of-class modeling. Physical Review E 76, 011106.
+\doi{10.1103/PhysRevE.76.011106}
+
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian inference of
+first order Markov chains. Vignette of the markovchain package.
 }
 \seealso{
 \code{\link{markovchainSequence}}, \code{\link{markovchainListFit}}

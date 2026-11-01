@@ -1,7 +1,10 @@
+// Helpers for the Bayesian (maximum a posteriori) fit of the transition matrix. Some code of this header
+// is used by markovchainFit(method = 'map').
 /*
  * Function to remove NA values from a vector
  */
 
+// Removes the elements equal to the string 'NA' from a vector of strings.
 CharacterVector clean_nas(CharacterVector elements_na){
   int count = 0;
   // first cycle: count the number of non-NA elements
@@ -22,6 +25,10 @@ CharacterVector clean_nas(CharacterVector elements_na){
 }
   
 
+// _mcFitMap(): Bayesian estimate of the transition matrix. Each row has a Dirichlet prior with parameters `hyperparam`
+// (entries >= 1); after observing the transition counts the posterior of each probability is
+// Beta(p, q) with  p = count + hyperparam,  q = (row total of counts and hyperparams) - p.
+// Outputs: the MAP estimate (posterior mode), the posterior mean, the standard error and a credible interval.
 List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hyperparam = NumericMatrix(), 
                bool sanitize = false, CharacterVector possibleStates = CharacterVector()) {
   
@@ -29,6 +36,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
     data = List::create(as<CharacterVector>(data));
   }
   
+  // Step 1: the data are a list of sequences (a single sequence is wrapped in a list); collect the states.
   List seqs = as<List>(data);
   CharacterVector elements;
   
@@ -45,6 +53,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   // number of unique states
   int sizeMatr = elements.size();
   
+  // Step 2: default hyperparameters: 1 for all the transitions (i.e. a flat prior).
   // if no hyperparam argument provided, use default value of 1 for all.
   // The R-level default is `matrix()`, which is a 1x1 matrix containing
   // NA -- checking the NA is essential here, not just the 1x1 shape:
@@ -62,6 +71,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
     hyperparam = temp;
   }
   
+  // Step 3: validate the hyperparameter matrix (square, with names, all the states, values >= 1).
   //-----------beginning of validity checking of hyperparam matrix----------------------
   
   // validity check for hyperparam matrix
@@ -151,6 +161,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
     
   //-----------end of validity checking of hyperparam matrix----------------------
   
+  // Step 4: reorder rows/columns alphabetically, to have the same order of the states everywhere.
   // permute the elements of hyperparam such that the row, column names are sorted
   hyperparam = sortByDimNames(hyperparam);
   
@@ -166,6 +177,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   NumericMatrix upperEndpointMatr = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
   NumericMatrix stdError = NumericMatrix(mapEstMatr.nrow(), mapEstMatr.ncol());
 
+  // Step 5: count the transitions i -> j in all the sequences (NA values are skipped).
   // populate frequeny matrix for old data; this is used for inference
   for(int k = 0;k < seqs.size();k++) {
     CharacterVector stringchar  = as<CharacterVector>(seqs[k]);
@@ -181,6 +193,8 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
     }  
   }
  
+  // Step 6: for each cell, compute the posterior quantities: mean p/(p+q), MAP (p-1)/(p+q-n),
+  // standard error of the Beta distribution and equal-tailed credible interval.
   // sanitize and to row probs
   for (int i = 0; i < sizeMatr; i++) {
     
@@ -228,6 +242,7 @@ List _mcFitMap(SEXP data, bool byrow, double confidencelevel, NumericMatrix hype
   lowerEndpointMatr.attr("dimnames") = upperEndpointMatr.attr("dimnames")
     = stdError.attr("dimnames") = List::create(elements, elements);
 
+  // Step 7: if byrow = FALSE every output matrix is transposed, then the markovchain object is built.
   // transpose the matrix if columwise result is required
   if(byrow == false) {
     mapEstMatr = transposeMatrix(mapEstMatr);

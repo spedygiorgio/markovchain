@@ -19,10 +19,10 @@ state names. Defaults to \code{as.character(1:n)}.}
 }
 \value{
 A new, row-stochastic \code{markovchain} object on \eqn{n}
-  states, with transition matrix
-  \deqn{P_{ii}=1-p_i-q_{i-1},\quad P_{i,i+1}=p_i,\quad P_{i,i-1}=q_{i-1}}
-  (boundary terms \eqn{q_0} and \eqn{p_n} are understood to not exist,
-  i.e. \eqn{P_{11}=1-p_1} and \eqn{P_{nn}=1-q_{n-1}}).
+states, with transition matrix
+\deqn{P_{ii}=1-p_i-q_{i-1},\quad P_{i,i+1}=p_i,\quad P_{i,i-1}=q_{i-1}}
+(boundary terms \eqn{q_0} and \eqn{p_n} are understood to not exist,
+i.e. \eqn{P_{11}=1-p_1} and \eqn{P_{nn}=1-q_{n-1}}).
 }
 \description{
 Constructs a \code{markovchain} object for a birth-death process: a chain
@@ -74,5 +74,5 @@ rowSums(bd@transitionMatrix)
 }
 \seealso{
 \code{\link{gamblersRuin}}, \code{\link{toBoundedChain}},
-  \code{\link{urnModel}}
+\code{\link{urnModel}}
 }

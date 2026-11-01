@@ -1,19 +1,20 @@
-#' @title Continuous time Markov Chains class
+#' @title Continuous time Markov chain class
 #' @name ctmc-class
 #' @aliases dim,ctmc-method
 #' @aliases initialize,ctmc_method
 #' @aliases states,ctmc-method
 #' @aliases steadyStates,ctmc-method
 #' @aliases plot,ctmc,missing-method
-#' @description The S4 class that describes \code{ctmc} (continuous 
-#' time Markov chain) objects.
+#' @description The S4 class of continuous time Markov chains, described by
+#'   their generator (rate) matrix.
 #' 
-#' @slot states Name of the states. Must be the same of
-#'   \code{colnames} and \code{rownames} of the generator matrix
-#' @slot byrow TRUE or FALSE. Indicates whether the given matrix is
-#'    stochastic by rows or by columns
-#' @slot generator Square generator matrix
-#' @slot name Optional character name of the Markov chain
+#' @slot states Names of the states, equal to the row and column names of the
+#'   generator.
+#' @slot byrow Logical: are the rates out of each state in its row (rows sum
+#'   to zero) or in its column?
+#' @slot generator The square generator matrix: non-negative off-diagonal
+#'   rates, with rows (or columns) summing to zero.
+#' @slot name Optional name of the chain.
 #' 
 #' @section Methods:
 #' 
@@ -33,14 +34,9 @@
 #' (2013), David F. Anderson, University of Wisconsin at Madison. Sai Bhargav
 #' Yalamanchi, Giorgio Spedicato
 #' 
-#' @note
-#' \enumerate{
-#' \item \code{ctmc} classes are written using S4 classes
-#' \item Validation method is used to assess whether either columns or rows totals to zero. 
-#' Rounding is used up to 5th decimal. If state names are not properly defined
-#' for a generator  \code{matrix}, coercing to \code{ctmc} object leads to overriding
-#' states name with artificial "s1", "s2", ... sequence
-#' }
+#' @note The validity method checks that the rows (or columns) of the
+#'   generator sum to zero, rounded to the fifth decimal. If the generator has
+#'   no state names, the states are named "s1", "s2", ...
 #' @seealso \code{\link{generatorToTransitionMatrix}},\code{\link{rctmc}}
 #'
 #' @examples
@@ -52,12 +48,15 @@
 #' molecularCTMC <- new("ctmc", states = energyStates, 
 #'                      byrow = byRow, generator = gen, 
 #'                      name = "Molecular Transition Model")
-#'                      steadyStates(molecularCTMC)
-#' \dontrun{plot(molecularCTMC)}
+#' steadyStates(molecularCTMC)
+#' \donttest{plot(molecularCTMC)}
 #' 
 #' @keywords classes
 #' 
 #' @export
+# S4 class 'ctmc' = continuous time Markov chain. It is described by a GENERATOR matrix Q
+# (off-diagonal entries = jump rates, diagonal = minus the total rate of leaving the state,
+# so every row sums to zero), instead of a matrix of probabilities.
 setClass("ctmc",
          slots = list(states = "character",
                       byrow = "logical",
@@ -71,6 +70,8 @@ setClass("ctmc",
            name = "Unnamed CTMC")
 )
 
+# initialize() is called by new(): it fills in default values for the missing arguments and
+# repairs the dimension names before the object is built.
 setMethod("initialize",
           signature(.Object = "ctmc"),
           function (.Object, states, byrow, generator,name,...) {
@@ -83,6 +84,7 @@ setMethod("initialize",
             
             # check names of transition matrix, filling in missing/inconsistent
             # row or column names and resolving the states vector accordingly
+            # Shared helper (utils.R): makes row names, column names and states consistent.
             filled <- .fillDimNames(generator, if (missing(states)) NULL else states)
             generator <- filled$matrix
             states <- filled$states
@@ -92,6 +94,7 @@ setMethod("initialize",
           }
 )
 
+# Accessors: states(x) returns the state names, dim(x) the number of states.
 #returns states of the ctmc
 setMethod("states", "ctmc", 
           function(object) {
@@ -108,6 +111,9 @@ setMethod("dim", "ctmc",
           }
 )
 
+# Validity: runs every time an object is created and returns TRUE or an error message.
+# Here it checks that the matrix is a generator (rows, or columns, sum to 0), is square and
+# that its names match the states.
 setValidity("ctmc",
             function(object) {
               check<-NULL
@@ -125,6 +131,9 @@ setValidity("ctmc",
             }
 )
 
+# Finds the eigenvector of the eigenvalue 1 of a matrix. For a stochastic matrix this eigenvector is
+# proportional to the stationary distribution. Returns NULL (with a warning) if there is not exactly
+# one such eigenvalue, or if the vector is complex.
 .ctmcEigen<-function(matr, transpose=TRUE)
 {
   # Function to extract eigenvalues, core of get steady states 
@@ -135,11 +144,14 @@ setValidity("ctmc",
   #
   # Results:
   # a matrix / vector
+  # Row-stochastic matrices need the transpose: the stationary distribution is a LEFT eigenvector.
   if (transpose) tMatr <- t(matr) else tMatr <- matr #trasposing
   eigenResults <- eigen(x=tMatr,symmetric=FALSE) #perform the eigenvalue extraction
+  # Pick the eigenvalues equal to 1 (rounded to 3 digits to absorb numerical noise).
   onesIndex <- which(round(eigenResults$values,3)==1) #takes the one eigenvalue
   #do the following: 1:get eigenvectors whose eigenvalues==1
   #2: normalize
+  # Exactly one eigenvalue 1 is required (irreducible embedded chain); otherwise give up with NULL.
   if (length(onesIndex)==0) {
     warning("No eigenvalue = 1 found - the embedded Markov Chain must be irreducible, recurrent")
     return(NULL)
@@ -148,6 +160,8 @@ setValidity("ctmc",
     warning("Eigenvalue = 1 multiplicity > 1! - the embedded Markov Chain must be irreducible, recurrent")
     return(NULL)
   }
+  # The eigenvector must be real (the stationary vector of a stochastic matrix is);
+  # a row when the chain is stored by rows, a column otherwise.
   if (transpose)
   {
     eigenTake <- as.matrix(t(eigenResults$vectors[,onesIndex])) 
@@ -167,8 +181,12 @@ setValidity("ctmc",
   return(out)
 }
 
+# Steady state of a ctmc: (1) take the embedded jump chain (the discrete chain that records only the
+# visited states), (2) find its stationary vector, (3) divide each entry by the rate of leaving the
+# state (the longer a chain stays in a state, the more weight that state has) and renormalise.
 setMethod("steadyStates", "ctmc", 
           function(object) {
+            # (1) embedded jump chain; (2) its stationary vector (rows or columns by byrow)
             transposeYN <- object@byrow
             transMatr <- generatorToTransitionMatrix(object@generator, byrow = object@byrow)
             out<-.ctmcEigen(matr=transMatr, transpose=transposeYN) 
@@ -181,6 +199,8 @@ setMethod("steadyStates", "ctmc",
             } else {
               rownames(out) <- object@states
             }
+            # (3) divide by the exit rate of each state (diag of the generator is minus the rate)
+            # and renormalise to a probability vector
             out <- - out / diag(object@generator)
             if (transposeYN) {
               out <- out / rowSums(out)
@@ -194,6 +214,8 @@ setMethod("steadyStates", "ctmc",
 
 
 
+# Builds an igraph graph from the generator, for plotting (weights are multiplied by 100 to keep
+# the digits when igraph rounds them).
 # internal function for plotting ctmc object using igraph
 .getNetctmc <- function(object, round = FALSE) {
   # function to get the graph adjacency object to plot and export to igraph
@@ -206,12 +228,13 @@ setMethod("steadyStates", "ctmc",
   #
   # a graph adjacency
   
-  if (!object@byrow) {
-    object <- t(object)
-  }
-  
-  #gets the generator matrix
-  matr <- object@generator * 100
+  # The graph has an edge i -> j for every positive rate. The generator is
+  # taken by rows (transposed if stored by columns), and its diagonal, the
+  # negative total exit rates, is left out: as self-loops with negative
+  # weights it only made igraph warn and drop all the weights in the layout.
+  generator <- if (object@byrow) object@generator else t(object@generator)
+  diag(generator) <- 0
+  matr <- generator * 100
   if (round) {
     matr <- round(matr, 2)
   }
@@ -221,6 +244,8 @@ setMethod("steadyStates", "ctmc",
 }
 
 
+# plot(): the package argument chooses the drawing library; if the chosen one is not installed
+# we fall back on igraph, which is always available.
 setMethod("plot",signature(x="ctmc",y="missing"),
           function(x,y,package = "igraph",...){
             switch(package,
@@ -252,6 +277,7 @@ setMethod("plot",signature(x="ctmc",y="missing"),
           )
 
 
+# 'ictmc' = imprecise CTMC: a generator Q whose rates may vary within the interval given in `range`.
 
 #' An S4 class for representing Imprecise Continuous Time Markovchains
 #' 
@@ -268,6 +294,7 @@ ictmc <- setClass("ictmc",
 
 
 
+# Default values of the arguments, as for the ctmc class.
 setMethod("initialize",
           signature(.Object = "ictmc"),
           function (.Object, states, Q, range, name, ...) {
@@ -297,6 +324,8 @@ setMethod("initialize",
 
 
 
+# Validity of an ictmc: Q must be a generator and each interval [low, high] must be well ordered
+# and not negative.
 setValidity("ictmc",
             function(object) {
               check<-NULL

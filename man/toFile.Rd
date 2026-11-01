@@ -25,7 +25,7 @@ default, \code{NULL}, infers the format from \code{file}'s extension.}
 }
 \value{
 \code{toFile} returns \code{file}, invisibly. \code{fromFile}
-  returns a \code{markovchain} object.
+returns a \code{markovchain} object.
 }
 \description{
 Writes a \code{markovchain} object to a JSON, YAML, CSV or XML file, or reads

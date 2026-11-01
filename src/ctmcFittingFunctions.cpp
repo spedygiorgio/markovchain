@@ -5,6 +5,7 @@ using namespace Rcpp;
 
 #include <math.h>
 
+// Forward declaration: markovchainFit is defined in fittingFunctions.cpp; here we only say that it exists.
 List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
                     int nboot = 10, double laplacian = 0, String name = "",
                     bool parallel = false, double confidencelevel = 0.95, bool confint = true,
@@ -12,31 +13,43 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
                     CharacterVector possibleStates = CharacterVector(), bool progress = false); 
 
 //' @name ctmcFit
-//' @title Function to fit a CTMC
-//' @description This function fits the underlying CTMC give the state
-//'   transition data and the transition times using the maximum likelihood
-//'   method (MLE)
-//' @usage ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
-//' @param data It is a list of two elements. The first element is a character
-//'   vector denoting the states. The second is a numeric vector denoting the
-//'   corresponding transition times.
-//' @param byrow Determines if the output transition probabilities of the
-//'   underlying embedded DTMC are by row.
-//' @param name Optional name for the CTMC.
-//' @param confidencelevel Confidence level for the confidence interval
-//'   construnction.
-//' @return It returns a list containing the CTMC object and the confidence intervals.
-//' 
-//' @details  Note that in data, there must exist an element wise corresponding
-//'   between the two elements of the list and that data[[2]][1] is always 0.
-//' @references Continuous Time Markov Chains (vignette), Sai Bhargav Yalamanchi, Giorgio Alfredo Spedicato 2015
+//' @title Fit a continuous time Markov chain
+//' @description Maximum likelihood estimation of a continuous time Markov
+//'   chain from one observed trajectory: the sequence of states visited and
+//'   the times at which they were entered.
+//' @param data A list of two vectors of equal length: the states visited
+//'   (character) and the times at which they were entered (numeric,
+//'   increasing, the first equal to 0).
+//' @param byrow Logical: return the generator, and the transition matrix of
+//'   the embedded jump chain in the confidence intervals, with the rates out
+//'   of each state in its row (default) or in its column?
+//' @param name Optional name of the fitted chain.
+//' @param confidencelevel Confidence level of the intervals (default 0.95).
+//' @return A list with two elements:
+//'   \describe{
+//'     \item{`estimate`}{the fitted [`ctmc`][ctmc-class] object;}
+//'     \item{`errors`}{a list with `dtmcConfidenceInterval`, the confidence
+//'       level and the lower and upper endpoint matrices of the transition
+//'       probabilities of the embedded jump chain (as in [markovchainFit()]),
+//'       and `lambdaConfidenceInterval`, the lower and upper endpoints of the
+//'       exit rate of each state.}
+//'   }
+//' @details The exit rate of state \eqn{i} is estimated as the number of
+//'   departures from \eqn{i} divided by the total time spent in \eqn{i}, and
+//'   the jump probabilities by the transition frequencies of the sequence of
+//'   states; the generator is their product. The interval for each rate is the
+//'   normal approximation \eqn{\hat\lambda_i (1 \pm z / \sqrt{n_i})},
+//'   with \eqn{n_i} the number of departures from \eqn{i}, truncated at 0.
+//' @references Yalamanchi, S. B. and Spedicato, G. A. (2015). Continuous time
+//'   Markov chains. Vignette of the markovchain package.
 //' @author Sai Bhargav Yalamanchi
-//' @seealso \code{\link{rctmc}}
-//' 
+//' @family continuous time Markov chains
 //' @examples
-//' data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"), c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
-//' ctmcFit(data)
-//' 
+//' data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"),
+//'              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+//' fit <- ctmcFit(data)
+//' fit$estimate
+//' fit$errors$lambdaConfidenceInterval
 //' @export
 //' 
 // SUMMARY FOR REVIEWERS: ctmcFit() fits a continuous-time Markov chain
@@ -66,9 +79,11 @@ List markovchainFit(SEXP data, String method = "mle", bool byrow = true,
 //      clipping of the same "-" value. Separately, lambda is a rate (not
 //      a probability), so clipping it above at 1 was never appropriate;
 //      only the lower clip at 0 (non-negativity) is kept.
+// ctmcFit(): ML estimation of a continuous time chain from the visited states and the times of the jumps.
 // [[Rcpp::export]]
 List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel = 0.95) {
   
+  // Validation: the data are a list (states, times) of the same length.
   // data must be list(states, times) of equal length; Rcpp's operator[] does
   // not bounds check, so reading data[1] or transData[i + 1] unguarded can
   // read past the end.
@@ -77,6 +92,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   if (as<CharacterVector>(data[0]).size() != as<NumericVector>(data[1]).size())
     stop("the states and the transition times must have the same length");
 
+  // Copy the states in a character vector.
   CharacterVector stateData(as<CharacterVector>(data[0]).size());
   
   for (int i = 0; i < as<CharacterVector>(data[0]).size(); i++)
@@ -87,8 +103,11 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   NumericVector stateCount(sortedStates.size());
   NumericVector stateSojournTime(sortedStates.size());
   
+  // Stage 1: fit the embedded discrete chain (the sequence of visited states) with markovchainFit().
   List dtmcData = markovchainFit(stateData, "mle", byrow, 10, 0, name, false, confidencelevel);
   
+  // Stage 2: for each state count the departures and add up the time spent there (sojourn time)
+  // = difference between the next jump time and the current one.
   for (int i = 0; i < stateData.size() - 1; i++){
     int idx = std::find(sortedStates.begin(),
                         sortedStates.end(),
@@ -97,6 +116,9 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
     stateSojournTime[idx] += transData[i+1] - transData[i];
   }
   
+  // Stage 3: the generator = (transition probability) x (exit rate), with exit rate
+  // lambda_i = departures from i / total time in i (the MLE for an exponential holding time),
+  // and the diagonal equal to minus the exit rate.
   S4 dtmcEst = dtmcData["estimate"];
   NumericMatrix gen = dtmcEst.slot("transitionMatrix");
   
@@ -123,6 +145,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
   // rather than the 1.96 a two-sided 95% interval requires. The transition
   // rate lambda is not a probability (it has no upper bound of 1), so only
   // non-negativity is enforced, matching the definition of a rate.
+  // Stage 4: confidence interval for each exit rate: lambda_hat +/- z * lambda_hat / sqrt(n).
   double zscore = stats::qnorm_0(1.0 - (1.0 - confidencelevel) / 2.0, 1.0, 0.0);
   NumericVector lowerConfVecLambda(sortedStates.size()), upperConfVecLambda(sortedStates.size());
   
@@ -139,6 +162,7 @@ List ctmcFit(List data, bool byrow=true, String name="", double confidencelevel 
     }
   }
   
+  // Build the S4 object 'ctmc' and return it together with the confidence intervals.
   S4 outCtmc("ctmc");
   outCtmc.slot("states") = sortedStates;
   outCtmc.slot("generator") = gen;

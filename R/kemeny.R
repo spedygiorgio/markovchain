@@ -50,14 +50,18 @@
 #' kemenyConstant(mc)
 #'
 #' @exportMethod kemenyConstant
+# Generic function (S4): lets the same name work with different object classes.
 setGeneric("kemenyConstant", function(object) standardGeneric("kemenyConstant"))
 
 #' @rdname kemenyConstant
+# Method for markovchain objects. Idea: K = trace(Z) - 1 with Z = (I - P + 1 pi')^-1.
 setMethod("kemenyConstant", "markovchain", function(object) {
+  # Kemeny's constant needs a unique stationary distribution, hence irreducibility.
   if (!is.irreducible(object)) {
     stop("Kemeny's constant is defined here only for irreducible Markov chains.")
   }
 
+  # Work with a plain dense matrix, oriented with rows summing to one.
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -67,16 +71,20 @@ setMethod("kemenyConstant", "markovchain", function(object) {
     stop("The transition matrix must be square and finite.")
   }
 
+  # pi = stationary distribution (long-run fraction of time spent in each state)
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) || sum(pi) <= 0) {
     stop("Unable to obtain a valid stationary distribution.")
   }
   pi <- pi / sum(pi)
 
+  # Build I - P + 1*pi' : adding pi_j to every entry of column j is exactly adding the
+  # rank-one matrix 1*pi', without forming it.
   # Add pi_j to every entry of column j without explicitly constructing
   # the n-by-n outer product 1 %*% t(pi).
   A <- diag(n) - P
   A <- sweep(A, 2L, pi, FUN = "+")
+  # Z is the 'fundamental matrix'; solve(A) is its inverse.
   Z <- solve(A)
   value <- as.numeric(sum(diag(Z)) - 1)
   if (!is.finite(value)) {

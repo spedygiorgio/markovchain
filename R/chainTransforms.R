@@ -65,10 +65,14 @@
 #' steadyStates(lazyCycle2) # unchanged by laziness
 #'
 #' @exportMethod lazyChain
+# lazyChain: mixes P with the identity matrix: L = alpha*I + (1-alpha)*P. With probability alpha
+# the lazy chain stays where it is, otherwise it moves as P. It removes periodicity and keeps the
+# stationary distribution.
 setGeneric("lazyChain", function(object, alpha = 0.5) standardGeneric("lazyChain"))
 
 #' @rdname lazyChain
 setMethod("lazyChain", "markovchain", function(object, alpha = 0.5) {
+  # Validate alpha (a probability).
   if (length(alpha) != 1L || !is.numeric(alpha) || !is.finite(alpha) ||
       alpha < 0 || alpha > 1) {
     stop("alpha must be a single finite number in [0, 1].")
@@ -180,11 +184,15 @@ setMethod("lazyChain", "markovchain", function(object, alpha = 0.5) {
 #' rowSums(watched@transitionMatrix)
 #'
 #' @exportMethod subchain
+# subchain: restricts the chain to a subset of states. Two ways to handle the probability that
+# leaves the subset: 'submatrix' keeps the rows as they are (they sum to less than 1; the result
+# is a plain matrix), 'renormalize' divides each row by its total (chain conditioned on staying inside).
 setGeneric("subchain", function(object, states, method = c("submatrix", "renormalize")) {
   standardGeneric("subchain")
 })
 
 #' @rdname subchain
+# Method: validate the state names, get the row-stochastic matrix, then cut it.
 setMethod("subchain", "markovchain", function(object, states, method = c("submatrix", "renormalize")) {
   method <- match.arg(method)
 
@@ -206,6 +214,7 @@ setMethod("subchain", "markovchain", function(object, states, method = c("submat
   }
   # From here on P is row-stochastic, regardless of object@byrow.
 
+  # Rows and columns of the selected states only.
   sub <- P[states, states, drop = FALSE]
   dimnames(sub) <- list(states, states)
 
@@ -312,6 +321,7 @@ setMethod("subchain", "markovchain", function(object, states, method = c("submat
 #' # mc2["a","b"], not with whatever happened to sit in the same matrix cell.
 #'
 #' @exportMethod mergeWith
+# mergeWith: convex combination (1-gamma)*P1 + gamma*P2 of two chains on the same states.
 setGeneric("mergeWith", function(object, other, gamma = 0.5) standardGeneric("mergeWith"))
 
 #' @rdname mergeWith
@@ -322,6 +332,8 @@ setMethod("mergeWith", signature(object = "markovchain", other = "markovchain"),
     stop("gamma must be a single finite number in [0, 1].")
   }
 
+  # Both chains must have the same state names; the matrices are aligned by NAME because
+  # the states of the two chains may be listed in a different order.
   stateNames <- states(object)
   otherStateNames <- states(other)
   if (length(stateNames) != length(otherStateNames) ||
@@ -426,6 +438,9 @@ setMethod("mergeWith", signature(object = "markovchain", other = "markovchain"),
 #' semiReflected@transitionMatrix[1, ]
 #'
 #' @exportMethod toBoundedChain
+# toBoundedChain: forces the first and the last state to behave as boundaries (like the walls of a
+# random walk): 'absorbing' (stay forever), 'reflecting' (bounce back inside) or a number beta
+# in [0, 1] = probability of bouncing back.
 setGeneric("toBoundedChain", function(object, boundaryCondition) {
   standardGeneric("toBoundedChain")
 })
@@ -443,21 +458,26 @@ setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
     P <- t(P)
   }
 
+  # The new first row and last row of the matrix (the boundaries of the bounded chain).
   firstRow <- numeric(n)
   lastRow <- numeric(n)
 
   if (is.character(boundaryCondition) && length(boundaryCondition) == 1L &&
       boundaryCondition %in% c("absorbing", "reflecting")) {
     if (boundaryCondition == "absorbing") {
+      # the end states stay where they are
       firstRow[1] <- 1
       lastRow[n] <- 1
     } else {
+      # reflecting: the end states move to their only neighbour
       firstRow[min(2L, n)] <- 1
       lastRow[max(n - 1L, 1L)] <- 1
     }
   } else if (is.numeric(boundaryCondition) && length(boundaryCondition) == 1L &&
              is.finite(boundaryCondition) &&
              boundaryCondition >= 0 && boundaryCondition <= 1) {
+    # a number beta in [0, 1] mixes the two: stay with probability 1 - beta, move inwards
+    # with probability beta (beta = 0 absorbing, beta = 1 reflecting)
     beta <- boundaryCondition
     firstRow[1] <- 1 - beta
     firstRow[min(2L, n)] <- firstRow[min(2L, n)] + beta
@@ -470,6 +490,7 @@ setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
     ))
   }
 
+  # Replace the first and last row, keep the others as they are.
   P[1, ] <- firstRow
   P[n, ] <- lastRow
   dimnames(P) <- list(stateNames, stateNames)
@@ -512,6 +533,7 @@ setMethod("toBoundedChain", "markovchain", function(object, boundaryCondition) {
 #' identical(unclass(toNthOrder(mc, 5)@transitionMatrix), unclass((mc ^ 5)@transitionMatrix))
 #'
 #' @export
+# toNthOrder: the n-step transition matrix P^n, i.e. the chain observed every n steps.
 toNthOrder <- function(object, order) {
   if (!is(object, "markovchain")) {
     stop("object must be a markovchain object.")

@@ -26,29 +26,29 @@ returned sequence?}
 }
 \value{
 \code{higherOrderPredict}: a named vector of next-state
-  probabilities for a single history, or a matrix with one row per history.
-  \code{higherOrderSimulate}: a character vector of \code{n} states,
-  preceded by \code{t0} if \code{include.t0 = TRUE}.
+probabilities for a single history, or a matrix with one row per history.
+\code{higherOrderSimulate}: a character vector of \code{n} states,
+preceded by \code{t0} if \code{include.t0 = TRUE}.
 }
 \description{
 \code{higherOrderPredict} returns the distribution of the next
-  state given the most recent states, and \code{higherOrderSimulate} draws a
-  sequence of states, under a higher order model fitted by
-  \code{\link{fitHigherOrder}} or \code{\link{fitMTD}}.
+state given the most recent states, and \code{higherOrderSimulate} draws a
+sequence of states, under a higher order model fitted by
+\code{\link{fitHigherOrder}} or \code{\link{fitMTD}}.
 }
 \details{
 Both functions use the transition probabilities of the fitted model
-  of order \eqn{k},
-  \deqn{P(x_t = j \mid x_{t-1}, \dots, x_{t-k}) = \sum_{i=1}^{k} \lambda_i\, Q_i[j, x_{t-i}],}
-  the same that enter \code{\link{higherOrderLogLik}}. For a fit returned
-  by \code{\link{fitMTD}} all the \eqn{Q_i} are the single MTD transition
-  matrix. Only the last \eqn{k} states of a history are used, the last
-  element being the most recent.
+of order \eqn{k},
+\deqn{P(x_t = j \mid x_{t-1}, \dots, x_{t-k}) = \sum_{i=1}^{k} \lambda_i\, Q_i[j, x_{t-i}],}
+the same that enter \code{\link{higherOrderLogLik}}. For a fit returned
+by \code{\link{fitMTD}} all the \eqn{Q_i} are the single MTD transition
+matrix. Only the last \eqn{k} states of a history are used, the last
+element being the most recent.
 
-  A model of order \eqn{k} needs \eqn{k} previous states, so \code{t0}
-  (and every history) must contain at least \code{order} states. The
-  probabilities are normalized to sum to one, which only matters when the
-  weights of a least squares fit sum to one up to the optimizer's tolerance.
+A model of order \eqn{k} needs \eqn{k} previous states, so \code{t0}
+(and every history) must contain at least \code{order} states. The
+probabilities are normalized to sum to one, which only matters when the
+weights of a least squares fit sum to one up to the optimizer's tolerance.
 }
 \examples{
 wind <- read.csv(system.file("extdata", "koeberg_wind.csv",
@@ -69,5 +69,5 @@ higherOrderPredict(fit2, c("0", "6+"))
 }
 \seealso{
 \code{\link{fitHigherOrder}}, \code{\link{fitMTD}},
-  \code{\link{higherOrderLogLik}}, \code{\link{rmarkovchain}}
+\code{\link{higherOrderLogLik}}, \code{\link{rmarkovchain}}
 }

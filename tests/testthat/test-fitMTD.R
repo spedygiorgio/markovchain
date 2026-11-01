@@ -107,7 +107,8 @@ test_that("the row of a state never used as a departure state is uniform", {
   x <- c("a", "b", "a", "b", "a", "a", "b", "c")
   set.seed(7)
   for (nstart in c(1, 3)) {
-    fit <- fitMTD(x, order = 2, nstart = nstart)
+    # 6 observations for 7 free parameters: the (expected) small-sample warning
+    expect_warning(fit <- fitMTD(x, order = 2, nstart = nstart), "free parameters")
     expect_equal(unname(fit$estimate@transitionMatrix["c", ]), rep(1 / 3, 3))
   }
 })

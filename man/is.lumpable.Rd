@@ -10,21 +10,45 @@ is.lumpable(object, partition, tol = 1e-10)
 \S4method{is.lumpable}{markovchain}(object, partition, tol = 1e-10)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{partition}{A named list of character vectors defining macro-states.}
+\item{partition}{A named list of character vectors, the blocks of the
+partition (macro-states); every state must belong to exactly one block.}
 
-\item{tol}{Non-negative numerical tolerance for equality checks.}
+\item{tol}{Non-negative tolerance for the equality of the probabilities
+(default \code{1e-10}).}
 }
 \value{
-A logical value.
+\code{TRUE} if the chain is lumpable with respect to \code{partition},
+\code{FALSE} otherwise.
 }
 \description{
-Verifies the strong lumpability condition with respect to a
-partition of the state space. For every pair of macro-states, all micro-states
-in the same source macro-state must have the same total probability of moving
-to the destination macro-state.
+Checks whether a Markov chain is (strongly) lumpable with
+respect to a partition of its states: for every pair of blocks
+\eqn{A, B} of the partition, all the states of \eqn{A} have the same
+probability of moving into \eqn{B} (Kemeny and Snell 1960, Theorem
+6.3.2). The aggregated process is then a Markov chain, for every initial
+distribution.
+}
+\examples{
+statesNames <- c("a", "b", "c", "d")
+P <- matrix(c(0.1, 0.2, 0.3, 0.4,
+              0.2, 0.1, 0.4, 0.3,
+              0.3, 0.3, 0.2, 0.2,
+              0.2, 0.4, 0.1, 0.3), nrow = 4, byrow = TRUE,
+            dimnames = list(statesNames, statesNames))
+mc <- new("markovchain", states = statesNames, transitionMatrix = P)
+partition <- list(ab = c("a", "b"), cd = c("c", "d"))
+is.lumpable(mc, partition) # rows of a and b give 0.3/0.7 to ab/cd
+is.lumpable(mc, list(ac = c("a", "c"), bd = c("b", "d")))
 }
 \references{
-Kemeny, J. G. and Snell, J. L. (1960). \emph{Finite Markov Chains}.
+Kemeny, J. G. and Snell, J. L. (1960). Finite Markov Chains.
+Van Nostrand.
 }
+\seealso{
+Other state aggregation: 
+\code{\link{autoLump}()},
+\code{\link{lump}()}
+}
+\concept{state aggregation}

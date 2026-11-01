@@ -38,11 +38,11 @@ Defaults to \code{as.character(0:n)}.}
 }
 \value{
 A new, row-stochastic \code{markovchain} object on \code{n + 1}
-  states. States \code{"0"} and \code{as.character(n)} (loss and
-  fixation of the mutant allele) are absorbing, following the standard
-  textbook treatment of both models; every interior state has a
-  transition row determined by \code{model}, \code{s}, \code{u} and
-  \code{v} as detailed below.
+states. States \code{"0"} and \code{as.character(n)} (loss and
+fixation of the mutant allele) are absorbing, following the standard
+textbook treatment of both models; every interior state has a
+transition row determined by \code{model}, \code{s}, \code{u} and
+\code{v} as detailed below.
 }
 \description{
 Constructs the Markov chain tracking the number of copies of a mutant
@@ -58,7 +58,7 @@ individual, chosen uniformly at random, dies and is replaced by the
 offspring, which mutates with probability \code{u} or \code{v}
 depending on the parent's type. From interior state \eqn{i}
 (\eqn{0<i<n}), writing \eqn{r_i=(1+s)i} and \eqn{m_i=n-i},
-\deqn{P_{i,i-1}=\frac{i}{n}\cdot\frac{r_i v + m_i(1-u)}{r_i+m_i},\qquad
+\deqn{P_{i,i-1}=\frac{i}{n}\cdot\frac{r_i u + m_i(1-v)}{r_i+m_i},\qquad
   P_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) + m_i v}{r_i+m_i},}
 with \eqn{P_{ii}} the remainder.
 
@@ -71,16 +71,22 @@ mutant count is \eqn{\mathrm{Binomial}(n,p')}-distributed:
 \eqn{P_{ij}=\binom{n}{j}p'^{\,j}(1-p')^{n-j}}.
 
 Both constructions follow \pkg{PyDTMC}'s
-\code{population_genetics_model}, with one deliberate difference: this
+\code{population_genetics_model}, with two deliberate differences. First, this
 function uses mutant relative fitness \eqn{1+s} in \emph{both} models
 (PyDTMC's Moran implementation instead uses \eqn{1-s}, so that a
 positive \code{s} there favours the wild-type rather than the mutant,
 the opposite of its own Wright-Fisher convention and of the usual
-textbook one). \code{s = 0} (neutral drift) and the mutation-rate terms
-are unaffected by this choice and match PyDTMC exactly; away from
-\code{s = 0} the two packages' Moran chains differ by construction, by
-design, to keep \code{s}'s meaning consistent between \code{"moran"} and
-\code{"wright-fisher"} within this package. As \code{u, v} shrink to
+textbook one). Second, in the mutation terms: for
+\code{u != v} the probability \eqn{P_{i,i-1}} follows the description of
+the model (a mutant parent has a wild-type offspring with probability
+\code{u}, a wild-type parent with probability \code{1-v}), whereas
+PyDTMC uses \eqn{r_i v} in place of \eqn{r_i u} in the numerator, which
+makes its chain depend on how the two alleles are labelled; for
+\code{u = v} (the default) the two coincide. With \code{s = 0} and
+\code{u = v} the two packages' Moran chains are identical; otherwise they
+differ by construction, by design (for \code{s}, to keep its meaning
+consistent between \code{"moran"} and \code{"wright-fisher"} within this
+package). As \code{u, v} shrink to
 \code{0}, both reduce to the classical drift-only chains with absorbing
 loss/fixation states, going back to Wright (1931) and Moran (1958); see
 Ewens (2004) for a modern textbook treatment of both.

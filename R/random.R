@@ -4,6 +4,8 @@
 # caller's random number stream afterwards, so that a `seed` argument gives
 # reproducible output without side effects on the global RNG state. With
 # seed = NULL, `expr` uses (and advances) the current stream as usual.
+# Run `expr` with a fixed seed but leave the user's random number generator untouched afterwards:
+# the old .Random.seed is saved and restored by on.exit() when the function ends.
 .withLocalSeed <- function(seed, expr) {
   if (is.null(seed)) {
     return(expr)
@@ -12,6 +14,7 @@
       seed != round(seed)) {
     stop("seed must be NULL or a single whole number.")
   }
+  # Remember whether a seed already existed, and save it.
   hadSeed <- exists(".Random.seed", envir = globalenv(), inherits = FALSE)
   if (hadSeed) {
     oldSeed <- get(".Random.seed", envir = globalenv(), inherits = FALSE)
@@ -23,12 +26,14 @@
       rm(".Random.seed", envir = globalenv())
     }
   })
+  # Fix the seed, then evaluate the expression (lazy evaluation: `expr` is only run here).
   set.seed(seed)
   expr
 }
 
 # Internal helper: validate the number of states and the state names of a
 # generated chain; returns list(n, states).
+# Check the number of states n and the state names; the names default to '1', '2', ...
 .generatorStates <- function(n, states, minStates = 1L) {
   if (is.null(n)) {
     if (is.null(states)) {
@@ -109,6 +114,8 @@
 #' randomMarkovChain(states = c("a", "b", "c"), mask = m, seed = 1)
 #'
 #' @export
+# Random transition matrix with a chosen number of zero entries and, optionally, some entries
+# fixed in advance by `mask` (NA in the mask = free entry).
 randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
                               byrow = TRUE, seed = NULL,
                               name = "Random Markov chain") {
@@ -123,6 +130,7 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
   }
   tol <- sqrt(.Machine$double.eps)
 
+  # Step 1: M is the matrix with the fixed entries (from mask) and NA for the entries to be drawn.
   if (is.null(mask)) {
     M <- matrix(NA_real_, n, n)
   } else {
@@ -141,6 +149,8 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
     }
   }
 
+  # Step 2: for every row, the fixed entries must not already exceed 1. A row whose fixed entries sum to
+  # 1 is 'full': its other entries are 0.
   fixedSum <- rowSums(M, na.rm = TRUE)
   if (any(fixedSum > 1 + tol)) {
     stop("The probabilities fixed by mask sum to more than one in some row.")
@@ -157,6 +167,8 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
                 ", the number of free entries that can be zero."))
   }
 
+  # Step 3: draw the free entries. First reserve one non-zero entry in each non-full row (so the
+  # row can still sum to one), then place the requested number of zeros at random among the others.
   P <- .withLocalSeed(seed, {
     reserved <- integer(0)
     for (i in which(!full)) {
@@ -168,6 +180,8 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
     if (zeros > 0) {
       M[candidates[sample.int(length(candidates), zeros)]] <- 0
     }
+    # Draw uniform values for the remaining free entries and rescale each row so that the free part
+    # sums to 1 minus the fixed part.
     draw <- is.na(M)
     M[draw] <- stats::runif(sum(draw))
     for (i in which(!full)) {
@@ -177,6 +191,7 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
     M
   })
 
+  # Return in the requested orientation (rows or columns summing to one).
   if (!byrow) {
     P <- t(P)
   }
@@ -234,6 +249,8 @@ randomMarkovChain <- function(n, states = NULL, zeros = 0L, mask = NULL,
 #' dirichletChain(5, diffusion = 2, diagonalBias = 5, seed = 1)
 #'
 #' @export
+# Random chain whose rows follow a truncated Dirichlet process (stick-breaking construction):
+# larger `diffusion` spreads the probability over more states.
 dirichletChain <- function(n, diffusion, states = NULL, diagonalBias = NULL,
                            shiftConcentration = FALSE, byrow = TRUE,
                            seed = NULL, name = "Dirichlet process chain") {
@@ -256,13 +273,17 @@ dirichletChain <- function(n, diffusion, states = NULL, diagonalBias = NULL,
     stop("byrow must be TRUE or FALSE.")
   }
 
+  # Stick-breaking: draw b ~ Beta(1, diffusion); the weights are b_1, (1-b_1) b_2, (1-b_1)(1-b_2) b_3, ...
+  # cumprod() computes the 'stick left' at each step. Finally the rows are renormalised to sum to 1.
   P <- .withLocalSeed(seed, {
     draws <- matrix(stats::rbeta(n * n, 1, diffusion), n, n, byrow = TRUE)
     W <- t(apply(draws, 1L, function(b) b * cumprod(c(1, 1 - b[-n]))))
     W <- W / rowSums(W)
+    # Optionally reverse the columns, so the large weights go to the last states instead of the first.
     if (shiftConcentration) {
       W <- W[, n:1, drop = FALSE]
     }
+    # Optional diagonal bias: increases the probability of staying in the same state.
     if (!is.null(diagonalBias)) {
       diag(W) <- diag(W) + stats::rbeta(n, diagonalBias, 1)
       W <- W / rowSums(W)

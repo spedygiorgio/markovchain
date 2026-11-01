@@ -21,9 +21,9 @@ state names, in increasing order of fortune. Defaults to
 }
 \value{
 A new, row-stochastic \code{markovchain} object with
-  \code{upperBound + 1} states. States \code{"0"} and
-  \code{as.character(upperBound)} are absorbing; every interior state
-  \eqn{i} has \eqn{P_{i,i+1}=\code{prob}} and \eqn{P_{i,i-1}=1-\code{prob}}.
+\code{upperBound + 1} states. States \code{"0"} and
+\code{as.character(upperBound)} are absorbing; every interior state
+\eqn{i} has \eqn{P_{i,i+1}=\code{prob}} and \eqn{P_{i,i-1}=1-\code{prob}}.
 }
 \description{
 Constructs the classic gambler's ruin chain: a gambler with a fortune
@@ -64,5 +64,5 @@ Norris, J. R. (1998). \emph{Markov Chains}. Cambridge University Press.
 }
 \seealso{
 \code{\link{birthDeath}}, \code{\link{absorptionProbabilities}},
-  \code{\link{toBoundedChain}}
+\code{\link{toBoundedChain}}
 }

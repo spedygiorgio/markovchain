@@ -15,8 +15,8 @@ irreducible discrete-time Markov chain.}
 }
 \value{
 A numeric scalar in \eqn{[0,1]}: \code{0} for deterministic
-  dynamics, \code{1} when the entropy rate reaches the topological
-  entropy.
+dynamics, \code{1} when the entropy rate reaches the topological
+entropy.
 }
 \description{
 The entropy rate of a finite irreducible Markov chain divided by the

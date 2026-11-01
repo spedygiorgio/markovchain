@@ -15,11 +15,11 @@ irreducible discrete-time Markov chain.}
 }
 \value{
 A named numeric vector of length \eqn{n-1} (one entry per
-  non-trivial eigenvalue), sorted by decreasing timescale, i.e. by
-  decreasing eigenvalue modulus. Names are \code{"tau2"}, \code{"tau3"},
-  \ldots, matching the usual eigenvalue indexing
-  \eqn{\lambda_2,\lambda_3,\ldots} in decreasing modulus. For the trivial
-  one-state chain, a length-zero named numeric vector is returned.
+non-trivial eigenvalue), sorted by decreasing timescale, i.e. by
+decreasing eigenvalue modulus. Names are \code{"tau2"}, \code{"tau3"},
+\ldots, matching the usual eigenvalue indexing
+\eqn{\lambda_2,\lambda_3,\ldots} in decreasing modulus. For the trivial
+one-state chain, a length-zero named numeric vector is returned.
 }
 \description{
 Computes the implied relaxation timescale associated with each
@@ -37,24 +37,23 @@ mode associated with \eqn{\lambda_k} takes to decay by a factor of
 \eqn{1/e}; larger timescales correspond to slower-decaying, more
 persistent modes.
 
-
 Only irreducibility is required, not aperiodicity: this is the same
 convention used by \code{\link{slem}} and \code{\link{spectralGap}}, and
 it lets \code{impliedTimescales()} document periodic and boundary cases
 explicitly rather than rejecting them:
 \itemize{
-  \item If \eqn{|\lambda_k|} is (numerically) exactly \eqn{1} -- which
-    happens for non-trivial eigenvalues of periodic chains, e.g.
-    \eqn{\lambda=-1} for a 2-cycle -- the corresponding mode never
-    decays and \code{tau_k = Inf} is returned. This is a boundary case
-    of the formula above (as \eqn{|\lambda|\to 1^-}, \eqn{\tau\to\infty})
-    that is handled explicitly rather than by evaluating
-    \eqn{-1/\log(1)}, which is numerically \code{-Inf} rather than the
-    mathematically correct \code{+Inf}.
-  \item If \eqn{|\lambda_k|} is (numerically) exactly \eqn{0}, the mode
-    decays immediately and \code{tau_k = 0} is returned. \code{log(0)}
-    evaluates to \code{-Inf} in \R, so this case is already handled
-    correctly by the formula itself and needs no special-casing.
+\item If \eqn{|\lambda_k|} is (numerically) exactly \eqn{1} -- which
+happens for non-trivial eigenvalues of periodic chains, e.g.
+\eqn{\lambda=-1} for a 2-cycle -- the corresponding mode never
+decays and \code{tau_k = Inf} is returned. This is a boundary case
+of the formula above (as \eqn{|\lambda|\to 1^-}, \eqn{\tau\to\infty})
+that is handled explicitly rather than by evaluating
+\eqn{-1/\log(1)}, which is numerically \code{-Inf} rather than the
+mathematically correct \code{+Inf}.
+\item If \eqn{|\lambda_k|} is (numerically) exactly \eqn{0}, the mode
+decays immediately and \code{tau_k = 0} is returned. \code{log(0)}
+evaluates to \code{-Inf} in \R, so this case is already handled
+correctly by the formula itself and needs no special-casing.
 }
 
 The term "implied timescale" follows the Markov state model literature
@@ -94,5 +93,5 @@ Physics}, 134(17), 174105.
 }
 \seealso{
 \code{\link{slem}}, \code{\link{spectralGap}},
-  \code{\link{is.irreducible}}
+\code{\link{is.irreducible}}
 }

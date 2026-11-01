@@ -29,7 +29,6 @@ If \eqn{A} is the 0/1 adjacency matrix with \eqn{A_{ij}=1} exactly when
 \deqn{h_{top} = \log_b \rho(A),}
 where \eqn{\rho(A)} is the spectral radius (Perron root) of \eqn{A}.
 
-
 Only the pattern of positive entries matters: the value depends on which
 transitions are possible, not on how likely they are. It is the upper
 bound of the entropy rate over all the Markov chains sharing that graph

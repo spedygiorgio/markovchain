@@ -42,27 +42,27 @@ constructions, so that the choice -- and its consequences -- is explicit
 rather than implied:
 
 \describe{
-  \item{\code{"submatrix"}}{Simply the entries of \eqn{P} with both
-    indices restricted to \code{states}, with no adjustment. Its rows
-    generally sum to \emph{less than} one, because probability mass that
-    originally went to states outside the subset is dropped, not
-    redistributed. This is the "\eqn{Q}" block used, e.g., when building
-    the fundamental matrix of an absorbing chain (see
-    \code{\link{fundamentalMatrix}}): a useful building block for other
-    computations, but not itself a transition matrix of any Markov
-    chain, which is why it is returned as a plain matrix.}
-  \item{\code{"renormalize"}}{Each retained row is divided by its own
-    sum, so the result is row-stochastic and can be wrapped in a
-    \code{markovchain} object. This is the chain of successive positions
-    of \code{object}, \emph{conditioned on the event that it never
-    leaves \code{states}} (sometimes called the chain "watched on"
-    \code{states}, or its taboo probabilities; see Norris (1997),
-    Section 3.3). It requires every state in \code{states} to have
-    strictly positive probability of transitioning within the subset
-    (otherwise that conditioning event has probability zero from that
-    state, and the row cannot be renormalized); an error is raised
-    naming any state that fails this, rather than silently producing a
-    row of \code{NaN}.}
+\item{\code{"submatrix"}}{Simply the entries of \eqn{P} with both
+indices restricted to \code{states}, with no adjustment. Its rows
+generally sum to \emph{less than} one, because probability mass that
+originally went to states outside the subset is dropped, not
+redistributed. This is the "\eqn{Q}" block used, e.g., when building
+the fundamental matrix of an absorbing chain (see
+\code{\link{fundamentalMatrix}}): a useful building block for other
+computations, but not itself a transition matrix of any Markov
+chain, which is why it is returned as a plain matrix.}
+\item{\code{"renormalize"}}{Each retained row is divided by its own
+sum, so the result is row-stochastic and can be wrapped in a
+\code{markovchain} object. This is the chain of successive positions
+of \code{object}, \emph{conditioned on the event that it never
+leaves \code{states}} (sometimes called the chain "watched on"
+\code{states}, or its taboo probabilities; see Norris (1997),
+Section 3.3). It requires every state in \code{states} to have
+strictly positive probability of transitioning within the subset
+(otherwise that conditioning event has probability zero from that
+state, and the row cannot be renormalized); an error is raised
+naming any state that fails this, rather than silently producing a
+row of \code{NaN}.}
 }
 
 Neither method requires \code{object} to be irreducible: restricting to
@@ -96,5 +96,5 @@ Norris, J. R. (1998). \emph{Markov Chains}. Cambridge University Press.
 }
 \seealso{
 \code{\link{lazyChain}}, \code{\link{fundamentalMatrix}},
-  \code{\link{canonicForm}}
+\code{\link{canonicForm}}
 }

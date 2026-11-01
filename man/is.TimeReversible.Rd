@@ -2,36 +2,64 @@
 % Please edit documentation in R/ctmcProbabilistic.R
 \name{is.TimeReversible}
 \alias{is.TimeReversible}
-\title{checks if ctmc object is time reversible}
+\title{Check whether a continuous time Markov chain is time reversible}
 \usage{
 is.TimeReversible(ctmc)
 }
 \arguments{
-\item{ctmc}{a ctmc-class object}
+\item{ctmc}{A \code{\link[=ctmc-class]{ctmc}} object.}
 }
 \value{
-Returns a boolean value stating whether ctmc object is time reversible
-
-a boolean value as described above
+\code{TRUE} if the chain is time reversible, \code{FALSE} otherwise.
 }
 \description{
-The function returns checks if provided function is time reversible
+A continuous time Markov chain with stationary distribution
+\eqn{\pi} is time reversible if it satisfies the detailed balance
+equations \eqn{\pi_i Q_{ij} = \pi_j Q_{ji}} for all states \eqn{i, j}.
+}
+\details{
+The equations are checked up to a relative tolerance of
+\eqn{\sqrt{\epsilon}} (about \eqn{1.5 \times 10^{-8}}) of the largest
+flow \eqn{\pi_i |Q_{ij}|}, because \eqn{\pi} is computed numerically.
+When the chain has several stationary distributions they must all
+satisfy them.
 }
 \examples{
 energyStates <- c("sigma", "sigma_star")
-byRow <- TRUE
-gen <- matrix(data = c(-3, 3,
-                       1, -1), nrow = 2,
-              byrow = byRow, dimnames = list(energyStates, energyStates))
-molecularCTMC <- new("ctmc", states = energyStates, 
-                     byrow = byRow, generator = gen, 
-                     name = "Molecular Transition Model")
+gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+              dimnames = list(energyStates, energyStates))
+molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+                     generator = gen, name = "Molecular Transition Model")
 is.TimeReversible(molecularCTMC)
 
+# a birth-death chain is reversible, a cycle is not
+s <- c("a", "b", "c")
+birthDeath <- matrix(c(-0.3, 0.3, 0,
+                       0.1, -0.5, 0.4,
+                       0, 0.7, -0.7), nrow = 3, byrow = TRUE,
+                     dimnames = list(s, s))
+is.TimeReversible(new("ctmc", states = s, byrow = TRUE, generator = birthDeath))
+cycle <- matrix(c(-1, 1, 0, 0, -1, 1, 1, 0, -1), nrow = 3, byrow = TRUE,
+                dimnames = list(s, s))
+is.TimeReversible(new("ctmc", states = s, byrow = TRUE, generator = cycle))
 }
 \references{
-INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
+Dobrow, R. P. (2016). Introduction to Stochastic Processes with
+R. Wiley.
+}
+\seealso{
+Other continuous time Markov chains: 
+\code{\link{ExpectedTime}()},
+\code{\link{ctmcFit}()},
+\code{\link{freq2Generator}()},
+\code{\link{generatorToTransitionMatrix}()},
+\code{\link{impreciseProbabilityatT}()},
+\code{\link{is.CTMCirreducible}()},
+\code{\link{probabilityatT}()},
+\code{\link{rctmc}()},
+\code{\link{transition2Generator}()}
 }
 \author{
 Vandit Jain
 }
+\concept{continuous time Markov chains}

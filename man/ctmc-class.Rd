@@ -8,46 +8,43 @@
 \alias{states,ctmc-method}
 \alias{steadyStates,ctmc-method}
 \alias{plot,ctmc,missing-method}
-\title{Continuous time Markov Chains class}
+\title{Continuous time Markov chain class}
 \description{
-The S4 class that describes \code{ctmc} (continuous 
-time Markov chain) objects.
+The S4 class of continuous time Markov chains, described by
+their generator (rate) matrix.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{states}}{Name of the states. Must be the same of
-\code{colnames} and \code{rownames} of the generator matrix}
+\item{\code{states}}{Names of the states, equal to the row and column names of the
+generator.}
 
-\item{\code{byrow}}{TRUE or FALSE. Indicates whether the given matrix is
-stochastic by rows or by columns}
+\item{\code{byrow}}{Logical: are the rates out of each state in its row (rows sum
+to zero) or in its column?}
 
-\item{\code{generator}}{Square generator matrix}
+\item{\code{generator}}{The square generator matrix: non-negative off-diagonal
+rates, with rows (or columns) summing to zero.}
 
-\item{\code{name}}{Optional character name of the Markov chain}
+\item{\code{name}}{Optional name of the chain.}
 }}
 
 \note{
-\enumerate{
-\item \code{ctmc} classes are written using S4 classes
-\item Validation method is used to assess whether either columns or rows totals to zero. 
-Rounding is used up to 5th decimal. If state names are not properly defined
-for a generator  \code{matrix}, coercing to \code{ctmc} object leads to overriding
-states name with artificial "s1", "s2", ... sequence
-}
+The validity method checks that the rows (or columns) of the
+generator sum to zero, rounded to the fifth decimal. If the generator has
+no state names, the states are named "s1", "s2", ...
 }
 \section{Methods}{
 
 
 \describe{
-\item{dim}{\code{signature(x = "ctmc")}: method to get the size} 
+\item{dim}{\code{signature(x = "ctmc")}: method to get the size}
 \item{initialize}{\code{signature(.Object = "ctmc")}: initialize
-  method }
+method }
 \item{states}{\code{signature(object = "ctmc")}: states method. }
 \item{steadyStates}{\code{signature(object = "ctmc")}: method to get the
-  steady state vector. } 
-\item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method 
-  for \code{ctmc} objects }
+steady state vector. }
+\item{plot}{\code{signature(x = "ctmc", y = "missing")}: plot method
+for \code{ctmc} objects }
 }
 }
 
@@ -60,8 +57,8 @@ gen <- matrix(data = c(-3, 3,
 molecularCTMC <- new("ctmc", states = energyStates, 
                      byrow = byRow, generator = gen, 
                      name = "Molecular Transition Model")
-                     steadyStates(molecularCTMC)
-\dontrun{plot(molecularCTMC)}
+steadyStates(molecularCTMC)
+\donttest{plot(molecularCTMC)}
 
 }
 \references{

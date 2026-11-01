@@ -8,28 +8,31 @@
 \alias{predict,markovchainList-method}
 \alias{print,markovchainList-method}
 \alias{show,markovchainList-method}
-\title{Non homogeneus discrete time Markov Chains class}
+\title{Non-homogeneous discrete time Markov chain class}
 \description{
-A class to handle non homogeneous discrete Markov chains
+The S4 class of non-homogeneous discrete time Markov chains:
+a sequence of \code{\link[=markovchain-class]{markovchain}} objects, the \eqn{k}-th
+giving the transition probabilities from time \eqn{k - 1} to time
+\eqn{k}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{markovchains}}{Object of class \code{"list"}: a list of markovchains}
+\item{\code{markovchains}}{A list of \code{\link[=markovchain-class]{markovchain}} objects.}
 
-\item{\code{name}}{Object of class \code{"character"}: optional name of the class}
+\item{\code{name}}{Optional name of the object.}
 }}
 
 \note{
-The class consists in a list of \code{markovchain} objects. 
+The class consists in a list of \code{markovchain} objects.
 It is aimed at working with non homogeneous Markov chains.
 }
 \section{Objects from the Class}{
 
 
-  A \code{markovchainlist} is a list of \code{markovchain} objects. They can
-  be used to model non homogeneous discrete time Markov Chains, when
-  transition probabilities (and possible states) change by time.
+Objects are created with \code{new("markovchainList", markovchains = list(...))}
+or estimated by \code{\link[=markovchainListFit]{markovchainListFit()}}. The transition probabilities, and
+the states, may change from one time to the next.
 }
 
 \section{Methods}{
@@ -37,12 +40,12 @@ It is aimed at working with non homogeneous Markov chains.
 \describe{
 \item{[[}{\code{signature(x = "markovchainList")}: extract the
 i-th \code{markovchain} }
-\item{dim}{\code{signature(x = "markovchainList")}: number 
+\item{dim}{\code{signature(x = "markovchainList")}: number
 of \code{markovchain} underlying the matrix }
-\item{predict}{\code{signature(object = "markovchainList")}: predict 
+\item{predict}{\code{signature(object = "markovchainList")}: predict
 from a \code{markovchainList} }
-\item{print}{\code{signature(x = "markovchainList")}: prints the list 
-  of markovchains }
+\item{print}{\code{signature(x = "markovchainList")}: prints the list
+of markovchains }
 \item{show}{\code{signature(object = "markovchainList")}: same as \code{print} }
 }
 }

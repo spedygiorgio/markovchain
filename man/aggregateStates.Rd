@@ -45,29 +45,29 @@ top-down below 30 states, otherwise bottom-up when \code{k} is at most
 }
 \value{
 A named list:
-  \describe{
-    \item{\code{partition}}{A named list of character vectors giving the
-      original state names belonging to each macro-state, suitable for
-      passing to \code{\link{lump}} or \code{\link{is.lumpable}}. Unlike
-      PyDTMC, which only labels the reduced chain's states generically
-      (e.g. \code{"ASBU1"}), this traces every macro-state back to the
-      original states it stands for.}
-    \item{\code{aggregatedChain}}{The reduced \code{markovchain} object,
-      row-stochastic, with states named after \code{partition}.}
-    \item{\code{klDivergence}}{The Kullback-Leibler divergence rate
-      (in bits) between \code{object} and the lifted \code{aggregatedChain}.
-      It is zero (up to rounding) when every source state splits its
-      outgoing probability among a destination macro-state's members in
-      the same proportions -- those of the stationary distribution
-      restricted to that macro-state -- regardless of the source; this is
-      \emph{stronger} than the Kemeny-Snell strong lumpability checked by
-      \code{\link{is.lumpable}}, which only requires the macro-to-macro
-      \emph{totals} to agree across sources (see Details).}
-    \item{\code{method}}{The method actually used, after resolving
-      \code{"adaptive"}.}
-    \item{\code{k}}{The number of macro-states actually used, after
-      resolving an automatic \code{NULL}.}
-  }
+\describe{
+\item{\code{partition}}{A named list of character vectors giving the
+original state names belonging to each macro-state, suitable for
+passing to \code{\link{lump}} or \code{\link{is.lumpable}}. Unlike
+PyDTMC, which only labels the reduced chain's states generically
+(e.g. \code{"ASBU1"}), this traces every macro-state back to the
+original states it stands for.}
+\item{\code{aggregatedChain}}{The reduced \code{markovchain} object,
+row-stochastic, with states named after \code{partition}.}
+\item{\code{klDivergence}}{The Kullback-Leibler divergence rate
+(in bits) between \code{object} and the lifted \code{aggregatedChain}.
+It is zero (up to rounding) when every source state splits its
+outgoing probability among a destination macro-state's members in
+the same proportions -- those of the stationary distribution
+restricted to that macro-state -- regardless of the source; this is
+\emph{stronger} than the Kemeny-Snell strong lumpability checked by
+\code{\link{is.lumpable}}, which only requires the macro-to-macro
+\emph{totals} to agree across sources (see Details).}
+\item{\code{method}}{The method actually used, after resolving
+\code{"adaptive"}.}
+\item{\code{k}}{The number of macro-states actually used, after
+resolving an automatic \code{NULL}.}
+}
 }
 \description{
 Reduces the state space of a finite, irreducible, aperiodic Markov chain
@@ -146,5 +146,5 @@ process. \emph{The Annals of Applied Probability}, 1(1).
 }
 \seealso{
 \code{\link{autoLump}}, \code{\link{lump}},
-  \code{\link{is.lumpable}}, \code{\link{closestReversible}}
+\code{\link{is.lumpable}}, \code{\link{closestReversible}}
 }

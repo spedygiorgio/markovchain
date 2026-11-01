@@ -30,6 +30,8 @@
 #'   bounds and standard errors keep the values the unconstrained fit assigned
 #'   to those rows.
 #' @export
+# Public fitting function. It mainly validates and sets up threads, then delegates to the
+# wrapper below, which handles the 'absorbing states' extras around the C++ fit.
 markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
                            laplacian = 0, name = "", parallel = FALSE,
                            confidencelevel = 0.95, confint = TRUE,
@@ -47,6 +49,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
   if (isTRUE(parallel) && identical(method, "bootstrap")) {
     RcppParallel::setThreadOptions(.mcDesiredThreads(num.cores))
   }
+  # All remaining work is done in the wrapper.
   .markovchainFitWithAbsorbingStates(
     data, method, byrow, nboot, laplacian, name, parallel,
     confidencelevel, confint, hyperparam, sanitize, possibleStates,
@@ -61,12 +64,14 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
                                                hyperparam, sanitize,
                                                possibleStates, absorbingStates,
                                                progress = FALSE) {
+  # Step 1: validate and normalise the options.
   if (!is.character(absorbingStates) || anyNA(absorbingStates)) {
     stop("`absorbingStates` must be a character vector without NA values")
   }
   declaredAbsorbing <- unique(absorbingStates)
   sanitizeMode <- .sanitizeMode(sanitize)
 
+  # Fast path: no absorbing-state option used, call the compiled C++ fit directly.
   # Nothing to constrain: the plain C++ fit handles sanitize = FALSE/TRUE.
   if (length(declaredAbsorbing) == 0L && sanitizeMode != "absorbing") {
     return(.Call(`_markovchain_markovchainFit`, data, method, byrow, nboot,
@@ -83,6 +88,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
     stop("`absorbingStates` is currently supported only with method = \"mle\"")
   }
 
+  # Step 2: if data are in columns (byrow = FALSE) transpose them so counts have rows = from.
   countData <- data
   if (is.data.frame(data) && !byrow) {
     countData <- t(as.matrix(data))
@@ -94,6 +100,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
   # both during validation and in the final fitted transition matrix.
   fitPossibleStates <- unique(c(possibleStates, declaredAbsorbing))
 
+  # Step 3: count the observed transitions without normalising (raw counts).
   counts <- createSequenceMatrix(
     countData,
     toRowProbs = FALSE,
@@ -101,6 +108,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
     possibleStates = fitPossibleStates
   )
 
+  # An absorbing state can never be left: it is an error if the data show it being left.
   rowTotals <- rowSums(counts)
   hasOutgoing <- declaredAbsorbing[rowTotals[declaredAbsorbing] > 0]
   if (length(hasOutgoing) > 0L) {
@@ -131,6 +139,7 @@ markovchainFit <- function(data, method = "mle", byrow = TRUE, nboot = 10L,
     return(fit)
   }
 
+  # Step 4: patch the fitted matrix: absorbing states get probability 1 on the diagonal, 0 elsewhere.
   transitionMatrix <- fit$estimate@transitionMatrix
   if (byrow) {
     transitionMatrix[absorbingStates, ] <- 0

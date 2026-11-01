@@ -11,15 +11,15 @@ absorptionProbabilities(object)
 }
 \value{
 A named vector with the expected number of steps to go from a
-  transient state to any of the recurrent ones
+transient state to any of the recurrent ones
 }
 \description{
 Computes the absorption probability from each transient
-  state to each recurrent one (i.e. the (i, j) entry or (j, i), in a 
-  stochastic matrix by columns, represents the probability that the
-  first not transient state we can go from the transient state i is j
-  (and therefore we are going to be absorbed in the communicating
-  recurrent class of j)
+state to each recurrent one (i.e. the (i, j) entry or (j, i), in a
+stochastic matrix by columns, represents the probability that the
+first not transient state we can go from the transient state i is j
+(and therefore we are going to be absorbed in the communicating
+recurrent class of j)
 }
 \examples{
 m <- matrix(c(1/2, 1/2, 0,
@@ -33,6 +33,19 @@ absorptionProbabilities(mc)
 C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.
 }
+\seealso{
+Other first passage and hitting: 
+\code{\link{committorAB}()},
+\code{\link{firstPassage}()},
+\code{\link{firstPassageMultiple}()},
+\code{\link{hittingProbabilities}()},
+\code{\link{meanAbsorptionTime}()},
+\code{\link{meanFirstPassageTime}()},
+\code{\link{meanNumVisits}()},
+\code{\link{meanRecurrenceTime}()},
+\code{\link{noofVisitsDist}()}
+}
 \author{
 Ignacio Cordón
 }
+\concept{first passage and hitting}

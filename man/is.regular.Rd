@@ -16,8 +16,8 @@ A boolean value
 Function to check wether a DTCM is regular
 }
 \details{
-A Markov chain is regular if some of the powers of its matrix has all elements 
-  strictly positive
+A Markov chain is regular if some of the powers of its matrix has all elements
+strictly positive
 }
 \examples{
 P <- matrix(c(0.5,  0.25, 0.25,
@@ -29,8 +29,8 @@ is.regular(ciao)
 
 }
 \references{
-Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
-  Corollary 8.5.8, Theorem 8.5.9
+Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition.
+Corollary 8.5.8, Theorem 8.5.9
 }
 \seealso{
 \code{\link{is.irreducible}}

@@ -15,8 +15,8 @@ irreducible discrete-time Markov chain.}
 }
 \value{
 A positive numeric scalar, in number of steps: \code{Inf} for a
-  periodic chain (spectral gap zero), \code{1} for the trivial one-state
-  chain.
+periodic chain (spectral gap zero), \code{1} for the trivial one-state
+chain.
 }
 \description{
 The relaxation time \eqn{1/\mathrm{gap}} of a finite irreducible
@@ -50,5 +50,5 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{spectralGap}}, \code{\link{slem}},
-  \code{\link{impliedTimescales}}, \code{\link{mixingTime}}
+\code{\link{impliedTimescales}}, \code{\link{mixingTime}}
 }

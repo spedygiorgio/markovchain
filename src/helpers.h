@@ -1,3 +1,5 @@
+// Header file (.h): declarations and functions shared by several .cpp files. The #ifndef / #define /
+// #endif lines (include guards) prevent the file from being included twice in the same compilation.
 #ifndef HELPERS_H
 #define HELPERS_H
 
@@ -11,6 +13,8 @@ using namespace Rcpp;
 using namespace std;
 
 
+// sortByDimNames(): reorders the rows and columns of a square matrix so that both follow the
+// alphabetical order of the names. The template parameter T lets it work for numeric and integer matrices.
 template <typename T>
 T sortByDimNames(const T mat){
   CharacterVector colNames = colnames(mat);
@@ -53,10 +57,12 @@ T sortByDimNames(const T mat){
   return sortedMatrix;
 }
 
+// Logarithm of the Beta function: log B(p, q) = lgamma(p) + lgamma(q) - lgamma(p + q).
 double lbeta(double p, double q){
   return lgamma(p) + lgamma(q) - lgamma(p + q);
 }
 
+// Transpose of a matrix, keeping the names (rows become columns).
 template <typename T>
 T transposeMatrix(T & mat) {      
   int numRows = mat.nrow();
@@ -73,6 +79,11 @@ T transposeMatrix(T & mat) {
   return transpose;
 }
 
+// betain() and xinbta() below are classical numerical algorithms (AS 63 and AS 109, translated by John
+// Burkardt): betain is the regularised incomplete beta function I_x(p, q) = the CDF of a Beta
+// distribution; xinbta is its inverse (the QUANTILE function). We use them for the credible intervals
+// of the Bayesian fit. Junior note: these are third-party numerical routines; there is no need to
+// modify them (they could be replaced by R's pbeta/qbeta if needed).
 /*
  Purpose:
 
@@ -204,6 +215,8 @@ double betain(double x, double p, double q, double beta) {
 }
 
 
+// xinbta(): inverse of the incomplete beta function: the value x such that I_x(p, q) = alpha.
+// It starts from an approximation and refines it with a modified Newton-Raphson iteration.
 /*
  Purpose:
 

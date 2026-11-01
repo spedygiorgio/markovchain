@@ -27,10 +27,10 @@ states by name, an unnamed one by position.}
 }
 \value{
 If \code{lastOnly = FALSE} (default), a numeric matrix with
-  \code{steps + 1} rows and one column per state: row \eqn{t} (labelled
-  \code{"t"}, from \code{"0"}) holds the distribution after \eqn{t}
-  steps, so the first row is the initial distribution. Otherwise, a named
-  numeric vector with the distribution after \code{steps} steps.
+\code{steps + 1} rows and one column per state: row \eqn{t} (labelled
+\code{"t"}, from \code{"0"}) holds the distribution after \eqn{t}
+steps, so the first row is the initial distribution. Otherwise, a named
+numeric vector with the distribution after \code{steps} steps.
 }
 \description{
 Propagates an initial distribution of the states of a discrete-time
@@ -41,7 +41,6 @@ distributions.
 If \eqn{\mu_0} is the initial distribution (a row vector) and \eqn{P} the
 row-stochastic transition matrix, the distribution after \eqn{t} steps is
 \deqn{\mu_t = \mu_{t-1} P = \mu_0 P^t.}
-
 
 The implementation propagates the vector step by step, at a cost of
 \eqn{O(n^2)} per step for a dense \eqn{n}-state chain, instead of
@@ -69,5 +68,5 @@ redistribute(mc, steps = 50, initial = c(a = 0.2, b = 0.8), lastOnly = TRUE)
 }
 \seealso{
 \code{\link{steadyStates}}, \code{\link{mixingTime}},
-  \code{\link{autoplot.markovchain}}
+\code{\link{autoplot.markovchain}}
 }

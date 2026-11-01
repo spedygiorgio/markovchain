@@ -17,8 +17,8 @@ statistic or \code{"G"} for the likelihood-ratio statistic.}
 }
 \value{
 An \code{htest} object, returned invisibly, with the additional
-  components \code{observed} (transition counts, rows are departure states) and
-  \code{expected} (counts expected under independence).
+components \code{observed} (transition counts, rows are departure states) and
+\code{expected} (counts expected under independence).
 }
 \description{
 Tests the null hypothesis that consecutive observations are independent,
@@ -61,9 +61,6 @@ about Markov chains. \emph{The Annals of Mathematical Statistics}, 28(1), 89--11
 }
 \seealso{
 \code{\link{verifyMarkovProperty}}, \code{\link{assessOrder}},
-  \code{\link{assessStationarity}}
-
-Other statisticalTests:
-\code{\link[=verifyMarkovProperty]{verifyMarkovProperty()}}
+\code{\link{assessStationarity}}
 }
 \concept{statisticalTests}

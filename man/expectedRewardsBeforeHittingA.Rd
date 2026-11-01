@@ -2,34 +2,51 @@
 % Please edit documentation in R/probabilistic.R
 \name{expectedRewardsBeforeHittingA}
 \alias{expectedRewardsBeforeHittingA}
-\title{Expected first passage Rewards for a set of states in a markovchain}
+\title{Expected reward collected before hitting a set of states}
 \usage{
 expectedRewardsBeforeHittingA(markovchain, A, state, rewards, n)
 }
 \arguments{
-\item{markovchain}{the markovchain-class object}
+\item{markovchain}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{A}{set of states for first passage expected reward}
+\item{A}{Names of the states of the target set.}
 
-\item{state}{initial state}
+\item{state}{Name of the initial state, not in \code{A}.}
 
-\item{rewards}{vector depicting rewards coressponding to states}
+\item{rewards}{Numeric vector with the reward of each state, in the order
+of \code{states(markovchain)} (the rewards of the states in \code{A} are not used).}
 
-\item{n}{no of steps of the process}
+\item{n}{Number of steps, a non-negative integer.}
 }
 \value{
-returns a expected reward (numerical value) as described above
+A number, the expected reward.
 }
 \description{
-Given a markovchain object and reward values for every state,
-function calculates expected reward value for a set A of states after n 
-steps.
+Expected total reward collected by a Markov chain started in
+\code{state} at the steps \eqn{1, \dots, n} it spends outside the set \code{A}
+before entering it, when state \eqn{i} pays \code{rewards[i]} at each visit.
 }
 \details{
-The function returns the value of expected first passage 
-rewards given rewards coressponding to every state, an initial state
-and number of steps.
+With \eqn{Q} the transition matrix restricted to the states
+outside \code{A}, the value is \eqn{\sum_{k=1}^{n} (Q^k r)_{s}}, with
+\eqn{s} the initial state: the reward of the initial state at time 0 is
+not included.
+}
+\examples{
+transMatr <- matrix(c(0.5, 0.3, 0.2,
+                      0.2, 0.5, 0.3,
+                      0, 0, 1), nrow = 3, byrow = TRUE)
+mc <- new("markovchain", states = c("a", "b", "c"),
+          transitionMatrix = transMatr)
+# reward 1 per step spent in "a" or "b" before absorption in "c"
+expectedRewardsBeforeHittingA(mc, A = "c", state = "a",
+                              rewards = c(1, 1, 0), n = 100)
+}
+\seealso{
+Other rewards: 
+\code{\link{expectedRewards}()}
 }
 \author{
 Sai Bhargav Yalamanchi, Vandit Jain
 }
+\concept{rewards}

@@ -27,20 +27,20 @@ the stationary distribution's mass for typical \code{rho}.}
 }
 \value{
 A named list with two elements:
-  \describe{
-    \item{\code{chain}}{The discretized \code{markovchain} object, with
-      state names equal to the grid values of \eqn{y} formatted to 4
-      significant digits.}
-    \item{\code{states}}{The numeric grid of \eqn{y}-values themselves,
-      in the same order as \code{chain}'s states. Returning the actual
-      levels alongside the chain, rather than only generic state labels
-      \code{"1"}, \code{"2"}, \ldots, is deliberate: the whole point of
-      discretizing an AR(1) process is usually to do further numeric
-      work with the levels (e.g. plugging them into a pricing formula),
-      and re-deriving the grid from \code{alpha}, \code{sigma}, \code{rho}
-      and \code{k} a second time by hand is both extra work and a place
-      for an off-by-one or rounding mismatch to creep in.}
-  }
+\describe{
+\item{\code{chain}}{The discretized \code{markovchain} object, with
+state names equal to the grid values of \eqn{y} formatted to 4
+significant digits.}
+\item{\code{states}}{The numeric grid of \eqn{y}-values themselves,
+in the same order as \code{chain}'s states. Returning the actual
+levels alongside the chain, rather than only generic state labels
+\code{"1"}, \code{"2"}, \ldots, is deliberate: the whole point of
+discretizing an AR(1) process is usually to do further numeric
+work with the levels (e.g. plugging them into a pricing formula),
+and re-deriving the grid from \code{alpha}, \code{sigma}, \code{rho}
+and \code{k} a second time by hand is both extra work and a place
+for an off-by-one or rounding mismatch to creep in.}
+}
 }
 \description{
 Approximates the stationary first-order autoregressive process

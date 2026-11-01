@@ -10,19 +10,54 @@ lump(object, partition, force = FALSE)
 \S4method{lump}{markovchain}(object, partition, force = FALSE)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{partition}{A named list of character vectors defining macro-states.}
+\item{partition}{A named list of character vectors, the blocks of the
+partition; the names become the states of the result.}
 
-\item{force}{If \code{FALSE}, stop unless the chain is exactly lumpable. If
-\code{TRUE}, return a weighted approximate lumping.}
+\item{force}{Logical: if \code{FALSE} (default) stop unless the chain is
+exactly lumpable; if \code{TRUE} aggregate anyway.}
 }
 \value{
-A \code{markovchain} object on the macro-state space.
+A row-stochastic \code{\link[=markovchain-class]{markovchain}} object on the
+blocks.
 }
 \description{
-Coarsens a Markov chain to a reduced state space. By default the
-function requires exact lumpability. With \code{force = TRUE}, it performs an
-approximate aggregation using stationary weights when available and arithmetic
-averages for macro-states with zero stationary mass.
+Builds the chain on the blocks (macro-states) of a partition
+of the states. By default the chain must be exactly lumpable with respect
+to the partition (see \code{\link[=is.lumpable]{is.lumpable()}}); with \code{force = TRUE} an
+approximate aggregation is returned for any partition.
 }
+\details{
+The probability of moving from block \eqn{A} to block \eqn{B} is
+the average over the states of \eqn{A} of their probability of moving
+into \eqn{B}, weighted by the stationary distribution (the average of the
+stationary distributions if there are several; equal weights within a
+block with zero stationary mass). For a lumpable chain all the states of
+a block give the same value, so the weights do not matter; otherwise the
+result is the usual stationary-weighted approximation, which preserves
+the stationary distribution of the blocks.
+}
+\examples{
+statesNames <- c("a", "b", "c", "d")
+P <- matrix(c(0.1, 0.2, 0.3, 0.4,
+              0.2, 0.1, 0.4, 0.3,
+              0.3, 0.3, 0.2, 0.2,
+              0.2, 0.4, 0.1, 0.3), nrow = 4, byrow = TRUE,
+            dimnames = list(statesNames, statesNames))
+mc <- new("markovchain", states = statesNames, transitionMatrix = P)
+partition <- list(ab = c("a", "b"), cd = c("c", "d"))
+lump(mc, partition)
+# an approximate aggregation over a partition that is not lumpable
+lump(mc, list(ac = c("a", "c"), bd = c("b", "d")), force = TRUE)
+}
+\references{
+Kemeny, J. G. and Snell, J. L. (1960). Finite Markov Chains.
+Van Nostrand.
+}
+\seealso{
+Other state aggregation: 
+\code{\link{autoLump}()},
+\code{\link{is.lumpable}()}
+}
+\concept{state aggregation}

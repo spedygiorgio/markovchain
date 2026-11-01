@@ -7,9 +7,9 @@
 \title{Easy Handling Discrete Time Markov Chains}
 \description{
 The package contains classes and method to create and manage
-  (plot, print, export for example) discrete time Markov chains (DTMC). In
-  addition it provide functions to perform statistical (fitting and drawing
-  random variates) and probabilistic (analysis of DTMC proprieties) analysis
+(plot, print, export for example) discrete time Markov chains (DTMC). In
+addition it provide functions to perform statistical (fitting and drawing
+random variates) and probabilistic (analysis of DTMC proprieties) analysis
 }
 \examples{
 # create some markov chains
@@ -46,7 +46,7 @@ Useful links:
 
 }
 \author{
-Giorgio Alfredo Spedicato 
-Maintainer: Giorgio Alfredo Spedicato <spedicato_giorgio@yahoo.it>
+Giorgio Alfredo Spedicato
+Maintainer: Giorgio Alfredo Spedicato \email{spedicato_giorgio@yahoo.it}
 }
 \keyword{package}

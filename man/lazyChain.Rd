@@ -18,9 +18,9 @@ the usual textbook "lazy random walk" construction.}
 }
 \value{
 A new \code{markovchain} object with transition matrix
-  \eqn{L = \alpha I + (1-\alpha) P}, the same states, and the same
-  row/column-stochastic storage convention (\code{byrow}) as
-  \code{object}.
+\eqn{L = \alpha I + (1-\alpha) P}, the same states, and the same
+row/column-stochastic storage convention (\code{byrow}) as
+\code{object}.
 }
 \description{
 Constructs the "lazy" chain associated with a \code{markovchain} object:
@@ -33,28 +33,27 @@ For a transition matrix \eqn{P} (in whichever storage convention
 \eqn{\alpha\in[0,1]}, the lazy chain's transition matrix is
 \deqn{L = \alpha I + (1-\alpha) P.}
 
-
 Laziness is a standard device for forcing aperiodicity without changing
 where the chain can go or its stationary distribution:
 \itemize{
-  \item \eqn{L} has the *same* stationary distribution as \eqn{P}
-    (if \eqn{\pi P=\pi} then \eqn{\pi L = \alpha\pi + (1-\alpha)\pi P =
+\item \eqn{L} has the \emph{same} stationary distribution as \eqn{P}
+(if \eqn{\pi P=\pi} then \eqn{\pi L = \alpha\pi + (1-\alpha)\pi P =
     \pi}), and the same communicating classes, since
-    \eqn{L_{ij}>0 \iff P_{ij}>0} for \eqn{i\ne j}.
-  \item For \eqn{0<\alpha<1}, \eqn{L} is aperiodic even if \eqn{P} is
-    periodic, because \eqn{L_{ii}=\alpha>0} for every state \eqn{i}
-    rules out any period greater than \eqn{1}. This is why
-    \code{\link{mixingTime}}, which requires aperiodicity, is often
-    applied to \code{lazyChain(object)} rather than to a periodic
-    \code{object} directly (see \code{\link{mixingTime}}'s own
-    documentation for why it rejects periodic chains outright rather
-    than lazifying them automatically).
-  \item Every non-trivial eigenvalue of \eqn{L} is
-    \eqn{\alpha + (1-\alpha)\lambda} for the corresponding eigenvalue
-    \eqn{\lambda} of \eqn{P}: laziness shrinks the whole non-trivial
-    spectrum towards \eqn{\alpha}, so \code{\link{slem}} and
-    \code{\link{impliedTimescales}} generally get *worse* (mixing gets
-    slower) as \code{alpha} increases towards \code{1}.
+\eqn{L_{ij}>0 \iff P_{ij}>0} for \eqn{i\ne j}.
+\item For \eqn{0<\alpha<1}, \eqn{L} is aperiodic even if \eqn{P} is
+periodic, because \eqn{L_{ii}=\alpha>0} for every state \eqn{i}
+rules out any period greater than \eqn{1}. This is why
+\code{\link{mixingTime}}, which requires aperiodicity, is often
+applied to \code{lazyChain(object)} rather than to a periodic
+\code{object} directly (see \code{\link{mixingTime}}'s own
+documentation for why it rejects periodic chains outright rather
+than lazifying them automatically).
+\item Every non-trivial eigenvalue of \eqn{L} is
+\eqn{\alpha + (1-\alpha)\lambda} for the corresponding eigenvalue
+\eqn{\lambda} of \eqn{P}: laziness shrinks the whole non-trivial
+spectrum towards \eqn{\alpha}, so \code{\link{slem}} and
+\code{\link{impliedTimescales}} generally get \emph{worse} (mixing gets
+slower) as \code{alpha} increases towards \code{1}.
 }
 \eqn{\alpha=0} returns \eqn{P} unchanged; \eqn{\alpha=1} returns the
 identity matrix (a chain that never moves).
@@ -78,5 +77,5 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{subchain}}, \code{\link{mixingTime}},
-  \code{\link{slem}}
+\code{\link{slem}}
 }

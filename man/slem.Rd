@@ -15,7 +15,7 @@ irreducible discrete-time Markov chain.}
 }
 \value{
 A numeric scalar in \eqn{[0,1]} containing the SLEM. For the
-  trivial one-state chain, \code{0} is returned.
+trivial one-state chain, \code{0} is returned.
 }
 \description{
 Computes the second largest eigenvalue modulus (SLEM) of a finite,
@@ -28,7 +28,6 @@ Perron-Frobenius theorem an irreducible chain has \eqn{\lambda_1=1} with
 algebraic multiplicity one, and \eqn{|\lambda_k|\le 1} for every
 \eqn{k}. The SLEM is
 \deqn{\mathrm{SLEM} = \max_{k>1} |\lambda_k|.}
-
 
 Only irreducibility is required, not aperiodicity. If the chain is
 periodic, at least one non-trivial eigenvalue also has modulus one (e.g.
@@ -62,5 +61,5 @@ Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
 }
 \seealso{
 \code{\link{spectralGap}}, \code{\link{impliedTimescales}},
-  \code{\link{is.irreducible}}, \code{\link{period}}
+\code{\link{is.irreducible}}, \code{\link{period}}
 }

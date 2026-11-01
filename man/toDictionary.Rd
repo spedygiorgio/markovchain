@@ -32,22 +32,22 @@ always reconstructed with \code{byrow = TRUE}, regardless of
 }
 \value{
 A named list with four elements:
-  \describe{
-    \item{\code{name}}{The chain's \code{name}, as a single string
-      (possibly empty).}
-    \item{\code{states}}{A character vector of state names, in order.}
-    \item{\code{byrow}}{Always \code{TRUE}: the list always stores the
-      chain row-stochastically, regardless of \code{object}'s own
-      storage convention, so that the representation is unambiguous
-      without also having to interpret this flag.}
-    \item{\code{transitionMatrix}}{A named list of named lists:
-      \code{transitionMatrix[[i]][[j]]} is the probability of moving
-      from state \code{i} to state \code{j}. This is deliberately not a
-      plain matrix, so that the structure serializes to JSON or YAML
-      (via \code{\link{toFile}}) as a self-describing object keyed by
-      state name, rather than a bare array whose meaning depends on
-      remembering a row/column order.}
-  }
+\describe{
+\item{\code{name}}{The chain's \code{name}, as a single string
+(possibly empty).}
+\item{\code{states}}{A character vector of state names, in order.}
+\item{\code{byrow}}{Always \code{TRUE}: the list always stores the
+chain row-stochastically, regardless of \code{object}'s own
+storage convention, so that the representation is unambiguous
+without also having to interpret this flag.}
+\item{\code{transitionMatrix}}{A named list of named lists:
+\code{transitionMatrix[[i]][[j]]} is the probability of moving
+from state \code{i} to state \code{j}. This is deliberately not a
+plain matrix, so that the structure serializes to JSON or YAML
+(via \code{\link{toFile}}) as a self-describing object keyed by
+state name, rather than a bare array whose meaning depends on
+remembering a row/column order.}
+}
 
 \code{fromDictionary} returns a \code{markovchain} object.
 }

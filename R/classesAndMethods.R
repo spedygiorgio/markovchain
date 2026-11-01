@@ -67,13 +67,13 @@
 #' @section Methods:
 #' 
 #' \describe{
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: multiply two \code{markovchain} objects}
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "matrix")}: markovchain by matrix multiplication}
-#'    \item{*}{\code{signature(e1 = "markovchain", e2 = "numeric")}: markovchain by numeric vector multiplication }
-#'    \item{*}{\code{signature(e1 = "matrix", e2 = "markovchain")}: matrix by markov chain}
-#'    \item{*}{\code{signature(e1 = "numeric", e2 = "markovchain")}: numeric vector by \code{markovchain} multiplication   }
-#'    \item{[}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
-#'    \item{^}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: multiply two \code{markovchain} objects}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "matrix")}: markovchain by matrix multiplication}
+#'    \item{\code{*}}{\code{signature(e1 = "markovchain", e2 = "numeric")}: markovchain by numeric vector multiplication }
+#'    \item{\code{*}}{\code{signature(e1 = "matrix", e2 = "markovchain")}: matrix by markov chain}
+#'    \item{\code{*}}{\code{signature(e1 = "numeric", e2 = "markovchain")}: numeric vector by \code{markovchain} multiplication   }
+#'    \item{\code{[}}{\code{signature(x = "markovchain", i = "ANY", j = "ANY", drop = "ANY")}: ... }
+#'    \item{\code{^}}{\code{signature(e1 = "markovchain", e2 = "numeric")}: power of a \code{markovchain} object}
 #'    \item{==}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: equality of two \code{markovchain} object}
 #'    \item{!=}{\code{signature(e1 = "markovchain", e2 = "markovchain")}: non-equality of two \code{markovchain} object}
 #'    \item{absorbingStates}{\code{signature(object = "markovchain")}: method to get absorbing states }
@@ -161,6 +161,10 @@
 #' @keywords classes
 #' 
 #' @export
+# Overview of this file: the S4 classes of the package ('markovchain', 'markovchainList') and their
+# basic methods: initialization, validity, printing, plotting, coercion (as(x, 'class')), arithmetic
+# operators, prediction. S4 in two lines: a CLASS has typed SLOTS (read with @), setValidity() adds
+# consistency checks, setMethod() defines the behaviour of a generic function for a class.
 setClass(
   # Class name
   "markovchain",
@@ -180,6 +184,8 @@ setClass(
 )
 
 # Initializing method for markovchain objects
+# initialize() runs inside new('markovchain', ...): it fills defaults for missing arguments
+# (a 2-state example chain, byrow = TRUE, a default name) and makes row/column names consistent.
 setMethod(
   "initialize",
   signature(.Object = "markovchain"),
@@ -216,23 +222,26 @@ setMethod(
   }
 )
 
-#' @title Non homogeneus discrete time Markov Chains class
+#' @title Non-homogeneous discrete time Markov chain class
 #' @name markovchainList-class
 #' @aliases [[,markovchainList-method
 #' @aliases dim,markovchainList-method
 #' @aliases predict,markovchainList-method
 #' @aliases print,markovchainList-method
 #' @aliases show,markovchainList-method
-#' @description A class to handle non homogeneous discrete Markov chains
+#' @description The S4 class of non-homogeneous discrete time Markov chains:
+#'   a sequence of [`markovchain`][markovchain-class] objects, the \eqn{k}-th
+#'   giving the transition probabilities from time \eqn{k - 1} to time
+#'   \eqn{k}.
 #' 
-#' @slot markovchains Object of class \code{"list"}: a list of markovchains
-#' @slot name Object of class \code{"character"}: optional name of the class
+#' @slot markovchains A list of [`markovchain`][markovchain-class] objects.
+#' @slot name Optional name of the object.
 #' 
 #' @section Objects from the Class:
 #'
-#'   A \code{markovchainlist} is a list of \code{markovchain} objects. They can
-#'   be used to model non homogeneous discrete time Markov Chains, when
-#'   transition probabilities (and possible states) change by time.
+#'   Objects are created with `new("markovchainList", markovchains = list(...))`
+#'   or estimated by [markovchainListFit()]. The transition probabilities, and
+#'   the states, may change from one time to the next.
 #' @section Methods:
 #' \describe{
 #' \item{[[}{\code{signature(x = "markovchainList")}: extract the
@@ -282,6 +291,8 @@ setMethod(
 #' @keywords classes
 #' 
 #' @export
+# A markovchainList is a list of markovchains: a chain whose transition matrix changes with time
+# (non-homogeneous chain): the matrix at time t is the t-th element.
 setClass(
   "markovchainList",
   slots = list(
@@ -293,6 +304,7 @@ setClass(
 # A markovchainList is valid iff all the slots are markovchain objects
 # Returns true if the markovchainList is valid, the indexes of the
 # wrong slots otherwise
+# Validity of markovchainList: every element must be a markovchain; the error lists the wrong positions.
 setValidity(
   "markovchainList",
   function(object) {
@@ -312,14 +324,14 @@ setValidity(
 
 #' @name states
 #' 
-#' @title Defined states of a transition matrix
+#' @title States of a Markov chain
 #' 
-#' @description This method returns the states of a transition matrix.
+#' @description Returns the names of the states of a Markov chain, in the
+#'   order of its transition matrix.
 #' 
-#' @param object A discrete \code{markovchain} object
-#' @return The character vector corresponding to states slot.
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @param object A [`markovchain`][markovchain-class] object (or a
+#'   [`ctmc`][ctmc-class] object).
+#' @return A character vector, the `states` slot.
 #' 
 #' @author Giorgio Spedicato
 #' 
@@ -363,13 +375,16 @@ setMethod(
   }
 )
 
-#' @title Method to retrieve name of markovchain object  
+#' @title Name of a Markov chain
 #' 
 #' @name name
 #' 
-#' @description This method returns the name of a markovchain object
+#' @description Returns the name of a [`markovchain`][markovchain-class]
+#'   object (its `name` slot).
 #' 
-#' @param object A markovchain object
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @return A character string.
+#' @seealso [`name<-`][name<-] to change it.
 #' @rdname getName
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
@@ -394,14 +409,17 @@ setMethod(
     object@name
 })
 
-#' @title Method to set name of markovchain object
+#' @title Set the name of a Markov chain
 #' 
 #' @name name<-
 #' 
-#' @description This method modifies the existing name of markovchain object
+#' @description Replaces the name of a [`markovchain`][markovchain-class]
+#'   object (its `name` slot).
 #' 
-#' @param object A markovchain object
-#' @param value New name of markovchain object
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param value The new name, a character string.
+#' @return The object with the new name (used as `name(object) <- value`).
+#' @seealso [name()] to read it.
 #' @rdname setName
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
@@ -413,6 +431,7 @@ setMethod(
 #'                 name = "A markovchain Object" 
 #' )
 #' name(markovB) <- "dangerous mc"
+#' name(markovB)
 #' 
 #' @export
 setGeneric("name<-", function(object, value) standardGeneric("name<-"))
@@ -461,6 +480,9 @@ setMethod(
 
 
 # method  to set the validity of a markovchain object
+# Validity of markovchain: unique states; entries are probabilities; square matrix; rows (or
+# columns, depending on byrow) sum to one; names of rows and columns coincide with the states.
+# The errors found are collected and returned together.
 setValidity(
   "markovchain",
   function(object) {
@@ -516,18 +538,17 @@ setValidity(
 # from state t0 to state t1
 
 #' @name transitionProbability
-#' @title Function to get the transition probabilities from initial 
-#'        to subsequent states.
-#' @description This is a convenience function to get transition probabilities.
+#' @title Transition probability between two states
+#' @description Returns the one-step probability of moving from state `t0` to
+#'   state `t1`.
 #' 
-#' @param object A \code{markovchain} object.
-#' @param t0 Initial state.
-#' @param t1 Subsequent state.
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param t0 Name of the current state.
+#' @param t1 Name of the next state.
 #' 
-#' @references A First Course in Probability (8th Edition), 
-#'             Sheldon Ross, Prentice Hall 2010
-#' 
-#' @return Numeric Vector  
+#' @return A number, the transition probability.
+#' @seealso [conditionalDistribution()] for the whole distribution of the
+#'   next state.
 #' 
 #' @author Giorgio Spedicato
 #' @seealso \code{\linkS4class{markovchain}}
@@ -543,6 +564,8 @@ setValidity(
 #' @rdname transitionProbability
 #'      
 #' @exportMethod transitionProbability
+# Probability of moving from state t0 to state t1: entry [t0, t1] if the matrix is stored by row,
+# [t1, t0] if by column.
 setGeneric("transitionProbability", function(object, t0, t1) standardGeneric("transitionProbability"))
 
 #' @rdname transitionProbability
@@ -558,6 +581,8 @@ setMethod("transitionProbability", "markovchain",
 
 #  print, plot and show methods
 
+# Common code of show() and print(): header with name, dimension, states and the orientation of the
+# matrix, followed by the matrix itself.
 .showInt <- function(object, verbose = TRUE) {
 	
   # find the direction
@@ -609,6 +634,8 @@ setMethod("print", "markovchain",
   }
 )
 
+# Builds the igraph graph used by plot(): the weights are multiplied by 100 because igraph rounds the
+# weights and we want to keep two decimals.
 .getNet <- function(object, round = FALSE) {
  	
   # function to get the absorbency matrix to plot and export to igraph
@@ -634,6 +661,7 @@ setMethod("print", "markovchain",
 	return(net)
 }
 
+# One colour for each communicating class.
 getColorVector <- function(object){
   list <- .communicatingClassesRcpp(object)
   sections <- length(list)
@@ -656,8 +684,12 @@ setGeneric("plot")
 # Plot methods for markovchain objects
 
 # plot method from stat5
+# plot() for chains: package = 'igraph' (default), 'diagram' or 'DiagrammeR'. If the requested package
+# is not installed we fall back on igraph, which is always available (it is a required dependency).
 setMethod("plot", signature(x = "markovchain", y = "missing"),
   function(x, y, package = "igraph", ...) {
+    # in the three cases the chain is drawn as a weighted directed graph; edge labels are
+    # the transition probabilities (the graph weights are scaled by 100, hence / 100)
     switch(package,
      diagram = {
        if (requireNamespace("diagram", quietly = TRUE)) {
@@ -679,6 +711,7 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
        }
      },
      {
+       # default: igraph
        netMc <- .getNet(object = x,round = TRUE)
        edgeLabel <- round(E(netMc)$weight / 100, 2)
        plot.igraph(x = netMc, edge.label = edgeLabel, ...)
@@ -687,8 +720,10 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 )
 
 
+# Coercion section: as(object, 'markovchain') and as(chain, 'matrix' | 'data.frame' | 'igraph' ...).
 ##################################################AS METHODS#########################
 
+# Is the matrix square and stochastic (rows sum to 1 if byrow = TRUE, otherwise columns)?
 .checkMatrix <- function(matr, byrow = TRUE, verbose = FALSE) {
 	
   # firstly, check size
@@ -712,6 +747,8 @@ setMethod("plot", signature(x = "markovchain", y = "missing"),
 }
 
 # Internal function to return a markovchain object given a matrix
+# matrix -> markovchain: tries first as row-stochastic, then as column-stochastic. States get the names
+# of the rows/columns, or s1, s2, ... when the matrix has no names.
 .matrix2Mc <- function(from) {
 	# enforce class matrix
   from <- as.matrix(from)
@@ -767,6 +804,7 @@ setAs(from = "Matrix", to = "markovchain", def = .matrix2Mc)
 #
 # returns:
 # a data.frame
+# markovchain -> data.frame with the columns t0 (from), t1 (to) and prob, one row for each pair.
 .mc2Df <- function(from) {
   
   # number of rows or columns
@@ -795,6 +833,7 @@ setAs(from = "Matrix", to = "markovchain", def = .matrix2Mc)
 setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 
 # method to find the column which stores transition probability
+# Finds which column of a data frame contains probabilities (numeric values between 0 and 1).
 .whichColProb <- function(df) {
 	
   # column number which stores transition probability
@@ -830,6 +869,8 @@ setAs(from = "markovchain", to = "data.frame", def = .mc2Df)
 # Returns:
 # A markovchain object 
 
+# data.frame (from, to, probability) -> markovchain: puts every probability in the right cell of a
+# zero matrix. States are the distinct values of the first column.
 .df2Mc <- function(from) {
 	
 	statesNames <- unique(from[, 1])
@@ -862,6 +903,7 @@ setAs(from = "data.frame", to = "markovchain", def = .df2Mc)
 # from <- table(data)
 # .table2Mc(from)
 
+# table -> markovchain: normalises the rows of a contingency table (e.g. from table(from, to)).
 .table2Mc <- function(from) {
 	
   # check whether table has square dimension or not
@@ -896,6 +938,8 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
 # msm is a package. Use this package to create msm object.
 # see how to create msm object using ?msm
 
+# Coercions from objects of other packages (msm, etm): the packages are optional; if msm is not installed
+# we warn and return NULL.
 .msm2Mc <- function(from) {
   if(requireNamespace(package='msm', quietly = TRUE)) {
   temp <- msm::pmatrix.msm(from)
@@ -903,7 +947,8 @@ setAs(from = "table", to = "markovchain", def = .table2Mc)
   out <- new("markovchain", transitionMatrix = prMatr)
   } else {
     out <- NULL
-    print("msm unavailable")
+    warning("package msm is required to coerce an msm object and is not available: NULL is returned",
+            call. = FALSE)
   }
   return(out)
 }
@@ -915,6 +960,7 @@ setAs(from = "msm", to = "markovchain", def = .msm2Mc)
 
 
 # function for msm.est to mc. Assume a probability matrix given
+# msm.est (matrix or list of matrices): the central estimate is the first element.
 .msmest2Mc <- function(from) {
   
   if (is.matrix(from)) {
@@ -938,6 +984,8 @@ setAs(from = "msm.est", to = "markovchain", def = .msmest2Mc)
 
 
 # function from etm to markovchain
+# etm object -> markovchain: counts the observed transitions and normalises each row; states never
+# left get a uniform row.
 .etm2Mc<-function(from) {
   
   # data frame consists of  'from' and 'to' column
@@ -986,6 +1034,7 @@ setAs(from = "etm", to = "markovchain", def = .etm2Mc)
 
 
 #sparse matrix from Matrix package
+# Sparse matrices (Matrix package) are converted through ordinary matrices.
 .sparseMatrix2markovchain<-function(from){
   temp<-as(from,"matrix")
   out <- as(temp, "markovchain")
@@ -1032,6 +1081,10 @@ setAs(from = "markovchain", to = "igraph", def = .mc2igraph)
 
 
 #' @exportMethod t
+# Operators for chains: t(x) transposes (and flips byrow); * multiplies two chains (the matrix product,
+# that is the two-step transition if the chain is multiplied by itself); == compares the matrices
+# with a numeric tolerance; ^ raises to a power with the matrix power %^% (fast exponentiation by
+# repeated squaring); [ and [[ extract an element.
 setGeneric("t")
 
 
@@ -1090,6 +1143,8 @@ setMethod("*", c("markovchain", "markovchain"),
 
 # methods implemented for multiplication of markovchain object with 
 # matrix, 1-D vector, and vice-versa
+# NOTE: the product is the ordinary matrix product with the matrix as it is STORED in the
+# object, so for a chain with byrow = FALSE the matrix is the transpose of the row-stochastic one.
 
 setMethod("*", c("matrix", "markovchain"),
   function(e1, e2) {
@@ -1105,6 +1160,7 @@ setMethod("*", c("markovchain", "matrix"),
   }
 )
 
+# a numeric vector is a row vector on the left, and a column vector on the right
 setMethod("*", c("numeric", "markovchain"), 
   function(e1, e2) {
     if(length(e1) != dim(e2)) {
@@ -1191,20 +1247,21 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 
 # transition probabilty vector from a given state
 
-#' @title \code{conditionalDistribution} of a Markov Chain
+#' @title Conditional distribution of the next state
 #' 
 #' @name conditionalDistribution
 #' 
-#' @description It extracts the conditional distribution of the subsequent state, 
-#'              given current state.
+#' @description Returns the distribution of the next state of a Markov chain
+#'   given its current state: the row of the transition matrix of that state
+#'   (its column if the chain is stored by columns).
 #' 
-#' @param object A \code{markovchain} object.
-#' @param state Subsequent state.
+#' @param object A [`markovchain`][markovchain-class] object.
+#' @param state Name of the current state.
 #' 
 #' @author Giorgio Spedicato, Deepak Yadav
 #' 
-#' @return A named probability vector
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @return A probability vector named by the states.
+#' @seealso [transitionProbability()] for a single probability.
 #' 
 #' @seealso \code{\linkS4class{markovchain}}
 #' 
@@ -1218,6 +1275,7 @@ setMethod("[[", signature(x = "markovchainList", i = "ANY"),
 #' conditionalDistribution(markovB, "b")                       
 #' 
 #' @exportMethod conditionalDistribution
+# conditionalDistribution(): the row (or column) of the transition matrix for a given state, named by state.
 setGeneric("conditionalDistribution", function(object, state) standardGeneric("conditionalDistribution"))
 setMethod("conditionalDistribution", "markovchain",
   function(object, state) {
@@ -1256,6 +1314,7 @@ setMethod("conditionalDistribution", "markovchain",
 
 # Stop with an informative message unless `state` is a single, non-missing
 # name of one of the chain's states.
+# Error message helper: the state must be a single known state; the message lists up to 10 valid states.
 .checkKnownState <- function(state, stateNames, argName = "state") {
   if (length(state) != 1L || is.na(state) || !(as.character(state) %in% stateNames)) {
     shown <- if (length(stateNames) > 10L) {
@@ -1274,6 +1333,8 @@ setMethod("conditionalDistribution", "markovchain",
   invisible(TRUE)
 }
 
+# Most probable element of a probability vector. In case of ties one of them is chosen at random
+# (ties = 'random') or all of them are returned.
 .getMode <- function(probVector, ties = "random") {
 	maxIndex <- which(probVector == max(probVector))
 	temp <- probVector[maxIndex] # index of maximum probabilty
@@ -1294,6 +1355,8 @@ setGeneric("predict")
 # predict method for markovchain objects
 # given initial state return a vector of next n.ahead states
 
+# predict(): given the observed states, predicts the next n.ahead states. At each step it takes the
+# MOST PROBABLE next state from the last state (it does not simulate).
 setMethod("predict", "markovchain", 
   function(object, newdata, n.ahead = 1) {
     if (length(newdata) < 1L) {
@@ -1322,6 +1385,8 @@ setMethod("predict", "markovchain",
 )
 
 # predict method for markovchainList objects
+# predict() for markovchainList: the t-th prediction uses the t-th matrix of the list; if the list is
+# exhausted, continue = TRUE keeps using the last matrix.
 setMethod("predict", "markovchainList",
   function(object, newdata, n.ahead = 1, continue = FALSE) {
     # object a markovchainList
@@ -1329,6 +1394,8 @@ setMethod("predict", "markovchainList",
     # n.ahead = how much ahead 
     # continue = veryfy if that lasts
       
+    # The i-th chain of the list governs the transition from time i to time i + 1, so the
+    # chain to use at each step depends on how many observations `newdata` already has.
     # allocate output
     out <- character() 
     actualPos <- length(newdata) 
@@ -1340,6 +1407,7 @@ setMethod("predict", "markovchainList",
         out <- c(out, newState)
         lastState <- newState
       } else {
+          # past the end of the list: keep using the last chain if continue = TRUE, else stop
           if (continue) {
             newState <- predict(object = object[[dim(object)]], newdata = lastState, n.ahead = 1)
             out <- c(out, newState)
@@ -1356,6 +1424,7 @@ setMethod("predict", "markovchainList",
 
 setGeneric("sort", function(x, decreasing=FALSE, ...) standardGeneric("sort"))
 
+# sort(): reorders the states alphabetically (rows and columns together).
 setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
     #get matrix and state names 2 be sorted
    
@@ -1385,14 +1454,17 @@ setMethod("sort", signature(x="markovchain"), function(x, decreasing = FALSE) {
 # method to get stationary states
 
 #' @name steadyStates
-#' @title Stationary states of a \code{markovchain} object
+#' @title Stationary distributions of a Markov chain
 #' 
-#' @description This method returns the stationary vector in matricial form of a markovchain object.
-#' @param object A discrete \code{markovchain} object
+#' @description Returns the stationary distributions of a Markov chain: the
+#'   probability vectors \eqn{\pi} with \eqn{\pi P = \pi}. There is one for
+#'   each recurrent class; every stationary distribution is a convex
+#'   combination of them.
+#' @param object A [`markovchain`][markovchain-class] object.
 #' 
-#' @return A matrix corresponding to the stationary states
-#' 
-#' @references A First Course in Probability (8th Edition), Sheldon Ross, Prentice Hall 2010
+#' @return A matrix with one stationary distribution per row (per column if
+#'   the chain is stored by columns, `byrow = FALSE`), with the states as
+#'   column (row) names.
 #' @author Giorgio Spedicato
 #' @seealso \code{\linkS4class{markovchain}}
 #' 

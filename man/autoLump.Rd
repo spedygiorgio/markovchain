@@ -3,23 +3,52 @@
 \name{autoLump}
 \alias{autoLump}
 \alias{autoLump,markovchain-method}
-\title{Automatically aggregate a Markov chain by spectral clustering}
+\title{Aggregate a Markov chain by spectral clustering}
 \usage{
 autoLump(object, k)
 
 \S4method{autoLump}{markovchain}(object, k)
 }
 \arguments{
-\item{object}{A \code{markovchain} object.}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{k}{Number of macro-states to discover.}
+\item{k}{Number of blocks, an integer between 2 and the number of states
+minus 1.}
 }
 \value{
-A list with \code{partition} and \code{lumped_chain}.
+A list with \code{partition}, a named list of the states of each block
+(\code{"Macro_1"}, \code{"Macro_2"}, ...), and \code{lumped_chain}, the aggregated
+\code{\link[=markovchain-class]{markovchain}} object.
 }
 \description{
-Finds an approximate partition by clustering the leading right
-eigenvectors of the transition matrix, then returns the forced lumping over
-that partition. This is a heuristic for approximate lumping/metastable
-aggregation, not a proof of exact lumpability.
+Finds a partition of the states into \code{k} blocks by k-means
+clustering of the states on the right eigenvectors of the \code{k}
+eigenvalues of largest modulus, then aggregates the chain over it with
+\code{\link[=lump]{lump(force = TRUE)}}. States that the slow modes of the chain
+do not distinguish (metastable groups) end up in the same block.
 }
+\details{
+This is a heuristic for approximate (metastable) aggregation, not
+a test of exact lumpability: check the result with \code{\link[=is.lumpable]{is.lumpable()}}, or
+use \code{\link[=aggregateStates]{aggregateStates()}} for the aggregation that minimizes the
+Kullback-Leibler divergence rate. The k-means clustering is run with a
+fixed seed and 10 starts, so the result is reproducible; the random
+number stream of the session is left unchanged.
+}
+\examples{
+# two groups of states that rarely communicate
+statesNames <- c("a", "b", "c", "d")
+P <- matrix(c(0.6, 0.38, 0.01, 0.01,
+              0.3, 0.68, 0.01, 0.01,
+              0.01, 0.01, 0.5, 0.48,
+              0.01, 0.01, 0.4, 0.58), nrow = 4, byrow = TRUE,
+            dimnames = list(statesNames, statesNames))
+mc <- new("markovchain", states = statesNames, transitionMatrix = P)
+autoLump(mc, k = 2)
+}
+\seealso{
+Other state aggregation: 
+\code{\link{is.lumpable}()},
+\code{\link{lump}()}
+}
+\concept{state aggregation}

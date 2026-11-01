@@ -19,11 +19,11 @@ to be perturbed.}
 }
 \value{
 An \eqn{n\times n} numeric matrix \eqn{S}, with both dimensions
-  named after \code{states(object)}. Row \eqn{l} of \eqn{S} corresponds to
-  the perturbation direction "increase \eqn{p_{kl}}" (paired with a
-  compensating decrease elsewhere in row \eqn{k}); column \eqn{j}
-  corresponds to the affected stationary probability \eqn{\pi_j}. See
-  Details for how to read individual entries.
+named after \code{states(object)}. Row \eqn{l} of \eqn{S} corresponds to
+the perturbation direction "increase \eqn{p_{kl}}" (paired with a
+compensating decrease elsewhere in row \eqn{k}); column \eqn{j}
+corresponds to the affected stationary probability \eqn{\pi_j}. See
+Details for how to read individual entries.
 }
 \description{
 Computes, for a finite, irreducible discrete-time Markov chain, the
@@ -43,7 +43,6 @@ matrix \eqn{P(\varepsilon) = P + \varepsilon\, e_k d^{\mathsf T}} for small
 \deqn{\left.\frac{d\pi_j}{d\varepsilon}\right|_{\varepsilon=0} =
   \sum_l d_l\, S_{lj} = \left(d^{\mathsf T} S\right)_j.}
 
-
 \strong{Closed form.} Let \eqn{Z=(I-P+\mathbf 1\pi^{\mathsf T})^{-1}} be
 the fundamental matrix already used by \code{\link{kemenyConstant}}. Then
 \deqn{S_{lj} = \pi_k\left(Z_{lj} - \pi_j\right).}
@@ -55,7 +54,7 @@ constant to \eqn{S} would give the same directional derivatives, but this
 one has the convenient side effect that \code{sensitivity(object,
 state)[state, ]} is the sensitivity of "leaving row \code{state}
 unchanged", which is informative on its own (it need not be zero: the
-*direction* \eqn{d=e_{\mathrm{state}}} is generally not itself a valid
+\emph{direction} \eqn{d=e_{\mathrm{state}}} is generally not itself a valid
 zero-sum perturbation by itself, only differences of rows are).
 
 \strong{The common two-state case.} The usual textbook question --
@@ -112,5 +111,5 @@ its Applications}, 335(1-3), 137-150.
 }
 \seealso{
 \code{\link{kemenyConstant}}, \code{\link{steadyStates}},
-  \code{\link{is.irreducible}}
+\code{\link{is.irreducible}}
 }

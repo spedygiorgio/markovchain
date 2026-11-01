@@ -3,17 +3,21 @@
 \name{name}
 \alias{name}
 \alias{name,markovchain-method}
-\title{Method to retrieve name of markovchain object}
+\title{Name of a Markov chain}
 \usage{
 name(object)
 
 \S4method{name}{markovchain}(object)
 }
 \arguments{
-\item{object}{A markovchain object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
+}
+\value{
+A character string.
 }
 \description{
-This method returns the name of a markovchain object
+Returns the name of a \code{\link[=markovchain-class]{markovchain}}
+object (its \code{name} slot).
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -24,6 +28,9 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
 )
 name(markovB)
 
+}
+\seealso{
+\code{\link{name<-}} to change it.
 }
 \author{
 Giorgio Spedicato, Deepak Yadav

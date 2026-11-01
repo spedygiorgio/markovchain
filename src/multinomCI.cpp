@@ -1,9 +1,15 @@
+// Simultaneous confidence intervals for multinomial proportions (Sison and Glaz 1995), used to build
+// confidence intervals for the rows of a transition matrix. Idea: find the smallest integer c such that
+// the probability that all the counts fall in [n_i - c, n_i + c] is at least the confidence level;
+// that probability is approximated by a truncated Poisson distribution with Edgeworth expansion
+// (the functions moments() and truncpoi() below).
 // [[Rcpp::depends(RcppArmadillo)]]
 
 #include <RcppArmadillo.h>
 
 using namespace Rcpp;
 
+// Sum of each column.
 // returns the column sums of a matrix
 NumericVector colSums(NumericMatrix m) {
   NumericVector out;
@@ -14,13 +20,17 @@ NumericVector colSums(NumericMatrix m) {
   return out;
 }
 
+// Poisson cumulative distribution (shortcut to R::ppois).
 // poisson distribution
 double ppois(double n, double lambda) {
   return R::ppois(n,lambda, true, false);
 }
 
+// First four moments of a Poisson variable truncated to [lambda - c, lambda + c].
 // moments
 NumericVector moments(int c, double lambda) {
+  // The truncated variable lives in [b, a]; den = P(b <= Y <= a) for Y ~ Poisson(lambda),
+  // the normalizing constant of the truncated distribution (returned as mom[4]).
   double a = lambda+c;
   double b = lambda-c;
   double den = 0, poisA = 0, poisB = 0;
@@ -32,9 +42,10 @@ NumericVector moments(int c, double lambda) {
   if (b == 0)
     den = ppois(a, lambda);
   
-  NumericVector mu(4);
-  NumericVector mom(5);
+  NumericVector mu(4);     // mu[r - 1] = r-th factorial moment of the truncated variable
+  NumericVector mom(5);    // mean, variance, third and fourth central moment, den
 
+  // Factorial moments of the truncated Poisson, from differences of Poisson cdfs.
   for (int r = 1; r <= 4; r ++) {
     poisA = 0;
     poisB = 0;
@@ -52,6 +63,7 @@ NumericVector moments(int c, double lambda) {
     mu[r - 1] = (pow(lambda, r)) * (1 - (poisA - poisB)/den);
   }
   
+  // Conversion of factorial moments into the mean and the central moments.
   mom[0] = mu[0];
   mom[1] = mu[1] + mu[0] - pow(mu[0], 2);
   mom[2] = mu[2] + mu[1] * (3 - 3*mu[0]) + (mu[0] - 3*pow(mu[0], 2) + 2*pow(mu[0], 3));
@@ -67,9 +79,15 @@ NumericVector moments(int c, double lambda) {
   return mom;
 }
 
+// Approximate probability that every count lies within +/- c of the observed one.
 // coverage probability for the particular choice of c 
+//
+// Method (Sison and Glaz, 1995): the counts are treated as independent Poisson variables
+// conditioned to sum to n. Each one is truncated to [x_i - c, x_i + c]; the probability that
+// the truncated sum equals n is approximated by an Edgeworth expansion that uses the first
+// four moments of the sum, and divided by the probability that the Poisson sum equals n.
 double truncpoi(int c, NumericVector x, double n, int k) {
-  NumericMatrix m(k,5);
+  NumericMatrix m(k,5);   // one row per category: the moments returned by moments()
 
   for (int i = 0; i < k; i++) {
     double lambda = x[i];
@@ -79,6 +97,8 @@ double truncpoi(int c, NumericVector x, double n, int k) {
       m(i, j) = mom[j];
   }
   
+  // 4th central moment -> 4th cumulant (kappa_4 = mu_4 - 3 sigma^4), then add up the
+  // cumulants of the independent categories: s1 mean, s2 variance, s3, s4 cumulants of the sum
   for (int i = 0; i < k; i ++)
     m(i, 3) = m(i, 3) - 3 * m(i, 1) * m(i, 1);
   
@@ -88,7 +108,9 @@ double truncpoi(int c, NumericVector x, double n, int k) {
   double s3 = s[2];
   double s4 = s[3];
   
-  double probn = 1 / (ppois(n, n) - ppois(n - 1, n));
+  double probn = 1 / (ppois(n, n) - ppois(n - 1, n));   // 1 / P(Poisson(n) = n)
+  // standardized point n, skewness g1 and excess kurtosis g2 of the truncated sum, and the
+  // Edgeworth correction factor `poly` of the normal density at z
   double z = (n - s1) / sqrt(s2);
   double g1 = s3 / (pow(s2, (3.0 / 2.0)));
   double g2 = s4 / (pow(s2, 2));
@@ -98,6 +120,7 @@ double truncpoi(int c, NumericVector x, double n, int k) {
                 pow(g1, 2) * (pow(z, 6) - 15.0 * pow(z, 4) + 45.0*pow(z, 2) - 15.0)/72.0;
   
   double f = poly * exp(-pow(z, 2)/2) / (sqrt(2.0) * R::gammafn(0.5)); 
+  // probability that all the Poisson variables fall inside their truncation interval
   double probx=1;
   
   for (int i = 0; i < k; i++)
@@ -106,6 +129,8 @@ double truncpoi(int c, NumericVector x, double n, int k) {
   return(probn * probx * f / sqrt(s2));
 }
 
+// Confidence intervals for the proportions of ONE row of counts x: search the smallest c whose coverage
+// exceeds the level, then build the lower/upper endpoints (with interpolation `delta`) clipped to [0, 1].
 // multinomial confidence intervals for a row
 // [[Rcpp::export(.multinomialCIForRowRcpp)]]
 NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
@@ -114,6 +139,8 @@ NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
   double c = 0;
   double p = 0, pold = 0;
   
+  // Smallest half-width c whose coverage exceeds the confidence level (pold is the coverage
+  // for c - 1, kept for the interpolation below).
   for (int cc = 1; cc <= n; cc ++) {
     p = truncpoi(cc, x, n, k);
     
@@ -125,7 +152,8 @@ NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
     pold = p;
   }
   
-  NumericMatrix salida(k, 2);
+  NumericMatrix salida(k, 2);    // the result: lower and upper endpoint of each proportion
+  // delta in [0, 1]: where the level falls between the coverages of c - 1 and c
   double delta = (confidencelevel - pold) / (p - pold);
   NumericMatrix out(k,5);
   NumericMatrix num(k,1);
@@ -135,6 +163,8 @@ NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
   for (int i = 0; i < k; i++) {
     num(i, 0) = i;
     obsp = x[i] / n;
+    // columns 1 and 2 are the endpoints that are returned; columns 3 and 4 (wider
+    // endpoints) are computed but not used
     out(i, 0) = obsp;
     out(i, 1) = obsp - c/n;
     out(i, 2) = obsp + c/n + 2*delta/n;
@@ -155,6 +185,7 @@ NumericMatrix multinomialCIForRow(NumericVector x, double confidencelevel) {
   return salida;
 }
 
+// Applies the previous function to every row of the matrix of counts.
 // multinomial confidence intervals
 // [[Rcpp::export(.multinomialCIRcpp)]]
 List multinomCI(NumericMatrix transMat, NumericMatrix seqMat, double confidencelevel) {

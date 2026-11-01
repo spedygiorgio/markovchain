@@ -64,6 +64,10 @@
 #' rowSums(bd@transitionMatrix)
 #'
 #' @export
+# birthDeath(): a chain on states 1..n that, at each step, can only move to a neighbour:
+# up with probability p[i] (a 'birth'), down with probability q[i] (a 'death') or stay.
+# The transition matrix is therefore tridiagonal (non-zero only on the diagonal and the two
+# adjacent diagonals).
 birthDeath <- function(p, q, states = NULL) {
   if (!is.numeric(p) || length(p) < 1L || anyNA(p) ||
       any(!is.finite(p)) || any(p < 0) || any(p > 1)) {
@@ -74,6 +78,7 @@ birthDeath <- function(p, q, states = NULL) {
     stop("q must be a numeric vector of entries in [0, 1], the same length as p.")
   }
 
+  # m = number of pairs of adjacent states, n = number of states = m + 1.
   m <- length(p) # number of adjacent pairs
   n <- m + 1L    # number of states
 
@@ -87,6 +92,7 @@ birthDeath <- function(p, q, states = NULL) {
     states <- as.character(seq_len(n))
   }
 
+  # Fill the matrix: first the diagonal (probability of staying = 1 - probability of moving) ...
   P <- matrix(0, n, n, dimnames = list(states, states))
   # Interior diagonal: state i (2 <= i <= n-1) has birth p[i] and death
   # q[i-1] (the pair (i-1, i) is described by index i-1 of p/q).
@@ -104,6 +110,7 @@ birthDeath <- function(p, q, states = NULL) {
   }
   diag(P) <- pmax(diagVals, 0)
 
+  # ... then the entries above (birth) and below (death) the diagonal.
   for (i in seq_len(m)) {
     P[i, i + 1L] <- p[i]
     P[i + 1L, i] <- q[i]
@@ -169,6 +176,8 @@ birthDeath <- function(p, q, states = NULL) {
 #' absorbingStates(ruin)
 #'
 #' @export
+# gamblersRuin(): a player with capital 0..upperBound wins 1 with probability `prob`, loses 1
+# otherwise; capital 0 and capital upperBound are absorbing (ruin and goal).
 gamblersRuin <- function(upperBound, prob, states = NULL) {
   if (length(upperBound) != 1L || !is.numeric(upperBound) ||
       is.na(upperBound) || upperBound != as.integer(upperBound) ||
@@ -192,6 +201,8 @@ gamblersRuin <- function(upperBound, prob, states = NULL) {
     states <- as.character(0:upperBound)
   }
 
+  # States 0 and upperBound are absorbing (probability 1 of staying); every interior state moves
+  # up with probability prob and down with probability 1 - prob.
   P <- matrix(0, n, n, dimnames = list(states, states))
   P[1, 1] <- 1
   P[n, n] <- 1
@@ -258,6 +269,8 @@ gamblersRuin <- function(upperBound, prob, states = NULL) {
 #' dbinom(0:4, 4, 0.5)
 #'
 #' @export
+# urnModel(): the Ehrenfest urn. `balls` balls are distributed between two urns; at each step
+# one ball chosen at random changes urn. The state is the number of balls in urn A.
 urnModel <- function(balls, states = NULL) {
   if (length(balls) != 1L || !is.numeric(balls) || is.na(balls) ||
       balls != as.integer(balls) || balls < 1L) {
@@ -276,6 +289,8 @@ urnModel <- function(balls, states = NULL) {
     states <- as.character(0:balls)
   }
 
+  # From state k (balls in A): with probability k/balls a ball leaves A (k - 1);
+  # otherwise a ball from B enters (k + 1).
   P <- matrix(0, n, n, dimnames = list(states, states))
   P[1, 2] <- 1
   P[n, n - 1L] <- 1
@@ -291,6 +306,8 @@ urnModel <- function(balls, states = NULL) {
       name = paste0("Ehrenfest Urn Model (balls = ", balls, ")"))
 }
 
+# Both Tauchen and Rouwenhorst approximate a continuous AR(1) process
+#  y_t = (1 - rho) alpha + rho y_{t-1} + eps_t  by a finite Markov chain, used in economics.
 # Shared argument checking for tauchen() and rouwenhorst(): both discretize
 # the same AR(1) process y_t = (1-rho)*alpha + rho*y_{t-1} + eps_t.
 .checkAR1Args <- function(alpha, sigma, rho, size) {
@@ -392,6 +409,9 @@ urnModel <- function(balls, states = NULL) {
 #' 1 / (1 - 0.9^2)
 #'
 #' @export
+# tauchen(): discretises the AR(1) on a grid of `size` equally spaced points between
+# alpha -/+ k standard deviations. P[i, j] = probability that the continuous process, started from
+# grid point i, falls in the interval around grid point j (computed with the normal CDF pnorm).
 tauchen <- function(alpha, sigma, rho, size, k = 3) {
   .checkAR1Args(alpha, sigma, rho, size)
   if (length(k) != 1L || !is.numeric(k) || !is.finite(k) || k <= 0) {
@@ -399,12 +419,14 @@ tauchen <- function(alpha, sigma, rho, size, k = 3) {
   }
   n <- as.integer(size)
 
+  # Standard deviation of the stationary distribution of the AR(1).
   yStd <- sigma / sqrt(1 - rho^2)
   yMax <- alpha + k * yStd
   yMin <- alpha - k * yStd
   y <- seq(yMin, yMax, length.out = n)
   w <- 0.5 * (yMax - yMin) / (n - 1)
 
+  # Row i: conditional mean of the next value; the first and last cells collect the tails.
   P <- matrix(0, n, n)
   condMean <- (1 - rho) * alpha + rho * y # length n, one per row
   for (i in seq_len(n)) {
@@ -418,6 +440,7 @@ tauchen <- function(alpha, sigma, rho, size, k = 3) {
     }
   }
 
+  # Use the grid values as state names (rounded); fall back on 1..n if the names would be duplicated.
   states <- format(signif(y, 4))
   states <- trimws(states)
   if (anyDuplicated(states)) {
@@ -501,13 +524,19 @@ tauchen <- function(alpha, sigma, rho, size, k = 3) {
 #' 1 / (1 - 0.9^2)
 #'
 #' @export
+# rouwenhorst(): another discretisation of the AR(1), better than Tauchen when rho is close to 1.
+# The matrix for n points is built recursively from the one for n - 1 points.
 rouwenhorst <- function(alpha, sigma, rho, size) {
   .checkAR1Args(alpha, sigma, rho, size)
   n <- as.integer(size)
   theta <- (1 + rho) / 2
 
+  # Recursive construction (Rouwenhorst, 1995): the m x m matrix is the sum of four copies of the
+  # (m-1) x (m-1) one, placed in the four corners (top-left and bottom-right weighted by theta,
+  # the other two by 1 - theta); interior rows are halved because they were counted twice.
   buildTheta <- function(m) {
     if (m == 2L) {
+      # base case: two states, stay with probability theta
       return(matrix(c(theta, 1 - theta, 1 - theta, theta), 2, 2, byrow = TRUE))
     }
     inner <- buildTheta(m - 1L)
@@ -524,10 +553,15 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
 
   P <- buildTheta(n)
 
+  # Grid of the values taken by the process: n equally spaced points centred on `alpha`
+  # (the mean), with half-width psi = sqrt(n - 1) times the unconditional standard deviation
+  # sigma / sqrt(1 - rho^2) of the AR(1).
   yStd <- sigma / sqrt(1 - rho^2)
   psi <- yStd * sqrt(n - 1)
   y <- seq(alpha - psi, alpha + psi, length.out = n)
 
+  # State names are the grid values rounded to 4 significant digits; if rounding makes
+  # two names equal, plain indices are used instead.
   states <- format(signif(y, 4))
   states <- trimws(states)
   if (anyDuplicated(states)) {
@@ -595,16 +629,22 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
 #' \eqn{P_{ij}=\binom{n}{j}p'^{\,j}(1-p')^{n-j}}.
 #'
 #' Both constructions follow \pkg{PyDTMC}'s
-#' \code{population_genetics_model}, with one deliberate difference: this
+#' \code{population_genetics_model}, with two deliberate differences. First, this
 #' function uses mutant relative fitness \eqn{1+s} in \emph{both} models
 #' (PyDTMC's Moran implementation instead uses \eqn{1-s}, so that a
 #' positive \code{s} there favours the wild-type rather than the mutant,
 #' the opposite of its own Wright-Fisher convention and of the usual
-#' textbook one). \code{s = 0} (neutral drift) and the mutation-rate terms
-#' are unaffected by this choice and match PyDTMC exactly; away from
-#' \code{s = 0} the two packages' Moran chains differ by construction, by
-#' design, to keep \code{s}'s meaning consistent between \code{"moran"} and
-#' \code{"wright-fisher"} within this package. As \code{u, v} shrink to
+#' textbook one). Second, in the mutation terms: for
+#' \code{u != v} the probability \eqn{P_{i,i-1}} follows the description of
+#' the model (a mutant parent has a wild-type offspring with probability
+#' \code{u}, a wild-type parent with probability \code{1-v}), whereas
+#' PyDTMC uses \eqn{r_i v} in place of \eqn{r_i u} in the numerator, which
+#' makes its chain depend on how the two alleles are labelled; for
+#' \code{u = v} (the default) the two coincide. With \code{s = 0} and
+#' \code{u = v} the two packages' Moran chains are identical; otherwise they
+#' differ by construction, by design (for \code{s}, to keep its meaning
+#' consistent between \code{"moran"} and \code{"wright-fisher"} within this
+#' package). As \code{u, v} shrink to
 #' \code{0}, both reduce to the classical drift-only chains with absorbing
 #' loss/fixation states, going back to Wright (1931) and Moran (1958); see
 #' Ewens (2004) for a modern textbook treatment of both.
@@ -635,6 +675,10 @@ rouwenhorst <- function(alpha, sigma, rho, size) {
 #' absorptionProbabilities(favoured)["4", "8"]
 #'
 #' @export
+# populationGeneticsModel(): number of copies of an allele (0..n) in a population of fixed size n,
+# with selection s and mutation rates u, v. States 0 and n are absorbing when u = v = 0.
+# Moran model: at each step one individual reproduces and one dies, so the count changes by -1, 0 or +1.
+# Wright-Fisher model: the whole population is resampled at once, a binomial draw.
 populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
                                      n, s = 0, u = 1e-9, v = 1e-9,
                                      states = NULL) {
@@ -665,29 +709,40 @@ populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
     states <- as.character(0:n)
   }
 
+  # State i (= i copies of the mutant allele) is row i + 1. The boundary states 0 and n are
+  # absorbing (loss and fixation of the mutant allele); only the interior rows are filled below.
   P <- matrix(0, size, size, dimnames = list(states, states))
   P[1L, 1L] <- 1
   P[size, size] <- 1
 
-  ui <- 1 - u
-  vi <- 1 - v
+  ui <- 1 - u      # probability that a mutant parent has a mutant offspring
+  vi <- 1 - v      # probability that a wild-type parent has a wild-type offspring
 
   if (model == "moran") {
+    # Moran: one birth and one death per step, so the count moves by -1, 0 or +1.
+    # ri = total reproductive weight of the mutants, nmi = that of the wild types.
     r <- 1 + s
     for (i in seq_len(n - 1L)) {
       nmi <- n - i
       ri <- r * i
-      pm1 <- (i / n) * ((ri * v + nmi * vi) / (ri + nmi))
+      # pm1 = P(i -> i - 1) = P(a mutant dies) * P(the offspring is wild type);
+      # pp1 = P(i -> i + 1) = P(a wild type dies) * P(the offspring is a mutant).
+      # Mutation: a mutant parent has a wild-type offspring with probability u, a wild-type parent
+      # a wild-type offspring with probability 1 - v (PyDTMC uses ri * v in the first numerator,
+      # which equals this only for u = v).
+      pm1 <- (i / n) * ((ri * u + nmi * vi) / (ri + nmi))
       pp1 <- (nmi / n) * ((ri * ui + nmi * v) / (ri + nmi))
       P[i + 1L, i] <- pm1
-      P[i + 1L, i + 1L] <- 1 - pm1 - pp1
+      P[i + 1L, i + 1L] <- 1 - pm1 - pp1     # nothing changes
       P[i + 1L, i + 2L] <- pp1
     }
   } else {
+    # Wright-Fisher: the next generation is a Binomial(n, ps) sample, so every row of the
+    # interior is dense. k = current frequency of the mutant allele.
     for (i in seq_len(n - 1L)) {
       k <- i / n
-      pm <- k * ui + (1 - k) * v
-      ps <- min((pm * (1 + s)) / (1 + pm * s), 1)
+      pm <- k * ui + (1 - k) * v                        # frequency after mutation
+      ps <- min((pm * (1 + s)) / (1 + pm * s), 1)       # frequency after selection
       P[i + 1L, ] <- stats::dbinom(0:n, n, ps)
     }
   }
@@ -724,6 +779,7 @@ populationGeneticsModel <- function(model = c("moran", "wright-fisher"),
 #' absorbingStates(identityChain(3))
 #'
 #' @export
+# identityChain(): the chain that never moves (identity matrix): every state is absorbing.
 identityChain <- function(n, states = NULL, name = "Identity chain") {
   st <- .generatorStates(if (missing(n)) NULL else n, states)
   P <- diag(st$n)

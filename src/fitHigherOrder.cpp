@@ -2,6 +2,8 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
+// seq2freqProb(): relative frequency of each state in a sequence, with the state names as names
+// (states in alphabetical order).
 // sequence to frequency probability vector
 //' @export
 // [[Rcpp::export]]
@@ -10,15 +12,18 @@ NumericVector seq2freqProb(CharacterVector sequence) {
   for (R_xlen_t i = 0; i < sequence.size(); ++i)
     if (CharacterVector::is_na(sequence[i]))
       stop("sequence must not contain missing values");
+  // `states` = distinct sorted states; `v` counts how many times each one appears.
   int n = sequence.size(); 
   CharacterVector states = unique(sequence).sort();
   int nstates = states.length();
   NumericVector v(nstates);
   v.names() = states;
   
+  // Count: v[state name] += 1 for each element of the sequence.
   for (int i = 0; i < n; i ++)
     v[std::string(sequence[i])] = v[std::string(sequence[i])] + 1.0;
   
+  // Divide by the total to obtain frequencies.
   NumericVector out = v/sum(v);
   out.names() = v.names();
   
@@ -46,6 +51,8 @@ NumericVector seq2freqProb(CharacterVector sequence) {
 // for that column) fixes this and matches the "no data available" 
 // convention used elsewhere in the package (e.g. generateCI's handling of
 // an empty row in fittingFunctions.cpp).
+// seq2matHigh(): matrix of the transitions from time t to time t + order (the 'lag matrix' of the higher
+// order model). Entry (to, from) = frequency with which state `to` follows state `from` after `order` steps.
 //' @export
 // [[Rcpp::export]]
 NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
@@ -62,9 +69,11 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
   NumericMatrix out(nstates);
   out.attr("dimnames") = List::create(states, states);
   
+  // Slide over the sequence: the pair (x_t, x_{t+order}) is one observed transition.
   for (int i = 0; i < n - order; i++) {
     int from = -1, to = -1;
 
+    // Find the positions of the two states in the sorted list of states (linear search).
     for (int j = 0; j < nstates; j++) {
       if (sequence[i] == states[j])
         from = j;
@@ -72,6 +81,7 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
         to = j;
     }
     
+    // out(to, from) counts the transitions; colsums[from] counts the departures from `from`.
     if (from != -1 && to != -1) {
       out(to, from) ++;
       colsums[from] ++;
@@ -88,6 +98,8 @@ NumericMatrix seq2matHigh(CharacterVector sequence, int order) {
   // column instead matches the convention used elsewhere in the package
   // for states with no data (see e.g. the `sanitize` handling in
   // createSequenceMatrix / generateCI).
+  // Normalise each column so it sums to 1 (probabilities); a state never observed as `from` gets a
+  // uniform column.
   for (int i = 0; i < nstates; i ++) {
     for (int j = 0; j < nstates; j ++) {
       if (colsums[j] == 0)

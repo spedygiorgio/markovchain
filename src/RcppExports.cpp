@@ -11,6 +11,68 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// spectralStatisticsRcpp
+NumericVector spectralStatisticsRcpp(NumericMatrix Pr, IntegerVector which, double epsilon, int maxIter);
+RcppExport SEXP _markovchain_spectralStatisticsRcpp(SEXP PrSEXP, SEXP whichSEXP, SEXP epsilonSEXP, SEXP maxIterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type which(whichSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(spectralStatisticsRcpp(Pr, which, epsilon, maxIter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bootstrapCountsRcpp
+NumericMatrix bootstrapCountsRcpp(NumericMatrix Pr, IntegerVector departures, bool parametric, IntegerVector lengths, IntegerVector starts);
+RcppExport SEXP _markovchain_bootstrapCountsRcpp(SEXP PrSEXP, SEXP departuresSEXP, SEXP parametricSEXP, SEXP lengthsSEXP, SEXP startsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type departures(departuresSEXP);
+    Rcpp::traits::input_parameter< bool >::type parametric(parametricSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type starts(startsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrapCountsRcpp(Pr, departures, parametric, lengths, starts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bootstrapSpectralRcpp
+NumericMatrix bootstrapSpectralRcpp(NumericMatrix Pr, IntegerVector departures, int nboot, bool parametric, IntegerVector lengths, IntegerVector starts, IntegerVector which, double epsilon, int maxIter);
+RcppExport SEXP _markovchain_bootstrapSpectralRcpp(SEXP PrSEXP, SEXP departuresSEXP, SEXP nbootSEXP, SEXP parametricSEXP, SEXP lengthsSEXP, SEXP startsSEXP, SEXP whichSEXP, SEXP epsilonSEXP, SEXP maxIterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type departures(departuresSEXP);
+    Rcpp::traits::input_parameter< int >::type nboot(nbootSEXP);
+    Rcpp::traits::input_parameter< bool >::type parametric(parametricSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type starts(startsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type which(whichSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIter(maxIterSEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrapSpectralRcpp(Pr, departures, nboot, parametric, lengths, starts, which, epsilon, maxIter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simulateCodesRcpp
+IntegerMatrix simulateCodesRcpp(NumericMatrix Pr, NumericVector mu, int nSequences, int steps);
+RcppExport SEXP _markovchain_simulateCodesRcpp(SEXP PrSEXP, SEXP muSEXP, SEXP nSequencesSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Pr(PrSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< int >::type nSequences(nSequencesSEXP);
+    Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulateCodesRcpp(Pr, mu, nSequences, steps));
+    return rcpp_result_gen;
+END_RCPP
+}
 // isGen
 bool isGen(NumericMatrix gen);
 RcppExport SEXP _markovchain_isGen(SEXP genSEXP) {
@@ -122,6 +184,50 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     rcpp_result_gen = Rcpp::wrap(mtdEM(patterns, counts, lambda0, Q0, tol, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtdStep
+List mtdStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda, NumericMatrix Q);
+RcppExport SEXP _markovchain_mtdStep(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambdaSEXP, SEXP QSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Q(QSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdStep(patterns, counts, lambda, Q));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtdgEM
+List mtdgEM(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0, List Qlist0, double tol, int maxit);
+RcppExport SEXP _markovchain_mtdgEM(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambda0SEXP, SEXP Qlist0SEXP, SEXP tolSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda0(lambda0SEXP);
+    Rcpp::traits::input_parameter< List >::type Qlist0(Qlist0SEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdgEM(patterns, counts, lambda0, Qlist0, tol, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtdgStep
+List mtdgStep(IntegerMatrix patterns, NumericVector counts, NumericVector lambda, List Qlist);
+RcppExport SEXP _markovchain_mtdgStep(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambdaSEXP, SEXP QlistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< List >::type Qlist(QlistSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdgStep(patterns, counts, lambda, Qlist));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -265,6 +371,51 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type i(iSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     rcpp_result_gen = Rcpp::wrap(noofVisitsDistRCpp(matrix, i, N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// markovPropertySimulationRcpp
+NumericVector markovPropertySimulationRcpp(NumericMatrix P, int x1, int n, int B, bool pearson);
+RcppExport SEXP _markovchain_markovPropertySimulationRcpp(SEXP PSEXP, SEXP x1SEXP, SEXP nSEXP, SEXP BSEXP, SEXP pearsonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type P(PSEXP);
+    Rcpp::traits::input_parameter< int >::type x1(x1SEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    Rcpp::traits::input_parameter< bool >::type pearson(pearsonSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovPropertySimulationRcpp(P, x1, n, B, pearson));
+    return rcpp_result_gen;
+END_RCPP
+}
+// markovPropertyStatisticRcpp
+double markovPropertyStatisticRcpp(IntegerVector x, int r, bool pearson);
+RcppExport SEXP _markovchain_markovPropertyStatisticRcpp(SEXP xSEXP, SEXP rSEXP, SEXP pearsonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type r(rSEXP);
+    Rcpp::traits::input_parameter< bool >::type pearson(pearsonSEXP);
+    rcpp_result_gen = Rcpp::wrap(markovPropertyStatisticRcpp(x, r, pearson));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtdFreeWeightsRcpp
+List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVector lambda0, NumericMatrix Q0, IntegerVector rows, double tol, int maxit);
+RcppExport SEXP _markovchain_mtdFreeWeightsRcpp(SEXP patternsSEXP, SEXP countsSEXP, SEXP lambda0SEXP, SEXP Q0SEXP, SEXP rowsSEXP, SEXP tolSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type patterns(patternsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type counts(countsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type lambda0(lambda0SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Q0(Q0SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type rows(rowsSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtdFreeWeightsRcpp(patterns, counts, lambda0, Q0, rows, tol, maxit));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -794,6 +945,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_markovchain_spectralStatisticsRcpp", (DL_FUNC) &_markovchain_spectralStatisticsRcpp, 4},
+    {"_markovchain_bootstrapCountsRcpp", (DL_FUNC) &_markovchain_bootstrapCountsRcpp, 5},
+    {"_markovchain_bootstrapSpectralRcpp", (DL_FUNC) &_markovchain_bootstrapSpectralRcpp, 9},
+    {"_markovchain_simulateCodesRcpp", (DL_FUNC) &_markovchain_simulateCodesRcpp, 4},
     {"_markovchain_isGen", (DL_FUNC) &_markovchain_isGen, 1},
     {"_markovchain_generatorToTransitionMatrix", (DL_FUNC) &_markovchain_generatorToTransitionMatrix, 2},
     {"_markovchain_ctmcFit", (DL_FUNC) &_markovchain_ctmcFit, 4},
@@ -803,6 +958,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_seq2freqProb", (DL_FUNC) &_markovchain_seq2freqProb, 1},
     {"_markovchain_seq2matHigh", (DL_FUNC) &_markovchain_seq2matHigh, 2},
     {"_markovchain_mtdEM", (DL_FUNC) &_markovchain_mtdEM, 6},
+    {"_markovchain_mtdStep", (DL_FUNC) &_markovchain_mtdStep, 4},
+    {"_markovchain_mtdgEM", (DL_FUNC) &_markovchain_mtdgEM, 6},
+    {"_markovchain_mtdgStep", (DL_FUNC) &_markovchain_mtdgStep, 4},
     {"_markovchain_markovchainSequenceRcpp", (DL_FUNC) &_markovchain_markovchainSequenceRcpp, 4},
     {"_markovchain_markovchainListRcpp", (DL_FUNC) &_markovchain_markovchainListRcpp, 4},
     {"_markovchain_markovchainSequenceParallelRcpp", (DL_FUNC) &_markovchain_markovchainSequenceParallelRcpp, 4},
@@ -813,6 +971,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_markovchain_inferHyperparam", (DL_FUNC) &_markovchain_inferHyperparam, 3},
     {"_markovchain_markovchainFit", (DL_FUNC) &_markovchain_markovchainFit, 13},
     {"_markovchain_noofVisitsDistRCpp", (DL_FUNC) &_markovchain_noofVisitsDistRCpp, 3},
+    {"_markovchain_markovPropertySimulationRcpp", (DL_FUNC) &_markovchain_markovPropertySimulationRcpp, 5},
+    {"_markovchain_markovPropertyStatisticRcpp", (DL_FUNC) &_markovchain_markovPropertyStatisticRcpp, 3},
+    {"_markovchain_mtdFreeWeightsRcpp", (DL_FUNC) &_markovchain_mtdFreeWeightsRcpp, 7},
     {"_markovchain_multinomialCIForRow", (DL_FUNC) &_markovchain_multinomialCIForRow, 2},
     {"_markovchain_multinomCI", (DL_FUNC) &_markovchain_multinomCI, 3},
     {"_markovchain_commClassesKernel", (DL_FUNC) &_markovchain_commClassesKernel, 1},

@@ -47,27 +47,40 @@
 #' assessIndependence(dep, method = "G")
 #' @export
 assessIndependence <- function(sequence, method = c("Pearson", "G"), verbose = TRUE) {
+  # Step 1: validate the arguments (method must be one of the two allowed values).
   method <- match.arg(method)
   if (length(sequence) < 3L) stop("sequence must contain at least three observations.")
   if (anyNA(sequence)) stop("sequence must not contain missing values.")
+  # deparse(substitute(x)) captures the expression the user typed, to label the output.
   data.name <- deparse(substitute(sequence))
+  # Step 2: count the observed one-step transitions i -> j in a matrix (rows = from).
   counts <- createSequenceMatrix(as.character(sequence))
+  # Row totals = how often each state was left; column totals = how often it was entered.
   row_totals <- rowSums(counts)
   col_totals <- colSums(counts)
+  # Keep only states that were actually seen as departure/arrival: an all-zero row or
+  # column would give an expected count of 0 and a division by zero.
   observed <- counts[row_totals > 0, col_totals > 0, drop = FALSE]
   n <- sum(observed)
+  # Step 3: counts expected if the next state did not depend on the current one:
+  # expected[i,j] = rowTotal[i] * colTotal[j] / n  (the usual chi-squared table rule).
   expected <- outer(row_totals[row_totals > 0], col_totals[col_totals > 0]) / n
   dimnames(expected) <- dimnames(observed)
+  # Degrees of freedom of a chi-squared test of independence: (rows-1)*(columns-1)
   dof <- (nrow(observed) - 1L) * (ncol(observed) - 1L)
+  # Step 4: test statistic. Pearson: sum of (O - E)^2 / E.  G (likelihood ratio): 2 * sum O*log(O/E);
+  # cells with O = 0 contribute 0, so they are skipped to avoid log(0).
   if (method == "Pearson") {
     statistic <- sum((observed - expected)^2 / expected)
   } else {
     positive <- observed > 0
     statistic <- 2 * sum(observed[positive] * log(observed[positive] / expected[positive]))
   }
+  # Step 5: p-value from the chi-squared distribution; undefined (NA) when dof = 0.
   result <- list(statistic = statistic, dof = dof,
                  p.value = if (dof > 0L) pchisq(statistic, dof, lower.tail = FALSE) else NA_real_,
                  observed = observed, expected = expected)
+  # Wrap the numbers into the standard R 'htest' object so print() formats it as usual.
   result <- .asHtest(result, method, data.name)
   result$method <- paste(result$method, "for independence of consecutive states")
   if (verbose) print(result)

@@ -1,43 +1,57 @@
-#' @title rctmc
+#' Simulate a continuous time Markov chain
 #'
-#' @description The function generates random CTMC transitions as per the
-#'   provided generator matrix.
-#' @usage rctmc(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
-#'   out.type = "list")
+#' @description Simulates the jumps of a continuous time Markov chain: in each
+#'   state \eqn{i} the chain waits an exponential time with rate
+#'   \eqn{-Q_{ii}}, then jumps to \eqn{j \ne i} with probability
+#'   \eqn{-Q_{ij} / Q_{ii}} (the embedded jump chain, see
+#'   [generatorToTransitionMatrix()]).
 #'
-#' @param n The number of samples to generate.
-#' @param ctmc The CTMC S4 object.
-#' @param initDist The initial distribution of states.
-#' @param T The time up to which the simulation runs (all transitions after time
-#'   T are not returned).
-#' @param include.T0 Flag to determine if start state is to be included.
-#' @param out.type "list" or "df"
+#' @param n Number of jumps to simulate: a positive integer, or `Inf` to
+#'   simulate up to time `T`.
+#' @param ctmc A [`ctmc`][ctmc-class] object.
+#' @param initDist Distribution of the initial state, a probability vector in
+#'   the order of `states(ctmc)`. The default, an empty vector, draws the initial
+#'   state uniformly at random.
+#' @param T Time horizon: the jumps after time `T` are not returned. The
+#'   default `0` means no horizon, which requires a finite `n`.
+#' @param include.T0 Logical: include the initial state, at time 0, in the
+#'   output?
+#' @param out.type `"list"` (default) or `"df"`, the form of the output.
 #'
-#' @details In order to use the T0 argument, set n to Inf.
-#' @return Based on out.type, a list or a data frame is returned. The returned
-#'   list has two elements - a character vector (states) and a numeric vector
-#'   (indicating time of transitions). The data frame is similarly structured.
-#' @references 
-#' Introduction to Stochastic Processes with Applications in the Biosciences 
-#' (2013), David F. Anderson, University of Wisconsin at Madison
-#' 
+#' @details The simulation stops after `n` jumps, at the first jump after
+#'   `T` (when `T > 0`), or when an absorbing state (zero exit rate) is
+#'   reached, whichever comes first. The generator is used in the orientation
+#'   given by the `byrow` slot of `ctmc`.
+#'
+#' @return With `out.type = "list"`, an unnamed list of two vectors of equal
+#'   length: the states visited (character) and the times at which they were
+#'   entered (numeric). With `out.type = "df"`, a data frame with the same
+#'   content in the columns `states` and `time`.
+#'
+#' @references Anderson, D. F. (2013). Introduction to Stochastic Processes
+#'   with Applications in the Biosciences. University of Wisconsin at Madison.
+#'
 #' @author Sai Bhargav Yalamanchi
-#' @seealso \code{\link{generatorToTransitionMatrix}},\code{\link{ctmc-class}}
+#' @family continuous time Markov chains
 #' @examples
 #' energyStates <- c("sigma", "sigma_star")
-#' byRow <- TRUE
-#' gen <- matrix(data = c(-3, 3, 1, -1), nrow = 2,
-#'              byrow = byRow, dimnames = list(energyStates, energyStates))
-#' molecularCTMC <- new("ctmc", states = energyStates, 
-#'                      byrow = byRow, generator = gen, 
-#'                      name = "Molecular Transition Model")   
+#' gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+#'               dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+#'                      generator = gen, name = "Molecular Transition Model")
 #'
-#' statesDist <- c(0.8, 0.2)
+#' # all the jumps up to time 1
 #' rctmc(n = Inf, ctmc = molecularCTMC, T = 1)
-#' rctmc(n = 5, ctmc = molecularCTMC, initDist = statesDist, include.T0 = FALSE)
+#' # five jumps from an initial state drawn from c(0.8, 0.2)
+#' rctmc(n = 5, ctmc = molecularCTMC, initDist = c(0.8, 0.2),
+#'       include.T0 = FALSE, out.type = "df")
 #' @export
+# rctmc(): simulates a continuous time chain. Algorithm: in the current state i the chain waits an
+# exponential time with rate -Q[i,i] (the total rate of leaving i), then jumps to a state j drawn
+# with probabilities given by the embedded jump chain. It stops after n jumps or at time T.
 rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE, 
                   out.type = "list") {
+  # Step 1: validate the arguments.
   if (!is(ctmc, "ctmc")) stop("ctmc must be a ctmc object")
   if (length(n) != 1L || is.na(n) || n <= 0 ||
       (!is.finite(n) && !is.infinite(n)) ||
@@ -53,6 +67,7 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
   if (!out.type %in% c("list", "df")) {
     stop("out.type must be 'list' or 'df'")
   }
+  # Step 2: choose the initial state (random, or according to the distribution initDist).
   if (identical(initDist, numeric()))
     state <- sample(ctmc@states, 1) # sample state randomly
   else if (!is.numeric(initDist) || length(initDist) != dim(ctmc) ||
@@ -63,8 +78,12 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
     state <- sample(ctmc@states, 1, prob = initDist) # if valid probability distribution,
   # sample accordingly
   
-  # obtain transition probability matrix from the generator matrix
-  trans <- generatorToTransitionMatrix(ctmc@generator)
+  # Step 3: probabilities of the jump chain: P[i,j] = Q[i,j] / (-Q[i,i]), for j != i.
+  # The generator is taken by rows: a generator stored by columns (byrow = FALSE)
+  # is transposed first (before version 1.2.1 it was read by rows, which
+  # simulated the wrong chain).
+  generator <- if (ctmc@byrow) ctmc@generator else t(ctmc@generator)
+  trans <- generatorToTransitionMatrix(generator)
   
   
   states <- c()
@@ -74,26 +93,31 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
     time <- c(time, 0)
   }
   
+  # Step 4: simulation loop. `t` = current time; a state with zero exit rate is absorbing.
   t <- 0
   i <- 1
   while (i <= n){
     idx <- which(ctmc@states == state)
-    if (ctmc@generator[idx, idx] == 0) {
+    if (generator[idx, idx] == 0) {
       # absorbing state; stay here forever
       t <- Inf
     } else {
-      t <- t + rexp(1, -ctmc@generator[idx, idx])
+      # Holding time in the current state: exponential with rate -Q[idx, idx].
+      t <- t + rexp(1, -generator[idx, idx])
     }
     
+    # Stop if the time limit T has been exceeded (or the chain is stuck in an absorbing state).
     if((T > 0 & t > T) | (is.infinite(t)))
       break
     
+    # Next state: drawn with the jump probabilities of the current state.
     state <- ctmc@states[sample(1:dim(ctmc), 1, prob = trans[idx, ])]
     states <- c(states, state)
     time <- c(time, t)
     i <- i + 1
   }
   
+  # Step 5: return the visited states and the jump times, as a list or a data frame.
   out <- list(states, time)
   if (out.type == "list")
     return(out)
@@ -107,24 +131,37 @@ rctmc <- function(n, ctmc, initDist = numeric(), T = 0, include.T0 = TRUE,
 }
 
 
-#' @title Return the generator matrix for a corresponding transition matrix
-#' 
-#' @description Calculate the generator matrix for a 
-#'              corresponding transition matrix
-#' 
-#' @param P transition matrix between time 0 and t
-#' @param t time of observation
-#' @param method "logarithm" returns the Matrix logarithm of the transition matrix
+#' Generator matrix from a transition matrix
 #'
-#' @return A matrix that represent the generator of P
-#' @export
+#' @description Computes the generator \eqn{Q} of a continuous time Markov
+#'   chain whose transition matrix over a period of length `t` is `P`, as the
+#'   matrix logarithm \eqn{Q = \log(P) / t}, so that
+#'   \eqn{\exp(t Q) = P}.
 #'
+#' @param P A transition matrix (rows summing to one) over a period of length
+#'   `t`.
+#' @param t Length of the period, a positive number.
+#' @param method Method used: only `"logarithm"`, the principal matrix
+#'   logarithm computed by [expm::logm()], is available.
+#'
+#' @details Not every transition matrix is the transition matrix of a
+#'   continuous time chain (the embedding problem): the matrix returned is a
+#'   valid generator only if its off-diagonal entries are non-negative, which
+#'   is not checked. [freq2Generator()] gives regularized estimates that are
+#'   always valid generators.
+#'
+#' @return A square matrix with the dimensions of `P`, the generator
+#'   \eqn{\log(P) / t}.
+#'
+#' @family continuous time Markov chains
 #' @examples
-#' mymatr <- matrix(c(.4, .6, .1, .9), nrow = 2, byrow = TRUE)
-#' Q <- transition2Generator(P = mymatr)
-#' expm::expm(Q)
-#'  
-#' @seealso \code{\link{rctmc}}
+#' P <- matrix(c(0.4, 0.6, 0.1, 0.9), nrow = 2, byrow = TRUE)
+#' Q <- transition2Generator(P)
+#' Q
+#' expm::expm(Q) # gives back P
+#' @export
+# Generator from a transition matrix over a period t: Q = log(P) / t (matrix logarithm).
+# It only gives a valid generator if the matrix logarithm has non-negative off-diagonal entries.
 transition2Generator<-function(P, t = 1,method = "logarithm") {
   if (method == "logarithm") {
     Q = logm(P)/t
@@ -133,33 +170,47 @@ transition2Generator<-function(P, t = 1,method = "logarithm") {
 }
 
 
-#' Returns a generator matrix corresponding to frequency matrix
-#' 
-#' @description The function provides interface to calculate generator matrix corresponding to 
-#' a frequency matrix and time taken
-#' 
-#' @param P relative frequency matrix
-#' @param t (default value = 1)
-#' @param method one among "QO"(Quasi optimaisation), "WA"(weighted adjustment), "DA"(diagonal adjustment)
-#' @param logmethod method for computation of matrx algorithm (by default : Eigen)
-#' 
-#' @return returns a generator matix with same dimnames
-#' 
-#' @references E. Kreinin and M. Sidelnikova: Regularization Algorithms for
-#' Transition Matrices. Algo Research Quarterly 4(1):23-40, 2001
-#' 
+#' Generator matrix estimated from a matrix of transition frequencies
+#'
+#' @description Estimates the generator of a continuous time Markov chain from
+#'   the empirical transition matrix observed over a period of length `t`,
+#'   with the regularization algorithms of Kreinin and Sidelnikova (2001),
+#'   which return a valid generator (non-negative off-diagonal rates, rows
+#'   summing to zero) even when the matrix logarithm of `P` is not one. The
+#'   computation is done by the suggested package \pkg{ctmcd}.
+#'
+#' @param P Matrix of relative transition frequencies over the period: a
+#'   square matrix whose rows sum to one.
+#' @param t Length of the observation period, a positive number (default 1).
+#' @param method Regularization algorithm: `"QO"` (quasi-optimization, the
+#'   default), `"WA"` (weighted adjustment) or `"DA"` (diagonal adjustment).
+#' @param logmethod Method of the matrix logarithm used by \pkg{ctmcd}
+#'   (default `"Eigen"`, see `ctmcd::gmQO()`).
+#'
+#' @return The estimated generator, a matrix with the dimensions and dimnames
+#'   of `P`; `NULL`, with a warning, if \pkg{ctmcd} is not installed.
+#'
+#' @references Kreinin, A. and Sidelnikova, M. (2001). Regularization
+#'   algorithms for transition matrices. Algo Research Quarterly 4(1), 23-40.
+#'
+#' @family continuous time Markov chains
 #' @examples
-#' sample <- matrix(c(150,2,1,1,1,200,2,1,2,1,175,1,1,1,1,150),nrow = 4,byrow = TRUE)
-#' sample_rel = rbind((sample/rowSums(sample))[1:dim(sample)[1]-1,],c(rep(0,dim(sample)[1]-1),1)) 
-#' freq2Generator(sample_rel,1)
-#' 
+#' counts <- matrix(c(150, 2, 1, 1,
+#'                    1, 200, 2, 1,
+#'                    2, 1, 175, 1,
+#'                    1, 1, 1, 150), nrow = 4, byrow = TRUE)
+#' # relative frequencies, with the last state made absorbing
+#' rel <- rbind((counts / rowSums(counts))[1:3, ], c(0, 0, 0, 1))
+#' if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(rel, 1)
+#'
+#' # rating transitions (quasi-optimization estimate)
 #' data(tm_abs)
-#' tm_rel=rbind((tm_abs/rowSums(tm_abs))[1:7,],c(rep(0,7),1))
-#' ## Derive quasi optimization generator matrix estimate
-#' freq2Generator(tm_rel,1)
-#' 
+#' tmRel <- rbind((tm_abs / rowSums(tm_abs))[1:7, ], c(rep(0, 7), 1))
+#' if (requireNamespace("ctmcd", quietly = TRUE)) freq2Generator(tmRel, 1)
 #' @export
 #' 
+# Estimates a generator from the frequencies P of a discrete time process over a period t,
+# using the methods of the optional package ctmcd (QO, WA, DA).
 freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
   if(requireNamespace('ctmcd', quietly = TRUE)) {
   if(method == "QO"){
@@ -176,34 +227,44 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
   return(out)
 }
 
-#' @title Returns expected hitting time from state i to state j
-#' 
-#' @description Returns expected hitting time from state i to state j
-#' 
-#' @usage ExpectedTime(C,i,j,useRCpp)
-#' 
-#' @param C A CTMC S4 object
-#' @param i Initial state i
-#' @param j Final state j
-#' @param useRCpp logical whether to use Rcpp
-#' 
-#' @details According to the theorem, holding times for all states except j should be greater than 0.
-#' 
-#' @return A numerical value that returns expected hitting times from i to j
-#' 
-#' @references Markovchains, J. R. Norris, Cambridge University Press
-#' 
+#' Expected hitting time of a state in a continuous time Markov chain
+#'
+#' @description Expected time for a continuous time Markov chain started in
+#'   state `i` to reach state `j` for the first time.
+#'
+#' @param C A [`ctmc`][ctmc-class] object.
+#' @param i,j Indices (positions in `states(C)`) of the starting and target
+#'   states.
+#' @param useRCpp Logical: solve the linear system in C++ (default) or with
+#'   [solve()]?
+#'
+#' @details The expected hitting times \eqn{m_k} of `j` from the states
+#'   \eqn{k \ne j} solve \eqn{\sum_{l \ne j} Q_{kl} m_l = -1} (Norris 1997,
+#'   Section 3.3). Every state other than `j` must have a positive exit
+#'   rate, otherwise an error is given; the times are finite only if `j` is
+#'   reachable from every state, otherwise the system is singular.
+#'
+#' @return A number, the expected hitting time of `j` from `i` (0 if
+#'   `i == j`).
+#'
+#' @references Norris, J. R. (1997). Markov Chains. Cambridge University
+#'   Press.
+#'
 #' @author Vandit Jain
-#' 
+#' @family continuous time Markov chains
 #' @examples
-#' states <- c("a","b","c","d")
-#' byRow <- TRUE
-#' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
-#' nrow = 4,byrow = byRow, dimnames = list(states,states))
-#' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-#' ExpectedTime(ctmc,1,4,TRUE)
-#' 
+#' states <- c("a", "b", "c", "d")
+#' gen <- matrix(c(-1, 1/2, 1/2, 0,
+#'                 1/4, -1/2, 0, 1/4,
+#'                 1/6, 0, -1/3, 1/6,
+#'                 0, 0, 0, 0), nrow = 4, byrow = TRUE,
+#'               dimnames = list(states, states))
+#' ctmc <- new("ctmc", states = states, byrow = TRUE, generator = gen,
+#'             name = "testctmc")
+#' ExpectedTime(ctmc, 1, 4) # from "a" to the absorbing state "d"
 #' @export
+# Expected time to reach state j starting from state i. Let Q' be the generator restricted to the states
+# other than j; the vector m of expected hitting times solves the linear system  Q' m = -1.
 ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   # take generator from ctmc-class object
   Q <- C@generator
@@ -226,6 +287,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
     stop("Holding times for all states except j should be greater than 0")
   }
   
+  # Right-hand side b = (-1, ..., -1) and the system  Q' x = b.
   # get b for solving the system of linear equation Ax = b where A is Q_Exceptj
   b <- rep(-1,dim(Q_Exceptj)[1])
   
@@ -236,6 +298,7 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
     out <- solve(Q_Exceptj,b)
   }
   
+  # The solution omits state j: adjust the index for states i > j.
   # out will be of size NoofStates-1, hence the adjustment for different cases of i>=<j
   if(i<j){
     return(out[[i]])
@@ -246,37 +309,40 @@ ExpectedTime <- function(C,i,j,useRCpp = TRUE){
   }
 }
 
-#' Calculating probability from a ctmc object
-#' 
-#' @description 
-#' This function returns the probability of every state at time t under different conditions
-#' 
-#' @usage probabilityatT(C,t,x0,useRCpp)
-#' 
-#' @param C A CTMC S4 object
-#' @param t final time t
-#' @param x0 initial state
-#' @param useRCpp logical whether to use RCpp implementation
-#' 
-#' @details The initial state is not mandatory, In case it is not provided, 
-#' function returns a matrix of transition function at time \code{t} else it returns
-#' vector of probaabilities of transition to different states if initial state was \code{x0}
-#' 
-#' @return returns a vector or a matrix in case \code{x0} is provided or not respectively.
-#' 
-#' @references INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
-#' 
+#' Transition probabilities of a continuous time Markov chain at time t
+#'
+#' @description Computes the transition matrix \eqn{P(t) = \exp(t Q)} of a
+#'   continuous time Markov chain with generator \eqn{Q}, or one of its rows.
+#'
+#' @param C A [`ctmc`][ctmc-class] object.
+#' @param t Time, a non-negative number.
+#' @param x0 Optional index (position in `states(C)`) of the initial state.
+#' @param useRCpp Logical: compute the matrix exponential in C++ (default) or
+#'   with [expm::expm()]?
+#'
+#' @return Without `x0`, the matrix \eqn{P(t)}, with the states as dimnames,
+#'   whose entry \eqn{(i, j)} is the probability of being in state `j` at time
+#'   `t` when starting from `i`. With `x0`, row `x0` of that matrix: the
+#'   distribution of the state at time `t` when starting from `x0`.
+#'
+#' @references Dobrow, R. P. (2016). Introduction to Stochastic Processes with
+#'   R. Wiley.
+#'
 #' @author Vandit Jain
-#' 
+#' @family continuous time Markov chains
 #' @examples
-#' states <- c("a","b","c","d")
-#' byRow <- TRUE
-#' gen <- matrix(data = c(-1, 1/2, 1/2, 0, 1/4, -1/2, 0, 1/4, 1/6, 0, -1/3, 1/6, 0, 0, 0, 0),
-#' nrow = 4,byrow = byRow, dimnames = list(states,states))
-#' ctmc <- new("ctmc",states = states, byrow = byRow, generator = gen, name = "testctmc")
-#' probabilityatT(ctmc,1,useRCpp = TRUE)
-#' 
+#' states <- c("a", "b", "c", "d")
+#' gen <- matrix(c(-1, 1/2, 1/2, 0,
+#'                 1/4, -1/2, 0, 1/4,
+#'                 1/6, 0, -1/3, 1/6,
+#'                 0, 0, 0, 0), nrow = 4, byrow = TRUE,
+#'               dimnames = list(states, states))
+#' ctmc <- new("ctmc", states = states, byrow = TRUE, generator = gen,
+#'             name = "testctmc")
+#' probabilityatT(ctmc, 1)
+#' probabilityatT(ctmc, 1, x0 = 1)
 #' @export
+# Transition probabilities of a continuous chain at time t: P(t) = exp(t Q) (matrix exponential).
 probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   
   if(!is(C,"ctmc")){
@@ -295,6 +361,7 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   NoofStates <- dim(C)
   
   
+  # Matrix exponential, in C++ or with expm::expm().
   # calculate transition functoin at time t using Kolmogorov backward equation
   if (useRCpp) {
     P <- .probabilityatTRCpp(t*Q);
@@ -304,6 +371,7 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
   }
   
   
+  # With x0 only the row of the starting state is returned, otherwise the whole matrix.
   # return the row vector according to state at time t=0 if x0 is provided
   # if x0 not provided returns the whole matrix
   # hence returns probability of being at state j at time t if state at t =0 is x0
@@ -322,32 +390,54 @@ probabilityatT <- function(C, t, x0, useRCpp = TRUE){
 
 
 
-#' Calculating full conditional probability using lower rate transition matrix
-#' 
-#' This function calculates full conditional probability at given 
-#' time s using lower rate transition matrix
-#' 
-#' @usage impreciseProbabilityatT(C,i,t,s,error,useRCpp)
-#' 
-#' @param C a ictmc class object
-#' @param i initial state at time t
-#' @param t initial time t. Default value = 0
-#' @param s final time
-#' @param error error rate. Default value = 0.001
-#' @param useRCpp logical whether to use RCpp implementation; by default TRUE
-#' 
-#' @references Imprecise Continuous-Time Markov Chains, Thomas Krak et al., 2016
-#' 
+#' Lower transition probability of an imprecise continuous time Markov chain
+#'
+#' @description For an imprecise continuous time Markov chain, whose
+#'   transition rates are only known to lie in intervals, computes the lower
+#'   probability of being in state `i` at time `s`, as a function of the state
+#'   at time `t` (Krak et al. 2017).
+#'
+#' @param C An `ictmc` object: its slot `Q` is a generator and row \eqn{k} of
+#'   the rates may be scaled by any factor in `range[k, ]`.
+#' @param i Index (position in the states of `C`) of the state whose lower
+#'   probability is computed.
+#' @param t Initial time (default 0).
+#' @param s Final time, larger than `t`.
+#' @param error Maximum approximation error (default 0.001).
+#' @param useRCpp Logical: use the C++ implementation (default)? It requires
+#'   `t` and `s` to be integer-valued.
+#'
+#' @details The lower transition operator is approximated by
+#'   \eqn{n} steps \eqn{g \leftarrow g + \delta \underline{Q} g}, with
+#'   \eqn{\delta = (s - t) / n} and \eqn{n} chosen so that the error is below
+#'   `error`, starting from the indicator of state `i`; \eqn{\underline{Q}}
+#'   takes, in each row, the smaller of the values given by the two extremes of
+#'   the interval of rates.
+#'
+#' @return A numeric vector with one element per state \eqn{x}: the lower
+#'   probability that the chain is in state `i` at time `s` given that it is in
+#'   \eqn{x} at time `t`. With degenerate intervals (`range` equal to 1) it is
+#'   column `i` of \eqn{\exp((s - t) Q)}, up to `error`.
+#'
+#' @references Krak, T., De Bock, J. and Siebes, A. (2017). Imprecise
+#'   continuous-time Markov chains. International Journal of Approximate
+#'   Reasoning 88, 452-528.
+#'
 #' @author Vandit Jain
-#' 
+#' @family continuous time Markov chains
 #' @examples
-#' states <- c("n","y")
-#' Q <- matrix(c(-1,1,1,-1),nrow = 2,byrow = TRUE,dimnames = list(states,states))
-#' range <- matrix(c(1/52,3/52,1/2,2),nrow = 2,byrow = 2)
-#' name <- "testictmc"
-#' ictmc <- new("ictmc",states = states,Q = Q,range = range,name = name)
-#' impreciseProbabilityatT(ictmc,2,0,1,10^-3,TRUE)
+#' states <- c("n", "y")
+#' Q <- matrix(c(-1, 1, 1, -1), nrow = 2, byrow = TRUE,
+#'             dimnames = list(states, states))
+#' range <- matrix(c(1/52, 3/52, 1/2, 2), nrow = 2, byrow = TRUE)
+#' ictmc <- new("ictmc", states = states, Q = Q, range = range,
+#'              name = "testictmc")
+#' impreciseProbabilityatT(ictmc, i = 2, t = 0, s = 1, error = 1e-3)
 #' @export
+# Imprecise CTMC: the rates are only known to lie within intervals. This function computes the LOWER
+# expectation of the indicator of state i at time s (Krak et al. 2017) by repeated small Euler steps:
+#   g <- g + delta * lower(Q g),  delta = (s - t)/n ,
+# where the number of steps n is chosen so that the error is below `error`.
 impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE){
   if (length(error) != 1L || is.na(error) || !is.finite(error) || error <= 0) {
     stop("error must be a finite positive number")
@@ -383,6 +473,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
   Q <- C@Q
   range <- C@range
   
+  # Norm of the operator Q: the largest row sum of |Q| times the upper range.
   ### calculate ||QI_i||
   
   #initialise Q norm value
@@ -396,6 +487,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
     QNorm <- max(sum*range[i,2],QNorm)
   }
   
+  # n = number of Euler steps needed to reach the required precision.
   ### calculate no of iterations
   # The 1 is for norm of I_s i.e. ||I_s|| which equals 1
   n <- max((s-t)*QNorm, (s-t)*(s-t)*QNorm*QNorm*1/(2*error))
@@ -408,6 +500,7 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
   Ii[i] <- 1
   
   
+  # Lower operator: for each state take the minimum of the two extremes of the interval.
   ### calculate value of lower operator _QI_i(x) for all x belongs to no ofStates
   values <- Q%*%Ii
   Qgx <- rep(0, noOfstates)
@@ -431,34 +524,30 @@ impreciseProbabilityatT <- function(C, i, t=0, s, error = 10^-3, useRCpp = TRUE)
 
 
 
-#' Check if CTMC is irreducible
-#' 
-#' @description 
-#' This function verifies whether a CTMC object is irreducible
-#' 
-#' @usage is.CTMCirreducible(ctmc)
-#' 
-#' @param ctmc a ctmc-class object
-#' 
-#' @references 
-#' Continuous-Time Markov Chains, Karl Sigman, Columbia University
-#' 
+#' Check whether a continuous time Markov chain is irreducible
+#'
+#' @description A continuous time Markov chain is irreducible if every state
+#'   can be reached from every other state, which is the case if and only if
+#'   its embedded jump chain is irreducible.
+#'
+#' @param ctmc A [`ctmc`][ctmc-class] object.
+#'
+#' @return `TRUE` if the chain is irreducible, `FALSE` otherwise.
+#'
+#' @references Sigman, K. (2009). Continuous-time Markov chains. Lecture
+#'   notes, Columbia University.
+#'
 #' @author Vandit Jain
-#' 
-#' @return a boolean value as described above.
-#' 
-#' @examples 
+#' @family continuous time Markov chains
+#' @examples
 #' energyStates <- c("sigma", "sigma_star")
-#' byRow <- TRUE
-#' gen <- matrix(data = c(-3, 3,
-#'                        1, -1), nrow = 2,
-#'               byrow = byRow, dimnames = list(energyStates, energyStates))
-#' molecularCTMC <- new("ctmc", states = energyStates, 
-#'                      byrow = byRow, generator = gen, 
-#'                      name = "Molecular Transition Model")
+#' gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+#'               dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+#'                      generator = gen, name = "Molecular Transition Model")
 #' is.CTMCirreducible(molecularCTMC)
-#' 
 #' @export
+# A CTMC is irreducible iff its embedded jump chain is irreducible.
 is.CTMCirreducible <- function(ctmc) {
   
   if(!is(ctmc, 'ctmc') ) {
@@ -480,36 +569,47 @@ is.CTMCirreducible <- function(ctmc) {
 
 
 
-#' checks if ctmc object is time reversible
-#' 
-#' @description 
-#' The function returns checks if provided function is time reversible
-#' 
-#' @usage is.TimeReversible(ctmc)
-#' 
-#' @param ctmc a ctmc-class object
-#' 
-#' @return Returns a boolean value stating whether ctmc object is time reversible
-#' 
+#' Check whether a continuous time Markov chain is time reversible
+#'
+#' @description A continuous time Markov chain with stationary distribution
+#'   \eqn{\pi} is time reversible if it satisfies the detailed balance
+#'   equations \eqn{\pi_i Q_{ij} = \pi_j Q_{ji}} for all states \eqn{i, j}.
+#'
+#' @param ctmc A [`ctmc`][ctmc-class] object.
+#'
+#' @details The equations are checked up to a relative tolerance of
+#'   \eqn{\sqrt{\epsilon}} (about \eqn{1.5 \times 10^{-8}}) of the largest
+#'   flow \eqn{\pi_i |Q_{ij}|}, because \eqn{\pi} is computed numerically.
+#'   When the chain has several stationary distributions they must all
+#'   satisfy them.
+#'
+#' @return `TRUE` if the chain is time reversible, `FALSE` otherwise.
+#'
+#' @references Dobrow, R. P. (2016). Introduction to Stochastic Processes with
+#'   R. Wiley.
+#'
 #' @author Vandit Jain
-#' 
-#' @return a boolean value as described above
-#' 
-#' @references 
-#' INTRODUCTION TO STOCHASTIC PROCESSES WITH R, ROBERT P. DOBROW, Wiley
-#' 
-#' @examples 
+#' @family continuous time Markov chains
+#' @examples
 #' energyStates <- c("sigma", "sigma_star")
-#' byRow <- TRUE
-#' gen <- matrix(data = c(-3, 3,
-#'                        1, -1), nrow = 2,
-#'               byrow = byRow, dimnames = list(energyStates, energyStates))
-#' molecularCTMC <- new("ctmc", states = energyStates, 
-#'                      byrow = byRow, generator = gen, 
-#'                      name = "Molecular Transition Model")
+#' gen <- matrix(c(-3, 3, 1, -1), nrow = 2, byrow = TRUE,
+#'               dimnames = list(energyStates, energyStates))
+#' molecularCTMC <- new("ctmc", states = energyStates, byrow = TRUE,
+#'                      generator = gen, name = "Molecular Transition Model")
 #' is.TimeReversible(molecularCTMC)
-#' 
+#'
+#' # a birth-death chain is reversible, a cycle is not
+#' s <- c("a", "b", "c")
+#' birthDeath <- matrix(c(-0.3, 0.3, 0,
+#'                        0.1, -0.5, 0.4,
+#'                        0, 0.7, -0.7), nrow = 3, byrow = TRUE,
+#'                      dimnames = list(s, s))
+#' is.TimeReversible(new("ctmc", states = s, byrow = TRUE, generator = birthDeath))
+#' cycle <- matrix(c(-1, 1, 0, 0, -1, 1, 1, 0, -1), nrow = 3, byrow = TRUE,
+#'                 dimnames = list(s, s))
+#' is.TimeReversible(new("ctmc", states = s, byrow = TRUE, generator = cycle))
 #' @export
+# Time reversibility (detailed balance in continuous time): pi_i Q_ij = pi_j Q_ji for all i, j.
 is.TimeReversible <- function(ctmc) {
   
   if(!is(ctmc,"ctmc")) {
@@ -522,25 +622,25 @@ is.TimeReversible <- function(ctmc) {
   ## initialise boolean result
   check <- TRUE
   
-  ## no of states
-  m <- length(ctmc@states)
-  
   ## checks for byrow
   if (!ctmc@byrow)
     gen <- t(ctmc@generator)
   else
     gen <- ctmc@generator
   
-  ## iterates for every state
-  for( i in 1:m)
-  {
-    for(j in 1:m)
-    {
-      if(Pi[i]*gen[i,j] != Pi[j]*gen[j,i]) {
-        check <- FALSE
-        break
-      }
-    }
+  # Detailed balance pi_i Q_ij = pi_j Q_ji, checked on the flow matrix
+  # F = diag(pi) Q against its transpose, up to a relative tolerance: pi is
+  # computed numerically, so an exact comparison (as before version 1.2.1)
+  # wrongly rejected reversible chains. With several stationary
+  # distributions (one per row, or per column if byrow = FALSE) each must
+  # satisfy it.
+  if (is.null(Pi)) return(FALSE)
+  Pi <- as.matrix(Pi)
+  if (!ctmc@byrow) Pi <- t(Pi)
+  for (k in seq_len(nrow(Pi))) {
+    flows <- Pi[k, ] * gen
+    scale <- max(abs(flows))
+    if (any(abs(flows - t(flows)) > sqrt(.Machine$double.eps) * scale)) check <- FALSE
   }
   
   return(check)
@@ -549,6 +649,7 @@ is.TimeReversible <- function(ctmc) {
 
 
 
+# Old, disabled code kept for reference (a search for generators of a transition matrix).
 # `generator/nextki` <- function(k) {
 #   if(k >= 0) return(-1-k)
 #   return(-k)

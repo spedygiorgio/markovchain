@@ -3,19 +3,23 @@
 \name{name<-}
 \alias{name<-}
 \alias{name<-,markovchain-method}
-\title{Method to set name of markovchain object}
+\title{Set the name of a Markov chain}
 \usage{
 name(object) <- value
 
 \S4method{name}{markovchain}(object) <- value
 }
 \arguments{
-\item{object}{A markovchain object}
+\item{object}{A \code{\link[=markovchain-class]{markovchain}} object.}
 
-\item{value}{New name of markovchain object}
+\item{value}{The new name, a character string.}
+}
+\value{
+The object with the new name (used as \code{name(object) <- value}).
 }
 \description{
-This method modifies the existing name of markovchain object
+Replaces the name of a \code{\link[=markovchain-class]{markovchain}}
+object (its \code{name} slot).
 }
 \examples{
 statesNames <- c("a", "b", "c")
@@ -25,7 +29,11 @@ markovB <- new("markovchain", states = statesNames, transitionMatrix =
                 name = "A markovchain Object" 
 )
 name(markovB) <- "dangerous mc"
+name(markovB)
 
+}
+\seealso{
+\code{\link[=name]{name()}} to read it.
 }
 \author{
 Giorgio Spedicato, Deepak Yadav

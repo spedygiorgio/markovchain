@@ -99,10 +99,14 @@
 #' S["c", ] - S["b", ]                            # closed-form prediction
 #'
 #' @exportMethod sensitivity
+# Sensitivity of the stationary distribution to changes in the transition probabilities.
+# S[l, j] says how the stationary probability of state j reacts when row k of P is perturbed
+# (Schweitzer 1968; Cho and Meyer 2001). It uses the fundamental matrix Z = (I - P + 1 pi')^-1.
 setGeneric("sensitivity", function(object, state) standardGeneric("sensitivity"))
 
 #' @rdname sensitivity
 setMethod("sensitivity", "markovchain", function(object, state) {
+  # Needs a unique stationary distribution: irreducible chain.
   if (!is.irreducible(object)) {
     stop("sensitivity is defined here only for irreducible Markov chains.")
   }
@@ -110,6 +114,7 @@ setMethod("sensitivity", "markovchain", function(object, state) {
   stateNames <- states(object)
   n <- length(stateNames)
 
+  # The state can be given as a name or as an index; convert both to the index k.
   if (length(state) != 1L || anyNA(state)) {
     stop("state must be a single state name or a single state index.")
   }
@@ -125,6 +130,7 @@ setMethod("sensitivity", "markovchain", function(object, state) {
     }
   }
 
+  # Row-stochastic dense matrix.
   P <- as.matrix(object@transitionMatrix)
   if (!object@byrow) {
     P <- t(P)
@@ -133,6 +139,7 @@ setMethod("sensitivity", "markovchain", function(object, state) {
     stop("The transition matrix must be square and finite.")
   }
 
+  # Stationary distribution pi, normalised.
   pi <- as.numeric(steadyStates(object))
   if (length(pi) != n || any(!is.finite(pi)) || sum(pi) <= 0) {
     stop("Unable to obtain a valid stationary distribution.")
@@ -141,6 +148,7 @@ setMethod("sensitivity", "markovchain", function(object, state) {
 
   # Same fundamental-matrix construction used by kemenyConstant(): avoids
   # explicitly forming the n-by-n outer product 1 %*% t(pi).
+  # Fundamental matrix Z (same construction as in kemenyConstant()).
   A <- diag(n) - P
   A <- sweep(A, 2L, pi, FUN = "+")
   Z <- solve(A)
@@ -148,6 +156,7 @@ setMethod("sensitivity", "markovchain", function(object, state) {
   # S[l, j] = pi[k] * (Z[l, j] - pi[j]); sweep() subtracts pi from every row
   # of Z (recycled across columns), then the whole matrix is scaled by
   # pi[k].
+  # Apply the formula S = pi_k * (Z - 1 pi') row by row.
   S <- pi[k] * sweep(Z, 2L, pi, FUN = "-")
 
   if (!all(is.finite(S))) {

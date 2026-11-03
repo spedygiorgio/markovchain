@@ -17,7 +17,11 @@ Function to check wether a DTCM is regular
 }
 \details{
 A Markov chain is regular if some of the powers of its matrix has all elements
-strictly positive
+strictly positive. A finite chain is regular if and only if it is
+irreducible and aperiodic (Horn and Johnson, Theorem 8.5.3 and Corollary
+8.5.8), and this is how it is checked, from the communicating classes
+and the period (\code{\link[=period]{period()}}); the work is \eqn{O(n^2)} for a dense
+\eqn{n}-state chain.
 }
 \examples{
 P <- matrix(c(0.5,  0.25, 0.25,
@@ -30,7 +34,7 @@ is.regular(ciao)
 }
 \references{
 Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition.
-Corollary 8.5.8, Theorem 8.5.9
+Theorem 8.5.3, Corollary 8.5.8, Theorem 8.5.9
 }
 \seealso{
 \code{\link{is.irreducible}}

@@ -299,7 +299,7 @@ autoplot.markovchain <- function(object,
 # matrix lie inside it, and the closer they are to the circle the slower the convergence.
 .autoplotEigenvalues <- function(object) {
   P <- .rowStochasticMatrix(object)
-  values <- eigen(P, only.values = TRUE)$values
+  values <- .eigenvaluesCached(P)
   ev <- data.frame(re = Re(values), im = Im(values))
   theta <- seq(0, 2 * pi, length.out = 361L)
   # the unit circle, as a polyline

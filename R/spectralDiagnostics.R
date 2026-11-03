@@ -35,8 +35,9 @@
   # The eigenvalues of P describe how fast the chain forgets its starting point: the eigenvalue 1
   # corresponds to the stationary distribution, the others (all with modulus <= 1) to the
   # convergence speed.
-  # Eigenvectors are not needed by any of the callers.
-  values <- eigen(P, only.values = TRUE)$values
+  # Eigenvectors are not needed by any of the callers. The values come from the session cache
+  # (R/eigenCache.R): another spectral function called on the same chain reuses them.
+  values <- .eigenvaluesCached(P)
 
   # Identify the trivial eigenvalue 1 as the one closest to 1 (it may be slightly off because of
   # round-off), and check it really is close enough.
@@ -85,6 +86,9 @@
 #' so it never computes eigenvectors. Its time complexity is
 #' \eqn{O(n^3)} and its memory use is \eqn{O(n^2)} for a dense \eqn{n}-state
 #' transition matrix. It supports both row- and column-stochastic storage.
+#' The eigenvalues are kept in a session cache, so other spectral functions
+#' called on the same chain do not recompute them (see
+#' \code{\link{markovchainCache}}).
 #'
 #' @references
 #' Levin, D. A. and Peres, Y. (2017). \emph{Markov Chains and Mixing Times},
@@ -228,6 +232,9 @@ setMethod("spectralGap", "markovchain", function(object) {
 #' so it never computes eigenvectors. Its time complexity is
 #' \eqn{O(n^3)} and its memory use is \eqn{O(n^2)} for a dense \eqn{n}-state
 #' transition matrix. It supports both row- and column-stochastic storage.
+#' The eigenvalues are kept in a session cache, so other spectral functions
+#' called on the same chain do not recompute them (see
+#' \code{\link{markovchainCache}}).
 #'
 #' @references
 #' Swope, W. C., Pitera, J. W. and Suits, F. (2004). Describing protein

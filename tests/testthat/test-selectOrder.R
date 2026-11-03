@@ -109,6 +109,8 @@ test_that("invalid input is rejected and sparse contexts are flagged", {
   expect_error(selectOrder(x, maxOrder = 2, start = 2), "start")
   expect_error(selectOrder(x, maxOrder = 2, start = 10), "no sequence")
   expect_error(selectOrder(rep("a", 10)), "two different states")
-  expect_error(selectOrder(x, criterion = "foo"), "should be one of")
+  # Match on the choice names rather than the English preamble of match.arg(),
+  # so the test is robust to the system LANGUAGE (it, de, fr, ...).
+  expect_error(selectOrder(x, criterion = "foo"), '"BIC".*"AIC"')
   expect_warning(selectOrder(sample(letters, 50, TRUE), maxOrder = 2), "unreliable")
 })

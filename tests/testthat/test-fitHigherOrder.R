@@ -133,7 +133,9 @@ test_that("method = 'mle' uses the same lag matrices as method = 'lsq'", {
 test_that("the default method is the maximum likelihood one", {
   data(rain)
   expect_identical(fitHigherOrder(rain$rain, 2), fitHigherOrder(rain$rain, 2, method = "mle"))
-  expect_error(fitHigherOrder(rain$rain, 2, method = "foo"), "should be one of")
+  # Match on the choice names rather than the English preamble of match.arg(),
+  # so the test is robust to the system LANGUAGE (it, de, fr, ...).
+  expect_error(fitHigherOrder(rain$rain, 2, method = "foo"), '"mle".*"lsq"')
 })
 
 test_that("method = 'mle' attains the global maximum of the log-likelihood", {

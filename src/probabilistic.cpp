@@ -652,17 +652,24 @@ int period(S4 object) {
 // reached, it closes a cycle and v[i] + 1 - v[j] is a multiple of the period; the period
 // is the gcd of all these numbers (for an irreducible chain). The search stops early as
 // soon as the gcd reaches 1 (aperiodic).
+//
+// A state, once reached (queued or expanded), stays reached, so "already reached" is kept in
+// a boolean vector. Until version 1.2.1 it was found by scanning a list that grew at every edge
+// and was never emptied, which made the search much slower than quadratic on periodic chains
+// (where it cannot stop early); the levels, the gcd and the result are the same.
 int periodKernel(NumericMatrix P) {
   {
     int n = P.ncol();
     // T = queue of states to expand (starts with state 0), w = states already expanded,
-    // r = scratch list of the states already reached (expanded or queued)
-    std::vector<double> r, T(1), w;
+    // reached[s] = true once s has been queued (it then stays true)
+    std::vector<double> T(1), w;
     int d = 0, m = T.size(), i = 0, j = 0;
     
     if (n > 0) {
       arma::vec v(n);     // v[s] = distance of state s from state 0 (the start has v = 1)
       v[0] = 1;
+      std::vector<bool> reached(n, false);
+      reached[0] = true;
       
       while (m>0 && d!=1) {
         // take the next state i from the queue
@@ -674,15 +681,7 @@ int periodKernel(NumericMatrix P) {
         // look at every edge i -> j
         while (j < n) {
           if (P(i,j) > 0) {
-            r.insert(r.end(), w.begin(), w.end());
-            r.insert(r.end(), T.begin(), T.end());
-            double k = 0;
-            
-            // k > 0 if j was already reached
-            for (std::vector<double>::iterator it = r.begin(); it != r.end(); it ++) 
-              if (*it == j) k ++;
-            
-            if (k > 0) {
+            if (reached[j]) {
                // j already reached: the edge closes a cycle, update the gcd
                int b = v[i] + 1 - v[j];
                d = gcd(d, b);
@@ -690,6 +689,7 @@ int periodKernel(NumericMatrix P) {
               // new state: put it in the queue, one step further from the start
               T.push_back(j);
               v[j] = v[i] + 1;
+              reached[j] = true;
             }
           }
           j++;
@@ -1785,23 +1785,20 @@ bool isIrreducible(S4 obj) {
 
 
 // isRegular(): a chain is regular when some power of P has only positive entries.
+//
+// A non-negative square matrix is primitive (some power is positive) if and only if it is
+// irreducible and aperiodic (Horn and Johnson, Matrix Analysis, 2nd ed., Theorem 8.5.3 and
+// Corollary 8.5.8), so regularity is decided from the communicating classes and the period,
+// which depend only on the pattern of positive entries: O(m^2) work for a dense matrix.
+// Until version 1.2.1 the function computed P^(m^2 - 2m + 2) in floating point (Theorem 8.5.9),
+// which gives the same answer but costs about 2 log2(m) dense matrix products, and could in
+// principle lose tiny positive entries to underflow.
 // [[Rcpp::export(.isRegularRcpp)]]
 bool isRegular(S4 obj) {
+  if (!isIrreducible(obj))
+    return false;
   NumericMatrix transitions = obj.slot("transitionMatrix");
-  int m = transitions.ncol();
-  mat probs(transitions.begin(), m, m, true);
-  mat reachable;
-  auto arePositive = [](const double& x){ return x > 0; };
-  
-  
-  // Result from matrix analysis: P is regular iff P^(m^2 - 2m + 2) has all entries > 0 (m = number of states).
-  // Taken from the book: 
-  // Matrix Analysis. Roger A.Horn, Charles R.Johnson. 2nd edition. 
-  // Theorem 8.5.9
-  // A is regular iff A^{m²- 2m + 2} > 0
-  reachable = matrixPow(probs, m*m - 2*m + 2);
-  
-  return allElements(reachable, arePositive);
+  return periodKernel(transitions) == 1;
 }
 
 

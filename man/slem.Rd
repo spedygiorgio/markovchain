@@ -44,6 +44,9 @@ The implementation calls \code{eigen()} with \code{only.values = TRUE},
 so it never computes eigenvectors. Its time complexity is
 \eqn{O(n^3)} and its memory use is \eqn{O(n^2)} for a dense \eqn{n}-state
 transition matrix. It supports both row- and column-stochastic storage.
+The eigenvalues are kept in a session cache, so other spectral functions
+called on the same chain do not recompute them (see
+\code{\link{markovchainCache}}).
 }
 \examples{
 statesNames <- c("a", "b")

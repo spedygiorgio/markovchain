@@ -155,7 +155,7 @@ setMethod("redistribute", "markovchain",
 # matrix has a positive entry, so every state leads to a cycle.
 .adjacencyPerronRoot <- function(object) {
   A <- (.rowStochasticMatrix(object) > 0) * 1
-  max(Mod(eigen(A, only.values = TRUE)$values))
+  max(Mod(.eigenvaluesCached(A)))
 }
 
 #' Topological entropy of a Markov chain

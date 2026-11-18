@@ -251,7 +251,7 @@ jobs:
       - name: Restore TinyTeX
         if: matrix.config.vignettes
         id: texcache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.TinyTeX

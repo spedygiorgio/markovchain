@@ -47,7 +47,9 @@ The implementation calls [`eigen()`](https://rdrr.io/r/base/eigen.html)
 with `only.values = TRUE`, so it never computes eigenvectors. Its time
 complexity is \\O(n^3)\\ and its memory use is \\O(n^2)\\ for a dense
 \\n\\-state transition matrix. It supports both row- and
-column-stochastic storage.
+column-stochastic storage. The eigenvalues are kept in a session cache,
+so other spectral functions called on the same chain do not recompute
+them (see [`markovchainCache`](markovchainCache.md)).
 
 ## References
 

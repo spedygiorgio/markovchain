@@ -163,6 +163,8 @@
 - [`markovchain`](markovchain-package.md)
   [`markovchain-package`](markovchain-package.md) : Easy Handling
   Discrete Time Markov Chains
+- [`markovchainCache`](markovchainCache.md) : Session cache of
+  eigenvalues
 - [`.markovchainFitRcpp()`](markovchainFit.md)
   [`createSequenceMatrix()`](markovchainFit.md)
   [`markovchainFit()`](markovchainFit.md) : Fit a discrete time Markov

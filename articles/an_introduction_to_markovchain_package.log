@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.1)  1 NOV 2026 07:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.18)  18 NOV 2026 19:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -75,7 +75,7 @@ LaTeX Info: Redefining \cite on input line 694.
 )
 \footerskip=\skip53
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
-Package: hyperref 2026-10-09 v7.01s Hypertext links for LaTeX
+Package: hyperref 2026-11-03 v7.01t Hypertext links for LaTeX
 (/home/runner/.TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2024/12/12 v1.0g TeX engine tests
 ) (/home/runner/.TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
@@ -87,7 +87,7 @@ Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
 (/home/runner/.TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 ) (/home/runner/.TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+Package: pdftexcmds 2026-10-28 v0.34 Utility functions of pdfTeX for LuaTeX (HO)
 (/home/runner/.TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
@@ -96,8 +96,8 @@ Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 )) (/home/runner/.TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (/home/runner/.TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
-Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+) (/home/runner/.TinyTeX/texmf-dist/tex/latex/nameref/nameref.sty
+Package: nameref 2026-11-03 v2.60 Cross-referencing by name of section
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ) (/home/runner/.TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
@@ -116,7 +116,7 @@ Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
 \Hy@linkcounter=\count291
 \Hy@pagecounter=\count292
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
-File: pd1enc.def 2026-10-09 v7.01s Hyperref: PDFDocEncoding definition (HO)
+File: pd1enc.def 2026-11-03 v7.01t Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 ) (/home/runner/.TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
@@ -124,7 +124,7 @@ Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
 \Hy@SavedSpaceFactor=\count293
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
-File: puenc.def 2026-10-09 v7.01s Hyperref: PDF Unicode definition (HO)
+File: puenc.def 2026-11-03 v7.01t Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
 )
@@ -163,7 +163,7 @@ Package hyperref Info: PDF/A mode OFF on input line 6121.
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
-File: hpdftex.def 2026-10-09 v7.01s Hyperref driver for pdfTeX
+File: hpdftex.def 2026-11-03 v7.01t Hyperref driver for pdfTeX
 \Fld@listcount=\count299
 \c@bookmark@seq@number=\count300
 (/home/runner/.TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
@@ -2611,15 +2611,15 @@ Package rerunfilecheck Info: File `an_introduction_to_markovchain_package.out' h
 (rerunfilecheck)             Checksum: 20EAEA8B9971421CF872107E4895C632;21761.
  ) 
 Here is how much of TeX's memory you used:
- 25227 strings out of 468958
- 489740 string characters out of 5454277
- 841733 words of memory out of 5000000
+ 25228 strings out of 468958
+ 489789 string characters out of 5454276
+ 841734 words of memory out of 5000000
  51369 multiletter control sequences out of 15000+600000
  730065 words of font info for 101 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  107i,11n,118p,1323b,688s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmri12.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb></home/runner/.TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on an_introduction_to_markovchain_package.pdf (116 pages, 973751 bytes).
+Output written on an_introduction_to_markovchain_package.pdf (116 pages, 973744 bytes).
 PDF statistics:
  4373 PDF objects out of 5155 (max. 8388607)
  4136 compressed objects within 42 object streams

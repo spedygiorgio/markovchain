@@ -19,3 +19,5 @@ leftovers/*.*
 ^\*.patch
 ^cran-comments\.md$
 ^\.ccache$
+^markovchain_.*\.png$
+^markovchain_.*\.csv$

@@ -70,8 +70,8 @@ fitness \\r=1+s\\ against wild-type fitness \\1\\) and one individual,
 chosen uniformly at random, dies and is replaced by the offspring, which
 mutates with probability `u` or `v` depending on the parent's type. From
 interior state \\i\\ (\\0\<i\<n\\), writing \\r_i=(1+s)i\\ and
-\\m_i=n-i\\, \$\$P\_{i,i-1}=\frac{i}{n}\cdot\frac{r_i u +
-m_i(1-v)}{r_i+m_i},\qquad P\_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) +
+\\m_i=n-i\\, \$\$P\_{i,i-1}=\frac{i}{n}\cdot\frac{r_i v +
+m_i(1-u)}{r_i+m_i},\qquad P\_{i,i+1}=\frac{m_i}{n}\cdot\frac{r_i(1-u) +
 m_i v}{r_i+m_i},\$\$ with \\P\_{ii}\\ the remainder.
 
 **Wright-Fisher model.** Generations are discrete and non-overlapping:

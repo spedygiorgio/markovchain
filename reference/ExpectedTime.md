@@ -22,7 +22,7 @@ ExpectedTime(C, i, j, useRCpp = TRUE)
 - useRCpp:
 
   Logical: solve the linear system in C++ (default) or with
-  [`solve()`](https://rdrr.io/r/base/solve.html)?
+  [`base::solve()`](https://rdrr.io/r/base/solve.html)?
 
 ## Value
 

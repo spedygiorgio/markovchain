@@ -34,7 +34,7 @@
   [`steadyStates,ctmc-method`](ctmc-class.md)
   [`plot,ctmc,missing-method`](ctmc-class.md) : Continuous time Markov
   chain class
-- [`ctmcFit`](ctmcFit.md) : Fit a continuous time Markov chain
+- [`ctmcFit()`](ctmcFit.md) : Fit a continuous time Markov chain
 - [`dirichletChain()`](dirichletChain.md) : Markov chain from a
   Dirichlet process
 - [`divergenceRate()`](divergenceRate.md) : Kullback-Leibler divergence

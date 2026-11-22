@@ -4,6 +4,12 @@ Maximum likelihood estimation of a continuous time Markov chain from one
 observed trajectory: the sequence of states visited and the times at
 which they were entered.
 
+## Usage
+
+``` r
+ctmcFit(data, byrow = TRUE, name = "", confidencelevel = 0.95)
+```
+
 ## Arguments
 
 - data:

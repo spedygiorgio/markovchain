@@ -33,16 +33,16 @@ meanNumVisits(mc)
 R. Vélez, T. Prieto, Procesos Estocásticos, Librería UNED, 2013
 }
 \seealso{
-Other first passage and hitting: 
-\code{\link{absorptionProbabilities}()},
-\code{\link{committorAB}()},
-\code{\link{firstPassage}()},
-\code{\link{firstPassageMultiple}()},
-\code{\link{hittingProbabilities}()},
-\code{\link{meanAbsorptionTime}()},
-\code{\link{meanFirstPassageTime}()},
-\code{\link{meanRecurrenceTime}()},
-\code{\link{noofVisitsDist}()}
+Other first passage and hitting:
+\code{\link[=absorptionProbabilities]{absorptionProbabilities()}},
+\code{\link[=committorAB]{committorAB()}},
+\code{\link[=firstPassage]{firstPassage()}},
+\code{\link[=firstPassageMultiple]{firstPassageMultiple()}},
+\code{\link[=hittingProbabilities]{hittingProbabilities()}},
+\code{\link[=meanAbsorptionTime]{meanAbsorptionTime()}},
+\code{\link[=meanFirstPassageTime]{meanFirstPassageTime()}},
+\code{\link[=meanRecurrenceTime]{meanRecurrenceTime()}},
+\code{\link[=noofVisitsDist]{noofVisitsDist()}}
 }
 \author{
 Ignacio Cordón

@@ -33,16 +33,16 @@ C. M. Grinstead and J. L. Snell. Introduction to Probability.
 American Mathematical Soc., 2012.
 }
 \seealso{
-Other first passage and hitting: 
-\code{\link{absorptionProbabilities}()},
-\code{\link{committorAB}()},
-\code{\link{firstPassage}()},
-\code{\link{firstPassageMultiple}()},
-\code{\link{hittingProbabilities}()},
-\code{\link{meanAbsorptionTime}()},
-\code{\link{meanFirstPassageTime}()},
-\code{\link{meanNumVisits}()},
-\code{\link{noofVisitsDist}()}
+Other first passage and hitting:
+\code{\link[=absorptionProbabilities]{absorptionProbabilities()}},
+\code{\link[=committorAB]{committorAB()}},
+\code{\link[=firstPassage]{firstPassage()}},
+\code{\link[=firstPassageMultiple]{firstPassageMultiple()}},
+\code{\link[=hittingProbabilities]{hittingProbabilities()}},
+\code{\link[=meanAbsorptionTime]{meanAbsorptionTime()}},
+\code{\link[=meanFirstPassageTime]{meanFirstPassageTime()}},
+\code{\link[=meanNumVisits]{meanNumVisits()}},
+\code{\link[=noofVisitsDist]{noofVisitsDist()}}
 }
 \author{
 Ignacio Cordón

@@ -50,9 +50,9 @@ multivariate Markov chains and their applications. Linear Algebra and its
 Applications 428(2-3), 492-507. \doi{10.1016/j.laa.2007.05.021}
 }
 \seealso{
-Other higher order chains: 
-\code{\link{fitHighOrderMultivarMC}()},
-\code{\link{fitHigherOrder}()}
+Other higher order chains:
+\code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}},
+\code{\link[=fitHigherOrder]{fitHigherOrder()}}
 }
 \author{
 Vandit Jain

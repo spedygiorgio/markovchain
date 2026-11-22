@@ -47,8 +47,8 @@ mc <- new("markovchain", states = statesNames, transitionMatrix = P)
 autoLump(mc, k = 2)
 }
 \seealso{
-Other state aggregation: 
-\code{\link{is.lumpable}()},
-\code{\link{lump}()}
+Other state aggregation:
+\code{\link[=is.lumpable]{is.lumpable()}},
+\code{\link[=lump]{lump()}}
 }
 \concept{state aggregation}

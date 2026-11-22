@@ -13,7 +13,7 @@ ExpectedTime(C, i, j, useRCpp = TRUE)
 states.}
 
 \item{useRCpp}{Logical: solve the linear system in C++ (default) or with
-\code{\link[=solve]{solve()}}?}
+\code{\link[base:solve]{base::solve()}}?}
 }
 \value{
 A number, the expected hitting time of \code{j} from \code{i} (0 if
@@ -46,16 +46,16 @@ Norris, J. R. (1997). Markov Chains. Cambridge University
 Press.
 }
 \seealso{
-Other continuous time Markov chains: 
-\code{\link{ctmcFit}()},
-\code{\link{freq2Generator}()},
-\code{\link{generatorToTransitionMatrix}()},
-\code{\link{impreciseProbabilityatT}()},
-\code{\link{is.CTMCirreducible}()},
-\code{\link{is.TimeReversible}()},
-\code{\link{probabilityatT}()},
-\code{\link{rctmc}()},
-\code{\link{transition2Generator}()}
+Other continuous time Markov chains:
+\code{\link[=ctmcFit]{ctmcFit()}},
+\code{\link[=freq2Generator]{freq2Generator()}},
+\code{\link[=generatorToTransitionMatrix]{generatorToTransitionMatrix()}},
+\code{\link[=impreciseProbabilityatT]{impreciseProbabilityatT()}},
+\code{\link[=is.CTMCirreducible]{is.CTMCirreducible()}},
+\code{\link[=is.TimeReversible]{is.TimeReversible()}},
+\code{\link[=probabilityatT]{probabilityatT()}},
+\code{\link[=rctmc]{rctmc()}},
+\code{\link[=transition2Generator]{transition2Generator()}}
 }
 \author{
 Vandit Jain

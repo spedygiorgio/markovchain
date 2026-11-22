@@ -53,9 +53,9 @@ Yalamanchi, S. B. and Spedicato, G. A. (2015). Bayesian inference of
 first order Markov chains. Vignette of the markovchain package.
 }
 \seealso{
-Other Bayesian inference: 
-\code{\link{inferHyperparam}()},
-\code{\link{priorDistribution}()}
+Other Bayesian inference:
+\code{\link[=inferHyperparam]{inferHyperparam()}},
+\code{\link[=priorDistribution]{priorDistribution()}}
 }
 \author{
 Sai Bhargav Yalamanchi

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>debug higher order</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="debug_higher_order_files/libs/clipboard/clipboard.min.js"></script>
+<script src="debug_higher_order_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="debug_higher_order_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="debug_higher_order_files/libs/quarto-html/popper.min.js"></script>
+<script src="debug_higher_order_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="debug_higher_order_files/libs/quarto-html/anchor.min.js"></script>
+<link href="debug_higher_order_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="debug_higher_order_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="debug_higher_order_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="debug_higher_order_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="debug_higher_order_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">debug higher order</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="higher-order-markov-chains-as-mixtures-of-lags" class="level1">
+<h1>Higher order Markov chains as mixtures of lags</h1>
+<p>Discrete time Markov chains of order one and continuous time Markov chains are described in the main vignette of the package, “An introduction to markovchain package”.</p>
+<p>The function <code>fitHigherOrder</code> fits a higher order Markov chain, written as a mixture of transition matrices of different lags <span class="citation" data-cites="ching2013higher ching2008higher">[@ching2013higher; @ching2008higher]</span>. It takes three inputs:</p>
+<ol type="1">
+<li>sequence: a categorical data sequence.</li>
+<li>order: order of Markov chain to fit with default value 2.</li>
+<li>method: how the weights are estimated, <code>"mle"</code> (default) or <code>"lsq"</code>, see below.</li>
+</ol>
+<p>The output is a <code>list</code> with the following elements:</p>
+<ol type="1">
+<li>lambda: model parameter(s).</li>
+<li>Q: a list of transition matrices. <span class="math inline">\(Q_i\)</span> is the <span class="math inline">\(i\)</span>-th step transition matrix, stored column-wise.</li>
+<li>X: frequency probability vector of the given sequence.</li>
+</ol>
+<p>The model is a mixture of the empirical lag-<span class="math inline">\(i\)</span> transition matrices <span class="math inline">\(Q_i\)</span> with weights <span class="math inline">\(\lambda_i\ge0\)</span> summing to one, and the matrices <span class="math inline">\(Q_i\)</span> are the same for both methods. With <code>method = "lsq"</code> the weights solve a quadratic programming problem, the minimization of the squared distance between the stationary distribution and its image under the mixture, which is solved using <code>solnp</code> function of the Rsolnp package <span class="citation" data-cites="pkg:Rsolnp">[@pkg:Rsolnp]</span>. With the default <code>method = "mle"</code> the weights maximize the log-likelihood of the observations; for fixed <span class="math inline">\(Q_i\)</span> this is a concave problem in only <span class="math inline">\(k\)</span> unknowns, so its maximum is global, and it is computed, without the Rsolnp package, by Newton’s method with an active set on the simplex, which stops when the optimality (Karush-Kuhn-Tucker) conditions hold within <span class="math inline">\(10^{-10}\)</span>. The EM algorithm for mixture weights, used before, converges very slowly when a weight tends to zero or the lags carry nearly the same information.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"Rsolnp"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span>(rain)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  rain_small <span class="ot">&lt;-</span> rain<span class="sc">$</span>rain[<span class="dv">1</span><span class="sc">:</span><span class="dv">150</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitHigherOrder</span>(rain_small, <span class="dv">2</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $lambda</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.7466863 0.2533137</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Q</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Q[[1]]</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             0       1-5      6+</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0   0.5538462 0.4230769 0.21875</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1-5 0.2923077 0.4038462 0.37500</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6+  0.1538462 0.1730769 0.40625</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Q[[2]]</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             0       1-5      6+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0   0.5384615 0.3725490 0.34375</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1-5 0.2615385 0.3921569 0.43750</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6+  0.2000000 0.2352941 0.21875</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $X</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         0       1-5        6+ </span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.4333333 0.3466667 0.2200000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="comparing-models-of-different-orders" class="level1">
+<h1>Comparing models of different orders</h1>
+<p><code>higherOrderLogLik</code> evaluates the log-likelihood of a sequence under the model returned by <code>fitHigherOrder</code>, and derives the deviance (<span class="math inline">\(-2\)</span> times the log-likelihood), the AIC and the BIC, so that models of different orders can be compared. The probability of moving to state <span class="math inline">\(x_t\)</span> is the mixture <span class="math inline">\(\sum_{i=1}^{k}\lambda_i Q_i[x_t, x_{t-i}]\)</span>, the form of the mixture transition distribution model of <span class="citation" data-cites="raftery1985model">[@raftery1985model]</span>, and the log-likelihood is the sum of the logarithms of these probabilities over the observations that a model of order <span class="math inline">\(k\)</span> can predict, that is from observation <span class="math inline">\(k+1\)</span> onwards. To compare orders on exactly the same observations the argument <code>start</code> must be set to one plus the largest order compared.</p>
+<p>Two caveats apply. First, with <code>method = "lsq"</code> (the default in earlier versions of the package, see <code>NEWS.md</code>) the weights <span class="math inline">\(\lambda\)</span> are chosen by least squares on the stationary distribution, not by maximum likelihood, so the value returned is the log-likelihood <em>of the fitted model</em> and not the maximum attainable one. It can therefore be lower for a higher order than for a lower one, which cannot happen for maximum-likelihood fits of nested models. With <code>method = "mle"</code> the weights maximize this log-likelihood for the observations that a model of that order can predict, and in the examples below the log-likelihood then never decreases with the order. Second, the number of parameters used for the criteria is <span class="math inline">\((r-1)\,(1+k(r-1))\)</span>, with <span class="math inline">\(r\)</span> the number of states. Each lag matrix has <span class="math inline">\(r(r-1)\)</span> free probabilities and there are <span class="math inline">\(k-1\)</span> free weights, but in a mixture of lag matrices the weights are not identifiable (a distribution common to all departure states can be moved from one lag to another without changing any transition probability), so the model can represent a set of transition laws of dimension <span class="math inline">\((r-1)(1+k(r-1))\)</span>, that is <span class="math inline">\(r(k-1)\)</span> less than the naive count <span class="math inline">\(k\,r(r-1)+(k-1)\)</span>; the two coincide for <span class="math inline">\(k = 1\)</span>.</p>
+<p>The example compares orders one to three on the Alofi Island daily rainfall and on the preproglucacon DNA sequence, both analysed by <span class="citation" data-cites="averyHenderson">[@averyHenderson]</span>, with both estimation methods. Maximum likelihood weights raise the log-likelihood of the higher orders, by up to about 11 units for the rainfall and 28 for the DNA sequence, whereas the least squares weights can leave it below that of the first-order model. Even so, the gain is too small to pay for the additional parameters, and both criteria select the first-order model for both sequences with both methods. The values are computed by the package; they are not claimed to reproduce those of the original paper.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"Rsolnp"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  compareOrders <span class="ot">&lt;-</span> <span class="cf">function</span>(sequence, <span class="at">orders =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    byMethod <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"lsq"</span>, <span class="st">"mle"</span>), <span class="cf">function</span>(method) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(orders, <span class="cf">function</span>(k) <span class="fu">fitHigherOrder</span>(sequence, k, <span class="at">method =</span> method))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sapply</span>(fits, <span class="cf">function</span>(f)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">unlist</span>(<span class="fu">higherOrderLogLik</span>(sequence, f, <span class="at">start =</span> <span class="fu">max</span>(orders) <span class="sc">+</span> <span class="dv">1</span>)[<span class="fu">c</span>(<span class="st">"logLik"</span>, <span class="st">"BIC"</span>)]))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">rbind</span>(byMethod[[<span class="dv">1</span>]], byMethod[[<span class="dv">2</span>]])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(out) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"logLik (lsq)"</span>, <span class="st">"BIC (lsq)"</span>, <span class="st">"logLik (mle)"</span>, <span class="st">"BIC (mle)"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(out) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"order"</span>, orders)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(out, <span class="dv">1</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span>(rain)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">compareOrders</span>(rain<span class="sc">$</span>rain))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span>(preproglucacon)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">compareOrders</span>(preproglucacon<span class="sc">$</span>preproglucacon))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              order 1 order 2 order 3</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; logLik (lsq) -1038.1 -1047.8 -1047.8</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BIC (lsq)     2118.1  2165.5  2193.5</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; logLik (mle) -1038.1 -1036.5 -1036.5</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BIC (mle)     2118.1  2142.9  2170.9</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              order 1 order 2 order 3</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; logLik (lsq) -2026.0 -2024.6 -2051.6</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BIC (lsq)     4140.3  4203.7  4323.9</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; logLik (mle) -2026.0 -2024.0 -2024.0</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BIC (mle)     4140.3  4202.5  4268.7</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="selecting-the-order-of-a-full-markov-chain" class="level2">
+<h2 class="anchored" data-anchor-id="selecting-the-order-of-a-full-markov-chain">Selecting the order of a full Markov chain</h2>
+<p>The models above restrict the dependence on the past to a mixture of lags. <code>selectOrder</code> instead fits the fully parameterized Markov chains of order <span class="math inline">\(0, 1, \dots, K\)</span> (order 0 is independence) by maximum likelihood, all on the same observations (from <code>start</code>, by default <span class="math inline">\(K+1\)</span>), and selects the order that minimizes the BIC or the AIC <span class="citation" data-cites="tong1975determination katz1981some">[@tong1975determination; @katz1981some]</span>. An order-<span class="math inline">\(k\)</span> chain on <span class="math inline">\(r\)</span> states has <span class="math inline">\(r^k(r-1)\)</span> free parameters; with <code>parameters = "observed"</code> only the transition probabilities not estimated as zero are counted, as in <span class="citation" data-cites="berchtold2002mixture">@berchtold2002mixture</span>. The table also gives the likelihood-ratio statistic of each order against the previous one, with its asymptotic chi-squared p-value <span class="citation" data-cites="anderson1957statistical">[@anderson1957statistical]</span>. BIC is a consistent estimator of the order <span class="citation" data-cites="csiszar2000consistency">[@csiszar2000consistency]</span>, whereas AIC tends to choose higher orders, and both become unreliable when <span class="math inline">\(r^K\)</span> is not small compared with the number of observations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(rain)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rainOrder <span class="ot">&lt;-</span> <span class="fu">selectOrder</span>(rain<span class="sc">$</span>rain, <span class="at">maxOrder =</span> <span class="dv">3</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rainOrder<span class="sc">$</span>order</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rainOrder<span class="sc">$</span>table, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  order logLik npar  AIC  BIC     LR df   p.value</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      0  -1134    2 2272 2282     NA NA        NA</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      1  -1038    6 2088 2118 191.53  4 2.487e-40</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      2  -1025   18 2086 2176  25.94 12 1.096e-02</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      3  -1006   54 2119 2389  39.06 36 3.338e-01</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">selectOrder</span>(rain<span class="sc">$</span>rain, <span class="at">maxOrder =</span> <span class="dv">3</span>, <span class="at">criterion =</span> <span class="st">"AIC"</span>)<span class="sc">$</span>order</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For the Alofi rainfall the BIC selects the first-order chain, whereas the AIC slightly prefers the second-order one (2086.2 against 2088.1), which needs 18 parameters instead of 6. For the preproglucacon sequence (<code>selectOrder(preproglucacon$preproglucacon, 3)</code>) the BIC of independence and of the first-order chain differ by about one unit, and the AIC selects order one. These values are computed by the package.</p>
+</section>
+<section id="reproducing-a-published-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="reproducing-a-published-comparison">Reproducing a published comparison</h2>
+<p><span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span> compare, by log-likelihood and BIC, independence, Markov chains of order one to three and mixture transition distribution (MTD) models for the hourly wind direction at Koeberg (South Africa; 744 observations recoded into four directions, originally from <span class="citation" data-cites="macdonald1997hidden">[@macdonald1997hidden]</span>) and for a daily series of epileptic seizures (204 observations). The authors kindly provided the two series, which are distributed with the package in <code>inst/extdata</code>. Their convention is to condition every model on the first 14 observations, so that all models are evaluated on the same <span class="math inline">\(n-14\)</span> observations, which in <code>higherOrderLogLik</code> corresponds to <code>start = 15</code>; the BIC uses <span class="math inline">\(n-14\)</span> as sample size and counts only the parameters that are not forced to zero.</p>
+<p><code>fitHigherOrder</code> does not estimate the MTD model of that paper: it fits a different transition matrix for each lag, with weights chosen by least squares or, with <code>method = "mle"</code>, by maximum likelihood given those matrices, whereas the MTD model uses a single matrix <span class="math inline">\(Q\)</span> for all lags and estimates it together with the weights by maximum likelihood (that model is fitted by <code>fitMTD</code>, described in the next section). The comparison below evaluates, with <code>higherOrderLogLik</code>, the first-order chain estimated on the observations entering the likelihood and the MTD(2) model with the weights and the matrix <span class="math inline">\(Q\)</span> printed in the paper (whose rows are the departure states, hence the transposition).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>koeberg <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">read.csv</span>(<span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"koeberg_wind.csv"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">package =</span> <span class="st">"markovchain"</span>))<span class="sc">$</span>state)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>start <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>n_eff <span class="ot">&lt;-</span> <span class="fu">length</span>(koeberg) <span class="sc">-</span> (start <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># first-order Markov chain, estimated on the transitions that enter the likelihood</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>Q1 <span class="ot">&lt;-</span> <span class="fu">seq2matHigh</span>(koeberg[(start <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">:</span><span class="fu">length</span>(koeberg)], <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>mc1 <span class="ot">&lt;-</span> <span class="fu">higherOrderLogLik</span>(koeberg, <span class="fu">list</span>(<span class="at">lambda =</span> <span class="dv">1</span>, <span class="at">Q =</span> <span class="fu">list</span>(Q1)), <span class="at">start =</span> start)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># MTD(2) with lambda and Q as printed in Section 1.3 of the paper</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>Qpaper <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">0.8301</span>, <span class="fl">0.0689</span>, <span class="fl">0.0077</span>, <span class="fl">0.0933</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                   <span class="fl">0.0369</span>, <span class="fl">0.9012</span>, <span class="fl">0.0619</span>, <span class="fl">0.0000</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                   <span class="fl">0.0155</span>, <span class="fl">0.1553</span>, <span class="fl">0.8070</span>, <span class="fl">0.0222</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                   <span class="fl">0.0779</span>, <span class="fl">0.0000</span>, <span class="fl">0.0528</span>, <span class="fl">0.8693</span>), <span class="dv">4</span>, <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>Q <span class="ot">&lt;-</span> <span class="fu">t</span>(Qpaper)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(Q) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>), <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>mtd2 <span class="ot">&lt;-</span> <span class="fu">higherOrderLogLik</span>(koeberg, <span class="fu">list</span>(<span class="at">lambda =</span> <span class="fu">c</span>(<span class="fl">0.7569</span>, <span class="fl">0.2431</span>), <span class="at">Q =</span> <span class="fu">list</span>(Q, Q)),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                          <span class="at">start =</span> start)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># parameters not forced to zero: 11 for the chain (one empty transition),</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 * 3 - 2 + (2 - 1) = 11 for the MTD(2) (two structural zeros in Q)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"Markov chain, order 1"</span>, <span class="st">"MTD, order 2"</span>),</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">logLik =</span> <span class="fu">c</span>(mc1<span class="sc">$</span>logLik, mtd2<span class="sc">$</span>logLik),</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">BIC =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> mc1<span class="sc">$</span>logLik <span class="sc">+</span> <span class="dv">11</span> <span class="sc">*</span> <span class="fu">log</span>(n_eff), <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> mtd2<span class="sc">$</span>logLik <span class="sc">+</span> <span class="dv">11</span> <span class="sc">*</span> <span class="fu">log</span>(n_eff)),</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">logLik_published =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">413.3</span>, <span class="sc">-</span><span class="fl">393.4</span>),</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">BIC_published =</span> <span class="fu">c</span>(<span class="fl">899.1</span>, <span class="fl">859.3</span>))</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(comparison, <span class="at">digits =</span> <span class="dv">4</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  model logLik   BIC logLik_published BIC_published</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Markov chain, order 1 -413.3 899.1           -413.3         899.1</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           MTD, order 2 -393.4 859.3           -393.4         859.3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The values coincide with Table 2 of the paper up to its rounding to one decimal, and the BIC prefers the MTD(2) model to the first-order chain, as in the paper. The same agreement is obtained for the Markov chains of order two and three and for the seizure series (Table 3); these checks are part of the unit tests of the package. The rows for independence and for the Markov chains of order one to three are obtained in one call with <code>selectOrder(koeberg, maxOrder = 3, start = 15, parameters = "observed")</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">selectOrder</span>(koeberg, <span class="at">maxOrder =</span> <span class="dv">3</span>, <span class="at">start =</span> <span class="dv">15</span>, <span class="at">parameters =</span> <span class="st">"observed"</span>)<span class="sc">$</span>table[, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>],</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">5</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  order  logLik npar     AIC     BIC</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      0 -954.83    3 1915.66 1929.44</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      1 -413.30   11  848.61  899.13</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      2 -374.92   27  803.84  927.85</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      3 -346.19   39  770.39  949.52</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="the-mixture-transition-distribution-model" class="level1">
+<h1>The mixture transition distribution model</h1>
+<p>A Markov chain of order <span class="math inline">\(k\)</span> on <span class="math inline">\(r\)</span> states has <span class="math inline">\(r^k(r-1)\)</span> free transition probabilities, a number that grows so quickly with <span class="math inline">\(k\)</span> that high orders can rarely be estimated. The mixture transition distribution (MTD) model of <span class="citation" data-cites="raftery1985model">[@raftery1985model]</span> replaces the full transition array with a mixture of contributions of the individual lags, all governed by the same transition matrix: <span class="math display">\[
+P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\, q_{i_g j},
+\]</span> where <span class="math inline">\(Q = (q_{ij})\)</span> is an <span class="math inline">\(r \times r\)</span> transition matrix (rows are departure states) and the lag weights <span class="math inline">\(\lambda_g\)</span> sum to one. The model has only <span class="math inline">\(r(r-1) + k - 1\)</span> parameters, one more for each additional lag, and for <span class="math inline">\(k = 1\)</span> it is the first-order Markov chain. <span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span> review the model, its extensions and its applications.</p>
+<p><code>fitMTD(sequence, order, start, nstart, tol, maxit)</code> estimates <span class="math inline">\(Q\)</span> and <span class="math inline">\(\lambda\)</span> by maximum likelihood. By default, as in most applications, the weights are constrained to be non-negative (negative weights are discussed below). Under this constraint the model is a mixture in which an unobserved lag generates each observation, and the likelihood is maximized by the EM algorithm of <span class="citation" data-cites="lebre2008em">[@lebre2008em]</span>, implemented in C++: the E-step computes the posterior probability of each lag for each observation, the M-step updates the weights as the average of these probabilities and <span class="math inline">\(Q\)</span> as the transition counts weighted by them. Each iteration increases the likelihood, but the MTD likelihood can have several local maxima <span class="citation" data-cites="berchtold2001estimation">[@berchtold2001estimation]</span>, so the models of order <span class="math inline">\(1, \dots, k\)</span> are fitted in turn on the same observations and each order is started both from equal weights and from the fit of the previous order, extended with a zero and with a small positive weight for the new lag. The first extension has the likelihood of the previous order, so the likelihood returned never decreases with the order, as it must for nested models; <code>nstart - 1</code> further random starting points can be added, and the best fit is returned.</p>
+<p>The likelihood is conditional on the observations before <code>start</code>, by default <code>order + 1</code>; as for <code>higherOrderLogLik</code>, models of different orders are comparable only when they share <code>start</code>. The function returns the weights, the matrix <span class="math inline">\(Q\)</span> as a <code>markovchain</code> object (<code>estimate</code>), the maximized log-likelihood with AIC and BIC (based on <span class="math inline">\(r(r-1) + k - 1\)</span> parameters), and, in the element <code>Q</code>, the matrix in the column layout used by <code>fitHigherOrder</code>, so that the fit can also be passed to <code>higherOrderLogLik</code>.</p>
+<p>The chunk below estimates the MTD models of order two and three on both series of <span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span>, with their conventions (<code>start = 15</code>, and the elements of <span class="math inline">\(Q\)</span> estimated as zero excluded from the number of parameters of the BIC), and compares the results with those published in Tables 2 and 3 of the paper.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>readSeries <span class="ot">&lt;-</span> <span class="cf">function</span>(file, column)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read.csv</span>(<span class="fu">system.file</span>(<span class="st">"extdata"</span>, file, <span class="at">package =</span> <span class="st">"markovchain"</span>))[[column]]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>series <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">Koeberg =</span> <span class="fu">readSeries</span>(<span class="st">"koeberg_wind.csv"</span>, <span class="st">"state"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">seizures =</span> <span class="fu">readSeries</span>(<span class="st">"epileptic_seizures.csv"</span>, <span class="st">"seizure"</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>published <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">series =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Koeberg"</span>, <span class="st">"seizures"</span>), <span class="at">each =</span> <span class="dv">2</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">order =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">logLik_published =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">393.4</span>, <span class="sc">-</span><span class="fl">393.2</span>, <span class="sc">-</span><span class="fl">119.5</span>, <span class="sc">-</span><span class="fl">117.7</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">BIC_published =</span> <span class="fu">c</span>(<span class="fl">859.3</span>, <span class="fl">865.6</span>, <span class="fl">254.7</span>, <span class="fl">256.4</span>))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>fits <span class="ot">&lt;-</span> <span class="fu">Map</span>(<span class="cf">function</span>(s, k) <span class="fu">fitMTD</span>(series[[s]], <span class="at">order =</span> k, <span class="at">start =</span> <span class="dv">15</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            published<span class="sc">$</span>series, published<span class="sc">$</span>order)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(fits) <span class="ot">&lt;-</span> <span class="fu">paste</span>(published<span class="sc">$</span>series, published<span class="sc">$</span>order)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>estimated <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">sapply</span>(fits, <span class="cf">function</span>(fit) {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  zeros <span class="ot">&lt;-</span> <span class="fu">sum</span>(fit<span class="sc">$</span>estimate<span class="sc">@</span>transitionMatrix <span class="sc">&lt;</span> <span class="fl">1e-8</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">logLik =</span> fit<span class="sc">$</span>logLikelihood,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">BIC =</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> fit<span class="sc">$</span>logLikelihood <span class="sc">+</span> (fit<span class="sc">$</span>npar <span class="sc">-</span> zeros) <span class="sc">*</span> <span class="fu">log</span>(fit<span class="sc">$</span>nobs))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">cbind</span>(published, <span class="fu">round</span>(estimated, <span class="dv">1</span>)), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    series order logLik_published BIC_published logLik   BIC</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Koeberg     2           -393.4         859.3 -393.4 859.3</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Koeberg     3           -393.2         865.6 -393.2 865.6</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  seizures     2           -119.5         254.7 -119.5 254.7</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  seizures     3           -117.7         256.4 -117.7 256.4</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>All the published values are reproduced. For the wind series the BIC selects the MTD(2) model, with 11 parameters, over the first-order chain and over the Markov chains of order two and three, which need up to 39 parameters (see the previous section and Table 2 of the paper). The estimated weights and transition matrix of the MTD(2) model agree with those printed in Section 1.3 of the paper to the third decimal:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fits[[<span class="st">"Koeberg 2"</span>]]<span class="sc">$</span>lambda</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      lag1      lag2 </span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.7568342 0.2431658</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(fits[[<span class="st">"Koeberg 2"</span>]]<span class="sc">$</span>estimate<span class="sc">@</span>transitionMatrix, <span class="dv">4</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        1      2      3      4</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.8307 0.0687 0.0077 0.0930</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.0370 0.9011 0.0619 0.0000</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.0154 0.1552 0.8071 0.0223</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.0779 0.0000 0.0527 0.8694</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The weight of the first lag is about three times that of the second: the wind direction depends mostly on the previous hour, but the hour before still adds information, at the cost of a single extra parameter. Other MTD variants (covariates, hidden states) are described in <span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span> and are outside the scope of <code>fitMTD</code>; the variant with a matrix for each lag is described below.</p>
+<section id="standard-errors" class="level2">
+<h2 class="anchored" data-anchor-id="standard-errors">Standard errors</h2>
+<p>With <code>se = TRUE</code>, <code>fitMTD</code> also returns asymptotic standard errors from the observed information at the maximum, computed in closed form (the log-likelihood is a sum of logarithms of functions that are bilinear in <span class="math inline">\(\lambda\)</span> and <span class="math inline">\(Q\)</span>) with the delta method, the weights and each row of <span class="math inline">\(Q\)</span> summing to one. Parameters on the boundary of the parameter space (below <span class="math inline">\(10^{-4}\)</span>, such as the structural zeros of <span class="math inline">\(Q\)</span>) are held fixed and get <code>NA</code>, with a warning when a weight is among them. The element <code>se$probabilities</code> gives the standard errors of the transition probabilities of every history observed in the data, named as the histories passed to <code>higherOrderPredict</code> (oldest state first).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"lib:"</span>, <span class="fu">find.package</span>(<span class="st">"markovchain"</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lib: C:/Rpackages/markovchain</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"version:"</span>, <span class="fu">as.character</span>(<span class="fu">packageVersion</span>(<span class="st">"markovchain"</span>)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; version: 1.2.1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">".libPaths:"</span>, <span class="fu">.libPaths</span>(), <span class="at">sep=</span><span class="st">"</span><span class="sc">\n</span><span class="st">  "</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; .libPaths:</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C:/Rpackages</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C:/Program Files/R/R-4.6.1/library</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(series)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 2</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ Koeberg : int [1:744] 2 2 2 2 2 2 2 2 2 2 ...</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ seizures: int [1:204] 0 1 0 0 0 0 1 1 0 1 ...</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">args</span>(markovchain<span class="sc">::</span>fitMTD))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; function (sequence, order = 2, start = NULL, nstart = 1, tol = 1e-10, </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     maxit = 10000L, model = c("MTD", "MTDg"), accelerate = FALSE, </span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     se = FALSE, negativeWeights = FALSE) </span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">environmentName</span>(<span class="fu">environment</span>(markovchain<span class="sc">::</span>fitMTD)))</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "markovchain"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fitSE <span class="ot">&lt;-</span> <span class="fu">fitMTD</span>(series<span class="sc">$</span>Koeberg, <span class="at">order =</span> <span class="dv">2</span>, <span class="at">start =</span> <span class="dv">15</span>, <span class="at">se =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">estimate =</span> fitSE<span class="sc">$</span>lambda, <span class="at">se =</span> fitSE<span class="sc">$</span>se<span class="sc">$</span>lambda)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       estimate         se</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lag1 0.7568342 0.05006497</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lag2 0.2431658 0.05006497</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(fitSE<span class="sc">$</span>se<span class="sc">$</span>Q, <span class="dv">3</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       1     2     3     4</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 0.033 0.023 0.008 0.025</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 0.011 0.017 0.014    NA</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 0.011 0.033 0.035 0.013</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 0.024    NA 0.020 0.030</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The two weights have the same standard error because they sum to one. In repeated simulations from a known MTD model, these standard errors agree with the spread of the estimates.</p>
+</section>
+<section id="negative-weights" class="level2">
+<h2 class="anchored" data-anchor-id="negative-weights">Negative weights</h2>
+<p><span class="citation" data-cites="raftery1985model">[@raftery1985model]</span> allowed negative weights, provided that every transition probability <span class="math inline">\(\sum_g \lambda_g q_{i_g j}\)</span> stays in <span class="math inline">\([0, 1]\)</span> for all the combinations of past states. This happens if and only if, for each arrival state <span class="math inline">\(j\)</span>, <span class="math inline">\(\min_i q_{ij}\)</span> times the sum of the positive weights is at least <span class="math inline">\(\max_i q_{ij}\)</span> times the sum of the absolute values of the negative weights. With <code>negativeWeights = TRUE</code> this condition replaces non-negativity. The EM algorithm no longer applies, and the likelihood is maximized by block coordinate ascent, in the spirit of <span class="citation" data-cites="berchtold2001estimation">[@berchtold2001estimation]</span>: in the weights and in each row of <span class="math inline">\(Q\)</span> in turn, mass moves from the entry with the smallest to the one with the largest partial derivative, by the step that maximizes the likelihood within the admissible region. Order <span class="math inline">\(k\)</span> starts from the fit with non-negative weights and from the fit of order <span class="math inline">\(k - 1\)</span>, so its likelihood is never below either. The likelihood has several local maxima, so for the requested order the search also starts with each lag in turn given a negative weight.</p>
+<p>In Table 3 of <span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span> the MTD models of order 5 to 8 for the seizure series have negative weights. The chunk below compares the published log-likelihoods with those of <code>fitMTD</code> with and without negative weights:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>orders <span class="ot">&lt;-</span> <span class="dv">5</span><span class="sc">:</span><span class="dv">8</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>negative <span class="ot">&lt;-</span> <span class="fu">lapply</span>(orders, <span class="cf">function</span>(k)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitMTD</span>(series<span class="sc">$</span>seizures, <span class="at">order =</span> k, <span class="at">start =</span> <span class="dv">15</span>, <span class="at">negativeWeights =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">order =</span> orders,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">published =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">112.4</span>, <span class="sc">-</span><span class="fl">110.4</span>, <span class="sc">-</span><span class="fl">107.9</span>, <span class="sc">-</span><span class="fl">102.3</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">negative_weights =</span> <span class="fu">round</span>(<span class="fu">sapply</span>(negative, <span class="st">`</span><span class="at">[[</span><span class="st">`</span>, <span class="st">"logLikelihood"</span>), <span class="dv">2</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">non_negative =</span> <span class="fu">round</span>(<span class="fu">sapply</span>(orders, <span class="cf">function</span>(k)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>             <span class="fu">fitMTD</span>(series<span class="sc">$</span>seizures, <span class="at">order =</span> k, <span class="at">start =</span> <span class="dv">15</span>)<span class="sc">$</span>logLikelihood), <span class="dv">2</span>))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   order published negative_weights non_negative</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     5    -112.4          -112.38      -113.25</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     6    -110.4          -110.44      -111.78</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3     7    -107.9          -107.46      -109.25</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4     8    -102.3          -102.17      -103.54</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(negative[[<span class="dv">4</span>]]<span class="sc">$</span>lambda, <span class="dv">4</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    lag1    lag2    lag3    lag4    lag5    lag6    lag7    lag8 </span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.1344  0.0697  0.1155  0.1799 -0.0663  0.1072  0.1378  0.3219</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The published values of orders 5 and 6 are reproduced; for orders 7 and 8 the search finds higher maxima than those printed. The weights published for MTD(8) are <span class="math inline">\((0.1278, 0.0963, 0.0953, 0.2605, -0.1778, 0.0932, 0.1389, 0.3658)\)</span>; with these weights the highest attainable log-likelihood is <span class="math inline">\(-102.40\)</span>, slightly below the printed <span class="math inline">\(-102.3\)</span>. As in the paper, the fifth lag has a negative weight. A higher likelihood does not mean a better model, though. With the convention of the paper, which counts only the parameters that are not zero, the MTD(8) fit with non-negative weights has a zero weight for the fifth lag, and so one parameter fewer. Its BIC, <span class="math inline">\(249.1\)</span>, is lower than the <span class="math inline">\(251.6\)</span> of the fit with negative weights, and also lower than the smallest BIC in Table 3, <span class="math inline">\(251.9\)</span>.</p>
+</section>
+<section id="the-mtdg-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-mtdg-model">The MTDg model</h2>
+<p>In the MTDg model <span class="citation" data-cites="berchtold2001estimation lebre2008em">[@berchtold2001estimation; @lebre2008em]</span> each lag has its own transition matrix <span class="math inline">\(Q_g\)</span>: <span class="math display">\[
+P(X_t = j \mid X_{t-1} = i_1, \dots, X_{t-k} = i_k) = \sum_{g=1}^{k} \lambda_g\, q^{(g)}_{i_g j}.
+\]</span> This is the model of <code>fitHigherOrder</code>, where the <span class="math inline">\(Q_g\)</span> are the empirical transition matrices of each lag and only the weights are estimated. <code>fitMTD(model = "MTDg")</code> estimates the weights and the matrices jointly by maximum likelihood, with the same EM algorithm. Each order is started from the MTD fit, from the empirical matrices with the best weights for them, and from the fit of the previous order, so its likelihood is never below that of the MTD model or of <code>fitHigherOrder(method = "mle")</code>. Its number of parameters is <span class="math inline">\((r - 1)(1 + k(r - 1))\)</span>.</p>
+<p>The weights and the matrices of an MTDg model are not identified, because the probabilities only depend on the products <span class="math inline">\(A_g = \lambda_g Q_g\)</span>. Adding <span class="math inline">\(\epsilon\)</span> times the same probability vector to every row of <span class="math inline">\(A_1\)</span> and subtracting it from every row of <span class="math inline">\(A_2\)</span> changes <span class="math inline">\(\lambda_1\)</span>, <span class="math inline">\(\lambda_2\)</span>, <span class="math inline">\(Q_1\)</span> and <span class="math inline">\(Q_2\)</span> but leaves every transition probability unchanged. Only the transition probabilities are determined, so the weights of an MTDg fit should not be read as the importance of the lags. With <code>se = TRUE</code> only the standard errors of the transition probabilities are returned; they are computed with a generalized inverse of the information, which gives the same variance for any identified quantity.</p>
+<p>The song of the wood pewee <span class="citation" data-cites="craig1943song">[@craig1943song]</span>, analysed with MTD models by <span class="citation" data-cites="raftery1994estimation">[@raftery1994estimation]</span>, is a sequence of 1327 phrases of three types. It is distributed with the R package <code>march</code> and included here with acknowledgement to its authors. First, <code>selectOrder</code> reproduces the BIC of the full Markov chains of orders 1 to 4 given in Table 2 of <span class="citation" data-cites="kharin2011statistical">[@kharin2011statistical]</span> (1424.2, 801.9, 808.6 and 768.3), all evaluated after the first four observations and with the zero probabilities not counted as parameters:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pewee <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="fu">readSeries</span>(<span class="st">"pewee_song.csv"</span>, <span class="st">"phrase"</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">selectOrder</span>(pewee, <span class="at">maxOrder =</span> <span class="dv">4</span>, <span class="at">start =</span> <span class="dv">5</span>, <span class="at">parameters =</span> <span class="st">"observed"</span>)<span class="sc">$</span>table[, <span class="fu">c</span>(<span class="st">"order"</span>, <span class="st">"logLik"</span>, <span class="st">"npar"</span>, <span class="st">"BIC"</span>)]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   order     logLik npar       BIC</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     0 -1349.4445    2 2713.2643</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     1  -694.1269    5 1424.1921</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3     2  -368.6229    9  801.9348</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4     3  -353.9767   14  808.5805</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5     4  -315.8440   19  768.2535</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The MTD models, with one matrix for all lags, fit this series poorly; one matrix per lag (MTDg) improves the log-likelihood by more than 80, but both remain well behind the full chains in BIC, as Kharin and Piatlitski also found:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>peweeFits <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">order =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"MTD"</span>, <span class="st">"MTDg"</span>), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>peweeFits<span class="sc">$</span>logLik <span class="ot">&lt;-</span> <span class="fu">mapply</span>(<span class="cf">function</span>(k, m)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitMTD</span>(pewee, <span class="at">order =</span> k, <span class="at">start =</span> <span class="dv">5</span>, <span class="at">model =</span> m)<span class="sc">$</span>logLikelihood,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  peweeFits<span class="sc">$</span>order, peweeFits<span class="sc">$</span>model)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>peweeFits<span class="sc">$</span>npar <span class="ot">&lt;-</span> <span class="fu">mapply</span>(<span class="cf">function</span>(k, m)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitMTD</span>(pewee, <span class="at">order =</span> k, <span class="at">start =</span> <span class="dv">5</span>, <span class="at">model =</span> m)<span class="sc">$</span>npar,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  peweeFits<span class="sc">$</span>order, peweeFits<span class="sc">$</span>model)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>peweeFits<span class="sc">$</span>BIC <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> peweeFits<span class="sc">$</span>logLik <span class="sc">+</span> <span class="fu">log</span>(<span class="dv">1323</span>) <span class="sc">*</span> peweeFits<span class="sc">$</span>npar</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>peweeFits</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   order model    logLik npar      BIC</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     2   MTD -567.9955    7 1186.305</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     3   MTD -567.9955    8 1193.492</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3     2  MTDg -486.1552   10 1044.187</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4     3  MTDg -483.9846   14 1068.596</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>march</code> package (version 3.3.2, with its default settings) reaches the same MTD maxima, but lower ones for MTDg (<span class="math inline">\(-497.72\)</span> at order 2 and <span class="math inline">\(-490.67\)</span> at order 3, against <span class="math inline">\(-486.16\)</span> and <span class="math inline">\(-483.99\)</span>). Its estimates give the same likelihood when evaluated with <code>higherOrderLogLik</code>, so the two programs maximize the same function.</p>
+</section>
+<section id="faster-convergence" class="level2">
+<h2 class="anchored" data-anchor-id="faster-convergence">Faster convergence</h2>
+<p>When the likelihood is flat, for instance when the lags carry little information, the EM algorithm can need many iterations. With <code>accelerate = TRUE</code> the iteration is accelerated with the SQUAREM scheme of <span class="citation" data-cites="varadhan2008simple">[@varadhan2008simple]</span>. Each cycle extrapolates from two EM steps, projects the result onto the parameter space, and backtracks towards the plain double step until the likelihood does not decrease, so the algorithm stays monotone and reaches the same maximum.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>flat <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>), <span class="dv">20000</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>plain <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">fitMTD</span>(flat, <span class="at">order =</span> <span class="dv">3</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fast <span class="ot">&lt;-</span> <span class="fu">fitMTD</span>(flat, <span class="at">order =</span> <span class="dv">3</span>, <span class="at">accelerate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">plain =</span> <span class="fu">c</span>(<span class="at">logLik =</span> plain<span class="sc">$</span>logLikelihood, <span class="at">steps =</span> plain<span class="sc">$</span>iterations, <span class="at">converged =</span> plain<span class="sc">$</span>converged),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">accelerated =</span> <span class="fu">c</span>(fast<span class="sc">$</span>logLikelihood, fast<span class="sc">$</span>iterations, fast<span class="sc">$</span>converged))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                logLik steps converged</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; plain       -21961.23 10000         0</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; accelerated -21961.00  1042         1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="prediction-and-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="prediction-and-simulation">Prediction and simulation</h2>
+<p><code>higherOrderPredict(fit, history)</code> returns the distribution of the next state given the most recent states (oldest first), and <code>higherOrderSimulate(n, fit, t0)</code> draws a sequence from the fitted model, starting from the states in <code>t0</code>. Both accept the output of <code>fitMTD</code> and of <code>fitHigherOrder</code>, and use the same transition probabilities as <code>higherOrderLogLik</code>, so that summing the logarithms of the predicted probabilities of the observed states gives back the log-likelihood.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fits[[<span class="st">"Koeberg 2"</span>]]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># next direction after two hours from directions 1 and then 2, and after 2 and then 2</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">higherOrderPredict</span>(fit, <span class="fu">rbind</span>(<span class="st">"1 then 2"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="st">"2 then 2"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))), <span class="dv">3</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              1     2     3     4</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 then 2 0.230 0.699 0.049 0.023</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 then 2 0.037 0.901 0.062 0.000</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">higherOrderSimulate</span>(<span class="dv">24</span>, fit, <span class="at">t0 =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] "2" "2" "2" "2" "3" "3" "3" "2" "2" "2" "3" "3" "3" "3" "3" "2" "2" "2" "2"</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [20] "3" "2" "2" "2" "1"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="higher-order-multivariate-markov-chains" class="level1">
+<h1>Higher order multivariate Markov chains</h1>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>HOMMC model is used for modeling behaviour of multiple categorical sequences generated by similar sources. The main reference is <span class="citation" data-cites="ching2008higher">[@ching2008higher]</span>. Assume that there are s categorical sequences and each has possible states in M. In nth order MMC the state probability distribution of the jth sequence at time <span class="math inline">\(t = r + 1\)</span> depend on the state probability distribution of all the sequences (including itself) at times <span class="math inline">\(t = r, r - 1, ..., r - n + 1\)</span>.</p>
+<p>[ x_{r+1}^{(j)} = <em>{k=1}<sup>{s}_{h=1}</sup>{n}</em>{jk}<sup>{(h)}P_{h}</sup>{(jk)}x_{r-h+1}^{(k)}, j = 1, 2, …, s, r = n-1, n, … ]</p>
+<p>with initial distribution <span class="math inline">\(x_{0}^{(k)}, x_{1}^{(k)}, ... , x_{n-1}^{(k)} (k = 1, 2, ... , s)\)</span>. Here</p>
+<p>[ <em>{jk}^{(h)} , 1j, ks, 1hn and </em>{k=1}<sup>{s}_{h=1}</sup>{n} _{jk}^{(h)} = 1, j = 1, 2, 3, … , s. ]</p>
+<p>Now we will see the simpler representation of the model which will help us understand the result of <code>fitHighOrderMultivarMC</code> method.</p>
+<p>Let <span class="math inline">\(X_{r}^{(j)} = ((x_{r}^{(j)})^{T}, (x_{r-1}^{(j)})^{T}, ..., (x_{r-n+1}^{(j)})^{T})^{T} for \enspace j = 1, 2, 3, ... , s.\)</span> Then</p>
+[
+<span class="math display">\[\begin{pmatrix}
+X_{r+1}^{(1)}\\
+X_{r+1}^{(2)}\\
+.\\
+.\\
+.\\
+X_{r+1}^{(s)}
+\end{pmatrix}\]</span>
+=
+<span class="math display">\[\begin{pmatrix}
+B^{11}&amp;  B^{12}&amp;  .&amp;  .&amp;  B^{1s}&amp; \\
+B^{21}&amp;  B^{22}&amp;  .&amp;  .&amp;  B^{2s}&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+B^{s1}&amp;  B^{s2}&amp;  .&amp;  .&amp;  B^{ss}&amp; \\
+\end{pmatrix} \begin{pmatrix}
+X_{r}^{(1)}\\
+X_{r}^{(2)}\\
+.\\
+.\\
+.\\
+X_{r}^{(s)}
+\end{pmatrix}\]</span>
+<p> ]</p>
+[B^{ii} =
+<span class="math display">\[\begin{pmatrix}
+\lambda _{ii}^{(1)}P_{1}^{(ii)}&amp;  \lambda _{ii}^{(2)}P_{2}^{(ii)}&amp;  .&amp;  .&amp;  \lambda _{ii}^{(n)}P_{n}^{(ii)}&amp; \\
+I&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+0&amp;  I&amp;  .&amp;  .&amp;  0&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+0&amp;  .&amp;  .&amp;  I&amp;  0&amp;
+\end{pmatrix}\]</span>
+<p>_{mn*mn} ]</p>
+[ B^{ij} =
+<span class="math display">\[\begin{pmatrix}
+\lambda _{ij}^{(1)}P_{1}^{(ij)}&amp;  \lambda _{ij}^{(2)}P_{2}^{(ij)}&amp;  .&amp;  .&amp;  \lambda _{ij}^{(n)}P_{n}^{(ij)}&amp; \\
+0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+0&amp;  0&amp;  .&amp;  .&amp;  0&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+.&amp;  .&amp;  .&amp;  .&amp;  .&amp; \\
+0&amp;  .&amp;  .&amp;  0&amp;  0&amp;
+\end{pmatrix}\]</span>
+<p>_{mn*mn} ij. ]</p>
+</section>
+<section id="representation-of-parameters-in-the-code" class="level2">
+<h2 class="anchored" data-anchor-id="representation-of-parameters-in-the-code">Representation of parameters in the code</h2>
+<p><span class="math inline">\(P_{h}^{(ij)}\)</span> is represented as <span class="math inline">\(Ph(i,j)\)</span> and <span class="math inline">\(\lambda _{ij}^{(h)}\)</span> as Lambdah(i,j). For example: <span class="math inline">\(P_{2}^{(13)}\)</span> as <span class="math inline">\(P2(1,3)\)</span> and <span class="math inline">\(\lambda _{45}^{(3)}\)</span> as Lambda3(4,5).</p>
+</section>
+<section id="definition-of-hommc-class" class="level2">
+<h2 class="anchored" data-anchor-id="definition-of-hommc-class">Definition of HOMMC class</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">showClass</span>(<span class="st">"hommc"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class "hommc" [package "markovchain"]</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Slots:</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                   </span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Name:      order    states         P    Lambda     byrow      name</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Class:   numeric character     array   numeric   logical character</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Every <code>hommc</code> object has the following slots:</p>
+<ol type="1">
+<li>states: a character vector, listing the states for which transition probabilities are defined.</li>
+<li>byrow: a logical element, indicating whether transition probabilities are shown by row or by column.</li>
+<li>order: order of Multivariate Markov chain.</li>
+<li>P: an array of all transition matrices.</li>
+<li>Lambda: a vector storing the weight of each transition matrix.</li>
+<li>name: optional character element to name the HOMMC.</li>
+</ol>
+</section>
+<section id="how-to-create-an-object-of-class-hommc" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-create-an-object-of-class-hommc">How to create an object of class HOMMC</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>states <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'a'</span>, <span class="st">'b'</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">4</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(states, states))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>P[ , , <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="at">byrow =</span> <span class="cn">FALSE</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>P[ , , <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="at">byrow =</span> <span class="cn">FALSE</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>P[ , , <span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="at">byrow =</span> <span class="cn">FALSE</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>P[ , , <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>), <span class="at">byrow =</span> <span class="cn">FALSE</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>Lambda <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">8</span>, .<span class="dv">2</span>, .<span class="dv">3</span>, .<span class="dv">7</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>hob <span class="ot">&lt;-</span> <span class="fu">new</span>(<span class="st">"hommc"</span>, <span class="at">order =</span> <span class="dv">1</span>, <span class="at">Lambda =</span> Lambda, <span class="at">P =</span> P, <span class="at">states =</span> states, </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">byrow =</span> <span class="cn">FALSE</span>, <span class="at">name =</span> <span class="st">"FOMMC"</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>hob</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Order of multivariate markov chain = 1 </span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; states = a b </span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of Lambda's and the corresponding transition matrix (by cols) :</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Lambda1(1,1) : 0.8</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; P1(1,1) : </span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           a b</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; a 0.3333333 1</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; b 0.6666667 0</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Lambda1(1,2) : 0.2</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; P1(1,2) : </span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   a b</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; a 0 1</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; b 1 0</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Lambda1(2,1) : 0.3</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; P1(2,1) : </span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           a b</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; a 0.6666667 0</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; b 0.3333333 1</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Lambda1(2,2) : 0.7</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; P1(2,2) : </span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     a   b</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; a 0.5 0.5</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; b 0.5 0.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="fit-hommc" class="level2">
+<h2 class="anchored" data-anchor-id="fit-hommc">Fit HOMMC</h2>
+<p>The <code>fitHighOrderMultivarMC</code> function fits a HOMMC. It takes three arguments:</p>
+<ol type="1">
+<li>seqMat: a character matrix or a data frame, each column represents a categorical sequence.</li>
+<li>order: order of Multivariate Markov chain. Default is 2.</li>
+<li>Norm: Norm to be used. Default is 2.</li>
+</ol>
+</section>
+<section id="a-marketing-example" class="level2">
+<h2 class="anchored" data-anchor-id="a-marketing-example">A marketing example</h2>
+<p>We replicate the example found in <span class="citation" data-cites="ching2008higher">[@ching2008higher]</span> for an application of HOMMC. A soft-drink company in Hong Kong is facing an in-house problem of production planning and inventory control. A pressing issue is the storage space of its central warehouse, which often finds itself in the state of overflow or near capacity. The company is thus in urgent needs to study the interplay between the storage space requirement and the overall growing sales demand. The product can be classified into six possible states (1, 2, 3, 4, 5, 6) according to their sales volumes. All products are labeled as 1 = no sales volume, 2 = very slow-moving (very low sales volume), 3 = slow-moving, 4 = standard, 5 = fast-moving or 6 = very fast-moving (very high sales volume). Such labels are useful from both marketing and production planning points of view. The data are contained in the <code>sales</code> object.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(sales)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sales)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      A   B   C   D   E  </span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] "6" "1" "6" "6" "6"</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] "6" "6" "6" "2" "2"</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] "6" "6" "6" "2" "2"</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] "6" "1" "6" "2" "2"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5,] "2" "6" "6" "2" "2"</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6,] "6" "1" "6" "3" "3"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The company would also like to predict sales demand for an important customer in order to minimize its inventory build-up. More importantly, the company can understand the sales pattern of this customer and then develop a marketing strategy to deal with this customer. The data are the sales demand sequences, for a year, of five important products of the company for this customer. We expect the sales demand sequences generated by the same customer to be correlated with each other. By exploring these relationships, one can obtain a better higher-order multivariate Markov model for such demand sequences, and hence better prediction rules.</p>
+<p>In the application of <span class="citation" data-cites="ching2008higher">[@ching2008higher]</span> the order is arbitrarily set to eight, i.e., <span class="math inline">\(n = 8\)</span>. We first estimate all the transition probability matrices <span class="math inline">\(P_{h}^{(ij)}\)</span>; the estimates of the stationary probability distributions of the five products are:</p>
+<p><span class="math inline">\(\widehat{\boldsymbol{x}}^{(1)} = \begin{pmatrix}
+0.0818&amp;  0.4052&amp;  0.0483&amp;  0.0335&amp; 0.0037&amp; 0.4275
+\end{pmatrix}^{\boldsymbol{T}}\)</span></p>
+<p><span class="math inline">\(\widehat{\boldsymbol{x}}^{(2)} = \begin{pmatrix}
+0.3680&amp;  0.1970&amp;  0.0335&amp;  0.0000&amp; 0.0037&amp; 0.3978
+\end{pmatrix}^{\boldsymbol{T}}\)</span></p>
+<p><span class="math inline">\(\widehat{\boldsymbol{x}}^{(3)} = \begin{pmatrix}
+0.1450&amp; 0.2045&amp; 0.0186&amp; 0.0000&amp; 0.0037&amp; 0.6283
+\end{pmatrix}^{\boldsymbol{T}}\)</span></p>
+<p><span class="math inline">\(\widehat{\boldsymbol{x}}^{(4)} = \begin{pmatrix}
+0.0000&amp; 0.3569&amp; 0.1338&amp; 0.1896&amp; 0.0632&amp; 0.2565
+\end{pmatrix}^{\boldsymbol{T}}\)</span></p>
+<p><span class="math inline">\(\widehat{\boldsymbol{x}}^{(5)} = \begin{pmatrix}
+0.0000&amp; 0.3569&amp; 0.1227&amp; 0.2268&amp; 0.0520&amp; 0.2416
+\end{pmatrix}^{\boldsymbol{T}}\)</span></p>
+<p>By solving the corresponding linear programming problems, we obtain the following higher-order multivariate Markov chain model:</p>
+<p><span class="math inline">\(\boldsymbol{x}_{r+1}^{(1)} = \boldsymbol{P}_{1}^{(12)}\boldsymbol{x}_{r}^{(2)}\)</span></p>
+<p><span class="math inline">\(\boldsymbol{x}_{r+1}^{(2)} = 0.6364\boldsymbol{P}_{1}^{(22)}\boldsymbol{x}_{r}^{(2)} +
+0.3636\boldsymbol{P}_{3}^{(22)}\boldsymbol{x}_{r}^{(2)}\)</span></p>
+<p><span class="math inline">\(\boldsymbol{x}_{r+1}^{(3)} = \boldsymbol{P}_{1}^{(35)}\boldsymbol{x}_{r}^{(5)}\)</span></p>
+<p><span class="math inline">\(\boldsymbol{x}_{r+1}^{(4)} = 0.2994\boldsymbol{P}_{8}^{(42)}\boldsymbol{x}_{r}^{(2)} +
+0.4324\boldsymbol{P}_{1}^{(45)}\boldsymbol{x}_{r}^{(5)} + 0.2681\boldsymbol{P}_{2}^{(45)}\boldsymbol{x}_{r}^{(5)}\)</span></p>
+<p><span class="math inline">\(\boldsymbol{x}_{r+1}^{(5)} = 0.2718\boldsymbol{P}_{8}^{(52)}\boldsymbol{x}_{r}^{(2)} +
+0.6738\boldsymbol{P}_{1}^{(54)}\boldsymbol{x}_{r}^{(4)} + 0.0544\boldsymbol{P}_{2}^{(55)}\boldsymbol{x}_{r}^{(5)}\)</span></p>
+<p>According to the constructed 8th order multivariate Markov model, Products A and B are closely related. In particular, the sales demand of Product A depends strongly on Product B. The main reason is that the chemical nature of Products A and B is the same, but they have different packaging for marketing purposes. Moreover, Products B, C, D and E are closely related. Similarly, products C and E have the same product flavor, but different packaging. In this model, it is interesting to note that both Product D and E quite depend on Product B at order of 8, this relationship can hardly be obtained with a conventional Markov model, owing to the huge number of parameters. The results show that higher-order multivariate Markov model is quite significant to analyze the relationship of sales demand.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># fit 8th order multivariate markov chain</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"Rsolnp"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>object <span class="ot">&lt;-</span> <span class="fu">fitHighOrderMultivarMC</span>(sales, <span class="at">order =</span> <span class="dv">8</span>, <span class="at">Norm =</span> <span class="dv">2</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We choose to show only results shown in the paper. We see that <span class="math inline">\(\lambda\)</span> values are quite close, but not equal, to those shown in the original paper.</p>
+</section>
+</section>
+<section id="acknowledgments" class="level1">
+<h1>Acknowledgments</h1>
+<p>We are grateful to Professors Adrian E. Raftery and André Berchtold for kindly sharing the Koeberg wind-direction and epileptic-seizure series of <span class="citation" data-cites="berchtold2002mixture">[@berchtold2002mixture]</span>, which made it possible to check <code>higherOrderLogLik</code> and <code>fitMTD</code> against the published results.</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div id="refs" role="list">
+
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

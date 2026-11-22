@@ -47,16 +47,16 @@ noofVisitsDist(simpleMc,5,"a")
 
 }
 \seealso{
-Other first passage and hitting: 
-\code{\link{absorptionProbabilities}()},
-\code{\link{committorAB}()},
-\code{\link{firstPassage}()},
-\code{\link{firstPassageMultiple}()},
-\code{\link{hittingProbabilities}()},
-\code{\link{meanAbsorptionTime}()},
-\code{\link{meanFirstPassageTime}()},
-\code{\link{meanNumVisits}()},
-\code{\link{meanRecurrenceTime}()}
+Other first passage and hitting:
+\code{\link[=absorptionProbabilities]{absorptionProbabilities()}},
+\code{\link[=committorAB]{committorAB()}},
+\code{\link[=firstPassage]{firstPassage()}},
+\code{\link[=firstPassageMultiple]{firstPassageMultiple()}},
+\code{\link[=hittingProbabilities]{hittingProbabilities()}},
+\code{\link[=meanAbsorptionTime]{meanAbsorptionTime()}},
+\code{\link[=meanFirstPassageTime]{meanFirstPassageTime()}},
+\code{\link[=meanNumVisits]{meanNumVisits()}},
+\code{\link[=meanRecurrenceTime]{meanRecurrenceTime()}}
 }
 \author{
 Vandit Jain

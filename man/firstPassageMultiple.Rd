@@ -42,16 +42,16 @@ Gallager, R. G. 6.262 Discrete Stochastic Processes, course notes,
 chapter 5. MIT OpenCourseWare.
 }
 \seealso{
-Other first passage and hitting: 
-\code{\link{absorptionProbabilities}()},
-\code{\link{committorAB}()},
-\code{\link{firstPassage}()},
-\code{\link{hittingProbabilities}()},
-\code{\link{meanAbsorptionTime}()},
-\code{\link{meanFirstPassageTime}()},
-\code{\link{meanNumVisits}()},
-\code{\link{meanRecurrenceTime}()},
-\code{\link{noofVisitsDist}()}
+Other first passage and hitting:
+\code{\link[=absorptionProbabilities]{absorptionProbabilities()}},
+\code{\link[=committorAB]{committorAB()}},
+\code{\link[=firstPassage]{firstPassage()}},
+\code{\link[=hittingProbabilities]{hittingProbabilities()}},
+\code{\link[=meanAbsorptionTime]{meanAbsorptionTime()}},
+\code{\link[=meanFirstPassageTime]{meanFirstPassageTime()}},
+\code{\link[=meanNumVisits]{meanNumVisits()}},
+\code{\link[=meanRecurrenceTime]{meanRecurrenceTime()}},
+\code{\link[=noofVisitsDist]{noofVisitsDist()}}
 }
 \author{
 Vandit Jain

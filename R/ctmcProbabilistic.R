@@ -236,7 +236,7 @@ freq2Generator <- function(P,t = 1,method = "QO",logmethod = "Eigen"){
 #' @param i,j Indices (positions in `states(C)`) of the starting and target
 #'   states.
 #' @param useRCpp Logical: solve the linear system in C++ (default) or with
-#'   [solve()]?
+#'   [base::solve()]?
 #'
 #' @details The expected hitting times \eqn{m_k} of `j` from the states
 #'   \eqn{k \ne j} solve \eqn{\sum_{l \ne j} Q_{kl} m_l = -1} (Norris 1997,

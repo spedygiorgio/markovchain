@@ -68,16 +68,16 @@ Anderson, D. F. (2013). Introduction to Stochastic Processes
 with Applications in the Biosciences. University of Wisconsin at Madison.
 }
 \seealso{
-Other continuous time Markov chains: 
-\code{\link{ExpectedTime}()},
-\code{\link{ctmcFit}()},
-\code{\link{freq2Generator}()},
-\code{\link{generatorToTransitionMatrix}()},
-\code{\link{impreciseProbabilityatT}()},
-\code{\link{is.CTMCirreducible}()},
-\code{\link{is.TimeReversible}()},
-\code{\link{probabilityatT}()},
-\code{\link{transition2Generator}()}
+Other continuous time Markov chains:
+\code{\link[=ExpectedTime]{ExpectedTime()}},
+\code{\link[=ctmcFit]{ctmcFit()}},
+\code{\link[=freq2Generator]{freq2Generator()}},
+\code{\link[=generatorToTransitionMatrix]{generatorToTransitionMatrix()}},
+\code{\link[=impreciseProbabilityatT]{impreciseProbabilityatT()}},
+\code{\link[=is.CTMCirreducible]{is.CTMCirreducible()}},
+\code{\link[=is.TimeReversible]{is.TimeReversible()}},
+\code{\link[=probabilityatT]{probabilityatT()}},
+\code{\link[=transition2Generator]{transition2Generator()}}
 }
 \author{
 Sai Bhargav Yalamanchi

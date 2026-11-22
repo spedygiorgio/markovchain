@@ -49,15 +49,15 @@ Kreinin, A. and Sidelnikova, M. (2001). Regularization
 algorithms for transition matrices. Algo Research Quarterly 4(1), 23-40.
 }
 \seealso{
-Other continuous time Markov chains: 
-\code{\link{ExpectedTime}()},
-\code{\link{ctmcFit}()},
-\code{\link{generatorToTransitionMatrix}()},
-\code{\link{impreciseProbabilityatT}()},
-\code{\link{is.CTMCirreducible}()},
-\code{\link{is.TimeReversible}()},
-\code{\link{probabilityatT}()},
-\code{\link{rctmc}()},
-\code{\link{transition2Generator}()}
+Other continuous time Markov chains:
+\code{\link[=ExpectedTime]{ExpectedTime()}},
+\code{\link[=ctmcFit]{ctmcFit()}},
+\code{\link[=generatorToTransitionMatrix]{generatorToTransitionMatrix()}},
+\code{\link[=impreciseProbabilityatT]{impreciseProbabilityatT()}},
+\code{\link[=is.CTMCirreducible]{is.CTMCirreducible()}},
+\code{\link[=is.TimeReversible]{is.TimeReversible()}},
+\code{\link[=probabilityatT]{probabilityatT()}},
+\code{\link[=rctmc]{rctmc()}},
+\code{\link[=transition2Generator]{transition2Generator()}}
 }
 \concept{continuous time Markov chains}

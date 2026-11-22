@@ -38,8 +38,8 @@ Gallager, R. G. (2013). Stochastic Processes: Theory for
 Applications. Cambridge University Press.
 }
 \seealso{
-Other rewards: 
-\code{\link{expectedRewardsBeforeHittingA}()}
+Other rewards:
+\code{\link[=expectedRewardsBeforeHittingA]{expectedRewardsBeforeHittingA()}}
 }
 \author{
 Vandit Jain

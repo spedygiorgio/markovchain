@@ -89,16 +89,16 @@ Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems.
 \emph{SIAM Journal on Scientific and Statistical Computing}, 13(2), 631-644.
 }
 \seealso{
-Other first passage and hitting: 
-\code{\link{absorptionProbabilities}()},
-\code{\link{committorAB}()},
-\code{\link{firstPassage}()},
-\code{\link{firstPassageMultiple}()},
-\code{\link{meanAbsorptionTime}()},
-\code{\link{meanFirstPassageTime}()},
-\code{\link{meanNumVisits}()},
-\code{\link{meanRecurrenceTime}()},
-\code{\link{noofVisitsDist}()}
+Other first passage and hitting:
+\code{\link[=absorptionProbabilities]{absorptionProbabilities()}},
+\code{\link[=committorAB]{committorAB()}},
+\code{\link[=firstPassage]{firstPassage()}},
+\code{\link[=firstPassageMultiple]{firstPassageMultiple()}},
+\code{\link[=meanAbsorptionTime]{meanAbsorptionTime()}},
+\code{\link[=meanFirstPassageTime]{meanFirstPassageTime()}},
+\code{\link[=meanNumVisits]{meanNumVisits()}},
+\code{\link[=meanRecurrenceTime]{meanRecurrenceTime()}},
+\code{\link[=noofVisitsDist]{noofVisitsDist()}}
 }
 \author{
 Ignacio Cordón

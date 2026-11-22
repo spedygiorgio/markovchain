@@ -43,16 +43,16 @@ Dobrow, R. P. (2016). Introduction to Stochastic Processes with
 R. Wiley.
 }
 \seealso{
-Other continuous time Markov chains: 
-\code{\link{ExpectedTime}()},
-\code{\link{ctmcFit}()},
-\code{\link{freq2Generator}()},
-\code{\link{generatorToTransitionMatrix}()},
-\code{\link{impreciseProbabilityatT}()},
-\code{\link{is.CTMCirreducible}()},
-\code{\link{is.TimeReversible}()},
-\code{\link{rctmc}()},
-\code{\link{transition2Generator}()}
+Other continuous time Markov chains:
+\code{\link[=ExpectedTime]{ExpectedTime()}},
+\code{\link[=ctmcFit]{ctmcFit()}},
+\code{\link[=freq2Generator]{freq2Generator()}},
+\code{\link[=generatorToTransitionMatrix]{generatorToTransitionMatrix()}},
+\code{\link[=impreciseProbabilityatT]{impreciseProbabilityatT()}},
+\code{\link[=is.CTMCirreducible]{is.CTMCirreducible()}},
+\code{\link[=is.TimeReversible]{is.TimeReversible()}},
+\code{\link[=rctmc]{rctmc()}},
+\code{\link[=transition2Generator]{transition2Generator()}}
 }
 \author{
 Vandit Jain

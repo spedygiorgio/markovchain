@@ -39,9 +39,9 @@ inference of first order Markov chains. Vignette of the markovchain
 package.
 }
 \seealso{
-Other Bayesian inference: 
-\code{\link{inferHyperparam}()},
-\code{\link{predictiveDistribution}()}
+Other Bayesian inference:
+\code{\link[=inferHyperparam]{inferHyperparam()}},
+\code{\link[=predictiveDistribution]{predictiveDistribution()}}
 }
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato

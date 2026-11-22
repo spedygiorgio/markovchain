@@ -51,8 +51,8 @@ Prentice Hall.
 (\code{\link[=markovchainList-class]{markovchainList}} objects);
 \code{\link[=markovchainFit]{markovchainFit()}} for the reverse operation.
 
-Other simulation: 
-\code{\link{rmarkovchain}()}
+Other simulation:
+\code{\link[=rmarkovchain]{rmarkovchain()}}
 }
 \author{
 Giorgio Spedicato

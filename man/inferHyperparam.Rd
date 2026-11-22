@@ -51,9 +51,9 @@ package.
 \seealso{
 \code{\link[=markovchainFit]{markovchainFit()}} (\code{method = "map"}), which uses them.
 
-Other Bayesian inference: 
-\code{\link{predictiveDistribution}()},
-\code{\link{priorDistribution}()}
+Other Bayesian inference:
+\code{\link[=predictiveDistribution]{predictiveDistribution()}},
+\code{\link[=priorDistribution]{priorDistribution()}}
 }
 \author{
 Sai Bhargav Yalamanchi, Giorgio Spedicato

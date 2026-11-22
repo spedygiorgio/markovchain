@@ -56,8 +56,8 @@ Kemeny, J. G. and Snell, J. L. (1960). Finite Markov Chains.
 Van Nostrand.
 }
 \seealso{
-Other state aggregation: 
-\code{\link{autoLump}()},
-\code{\link{is.lumpable}()}
+Other state aggregation:
+\code{\link[=autoLump]{autoLump()}},
+\code{\link[=is.lumpable]{is.lumpable()}}
 }
 \concept{state aggregation}

@@ -79,8 +79,8 @@ Prentice Hall.
 \code{\link[=markovchainFit]{markovchainFit()}} and \code{\link[=markovchainListFit]{markovchainListFit()}} for the reverse
 operation.
 
-Other simulation: 
-\code{\link{markovchainSequence}()}
+Other simulation:
+\code{\link[=markovchainSequence]{markovchainSequence()}}
 }
 \author{
 Giorgio Spedicato

@@ -43,8 +43,8 @@ expectedRewardsBeforeHittingA(mc, A = "c", state = "a",
                               rewards = c(1, 1, 0), n = 100)
 }
 \seealso{
-Other rewards: 
-\code{\link{expectedRewards}()}
+Other rewards:
+\code{\link[=expectedRewards]{expectedRewards()}}
 }
 \author{
 Sai Bhargav Yalamanchi, Vandit Jain

@@ -122,9 +122,9 @@ Royal Statistical Society, Series B, 47(3), 528-539.
 \code{\link[=higherOrderLogLik]{higherOrderLogLik()}}, \code{\link[=higherOrderPredict]{higherOrderPredict()}}, \code{\link[=fitMTD]{fitMTD()}},
 \code{\link[=selectOrder]{selectOrder()}}
 
-Other higher order chains: 
-\code{\link{fitHighOrderMultivarMC}()},
-\code{\link{predictHommc}()}
+Other higher order chains:
+\code{\link[=fitHighOrderMultivarMC]{fitHighOrderMultivarMC()}},
+\code{\link[=predictHommc]{predictHommc()}}
 }
 \author{
 Giorgio Spedicato, Tae Seung Kang

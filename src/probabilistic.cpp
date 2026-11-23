@@ -22,7 +22,6 @@
 #include <queue>
 #include <sstream>
 #include <iomanip>
-#include "longdouble_compat.h"
 
 using namespace Rcpp;
 using namespace std;
@@ -1437,13 +1436,13 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
   // directly; 1 - P(i,i) is unsafe when P(i,i) rounds to one.
   arma::mat jumpProbs(numStates, numStates, arma::fill::zeros);
   for (int i = 0; i < numStates; ++i) {
-    mc_ldbl offDiagonalMass = 0;
+    long double offDiagonalMass = 0.0L;
     for (int k = 0; k < numStates; ++k) {
       if (k != i)
-        offDiagonalMass += static_cast<mc_ldbl>(transitionProbs(i, k));
+        offDiagonalMass += static_cast<long double>(transitionProbs(i, k));
     }
 
-    if (offDiagonalMass > 0) {
+    if (offDiagonalMass > 0.0L) {
       const double denominator = static_cast<double>(offDiagonalMass);
       for (int k = 0; k < numStates; ++k) {
         if (k != i)
@@ -1481,13 +1480,13 @@ NumericMatrix hittingProbabilitiesImpl(S4 object,
   // probabilities after at least one transition.
   for (int j : targets) {
     if (!closedClass(j)) {
-      mc_ldbl returnProbability =
-        static_cast<mc_ldbl>(transitionProbs(j, j));
+      long double returnProbability =
+        static_cast<long double>(transitionProbs(j, j));
       for (int k = 0; k < numStates; ++k) {
         if (k != j) {
           returnProbability +=
-            static_cast<mc_ldbl>(transitionProbs(j, k)) *
-            static_cast<mc_ldbl>(hittingProbs(k, j));
+            static_cast<long double>(transitionProbs(j, k)) *
+            static_cast<long double>(hittingProbs(k, j));
         }
       }
       hittingProbs(j, j) = std::max(

@@ -13,9 +13,9 @@
 // interval. Both the largest feasible step and the best step are found by
 // bisection (60 halvings each). In R each move took hundreds of small
 // function calls, so a fit could take minutes; the algorithm here is the same,
-// step by step, with the sums accumulated in long double as R's sum() and
-// colSums() do. Results agree with the R code up to rounding (the tests
-// compare them).
+// step by step, with the sums accumulated in the same precision as R's
+// sum() and colSums() (long double when R has it, double on noLD builds).
+// Results agree with the R code up to rounding (the tests compare them).
 //
 // Data: `patterns` has one row per distinct observed pattern, the arrival
 // state in column 0 and the departure state at lag g in column g (0-based
@@ -26,6 +26,7 @@
 #include <cmath>
 #include <limits>
 #include <vector>
+#include "longdouble_compat.h"
 
 // Floating-point contraction off: clang (the compiler of CRAN's and GitHub's
 // macOS arm64 builds) by default fuses a * b + c into one fused multiply-add,
@@ -60,10 +61,10 @@ bool feasible(const MtdProblem& pb, const std::vector<double>& lambda,
   for (double q : Q) {
     if (!(q >= 0)) return false;
   }
-  // sum(pmax(lambda, 0)) and sum(pmax(-lambda, 0)), accumulated in long
-  // double as R's sum() does: after a move that stops on the boundary of the
-  // condition the slack sits on the tolerance, and the last bits decide.
-  long double posL = 0, negL = 0;
+  // sum(pmax(lambda, 0)) and sum(pmax(-lambda, 0)), accumulated in the
+  // same precision as R's sum(): after a move that stops on the boundary of
+  // the condition the slack sits on the tolerance, and the last bits decide.
+  mc_ldbl posL = 0, negL = 0;
   for (double l : lambda) {
     posL += l > 0 ? l : 0;
     negL += -l > 0 ? -l : 0;
@@ -98,7 +99,7 @@ void mixture(const MtdProblem& pb, const std::vector<double>& lambda,
 
 // log-likelihood sum_p counts_p log f_p, -Inf if some observed pattern has probability <= 0
 double logLik(const MtdProblem& pb, const std::vector<double>& f) {
-  long double s = 0;
+  mc_ldbl s = 0;
   for (int p = 0; p < pb.P; ++p) {
     if (!(f[p] > 0)) return R_NegInf;
     s += pb.counts[p] * std::log(f[p]);
@@ -138,7 +139,7 @@ double maxStep(double upper, Feasible ok) {
 double lineMax(const MtdProblem& pb, const std::vector<double>& f,
                const std::vector<double>& h, double upper) {
   auto d1 = [&](double delta) {
-    long double s = 0;
+    mc_ldbl s = 0;
     for (int p = 0; p < pb.P; ++p) s += pb.counts[p] * h[p] / (f[p] + delta * h[p]);
     return (double) s;
   };
@@ -220,7 +221,7 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
     for (int p = 0; p < P; ++p) w[p] = pb.counts[p] / f[p];
     grad.assign(k, 0);
     for (int g = 0; g < k; ++g) {
-      long double s = 0;
+      mc_ldbl s = 0;
       for (int p = 0; p < P; ++p) s += Q[pb.from[p + P * g] + r * pb.to[p]] * w[p];
       grad[g] = (double) s;
     }
@@ -264,7 +265,7 @@ List mtdFreeWeightsRcpp(IntegerMatrix patterns, NumericVector counts, NumericVec
       // gradient of the log-likelihood with respect to the entries Q[i, j] of this row
       grad.assign(r, 0);
       {
-        std::vector<long double> acc(r, 0);
+        std::vector<mc_ldbl> acc(r, 0);
         for (int p = 0; p < P; ++p) acc[pb.to[p]] += w[p] * lamI[p];
         for (int j = 0; j < r; ++j) grad[j] = (double) acc[j];
       }

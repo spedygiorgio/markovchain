@@ -16,7 +16,8 @@
 //   unif_rand(), so the same seed gives the same sequences;
 // - the statistic is computed with the same operations in the same order,
 //   the cells taken in the column-major order of the R array and summed in
-//   long double as R's sum() does, so the same counts give the same value.
+//   the same precision as R's sum() (long double when R has it, double on
+//   noLD builds), so the same counts give the same value.
 // For method = "simulation" the observed statistic is computed here too, by
 // the same function as the simulated ones: a simulated sequence with the same
 // triple counts as the observed one then gives exactly the same value on every
@@ -29,6 +30,7 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include "longdouble_compat.h"
 
 // Floating-point contraction off: clang (the compiler of CRAN's and GitHub's
 // macOS arm64 builds) by default fuses a * b + c into one fused multiply-add,
@@ -72,7 +74,7 @@ double markovStatistic(const int* x, int n, int r, bool pearson,
   for (int k = 0; k < r; ++k) {
     for (int j = 0; j < r; ++j) Nj[j] += Njk[j + k * r];
   }
-  long double sum = 0.0L;
+  mc_ldbl sum = 0;
   for (int k = 0; k < r; ++k) {
     for (int j = 0; j < r; ++j) {
       if (Nj[j] <= 0) continue;

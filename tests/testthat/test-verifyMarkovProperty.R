@@ -114,11 +114,14 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
     }, numeric(1))
   }
   # The sequences are the same everywhere (same random numbers, same
-  # inversion). The statistics are bit for bit those of R on x86-64, where the
-  # C++ sums are accumulated in the same 80-bit long double as R's sum(), and
-  # agree to the last bits elsewhere (on macOS arm64 they differ in the last
+  # inversion). The statistics are bit for bit those of R on x86-64 when R
+  # has long double support: the C++ sums are accumulated in the same 80-bit
+  # long double as R's sum(). On noLD builds (R compiled with
+  # --disable-long-double) or on arm64 (where long double is double) the
+  # results agree to the last bits (on macOS arm64 they differ in the last
   # bit, as seen in CI).
-  sameBits <- R.version$arch %in% c("x86_64", "amd64")
+  sameBits <- R.version$arch %in% c("x86_64", "amd64") &&
+    capabilities("long.double")
   expectSame <- function(object, expected) {
     if (sameBits) expect_identical(object, expected) else expect_equal(object, expected, tolerance = 1e-12)
   }

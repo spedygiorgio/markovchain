@@ -228,7 +228,14 @@ jobs:
           sudo apt-get install -y qpdf ghostscript
 
       - name: Install PDF tools (Windows)
+        id: pdftools-win
         if: matrix.config.vignettes && runner.os == 'Windows'
+        shell: pwsh
+        continue-on-error: true
+        run: choco install -y ghostscript qpdf
+
+      - if: matrix.config.vignettes && runner.os == 'Windows' && steps.pdftools-win.outcome == 'failure'
+        name: Install PDF tools (Windows) – retry
         shell: pwsh
         run: choco install -y ghostscript qpdf
 

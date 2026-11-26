@@ -4,6 +4,10 @@ Maximum likelihood estimation of a continuous time Markov chain from one
 observed trajectory: the sequence of states visited and the times at
 which they were entered.
 
+Maximum likelihood estimation of a continuous time Markov chain from one
+observed trajectory: the sequence of states visited and the times at
+which they were entered.
+
 ## Usage
 
 ``` r
@@ -49,6 +53,21 @@ A list with two elements:
   `lambdaConfidenceInterval`, the lower and upper endpoints of the exit
   rate of each state.
 
+A list with two elements:
+
+- `estimate`:
+
+  the fitted [`ctmc`](ctmc-class.md) object;
+
+- `errors`:
+
+  a list with `dtmcConfidenceInterval`, the confidence level and the
+  lower and upper endpoint matrices of the transition probabilities of
+  the embedded jump chain (as in
+  [`markovchainFit()`](markovchainFit.md)), and
+  `lambdaConfidenceInterval`, the lower and upper endpoints of the exit
+  rate of each state.
+
 ## Details
 
 The exit rate of state \\i\\ is estimated as the number of departures
@@ -58,7 +77,17 @@ the generator is their product. The interval for each rate is the normal
 approximation \\\hat\lambda_i (1 \pm z / \sqrt{n_i})\\, with \\n_i\\ the
 number of departures from \\i\\, truncated at 0.
 
+The exit rate of state \\i\\ is estimated as the number of departures
+from \\i\\ divided by the total time spent in \\i\\, and the jump
+probabilities by the transition frequencies of the sequence of states;
+the generator is their product. The interval for each rate is the normal
+approximation \\\hat\lambda_i (1 \pm z / \sqrt{n_i})\\, with \\n_i\\ the
+number of departures from \\i\\, truncated at 0.
+
 ## References
+
+Yalamanchi, S. B. and Spedicato, G. A. (2015). Continuous time Markov
+chains. Vignette of the markovchain package.
 
 Yalamanchi, S. B. and Spedicato, G. A. (2015). Continuous time Markov
 chains. Vignette of the markovchain package.
@@ -82,6 +111,33 @@ Sai Bhargav Yalamanchi
 ## Examples
 
 ``` r
+data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"),
+             c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
+fit <- ctmcFit(data)
+fit$estimate
+#> An object of class "ctmc"
+#> Slot "states":
+#> [1] "a" "b" "c"
+#> 
+#> Slot "byrow":
+#> [1] TRUE
+#> 
+#> Slot "generator":
+#>            a          b          c
+#> a -0.9090909  0.6060606  0.3030303
+#> b  0.3225806 -0.9677419  0.6451613
+#> c  0.3846154  0.3846154 -0.7692308
+#> 
+#> Slot "name":
+#> [1] ""
+#> 
+fit$errors$lambdaConfidenceInterval
+#> $lowerEndpointVector
+#> [1] 0 0 0
+#> 
+#> $upperEndpointVector
+#> [1] 1.937805 2.062825 1.835311
+#> 
 data <- list(c("a", "b", "c", "a", "b", "a", "c", "b", "c"),
              c(0, 0.8, 2.1, 2.4, 4, 5, 5.9, 8.2, 9))
 fit <- ctmcFit(data)

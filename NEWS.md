@@ -1,3 +1,8 @@
+# 1.2.2
+
+- Fixed the CRAN noLD check failure (Additional issue reported by Prof. Ripley): `verifyMarkovProperty(method = "simulation")` now uses `expect_equal()` with tolerance `1e-12` instead of `expect_identical()` on R builds compiled with `--disable-long-double`, where `sum()` uses `double` precision while the C++ code accumulates in `long double`. The detection uses `capabilities("long.double")` at the R level. Normal builds are unaffected.
+- CI/CD: added a retry step for the Ghostscript install on Windows GitHub Actions runners, following the existing retry pattern for pandoc/quarto/tinytex, to work around transient Chocolatey failures.
+
 # 1.2.1
 
 - Added `fitFunction()`, which builds a Markov chain from a continuous transition kernel by quadrature (the Nystrom method, PyDTMC's `fit_function`), with Gauss-Legendre, Gauss-Chebyshev, Fejér, Gauss-Hermite, trapezoid, Simpson and midpoint rules, all with positive weights; the Gauss rules are computed with the Golub-Welsch algorithm. For the rules they share it gives the same matrices as PyDTMC 10.0.0 (whose `"gauss-chebyshev"` is Fejér's first rule). It returns the chain, the nodes and the weights, as `tauchen()` returns the chain and the grid.

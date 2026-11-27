@@ -208,6 +208,6 @@ verifyMarkovProperty(rain$rain, method = "simulation", B = 499, seed = 1)
 #>  Parametric Monte Carlo test (likelihood-ratio statistic)
 #> 
 #> data:  rain$rain
-#> G-squared = 25.837, df = 12, p-value = 0.008
+#> G-squared = 25.837, df = 12, p-value = 0.022
 #> 
 ```

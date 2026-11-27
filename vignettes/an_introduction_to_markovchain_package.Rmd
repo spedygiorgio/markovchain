@@ -1240,7 +1240,7 @@ $\pi$ fixed: this extension is specific to the package.
 
 For the weather chain the three answers differ:
 
-```{r closest-reversible-frobenius}
+```{r closest-reversible-frobenius, eval = requireNamespace("quadprog", quietly = TRUE)}
 weatherFrobenius <- closestReversible(mcWeather, norm = "frobenius")
 set.seed(2)
 weatherFree <- closestReversible(mcWeather, "free", norm = "frobenius")

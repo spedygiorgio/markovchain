@@ -89,7 +89,11 @@ test_that("simulation requires an outgoing transition for every state", {
 
 test_that("the C++ simulation reproduces the former R loop exactly", {
   # The R code that method = "simulation" used until version 1.2: one call
-  # to sample.int() per step and the G statistic computed in R.
+  # to sample.int() per step and the G statistic computed in R, with the
+  # triples indexed in forward (past, present, future) order as in
+  # verifyMarkovProperty(). That code exchanged the first and third
+  # dimensions, which left the statistic unchanged but simulated from the
+  # time-reversed chain; the order here is the corrected one.
   referenceSimulations <- function(sequence, B, seed) {
     states <- unique(sequence); r <- length(states); n <- length(sequence)
     idx <- match(sequence, states)

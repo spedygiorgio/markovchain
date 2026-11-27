@@ -115,6 +115,10 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
     stop("B must be a positive integer.")
   # Step 1: count triples (i, j, k) of consecutive observations in a 3D array Nijk;
   # `linear` converts each triple into one index of the array so tabulate() can count them quickly.
+  # The triple is (past, present, future) = (x_t, x_{t+1}, x_{t+2}): the past varies along the first
+  # dimension, as in the documentation and in markovStatistic() (src/markovPropertyTest.cpp). The
+  # statistic does not change if the first and third dimensions are exchanged (the exchange transposes
+  # Nij and Njk and leaves Nj unchanged), but `observed`, `expected` and the transition matrix P do.
   states <- unique(sequence); r <- length(states); n <- length(sequence)
   idx <- match(sequence, states)
   Nijk <- array(0L, dim = c(r, r, r), dimnames = list(states, states, states))

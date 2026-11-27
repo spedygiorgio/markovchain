@@ -93,8 +93,8 @@ test_that("the C++ simulation reproduces the former R loop exactly", {
   referenceSimulations <- function(sequence, B, seed) {
     states <- unique(sequence); r <- length(states); n <- length(sequence)
     idx <- match(sequence, states)
-    triples <- function(x) array(tabulate(x[-c(1L, 2L)] + (x[2:(n - 1L)] - 1L) * r +
-                                          (x[1:(n - 2L)] - 1L) * r * r, nbins = r^3L),
+    triples <- function(x) array(tabulate(x[1:(n - 2L)] + (x[2:(n - 1L)] - 1L) * r +
+                                          (x[-c(1L, 2L)] - 1L) * r * r, nbins = r^3L),
                                  dim = c(r, r, r))
     gStat <- function(N) {
       Nij <- apply(N, c(1L, 2L), sum); Njk <- apply(N, c(2L, 3L), sum); Nj <- rowSums(Njk)
@@ -157,4 +157,30 @@ test_that("a simulated sequence with the observed triple counts counts as a tie"
   expect_identical(unname(ans$statistic),
                    markovchain:::.markovPropertyStatisticRcpp(match(x, unique(x)), 2L, FALSE))
   expect_error(markovchain:::.markovPropertyStatisticRcpp(c(1L, 3L, 1L), 2L, FALSE), "codes")
+})
+
+test_that("verifyMarkovProperty indexes triples in forward (past, present, future) order", {
+  # Deterministic forward 3-cycle: a -> b -> c -> a -> ...
+  seq3 <- rep(c("a", "b", "c"), 3)
+  res <- verifyMarkovProperty(seq3, verbose = FALSE)
+
+  expected_P <- matrix(
+    c(0, 1, 0,
+      0, 0, 1,
+      1, 0, 0),
+    nrow = 3, byrow = TRUE,
+    dimnames = list(c("a", "b", "c"), c("a", "b", "c"))
+  )
+  expect_equal(res$transitionMatrix, expected_P)
+  expect_identical(res$observed["a", "b", "c"], 3L)
+  expect_identical(res$observed["b", "c", "a"], 2L)
+  expect_identical(res$observed["c", "a", "b"], 2L)
+  expect_identical(res$observed["c", "b", "a"], 0L)
+  expect_equal(res$expected["a", "b", "c"], 3)
+  expect_equal(res$expected["c", "b", "a"], 0)
+
+  # Simulation null uses the forward transition matrix
+  sim <- verifyMarkovProperty(seq3, method = "simulation", B = 19, seed = 1, verbose = FALSE)
+  expect_equal(sim$transitionMatrix, expected_P)
+  expect_identical(sim$observed["a", "b", "c"], 3L)
 })

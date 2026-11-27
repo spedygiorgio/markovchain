@@ -118,8 +118,8 @@ verifyMarkovProperty <- function(sequence, method = c("G", "Pearson", "simulatio
   states <- unique(sequence); r <- length(states); n <- length(sequence)
   idx <- match(sequence, states)
   Nijk <- array(0L, dim = c(r, r, r), dimnames = list(states, states, states))
-  linear <- idx[-c(1L, 2L)] + (idx[2:(n - 1L)] - 1L) * r +
-    (idx[1:(n - 2L)] - 1L) * r * r
+  linear <- idx[1:(n - 2L)] + (idx[2:(n - 1L)] - 1L) * r +
+    (idx[-c(1L, 2L)] - 1L) * r * r
   Nijk[] <- tabulate(linear, nbins = r^3L)
   # Marginals: Nij (pairs past-present), Njk (pairs present-future), Nj (times in state j with a future).
   Nij <- apply(Nijk, c(1L, 2L), sum); Njk <- apply(Nijk, c(2L, 3L), sum)

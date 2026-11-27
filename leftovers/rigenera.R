@@ -20,3 +20,8 @@ devtools::test(filter = "verifyMarkovProperty")   # un solo file
 # 6. Check in ambiente pulito
 devtools::check()                         # costruisce il tar.gz ed esegue R CMD check
 devtools::check(args = "--as-cran")       # più vicino a CRAN
+
+devtools::install()          # installa la 1.2.2 in D:/R_Libs
+packageVersion("markovchain")   # deve dare 1.2.2
+install.packages("quadprog")    # se non c'è già, serve alla vignetta Frobenius
+devtools::check()
